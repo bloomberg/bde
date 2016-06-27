@@ -243,9 +243,6 @@ union ObjectBuffer {
     // handles construction and destruction of the object contained within
     // that memory.
 
-    // PUBLIC TYPES
-    typedef TYPE Type;
-
   private:
     // Buffer correctly sized and aligned for object of type 'TYPE'.
     char                                   d_buffer[sizeof(TYPE)];

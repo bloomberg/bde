@@ -219,7 +219,79 @@ class Base {
     operator int() const { return d_data; }
 };
 
-typedef Base *BasePtr;
+class AlBase {
+    // Like 'Base', except it thinks it allocates.
+
+    // DATA
+    int              *d_data_p;
+    bslma::Allocator *d_allocator_p;
+
+  public:
+    // CREATORS
+    explicit
+    AlBase(bslma::Allocator *allocator = 0)
+    : d_allocator_p(bslma::Default::allocator(allocator))
+    {
+        d_data_p = new (*d_allocator_p) int(0);
+    }
+
+    explicit
+    AlBase(int data, bslma::Allocator *allocator = 0)
+    : d_allocator_p(bslma::Default::allocator(allocator))
+    {
+        d_data_p = new (*d_allocator_p) int(data);
+    }
+
+    AlBase(const AlBase& original, bslma::Allocator *allocator = 0)
+    : d_allocator_p(bslma::Default::allocator(allocator))
+    {
+        d_data_p = new (*d_allocator_p) int(*original.d_data_p);
+    }
+
+    ~AlBase()
+    {
+        d_allocator_p->deleteObjectRaw(d_data_p);
+    }
+
+    //! ~AlBase() = default;
+    //! AlBase& operator=(const AlBase&) = default;
+
+    // ACCESSORS
+    operator int() const { return *d_data_p; }
+
+    bslma::Allocator *allocator() const { return d_allocator_p; }
+};
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+class Node {
+    // This class is to test conversions from 'Node' to 'Base', which are
+    // implicit, but less implicit than conversions from 'Derived' to 'Base'.
+    // It turns out that in a C++03 move, a conversion from 'MovableRef<Node>'
+    // to 'Base' takes too many steps to work, while in a C++11 move, the
+    // conversion from 'Node&&' to 'Base' works, so everything involving 'Node'
+    // has to be conditionally compiled for C++11 only.
+
+    // DATA
+    int d_data;
+
+  public:
+    // CREATORS
+    Node() : d_data(0) {}
+    explicit
+    Node(int data) : d_data(data) {}
+    Node(const Node& original) :d_data(original.d_data) {}
+
+    //! ~Node() = default;
+    //! Node& operator=(const Node&) = default;
+
+    // ACCESSORS
+    int data() const { return d_data; }
+
+    operator Base() const { return Base(d_data); }
+};
+
+#endif
 
 struct Derived : public Base {
     // CREATORS
@@ -229,42 +301,30 @@ struct Derived : public Base {
     Derived(const Derived& original) : Base(original) {}
 };
 
-typedef Derived *DerivedPtr;
+struct AlDerived : public AlBase {
+    // CREATORS
+    explicit
+    AlDerived(bslma::Allocator *allocator = 0)
+    : AlBase(allocator)
+    {}
 
-}  // close namespace u
-}  // close unnamed namespace
+    explicit
+    AlDerived(int data, bslma::Allocator *allocator = 0)
+    : AlBase(data, allocator)
+    {}
 
-namespace BloombergLP {
-namespace bsltf {
-
-template <>
-inline
-int TemplateTestFacility::getIdentifier<u::BasePtr>(const u::BasePtr& ptr)
-{
-    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
-    return static_cast<int>(value);
-}
-
-template <>
-inline
-int TemplateTestFacility::getIdentifier<u::DerivedPtr>(
-                                                      const u::DerivedPtr& ptr)
-{
-    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
-    return static_cast<int>(value);
-}
-
-}  // close namespace bsltf
-}  // close enterprise namespace
-
-namespace {
-namespace u {
+    AlDerived(const Derived& original, bslma::Allocator *allocator = 0)
+    : AlBase(original, allocator)
+    {}
+};
 
 template <class TYPE, bool hasAllocatorAccessor =
                  bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
               || bsl::is_same<TYPE, bsltf::AllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
-              || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value>
+              || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
+              || bsl::is_same<TYPE, AlBase>::value
+              || bsl::is_same<TYPE, AlDerived>::value>
 struct AllocatorMatchesImp {
 };
 
@@ -297,13 +357,26 @@ bool allocatorMatches(const TYPE& object, bslma::Allocator *alloc)
     return AllocatorMatchesImp<TYPE>()(object, alloc);
 }
 
+template <class U, class V>
+bool allocatorMatches(const bsl::pair<U, V>& object, bslma::Allocator *alloc)
+{
+    return AllocatorMatchesImp<U>()(object.first,  alloc)
+        && AllocatorMatchesImp<V>()(object.second, alloc);
+}
+
+template <class TYPE>
+struct IsMoveAware : bsl::integral_constant<
+                      bool,
+                      bsl::is_same<TYPE, bsltf::MovableTestType>::value      ||
+                      bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value ||
+                      bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value>
+{};
+
 template <class TYPE>
 inline
 bool isMoveAware(const TYPE&)
 {
-    return bsl::is_same<TYPE, bsltf::MovableTestType>::value
-        || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
-        || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+    return IsMoveAware<TYPE>::value;
 }
 
 template <class TYPE>
@@ -383,10 +456,20 @@ int valueOf(const bsl::pair<U, V>& pr)
     return f + k_VALUE_SHIFT == s ? f : -1;
 }
 
-template <class OBJECTBUFFER_PAIR, class ALLOCATOR>
-typename OBJECTBUFFER_PAIR::Type& initPair(OBJECTBUFFER_PAIR  *buffer,
-                                           int                 value,
-                                           ALLOCATOR           alloc)
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <>
+int valueOf<Node>(const Node& node)
+{
+    return node.data();
+}
+
+#endif
+
+template <class PAIR, class ALLOCATOR>
+PAIR& initPair(bsls::ObjectBuffer<PAIR> *buffer,
+               int                       value,
+               ALLOCATOR                 alloc)
     // Note that the specified 'buffer' must be a pointer to an
     // 'bsls::ObjectBuffer<bsl::pair<U, V> >'.  Construct the 'first' and
     // 'second' fields of the pair in the specified 'buffer' according to the
@@ -415,8 +498,8 @@ struct PairGuard {
 
   private:
     // NOT IMPLEMENTED
-    PairGuard(const PAIR&);
-    PairGuard& operator=(const PAIR&);
+    PairGuard(const PairGuard&);
+    PairGuard& operator=(const PairGuard&);
 
   public:
     // CREATORS
@@ -444,39 +527,15 @@ struct PairGuard {
     }
 };
 
-                        // -----------------
-                        // struct TypeBundle
-                        // -----------------
-
-template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
-struct TypeBundle {
-    // This 'struct' is a way of combining an arbitrary combination of two
-    // 'pair' types into a single type, suitable for passing to
-    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.
-
-    typedef TO_FIRST                           ToFirst;
-    typedef TO_SECOND                          ToSecond;
-
-    typedef FROM_FIRST                         FromFirst;
-    typedef FROM_SECOND                        FromSecond;
-
-    typedef bsl::pair<TO_FIRST,   TO_SECOND>   ToPair;
-    typedef bsl::pair<FROM_FIRST, FROM_SECOND> FromPair;
-};
-
 }  // close namespace u
 }  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bslma {
-template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
-struct UsesBslmaAllocator<u::TypeBundle<TO_FIRST,   TO_SECOND,
-                                        FROM_FIRST, FROM_SECOND> > :
-             bsl::integral_constant<bool,
-                                    UsesBslmaAllocator<TO_FIRST>::value ||
-                                    UsesBslmaAllocator<TO_SECOND>::value ||
-                                    UsesBslmaAllocator<FROM_FIRST>::value ||
-                                    UsesBslmaAllocator<FROM_SECOND>::value> {};
+template <>
+struct UsesBslmaAllocator<u::AlBase> : bsl::true_type {};
+template <>
+struct UsesBslmaAllocator<u::AlDerived> : bsl::true_type {};
 }  // close namespace bslma
 }  // close enterprise namespace
 
@@ -495,6 +554,17 @@ void debugprint(const bsl::pair<FIRST, SECOND>& p)
     printf(")");
 }
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <class FIRST, class SECOND>
+inline
+void debugprint(const u::Node& node)
+{
+    bsls::BslTestUtil::callDebugprint(static_cast<char>(node.data()));
+}
+
+#endif
+
 template <class FIRST, class SECOND>
 inline
 void debugprint(const u::Base& base)
@@ -503,7 +573,7 @@ void debugprint(const u::Base& base)
                                                     TTF::getIdentifier(base)));
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
                 // ===========================================
                 // class my_String (supplied by Usage example)
@@ -712,7 +782,7 @@ class my_AllocArgString
     my_AllocArgString(bsl::allocator_arg_t, const ALLOC& a, const char* s);
     my_AllocArgString(bsl::allocator_arg_t,
                       const ALLOC&             a,
-                      const my_AllocArgString& rhs);
+                      const my_AllocArgString& str);
         // Construct a string using the specified 'a' allocator, following the
         // 'allocator_arg_t' construction protocol.
 
@@ -820,9 +890,9 @@ my_AllocArgString<ALLOC>::my_AllocArgString(bsl::allocator_arg_t,
 template <class ALLOC>
 my_AllocArgString<ALLOC>::my_AllocArgString(
                                     bsl::allocator_arg_t,
-                                    const ALLOC&                        a,
-                                    const my_AllocArgString<ALLOC>& rhs)
-    : d_alloc(a), d_data(myStrDup(rhs.c_str(), &d_alloc))
+                                    const ALLOC&                    a,
+                                    const my_AllocArgString<ALLOC>& str)
+    : d_alloc(a), d_data(myStrDup(str.c_str(), &d_alloc))
 {
 }
 
@@ -937,13 +1007,16 @@ char *my_STLCharAlloc::allocate(size_type n)
 }
 
 inline
-void my_STLCharAlloc::deallocate(char* p, size_type /* n */)
+void my_STLCharAlloc::deallocate(char* p, size_type n)
 {
+    (void) n;    // silence unused warnings
+
     d_bslmaAlloc_p->deallocate(p);
 }
 
 inline
-bslma::Allocator *my_STLCharAlloc::mechanism() const {
+bslma::Allocator *my_STLCharAlloc::mechanism() const
+{
     return d_bslmaAlloc_p;
 }
 
@@ -988,9 +1061,11 @@ my_NoAllocString::my_NoAllocString()
 {
 }
 
-my_NoAllocString::my_NoAllocString(bslma::Allocator * /*alloc*/)
+my_NoAllocString::my_NoAllocString(bslma::Allocator *alloc)
     : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism())
 {
+    (void) alloc;    // silence unused warnings
+
     ASSERT("Shouldn't get here" && 0);
 }
 
@@ -999,9 +1074,11 @@ my_NoAllocString::my_NoAllocString(const char *s)
 {
 }
 
-my_NoAllocString::my_NoAllocString(const char *s, bslma::Allocator * /*alloc*/)
+my_NoAllocString::my_NoAllocString(const char *s, bslma::Allocator *alloc)
     : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), s)
 {
+    (void) alloc;    // silence unused warnings
+
     ASSERT("Shouldn't get here" && 0);
 }
 
@@ -1011,9 +1088,11 @@ my_NoAllocString::my_NoAllocString(const my_NoAllocString& original)
 }
 
 my_NoAllocString::my_NoAllocString(const my_NoAllocString&  original,
-                                   bslma::Allocator         * /*alloc*/)
+                                   bslma::Allocator        *alloc)
     : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), original)
 {
+    (void) alloc;    // silence unused warnings
+
     ASSERT("Shouldn't get here" && 0);
 }
 
@@ -1057,7 +1136,10 @@ struct my_NonTrivialBaseClass {
     // only if explicitly marked as trivial for the relevant 'bsl' trait.
 
     my_NonTrivialBaseClass(){}
-    my_NonTrivialBaseClass(const my_NonTrivialBaseClass&){}
+    my_NonTrivialBaseClass(const my_NonTrivialBaseClass& original)
+    {
+        (void) original;    // suppress unused warnings
+    }
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -1142,34 +1224,38 @@ class ManagedWrapper {
 
 namespace TypeWithSwapNamespace {
 
-    struct TypeWithSwap {
-        int data;
-        bool swapCalled;
+struct TypeWithSwap {
+    int data;
+    bool swapCalled;
 
-        explicit TypeWithSwap(int d)
-        : data(d)
-        , swapCalled(false)
-        {}
+    explicit TypeWithSwap(int d)
+    : data(d)
+    , swapCalled(false)
+    {}
 
-        bool operator==(const TypeWithSwap& rhs) const {
-            return data == rhs.data;
-        }
-
-        void swap(TypeWithSwap& other) {
-            std::swap(data, other.data);
-
-            // set the flag indicating that this function has been called
-            other.swapCalled = swapCalled = true;
-        }
-
-        void assertSwapCalled() const {
-            ASSERT(swapCalled);
-        }
-    };
-
-    void swap(TypeWithSwap& a, TypeWithSwap& b) {
-        a.swap(b);
+    bool operator==(const TypeWithSwap& rhs) const
+    {
+        return data == rhs.data;
     }
+
+    void swap(TypeWithSwap& other)
+    {
+        std::swap(data, other.data);
+
+        // set the flag indicating that this function has been called
+        other.swapCalled = swapCalled = true;
+    }
+
+    void assertSwapCalled() const
+    {
+        ASSERT(swapCalled);
+    }
+};
+
+void swap(TypeWithSwap& a, TypeWithSwap& b)
+{
+    a.swap(b);
+}
 }  // close namespace TypeWithSwapNamespace
 
                            // ======================
@@ -1185,15 +1271,18 @@ struct TypeWithoutSwap {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     // Nothrow moves needed so that std::swap doesn't get SFINAEd out.
-    TypeWithoutSwap(const TypeWithoutSwap&) noexcept = default;
+
+    TypeWithoutSwap(const TypeWithoutSwap& original) noexcept = default;
     TypeWithoutSwap& operator=(const TypeWithoutSwap&) noexcept = default;
 #endif
 
-    bool operator==(const TypeWithoutSwap& rhs) const {
+    bool operator==(const TypeWithoutSwap& rhs) const
+    {
         return data == rhs.data;
     }
 
-    void assertSwapCalled() const {
+    void assertSwapCalled() const
+    {
     }
 };
 
@@ -1634,10 +1723,12 @@ bool matchAllocator(const TYPE& v, bslma::Allocator *a)
 }
 
 template <class T1, class T2>
-void testFunctionality(bsl::false_type /* UsesBslmaAllocator */)
+void testFunctionality(bsl::false_type usesBslmaAllocator)
     // Test functionality of 'bsl::pair<T1,T2>', using only constructors that
     // don't taken a 'bslma::Allocator*' argument.
 {
+    (void) usesBslmaAllocator;    // silence unused warnings
+
     typedef bsl::pair<T1, T2> Obj;
     ASSERT((bsl::is_same<T1, typename Obj::first_type>::value));
     ASSERT((bsl::is_same<T2, typename Obj::second_type>::value));
@@ -1729,10 +1820,12 @@ void testFunctionality(bsl::false_type /* UsesBslmaAllocator */)
 }
 
 template <class T1, class T2>
-void testFunctionality(bsl::true_type /* UsesBslmaAllocator */)
+void testFunctionality(bsl::true_type usesBslmaAllocator)
     // Test functionality of 'bsl::pair<T1,T2>', with and without
     // explicitly-supplied 'bslma::Allocator*' constructor arguments.
 {
+    (void) usesBslmaAllocator;    // silence unused warnings
+
     // Test without explicit allocator
     testFunctionality<T1,T2>(bsl::false_type());
 
@@ -1802,54 +1895,76 @@ void testFunctionality(bsl::true_type /* UsesBslmaAllocator */)
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
-template <class BUNDLE_TYPE>
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 class TestDriver {
     // PRIVATE TYPES
-    typedef BUNDLE_TYPE BT;
+    typedef TO_FIRST                         ToFirst;
+    typedef TO_SECOND                        ToSecond;
 
-    typedef typename BT::ToFirst    ToFirst;
-    typedef typename BT::ToSecond   ToSecond;
+    typedef FROM_FIRST                       FromFirst;
+    typedef FROM_SECOND                      FromSecond;
 
-    typedef typename BT::FromFirst  FromFirst;
-    typedef typename BT::FromSecond FromSecond;
+    typedef bsl::pair<ToFirst,   ToSecond>   ToPair;
+    typedef bsl::pair<FromFirst, FromSecond> FromPair;
 
-    typedef typename BT::ToPair     ToPair;
-    typedef typename BT::FromPair   FromPair;
+    typedef bsl::integral_constant<
+                       bool,
+                       bslma::UsesBslmaAllocator<ToFirst   >::value ||
+                       bslma::UsesBslmaAllocator<ToSecond  >::value ||
+                       bslma::UsesBslmaAllocator<FromFirst >::value ||
+                       bslma::UsesBslmaAllocator<FromSecond>::value> UsesBslma;
+
+    enum { k_ALLOC_1 = bslma::UsesBslmaAllocator<ToFirst>::value,
+           k_ALLOC_2 = bslma::UsesBslmaAllocator<ToSecond>::value,
+
+           k_MOVE_1  = u::IsMoveAware<ToFirst>::value,
+           k_MOVE_2  = u::IsMoveAware<ToSecond>::value };
 
     // Organization of functions: It turns out that the c'tor for 'pair' only
     // takes an allocator argument if the members of 'pair' allocate memory,
     // so we have to write 2 versions of every test, one to call the c'tors
     // with an allocator and one to call them without.
     //
-    // So we do 3 functions for each test: one, passed a 'false_type, which
-    // expects nothing in the bundle to allocate, one, passed a 'true_type',
-    // which expects both pairs in the bundle to allocate, and one, passed
-    // no argument, which determines through template logic which of the
-    // other two functions needs to be called.
+    // So we do 3 functions for each test:
+    //: 1 one, passed a 'false_type, which expects nothing in the pairs to
+    //:   allocate
+    //: 2 one, passed a 'true_type', which expects the pairs to
+    //:   allocate, and
+    //: 3 one, passed no argument, which determines through template logic
+    //:   which of the other two functions needs to be called.
+    // Note that the types of the 2 pairs are set up so that if one of them
+    // allocates, both do.
 
   public:
     // MANIPULATOR
-    static void testCase10(bsl::false_type bundleAllocates);
-    static void testCase10(bsl::true_type  bundleAllocates);
+    static void testCase11(bsl::false_type pairAllocates);
+    static void testCase11(bsl::true_type  pairAllocates);
+    static void testCase11();
+        // Testing constructors where one element is moved and the other
+        // copied.  Also, testing both elements copied, and testing the whole
+        // pair copied as a unit.  Must be separate from TC 10 as this cannot
+        // handle the move only type.
+
+    static void testCase10(bsl::false_type pairAllocates);
+    static void testCase10(bsl::true_type  pairAllocates);
     static void testCase10();
         // Testing move constructors moving the two elements of the pair into
         // the c'tor separately.
 
-    static void testCase9(bsl::false_type bundleAllocates);
-    static void testCase9(bsl::true_type  bundleAllocates);
+    static void testCase9(bsl::false_type pairAllocates);
+    static void testCase9(bsl::true_type  pairAllocates);
     static void testCase9();
-        // Testing pair to pair move constructors with different type pairs,
-        // where the 'pairAllocates' type indicates whether 'BUNDLE_TYPE' uses
-        // 'bslma::Allocator'.  The function with no args is the top level
-        // function to be called for all bundles, and it calls one of the other
-        // two depending on the memory allocation behavior of the bundle.
+        // Testing pair to pair move c'tors.
 };
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase10(bsl::false_type)
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase11(
+                                                               bsl::false_type)
 {
-    if (veryVerbose) printf("testCase10 for type %s, no alloc\n",
-                            NameOf<BUNDLE_TYPE>().name());
+    if (veryVerbose) printf("TD<%s, %s>::case11, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::TestAllocator da(veryVeryVeryVerbose);
@@ -1861,12 +1976,424 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::false_type)
         u::PairGuard<FromPair> fpg(&fp);
 
         ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('A' == u::valueOf(fp));
+
+        const ToPair tp(fp.first, MoveUtil::move(fp.second));
+
+        ASSERT(u::isNotMovedFrom(fp.first));
+        ASSERT(u::isNotMovedInto(fp.first));
+        ASSERT(u::isMovedFrom(   fp.second));
+        ASSERT(u::isNotMovedInto(fp.second));
+        ASSERT(u::isNotMovedInto(tp.first));
+        ASSERT(u::isNotMovedFrom(tp.first));
+        ASSERT(u::isMovedInto(   tp.second));
+        ASSERT(u::isNotMovedFrom(tp.second));
+
+        ASSERT('A' == u::valueOf(tp));
+
+        fpg.destroy();
+        u::initPair(&ofp, 'B', &ta);
+        ASSERT('B' == u::valueOf(fp));
+
+        const ToPair tpa(MoveUtil::move(fp.first), fp.second);
+
+        ASSERT(u::isMovedFrom(   fp.first));
+        ASSERT(u::isNotMovedInto(fp.first));
+        ASSERT(u::isNotMovedFrom(fp.second));
+        ASSERT(u::isNotMovedInto(fp.second));
+        ASSERT(u::isMovedInto(   tpa.first));
+        ASSERT(u::isNotMovedFrom(tpa.first));
+        ASSERT(u::isNotMovedInto(tpa.second));
+        ASSERT(u::isNotMovedFrom(tpa.second));
+
+        ASSERT('B' == u::valueOf(tpa));
+
+        fpg.destroy();
+        u::initPair(&ofp, 'C', &ta);
+        ASSERT('C' == u::valueOf(fp));
+
+        const ToPair tpb(fp.first, fp.second);
+
+        ASSERT(u::isNotMovedFrom(fp.first));
+        ASSERT(u::isNotMovedInto(fp.first));
+        ASSERT(u::isNotMovedFrom(fp.second));
+        ASSERT(u::isNotMovedInto(fp.second));
+        ASSERT(u::isNotMovedInto(tpb.first));
+        ASSERT(u::isNotMovedFrom(tpb.first));
+        ASSERT(u::isNotMovedInto(tpb.second));
+        ASSERT(u::isNotMovedFrom(tpb.second));
+
+        ASSERT('C' == u::valueOf(tpb));
+
+        fpg.destroy();
+        u::initPair(&ofp, 'D', &ta);
+        ASSERT('D' == u::valueOf(fp));
+
+        const ToPair tpc(fp);
+
+        ASSERT(u::isNotMovedFrom(fp.first));
+        ASSERT(u::isNotMovedInto(fp.first));
+        ASSERT(u::isNotMovedFrom(fp.second));
+        ASSERT(u::isNotMovedInto(fp.second));
+        ASSERT(u::isNotMovedInto(tpc.first));
+        ASSERT(u::isNotMovedFrom(tpc.first));
+        ASSERT(u::isNotMovedInto(tpc.second));
+        ASSERT(u::isNotMovedFrom(tpc.second));
+
+        ASSERT('D' == u::valueOf(tpc));
+
+    }
+
+    ASSERT(0 == ta.numAllocations());
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase11(
+                                                                bsl::true_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case11, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    Int64 numDeliberateDefaultAllocs = 0;
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'A', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('A' == u::valueOf(fp));
+
+        {
+            const ToPair tp(fp.first, MoveUtil::move(fp.second));
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isMovedFrom(   fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tp.first));
+            ASSERT(u::isNotMovedFrom(tp.first));
+            ASSERT(u::isMovedInto(   tp.second));
+            ASSERT(u::isNotMovedFrom(tp.second));
+
+            ASSERT(u::allocatorMatches(tp.first,  &da));
+            ASSERT(u::allocatorMatches(tp.second, k_MOVE_2 ? &ta : &da));
+
+            ASSERT('A' == u::valueOf(tp));
+
+            numDeliberateDefaultAllocs = da.numAllocations();
+            ASSERTV(NameOf<ToPair>(), k_ALLOC_1, k_ALLOC_2, k_MOVE_2,
+                                                    numDeliberateDefaultAllocs,
+                                  (k_ALLOC_1 || (k_ALLOC_2 && !k_MOVE_2) ==
+                                            (0 < numDeliberateDefaultAllocs)));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'B', &ta);
+        ASSERT('B' == u::valueOf(fp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('B' == u::valueOf(fp));
+
+        {
+            const ToPair tp(MoveUtil::move(fp.first), fp.second);
+
+            ASSERT(u::isMovedFrom(   fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isMovedInto(   tp.first));
+            ASSERT(u::isNotMovedFrom(tp.first));
+            ASSERT(u::isNotMovedInto(tp.second));
+            ASSERT(u::isNotMovedFrom(tp.second));
+
+            ASSERT(u::allocatorMatches(tp.first,  k_MOVE_1 ? &ta : &da));
+            ASSERT(u::allocatorMatches(tp.second, &da));
+
+            ASSERT('B' == u::valueOf(tp));
+
+            const Int64 deltaAllocs = da.numAllocations() -
+                                                    numDeliberateDefaultAllocs;
+            numDeliberateDefaultAllocs = da.numAllocations();
+            ASSERTV(NameOf<ToPair>(), k_ALLOC_1, k_MOVE_1, k_ALLOC_2,
+                                                                   deltaAllocs,
+                 ((k_ALLOC_1 && !k_MOVE_1) || k_ALLOC_2) == (0 < deltaAllocs));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'C', &ta);
+        ASSERT('C' == u::valueOf(fp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('C' == u::valueOf(fp));
+
+        {
+            const ToPair tpa(MoveUtil::move(fp.first),
+                             fp.second,
+                             &ta);
+
+            ASSERT(u::isMovedFrom(   fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isMovedInto(   tpa.first));
+            ASSERT(u::isNotMovedFrom(tpa.first));
+            ASSERT(u::isNotMovedInto(tpa.second));
+            ASSERT(u::isNotMovedFrom(tpa.second));
+
+            ASSERT(u::allocatorMatches(tpa.first,  &ta));
+            ASSERT(u::allocatorMatches(tpa.second, &ta));
+
+            ASSERT('C' == u::valueOf(tpa));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'D', &ta);
+        ASSERT('D' == u::valueOf(fp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('D' == u::valueOf(fp));
+
+        {
+            const ToPair tpa(fp.first,
+                             MoveUtil::move(fp.second),
+                             &ta);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isMovedFrom(   fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpa.first));
+            ASSERT(u::isNotMovedFrom(tpa.first));
+            ASSERT(u::isMovedInto(   tpa.second));
+            ASSERT(u::isNotMovedFrom(tpa.second));
+
+            ASSERT(u::allocatorMatches(tpa.first,  &ta));
+            ASSERT(u::allocatorMatches(tpa.second, &ta));
+
+            ASSERT('D' == u::valueOf(tpa));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'E', &ta);
+        ASSERT('E' == u::valueOf(fp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('E' == u::valueOf(fp));
+
+        {
+            const ToPair tpa(fp.first,
+                             fp.second,
+                             &ta);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpa.first));
+            ASSERT(u::isNotMovedFrom(tpa.first));
+            ASSERT(u::isNotMovedInto(tpa.second));
+            ASSERT(u::isNotMovedFrom(tpa.second));
+
+            ASSERT(u::allocatorMatches(tpa.first,  &ta));
+            ASSERT(u::allocatorMatches(tpa.second, &ta));
+
+            ASSERT('E' == u::valueOf(tpa));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'F', &ta);
+        ASSERT('F' == u::valueOf(fp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+        ASSERT('F' == u::valueOf(fp));
+
+        {
+            const ToPair tpa(fp, &ta);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpa.first));
+            ASSERT(u::isNotMovedFrom(tpa.first));
+            ASSERT(u::isNotMovedInto(tpa.second));
+            ASSERT(u::isNotMovedFrom(tpa.second));
+
+            ASSERT(u::allocatorMatches(tpa.first,  &ta));
+            ASSERT(u::allocatorMatches(tpa.second, &ta));
+
+            ASSERT('F' == u::valueOf(tpa));
+        }
+
+
+        fpg.destroy();
+        u::initPair(&ofp, 'G', &ta);
+        ASSERT('G' == u::valueOf(fp));
+
+        {
+            const ToPair tpb(MoveUtil::move(fp.first),
+                             fp.second,
+                             &tb);
+
+            ASSERT(u::isMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isMovedInto(tpb.first));
+            ASSERT(u::isNotMovedFrom(tpb.first));
+            ASSERT(u::isNotMovedInto(tpb.second));
+            ASSERT(u::isNotMovedFrom(tpb.second));
+
+            ASSERT(u::allocatorMatches(tpb.first,  &tb));
+            ASSERT(u::allocatorMatches(tpb.second, &tb));
+
+            ASSERT('G' == u::valueOf(tpb));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'H', &ta);
+        ASSERT('H' == u::valueOf(fp));
+
+        {
+            const ToPair tpb(fp.first,
+                             MoveUtil::move(fp.second),
+                             &tb);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isMovedFrom(   fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpb.first));
+            ASSERT(u::isNotMovedFrom(tpb.first));
+            ASSERT(u::isMovedInto(   tpb.second));
+            ASSERT(u::isNotMovedFrom(tpb.second));
+
+            ASSERT(u::allocatorMatches(tpb.first,  &tb));
+            ASSERT(u::allocatorMatches(tpb.second, &tb));
+
+            ASSERT('H' == u::valueOf(tpb));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'I', &ta);
+        ASSERT('I' == u::valueOf(fp));
+
+        {
+            const ToPair tpb(fp.first,
+                             fp.second,
+                             &tb);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpb.first));
+            ASSERT(u::isNotMovedFrom(tpb.first));
+            ASSERT(u::isNotMovedInto(tpb.second));
+            ASSERT(u::isNotMovedFrom(tpb.second));
+
+            ASSERT(u::allocatorMatches(tpb.first,  &tb));
+            ASSERT(u::allocatorMatches(tpb.second, &tb));
+
+            ASSERT('I' == u::valueOf(tpb));
+        }
+
+        fpg.destroy();
+        u::initPair(&ofp, 'J', &ta);
+        ASSERT('J' == u::valueOf(fp));
+
+        {
+            const ToPair tpb(fp, &tb);
+
+            ASSERT(u::isNotMovedFrom(fp.first));
+            ASSERT(u::isNotMovedInto(fp.first));
+            ASSERT(u::isNotMovedFrom(fp.second));
+            ASSERT(u::isNotMovedInto(fp.second));
+            ASSERT(u::isNotMovedInto(tpb.first));
+            ASSERT(u::isNotMovedFrom(tpb.first));
+            ASSERT(u::isNotMovedInto(tpb.second));
+            ASSERT(u::isNotMovedFrom(tpb.second));
+
+            ASSERT(u::allocatorMatches(tpb.first,  &tb));
+            ASSERT(u::allocatorMatches(tpb.second, &tb));
+
+            ASSERT('J' == u::valueOf(tpb));
+        }
+    }
+
+    ASSERT(0 <  ta.numAllocations());
+    ASSERT(0 <  tb.numAllocations());
+    ASSERT(da.numAllocations() == numDeliberateDefaultAllocs);
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase11()
+{
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
+
+    testCase11(UsesBslma());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10(
+                                                               bsl::false_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case10, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'A', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
         ASSERT('A' == u::valueOf(fp));
 
         const ToPair tp(MoveUtil::move(fp.first), MoveUtil::move(fp.second));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tp));
+        ASSERT(u::isNotMovedFrom(tp));
 
         ASSERT('A' == u::valueOf(tp));
 
@@ -1876,8 +2403,10 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::false_type)
 
         const ToPair tpa(MoveUtil::move(fp.first), MoveUtil::move(fp.second));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpa));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpa));
+        ASSERT(u::isNotMovedFrom(tpa));
 
         ASSERT('B' == u::valueOf(tpa));
 
@@ -1887,8 +2416,10 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::false_type)
 
         const ToPair tpb(MoveUtil::move(fp.first), MoveUtil::move(fp.second));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpb));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpb));
+        ASSERT(u::isNotMovedFrom(tpb));
 
         ASSERT('C' == u::valueOf(tpb));
     }
@@ -1897,11 +2428,13 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::false_type)
     ASSERT(0 == da.numAllocations());
 }
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10(
+                                                                bsl::true_type)
 {
-    if (veryVerbose) printf("testCase10 for type %s, alloc\n",
-                            NameOf<BUNDLE_TYPE>().name());
+    if (veryVerbose) printf("TD<%s, %s>::case10, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -1921,23 +2454,23 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
 
         const ToPair tp(MoveUtil::move(fp.first), MoveUtil::move(fp.second));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tp));
+        ASSERT(u::isNotMovedFrom(tp));
 
-        const bool move1 = u::isMoveAware(tp.first);
-        const bool move2 = u::isMoveAware(tp.second);
-
-        ASSERT(u::allocatorMatches(tp.first,  move1 ? &ta : &da));
-        ASSERT(u::allocatorMatches(tp.second, move2 ? &ta : &da));
+        ASSERT(u::allocatorMatches(tp.first,  k_MOVE_1 ? &ta : &da));
+        ASSERT(u::allocatorMatches(tp.second, k_MOVE_2 ? &ta : &da));
 
         ASSERT('A' == u::valueOf(tp));
 
         numDeliberateDefaultAllocs = da.numAllocations();
-        ASSERTV(NameOf<BT>(), move1, move2, numDeliberateDefaultAllocs,
-                        !(move1 || move2) == (0 < numDeliberateDefaultAllocs));
+        ASSERTV(NameOf<ToPair>(), k_MOVE_1, k_MOVE_2,
+                                                    numDeliberateDefaultAllocs,
+                      ((k_ALLOC_1 && !k_MOVE_1) || (k_ALLOC_2 && !k_MOVE_2)) ==
+                                             (0 < numDeliberateDefaultAllocs));
 
         fpg.destroy();
-
         u::initPair(&ofp, 'B', &ta);
         ASSERT('B' == u::valueOf(fp));
 
@@ -1945,8 +2478,10 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
                          MoveUtil::move(fp.second),
                          &ta);
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpa));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpa));
+        ASSERT(u::isNotMovedFrom(tpa));
 
         ASSERT(u::allocatorMatches(tpa.first,  &ta));
         ASSERT(u::allocatorMatches(tpa.second, &ta));
@@ -1961,8 +2496,10 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
                          MoveUtil::move(fp.second),
                          &tb);
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpb));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpb));
+        ASSERT(u::isNotMovedFrom(tpb));
 
         ASSERT(u::allocatorMatches(tpb.first,  &tb));
         ASSERT(u::allocatorMatches(tpb.second, &tb));
@@ -1972,7 +2509,7 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
 
     if (bsl::is_same<ToFirst, ToSecond>::value) {
         // TBD: clearly the following is just a simple test to ensure that the
-        // lvalue references to const and non-const values are begin processed
+        // lvalue references to const and non-const values are being processed
         // correctly.
 
         {
@@ -2001,19 +2538,22 @@ void TestDriver<BUNDLE_TYPE>::testCase10(bsl::true_type)
     ASSERT(da.numAllocations() == numDeliberateDefaultAllocs);
 }
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase10()
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10()
 {
-    // Dispatch depending on whether anything in the bundle allocates memory.
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
 
-    testCase10(bslma::UsesBslmaAllocator<BUNDLE_TYPE>());
+    testCase10(UsesBslma());
 }
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase9(bsl::false_type)
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase9(
+                                                               bsl::false_type)
 {
-    if (veryVerbose) printf("testCase9 for type %s, no alloc\n",
-                            NameOf<BUNDLE_TYPE>().name());
+    if (veryVerbose) printf("TD<%s, %s>::case9, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::TestAllocator da(veryVeryVeryVerbose);
@@ -2029,8 +2569,10 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::false_type)
 
         const ToPair tp(MoveUtil::move(fp));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tp));
+        ASSERT(u::isNotMovedFrom(tp));
 
         ASSERT('A' == u::valueOf(tp));
 
@@ -2040,8 +2582,10 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::false_type)
 
         const ToPair tpa(MoveUtil::move(fp));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpa));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpa));
+        ASSERT(u::isNotMovedFrom(tpa));
 
         ASSERT('B' == u::valueOf(tpa));
 
@@ -2051,8 +2595,10 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::false_type)
 
         const ToPair tpb(MoveUtil::move(fp));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpb));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpb));
+        ASSERT(u::isNotMovedFrom(tpb));
 
         ASSERT('C' == u::valueOf(tpb));
     }
@@ -2061,11 +2607,13 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::false_type)
     ASSERT(0 == da.numAllocations());
 }
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase9(bsl::true_type)
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase9(
+bsl::true_type)
 {
-    if (veryVerbose) printf("testCase9 for type %s, alloc\n",
-                            NameOf<BUNDLE_TYPE>().name());
+    if (veryVerbose) printf("TD<%s, %s>::case9, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -2085,20 +2633,21 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::true_type)
 
         const ToPair tp(MoveUtil::move(fp));
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tp));
+        ASSERT(u::isNotMovedFrom(tp));
 
-        const bool move1 = u::isMoveAware(tp.first);
-        const bool move2 = u::isMoveAware(tp.second);
-
-        ASSERT(u::allocatorMatches(tp.first,  move1 ? &ta : &da));
-        ASSERT(u::allocatorMatches(tp.second, move2 ? &ta : &da));
+        ASSERT(u::allocatorMatches(tp.first,  k_MOVE_1 ? &ta : &da));
+        ASSERT(u::allocatorMatches(tp.second, k_MOVE_2 ? &ta : &da));
 
         ASSERT('A' == u::valueOf(tp));
 
         numDeliberateDefaultAllocs = da.numAllocations();
-        ASSERTV(NameOf<BT>(), move1, move2, numDeliberateDefaultAllocs,
-                        !(move1 || move2) == (0 < numDeliberateDefaultAllocs));
+        ASSERTV(NameOf<ToPair>(), k_MOVE_1, k_MOVE_2,
+                                                    numDeliberateDefaultAllocs,
+                      ((k_ALLOC_1 && !k_MOVE_1) || (k_ALLOC_2 && !k_MOVE_2)) ==
+                                             (0 < numDeliberateDefaultAllocs));
 
         fpg.destroy();
 
@@ -2107,8 +2656,10 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::true_type)
 
         const ToPair tpa(MoveUtil::move(fp), &ta);
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpa));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpa));
+        ASSERT(u::isNotMovedFrom(tpa));
 
         ASSERT(u::allocatorMatches(tpa.first,  &ta));
         ASSERT(u::allocatorMatches(tpa.second, &ta));
@@ -2121,8 +2672,10 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::true_type)
 
         const ToPair tpb(MoveUtil::move(fp), &tb);
 
-        ASSERT(u::isMovedFrom(fp));
-        ASSERT(u::isMovedInto(tpb));
+        ASSERT(u::isMovedFrom(   fp));
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedInto(   tpb));
+        ASSERT(u::isNotMovedFrom(tpb));
 
         ASSERT(u::allocatorMatches(tpb.first,  &tb));
         ASSERT(u::allocatorMatches(tpb.second, &tb));
@@ -2135,37 +2688,86 @@ void TestDriver<BUNDLE_TYPE>::testCase9(bsl::true_type)
     ASSERT(da.numAllocations() == numDeliberateDefaultAllocs);
 }
 
-template <class BUNDLE_TYPE>
-void TestDriver<BUNDLE_TYPE>::testCase9()
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase9()
 {
-    // Dispatch depending on whether anything in the bundle allocates memory.
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
 
-    testCase9(bslma::UsesBslmaAllocator<BUNDLE_TYPE>());
+    testCase9(UsesBslma());
 }
 
 template <class TYPE>
 struct MetaTestDriver {
-    typedef u::TypeBundle<TYPE,    TYPE,    TYPE,       TYPE      > Bundle00;
-    typedef u::TypeBundle<TYPE,    u::Base, TYPE,       u::Derived> Bundle01;
-    typedef u::TypeBundle<u::Base, TYPE,    u::Derived, TYPE      > Bundle10;
-    typedef u::TypeBundle<u::Base, u::Base, u::Derived, u::Derived> Bundle11;
+    typedef TestDriver<TYPE,      TYPE,      TYPE,         TYPE        > Dr00;
 
+    typedef TestDriver<TYPE,      u::Base,   TYPE,         u::Derived  > Dr01;
+    typedef TestDriver<u::Base,   TYPE,      u::Derived,   TYPE        > Dr10;
+    typedef TestDriver<u::Base,   u::Base,   u::Derived,   u::Derived  > Dr11;
+
+    typedef TestDriver<TYPE,      u::AlBase, TYPE,         u::AlDerived> Dr0a;
+    typedef TestDriver<u::AlBase, TYPE,      u::AlDerived, TYPE       >  Dra0;
+    typedef TestDriver<u::AlBase, u::AlBase, u::AlDerived, u::AlDerived> Draa;
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+    typedef TestDriver<TYPE,    u::Base, TYPE,       u::Node   > Dr0n;
+    typedef TestDriver<u::Base, TYPE,    u::Node,    TYPE      > Drn0;
+    typedef TestDriver<u::Base, u::Base, u::Node,    u::Node   > Drnn;
+
+#endif
+
+    static void testCase11();
     static void testCase10();
     static void testCase9();
 };
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 #define u_META_FUNCTION(funcName)                                             \
 template <class TYPE>                                                         \
 void MetaTestDriver<TYPE>::funcName()                                         \
 {                                                                             \
-    TestDriver<Bundle00>::funcName();                                         \
-    TestDriver<Bundle01>::funcName();                                         \
-    TestDriver<Bundle10>::funcName();                                         \
+    Dr00::funcName();                                                         \
+                                                                              \
+    Dr01::funcName();                                                         \
+    Dr10::funcName();                                                         \
+                                                                              \
+    Dr0a::funcName();                                                         \
+    Dra0::funcName();                                                         \
+                                                                              \
+    Dr0n::funcName();                                                         \
+    Drn0::funcName();                                                         \
+                                                                              \
     if (bsl::is_same<TYPE, signed char>::value) {                             \
-        TestDriver<Bundle11>::funcName();                                     \
+        Dr11::funcName();                                                     \
+        Drnn::funcName();                                                     \
     }                                                                         \
 }
 
+#else
+
+#define u_META_FUNCTION(funcName)                                             \
+template <class TYPE>                                                         \
+void MetaTestDriver<TYPE>::funcName()                                         \
+{                                                                             \
+    Dr00::funcName();                                                         \
+                                                                              \
+    Dr01::funcName();                                                         \
+    Dr10::funcName();                                                         \
+                                                                              \
+    Dr0a::funcName();                                                         \
+    Dra0::funcName();                                                         \
+                                                                              \
+    if (bsl::is_same<TYPE, signed char>::value) {                             \
+        Dr11::funcName();                                                     \
+        Draa::funcName();                                                     \
+    }                                                                         \
+}
+
+#endif
+
+u_META_FUNCTION(testCase11)
 u_META_FUNCTION(testCase10)
 u_META_FUNCTION(testCase9)
 
@@ -2192,7 +2794,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2215,7 +2817,7 @@ int main(int argc, char *argv[])
         usageExample();
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // BREATHING TEST for
         //
@@ -2270,7 +2872,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // BREATHING TEST for
         //
@@ -2330,7 +2932,7 @@ int main(int argc, char *argv[])
                 || MovState::e_UNKNOWN == miState);
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // BREATHING TEST for
         //
@@ -2423,9 +3025,30 @@ int main(int argc, char *argv[])
             //    || MovState::e_UNKNOWN == miState);
         }
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE CONSTRUCTOR WITH ONE ELEMENT MOVED, ONE COPIED
+        //
+        // template <class U1, class U2> pair(U1&& a, const U2& b);
+        // template <class U1, class U2> pair(const U1& a, U2&& b);
+        // template <class U1, class U2> pair(const U1& a, U2&& b, Alloc a);
+        // template <class U1, class U2> pair(U1&& a, const U2& b, Alloc a);
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase11,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase11,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+        // Cannot do 'bsltf::MoveOnlyAllocTestType' -- need copy c'tor.
+      } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BREATHING TEST for
+        // TESTING MOVE CONSTRUCTOR WITH 2 INDEPENDENTLY MOVED ELEMENTS
         //
         // template <class U1, class U2> pair(U1&& a, U2&& b);
         // template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
@@ -2443,7 +3066,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTOR FOR DIFFERENT TYPE PAIR
+        // TESTING MOVE CONSTRUCTOR FOR DIFFERENT TYPE / SAME TYPE PAIR
         //
         //   template <class U1, class U2> pair(pair<U1, U2>&&)
         //   template <class U1, class U2> pair(pair<U1, U2>&&, AllocatorPtr)
