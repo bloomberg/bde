@@ -14296,6 +14296,14 @@ int main(int argc, char *argv[])
         }
         if (verbose) P(myLst);
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        citer = myLst.insert(succ(myLst.begin(), 2), { 'd', 'e', 'f'});
+        ASSERT('d' == *citer);    ASSERT(succ(myLst.begin(), 2) == citer);
+        ASSERT(7 == myLst.size());
+
+        ASSERT(list<char>({'z', 'a', 'd', 'e', 'f', 'a', 'a'}) == myLst);
+#endif
+
         list<list<char> > vv;
         vv.push_front(myLst);
         if (verbose) P(myLst);

@@ -162,6 +162,8 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(p1, rv)                                   | O(1)               |
 //  +----------------------------------------------------+--------------------+
+//  | a.insert(p1, {init-list})                          | O(n)               |
+//  +----------------------------------------------------+--------------------|
 //  | a.erase(p1)                                        | O(1)               |
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1, p2)                                    | O(distance(p1, p2))|
@@ -1792,6 +1794,16 @@ class list {
 
         return ret;
     }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    iterator insert(const_iterator                    dstPosition,
+                    std::initializer_list<value_type> values);
+        // Insert the contents of the specified initializer list 'values' into
+        // this list before the specified 'dstPosition', and return an iterator
+        // to the first element in the inserted sequence or 'dstPosition' if
+        // the range is empty.  The elements of 'values' will appear in the
+        // list in the order in which they appear in 'values'.
+#endif
 
                           // *** list operations ***
 
@@ -3972,6 +3984,16 @@ list<VALUE, ALLOCATOR>::insert(const_iterator position,
 
     return ret;
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class VALUE, class ALLOCATOR>
+typename list<VALUE, ALLOCATOR>::iterator
+list<VALUE, ALLOCATOR>::insert(const_iterator               position,
+                               std::initializer_list<VALUE> values)
+{
+    return insert(position, values.begin(), values.end());
+}
+#endif
 
                           // *** list operations ***
 
