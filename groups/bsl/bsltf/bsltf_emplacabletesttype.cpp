@@ -17,6 +17,7 @@ EmplacableTestType::EmplacableTestType(ArgType01 a01)
 : d_a01(a01)
 {
 }
+
 EmplacableTestType::EmplacableTestType(ArgType01 a01, ArgType02 a02)
 : d_a01(a01)
 , d_a02(a02)

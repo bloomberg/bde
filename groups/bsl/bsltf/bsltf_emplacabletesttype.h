@@ -22,16 +22,26 @@ BSLS_IDENT("$Id: $")
 // 'EmplacableTestType', that is used to ensure that arguments are forwarded
 // correctly to functions and methods taking an arbitrary number of arguments.
 //
-//
-// TBD: fix this up
 ///Attributes
 ///----------
 //..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
+//  Name     Type                      Default
+//  -------  ------------------------  -------
+//  d_a01    bsltf::ArgumentType< 1>   -1
+//  d_a02    bsltf::ArgumentType< 2>   -1
+//  d_a03    bsltf::ArgumentType< 3>   -1
+//  d_a04    bsltf::ArgumentType< 4>   -1
+//  d_a05    bsltf::ArgumentType< 5>   -1
+//  d_a06    bsltf::ArgumentType< 6>   -1
+//  d_a07    bsltf::ArgumentType< 7>   -1
+//  d_a08    bsltf::ArgumentType< 8>   -1
+//  d_a09    bsltf::ArgumentType< 9>   -1
+//  d_a10    bsltf::ArgumentType<10>   -1
+//  d_a11    bsltf::ArgumentType<11>   -1
+//  d_a12    bsltf::ArgumentType<12>   -1
+//  d_a13    bsltf::ArgumentType<13>   -1
+//  d_a14    bsltf::ArgumentType<14>   -1
 //..
-//: o 'data': representation of the class value
 //
 ///Usage
 ///-----
@@ -58,11 +68,11 @@ namespace bsltf {
 
 class EmplacableTestType {
     // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
+    // passed for creating an object with an in-place representation are of the
+    // correct types and values.
 
   public:
-    // TYPEDEFS
+    // PUBLIC TYPES
     typedef bsltf::ArgumentType< 1> ArgType01;
     typedef bsltf::ArgumentType< 2> ArgType02;
     typedef bsltf::ArgumentType< 3> ArgType03;
@@ -95,7 +105,7 @@ class EmplacableTestType {
     ArgType13 d_a13;
     ArgType14 d_a14;
 
-    // DATA
+    // CLASS DATA
     static int s_numDeletes;
         // Track number of times the destructor is called.
 
@@ -224,8 +234,8 @@ class EmplacableTestType {
     // ACCESSORS
     bool isEqual(const EmplacableTestType& rhs) const;
         // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'EmplacableTestType' objects have
-        // the same value if each of their corresponding data members
+        // object, and 'false' otherwise.  Two 'EmplacableTestType' objects
+        // have the same value if each of their corresponding data members
         // 'd1'..'d14' have the same value.
 
     const ArgType01& arg01() const;
@@ -256,21 +266,17 @@ bool operator==(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
 
 bool operator!=(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'EmplacableTestType' objects have
-    // the same value if each of their corresponding data members 'd1'..'d14'
-    // have the same value.
+    // same value, and 'false' otherwise.  Two 'EmplacableTestType' objects do
+    // not have the same value if any of their corresponding data members
+    // 'd1'..'d14' do not have the same value.
 
 // ============================================================================
-//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------
                         // class EmplacableTestType
                         // ------------------------
-
-// CREATORS
-// MANIPULATORS
-
 
 // ACCESSORS
 inline

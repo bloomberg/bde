@@ -3,7 +3,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_destructorproctor.h>
+#include <bslma_destructorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
@@ -17,6 +17,8 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <cstring>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -40,49 +42,49 @@ using namespace BloombergLP::bsltf;
 //                              --------
 // TBD:
 // Global Concerns:
-//: o No memory is every allocated from this component.
+//: o No memory is ever allocated from this component.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [  ] EmplacableTestType();
-// [  ] EmplacableTestType(a01);
-// [  ] EmplacableTestType(a01 .. a02);
-// [  ] EmplacableTestType(a01 .. a03);
-// [  ] EmplacableTestType(a01 .. a04);
-// [  ] EmplacableTestType(a01 .. a05);
-// [  ] EmplacableTestType(a01 .. a06);
-// [  ] EmplacableTestType(a01 .. a07);
-// [  ] EmplacableTestType(a01 .. a08);
-// [  ] EmplacableTestType(a01 .. a09);
-// [  ] EmplacableTestType(a01 .. a10);
-// [  ] EmplacableTestType(a01 .. a11);
-// [  ] EmplacableTestType(a01 .. a12);
-// [  ] EmplacableTestType(a01 .. a13);
-// [  ] EmplacableTestType(a01 .. a14);
+// [ 3] EmplacableTestType();
+// [ 3] EmplacableTestType(a01);
+// [ 3] EmplacableTestType(a01 .. a02);
+// [ 3] EmplacableTestType(a01 .. a03);
+// [ 3] EmplacableTestType(a01 .. a04);
+// [ 3] EmplacableTestType(a01 .. a05);
+// [ 3] EmplacableTestType(a01 .. a06);
+// [ 3] EmplacableTestType(a01 .. a07);
+// [ 3] EmplacableTestType(a01 .. a08);
+// [ 3] EmplacableTestType(a01 .. a09);
+// [ 3] EmplacableTestType(a01 .. a10);
+// [ 3] EmplacableTestType(a01 .. a11);
+// [ 3] EmplacableTestType(a01 .. a12);
+// [ 3] EmplacableTestType(a01 .. a13);
+// [ 3] EmplacableTestType(a01 .. a14);
 // [  ] ~EmplacableTestType();
 //
 // ACCESSORS
-// [  ] ArgType01 arg01() const;
-// [  ] ArgType02 arg02() const;
-// [  ] ArgType03 arg03() const;
-// [  ] ArgType04 arg04() const;
-// [  ] ArgType05 arg05() const;
-// [  ] ArgType06 arg06() const;
-// [  ] ArgType07 arg07() const;
-// [  ] ArgType08 arg08() const;
-// [  ] ArgType09 arg09() const;
-// [  ] ArgType10 arg10() const;
-// [  ] ArgType11 arg11() const;
-// [  ] ArgType12 arg12() const;
-// [  ] ArgType13 arg13() const;
-// [  ] ArgType14 arg14() const;
-// [  ] bool isEqual(rhs) const;
+// [ 3] ArgType01 arg01() const;
+// [ 3] ArgType02 arg02() const;
+// [ 3] ArgType03 arg03() const;
+// [ 3] ArgType04 arg04() const;
+// [ 3] ArgType05 arg05() const;
+// [ 3] ArgType06 arg06() const;
+// [ 3] ArgType07 arg07() const;
+// [ 3] ArgType08 arg08() const;
+// [ 3] ArgType09 arg09() const;
+// [ 3] ArgType10 arg10() const;
+// [ 3] ArgType11 arg11() const;
+// [ 3] ArgType12 arg12() const;
+// [ 3] ArgType13 arg13() const;
+// [ 3] ArgType14 arg14() const;
+// [ 8] bool isEqual(const EmplacableTestType& lhs);
 //
 // FREE OPERATORS
-// [  ] bool operator==(lhs, rhs);
-// [  ] bool operator!=(lhs, rhs);
+// [ 6] bool operator==(const Obj& lhs, const Obj& rhs);
+// [ 6] bool operator!=(const Obj& lhs, const Obj& rhs);
 //
 // CLASS METHODS
-// [  ] static getNumDeletes();
+// [ 1] static getNumDeletes();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
@@ -110,12 +112,11 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
-
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -143,14 +144,25 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-typedef EmplacableTestType Obj;
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//                     GLOBAL CONSTANTS USED FOR TESTING
+//                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
+
+static bool             verbose;
+static bool         veryVerbose;
+static bool     veryVeryVerbose;
+static bool veryVeryVeryVerbose;
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef EmplacableTestType Obj;
 
 static const EmplacableTestType::ArgType01 V01(1);
 static const EmplacableTestType::ArgType02 V02(20);
@@ -167,21 +179,171 @@ static const EmplacableTestType::ArgType12 V12(333);
 static const EmplacableTestType::ArgType13 V13(712);
 static const EmplacableTestType::ArgType14 V14(1414);
 
-struct TestDriver {
-    template <class T>
-    static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
-    template <class T>
-    static const T&             testArg(T& t, bsl::false_type);
+struct DefaultDataRow {
+    int         d_line;     // source line number
+    int         d_group;    // equality group
+    const char *d_spec;     // specification string, for input to 'gg' function
+};
 
-    template <class ALLOCATOR>
-    static bslma::Allocator *extractBslma(ALLOCATOR basicAllocator) {
-        return basicAllocator.testAllocator();
+static
+const DefaultDataRow DEFAULT_DATA[] = {
+    //line idx  spec
+    //---- ---  ----------------
+    //           12345678901234
+    { L_,   0,  ""                },
+    { L_,   0,  " "               },
+    { L_,   1,  "A"               },
+    { L_,   2,  "B"               },
+    { L_,   1,  "A "              },
+    { L_,   3,  "AA"              },
+    { L_,   4,  "AB"              },
+    { L_,   4,  "AB "             },
+    { L_,   5,  "ABB"             },
+    { L_,   6,  "ABC"             },
+    { L_,   6,  "ABC "            },
+    { L_,   7,  "ABCC"            },
+    { L_,   8,  "ABCD"            },
+    { L_,   8,  "ABCD "           },
+    { L_,   9,  "ABCDD"           },
+    { L_,  10,  "ABCDE"           },
+    { L_,  10,  "ABCDE "          },
+    { L_,  11,  "ABCDEE"          },
+    { L_,  12,  "ABCDEF"          },
+    { L_,  12,  "ABCDEF "         },
+    { L_,  13,  "ABCDEFF"         },
+    { L_,  14,  "ABCDEFG"         },
+    { L_,  14,  "ABCDEFG "        },
+    { L_,  15,  "ABCDEFGG"        },
+    { L_,  16,  "ABCDEFGH"        },
+    { L_,  16,  "ABCDEFGH "       },
+    { L_,  17,  "ABCDEFGHH"       },
+    { L_,  18,  "ABCDEFGHI"       },
+    { L_,  18,  "ABCDEFGHI "      },
+    { L_,  19,  "ABCDEFGHII"      },
+    { L_,  20,  "ABCDEFGHIJ"      },
+    { L_,  20,  "ABCDEFGHIJ "     },
+    { L_,  21,  "ABCDEFGHIJJ"     },
+    { L_,  22,  "ABCDEFGHIJK"     },
+    { L_,  22,  "ABCDEFGHIJK "    },
+    { L_,  23,  "ABCDEFGHIJKK"    },
+    { L_,  24,  "ABCDEFGHIJKL"    },
+    { L_,  24,  "ABCDEFGHIJKL "   },
+    { L_,  25,  "ABCDEFGHIJKLL"   },
+    { L_,  26,  "ABCDEFGHIJKLM"   },
+    { L_,  26,  "ABCDEFGHIJKLM "  },
+    { L_,  27,  "ABCDEFGHIJKLMN"  },
+
+};
+static const size_t DEFAULT_NUM_DATA =
+                                    sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+
+                       // ================
+                       // class TestDriver
+                       // ================
+
+class TestDriver {
+    // This class provide a namespace for testing the 'EmplacableTestType'.
+    // Each "testCase*" method tests a specific aspect of 'EmplacableTestType'.
+
+  private:
+    // TYPES
+
+    // Shorthands
+    typedef EmplacableTestType            Obj;
+    typedef Obj::ArgType01                ArgType01;
+    typedef Obj::ArgType02                ArgType02;
+    typedef Obj::ArgType03                ArgType03;
+    typedef Obj::ArgType04                ArgType04;
+    typedef Obj::ArgType05                ArgType05;
+    typedef Obj::ArgType06                ArgType06;
+    typedef Obj::ArgType07                ArgType07;
+    typedef Obj::ArgType08                ArgType08;
+    typedef Obj::ArgType09                ArgType09;
+    typedef Obj::ArgType10                ArgType10;
+    typedef Obj::ArgType11                ArgType11;
+    typedef Obj::ArgType12                ArgType12;
+    typedef Obj::ArgType13                ArgType13;
+    typedef Obj::ArgType14                ArgType14;
+
+    typedef bslmf::MovableRefUtil         MoveUtil;
+  private:
+    // TEST APPARATUS
+    //-------------------------------------------------------------------------
+    // The generating functions interpret the given 'spec' in order from left
+    // to right to create the object according to a custom language.
+    // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
+    // values to be used as the constructor arguments at the same position.
+    // Character ' ' (space) corresponds to a default-constructed argument
+    // value.
+    //
+    // LANGUAGE SPECIFICATION:
+    // -----------------------
+    //
+    // <SPEC>       ::= <EMPTY>   | <LIST>
+    //
+    // <EMPTY>      ::= ""
+    //
+    // <LIST>       ::= <ITEM>    | <ITEM><LIST>
+    //
+    // <ITEM>       ::= <ELEMENT>
+    //
+    // <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'Z' | <DEFAULT>
+    //                  // unique but otherwise arbitrary
+    //
+    // <DEFAULT>    ::= ' ' (space)
+    //                  // Default-constructed value
+    //
+    // For specification string of length 'N' use object constructor taking
+    // exactly 'N' arguments with values corresponding to the character at the
+    // character's position.
+    //
+    // Spec String  Description
+    // -----------  -----------------------------------------------------------
+    // ""           Construct default object.
+    // "A"          Construct the object with a single argument corresponding
+    //              to A.
+    // "ABC"        Construct the object with three arguments corresponding to
+    //              A, B and C, respectively.
+    //-------------------------------------------------------------------------
+
+    static int ggg(Obj *object, const char *spec, int verbose = 1);
+        // Construct the specified 'object' according to the specified 'spec',
+        // using the object constructor.  Optionally specify a zero 'verbose'
+        // to suppress 'spec' syntax error messages.  Return the index of the
+        // first invalid character, and a negative value otherwise.  Note that
+        // this function is used to implement 'gg' as well as allow for
+        // verification of syntax error detection.
+
+    static Obj& gg(Obj *object, const char *spec);
+        // Return, by reference, the specified 'object' with its value
+        // constructed according to the specified 'spec'.
+
+    template <class T>
+    static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
+    {
+        return MoveUtil::move(t);
     }
 
-    template <class ALLOCATOR>
-    static bslma::Allocator *extractBslma(ALLOCATOR *basicAllocator) {
-        return basicAllocator;
+    template <class T>
+    static const T&             testArg(T& t, bsl::false_type)
+    {
+        return  t;
     }
+
+  public:
+    // TEST CASES
+    static void testCase8();
+        // Test 'isEqual' method.
+
+    static void testCase7();
+        // Test copy constructor.
+
+    static void testCase6();
+        // Test equality and inequality operators ('operator==', 'operator!=').
+
+    static void testCase3();
+        // Test generator functions 'ggg', and 'gg'.
+
     template <int N_ARGS,
               int N01,
               int N02,
@@ -197,24 +359,543 @@ struct TestDriver {
               int N12,
               int N13,
               int N14>
-    static void testCase1();
-        // Implement breathing test for the specified (template type parameter)
-        // 'ALLOCATOR'.  See the test case function for documented concerns and
-        // test plan.
+    static void testCase2();
+        // Test value constructors for the specified (template parameter)
+        // number of arguments.  See the test case function for documented
+        // concerns and test plan.
 };
 
-template <class T>
-inline
-bslmf::MovableRef<T> TestDriver::testArg(T& t, bsl::true_type)
+                               // --------------
+                               // TEST APPARATUS
+                               // --------------
+
+int TestDriver::ggg(Obj *object, const char *spec, int verbose)
 {
-    return bslmf::MovableRefUtil::move(t);
+    enum { SUCCESS = -1 };
+
+    for (int i = 0; spec[i]; ++i) {
+        if ( (spec[i] < 'A' || spec[i] > 'Z') && spec[i] != ' ' ) {
+            if (verbose) {
+                printf("Error, bad character ('%c') "
+                       "in spec \"%s\" at position %d.\n", spec[i], spec, i);
+            }
+            // Discontinue processing this spec.
+            return i;                                                 // RETURN
+        }
+    }
+
+    size_t LENGTH = strlen(spec);
+    ArgType01 A01 = LENGTH >  0 && spec[ 0] != ' ' ?
+                                       ArgType01(spec[ 0] - 'A') : ArgType01();
+    ArgType02 A02 = LENGTH >  1 && spec[ 1] != ' ' ?
+                                       ArgType02(spec[ 1] - 'A') : ArgType02();
+    ArgType03 A03 = LENGTH >  2 && spec[ 2] != ' ' ?
+                                       ArgType03(spec[ 2] - 'A') : ArgType03();
+    ArgType04 A04 = LENGTH >  3 && spec[ 3] != ' ' ?
+                                       ArgType04(spec[ 3] - 'A') : ArgType04();
+    ArgType05 A05 = LENGTH >  4 && spec[ 4] != ' ' ?
+                                       ArgType05(spec[ 4] - 'A') : ArgType05();
+    ArgType06 A06 = LENGTH >  5 && spec[ 5] != ' ' ?
+                                       ArgType06(spec[ 5] - 'A') : ArgType06();
+    ArgType07 A07 = LENGTH >  6 && spec[ 6] != ' ' ?
+                                       ArgType07(spec[ 6] - 'A') : ArgType07();
+    ArgType08 A08 = LENGTH >  7 && spec[ 7] != ' ' ?
+                                       ArgType08(spec[ 7] - 'A') : ArgType08();
+    ArgType09 A09 = LENGTH >  8 && spec[ 8] != ' ' ?
+                                       ArgType09(spec[ 8] - 'A') : ArgType09();
+    ArgType10 A10 = LENGTH >  9 && spec[ 9] != ' ' ?
+                                       ArgType10(spec[ 9] - 'A') : ArgType10();
+    ArgType11 A11 = LENGTH > 10 && spec[10] != ' ' ?
+                                       ArgType11(spec[10] - 'A') : ArgType11();
+    ArgType12 A12 = LENGTH > 11 && spec[11] != ' ' ?
+                                       ArgType12(spec[11] - 'A') : ArgType12();
+    ArgType13 A13 = LENGTH > 12 && spec[12] != ' ' ?
+                                       ArgType13(spec[12] - 'A') : ArgType13();
+    ArgType14 A14 = LENGTH > 13 && spec[13] != ' ' ?
+                                       ArgType14(spec[13] - 'A') : ArgType14();
+
+    switch (LENGTH) {
+      case 0: {
+        new(object) Obj();
+      } break;
+      case 1: {
+        new (object) Obj(A01);
+      } break;
+      case 2: {
+        new (object) Obj(A01, A02);
+      } break;
+      case 3: {
+        new (object) Obj(A01, A02, A03);
+      } break;
+      case 4: {
+        new (object) Obj(A01, A02, A03, A04);
+      } break;
+      case 5: {
+        new (object) Obj(A01, A02, A03, A04, A05);
+      } break;
+      case 6: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06);
+      } break;
+      case 7: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07);
+      } break;
+      case 8: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08);
+      } break;
+      case 9: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09);
+      } break;
+      case 10: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10);
+      } break;
+      case 11: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10,
+                         A11);
+      } break;
+      case 12: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10,
+                         A11, A12);
+      } break;
+      case 13: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10,
+                         A11, A12, A13);
+      } break;
+      case 14: {
+        new (object) Obj(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10,
+                         A11, A12, A13, A14);
+      } break;
+      default: {
+        ASSERTV(0);
+      } break;
+    }
+
+    return SUCCESS;
 }
 
-template <class T>
-inline
-const T& TestDriver::testArg(T& t, bsl::false_type)
+Obj& TestDriver::gg(Obj *object, const char *spec)
 {
-    return  t;
+    ASSERTV(ggg(object, spec) < 0);
+    return *object;
+}
+
+void TestDriver::testCase8()
+{
+    // ---------------------------------------------------------------------
+    // TESTING 'isEqual' METHOD:
+    // Concerns:
+    //: 1 Two objects, 'X' and 'Y', are equal if and only if they contain
+    //:   the same values.
+    //:
+    //: 2 'true == (X.isEqual(X))' (i.e., identity)
+    //:
+    //: 3 'true == X.isEqual(Y)' if and only if 'true == Y.isEqual(X)'
+    //:   (i.e., commutativity)
+    //:
+    //: 4 'false == X.isEqual(Y)' if and only if 'false == Y.isEqual(X)'
+    //:   (i.e., commutativity)
+    //:
+    //: 5 Method can be called for non-modifiable objects(i.e., objects or
+    //:   references providing only non-modifiable access).
+    //
+    // Plan:
+    //: 1 Using the table-driven technique, specify a set of distinct
+    //:   specifications for the 'gg' function.
+    //:
+    //: 2 For each row 'R1' in the table of P-2: (C-1..5)
+    //:
+    //:   1 Create a single object, and use it to verify the reflexive
+    //:     (anti-reflexive) property of 'isEqual' in the presence of
+    //:     aliasing.  (C-2)
+    //:
+    //:   2 For each row 'R2' in the table of P-2: (C-1..5)
+    //:
+    //:     1 Record, in 'EXP', whether or not distinct objects created from
+    //:       'R1' and 'R2', respectively, are expected to have the same value.
+    //:
+    //:     2 Create an object 'X', having the value 'R1'.
+    //:
+    //:     3 Create an object 'Y', having the value 'R2'.
+    //:
+    //:     4 Verify the commutativity property and expected return value for
+    //:       'isEqual'.  (C-1..5)
+    //
+    // Testing:
+    //   bool isEqual(const EmplacableTestType& lhs);
+    // ------------------------------------------------------------------------
+
+    if (verbose)
+              printf("\nAssign the address of 'isEqual' to a variable.\n");
+    {
+        typedef bool (Obj::*methodPtr)(const Obj&) const;
+
+        // Verify that the signature and return type are correct..
+        methodPtr methodIsEqual = &EmplacableTestType::isEqual;
+
+        (void) methodIsEqual;  // quash potential compiler warnings
+    }
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    if (verbose) printf("\nCompare every value with every value.\n");
+    {
+        // Create first object
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1  = DATA[ti].d_line;
+            const int         GROUP1 = DATA[ti].d_group;
+            const char *const SPEC1  = DATA[ti].d_spec;
+
+           if (veryVerbose) { T_ P_(LINE1) P_(GROUP1) P(SPEC1) }
+
+            // Ensure an object is equal to itself (alias test).
+            {
+                bsls::ObjectBuffer<Obj> bufferX;
+                const Obj& X = gg(bufferX.address(), SPEC1);
+                bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+                ASSERTV(LINE1, true == X.isEqual(X));
+            }
+
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2  = DATA[tj].d_line;
+                const int         GROUP2 = DATA[tj].d_group;
+                const char *const SPEC2  = DATA[tj].d_spec;
+
+                if (veryVerbose) { T_ T_ P_(LINE2) P_(GROUP2) P(SPEC2) }
+
+                const bool EXP = GROUP1 == GROUP2;  // expected result
+
+                bsls::ObjectBuffer<Obj> bufferX;
+                const Obj& X = gg(bufferX.address(), SPEC1);
+                bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+                bsls::ObjectBuffer<Obj> bufferY;
+                const Obj& Y = gg(bufferY.address(), SPEC2);
+                bslma::DestructorGuard<Obj> guardY(&bufferY.object());
+
+                // Verify value and commutativity.
+                ASSERTV(LINE1, LINE2,  EXP == X.isEqual(Y));
+                ASSERTV(LINE1, LINE2,  EXP == Y.isEqual(X));
+            }
+        }
+    }
+}
+
+void TestDriver::testCase7()
+{
+    // ------------------------------------------------------------------------
+    // TESTING COPY CONSTRUCTOR:
+    //
+    // Concerns:
+    //: 1 The new object's value is the same as that of the original object
+    //:   (relying on the equality operator).
+    //:
+    //: 2 All internal representations of a given value can be used to create a
+    //:   new object of equivalent value.
+    //:
+    //: 3 The value of the original object is left unaffected.
+    //:
+    //: 4 Subsequent changes in or destruction of the source object have no
+    //:   effect on the copy-constructed object.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with substantial and varied
+    //:   differences, ordered by increasing length, to be used in the
+    //:   following tests.
+    //:
+    //: 2 For each value in S, initialize objects w and x, copy construct y
+    //:   from x and use 'operator==' to verify that both x and y subsequently
+    //:   have the same value as w.  Let x go out of scope and again verify
+    //:   that w == y.  (C-1..4)
+    //
+    // Testing:
+    //   EmplacableTestType(const EmplacableTestType& original);
+    // ------------------------------------------------------------------------
+
+    {
+        static const char *SPECS[] = {
+            "",
+            "A",
+            "AB",
+            "ABC",
+            "ABCD",
+            "ABCDE",
+            "ABCDEF",
+            "ABCDEFG",
+            "ABCDEFGH",
+            "ABCDEFGHI",
+            "ABCDEFGHIJ",
+            "ABCDEFGHIJK",
+            "ABCDEFGHIJKL",
+            "ABCDEFGHIJKLM",
+            "ABCDEFGHIJKLMN",
+        };
+
+        const size_t NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+        for (size_t ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC = SPECS[ti];
+
+            if (veryVerbose) { P(SPEC); }
+
+            // Create control object w.
+            bsls::ObjectBuffer<Obj> bufferW;
+            const Obj& W = gg(bufferW.address(), SPEC);
+            bslma::DestructorGuard<Obj> guardW(&bufferW.object());
+
+            bsls::ObjectBuffer<Obj> bufferX;
+            const Obj& X = gg(bufferX.address(), SPEC);
+            bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+            const Obj Y(X);
+
+            ASSERTV(SPEC, W == Y);
+            ASSERTV(SPEC, W == X);
+        }
+    }
+}
+
+void TestDriver::testCase6()
+{
+    // ---------------------------------------------------------------------
+    // TESTING EQUALITY OPERATORS:
+    // Concerns:
+    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
+    //:   the same values.
+    //:
+    //: 2 'true  == (X == X)' (i.e., identity)
+    //:
+    //: 3 'false == (X != X)' (i.e., identity)
+    //:
+    //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity)
+    //:
+    //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity)
+    //:
+    //: 6 'X != Y' if and only if '!(X == Y)'
+    //:
+    //: 7 Comparison is symmetric with respect to user-defined conversion
+    //:   (i.e., both comparison operators are free functions).
+    //:
+    //: 8 Non-modifiable objects can be compared (i.e., objects or references
+    //:   providing only non-modifiable access).
+    //:
+    //: 9 The equality operator's signature and return type are standard.
+    //:
+    //:10 The inequality operator's signature and return type are standard.
+    //
+    // Plan:
+    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
+    //:   initialize function pointers having the appropriate signatures and
+    //:   return types for the two homogeneous, free equality-comparison
+    //:   operators defined in this component.  (C-7..10)
+    //:
+    //: 2 Using the table-driven technique, specify a set of distinct
+    //:   specifications for the 'gg' function.
+    //:
+    //: 3 For each row 'R1' in the table of P-2: (C-1..7)
+    //:
+    //:   1 Create a single object, and use it to verify the reflexive
+    //:     (anti-reflexive) property of equality (inequality) in the presence
+    //:     of aliasing.  (C-2..3)
+    //:
+    //:   2 For each row 'R2' in the table of P-2: (C-1..7)
+    //:
+    //:     1 Record, in 'EXP', whether or not distinct objects created from
+    //:       'R1' and 'R2', respectively, are expected to have the same value.
+    //:
+    //:     2 Create an object 'X', having the value 'R1'.
+    //:
+    //:     3 Create an object 'Y', having the value 'R2'.
+    //:
+    //:     4 Verify the commutativity property and expected return value for
+    //:       both '==' and '!='.  (C-1..7)
+    //
+    // Testing:
+    //   bool operator==(Obj& lhs, Obj& rhs);
+    //   bool operator!=(Obj& lhs, Obj& rhs);
+    // ------------------------------------------------------------------------
+
+    if (verbose)
+              printf("\nAssign the address of each operator to a variable.\n");
+    {
+        typedef bool (*operatorPtr)(const Obj&, const Obj&);
+
+        // Verify that the signatures and return types are standard.
+
+        operatorPtr operatorEq = operator==;
+        operatorPtr operatorNe = operator!=;
+
+        (void) operatorEq;  // quash potential compiler warnings
+        (void) operatorNe;
+    }
+
+    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    if (verbose) printf("\nCompare every value with every value.\n");
+    {
+        // Create first object
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1  = DATA[ti].d_line;
+            const int         GROUP1 = DATA[ti].d_group;
+            const char *const SPEC1  = DATA[ti].d_spec;
+
+           if (veryVerbose) { T_ P_(LINE1) P_(GROUP1) P(SPEC1) }
+
+            // Ensure an object compares correctly with itself (alias test).
+            {
+                bsls::ObjectBuffer<Obj> bufferX;
+                const Obj& X = gg(bufferX.address(), SPEC1);
+                bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+                ASSERTV(LINE1,   X == X);
+                ASSERTV(LINE1, !(X != X));
+            }
+
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2  = DATA[tj].d_line;
+                const int         GROUP2 = DATA[tj].d_group;
+                const char *const SPEC2  = DATA[tj].d_spec;
+
+                if (veryVerbose) { T_ T_ P_(LINE2) P_(GROUP2) P(SPEC2) }
+
+                const bool EXP = GROUP1 == GROUP2;  // expected result
+
+                bsls::ObjectBuffer<Obj> bufferX;
+                const Obj& X = gg(bufferX.address(), SPEC1);
+                bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+                bsls::ObjectBuffer<Obj> bufferY;
+                const Obj& Y = gg(bufferY.address(), SPEC2);
+                bslma::DestructorGuard<Obj> guardY(&bufferY.object());
+
+                // Verify value and commutativity.
+                ASSERTV(LINE1, LINE2,  EXP == (X == Y));
+                ASSERTV(LINE1, LINE2,  EXP == (Y == X));
+
+                ASSERTV(LINE1, LINE2, !EXP == (X != Y));
+                ASSERTV(LINE1, LINE2, !EXP == (Y != X));
+            }
+        }
+    }
+}
+
+void TestDriver::testCase3()
+{
+    // ------------------------------------------------------------------------
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+    //   Having demonstrated that our primary manipulators work as expected
+    //   under normal conditions
+    //
+    // Concerns:
+    //: 1 Valid generator syntax produces expected results
+    //:
+    //: 2 Invalid syntax is detected and reported.
+    //
+    // Plan:
+    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length:
+    //:
+    //:   1 Use the primitive generator function 'gg' to set the state of a
+    //:     newly created object.
+    //:
+    //:   2 Verify that 'gg' returns a valid reference to the modified argument
+    //:     object.
+    //:
+    //:   3 Use the basic accessors to verify that the value of the object is
+    //:     as expected.  (C-1)
+    //:
+    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
+    //:   increasing 'spec' length, use the primitive generator function 'ggg'
+    //:   to set the state of a newly created object.
+    //:
+    //:   1 Verify that 'ggg' returns the expected value corresponding to the
+    //:     location of the first invalid value of the 'spec'.  (C-2)
+    //
+    // Testing:
+    //   Obj& gg(Obj *object, const char *spec);
+    //   int ggg(Obj *object, const char *spec, int verbose = 1);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTesting generator on valid specs.\n");
+    {
+        const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        for (size_t ti = 0; ti < NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+
+            bsls::ObjectBuffer<Obj> bufferX;
+            const Obj& X = gg(bufferX.address(), SPEC);   // original spec
+            bslma::DestructorGuard<Obj> guardX(&bufferX.object());
+
+            bsls::ObjectBuffer<Obj> bufferY;
+            const Obj& Y = gg(bufferY.address(), SPEC);   // extended spec
+            bslma::DestructorGuard<Obj> guardY(&bufferY.object());
+
+            // TBD: we use yet untested operator== to compare
+            ASSERTV(LINE, X == Y);
+        }
+    }
+
+    if (verbose) printf("\nTesting generator on invalid specs.\n");
+    {
+        static const struct {
+            int         d_line;     // source line number
+            const char *d_spec;     // specification string
+            int         d_index;    // offending character index
+        } DATA[] = {
+            //line  spec      index
+            //----  --------  -----
+            { L_,   "",       -1,     }, // valid
+
+            { L_,   "A",      -1,     }, // valid
+            { L_,   " ",      -1,     }, // valid
+            { L_,   ".",       0,     },
+            { L_,   "E",      -1,     }, // valid
+            { L_,   "a",       0,     },
+            { L_,   "z",       0,     },
+
+            { L_,   "AE",     -1,     }, // valid
+            { L_,   "aE",      0,     },
+            { L_,   "Ae",      1,     },
+            { L_,   ".~",      0,     },
+            { L_,   "~!",      0,     },
+            { L_,   "  ",     -1,     }, // valid
+
+            { L_,   "ABC",    -1,     }, // valid
+            { L_,   " BC",    -1,     }, // valid
+            { L_,   ".BC",     0,     },
+            { L_,   "A C",    -1,     }, // valid
+            { L_,   "A.C",     1,     },
+            { L_,   "AB ",    -1,     }, // valid
+            { L_,   "AB.",     2,     },
+            { L_,   "?#:",     0,     },
+            { L_,   "   ",    -1,     }, // valid
+
+            { L_,   "ABCDE",  -1,     }, // valid
+            { L_,   "aBCDE",   0,     },
+            { L_,   "ABcDE",   2,     },
+            { L_,   "ABCDe",   4,     },
+            { L_,   "AbCdE",   1,     }
+        };
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (size_t ti = 0; ti < NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_line;
+            const char *const SPEC   = DATA[ti].d_spec;
+            const int         INDEX  = DATA[ti].d_index;
+
+            if (veryVerbose) { P(SPEC) };
+
+            bsls::ObjectBuffer<Obj> bufferX;
+
+            int RESULT = ggg(bufferX.address(), SPEC, veryVerbose);
+
+            ASSERTV(LINE, INDEX == RESULT);
+        }
+    }
 }
 
 template <int N_ARGS,
@@ -232,7 +913,7 @@ template <int N_ARGS,
           int N12,
           int N13,
           int N14>
-void TestDriver::testCase1()
+void TestDriver::testCase2()
 {
     bslma::TestAllocator *da =
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
@@ -256,20 +937,20 @@ void TestDriver::testCase1()
     static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
     static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
 
-    EmplacableTestType::ArgType01 A01(V01);
-    EmplacableTestType::ArgType02 A02(V02);
-    EmplacableTestType::ArgType03 A03(V03);
-    EmplacableTestType::ArgType04 A04(V04);
-    EmplacableTestType::ArgType05 A05(V05);
-    EmplacableTestType::ArgType06 A06(V06);
-    EmplacableTestType::ArgType07 A07(V07);
-    EmplacableTestType::ArgType08 A08(V08);
-    EmplacableTestType::ArgType09 A09(V09);
-    EmplacableTestType::ArgType10 A10(V10);
-    EmplacableTestType::ArgType11 A11(V11);
-    EmplacableTestType::ArgType12 A12(V12);
-    EmplacableTestType::ArgType13 A13(V13);
-    EmplacableTestType::ArgType14 A14(V14);
+    ArgType01 A01(V01);
+    ArgType02 A02(V02);
+    ArgType03 A03(V03);
+    ArgType04 A04(V04);
+    ArgType05 A05(V05);
+    ArgType06 A06(V06);
+    ArgType07 A07(V07);
+    ArgType08 A08(V08);
+    ArgType09 A09(V09);
+    ArgType10 A10(V10);
+    ArgType11 A11(V11);
+    ArgType12 A12(V12);
+    ArgType13 A13(V13);
+    ArgType14 A14(V14);
 
     bsls::ObjectBuffer<Obj> buffer;
     const Obj& EXP = buffer.object();
@@ -415,7 +1096,7 @@ void TestDriver::testCase1()
         ASSERTV(0);
       } break;
     }
-    bslma::DestructorProctor<Obj> proctor(&buffer.object());
+    bslma::DestructorGuard<Obj> guard(&buffer.object());
 
     ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
     ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
@@ -450,6 +1131,7 @@ void TestDriver::testCase1()
     ASSERT(dam.isMaxSame());
     ASSERT(dam.isInUseSame());
 }
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -462,10 +1144,11 @@ void TestDriver::testCase1()
 int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     (void)veryVerbose;          // suppress warning
     (void)veryVeryVerbose;      // suppress warning
@@ -487,6 +1170,302 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'isEqual' METHOD
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'isEqual' method"
+                            "\n========================\n");
+
+        TestDriver::testCase8();
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Copy Constructors"
+                            "\n=========================\n");
+
+        TestDriver::testCase7();
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // EQUALITY OPERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Equality Operators"
+                            "\n==========================\n");
+
+        TestDriver::testCase6();
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING OUTPUT (<<) OPERATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Output (<<) Operator"
+                            "\n============================\n");
+
+        if (verbose)
+                   printf("There is no output operator for this component.\n");
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Basic Accessors"
+                            "\n=======================\n");
+        // TBD: Effectively, tested in case 2.
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // GENERATOR FUNCTIONS 'gg' and 'ggg'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'gg' and 'ggg'"
+                            "\n======================\n");
+
+        TestDriver::testCase3();
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // VALUE CONSTRUCTOR
+        //   Ensure that we can put an object into any initial state relevant
+        //   for thorough testing.
+        //
+        // Concerns:
+        //: 1 The value constructor can create an object having any value that
+        //:   does not violate the documented constraints.
+        //
+        // Plan:
+        //: 1 Use value constructor to create and object, having the value
+        //:   from a set of distinct object values in terms of their
+        //:   attributes.
+        //:
+        //: 2 Use the (as yet unproven) salient attribute accessors to verify
+        //:   the attributes of the object have their expected value.  (C-1)
+        //
+        // Testing:
+        //   EmplacableTestType();
+        //   EmplacableTestType(a01);
+        //   EmplacableTestType(a01 .. a02);
+        //   EmplacableTestType(a01 .. a03);
+        //   EmplacableTestType(a01 .. a04);
+        //   EmplacableTestType(a01 .. a05);
+        //   EmplacableTestType(a01 .. a06);
+        //   EmplacableTestType(a01 .. a07);
+        //   EmplacableTestType(a01 .. a08);
+        //   EmplacableTestType(a01 .. a09);
+        //   EmplacableTestType(a01 .. a10);
+        //   EmplacableTestType(a01 .. a11);
+        //   EmplacableTestType(a01 .. a12);
+        //   EmplacableTestType(a01 .. a13);
+        //   EmplacableTestType(a01 .. a14);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING VALUE CONSTRUCTOR"
+                            "\n=========================\n");
+
+#ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
+        if (verbose) printf("\nTesting contructor with no arguments"
+                            "\n------------------------------------\n");
+        TestDriver::testCase2<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 1 argument"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 2 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 3 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 4 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 5 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 6 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 7 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
+        TestDriver::testCase2<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 8 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
+        TestDriver::testCase2<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 9 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
+        TestDriver::testCase2<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
+        TestDriver::testCase2<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 10 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
+        TestDriver::testCase2<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 11 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
+        TestDriver::testCase2<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 12 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
+        TestDriver::testCase2<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+
+        if (verbose) printf("\nTesting contructor with 13 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
+        TestDriver::testCase2<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+
+        if (verbose) printf("\nTesting contructor with 14 arguments"
+                            "\n----------------------------------\n");
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
+        TestDriver::testCase2<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+#else
+        TestDriver::testCase2< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        TestDriver::testCase2< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        TestDriver::testCase2< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        TestDriver::testCase2<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        TestDriver::testCase2<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -497,7 +1476,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        //: 1 Perform an ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -505,202 +1484,30 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+        {
+            Obj mX; const Obj& X = mX;
+            ASSERTV(X.arg01(), -1 == X.arg01());
+        }
+        ASSERTV( Obj::getNumDeletes(), 1 == Obj::getNumDeletes());
 
-#ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
-        if (verbose) printf("\nTesting contructor with no arguments"
-                            "\n------------------------------------\n");
-        TestDriver::testCase1<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 1 argument"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 2 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 3 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 4 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 5 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 6 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 7 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
-        TestDriver::testCase1<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 8 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
-        TestDriver::testCase1<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 9 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
-        TestDriver::testCase1<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
-        TestDriver::testCase1<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 10 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
-        TestDriver::testCase1<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 11 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
-        TestDriver::testCase1<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 12 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
-        TestDriver::testCase1<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
-
-        if (verbose) printf("\nTesting contructor with 13 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
-        TestDriver::testCase1<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
-
-        if (verbose) printf("\nTesting contructor with 14 arguments"
-                            "\n----------------------------------\n");
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
-        TestDriver::testCase1<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
-#else
-        TestDriver::testCase1< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
-        TestDriver::testCase1< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
-        TestDriver::testCase1< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
-        TestDriver::testCase1<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
-        TestDriver::testCase1<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
-        TestDriver::testCase1<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
-        TestDriver::testCase1<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
-        TestDriver::testCase1<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif
+        {
+            Obj mX(Obj::ArgType01(2)); const Obj& X = mX;
+            ASSERTV(X.arg01(), Obj::ArgType01(2) == X.arg01());
+            ASSERTV(X.arg02(), Obj::ArgType02()  == X.arg02());
+            ASSERTV(X.arg03(), Obj::ArgType03()  == X.arg03());
+            ASSERTV(X.arg04(), Obj::ArgType04()  == X.arg04());
+            ASSERTV(X.arg05(), Obj::ArgType05()  == X.arg05());
+            ASSERTV(X.arg06(), Obj::ArgType06()  == X.arg06());
+            ASSERTV(X.arg07(), Obj::ArgType07()  == X.arg07());
+            ASSERTV(X.arg08(), Obj::ArgType08()  == X.arg08());
+            ASSERTV(X.arg09(), Obj::ArgType09()  == X.arg09());
+            ASSERTV(X.arg10(), Obj::ArgType10()  == X.arg10());
+            ASSERTV(X.arg11(), Obj::ArgType11()  == X.arg11());
+            ASSERTV(X.arg12(), Obj::ArgType12()  == X.arg12());
+            ASSERTV(X.arg13(), Obj::ArgType13()  == X.arg13());
+            ASSERTV(X.arg14(), Obj::ArgType14()  == X.arg14());
+        }
+        ASSERTV( Obj::getNumDeletes(), 2 == Obj::getNumDeletes());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
