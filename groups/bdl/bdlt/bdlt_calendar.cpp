@@ -395,7 +395,7 @@ Date Calendar::getNextBusinessDay(const Date& initialDate) const
 
 Date Calendar::getNextBusinessDay(const Date& initialDate, int nth) const
 {
-    BSLS_ASSERT(nth > 1);
+    BSLS_ASSERT(nth >= 1);
 
     Date currentDate       = initialDate;
     ++currentDate;
