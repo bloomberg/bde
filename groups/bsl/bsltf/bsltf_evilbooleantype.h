@@ -28,8 +28,28 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// 'bsltf::EvilBooleanType'.
+//
+// First, we create an object 'trueValue' and initialize it with the 'true'
+// value:
+//..
+//  bsltf::EvilBooleanType trueValue(true);
+//..
+// Now, we can use it for if-else conditions or another constructions, that
+// require boolen value:
+//..
+//  if(trueValue) {
+//      assert(trueValue);
+//  }
+//..
+// Finally we create another object, having the opposite value, and verify it:
+//..
+//  bsltf::EvilBooleanType falseValue = !trueValue;
+//  assert(false == (bool)falseValue);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -59,41 +79,49 @@ struct EvilBooleanType {
     struct ImpDetail { int d_member; };
 
     typedef int ImpDetail::* BoolResult;
+        // Typedef for pointer to the nested class field, that can be converted
+        // to boolean.
 
     // DATA
-    BoolResult d_value;
+    BoolResult d_value;  // ponter being converted to boolean value
 
   private:
     // NOT IMPLEMENTED
     void operator=(const EvilBooleanType&);  // = delete;
         // not implemented
 
-    void operator&();  // = delete;
+    void operator&() const;  // = delete;
         // not implemented
 
     template<class T>
-    void operator,(const T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(T&); // = delete;
+    void operator,(T&) const;  // = delete;
         // not implemented
 
   public:
     // CREATORS
     EvilBooleanType(bool value);                                    // IMPLICIT
+        // Create a 'EvilBooleanType' object having the attribute value defined
+        // by the specified 'value'.
 
     // ACCESSORS
     operator BoolResult() const;
+        // Return the value of this object.
 
     EvilBooleanType operator!() const;
+        // Return the newly created object having the logically negated value
+        // of this object.
 };
 
 EvilBooleanType operator==(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
+    // Return being converted to 'true' object, if the specified 'lhs' and
+    // 'rhs' objects have the same value, and being converted to 'false' otherwise.
 
 EvilBooleanType operator!=(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
+    // Return being converted to 'true' object, if the specified 'lhs' and
+    // 'rhs' objects do not have the same value, and being converted to 'false'
+    // otherwise.
 
 
 // ============================================================================

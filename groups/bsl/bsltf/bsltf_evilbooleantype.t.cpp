@@ -25,14 +25,20 @@ using namespace BloombergLP::bsltf;
 // will break the test driver.  Hence, these tests will be moved below the line
 // as negative test numbers, explicitly enabled and run manually.
 //-----------------------------------------------------------------------------
-//*[  ] EvilBooleanType(bool value);
-//*[  ] operator BoolResult() const;
-//*[  ] EvilBooleanType operator!() const;
-//*[  ] EvilBooleanType operator==(EvilBooleanType, EvilBooleanType);
-//*[  ] EvilBooleanType operator!=(EvilBooleanType, EvilBooleanType);
+// CREATORS
+// [ 2] EvilBooleanType(bool value);
+//
+// ACCESSORS
+// [ 2] operator BoolResult() const;
+// [ 3] EvilBooleanType operator!() const;
+//
+// FREE OPERATORS
+// [ 5] EvilBooleanType operator==(EvilBooleanType, EvilBooleanType);
+// [ 5] EvilBooleanType operator!=(EvilBooleanType, EvilBooleanType);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-//*[ 2] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
+// [ 7] NOT IMPEMENTED OPERATORS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -88,6 +94,12 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bsltf::EvilBooleanType Obj;
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -107,27 +119,236 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
-          if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+      case 9: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: (TBD)
-/// - - - - - - - - - - - - - - - -
-// First, we ...
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// 'bsltf::EvilBooleanType'.
+//
+// First, we create an object 'trueValue' and initialize it with the 'true'
+// value:
+//..
+    bsltf::EvilBooleanType trueValue(true);
+//..
+// Now, we can use it for if-else conditions or another constructions, that
+// require boolen value:
+//..
+    if(trueValue) {
+        ASSERT(trueValue);
+    }
+//..
+// Finally we create another object, having the opposite value, and verify it:
+//..
+    bsltf::EvilBooleanType falseValue = !trueValue;
+    ASSERT(false == (bool)falseValue);
+//..
+
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // BSLX STREAMING
+        //   N/A
+        // --------------------------------------------------------------------
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // NOT IMPLEMENTED OPERATORS
+        //
+        // Concerns:
+        //: 1 The copy-assignment operator is declared private.
+        //:
+        //: 2 The address-of operator is declared private.
+        //:
+        //: 3 The comma operator is declared private.
+        //
+        // Plan:
+        //: 1 There is no good way to test the operators access privilege in
+        //:   C++03.  SFINAE doesn't support check for private-access.
+        //
+        // Testing:
+        //   void operator=(const EvilBooleanType&);
+        //   void operator&() const;
+        //   void operator,(T&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nNOT IMPLEMENTED OPERATORS"
+                            "\n=========================\n");
+
+        Obj       X(true);
+        const Obj Y(false);
+
+        // X = Y;  // This will not compile
+        // &X;     // This will not compile
+        // &Y;     // This will not compile
+        // (X,X);  // This will not compile
+        // (X,Y);  // This will not compile
+        // (Y,X);  // This will not compile
+        // (Y,Y);  // This will not compile
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // SWAP MEMBER AND FREE FUNCTIONS
+        //   N/A
+        // --------------------------------------------------------------------
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // EQUALITY-COMPARISON OPERATORS
+        //   Ensure that '==' and '!=' are the operational definition of value.
+        //
+        // Concerns:
+        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
+        //:   have the same value.
+        //:
+        //: 2 Comparison is symmetric with respect to user-defined conversion
+        //:   (i.e., both comparison operators are free functions).
+        //:
+        //: 3 Non-modifiable objects can be compared (i.e., objects or
+        //:   references providing only non-modifiable access).
+        //
+        // Plan:
+        //: 1 Specify a set S whose elements have different values.  Compare
+        //:   each pair (X, Y) in the cross product S X S and verify comparison
+        //:   result.  (C-1..3)
+        //
+        // Testing:
+        //   EvilBooleanType operator==(lhs, rhs);
+        //   EvilBooleanType operator!=(lhs, rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
+                            "\n=============================\n");
+
+        {
+            const EvilBooleanType falseValue1(false);
+            const EvilBooleanType falseValue2(false);
+            const EvilBooleanType trueValue1(true);
+            const EvilBooleanType trueValue2(true);
+
+
+            ASSERT(falseValue1 == falseValue1);
+            ASSERT(falseValue1 == falseValue2);
+            ASSERT(falseValue2 == falseValue1);
+            ASSERT(falseValue2 == falseValue2);
+
+            ASSERT(trueValue1 == trueValue1);
+            ASSERT(trueValue1 == trueValue2);
+            ASSERT(trueValue2 == trueValue1);
+            ASSERT(trueValue2 == trueValue2);
+
+            ASSERT(falseValue1 != trueValue1);
+            ASSERT(falseValue1 != trueValue2);
+            ASSERT(falseValue2 != trueValue1);
+            ASSERT(falseValue2 != trueValue2);
+
+            ASSERT(trueValue1 != falseValue1);
+            ASSERT(trueValue1 != falseValue2);
+            ASSERT(trueValue2 != falseValue1);
+            ASSERT(trueValue2 != falseValue2);
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR
+        //   N/A
+        // --------------------------------------------------------------------
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //   Ensure basic accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 Accessor returns the newly created object having the logically
+        //    negated value of the object.
+        //
+        // Plan:
+        //: 1 Create couple objects, having different values.  Using the
+        //    accessor, create logically negated copies,  and verify their
+        //    values.  (C-1)
+        //
+        // Testing:
+        //   EvilBooleanType operator!() const;
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nBASIC ACCESSORS"
+                   "\n===============\n");
+
+        const Obj trueValue(true);
+        const Obj notTrueValue = !trueValue;
+
+        const Obj falseValue(false);
+        const Obj notFalseValue = !falseValue;
+
+        ASSERT(true  == (bool)trueValue);
+        ASSERT(false == (bool)notTrueValue);
+        ASSERT(false == (bool)falseValue);
+        ASSERT(true  == (bool)notFalseValue);
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS
+        //   Ensure that we can use constructor to create an object.
+        //
+        // Concerns:
+        //: 1 An object created with the constructor has the specified value.
+        //
+        // Plan:
+        //: 1 Using the value create couple objects, having different values
+        //    and verify them.  (C-1)
+        //
+        // Testing:
+        //   EvilBooleanType(bool value);
+        //   operator BoolResult() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPRIMARY MANIPULATORS"
+                            "\n====================\n");
+
+        Obj       falseValue(false);
+        const Obj trueValue(true);
+
+        ASSERT(false == (bool)falseValue);
+        ASSERT(true  == (bool)trueValue);
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
-        //   Developers' Sandbox.
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Perform and ad-hoc test of the primary modifiers and accessors.
+        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality, but *tests* nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
