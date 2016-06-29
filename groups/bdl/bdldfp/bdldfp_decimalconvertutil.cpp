@@ -99,68 +99,6 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 
-                        // =================
-                        // class StdioFormat
-                        // =================
-
-template <class FORMATTED_TYPE> struct StdioFormat;
-    // This 'struct' template provides a method, 'format', that returns a
-    // 'printf'-style format string to format values of the template parameter
-    // type 'FORMATTED_TYPE' that can be used to restore a decimal value that
-    // was previously converted to this type.
-
-template <>
-struct StdioFormat<float> {
-    // This template specialization of 'StdioFormat' provides a function that
-    // returns a 'printf'-style format string for 'float' values.
-
-    static const char* format(float);
-        // Return a 'printf'-style format string that can be used to restore a
-        // decimal value that was previously converted to a 'float' value.
-        // Refer to the documentation of 'decimalFromFloat' for the conversion
-        // rules.
-};
-
-template <>
-struct StdioFormat<double> {
-    // This template specialization of 'StdioFormat' provides a function that
-    // returns a 'printf'-style format string for 'double' values.
-
-    static char const* format(double);
-        // Return a 'printf'-style format string that can be used to restore a
-        // decimal value that was previously converted to a 'double' value.
-        // Refer to the documentation of 'decimalFromDouble' for the conversion
-        // rules.
-};
-
-                        // -----------------
-                        // class StdioFormat
-                        // -----------------
-
-inline
-const char* StdioFormat<float>::format(float v)
-{
-    // In the general case, all decimal values with 6 or fewer significant
-    // digits convert to a unique 'float' value, while those with 7 digits do
-    // not:
-    //  9.999993e-4 and 9.999994e-4 convert to the same float.
-    //  8.589973e+9 and 8.589974e+9 convert to the same float.
-    // All decimals with seven significant digits that lie in the range
-    // '[ 9.999995e-4 .. 8.589972e+9 ]' do convert to a unique float, so we can
-    // do a seven-digit conversion to eke out an extra decimal place for this
-    // important range in which many business numbers lie.
-    v = fabsf(v);
-    return v >= 9.999995e-4f && v <= 8.589972e+9f ? "%.7g" : "%.6g";
-}
-
-inline
-const char* StdioFormat<double>::format(double)
-{
-    // All decimal values with 15 or fewer significant digits convert to a
-    // unique 'double' value.
-    return "%.15g";
-}
-
                         // ===================
                         // class DecimalTraits
                         // ===================
@@ -288,76 +226,34 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
     // the infinity of the appropriate sign in the specified 'decimal' and
     // return true, otherwise leave 'decimal' unchanged and return false.
 {
-    bool negative = bdlb::Float::signBit(binary);
+    switch (bdlb::Float::classify(binary))
+    {
+      case bdlb::Float::k_ZERO:
+        *decimal = DECIMAL_TYPE(0);
+        break;
 
-    if (bdlb::Float::isNan(binary)) {
-        *decimal = negative ? -bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN()
-                            :  bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
-        return true;                                                  // RETURN
-    }
-
-    if (bdlb::Float::isInfinite(binary) || !isInRange<DECIMAL_TYPE>(binary)) {
-        *decimal = negative ? -bsl::numeric_limits<DECIMAL_TYPE>::infinity()
-                            :  bsl::numeric_limits<DECIMAL_TYPE>::infinity();
-        return true;                                                  // RETURN
-    }
-
-    if (binary == 0) {
-        *decimal = negative ? -DECIMAL_TYPE(0) : DECIMAL_TYPE(0);
-        return true;                                                  // RETURN
-    }
-
-    return false;
-}
-
-template <class DECIMAL_TYPE, class BINARY_TYPE>
-void restoreDecimalFromBinary(DECIMAL_TYPE *decimal, BINARY_TYPE binary)
-    // Construct, in the specified 'decimal', a decimal floating point
-    // representation of the value of the binary floating point value specified
-    // by 'binary'.
-{
-
-    if (restoreSingularDecimalFromBinary(decimal, binary)) {
-        return;                                                       // RETURN
-    }
-
-    char buffer[48];
-    int  rc = snprintf(buffer,
-                      sizeof(buffer),
-                      StdioFormat<BINARY_TYPE>::format(binary),
-                      binary);
-    (void)rc;
-    BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
-
-    typename DecimalTraits<DECIMAL_TYPE>::SignificandType significand(0);
-    int                                                   exponent(0);
-    bool                                                  negative(false);
-
-    char const* it(buffer);
-    if (*it == '-') {
-        negative = true;
-        ++it;
-    }
-    for (; isdigit(static_cast<unsigned char>(*it)); ++it) {
-        significand = significand * 10 + (*it - '0');
-    }
-    if (*it == '.') {
-        ++it;
-        for (; isdigit(static_cast<unsigned char>(*it)); ++it) {
-            significand = significand * 10 + (*it - '0');
-            --exponent;
+      case bdlb::Float::k_NORMAL:
+        if (isInRange<DECIMAL_TYPE>(binary)) {
+            return false;                                             // RETURN
         }
-    }
-    if (*it == 'e' || *it == 'E') {
-        ++it;
-        exponent += bsl::atoi(it);
+        // FALL THROUGH
+      case bdlb::Float::k_INFINITE:
+        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
+        break;
+
+      case bdlb::Float::k_SUBNORMAL:
+        return false;                                                 // RETURN
+
+      case bdlb::Float::k_NAN:
+        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
+        break;
     }
 
-    *decimal = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
-
-    if (negative) {
+    if (bdlb::Float::signBit(binary)) {
         *decimal = -*decimal;
     }
+
+    return true;
 }
 
 static inline
