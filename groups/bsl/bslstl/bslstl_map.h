@@ -535,6 +535,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
+#include <bslma_constructionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
 #include <bslma_destructorguard.h>
 #endif
@@ -2228,10 +2236,10 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
     BloombergLP::bslalg::RbTreeNode *node =
      BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), lvalue);
     if (d_tree.sentinel() == node) {
-        ALLOCATOR allocator = get_allocator();
-
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
-        AllocatorTraits::construct(allocator, temp.address());
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                     temp.address(),
+                                     BloombergLP::bslma::Default::allocator());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         return emplace_hint(iterator(node),
