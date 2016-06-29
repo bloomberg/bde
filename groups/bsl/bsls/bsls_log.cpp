@@ -9,6 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomicoperations.h> // Atomic pointers
 #include <bsls_bsltestutil.h>      // for testing only
 #include <bsls_platform.h>         // 'BSLS_PLATFORM_OS_WINDOWS'
+#include <bsls_types.h>            // IntPtr
 
 #include <stdarg.h> // 'va_list', 'va_start', 'va_end', 'va_copy'
 #include <stdio.h>  // 'puts', 'snprintf', 'vsnprintf'
@@ -300,11 +301,18 @@ int snprintf_allocate(char                 *originalBuffer,
                          // =========
 
 // CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Pointer Log::s_logMessageHandler =
-    {reinterpret_cast<void*>(&Log::platformDefaultMessageHandler)};
-    // Static initialization of the Log::s_logMessageHandler function pointer
-    // which holds the log handler function.  The pointer is initialized to the
-    // address of the 'static' function 'platformDefaultMessageHandler'.
+
+// Static initialization of the Log::s_logMessageHandler function pointer that
+// holds the log handler function.  The pointer is initialized to the address
+// of the 'static' function 'platformDefaultMessageHandler'.  The double cast
+// avoids warnings about converting from function to data pointers.
+bsls::AtomicOperations::AtomicTypes::Pointer Log::s_logMessageHandler = {
+    reinterpret_cast<void *>(
+        reinterpret_cast<bsls::Types::IntPtr>(
+            &Log::platformDefaultMessageHandler
+        )
+    )
+};
 
 // CLASS METHODS
 void Log::logFormattedMessage(const char *file,
