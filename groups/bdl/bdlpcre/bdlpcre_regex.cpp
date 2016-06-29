@@ -51,10 +51,20 @@ void bdlpcre_free(void* data, void* context)
 }  // close extern "C"
 
 namespace BloombergLP {
-
 namespace bdlpcre {
 
 // CONSTANTS
+
+namespace {
+
+static const bool k_IS_JIT_SUPPORTED =
+#if defined(BSLS_PLATFORM_CPU_SPARC_V9)
+false;
+#else
+true;
+#endif
+
+}  // close unnamed namespace
 
 enum {
     k_SUCCESS              =  0,
@@ -89,7 +99,7 @@ int RegEx::privateMatch(const char *subject,
     int returnValue;
 
     if (skipValidation) {
-        if (d_flags & k_FLAG_JIT) {
+        if (d_flags & k_FLAG_JIT && isJitAvailable()) {
             returnValue = pcre2_jit_match(d_patternCode_p,
                                           actualSubject,
                                           subjectLength,
@@ -201,6 +211,16 @@ void RegEx::extractMatchResult(bsl::vector<bslstl::StringRef> *result,
             (*result)[i] = bslstl::StringRef();
         }
     }
+}
+
+// CLASS METHODS
+bool RegEx::isJitAvailable()
+{
+    unsigned int result;
+    BSLS_ASSERT(0 <= pcre2_config(PCRE2_CONFIG_JIT, &result));
+    BSLS_ASSERT(k_IS_JIT_SUPPORTED == result);
+
+    return k_IS_JIT_SUPPORTED;
 }
 
 // CREATORS
@@ -317,7 +337,7 @@ int RegEx::prepare(bsl::string *errorMessage,
         return k_FAILURE;                                             // RETURN
     }
 
-    if (flags & k_FLAG_JIT) {
+    if (flags & k_FLAG_JIT && isJitAvailable()) {
         if (0 != pcre2_jit_compile(patternCode, PCRE2_JIT_COMPLETE)) {
             pcre2_code_free(patternCode);
             if (errorMessage) {
@@ -344,7 +364,7 @@ int RegEx::prepare(bsl::string *errorMessage,
         return k_FAILURE;                                             // RETURN
     }
 
-    if (flags & k_FLAG_JIT) {
+    if (flags & k_FLAG_JIT && isJitAvailable()) {
         if (jitStackSize) {
             d_jitStack_p = pcre2_jit_stack_create(jitStackSize,
                                                   jitStackSize,

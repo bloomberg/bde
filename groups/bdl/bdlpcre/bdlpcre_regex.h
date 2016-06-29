@@ -115,18 +115,28 @@ BSLS_IDENT("$Id$ $CSID$")
 ///JIT Compiling optimization
 ///--------------------------
 // Just-in-time compiling is a heavyweight optimization that can greatly speed
-// up pattern matching. However, it comes at the cost of extra processing
-// before the match is performed, so it is of most benefit when the same
-// pattern is going to be matched many times. This does not necessarily mean
-// many calls of a matching function; if the pattern is not anchored, matching
-// attempts may take place many times at various positions in the subject, even
-// for a single call. Therefore, if the subject string is very long, it may
-// still pay to use JIT even for one-off matches.
+// up pattern matching on supported platforms.  However, it comes at the cost
+// of extra processing before the match is performed, so it is of most benefit
+// when the same pattern is going to be matched many times. This does not
+// necessarily mean many calls of a matching function; if the pattern is not
+// anchored, matching attempts may take place many times at various positions
+// in the subject, even for a single call.  Therefore, if the subject string is
+// very long, it may still pay to use JIT even for one-off matches.
 //
 // If 'RegEx::k_FLAG_JIT' is included in the flags supplied to 'prepare', then
 // all following matchings will be performed with JIT optimization.  To turn
 // off JIT optimization support, regular expression should be prepared again,
 // without using 'k_FLAG_JIT'.
+//
+// JIT is supported on next platforms:
+//..
+//  ARM 32-bit (v5, v7, and Thumb2)
+//  ARM 64-bit
+//  Intel x86 32-bit and 64-bit
+//  MIPS 32-bit and 64-bit
+//  Power PC 32-bit and 64-bit
+//  SPARC 32-bit
+//..
 //
 // The table below demonstrates the benefit of the 'match' method with JIT
 // optimization over the basic 'match' method:
@@ -628,6 +638,19 @@ class RegEx {
     static int defaultDepthLimit();
         // Returns the process-wide default evaluation recursion depth limit.
 
+    static bool isJitAvailable();
+        // Return 'true' if just-in-time compiling optimization is supported by
+        // current hardware platform and 'false' otherwise.  Note that the
+        // support is limited to the following hardware platforms:
+        //..
+        //  ARM 32-bit (v5, v7, and Thumb2)
+        //  ARM 64-bit
+        //  Intel x86 32-bit and 64-bit
+        //  MIPS 32-bit and 64-bit
+        //  Power PC 32-bit and 64-bit
+        //  SPARC 32-bit
+        //..
+
     static int setDefaultDepthLimit(int depthLimit);
         // Set the process-wide default evaluation recursion depth limit to the
         // specified 'depthLimit'.  Returns the previous depth limit.
@@ -660,19 +683,20 @@ class RegEx {
         // class, which indicate additional configuration parameters for the
         // regular expression.  Optionally specify 'jitStackSize'. If 'flags'
         // has the 'k_FLAG_JIT' flag set, 'jitStackSize' indicates the size of
-        // the allocated JIT stack to be used for this pattern. If 'flags' has
-        // the 'k_FLAG_JIT' bit set and 'jitStackSize' is 0 (or not supplied),
-        // no memory will be allocated for the JIT stack and the program stack
-        // will be used as the JIT stack. If 'flags' does not have 'k_FLAG_JIT'
-        // set, the 'jitStackSize' parameter, if supplied, is ignored.  On
-        // success, put this object into the "prepared" state and return 0,
-        // with no effect on the specified 'errorMessage' and 'errorOffset'.
-        // Otherwise, (1) put this object into the "unprepared" state, (2) load
-        // 'errorMessage' (if non-null) with a string describing the error
-        // detected, (3) load 'errorOffset' (if non-null) with the offset in
-        // 'pattern' at which the error was detected, and (4) return a non-zero
-        // value.  The behavior is undefined unless 'flags' is the bit-wise
-        // inclusive-or of 0 or more of the following values:
+        // the allocated JIT stack to be used for this pattern. If 'flags'
+        // has the 'k_FLAG_JIT' bit set and 'jitStackSize' is 0 (or not
+        // supplied), no memory will be allocated for the JIT stack and the
+        // program stack will be used as the JIT stack. If 'flags' does not
+        // have 'k_FLAG_JIT' set, or 'isJitAvailable is 'false', the
+        // 'jitStackSize' parameter, if supplied, is ignored.  On success, put
+        // this object into the "prepared" state and return 0, with no effect
+        // on the specified 'errorMessage' and 'errorOffset'.  Otherwise, (1)
+        // put this object into the "unprepared" state, (2) load 'errorMessage'
+        // (if non-null) with a string describing the error detected, (3) load
+        // 'errorOffset' (if non-null) with the offset in 'pattern' at which
+        // the error was detected, and (4) return a non-zero value.  The
+        // behavior is undefined unless 'flags' is the bit-wise inclusive-or of
+        // 0 or more of the following values:
         //..
         //  k_FLAG_CASELESS
         //  k_FLAG_DOTMATCHESALL
@@ -680,6 +704,8 @@ class RegEx {
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
         //..
+        // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable' is
+        // 'false'.
 
     int setDepthLimit(int depthLimit);
         // Set the evaluation recursion depth limit for this regular-expression
@@ -704,6 +730,8 @@ class RegEx {
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
         //..
+        // Also note that 'k_FLAG_JIT' is ignored, but still returned by this
+        // method, if 'isJitAvailable' is 'false'.
 
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"
