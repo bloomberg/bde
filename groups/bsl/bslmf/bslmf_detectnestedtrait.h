@@ -493,17 +493,16 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<
 // work-arounds already in place for XLC in the 'bslmf_removeconst' component.
 // See 'bslmf_removeconst' for more information.
 
-
 template <class TYPE, template <class> class TRAIT>
 struct DetectNestedTrait<const TYPE, TRAIT>
-    : DetectNestedTrait<typename bsl::remove_const<TYPE>::type, TRAIT>::Type {
+     : DetectNestedTrait<typename bsl::remove_const<TYPE>::type, TRAIT>::Type {
 };
 
 #else
 
 template <class TYPE, template <class> class TRAIT>
 struct DetectNestedTrait<const TYPE, TRAIT>
-    : DetectNestedTrait<TYPE, TRAIT>::Type {
+     : DetectNestedTrait<TYPE, TRAIT>::Type {
 };
 
 #endif
