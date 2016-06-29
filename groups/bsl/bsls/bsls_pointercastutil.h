@@ -70,19 +70,13 @@ BSLS_IDENT("$Id: $")
 //  assert(counter == 2);
 //..
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
 #endif
 
-BSLS_IDENT("$Id: $")
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
 
 namespace BloombergLP {
 namespace bsls {
@@ -96,34 +90,36 @@ struct PointerCastUtil {
     // allows casting between function and data pointers.
 
     // CLASS METHODS
-    template <class TO, class FROM>
-    static TO cast(FROM from);
-        // Return the specified 'from' cast to type 'TO', casting it in two
-        // steps, first to an integer type the size of a pointer and then to
-        // the target type.  This function is intended to be used to cast
+    template <class TO_TYPE, class FROM_TYPE>
+    static TO_TYPE cast(FROM_TYPE from);
+        // Return the specified 'from' value cast to 'TO_TYPE', casting it in
+        // two steps, first to an integer type the size of a pointer and then
+        // to the target type.  This function is intended to be used to cast
         // between function and data pointers, as doing such a cast directly
-        // was once not legal.  The behavior is undefined if either the 'FROM'
-        // or 'TO' types are larger than the intermediate integer type.
+        // was once illegal.  The behavior is undefined unless both 'FROM_TYPE'
+        // and 'TO_TYPE' are not larger than the intermediate integer type.
 };
 
 }  // close package namespace
 
-template <class TO, class FROM>
+template <class TO_TYPE, class FROM_TYPE>
 inline
-TO bsls::PointerCastUtil::cast(FROM from)
+TO_TYPE bsls::PointerCastUtil::cast(FROM_TYPE from)
 {
-    typedef BSLS_ANNOTATION_UNUSED char FROM_SizeCheck[
-                         sizeof(bsls::Types::IntPtr) >= sizeof(FROM) ? 1 : -1];
-    typedef BSLS_ANNOTATION_UNUSED char   TO_SizeCheck[
-                         sizeof(bsls::Types::IntPtr) >= sizeof(TO)   ? 1 : -1];
-        // Static assert that the 'FROM' and 'TO' types are not larger than the
-        // intermediate integer type.  Note that 'bslmf_Assert' cannot be used
-        // here because of package dependency rules.
+    typedef BSLS_ANNOTATION_UNUSED char FROM_TYPE_SizeCheck[
+                    sizeof(bsls::Types::IntPtr) >= sizeof(FROM_TYPE) ? 1 : -1];
+    typedef BSLS_ANNOTATION_UNUSED char   TO_TYPE_SizeCheck[
+                    sizeof(bsls::Types::IntPtr) >= sizeof(TO_TYPE)   ? 1 : -1];
+        // Static asserts ensuring that neither 'FROM_TYPE' nor 'TO_TYPE' is
+        // larger than the intermediate integer type.  Note that 'bslmf_assert'
+        // cannot be used here because of package dependency rules.
 
-    return reinterpret_cast<TO>(reinterpret_cast<bsls::Types::IntPtr>(from));
+    return reinterpret_cast<TO_TYPE>(
+                                  reinterpret_cast<bsls::Types::IntPtr>(from));
 }
 
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
