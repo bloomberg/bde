@@ -640,7 +640,7 @@ class RegEx {
 
     static bool isJitAvailable();
         // Return 'true' if just-in-time compiling optimization is supported by
-        // current hardware platform and 'false' otherwise.  Note that the
+        // current hardware platform and 'false' otherwise.  Note that JIT
         // support is limited to the following hardware platforms:
         //..
         //  ARM 32-bit (v5, v7, and Thumb2)

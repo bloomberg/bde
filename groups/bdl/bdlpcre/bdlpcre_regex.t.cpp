@@ -9,6 +9,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignedbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
@@ -753,26 +754,26 @@ int main(int argc, char *argv[])
         Obj x;
         int originalDepthLimit = x.depthLimit();
 
-        ASSERT(x.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(x.depthLimit() == Obj::defaultDepthLimit());
 
-        int previousGlobalLimit = RegEx::setDefaultDepthLimit(3);
+        int previousGlobalLimit = Obj::setDefaultDepthLimit(3);
 
-        ASSERT(3                  == RegEx::defaultDepthLimit());
+        ASSERT(3                  == Obj::defaultDepthLimit());
         ASSERT(3                  != originalDepthLimit);
         ASSERT(originalDepthLimit == x.depthLimit());
         ASSERT(originalDepthLimit == previousGlobalLimit);
 
         Obj y;
 
-        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == Obj::defaultDepthLimit());
 
         int previousXLimit = x.setDepthLimit(5);
 
         ASSERT(5              == x.depthLimit());
         ASSERT(5              != originalDepthLimit);
-        ASSERT(3              == RegEx::defaultDepthLimit());
+        ASSERT(3              == Obj::defaultDepthLimit());
         ASSERT(previousXLimit == previousGlobalLimit);
-        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == Obj::defaultDepthLimit());
 
         const char *testString       = "a\n\n\n\n\nb";
         bsl::size_t testStringLength = bsl::strlen(testString);
@@ -947,7 +948,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_FLAG_JIT == X1.flags());
             ASSERT(Obj::k_FLAG_JIT == X2.flags());
             ASSERT(0               == X1.jitStackSize());
-            if (RegEx::isJitAvailable()) {
+            if (Obj::isJitAvailable()) {
                 ASSERT(1                    == X2.jitStackSize());
                 ASSERT(Z1->numAllocations() <  Z2->numAllocations());
             } else {
@@ -980,7 +981,7 @@ int main(int argc, char *argv[])
                                    PATTERN,
                                    Obj::k_FLAG_JIT,
                                    1));
-            if (RegEx::isJitAvailable()) {
+            if (Obj::isJitAvailable()) {
                 ASSERT(1 == X.jitStackSize());
                 ASSERT(2 == X.match(SUBJECT, SUBJECT_LENGTH));
             } else {
@@ -995,7 +996,7 @@ int main(int argc, char *argv[])
                                    PATTERN,
                                    Obj::k_FLAG_JIT,
                                    32768));
-            if (RegEx::isJitAvailable()) {
+            if (Obj::isJitAvailable()) {
                 ASSERT(32768 == X.jitStackSize());
             } else {
                 ASSERT(0     == X.jitStackSize());
@@ -1023,9 +1024,9 @@ int main(int argc, char *argv[])
                           << "===============================" << endl;
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_V9)
-        ASSERT(false == RegEx::isJitAvailable());
+        ASSERT(false == Obj::isJitAvailable());
 #else
-        ASSERT(true == RegEx::isJitAvailable());
+        ASSERT(true == Obj::isJitAvailable());
 #endif
 
       } break;
