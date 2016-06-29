@@ -487,10 +487,27 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<
 // have (or do not have) the same traits as the corresponding cv-unqualified
 // type.
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// XLC has an issue removing const-qualifiers from array types.  The rendundant
+// use of 'bsl::remove_const' below is a work-around, which utilizes the
+// work-arounds already in place for XLC in the 'bslmf_removeconst' component.
+// See 'bslmf_removeconst' for more information.
+
+
 template <class TYPE, template <class> class TRAIT>
 struct DetectNestedTrait<const TYPE, TRAIT>
-     : DetectNestedTrait<TYPE, TRAIT>::Type {
+    : DetectNestedTrait<typename bsl::remove_const<TYPE>::type, TRAIT>::Type {
 };
+
+#else
+
+template <class TYPE, template <class> class TRAIT>
+struct DetectNestedTrait<const TYPE, TRAIT>
+    : DetectNestedTrait<TYPE, TRAIT>::Type {
+};
+
+#endif
+
 
 template <class TYPE, template <class> class TRAIT>
 struct DetectNestedTrait<volatile TYPE, TRAIT>
