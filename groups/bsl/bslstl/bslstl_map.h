@@ -866,9 +866,11 @@ class map {
         // pairs contained in this map.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
         // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  This method requires that the (template parameter)
-        // types 'KEY' and 'VALUE' both be 'copy-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default), the currently installed default
+        // allocator is used.  This method requires that the (template
+        // parameter) types 'KEY' and 'VALUE' both be 'copy-insertable' into
+        // this map (see {Requirements on 'KEY' and 'VALUE'}).
 
     map(BloombergLP::bslmf::MovableRef<map> original);
         // Create a map having the same value as the specified 'original'

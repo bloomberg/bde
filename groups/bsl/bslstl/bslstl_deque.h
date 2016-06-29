@@ -1076,9 +1076,11 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // object.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
         // select_on_container_copy_construction(original.get_allocator())' to
-        // supply memory.  This method requires that the (template parameter)
-        // 'VALUE_TYPE' be 'copy-insertable' into this deque (see {Requirements
-        // on 'VALUE_TYPE'}).
+        // supply memory.  If the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default), the currently installed default
+        // allocator is used.  This method requires that the (template
+        // parameter) 'VALUE_TYPE' be 'copy-insertable' into this deque (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     deque(const deque& original, const ALLOCATOR& basicAllocator);
         // Create a deque that has the same value as the specified 'original'
