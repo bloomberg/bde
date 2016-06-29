@@ -140,11 +140,14 @@ struct StdioFormat<double> {
 inline
 const char* StdioFormat<float>::format(float v)
 {
+    // In the general case, all decimal values with 6 or fewer significant
+    // digits convert to a unique 'float' value, while those with 7 digits do
+    // not:
     //  9.999993e-4 and 9.999994e-4 convert to the same float.
     //  8.589973e+9 and 8.589974e+9 convert to the same float.
     // All decimals with seven significant digits that lie in the range
-    // '[ 9.999995e-4 .. 8.589972e+9 ]' convert to a unique float, so we can
-    // do a seven-digit conversion to eke out an extra decimal places for this
+    // '[ 9.999995e-4 .. 8.589972e+9 ]' do convert to a unique float, so we can
+    // do a seven-digit conversion to eke out an extra decimal place for this
     // important range in which many business numbers lie.
     v = fabsf(v);
     return v >= 9.999995e-4f && v <= 8.589972e+9f ? "%.7g" : "%.6g";
@@ -153,6 +156,8 @@ const char* StdioFormat<float>::format(float v)
 inline
 const char* StdioFormat<double>::format(double)
 {
+    // All decimal values with 15 or fewer significant digits convert to a
+    // unique 'double' value.
     return "%.15g";
 }
 
@@ -233,6 +238,27 @@ Decimal128 DecimalTraits<Decimal128>::make(long long significand, int exponent)
 
                   // Helpers for Restoring Decimal from Binary
 
+// The "Olkin-Farber-Rosen" quick conversion method (for converting back binary
+// floating point to decimal) involves scaling the binary value by a power of
+// ten, rounding it to an integer, and then seeing whether the difference
+// between the value and the rounded value is small compared to the value; if
+// so, the scaled integer must be the correct decimal representation of the
+// binary (and expensive tests to verify this are not needed).  The threshold
+// is different depending on the maximum number of significant digits the
+// original decimal number which was converted to binary is known to have had.
+//
+// The provenance of the data drives the choice of threshold.  If we use the
+// six-digit threshold value for a binary float number which originally had
+// seven digits (in a range where seven digits are recoverable), we will
+// occasionally convert to a six-digit value, losing the seventh digit.  If we
+// use the seven-digit threshold value for numbers which have been converted
+// from six digits but first passed through the IBM/Perkin-Elmer/Interdata
+// format, we will occasionally bypass the quick conversion and convert to a
+// seven-digit value with a spurious seventh digit.
+const float  k_6_DIGIT_OFR_THRESHOLD = 5e-7f;
+const float  k_7_DIGIT_OFR_THRESHOLD = 1e-8f;
+const double k_9_DIGIT_OFR_THRESHOLD = 1e-17;
+
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 static inline
 bool isInRange(BINARY_TYPE)
@@ -247,8 +273,9 @@ template <>
 inline
 bool isInRange<Decimal32, double>(double value)
 {
-    static double max_decimal = DecimalConvertUtil::decimalToDouble(
-                                        bsl::numeric_limits<Decimal32>::max());
+    static double max_decimal = 9.999999e96;
+    BSLS_ASSERT(DecimalConvertUtil::decimalToDouble(
+                    bsl::numeric_limits<Decimal32>::max()) == max_decimal);
     return bsl::abs(value) <= max_decimal;
 }
 
@@ -256,32 +283,27 @@ template <class DECIMAL_TYPE, class BINARY_TYPE>
 static inline
 bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
                                       BINARY_TYPE   binary)
-    // If the specified 'binary' is a singular value ('Inf', 'Nan', or -0) or
-    // is out of range of 'DECIMAL_TYPE', construct the equivalent decimal form
-    // or the infinity of the appropriate sign in the specified 'decimal' and
+    // If the specified 'binary' is a singular value ('Inf', 'Nan', or 0) or is
+    // out of range of 'DECIMAL_TYPE', construct the equivalent decimal form or
+    // the infinity of the appropriate sign in the specified 'decimal' and
     // return true, otherwise leave 'decimal' unchanged and return false.
 {
     bool negative = bdlb::Float::signBit(binary);
 
     if (bdlb::Float::isNan(binary)) {
-        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
-        if (negative) {
-            *decimal = -*decimal;
-        }
+        *decimal = negative ? -bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN()
+                            :  bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
         return true;                                                  // RETURN
     }
 
     if (bdlb::Float::isInfinite(binary) || !isInRange<DECIMAL_TYPE>(binary)) {
-        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
-        if (negative) {
-            *decimal = -*decimal;
-        }
+        *decimal = negative ? -bsl::numeric_limits<DECIMAL_TYPE>::infinity()
+                            :  bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         return true;                                                  // RETURN
     }
 
-    if (binary == 0 && negative) {
-        *decimal = DECIMAL_TYPE(0);
-        *decimal = -*decimal;
+    if (binary == 0) {
+        *decimal = negative ? -DECIMAL_TYPE(0) : DECIMAL_TYPE(0);
         return true;                                                  // RETURN
     }
 
@@ -338,6 +360,42 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *decimal, BINARY_TYPE binary)
     }
 }
 
+static inline
+int bound(int value, int low, int high)
+    // Return the specified 'low' if the specified 'value' is less than 1, the
+    // specified 'high' if 'value' is greater than 'high', and 'value'
+    // otherwise.
+{
+    return value < 1 ? low : value > high ? high : value;
+}
+
+template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
+static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
+    // Return the closest decimal value with the specified 'digits' significant
+    // digits to the specified 'binary'.  Singular (infinity, NaN, and -0) and
+    // out-of-range 'binary' values are converted to appropriate decimal
+    // singular values.  If 'digits' is less than 1, use 'LIMIT' instead, and
+    // if 'digits' is greater than the number of digits that 'DECIMAL_TYPE' can
+    // hold, use that number instead.
+{
+    DECIMAL_TYPE result;
+    char         buffer[32];
+    if (!restoreSingularDecimalFromBinary(&result, binary)) {
+        int rc = snprintf(
+                        buffer,
+                        sizeof(buffer),
+                        "%1.*g",
+                        bound(digits,
+                              LIMIT,
+                              bsl::numeric_limits<DECIMAL_TYPE>::digits10),
+                        binary);
+        (void)rc;
+        BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
+        parseDecimal(&result, buffer);
+    }
+    return result;
+}
+
 template <class INTEGER_TYPE>
 inline void reduce(INTEGER_TYPE *significand, int *exponent)
     // Divide the value of the specified '*significand' by 10 and increment the
@@ -368,10 +426,11 @@ inline void reduce(INTEGER_TYPE *significand, int *exponent)
     *exponent = scale;
 }
 
+template <typename DECIMAL_TYPE>
 inline
-bool quickDecimal64FromDouble(Decimal64 *result,
-                              double     binary,
-                              double     threshold)
+bool quickDecimalFromDouble(DECIMAL_TYPE *result,
+                            double        binary,
+                            double        threshold)
     // Return 'true' iff an attempt to set the specified 'result' to a "quick"
     // conversion from the specified 'binary' succeeds.  This occurs when
     // 'binary' is in an appropriate range and scaling and rounding it to an
@@ -399,23 +458,20 @@ bool quickDecimal64FromDouble(Decimal64 *result,
         // E.g., we want .001 to appear to have 3 digits, not 9.
         reduce(&n, &scale);
 
-        *result = DecimalUtil::makeDecimalRaw64(n, scale);
+        *result = DecimalTraits<DECIMAL_TYPE>::make(n, scale);
 
         // Decimal64 values hold 16 significant digits, so given a Decimal64
         // value 'V = M * 10^E with 1 <= M < 10', its successor is
         // 'Vnext = (M + 10^-15) * 10^E' and the ratio of their difference to
         // the value is '10^(E-15) / (M * 10^E) = 10^-15 / M >= 10^-16'.
         //
-        // We are concerned that the Decimal64 value we have computed for the
+        // We are concerned that the decimal value we have computed for the
         // 'binary' value may be wrong, i.e., that its successor or predecessor
         // may be closer in value to 'binary'.  If so, that difference comes
         // from the fractional portion of the scaled 'binary'.  If we can
         // determine that the fractional portion is too small to push the value
         // up or down, then we do not need to verify by back conversion.
-        //
-        // Compute the ratio of the fractional part of the scaled binary number
-        // to its integer part.  If it's small enough (using 1e-17, generously
-        // below the 1e-16 computed above), skip the verification.
+
         double dn, r;
         r = bsl::modf(d, &dn);
         if ((dn != 0 && r / dn < threshold) || r == 0) {
@@ -431,8 +487,9 @@ bool quickDecimal64FromDouble(Decimal64 *result,
     return false;
 }
 
+template <typename DECIMAL_TYPE>
 inline
-bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
+bool quickDecimalFromFloat(DECIMAL_TYPE *result, float binary, float threshold)
     // Return 'true' iff an attempt to set the specified 'result' to a "quick"
     // conversion from the specified 'binary' succeeds.  This occurs when
     // 'binary' is in an appropriate range and scaling and rounding it to an
@@ -491,11 +548,11 @@ bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
         float diff = d - float(n);
 
         reduce(&n, &scale);
-        *result = DecimalUtil::makeDecimalRaw64(n, scale);
+        *result = DecimalTraits<DECIMAL_TYPE>::make(n, scale);
 
-        // We have generated a Decimal64 with six significant digits, and are
+        // We have generated a decimal with six significant digits, and are
         // concerned that it may be wrong, i.e., that the next higher or lower
-        // six-digit Decimal64 may be closer in value to 'binary'.
+        // six-digit decimal may be closer in value to 'binary'.
         //
         // Suppose our generated number is 'V = M * 10^E, 1 <= M < 10'.  Its
         // six-significant-digit successor is 'V+ = (M + 10^-5) * 10^E' and the
@@ -503,17 +560,8 @@ bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
         // '(V+ - V) / V = 10^(E-5) / (M * 10^E) > 10^-6'.  If we can determine
         // that the relative difference between the fractional portion of the
         // scaled 'binary' and its integer part is too small to push the
-        // decimal value up or down in the sixth significant digit, then we do
-        // not need to verify by back conversion.
-        //
-        // Compute the ratio of the fractional part of the scaled binary number
-        // to its integer part.  If it's small enough, skip the verification.
-        //
-        // So what is "small enough"?  5e-7 would do.  However, we want to
-        // allow 7-digit decimals in a restricted range (see StdioFormat above)
-        // and using 5e-7 causes some of those to convert as accurate 6-digit
-        // numbers.  1e-8 eliminates those at the cost of about 7% fewer quick
-        // conversions.
+        // decimal value up or down, then we do not need to verify by back
+        // conversion.
 
         if (fabsf(diff / d) < threshold) {
             return true;                                              // RETURN
@@ -636,62 +684,88 @@ const unsigned char *DecimalConvertUtil::decimalFromNetwork(
 
                         // DecimalFromDouble functions
 
-Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary)
+Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary, int digits)
 {
-    Decimal32 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
+    // Decimal32 holds up to 7 digits.
+    return restoreDecimalDigits<Decimal32, 7>(binary, digits);
 }
 
-Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
+Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary, int digits)
 {
     Decimal64 rv;
-
-    if (!quickDecimal64FromDouble(&rv, binary, 1e-17)) {
-        restoreDecimalFromBinary(&rv, binary);
+    if ((digits <= 0 || digits == 9) &&
+        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
+        return rv;                                                    // RETURN
     }
-    return rv;
+    // 15-digit decimals convert to unique doubles.
+    return restoreDecimalDigits<Decimal64, 15>(binary, digits);
 }
 
-Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary)
+Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary, int digits)
 {
     Decimal128 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
+    if ((digits <= 0 || digits == 9) &&
+        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
+        return rv;                                                    // RETURN
+    }
+    // 15-digit decimals convert to unique doubles.
+    return restoreDecimalDigits<Decimal128, 15>(binary, digits);
 }
 
                         // DecimalFromFloat functions
 
-Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary)
+Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary, int digits)
 {
     Decimal32 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
+    if (((digits <= 0 || digits == 7) &&
+         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
+        (digits == 6 &&
+         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+        return rv;                                                    // RETURN
+    }
+    if (digits <= 0) {
+        float v = fabsf(binary);
+        if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
+            digits = 7;
+        }
+    }
+    return restoreDecimalDigits<Decimal32, 6>(binary, digits);
 }
 
-Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
+Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary, int digits)
 {
     Decimal64 rv;
-    if (!quickDecimal64FromFloat(&rv, binary, 1e-8f)) {
-        restoreDecimalFromBinary(&rv, binary);
+    if (((digits <= 0 || digits == 7) &&
+         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
+        (digits == 6 &&
+         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+        return rv;                                                    // RETURN
     }
-    return rv;
+    if (digits <= 0) {
+        float v = fabsf(binary);
+        if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
+            digits = 7;
+        }
+    }
+    return restoreDecimalDigits<Decimal64, 6>(binary, digits);
 }
 
-Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary)
+Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary, int digits)
 {
     Decimal128 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
-}
-
-static inline
-int bound(int value, int low, int high)
-    // Return the specified 'low' if the specified 'value' is less than 1, the
-    // specified 'high' if 'value' is greater than 'high', and 'value'
-    // otherwise.
-{
-    return value < 1 ? low : value > high ? high : value;
+    if (((digits <= 0 || digits == 7) &&
+         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
+        (digits == 6 &&
+         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
+        return rv;                                                    // RETURN
+    }
+    if (digits <= 0) {
+        float v = fabsf(binary);
+        if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
+            digits = 7;
+        }
+    }
+    return restoreDecimalDigits<Decimal128, 6>(binary, digits);
 }
 
 static inline
@@ -718,73 +792,57 @@ void parseDecimal(Decimal128 *result, const char *buffer)
     DecimalUtil::parseDecimal128(result, buffer);
 }
 
-template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
-static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
-    // Return the closest decimal value with the specified 'digits' significant
-    // digits to the specified 'binary'.  Singular (infinity, NaN, and -0) and
-    // out-of-range 'binary' values are converted to appropriate decimal
-    // singular values.  If 'digits' is less than 1, use 'LIMIT' instead, and
-    // if 'digits' is greater than the number of digits that 'DECIMAL_TYPE' can
-    // hold, use that number instead.
-{
-    DECIMAL_TYPE result;
-    char         buffer[32];
-    if (!restoreSingularDecimalFromBinary(&result, binary)) {
-        int rc = snprintf(
-                        buffer,
-                        sizeof(buffer),
-                        "%1.*e",
-                        bound(digits,
-                              LIMIT,
-                              bsl::numeric_limits<DECIMAL_TYPE>::digits10) - 1,
-                        binary);
-        (void)rc;
-        BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
-        parseDecimal(&result, buffer);
-    }
-    return result;
-}
-
+#if 0
 Decimal32 DecimalConvertUtil::restoreDecimal32Digits(float binary, int digits)
 {
+    // Decimal32 holds up to 7 digits.
     return restoreDecimalDigits<Decimal32, 7>(binary, digits);
 }
 
 Decimal32 DecimalConvertUtil::restoreDecimal32Digits(double binary, int digits)
 {
+    // Decimal32 holds up to 7 digits.
     return restoreDecimalDigits<Decimal32, 7>(binary, digits);
 }
 
 Decimal64 DecimalConvertUtil::restoreDecimal64Digits(float binary, int digits)
 {
     Decimal64 rv;
-    if ((digits <= 6 && quickDecimal64FromFloat(&rv, binary, 5e-7f)) ||
-        (digits == 7 && quickDecimal64FromFloat(&rv, binary, 1e-8))) {
+    if ((digits <= 6 &&
+         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD)) ||
+        (digits == 7 &&
+         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD))) {
         return rv;                                                    // RETURN
     }
+    // All floats can be uniquely represented in 9 significant digits.
     return restoreDecimalDigits<Decimal64, 9>(binary, digits);
 }
 
 Decimal64 DecimalConvertUtil::restoreDecimal64Digits(double binary, int digits)
 {
     Decimal64 rv;
-    if (digits <= 9 && quickDecimal64FromDouble(&rv, binary, 1e-17)) {
+    if (digits <= 9 &&
+        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
         return rv;                                                    // RETURN
     }
+    // Decimal64 holds up to 16 digits.
     return restoreDecimalDigits<Decimal64, 16>(binary, digits);
 }
 
 Decimal128 DecimalConvertUtil::restoreDecimal128Digits(float binary,
                                                        int   digits)
 {
+    // All floats can be uniquely represented in 9 significant digits.
     return restoreDecimalDigits<Decimal128, 9>(binary, digits);
 }
 
 Decimal128 DecimalConvertUtil::restoreDecimal128Digits(double binary,
                                                        int    digits)
 {
+    // All doubles can be uniquely represented in 17 significant digits.
     return restoreDecimalDigits<Decimal128, 17>(binary, digits);
 }
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

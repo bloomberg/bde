@@ -50,18 +50,12 @@ using namespace bsl;
 // [  ] float decimalToFloat(Decimal32);
 // [  ] float decimalToFloat(Decimal64);
 // [  ] float decimalToFloat(Decimal128);
-// [  ] Decimal32 decimal32FromDouble(double);
-// [ 5] Decimal64 decimal64FromDouble(double);
-// [  ] Decimal128 decimal128FromDouble(double);
-// [  ] Decimal32 decimal32FromFloat(float);
-// [  ] Decimal64 decimal64FromFloat(float);
-// [  ] Decimal128 decimal128FromFloat(float);
-// [ 6] Decimal32 restoreDecimal32Digits(float, int = 7);
-// [ 6] Decimal32 restoreDecimal32Digits(double, int = 7);
-// [ 6] Decimal64 restoreDecimal64Digits(float, int = 9);
-// [ 6] Decimal64 restoreDecimal64Digits(double, int = 16);
-// [ 6] Decimal128 restoreDecimal128Digits(float, int = 9);
-// [ 6] Decimal128 restoreDecimal128Digits(double, int = 17);
+// [  ] Decimal32 decimal32FromDouble(double, int);
+// [ 5] Decimal64 decimal64FromDouble(double, int);
+// [  ] Decimal128 decimal128FromDouble(double, int);
+// [  ] Decimal32 decimal32FromFloat(float, int);
+// [  ] Decimal64 decimal64FromFloat(float, int);
+// [  ] Decimal128 decimal128FromFloat(float, int);
 // [  ] decimal32ToBID(uc*, Decimal32);
 // [  ] decimal64ToBID(uc*, Decimal64);
 // [  ] decimal128ToBID(uc*, Decimal128);
@@ -684,12 +678,12 @@ int main(int argc, char* argv[])
         // This needs more thorough testing.
         //
         // Testing:
-        //   Decimal32 restoreDecimal32Digits(float, int = 7);
-        //   Decimal32 restoreDecimal32Digits(double, int = 7);
-        //   Decimal64 restoreDecimal64Digits(float, int = 9);
-        //   Decimal64 restoreDecimal64Digits(double, int = 16);
-        //   Decimal128 restoreDecimal128Digits(float, int = 9);
-        //   Decimal128 restoreDecimal128Digits(double, int = 17);
+        //   Decimal32 decimal32FromFloat(float, int);
+        //   Decimal32 decimal32FromDouble(double, int);
+        //   Decimal64 decimal64FromFloat(float, int);
+        //   Decimal64 decimal64FromDouble(double, int);
+        //   Decimal128 decimal128FromFloat(float, int);
+        //   Decimal128 decimal128FromDouble(double, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nRESTORE DECIMAL TEST"
@@ -716,23 +710,22 @@ int main(int argc, char* argv[])
                     bsl::sscanf(buf2, "%f", &f);
                     volatile double d;
                     bsl::sscanf(buf2, "%lf", &d);
-                    Decimal32      df32 = Util::restoreDecimal32Digits(f, 7);
+                    Decimal32      df32 = Util::decimal32FromFloat(f, 7);
                     volatile float rf32 = Util::decimalToFloat(df32);
                     ASSERTV(buf2, df32, f, rf32, f == rf32);
-                    Decimal32       dd32 = Util::restoreDecimal32Digits(d, 7);
+                    Decimal32       dd32 = Util::decimal32FromDouble(d, 7);
                     volatile double rd32 = Util::decimalToDouble(dd32);
                     ASSERTV(buf2, dd32, d, rd32, d == rd32);
-                    Decimal64      df64 = Util::restoreDecimal64Digits(f, 7);
+                    Decimal64      df64 = Util::decimal64FromFloat(f, 7);
                     volatile float rf64 = Util::decimalToFloat(df64);
                     ASSERTV(buf2, df64, f, rf64, f == rf64);
-                    Decimal64       dd64 = Util::restoreDecimal64Digits(d, 7);
+                    Decimal64       dd64 = Util::decimal64FromDouble(d, 7);
                     volatile double rd64 = Util::decimalToDouble(dd64);
                     ASSERTV(buf2, dd64, d, rd64, d == rd64);
-                    Decimal128     df128 = Util::restoreDecimal128Digits(f, 7);
+                    Decimal128     df128 = Util::decimal128FromFloat(f, 7);
                     volatile float rf128 = Util::decimalToFloat(df128);
                     ASSERTV(buf2, df128, f, rf128, f == rf128);
-                    Decimal128      dd128 =
-                                           Util::restoreDecimal128Digits(d, 7);
+                    Decimal128      dd128 = Util::decimal128FromDouble(d, 7);
                     volatile double rd128 = Util::decimalToDouble(dd128);
                     ASSERTV(buf2, dd128, d, rd128, d == rd128);
                 }
@@ -752,7 +745,7 @@ int main(int argc, char* argv[])
                     float f;
                     bsl::sscanf(buf2, "%f", &f);
                     volatile float pe = interdata(i, j - 7);
-                    Decimal32      df32 = Util::restoreDecimal32Digits(pe, 6);
+                    Decimal32      df32 = Util::decimal32FromFloat(pe, 6);
                     volatile float rf32 = Util::decimalToFloat(df32);
                     if (veryVerbose) {
                         if (rand() % 500 == 0 && rand() % 500 == 0) {
