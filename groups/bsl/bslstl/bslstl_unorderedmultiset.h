@@ -1031,7 +1031,8 @@ class unordered_multiset
         // (see {Requirements on 'KEY'}).
 
     unordered_multiset&
-    operator=(BloombergLP::bslmf::MovableRef<unordered_multiset> rhs);
+    operator=(BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value, hash function, and equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1514,7 +1515,8 @@ class unordered_multiset
         // container to 'size() == numElements'.  Also note that this operation
         // has no effect if 'numElements <= size()'.
 
-    void swap(unordered_multiset& other);
+    void swap(unordered_multiset& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value, hash function, and equality comparator of this
         // object with the value, hash function, and equality comparator of the
         // specified 'other' object.  Additionally, if
@@ -1533,14 +1535,14 @@ class unordered_multiset
         // Return (a copy of) the allocator used for memory allocation by this
         // unordered multiset.
 
-    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
     const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered multiset, or the 'end' iterator if this
         // unordered multiset is empty.
 
-    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
     const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
@@ -1669,7 +1671,8 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b);
+          unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, hash function, and equality comparator of the
     // specified 'a' object with the value, hash function, and equality
     // comparator of the specified 'b' object.  Additionally, if
@@ -1921,6 +1924,7 @@ inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                         BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // Note that we are delegating responsibility for getting the allocator
     // traits behavior correct down to the HashTable component.
@@ -2748,6 +2752,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::swap(
                                                      unordered_multiset& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     d_impl.swap(other.d_impl);
 }
@@ -3011,6 +3016,7 @@ inline
 void
 bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

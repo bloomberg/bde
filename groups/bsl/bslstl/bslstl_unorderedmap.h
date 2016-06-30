@@ -1041,6 +1041,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -1351,7 +1355,8 @@ class unordered_map {
         // be "copy-constructible" (see {Requirements on 'value_type'}).
 
     unordered_map&
-    operator=(BloombergLP::bslmf::MovableRef<unordered_map> rhs);
+    operator=(BloombergLP::bslmf::MovableRef<unordered_map> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value, hash function, and key-equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1401,13 +1406,13 @@ class unordered_map {
         // otherwise throw 'std::out_of_range' exception.  Note that this
         // method is not exception-neutral.
 
-    iterator begin();
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered map, or the 'end' iterator if this
         // unordered map is empty.
 
-    iterator end();
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the sequence of 'value_type' objects maintained by this
         // unordered map.
@@ -1427,7 +1432,7 @@ class unordered_map {
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
-    void clear();
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this unordered map.  Note that this
         // unordered map will be empty after calling this method, but allocated
         // memory may be retained for future use.
@@ -1883,7 +1888,8 @@ class unordered_map {
         // numElements'.  Also note that this operation has no effect if
         // 'numElements <= size()'.
 
-    void swap(unordered_map& other);
+    void swap(unordered_map& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object as well as its hasher,
         // key-equality functor, and 'max_load_factor' with those of the
         // specified 'other' object.  If 'allocator_type' has the trait
@@ -1903,20 +1909,20 @@ class unordered_map {
         // exists; otherwise throw a 'std::out_of_range' exception.  Note that
         // this method is not exception-neutral.
 
-    const_iterator begin() const;
-    const_iterator cbegin() const;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered map, or the 'end' iterator if this
         // unordered map is empty.
 
-    const_iterator end() const;
-    const_iterator cend() const;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
         // maintained by this unordered map.
 
-    const_local_iterator begin(size_type index) const;
+    const_local_iterator  begin(size_type index) const;
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects of the
@@ -1925,7 +1931,7 @@ class unordered_map {
         // the bucket is empty.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
-    const_local_iterator end(size_type index) const;
+    const_local_iterator  end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects of the
@@ -1938,11 +1944,11 @@ class unordered_map {
         // by this unordered map, where values having the specified 'key' would
         // be inserted.
 
-    size_type bucket_count() const;
+    size_type bucket_count() const BSLS_CPP11_NOEXCEPT;
         // Return the number of buckets in the array of buckets maintained by
         // this unordered map.
 
-    size_type max_bucket_count() const;
+    size_type max_bucket_count() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of buckets
         // that this unordered map could possibly manage.  Note that there is
         // no guarantee that the unordered map can successfully grow to the
@@ -1961,7 +1967,7 @@ class unordered_map {
         // unordered map maintains unique keys, the returned value will be
         // either 0 or 1.
 
-    bool empty() const;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this unordered map contains no elements, and
         // 'false' otherwise.
 
@@ -1982,7 +1988,7 @@ class unordered_map {
         // 'key', if such an entry exists, and the past-the-end iterator
         // ('end') otherwise.
 
-    allocator_type get_allocator() const;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // unordered map.
 
@@ -1996,24 +2002,24 @@ class unordered_map {
         // unordered map that returns 'true' if two 'key_type' objects have the
         // same value, and 'false' otherwise.
 
-    float load_factor() const;
+    float load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the current ratio between the 'size' of this unordered map
         // and the number of buckets.  The load factor is a measure of how
         // full the container is, and a higher load factor typically leads to
         // an increased number of collisions, thus resulting in a loss of
         // performance.
 
-    float max_load_factor() const;
+    float max_load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the maximum load factor allowed for this unordered map.  Note
         // that if an insert operation would cause the load factor to exceed
         // the 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets (see 'rehash').
 
-    size_type size() const;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this unordered map.
 
-    size_type max_size() const;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this unordered map could possibly hold.  Note that there is no
         // guarantee that the unordered map can successfully grow to the
@@ -2049,7 +2055,8 @@ bool operator!=(const unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b);
+          unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, the hasher, the key-equality functor, and the
     // 'max_load_factor' of the specified 'a' object with those of the
     // specified 'b' object.  If the (template parameter) type 'ALLOCATOR' has
@@ -2291,6 +2298,7 @@ inline
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>&
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_map> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     unordered_map& lvalue = rhs;
 
@@ -2378,7 +2386,7 @@ unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin()
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_impl.elementListRoot());
 }
@@ -2386,7 +2394,7 @@ unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin()
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end()
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator();
 }
@@ -2414,7 +2422,7 @@ unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::clear()
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     d_impl.removeAll();
 }
@@ -3350,6 +3358,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
 
@@ -3381,6 +3390,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -3389,6 +3399,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator();
 }
@@ -3397,6 +3408,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cbegin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -3405,6 +3417,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cend() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator();
 }
@@ -3438,7 +3451,7 @@ inline
 typename
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cbegin(
-                                                         size_type index) const
+                                                     size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
 
@@ -3469,6 +3482,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.numBuckets();
 }
@@ -3477,6 +3491,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxNumBuckets();
 }
@@ -3506,6 +3521,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::empty() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return 0 == d_impl.size();
 }
@@ -3546,6 +3562,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 ALLOCATOR
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::get_allocator() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.allocator();
 }
@@ -3570,6 +3587,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::load_factor() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.loadFactor();
 }
@@ -3578,6 +3596,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxLoadFactor();
 }
@@ -3587,6 +3606,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.size();
 }
@@ -3595,6 +3615,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_size() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxSize();
 }
@@ -3607,6 +3628,7 @@ inline
 bool bsl::operator==(
             const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
             const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     return lhs.d_impl == rhs.d_impl;
 }
@@ -3626,6 +3648,7 @@ inline
 void
 bsl::swap(bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
           bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }
