@@ -535,6 +535,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
+#include <bslma_constructionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
 #include <bslma_destructorguard.h>
 #endif
@@ -858,9 +866,11 @@ class map {
         // pairs contained in this map.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
         // select_on_container_copy_construction(original.get_allocator())' to
-        // allocate memory.  This method requires that the (template parameter)
-        // types 'KEY' and 'VALUE' both be 'copy-insertable' into this map (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default), the currently installed default
+        // allocator is used.  This method requires that the (template
+        // parameter) types 'KEY' and 'VALUE' both be 'copy-insertable' into
+        // this map (see {Requirements on 'KEY' and 'VALUE'}).
 
     map(BloombergLP::bslmf::MovableRef<map> original);
         // Create a map having the same value as the specified 'original'
@@ -2228,10 +2238,10 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
     BloombergLP::bslalg::RbTreeNode *node =
      BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), lvalue);
     if (d_tree.sentinel() == node) {
-        ALLOCATOR allocator = get_allocator();
-
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
-        AllocatorTraits::construct(allocator, temp.address());
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                     temp.address(),
+                                     BloombergLP::bslma::Default::allocator());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         return emplace_hint(iterator(node),

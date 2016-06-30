@@ -1071,17 +1071,25 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // 'first' and 'last' refer to a sequence of valid values where 'first'
         // is at a position at or before 'last'.
 
-    deque(const deque&     original);
-    deque(const deque&     original,
-          const ALLOCATOR& basicAllocator);
+    deque(const deque& original);
         // Create a deque that has the same value as the specified 'original'
-        // deque.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is not specified, then if 'ALLOCATOR' is
-        // convertible from 'bslma::Allocator *', the currently installed
-        // default allocator is used; otherwise, the allocator of 'original' is
-        // used (as mandated per the ISO standard).  This method requires that
-        // the (template parameter) 'VALUE_TYPE' be 'copy-insertable' into this
-        // deque (see {Requirements on 'VALUE_TYPE'}).
+        // object.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // supply memory.  If the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default), the currently installed default
+        // allocator is used.  This method requires that the (template
+        // parameter) 'VALUE_TYPE' be 'copy-insertable' into this deque (see
+        // {Requirements on 'VALUE_TYPE'}).
+
+    deque(const deque& original, const ALLOCATOR& basicAllocator);
+        // Create a deque that has the same value as the specified 'original'
+        // object and that uses the specified 'basicAllocator' to supply
+        // memory.  This method requires that the (template parameter)
+        // 'VALUE_TYPE' be 'copy-insertable' into this deque (see
+        // {Requirements on 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *'
+        // can be supplied for 'basicAllocator' if the (template parameter)
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     deque(BloombergLP::bslmf::MovableRef<deque> original);
         // Create a deque having the same value as the specified 'original'
@@ -3109,7 +3117,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>::deque(
                                   const deque<VALUE_TYPE, ALLOCATOR>& original)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(original)
+, ContainerBase(AllocatorTraits::select_on_container_copy_construction(
+                                                     original.get_allocator()))
 {
     deque temp(k_RAW_INIT, this->get_allocator());
     temp.privateInit(original.size());
