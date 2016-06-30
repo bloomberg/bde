@@ -128,7 +128,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // off JIT optimization support, regular expression should be prepared again,
 // without using 'k_FLAG_JIT'.
 //
-// JIT is supported on next platforms:
+// JIT is supported on following platforms:
 //..
 //  ARM 32-bit (v5, v7, and Thumb2)
 //  ARM 64-bit
@@ -168,7 +168,24 @@ BSLS_IDENT("$Id$ $CSID$")
 //  | IP_ADDRESS_PATTERN |        0.0331       |    0.0062 (~5.3x)   |
 //  +--------------------+---------------------+---------------------+
 //..
-// Note that the test was run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
+//
+// The next table demonstrates the time loss of the 'prepare' method with JIT
+// optimization:
+//..
+//   Measurements (in seconds) have been tallied over the 100000 iterations of
+//   single pattern preparation and single matching in a row.
+//
+//  +--------------------+-----------------------+-----------------------+
+//  | Pattern            | 'prepare' without-JIT |  'prepare' using-JIT  |
+//  +====================+=======================+=======================+
+//  | SIMPLE_PATTERN     |         0.1806        |     1.9612 (~10.9x)    |
+//  +--------------------+-----------------------+-----------------------+
+//  | EMAIL_PATTERN      |         0.3386        |     2.5758 (~7.6x)    |
+//  +--------------------+-----------------------+-----------------------+
+//  | IP_ADDRESS_PATTERN |         0.3016        |     2.4433 (~8.1x)    |
+//  +--------------------+-----------------------+-----------------------+
+//..
+// Note that the tests were run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
 // compiled with gcc-4.8.2 in optimized mode.
 //
 ///Note on memory allocation exceptions

@@ -3442,11 +3442,18 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 JIT compiling optimization speed up pattern matching.
+        //:
+        //: 2 JIT compiling optimization slow down pattern preparation.
         //
         // Plan:
         //: 1 Using 'bsls_stopwatch' measure the run time of the 'match' method
-        //:   with and without JIT compiling support.  Compare the results
-        //:   and verify that 'match' with JIT support is faster.
+        //:   with and without JIT compiling support.  Compare the results and
+        //:   verify that 'match' with JIT support is faster.  (C-1)
+        //:
+        //: 2 Using 'bsls_stopwatch' measure the run time of the 'prepare'
+        //:   method with and without JIT compiling support.  Compare the
+        //:   results and verify that 'prepare' with JIT support is slower.
+        //:   (C-2)
         //
         // Testing:
         //  PERFORMANCE TEST 1
@@ -3490,7 +3497,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting '" << PATTERN << "'. pattern" << endl;
             }
 
-            // Testing object without JIT compiling support.
+            // Testing 'match' without JIT compiling support.
 
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
@@ -3511,7 +3518,26 @@ int main(int argc, char *argv[])
             timer.reset();
             mX.clear();
 
-            // Testing object with JIT compiling support.
+            // Testing 'prepare' without JIT compiling support.
+
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+                retCode = mX.prepare(&errorMsg,
+                                     &errorOffset,
+                                     PATTERN,
+                                     0,
+                                     0);
+                ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+
+                ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            }
+            timer.stop();
+            double prepareTime = timer.elapsedTime();
+
+            timer.reset();
+            mX.clear();
+
+            // Testing 'match' with JIT compiling support.
 
             retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
@@ -3528,12 +3554,41 @@ int main(int argc, char *argv[])
             timer.stop();
             double matchJitTime = timer.elapsedTime();
 
+            timer.reset();
+            mX.clear();
+
+            // Testing 'prepare' with JIT compiling support.
+
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+                retCode = mX.prepare(&errorMsg,
+                                     &errorOffset,
+                                     PATTERN,
+                                     Obj::k_FLAG_JIT,
+                                     0);
+                ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+
+                ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            }
+            timer.stop();
+            double prepareJitTime = timer.elapsedTime();
+
             if (veryVeryVerbose) {
                 cout << "\tResults:" << endl
-                     << "\t\t'match'          time: " << matchTime << endl
-                     << "\t\t'match' with JIT time: " << matchJitTime << endl;
+                     << "\t\t'match'            time: " << matchTime << endl
+                     << "\t\t'match'   with JIT time: " << matchJitTime << endl
+                     << endl
+                     << "\t\t'prepare'          time: " << prepareTime << endl
+                     << "\t\t'prepare' with JIT time: " << prepareJitTime
+                     << endl;
             }
+
             ASSERTV(LINE, matchTime, matchJitTime, matchTime > matchJitTime);
+            ASSERTV(LINE,
+                    matchTime,
+                    matchJitTime,
+                    prepareTime < prepareJitTime);
+
         }
       } break;
       case -2: {

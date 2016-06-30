@@ -217,6 +217,8 @@ void RegEx::extractMatchResult(bsl::vector<bslstl::StringRef> *result,
 bool RegEx::isJitAvailable()
 {
     unsigned int result;
+    (void) result;
+
     BSLS_ASSERT(0 <= pcre2_config(PCRE2_CONFIG_JIT, &result));
     BSLS_ASSERT(k_IS_JIT_SUPPORTED == result);
 
