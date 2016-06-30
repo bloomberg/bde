@@ -59,6 +59,20 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
+// Several compiler tool-chains have problems removing the const qualifiers
+// from arrays.  Additional documentation is below (where these macros are
+// used).
+#if defined(BSLS_PLATFORM_CMP_IBM)
+
+#define BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY 1
+
+#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900) \
+    || defined(BSLS_PLATFORM_CMP_SUN)
+
+#define BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY 1
+
+#endif
+
 namespace bsl {
 
                          // ===================
@@ -97,7 +111,7 @@ struct remove_const<TYPE const> {
         // parameter) 'TYPE' except with the 'const'-qualifier removed.
 };
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY)
 // The IBM xlC compiler has an odd issue trying to remove 'const' qualifiers
 // from multidimensional arrays.  This workaround was last verified as required
 // for the xlC 12.1 compiler - more recent compilers still need testing.
@@ -153,8 +167,7 @@ struct remove_const<const TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
 };
-#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900) \
-    || defined(BSLS_PLATFORM_CMP_SUN)
+#elif defined(BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY)
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing
