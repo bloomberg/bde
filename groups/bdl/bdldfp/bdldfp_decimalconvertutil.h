@@ -208,8 +208,8 @@ BSLS_IDENT("$Id$")
 //:   0x3DCCCCCD above, that corresponding shortest decimal value is
 //:   (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
 //:   shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the
-//:   shortest decimal .010000001.  This is the best conversion to use, but can
-//:   be expensive and slow to compute.
+//:   shortest decimal .010000001.  This is the most visually appealing result,
+//:   but can be expensive and slow to compute.
 //:
 //: 5 There is a minimum number of digits such that all binary values rounded
 //:   to that number of significant decimal digits will produce a unique value.
@@ -222,34 +222,18 @@ BSLS_IDENT("$Id$")
 //: 6 If the programmer knows that the binary value was originally converted
 //:   from a decimal value with a limited number of significant digits, express
 //:   the value using that number of significant digits.
+//:
+//: 7 There is a maximum number of significant digits such that all decimal
+//:   values with at most that number of significant digits convert to unique
+//:   binary values (6 for 'float', 15 for 'double', and 7 for 'float' over
+//:   a limited range that spans '[1e-3 .. 8.5e9]').  If the programmer knows
+//:   that the binary value was originally converted from a decimal value with
+//:   such a limited number of significant digits, express the value using this
+//:   limit.
 //
-// This utility offers two sets of conversion functions from binary to decimal,
-// both suitable when the binary value is known to have been converted from a
-// decimal value with a limited number of significant digits.
-
-// The first set, 'decimal{32,64,128}From{Float,Double}', is useful when it is
-// known that the binary floating-point value originated as a conversion from a
-// decimal value with no more significant digits that can be uniquely
-// represented as a value of the binary type.  When this condition holds, this
-// set of conversions provides conversion (2) above.  (The 'FromFloat' versions
-// implement an extended range permitting seven-significant-digit conversions
-// in that range to be uniquely converted back to decimal.  But that same
-// extended range makes the functions unsuitable for values that passed through
-// a Perkin-Elmer conversion; six-significant-digit values converted this way
-// may re-emerge with a seventh.)
-//
-// The second set.  'restoreDecimal{32,64,128}Digits', requires that the number
-// of significant digits be provided as a parameter.  This set provides
-// conversion (3) above.  For each function in the set, the value provided as
-// the default for the number of digits is the smaller of the one from
-// conversion (4) above or the number of digits that can be held by the result
-// type, (If a 'float' value is known to result from a Perkin-Elmer conversion,
-// the number of digits specified should be 5.)
-//
-// Plain conversion of a decimal floating-point number from a binary number
-// provides conversion (3) from the above set with the number of digits set to
-// the number of digits the destination type can hold.  (Equivalently, this may
-// be considered conversion (1) rounded to the destination size.)
+// This utility offers a set of conversion functions from binary to decimal,
+// 'decimal{32,64,128}From{Float,Double}', that provide (2,4,5,6,7) from the
+// above list.  See the function contract below for details.
 //
 ///Usage
 ///-----
@@ -541,21 +525,25 @@ struct DecimalConvertUtil {
         // representable range of the return type, an appropriate decimal
         // singular value will be returned.
         //
-        // If 'digits' is not specified or positive, a default value will be
-        // used (possibly depending on the value of 'binary') based on the
-        // premise that 'binary' is a converted decimal value of no more
-        // significant digits than is guaranteed to have a uniquely converted
-        // binary value (6 for 'float', 15 for 'double', and 7 for 'float' in
-        // the range '[ .0009999995 .. 8589972000 ]').
+        // If 'digits' is negative, the decimal value with the fewest
+        // significant digits that converts back to 'binary' is returned
+        // (except for 'decimal32FromDouble', where 7 is used for 'digits').
+        //
+        // If 'digits' is not specified or 0, a default value will be used
+        // (possibly depending on the value of 'binary') based on the premise
+        // that 'binary' is a converted decimal value of no more significant
+        // digits than is guaranteed to have a uniquely converted binary value
+        // (6 for 'float', 15 for 'double', and 7 for 'float' in the range
+        // '[ .0009999995 .. 8589972000 ]').
         //
         // If 'digits' is larger than the number of digits in the destination
         // type, the number of digits in the destination type will be used.
         //
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been converted to a binary floating-point type.  Otherwise,
-        // use the conversion constructors instead.  (Those are equivalent to
+        // Note that the purpose of these functions is to restore a decimal
+        // value that has been converted to a binary floating-point type.
+        // Otherwise, use the conversion constructors.  Those are equivalent to
         // invoking these functions with 'digits' set to the number of digits
-        // in the destination type.)
+        // in the destination type, but gave better performance.
         //
         // Note that if 'binary' is a 'float' value that was converted from an
         // IBM/Perkin-Elmer/Interdata binary 'float' value itself converted

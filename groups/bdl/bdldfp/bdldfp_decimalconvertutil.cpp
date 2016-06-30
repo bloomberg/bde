@@ -292,6 +292,70 @@ static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
     return result;
 }
 
+template <class DECIMAL_TYPE, class BINARY_TYPE>
+static DECIMAL_TYPE shortestDecimalFromBinary(BINARY_TYPE binary);
+
+template<>
+Decimal32 shortestDecimalFromBinary<Decimal32, float>(float binary)
+{
+    for (int i = 6; ; ++i) {
+        Decimal32 result = restoreDecimalDigits<Decimal32, 7>(binary, i);
+        if (i == 7 || DecimalConvertUtil::decimalToFloat(result) == binary) {
+            return result;
+        }
+    }
+}
+
+template<>
+Decimal64 shortestDecimalFromBinary<Decimal64, float>(float binary)
+{
+    for (int i = 6; ; ++i) {
+        Decimal64 result = restoreDecimalDigits<Decimal64, 16>(binary, i);
+        if (i == 9 || DecimalConvertUtil::decimalToFloat(result) == binary) {
+            return result;
+        }
+    }
+}
+
+template<>
+Decimal128 shortestDecimalFromBinary<Decimal128, float>(float binary)
+{
+    for (int i = 6; ; ++i) {
+        Decimal128 result = restoreDecimalDigits<Decimal128, 34>(binary, i);
+        if (i == 9 || DecimalConvertUtil::decimalToFloat(result) == binary) {
+            return result;
+        }
+    }
+}
+
+template<>
+Decimal32 shortestDecimalFromBinary<Decimal32, double>(double binary)
+{
+    return restoreDecimalDigits<Decimal32, 7>(binary, 7);
+}
+
+template<>
+Decimal64 shortestDecimalFromBinary<Decimal64, double>(double binary)
+{
+    for (int i = 15; ; ++i) {
+        Decimal64 result = restoreDecimalDigits<Decimal64, 16>(binary, i);
+        if (i == 16 || DecimalConvertUtil::decimalToDouble(result) == binary) {
+            return result;
+        }
+    }
+}
+
+template<>
+Decimal128 shortestDecimalFromBinary<Decimal128, double>(double binary)
+{
+    for (int i = 15; ; ++i) {
+        Decimal128 result = restoreDecimalDigits<Decimal128, 34>(binary, i);
+        if (i == 17 || DecimalConvertUtil::decimalToDouble(result) == binary) {
+            return result;
+        }
+    }
+}
+
 template <class INTEGER_TYPE>
 inline void reduce(INTEGER_TYPE *significand, int *exponent)
     // Divide the value of the specified '*significand' by 10 and increment the
@@ -582,6 +646,9 @@ const unsigned char *DecimalConvertUtil::decimalFromNetwork(
 
 Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary, int digits)
 {
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal32>(binary);
+    }
     // Decimal32 holds up to 7 digits.
     return restoreDecimalDigits<Decimal32, 7>(binary, digits);
 }
@@ -589,7 +656,10 @@ Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary, int digits)
 Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary, int digits)
 {
     Decimal64 rv;
-    if ((digits <= 0 || digits == 9) &&
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal64>(binary);
+    }
+    if ((0 == digits || 9 == digits) &&
         quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
         return rv;                                                    // RETURN
     }
@@ -599,8 +669,11 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary, int digits)
 
 Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary, int digits)
 {
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal128>(binary);
+    }
     Decimal128 rv;
-    if ((digits <= 0 || digits == 9) &&
+    if ((0 == digits || 9 == digits) &&
         quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
         return rv;                                                    // RETURN
     }
@@ -612,10 +685,13 @@ Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary, int digits)
 
 Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary, int digits)
 {
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal32>(binary);
+    }
     Decimal32 rv;
-    if (((digits <= 0 || digits == 7) &&
+    if (((0 == digits || 7 == digits) &&
          quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (digits == 6 &&
+        (6 == digits &&
          quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
         return rv;                                                    // RETURN
     }
@@ -630,14 +706,17 @@ Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary, int digits)
 
 Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary, int digits)
 {
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal64>(binary);
+    }
     Decimal64 rv;
-    if (((digits <= 0 || digits == 7) &&
+    if (((0 == digits || 7 == digits) &&
          quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (digits == 6 &&
+        (6 == digits &&
          quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
         return rv;                                                    // RETURN
     }
-    if (digits <= 0) {
+    if (0 == digits) {
         float v = fabsf(binary);
         if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
             digits = 7;
@@ -648,14 +727,17 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary, int digits)
 
 Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary, int digits)
 {
+    if (digits < 0) {
+        return shortestDecimalFromBinary<Decimal128>(binary);
+    }
     Decimal128 rv;
-    if (((digits <= 0 || digits == 7) &&
+    if (((0 == digits || 7 == digits) &&
          quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD)) ||
-        (digits == 6 &&
+        (6 == digits &&
          quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD))) {
         return rv;                                                    // RETURN
     }
-    if (digits <= 0) {
+    if (0 == digits) {
         float v = fabsf(binary);
         if (v >= 9.999995e-4f && v <= 8.589972e+9f) {
             digits = 7;
@@ -687,58 +769,6 @@ void parseDecimal(Decimal128 *result, const char *buffer)
 {
     DecimalUtil::parseDecimal128(result, buffer);
 }
-
-#if 0
-Decimal32 DecimalConvertUtil::restoreDecimal32Digits(float binary, int digits)
-{
-    // Decimal32 holds up to 7 digits.
-    return restoreDecimalDigits<Decimal32, 7>(binary, digits);
-}
-
-Decimal32 DecimalConvertUtil::restoreDecimal32Digits(double binary, int digits)
-{
-    // Decimal32 holds up to 7 digits.
-    return restoreDecimalDigits<Decimal32, 7>(binary, digits);
-}
-
-Decimal64 DecimalConvertUtil::restoreDecimal64Digits(float binary, int digits)
-{
-    Decimal64 rv;
-    if ((digits <= 6 &&
-         quickDecimalFromFloat(&rv, binary, k_6_DIGIT_OFR_THRESHOLD)) ||
-        (digits == 7 &&
-         quickDecimalFromFloat(&rv, binary, k_7_DIGIT_OFR_THRESHOLD))) {
-        return rv;                                                    // RETURN
-    }
-    // All floats can be uniquely represented in 9 significant digits.
-    return restoreDecimalDigits<Decimal64, 9>(binary, digits);
-}
-
-Decimal64 DecimalConvertUtil::restoreDecimal64Digits(double binary, int digits)
-{
-    Decimal64 rv;
-    if (digits <= 9 &&
-        quickDecimalFromDouble(&rv, binary, k_9_DIGIT_OFR_THRESHOLD)) {
-        return rv;                                                    // RETURN
-    }
-    // Decimal64 holds up to 16 digits.
-    return restoreDecimalDigits<Decimal64, 16>(binary, digits);
-}
-
-Decimal128 DecimalConvertUtil::restoreDecimal128Digits(float binary,
-                                                       int   digits)
-{
-    // All floats can be uniquely represented in 9 significant digits.
-    return restoreDecimalDigits<Decimal128, 9>(binary, digits);
-}
-
-Decimal128 DecimalConvertUtil::restoreDecimal128Digits(double binary,
-                                                       int    digits)
-{
-    // All doubles can be uniquely represented in 17 significant digits.
-    return restoreDecimalDigits<Decimal128, 17>(binary, digits);
-}
-#endif
 
 }  // close package namespace
 }  // close enterprise namespace
