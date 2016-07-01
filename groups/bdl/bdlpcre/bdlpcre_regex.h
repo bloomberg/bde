@@ -138,8 +138,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //  SPARC 32-bit
 //..
 //
-// The table below demonstrates the benefit of the 'match' method with JIT
-// optimization over the basic 'match' method:
+// The tables below demonstrate the benefit of the 'match' method with JIT
+// optimizations, as well as the increased cost for 'prepare' when enabling JIT
+// optimizations:
 //..
 //  Legend
 //  ------
@@ -155,30 +156,31 @@ BSLS_IDENT("$Id$ $CSID$")
 //      Pattern - (?:[0-9]{1,3}\.){3}[0-9]{1,3}
 //      Subject - 255.255.255.255
 //
-//   Each pattern/subject returns 1 match.  Measurements (in seconds) have been
-//   tallied over the 100000 matchings in a row.
-//
+//   Each pattern/subject returns 1 match.
+//..
+// In this first table, for each pattern, 'prepare' was called once, and match
+// was called 100000 times (measurements are in seconds):
+//..
+//   Table 1: Performance Improvement for 'match' using k_JIT_FLAG
 //  +--------------------+---------------------+---------------------+
 //  | Pattern            | 'match' without-JIT |  'match' using-JIT  |
 //  +====================+=====================+=====================+
-//  | SIMPLE_PATTERN     |        0.0161       |    0.0052 (~3.1x)   |
+//  | SIMPLE_PATTERN     |    0.0161 (~3.1x)   |        0.0052       |
 //  +--------------------+---------------------+---------------------+
-//  | EMAIL_PATTERN      |        0.0222       |    0.0086 (~2.6x)   |
+//  | EMAIL_PATTERN      |    0.0222 (~2.6x)   |        0.0086       |
 //  +--------------------+---------------------+---------------------+
-//  | IP_ADDRESS_PATTERN |        0.0331       |    0.0062 (~5.3x)   |
+//  | IP_ADDRESS_PATTERN |    0.0331 (~5.3x)   |        0.0062       |
 //  +--------------------+---------------------+---------------------+
 //..
-//
-// The next table demonstrates the time loss of the 'prepare' method with JIT
-// optimization:
+// In this second table, for each pattern, we measured 10000 iterations, where
+// 'prepare' was called once, and 'match' was called once (measurements are in
+// seconds):
 //..
-//   Measurements (in seconds) have been tallied over the 100000 iterations of
-//   single pattern preparation and single matching in a row.
-//
+//   Table 2: Performance Cost for 'prepare' using k_JIT_FLAG
 //  +--------------------+-----------------------+-----------------------+
 //  | Pattern            | 'prepare' without-JIT |  'prepare' using-JIT  |
 //  +====================+=======================+=======================+
-//  | SIMPLE_PATTERN     |         0.1806        |     1.9612 (~10.9x)    |
+//  | SIMPLE_PATTERN     |         0.1806        |     1.9612 (~10.9x)   |
 //  +--------------------+-----------------------+-----------------------+
 //  | EMAIL_PATTERN      |         0.3386        |     2.5758 (~7.6x)    |
 //  +--------------------+-----------------------+-----------------------+
