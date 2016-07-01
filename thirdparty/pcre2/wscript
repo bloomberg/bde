@@ -5,6 +5,7 @@ from waflib import Logs, Utils
 from waflib.Configure import ConfigurationContext
 
 import os
+import platform
 import sys
 
 top = '.'
@@ -49,8 +50,7 @@ def build(bld):
     cflags = [
         '-DPCRE2_CODE_UNIT_WIDTH=8',
         '-DHAVE_CONFIG_H',
-        '-DSUPPORT_UNICODE',
-        '-DSUPPORT_JIT'
+        '-DSUPPORT_UNICODE'
     ]
 
     prefix  = bld.env['PREFIX']
@@ -68,6 +68,19 @@ def build(bld):
         config['pc_libdir'] = config['lib_install_path']
         config['pc_includedir'] = config['h_install_path']
         is_bde = False
+
+    jit_cflags = []
+
+    # PCRE2 does not support JIT correctly on sparc 64-bit builds.
+    if '-m64' in config['cflags'] and 'sparc' == platform.processor():
+        if Logs.verbose:
+            print "Disabling JIT support"
+    else:
+        if Logs.verbose:
+            print "Enabling JIT support"
+        jit_cflags = ['-DSUPPORT_JIT']
+
+    cflags += jit_cflags
 
     bld(name='pcre2_pc',
         idx=1,
