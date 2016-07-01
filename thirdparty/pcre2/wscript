@@ -68,8 +68,15 @@ def build(bld):
         config['pc_includedir'] = config['h_install_path']
         is_bde = False
 
-    if not('-m64' in config['cflags'] and 'sparc' == bld.env['PROCTYPE']):
-        cflags += ['-DSUPPORT_JIT']
+    jit_cflags = ['-DSUPPORT_JIT']
+    try:
+        if '-m64' in config['cflags'] and 'sparc' == bld.env.env['PROCTYPE']:
+            print "Disabling JIT support"
+            jit_cflags = []
+    except KeyError:
+        pass
+
+    cflags += jit_cflags
 
     bld(name='pcre2_pc',
         idx=1,
