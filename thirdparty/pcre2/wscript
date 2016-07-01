@@ -68,8 +68,7 @@ def build(bld):
         config['pc_includedir'] = config['h_install_path']
         is_bde = False
 
-    if not('-m64' in config['cflags'] and 'sparc' == bld.env['DEST_CPU']):
-        print "Enabling JIT support"
+    if not('-m64' in config['cflags'] and 'sparc' == bld.env['PROCTYPE']):
         cflags += ['-DSUPPORT_JIT']
 
     bld(name='pcre2_pc',

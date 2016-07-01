@@ -136,7 +136,7 @@
 #define SLJIT_CONFIG_MIPS_32 1
 #elif defined(__mips64)
 #define SLJIT_CONFIG_MIPS_64 1
-#elif (defined(__sparc__) || defined(__sparc)) && defined(__arch32__)
+#elif (defined(__sparc__) || defined(__sparc)) && !(defined(__sparc_v9__) || defined(__sparcv9) || defined(__arch64__))
 #define SLJIT_CONFIG_SPARC_32 1
 #elif defined(__tilegx__)
 #define SLJIT_CONFIG_TILEGX 1
