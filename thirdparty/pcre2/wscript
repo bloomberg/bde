@@ -69,13 +69,14 @@ def build(bld):
         config['pc_includedir'] = config['h_install_path']
         is_bde = False
 
-    jit_cflags = ['-DSUPPORT_JIT']
+    jit_cflags = []
 
+    # PCRE2 does not support JIT correctly on sparc 64-bit builds.
     if '-m64' in config['cflags'] and 'sparc' == platform.processor():
         print "Disabling JIT support"
-        jit_cflags = []
     else:
-        print "Enabling JIT support (bld.env.env detected)"
+        print "Enabling JIT support"
+        jit_cflags = ['-DSUPPORT_JIT']
 
     cflags += jit_cflags
 
