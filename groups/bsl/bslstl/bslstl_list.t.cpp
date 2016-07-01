@@ -3,7 +3,12 @@
 #include <bslstl_list.h>
 #include <bslstl_iterator.h>
 
+#include <bsltf_allocargumenttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_nonassignabletesttype.h>
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <bslalg_autoarraydestructor.h>
 
@@ -33,18 +38,12 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
-
-#include <bsltf_allocargumenttype.h>
-#include <bsltf_argumenttype.h>
-#include <bsltf_nonassignabletesttype.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
 
 #include <stdexcept>  // 'length_error', 'out_of_range'
 #include <algorithm>  // 'next_permutation'
@@ -58,6 +57,7 @@
 #include <stdio.h>
 
 using namespace BloombergLP;
+using bsls::NameOf;
 using bsl::list;
 
 //=============================================================================
@@ -127,7 +127,6 @@ using bsl::list;
 // [ 7] list(const list& orig);
 // [ 7] list(const list& orig, const A&);
 // [ 7] list(list&& orig);
-// [ 7] list(list&& orig, const A&);
 // [30] list(list&& orig, const A& = A());
 // [ 2] ~list();
 // [32] 'list' supports incomplete types
@@ -137,14 +136,11 @@ using bsl::list;
 // [ 2] void primaryManipulator(list*, int);
 // [ 2] void primaryCopier(list*, const T&);
 // [ 9] list& operator=(const list& rhs);
-// [ 9] list& operator=(list&& rhs);
-// [31] list& operator=(list&& orig);
+// [31] list& operator=(list&& rhs);
 // [33] list& operator=(std::initializer_list);
 // [13] template <class Iter> assign(Iter first, Iter last);
 // [13] void assign(size_type numElements, const T& val);
 // [33] void assign(std::initializer_list);
-// [ 4] iterator begin();
-// [ 4] iterator end();
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
@@ -193,8 +189,6 @@ using bsl::list;
 //
 // ACCESSORS:
 // [11] A get_allocator() const;
-// [ 4] const_iterator begin() const;
-// [ 4] const_iterator end() const;
 // [16] const_iterator begin() const;
 // [16] const_iterator end() const;
 // [16] const_reverse_iterator rbegin() const;
@@ -206,8 +200,6 @@ using bsl::list;
 // [15] const_reference back() const;
 //
 // FREE OPERATORS:
-// [ 5] No test.
-// [10] No test.
 // [ 6] bool operator==(const list&, const list&);
 // [ 6] bool operator!=(const list&, const list&);
 // [20] bool operator<(const list&, const list&);
@@ -348,91 +340,6 @@ const int VH = 'H';
 
 const int  LARGE_SIZE_VALUE = 10;
     // Declare a large value for insertions into the list.
-
-template <class TYPE>
-const char *bsltfNameOf()
-    // Return the name of this 'bsltf' or simple type.
-{
-    // Since all of these predicates are compile-time, the optimizer should
-    // turn this function into an unconditional return of one of the strings.
-
-#undef  CASE2
-#define CASE2(typeArg2, printAs)                                              \
-    if (bsl::is_same<TYPE, typeArg2>::value) { return #printAs; }     // RETURN
-#undef  CASE
-#define CASE(typeArg) CASE2(typeArg,typeArg)
-
-    CASE(size_t);                                                     // RETURN
-    CASE(bool);                                                       // RETURN
-    CASE(char);                                                       // RETURN
-    CASE2(signed char,signed_char);                                   // RETURN
-    CASE2(unsigned char,unsigned_char);                               // RETURN
-    CASE(wchar_t);                                                    // RETURN
-    CASE(short);                                                      // RETURN
-    CASE2(unsigned short,unsigned_short);                             // RETURN
-    CASE(int);                                                        // RETURN
-    CASE2(unsigned int,unsigned_int);                                 // RETURN
-    CASE(long);                                                       // RETURN
-    CASE2(unsigned long,unsigned_long);                               // RETURN
-    CASE2(long long,long_long);                                       // RETURN
-    CASE2(unsigned long long,unsigned_long_long);                     // RETURN
-    CASE(float);                                                      // RETURN
-    CASE(double);                                                     // RETURN
-    CASE2(long double,long_double);                                   // RETURN
-    CASE(void);                                                       // RETURN
-
-    CASE(bsltf::UnionTestType);                                       // RETURN
-    CASE(bsltf::SimpleTestType);                                      // RETURN
-    CASE(bsltf::AllocBitwiseMoveableTestType);                        // RETURN
-    CASE(bsltf::AllocTestType);                                       // RETURN
-    CASE(bsltf::AllocEmplacableTestType);                             // RETURN
-    CASE(bsltf::BitwiseMoveableTestType);                             // RETURN
-    CASE(bsltf::EmplacableTestType);                                  // RETURN
-    CASE(bsltf::NonTypicalOverloadsTestType);                         // RETURN
-    CASE(bsltf::NonAssignableTestType);                               // RETURN
-    CASE(bsltf::NonDefaultConstructibleTestType);                     // RETURN
-    CASE(bsltf::NonEqualComparableTestType);                          // RETURN
-    CASE(bsltf::MovableAllocTestType);                                // RETURN
-    CASE(bsltf::MoveOnlyAllocTestType);                               // RETURN
-#undef CASE2
-#undef CASE
-
-    if (bslmf::IsFunctionPointer<TYPE>::value) {
-        return "function_pointer";                                    // RETURN
-    }
-    if (bsl::is_member_function_pointer<TYPE>::value) {
-        return "method_pointer";                                      // RETURN
-    }
-    if (bsl::is_pointer<TYPE>::value) {
-        return "object_pointer";                                      // RETURN
-    }
-    if (bsl::is_enum<TYPE>::value) {
-        return "enum";                                                // RETURN
-    }
-    if (bsl::is_fundamental<TYPE>::value) {
-        return "unknown_fundamental_type";                            // RETURN
-    }
-
-    return "unrecognized_type";
-}
-
-template <class TYPE>
-const char *nameOf()
-    // Return the name of any type that is contained in 'list' objects in this
-    // test driver.
-{
-    // Since all of these predicates are compile-time, the optimizer should
-    // turn this function into an unconditional return of one of the strings.
-
-    if      (bsl::is_same<TYPE, TestType>::value) {
-        return "TestType";                                            // RETURN
-    }
-    if (bsl::is_same<TYPE, TestTypeNoAlloc>::value) {
-        return "TestTypeNoAlloc";                                     // RETURN
-    }
-
-    return bsltfNameOf<TYPE>();
-}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -617,7 +524,7 @@ class TestType {
     // This test type contains a 'char' in some allocated storage.  It counts
     // the number of default and copy constructions, assignments, and
     // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
+    // It could have the bit-wise movable traits but we defer that trait to
     // the 'MoveableTestType'.
 
     int              *d_data_p;
@@ -1047,7 +954,7 @@ class TestTypeOtherAlloc {
     // This test type contains a 'char' in some allocated storage.  It counts
     // the number of default and copy constructions, assignments, and
     // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
+    // It could have the bit-wise movable traits but we defer that trait to
     // the 'MoveableTestTypeOtherAlloc'.
 
     char                 *d_data_p;
@@ -1539,7 +1446,7 @@ class LimitAllocator : public ALLOC {
         // Default-construct a 'LimitAllocator'
     {}
 
-    // Templatize to make this a better match than the next constructor.
+    // Parameterize to make this a better match than the next constructor.
 
     template <class BSLMA_ALLOC>
     explicit
@@ -2193,7 +2100,7 @@ struct TestDriver {
 
         bool operator()(TYPE& x) const
             // Return 'true' if the specified 'x' matches the object referred
-            // to by this predicate and 'false' otherwise.
+            // to by this predicate, and 'false' otherwise.
         {
             return x == d_match;
         }
@@ -2349,14 +2256,6 @@ struct TestDriver {
         // Return the number of blocks expected to be used by a list of
         // specified length 'n'.
 
-#if 0
-    // Removed as it this type of return-by-value offends bde verify.
-
-    static Obj g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
-#endif
-
     static int getValues(const TYPE **valuesPtr);
         // Load the pointer specified by 'valuesPtr' with the address of an
         // array containing initialized values of the parameterized 'TYPE' and
@@ -2431,7 +2330,7 @@ struct TestDriver {
     static void test11_allocators(bsl::true_type, bsl::true_type);
         // The first two-argument overload is a no-op.  The second two-argument
         // overload is called only when both 'Obj' and 'TYPE' use
-        // 'bslma::AlloCator'.  The first overload, with no arguments,
+        // 'bslma::Allocator'.  The first overload, with no arguments,
         // dispatches to the other two overloads.
 
     static void test12_constructorRange();
@@ -2487,8 +2386,8 @@ struct TestDriver {
         // has some template logic to determine if 'TYPE' is such a type, and
         // in that case the dispatch function calls 'test16_iterators' with
         // 'false_type' and no tests are performed for that type.  For all
-        // other types and / or all other platorms, 'true_type' is passed and
-        // the tests are performed.
+        // other types and/or all other platorms, 'true_type' is passed and the
+        // tests are performed.
 
     static void test17_emplace();
         // Test 'emplace', 'emplace_front', and 'emplace_back' members.  The
@@ -2573,8 +2472,8 @@ struct TestDriver {
         // Test move-based inserters, 'insert', 'push_back', 'push_front',
         // 'emplace'.
 
-    static void test30_moveCopy();
-        // Test move copy c'tors, both with and without an allocator passed.
+    static void test30_moveCtor();
+        // Test move c'tors, both with and without an allocator passed.
 
     static void test31_moveAssign();
         // Test move assign.
@@ -2665,7 +2564,7 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, Int64 length)
 
         if (k_IS_DEFAULT_CONSTRUCTIBLE) {
             const int v = value_of(*it);
-            ASSERTV(nameOf<TYPE>(), v, VA, VH, DEFAULT_VALUE,
+            ASSERTV(NameOf<TYPE>(), v, VA, VH, DEFAULT_VALUE,
                           ret = ((v >= VA && v <= VH) || DEFAULT_IVALUE == v));
             if (!ret) {
                 return false;                                         // RETURN
@@ -2839,16 +2738,23 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
     //: 1 That lists can be constructed from an initializer list.
     //:   o Without an allocator passed.
     //:   o With an allocator passed.
+    //:
     //: 2 That lists can be assigned from an initializer list, either through
     //:   o 'operator='
     //:   o 'assign'
+    //:
     //: 3 That after the operation, the values are correct.
+    //:
     //: 4 That if a c'tor throws, no memory is leaked.
+    //:
     //: 5 That if an 'operator=' or 'assign' throws, the destination is left in
     //:   a valid state (though it may be changed).
+    //:
     //: 6 That the expected amount of memory is allocated.
+    //:
     //: 7 If the list is passed a non-default allocator at construction, the
     //:   default allocator is not used.
+    //:
     //: 8 'operator=' returns a reference to the modifiable object assigned to.
     //
     // Plan:
@@ -2859,13 +2765,16 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
     //:   o in the case of c'tors, make sure any allocator passed, and the
     //:     default allocator, are bslma::TestAllocators, which will detect any
     //:     leaks.  (C-4)
+    //:
     //: 2 Create an 'expected' value, do the operation, and compare the result
     //:   to the expected value.  In cases of assignment, make sure the initial
     //:   state of the object is either always (in the case of not being done
     //:   in loops) or usually (in the case of done in loops) different from
     //:   the expected value.  (C-1) (C-2) (C-3)
+    //:
     //: 3 Monitor the number of allocations and the blocks in use to verify the
     //:   amount of allocation.  (C-6)
+    //:
     //: 4 When the test object is created with a non-default allocator, observe
     //:   that the default allocator is never used.  (C-7)
     //
@@ -2878,7 +2787,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     if (verbose) {
         printf("TESTING INITIALIZER LIST: TYPE: %s\n"
-               "==================================\n", nameOf<TYPE>());
+               "==================================\n", NameOf<TYPE>().name());
     }
 
     bslma::TestAllocator ta(veryVeryVerbose);
@@ -2927,7 +2836,8 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         // avoid that, do this test without the exceptions.
 
         if (veryVerbose) {
-            printf("C'tor, naked list, %s, no exceptions\n", nameOf<TYPE>());
+            printf("C'tor, naked list, %s, no exceptions\n",
+                   NameOf<TYPE>().name());
         }
         {
             BB = defaultAllocator_p->numBlocksTotal();
@@ -2942,7 +2852,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
                 // hard to predict, since, depending on the compiler, it might
                 // or might not have been freed by now.
 
-                ASSERTV(A - B, nameOf<TYPE>(), A - B  == deltaBlocks(3) + 1);
+                ASSERTV(A - B, NameOf<TYPE>(), A - B  == deltaBlocks(3) + 1);
                 ASSERTV(A - B, AA - BB, A - B == AA - BB);
             }
 
@@ -2958,7 +2868,8 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         // with which to do so.
 
         if (veryVerbose) {
-            printf("C'tor, naked list, %s + exceptions\n", nameOf<TYPE>());
+            printf("C'tor, naked list, %s + exceptions\n",
+                   NameOf<TYPE>().name());
         }
 
         numThrows = -1;
@@ -2978,7 +2889,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
                 // to predict, since, depending on the compiler, it might or
                 // might not have been freed by now.
 
-                ASSERTV(A - B, nameOf<TYPE>(), A - B  == deltaBlocks(3) + 1);
+                ASSERTV(A - B, NameOf<TYPE>(), A - B  == deltaBlocks(3) + 1);
                 ASSERTV(A - B, AA - BB, A - B == AA - BB);
             }
 
@@ -2991,12 +2902,12 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
 #endif
 
         A = defaultAllocator_p->numBlocksInUse();
-        ASSERTV(nameOf<TYPE>(), A - B, A == B);
+        ASSERTV(NameOf<TYPE>(), A - B, A == B);
 
         Int64 DB = defaultAllocator_p->numBlocksTotal();
 
         if (veryVerbose) printf("Ctor, list w/ alloc + excep, %s\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
         B = ta.numBlocksInUse();
 
         numThrows = -1;
@@ -3021,17 +2932,18 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         A  = ta.numBlocksInUse();
-        ASSERTV(nameOf<TYPE>(), A - B, A == B);
+        ASSERTV(NameOf<TYPE>(), A - B, A == B);
 
         // The code made 'numThrows + 1' passes through the exception-block.
         // It built 3 'TYPE' objects for the initializer list each time.
 
         Int64 DA = defaultAllocator_p->numBlocksTotal();
-        ASSERTV(nameOf<TYPE>(), DB, DA, numThrows,
+        ASSERTV(NameOf<TYPE>(), DB, DA, numThrows,
                  k_NO_EXCEPT || DA - DB == (numThrows + 1) * SCOPED_ALLOC * 3);
 
         if (veryVerbose) {
-            printf("Op=, naked list, %s + exceptions\n", nameOf<TYPE>());
+            printf("Op=, naked list, %s + exceptions\n",
+                   NameOf<TYPE>().name());
         }
 
         Obj mX(Z);    const Obj& X = mX;
@@ -3060,8 +2972,8 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
 
             ASSERT(&mRef == &mX);
             ASSERTV(AA - BB, numThrows, k_NO_EXCEPT || AA - BB == numThrows);
-            ASSERTV(A - B, nameOf<TYPE>(), A - B == deltaBlocks(3-2));
-            ASSERTV(A - B, AA - BB, nameOf<TYPE>(), allocOnAssign,
+            ASSERTV(A - B, NameOf<TYPE>(), A - B == deltaBlocks(3-2));
+            ASSERTV(A - B, AA - BB, NameOf<TYPE>(), allocOnAssign,
                                          A - B + 2 * allocOnAssign == AA - BB);
 
             ASSERTV(EXPECTED, X, EXPECTED == X);
@@ -3075,11 +2987,12 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         // It built 3 'TYPE' objects for the initializer list each time.
 
         DA = defaultAllocator_p->numBlocksTotal();
-        ASSERTV(nameOf<TYPE>(), DB, DA, numThrows,
+        ASSERTV(NameOf<TYPE>(), DB, DA, numThrows,
                  k_NO_EXCEPT || DA - DB == (numThrows + 1) * SCOPED_ALLOC * 3);
 
         if (veryVerbose) {
-            printf("'assign', naked list, %s + exceptions\n", nameOf<TYPE>());
+            printf("'assign', naked list, %s + exceptions\n",
+                   NameOf<TYPE>().name());
         }
         DB = defaultAllocator_p->numBlocksTotal();
         numThrows = -1;
@@ -3103,8 +3016,8 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
             A  = ta.numBlocksInUse();
 
             ASSERTV(AA - BB, numThrows, k_NO_EXCEPT || AA - BB == numThrows);
-            ASSERTV(A - B, nameOf<TYPE>(), A - B == deltaBlocks(3-2));
-            ASSERTV(A - B, AA - BB, nameOf<TYPE>(), allocOnAssign,
+            ASSERTV(A - B, NameOf<TYPE>(), A - B == deltaBlocks(3-2));
+            ASSERTV(A - B, AA - BB, NameOf<TYPE>(), allocOnAssign,
                                          A - B + 2 * allocOnAssign == AA - BB);
 
             ASSERTV(EXPECTED, X, EXPECTED == X);
@@ -3118,7 +3031,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         // It built 3 'TYPE' objects for the initializer list each time.
 
         DA = defaultAllocator_p->numBlocksTotal();
-        ASSERTV(nameOf<TYPE>(), DB, DA, numThrows,
+        ASSERTV(NameOf<TYPE>(), DB, DA, numThrows,
                  k_NO_EXCEPT || DA - DB == (numThrows + 1) * SCOPED_ALLOC * 3);
     }
 
@@ -3148,7 +3061,8 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
 
         Obj expected;   const Obj& EXPECTED = gg(&expected, SPEC);
 
-        if (veryVerbose) printf("C'tor, init list, %s\n", nameOf<TYPE>());
+        if (veryVerbose) printf("C'tor, init list, %s\n",
+                                NameOf<TYPE>().name());
         {
             ALLOC       DZ(defaultAllocator_p);
             const Int64 B = defaultAllocator_p->numBlocksInUse();
@@ -3180,7 +3094,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         const Int64 DD = defaultAllocator_p->numBlocksTotal();
 
         if (veryVerbose) printf("C'tor, init list w/ alloc, %s\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
         {
             const Int64 B = ta.numBlocksInUse();
 
@@ -3206,11 +3120,11 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        ASSERTV(SPEC, nameOf<TYPE>(), DD, defaultAllocator_p->numBlocksTotal(),
+        ASSERTV(SPEC, NameOf<TYPE>(), DD, defaultAllocator_p->numBlocksTotal(),
                                    DD == defaultAllocator_p->numBlocksTotal());
 
         if (veryVerbose) printf("op=, init list w/ alloc, %s\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char * const DST_SPEC   = DATA[tj].d_spec_p;
             const IntPtr       DST_LENGTH = std::strlen(DST_SPEC);
@@ -3250,7 +3164,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         }
 
         if (veryVerbose) printf("assign, init list w/ alloc, %s\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char * const DST_SPEC   = DATA[tj].d_spec_p;
             const IntPtr       DST_LENGTH = std::strlen(DST_SPEC);
@@ -3289,7 +3203,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        ASSERTV(SPEC, nameOf<TYPE>(), DD, defaultAllocator_p->numBlocksTotal(),
+        ASSERTV(SPEC, NameOf<TYPE>(), DD, defaultAllocator_p->numBlocksTotal(),
                                    DD == defaultAllocator_p->numBlocksTotal());
     }
 #else
@@ -3308,13 +3222,17 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
     //: 1 The destination object's value is the same as that of the source
     //:   object (relying on the equality operator) and created with the
     //:   correct allocator.
-    //: 2 If the allocators match, the assigment is a swap.
+    //:
+    //: 2 If the allocators match, the assignment is a swap.
+    //:
     //: 3 If the allocators don't match, the assignment is a copy and the value
     //:   of the 'rhs' is unaffected (this is not a guaranteed property of the
     //:   component -- it's just that for the types we test, a 'move' between
     //:   objects that don't share the same allocator is a copy).
+    //:
     //: 4 Subsequent changes to the source object have no effect on the
     //:   assigned object.
+    //:
     //: 5 The object has its internal memory management system hooked up
     //:   properly so that *all* internally allocated memory draws from a
     //:   user-supplied allocator whenever one is specified.
@@ -3323,11 +3241,14 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
     //: 1 Specify a set S of object values with substantial and varied
     //:   differences, ordered by increasing length, to be used in the
     //:   following tests.
+    //:
     //: 2 For concerns 1 - 3, for each value in S, initialize objects w and v.
     //:   Copy object w to x and v to y.  Move assign y to x.
     //:   o If the allocators match, verify it was a swap.
     //:   o If the allocators don't match, verify it was a copy.
+    //:
     //: 3 For concern 4, clear x and observe y is unchanged.
+    //:
     //: 4 To address concern 5, observe the default allocator before and after
     //:   the whole test and observe that it is never used (after the first
     //:   call to 'checkIntegrity'.
@@ -3337,11 +3258,11 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
     // ------------------------------------------------------------------------
 
     if (verbose) printf("Test move assign, TYPE: %s, SCOPED_ALLOC: %d\n",
-                                                 nameOf<TYPE>(), SCOPED_ALLOC);
+                                          NameOf<TYPE>().name(), SCOPED_ALLOC);
 
     if (SCOPED_ALLOC) {
         Obj X;
-        (void) checkIntegrity(X, 0);    // 'checkItegrity' uses the default
+        (void) checkIntegrity(X, 0);    // 'checkIntegrity' uses the default
                                         // allocator the first time it is
                                         // called.
     }
@@ -3569,36 +3490,43 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
         } // Y
     } // X
 
-    ASSERTV(nameOf<TYPE>(), defaultAllocator_p->numBlocksTotal() == DD);
+    ASSERTV(NameOf<TYPE>(), defaultAllocator_p->numBlocksTotal() == DD);
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::test30_moveCopy()
+void TestDriver<TYPE,ALLOC>::test30_moveCtor()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE COPY CONSTRUCTOR:
+    // TESTING MOVE CONSTRUCTOR:
     //
     // Concerns:
     //: 1 The new object's value is the same as the initial value of the
     //:   original object (relying on the equality operator) and created with
     //:   the correct allocator.
+    //:
     //: 2 If no allocator is passed, or if the allocators match, the operation
     //:   is a swap.
+    //:
     //: 3 if an allocator that does not match the allocator of the source
     //:   object, the operation is a copy (this is not guaranteed by the
     //:   component -- individual elements are moved, but for all the types we
     //:   test, a move with different allocators is a copy.
+    //:
     //: 4 Subsequent changes of the source object have no effect on the
     //:   copy-constructed object.
+    //:
     //: 5 The object has its internal memory management system hooked up
     //:   properly so that *all* internally allocated memory draws from a
     //:   user-supplied allocator whenever one is specified.
+    //:
     //: 6 The function is exception neutral w.r.t. memory allocation.
+    //:
     //: 7 An object copied from an rvalue with no allocator, or with a matching
     //:   allocator specified, will leave the copied object in a valid,
     //:   default-constructed state.
     //:   1 No allocator specified to c'tor.
     //:   2 Allocator specified to c'tor.
+    //:
     //: 8 An object copied from an rvalue with a non-matching allocator
     //:   supplied will not modify the rvalue.
     //
@@ -3606,13 +3534,17 @@ void TestDriver<TYPE,ALLOC>::test30_moveCopy()
     //: 1 Specify a set S of object values with substantial and varied
     //:   differences, ordered by increasing length, to be used in the
     //:   following tests.
+    //:
     //: 2 Default-construct a const object D.
+    //:
     //: 3 For concerns 1 - 3, for each value in S, initialize objects w and x,
-    //:   move copy construct y from x passing no allocator, and passing an
+    //:   move construct y from x passing no allocator, and passing an
     //:   allocator that matches 'x's allocator, and in both cases use
     //:   'operator==' to verify that y subsequently has the same value as w,
     //:   and that 'D == x'.
+    //:
     //: 4 Modify x and observe y is unchanged.
+    //:
     //: 5 Construct an object y from x where the allocators don't match, and
     //:   observe afterward that both y and x equal w.
     //
@@ -3620,11 +3552,11 @@ void TestDriver<TYPE,ALLOC>::test30_moveCopy()
     //   list(list&& orig, const A& = A());
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("Test move copy, TYPE: %s\n", nameOf<TYPE>());
+    if (verbose) printf("Test move c'tor, TYPE: %s\n", NameOf<TYPE>().name());
 
     if (SCOPED_ALLOC) {
         Obj X;
-        (void) checkIntegrity(X, 0);    // 'checkItegrity' uses the default
+        (void) checkIntegrity(X, 0);    // 'checkIntegrity' uses the default
                                         // allocator the first time it is
                                         // called.
     }
@@ -3951,7 +3883,7 @@ void TestDriver<TYPE,ALLOC>::test30_moveCopy()
         }
     }
 
-    ASSERTV(nameOf<TYPE>(), defaultAllocator_p->numBlocksTotal() == DD);
+    ASSERTV(NameOf<TYPE>(), defaultAllocator_p->numBlocksTotal() == DD);
 }
 
 template <class TYPE, class ALLOC>
@@ -3962,20 +3894,28 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     //
     // Concerns
     //: 1 That the resulting list value is correct.
+    //:
     //: 2 That the 'insert' return (if any) value is a valid iterator to the
     //:   first inserted element or to the insertion position if no elements
     //:   are inserted.
+    //:
     //: 3 That insertion of one element has the strong exception guarantee.
+    //:
     //: 4 That insertion is exception neutral w.r.t. memory allocation.
+    //:
     //: 5 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 6 That inserting a 'const T& value' that is a reference to an element
     //:   of the list does not suffer from aliasing problems.
+    //:
     //: 7 That no iterators are invalidated by the insertion.
+    //:
     //: 8 That inserting 'n' copies of value 'v' selects the correct overload
     //:   when 'n' and 'v' are identical arithmetic types (i.e., the
     //:   iterator-range overload is not selected).
+    //:
     //: 9 That inserting 'n' copies of value 'v' selects the correct overload
     //:   when 'v' is a pointer type and 'n' is a null pointer literal ,'0'.
     //:   (i.e., the iterator-range overload is not selected).
@@ -3983,17 +3923,22 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     // Plan:
     //: 1 Create objects of various sizes and insert a distinct value one or
     //:   more times into each possible position.
+    //:
     //: 2 For concerns 1, 2 & 5, verify that the return value and modified list
     //:   are as expected.
+    //:
     //: 3 For concerns 3 & 4 perform the test using the exception-testing
     //:   infrastructure and verify the value and memory changes.
+    //:
     //: 4 For concern 6, we select the value to insert from the middle of the
     //:   list, thus testing insertion before, at, and after the aliased
     //:   element.
+    //:
     //: 5 For concern 7, save copies of the iterators before and after the
     //:   insertion point and verify that they point to the same (valid)
     //:   elements after the insertion by iterating to the same point in the
     //:   resulting list and comparing the new iterators to the old ones.
+    //:
     //: 6 For concerns 8 and 9, insert 2 elements of integral or pointer types
     //:   into lists and verify that it compiles and that the resultant list
     //:   contains the expected values.
@@ -4007,7 +3952,8 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     //   void emplace_front(T&& value);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("TESTING MOVE INSERTION: TYPE: %s\n", nameOf<TYPE>());
+    if (verbose) printf("TESTING MOVE INSERTION: TYPE: %s\n",
+                        NameOf<TYPE>().name());
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
     const ALLOC          Z(&testAllocator);
@@ -4156,7 +4102,7 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
 
                     const Int64 A = testAllocator.numBlocksInUse();
 
-                    ASSERTV(nameOf<TYPE>(), !IsMoveAware::value ||
+                    ASSERTV(NameOf<TYPE>(), !IsMoveAware::value ||
                                        bsltf::MoveState::e_MOVED ==
                                             bsltf::getMovedFrom(NEW_ELEM_MOV));
                     ASSERT(bsls::Util::addressOf(mSrc.back()) ==
@@ -4227,7 +4173,7 @@ void TestDriver<TYPE,ALLOC>::test28_sort(bsl::false_type hasOperatorLessThan)
     (void) hasOperatorLessThan;
 
     if (verbose) printf("testSort<%s>: no intrinsic 'operator<'\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
 
     test28_sortComp();
 }
@@ -4238,7 +4184,7 @@ void TestDriver<TYPE,ALLOC>::test28_sort(bsl::true_type hasOperatorLessThan)
     (void) hasOperatorLessThan;
 
     if (verbose) printf("test28_sort<%s>: intrinsic 'operator<'\n",
-                                                               nameOf<TYPE>());
+                                                        NameOf<TYPE>().name());
 
     test28_sortNoComp();
     test28_sortComp();
@@ -4252,17 +4198,26 @@ void TestDriver<TYPE,ALLOC>::test28_sortComp()
     //
     // Concerns:
     //: 1 Sorts correctly in the presence of equivalent (duplicate) elements.
+    //:
     //: 2 Sorts correctly if the input is already sorted or sorted in reverse.
+    //:
     //: 3 No memory is allocated or deallocated during the sort.
+    //:
     //: 4 No constructors, destructors, or assignment of elements takes place.
+    //:
     //: 5 Iterators to all elements remain valid.
+    //:
     //: 6 The predicate version of 'sort' can be used to sort using a different
     //:   comparison criterion.
+    //:
     //: 7 The non-predicate version of 'sort' does not use 'std::less'.
+    //:
     //: 8 The sort is stable -- equivalent elements remain in the same order as
     //:   in the original list.
+    //:
     //: 9 The number of calls to the comparison operation is no larger than
     //:   'N*log2(N)', where 'N' is the number of elements.
+    //:
     //: 10 If the comparison function throws an exception, no memory is
     //:    leaked.  (The order of the elements is indeterminate.)
     //
@@ -4270,26 +4225,35 @@ void TestDriver<TYPE,ALLOC>::test28_sortComp()
     //: 1 Create a series of list specifications of different lengths, some
     //:   containing duplicates, triplicates, and multiple sets of duplicates
     //:   and triplicates.
+    //:
     //: 2 Generate every permutation of elements within each specification.
+    //:
     //: 3 Create a list from the permutation, store an iterator to each list
     //:   element, and sort the list.
+    //:
     //: 4 Verify that:
     //:   o The resultant list is a sorted version of the original.
     //:   o Iterating over each element in the sorted list results in an
     //:     iterator that existed in the original list.
     //:   o For equivalent elements, the iterators appear in the same order.
+    //:
     //: 5 Test allocations, constructor counts, destructor counts, and
     //:   assignment counts before and after the sort and verify that they
     //:   haven't changed.  (Constructor, destructor, and assignment counts are
     //:   meaningful only if 'TYPE' is 'TestType', but will are accessible and
     //:   will remain unchanged anyway for other types.)
+    //:
     //: 6 To address concern 7, std::less<TestType> is specialized to detect
     //:   being called inappropriately.
+    //:
     //: 7 To address concern 6, repeat the test using a predicate that sorts in
     //:   reverse order.
+    //:
     //: 8 To address concern 9, the predicate counts the number of invocations.
+    //:
     //: 9 To address concern 10, the predicate operator is instrumented to
     //:   throw an exception after a specific number of iterations.
+    //:
     //: 10 Using a sample string, set the comparison operator to throw at
     //:    different counts and verify, after each exception, that:
     //:    o No memory is leaked.
@@ -4556,17 +4520,26 @@ void TestDriver<TYPE,ALLOC>::test28_sortNoComp()
     //
     // Concerns:
     //: 1 Sorts correctly in the presence of equivalent (duplicate) elements.
+    //:
     //: 2 Sorts correctly if the input is already sorted or sorted in reverse.
+    //:
     //: 3 No memory is allocated or deallocated during the sort.
+    //:
     //: 4 No constructors, destructors, or assignment of elements takes place.
+    //:
     //: 5 Iterators to all elements remain valid.
+    //:
     //: 6 The predicate version of 'sort' can be used to sort using a different
     //:   comparison criterion.
+    //:
     //: 7 The non-predicate version of 'sort' does not use 'std::less'.
+    //:
     //: 8 The sort is stable -- equivalent elements remain in the same order as
     //:   in the original list.
+    //:
     //: 9 The number of calls to the comparison operation is no larger than
     //:   'N*log2(N)', where 'N' is the number of elements.
+    //:
     //: 10 If the comparison function throws an exception, no memory is
     //:    leaked.  (The order of the elements is indeterminate.)
     //
@@ -4574,26 +4547,35 @@ void TestDriver<TYPE,ALLOC>::test28_sortNoComp()
     //: 1 Create a series of list specifications of different lengths, some
     //:   containing duplicates, triplicates, and multiple sets of duplicates
     //:   and triplicates.
+    //:
     //: 2 Generate every permutation of elements within each specification.
+    //:
     //: 3 Create a list from the permutation, store an iterator to each list
     //:   element, and sort the list.
+    //:
     //: 4 Verify that:
     //:   o The resultant list is a sorted version of the original.
     //:   o Iterating over each element in the sorted list results in an
     //:     iterator that existed in the original list.
     //:   o For equivalent elements, the iterators appear in the same order.
+    //:
     //: 5 Test allocations, constructor counts, destructor counts, and
     //:   assignment counts before and after the sort and verify that they
     //:   haven't changed.  (Constructor, destructor, and assignment counts are
     //:   meaningful only if 'TYPE' is 'TestType', but will are accessible and
     //:   will remain unchanged anyway for other types.)
+    //:
     //: 6 To address concern 7, std::less<TestType> is specialized to detect
     //:   being called inappropriately.
+    //:
     //: 7 To address concern 6, repeat the test using a predicate that sorts in
     //:   reverse order.
+    //:
     //: 8 To address concern 9, the predicate counts the number of invocations.
+    //:
     //: 9 To address concern 10, the predicate operator is instrumented to
     //:   throw an exception after a specific number of iterations.
+    //:
     //: 10 Using a sample string, set the comparison operator to throw at
     //:    different counts and verify, after each exception, that:
     //:    o No memory is leaked.
@@ -4750,14 +4732,22 @@ void TestDriver<TYPE,ALLOC>::test27_mergeComp()
     // Concerns:
     //: 1 Merging produces correct results with and without duplicate elements
     //:   within and between the lists to be merged.
+    //:
     //: 2 The argument to merge is empty after the merge.
+    //:
     //: 3 No memory is allocated or deallocated during the merge.
+    //:
     //: 4 No constructors, destructors, or assignment of elements takes place.
+    //:
     //: 5 Iterators to all elements remain valid.
+    //:
     //: 6 The predicate version of 'merge' can be used to merge using a
     //:   different comparison criterion.
+    //:
     //: 7 The non-predicate version of 'merge' does not use 'std::less'.
+    //:
     //: 8 Merging a list with itself has no effect.
+    //:
     //: 9 If the comparison function throws an exception, no memory is leaked
     //:   and all elements remain in one list or the other.
     //
@@ -4766,19 +4756,25 @@ void TestDriver<TYPE,ALLOC>::test27_mergeComp()
     //:   specifications.  The elements in the lists are chosen so that every
     //:   combination of duplicate and non-duplicate elements, both within and
     //:   between lists, is represented.
+    //:
     //: 2 Save the iterators to all elements of both lists and record the
     //:   memory usage before the merge.
+    //:
     //: 3 Merge one list into the other.
+    //:
     //: 4 Verify that:
     //:   o The merged value is correct.
     //:   o All of the pre-merge iterators are still valid.
     //:   o The non-merged list is now empty.
+    //:
     //: 5 To address concern 6, sort the initial specifications using the
     //:   reverse sort order, then use a custom "greater-than" predicate to
     //:   merge the lists and verify the same values as for the non-predicate
     //:   case.
+    //:
     //: 6 To address concern 7, std::less<TestType> is specialized to detect
     //:   being called inappropriately.
+    //:
     //: 7 To address concern 8, merge each list with itself and verify that no
     //:   memory is allocated or deallocated and that all iterators remain
     //:   valid.
@@ -5094,14 +5090,22 @@ void TestDriver<TYPE,ALLOC>::test27_mergeNoComp()
     // Concerns:
     //: 1 Merging produces correct results with and without duplicate elements
     //:   within and between the lists to be merged.
+    //:
     //: 2 The argument to merge is empty after the merge.
+    //:
     //: 3 No memory is allocated or deallocated during the merge.
+    //:
     //: 4 No constructors, destructors, or assignment of elements takes place.
+    //:
     //: 5 Iterators to all elements remain valid.
+    //:
     //: 6 The predicate version of 'merge' can be used to merge using a
     //:   different comparison criterion.
+    //:
     //: 7 The non-predicate version of 'merge' does not use 'std::less'.
+    //:
     //: 8 Merging a list with itself has no effect.
+    //:
     //: 9 If the comparison function throws an exception, no memory is leaked
     //:   and all elements remain in one list or the other.
     //
@@ -5110,19 +5114,25 @@ void TestDriver<TYPE,ALLOC>::test27_mergeNoComp()
     //:   specifications.  The elements in the lists are chosen so that every
     //:   combination of duplicate and non-duplicate elements, both within and
     //:   between lists, is represented.
+    //:
     //: 2 Save the iterators to all elements of both lists and record the
     //:   memory usage before the merge.
+    //:
     //: 3 Merge one list into the other.
+    //:
     //: 4 Verify that:
     //:   o The merged value is correct.
     //:   o All of the pre-merge iterators are still valid.
     //:   o The non-merged list is now empty.
+    //:
     //: 5 To address concern 6, sort the initial specifications using the
     //:   reverse sort order, then use a custom "greater-than" predicate to
     //:   merge the lists and verify the same values as for the non-predicate
     //:   case.
+    //:
     //: 6 To address concern 7, std::less<TestType> is specialized to detect
     //:   being called inappropriately.
+    //:
     //: 7 To address concern 8, merge each list with itself and verify that no
     //:   memory is allocated or deallocated and that all iterators remain
     //:   valid.
@@ -5289,31 +5299,42 @@ void TestDriver<TYPE,ALLOC>::test26_unique()
     // Concerns:
     //: 1 The predicate and non-predicate versions of 'unique' have essentially
     //:   the same characteristics.
+    //:
     //: 2 Can remove elements from any or all positions in the list except the
     //:   first.
+    //:
     //: 3 Destructors are called for removed elements and memory is deleted for
     //:   removed elements.
+    //:
     //: 4 No constructors, destructors, or assignment operators are called on
     //:   the remaining (non-removed) elements.
+    //:
     //: 5 No memory is allocated.
+    //:
     //: 6 Iterators to non-removed elements, including the 'end()' iterator,
     //:   remain valid after removal.
+    //:
     //: 7 The non-removed elements retain their relative order.
+    //:
     //: 8 The 'unique' operation is exception-neutral, if the equality operator
     //:   or predicate throw an exception.
+    //:
     //: 9 The non-predicate version calls operator==(T,T) directly; it does not
     //:   call std::equal_to<T>::operator()(T,T).
     //
     // Plan:
     //: 1 For concern 1, perform the same tests for both the predicate and
     //:   non-predicate versions of 'unique.
+    //:
     //: 2 Generate lists of various lengths up to 10 elements, filling the
     //:   lists with different sequences of values such that every combination
     //:   of matching and non-matching subsequences is generated.  (For the
     //:   predicate version, matching elements need to be equal only in their
     //:   low bit).
+    //:
     //: 3 For each combination, make a copy of all of the iterators to
     //:   non-repeated elements, then call 'unique'.
+    //:
     //: 4 Validate that:
     //:   o The number of new destructor calls matches the number of elements
     //:     removed.
@@ -5324,9 +5345,11 @@ void TestDriver<TYPE,ALLOC>::test26_unique()
     //:   o The iterating over the remaining elements produces a sequence of
     //:     values and iterators matching those saved before the 'unique'
     //:     operation.
+    //:
     //: 5 For concern 8, perform the tests in an exception-testing framework,
     //:   using a special feature of the 'LowBitEQ' predicate to cause
     //:   exceptions to be thrown.
+    //:
     //: 6 For concern 9, std::equal_to<TestType> is specialized to detect being
     //:   called inappropriately.
     //
@@ -5503,26 +5526,37 @@ void TestDriver<TYPE,ALLOC>::test25_remove()
     //
     // Concerns:
     //: 1 'remove' and 'remove_if' have essentially the same characteristics.
+    //:
     //: 2 Will remove 0..N elements from an N-element list.
+    //:
     //: 3 Can remove elements from any or all positions in the list
+    //:
     //: 4 Destructors are called for removed elements and memory is deleted for
     //:   removed elements.
+    //:
     //: 5 No constructors, destructors, or assignment operators are called on
     //:   the remaining (non-removed) elements.
+    //:
     //: 6 No memory is allocated.
+    //:
     //: 7 Iterators to non-removed elements, including the 'end()' iterator,
     //:   remain valid after removal.
+    //:
     //: 8 The non-'E' elements retain their relative order.
     //
     // Plan:
     //: 1 For concern 1, perform the same tests for both 'remove' and
     //:   'remove_if'.
+    //:
     //: 2 Generate lists from a small set of specifications from empty to 10
     //:   elements, none of which contain the value 'E'.
+    //:
     //: 3 Replace 0 to 'LENGTH' elements with the value 'E', in every possible
     //:   combination.
+    //:
     //: 4 For each specification and combination, make a copy of all of the
     //:   iterators to non-'E' elements, then call 'remove' or 'remove_if'.
+    //:
     //: 5 Validate that:
     //:   o The number of new destructor call matches the number of elements
     //:     removed.
@@ -5686,18 +5720,24 @@ void TestDriver<TYPE,ALLOC>::test24_splice()
     //
     // Concerns:
     //: 1 Can splice into any position within target list.
+    //:
     //: 2 Can splice from any position within source list.
+    //:
     //: 3 No iterators or pointers are invalidated.
+    //:
     //: 4 No allocations or deallocations occur.
+    //:
     //: 5 No constructor calls, destructor calls, or assignments occur.
     //
     // Test plan:
     //: 1 Perform a small area test with source and target lists of 0 to 5
     //:   elements each, splicing into every target position from every source
     //:   position and every source length.
+    //:
     //: 2 Keep track of the original iterators and element addresses from each
     //:   list and verify that they remain valid and point to the correct
     //:   element in the post-splice lists.
+    //:
     //: 3 Query the number of allocations, deallocations, constructor calls,
     //:   destructor calls, and assignment operator calls before and after each
     //:   splice and verify that they do not change.
@@ -5964,20 +6004,26 @@ void TestDriver<TYPE,ALLOC>::test23_reverse()
     // Concerns:
     //: 1 Reversing a list produced the correct result with 0, 1, 2, or more
     //:   elements.
+    //:
     //: 2 Reversing a list with duplicate elements works as expected.
+    //:
     //: 3 No constructors, destructors, or assignment operators of contained
     //:   elements are called.
+    //:
     //: 4 No memory is allocated or deallocated.
     //
     // Plan:
     //: 1 Create a list from a variety of specifications, including empty
     //:   lists, lists of different lengths, and lists with consecutive or
     //:   non-consecutive duplicate elements and call 'reverse' on the list.
+    //:
     //: 2 For concerns 1 and 2, verify that calling 'reverse' produces the
     //:   expected result.
+    //:
     //: 3 For concern 3, compare the counts of 'TestType' constructors and
     //:   destructors before and after calling 'reverse' and verify that they
     //:   do not change.
+    //:
     //: 4 For concern 4, use a test allocator and compare the counts of total
     //:   blocks allocated and blocks in use before and after calling 'reverse'
     //:   and verify that the counts do not change.
@@ -6057,15 +6103,18 @@ void TestDriver<TYPE,ALLOC>::test22_typeTraits()
     //
     // Concerns:
     //: 1 That the list has the 'bslalg::HasStlIterators' trait.
+    //:
     //: 2 If instantiated with 'bsl::allocator', then list has the
     //:   'bslma::UsesBslmaAllocator' trait.
-    //: 3 If instantiated with an allocator that is bitwise moveable, then the
+    //:
+    //: 3 If instantiated with an allocator that is bitwise movable, then the
     //:   list has the 'bslmf::IsBitwiseMoveable' trait.
+    //:
+    //: 4 That a list never has the 'bsl::is_trivially_copyable' trait.
     //
     // Plan:
-    //: 1 Test each of the above three traits and compare their value to the
-    //:   expected value as expressed in the 'uses_bslma' and
-    //:   'bitwise_moveable' arguments to this function.
+    //: 1 Test each of the above four traits and compare their values to the
+    //:   expected values.
     //
     // Testing:
     //   bslalg::HasStlIterators
@@ -6094,6 +6143,7 @@ void TestDriver<TYPE,ALLOC>::test21_typedefs()
     //
     // Concerns:
     //: 1 That all of the required typedefs are defined.
+    //:
     //: 2 That the typedefs are identical to the corresponding typedefs from
     //:   the allocator.
     //
@@ -6144,8 +6194,10 @@ void TestDriver<TYPE,ALLOC>::test20_comparisonOps(bsl::true_type)
     //
     // Concerns:
     //: 1 'operator<' returns the lexicographic comparison on two lists.
+    //:
     //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //:   'operator<'.
+    //:
     //: 3 That traits get selected properly.
     //
     // Plan:
@@ -6278,24 +6330,34 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //
     // Concerns:
     //: 1 Swapping containers does not swap allocators.
+    //:
     //: 2 Swapping containers with same allocator results in no allocation or
     //:   deallocation operations.
+    //:
     //: 3 Swapping containers with the same allocator causes iterators to
     //:   remain valid but to refer to the opposite container.
+    //:
     //: 4 DEPRECATED: Swapping containers with different allocator instances
     //:   will have the same memory usage copy-constructing each container and
     //:   destroying the original.
+    //:
     //: 5 DEPRECATED: An exception thrown while swapping containers with
     //:   different allocator instances will leave the containers unchanged.
     //
     // Plan:
     //: 1 Construct 'lst1' and 'lst2' with same test allocator.
+    //:
     //: 2 Add data to each list.  Remember allocation statistics and iterators.
+    //:
     //: 3 Verify that contents were swapped.
+    //:
     //: 4 Verify that allocator is unchanged.
+    //:
     //: 5 Verify that no memory was allocated or deallocated.
+    //:
     //: 6 Verify that each iterator now refers to the same element in the other
     //:   container.
+    //:
     //: 7 For concerns 4 and 5, construct two containers with different
     //:   allocators and swap them within an exception test harness.  Verify
     //:   the expected memory usage and verify that an exception leaves the
@@ -6543,7 +6605,9 @@ void TestDriver<TYPE,ALLOC>::test18_erase()
     //
     // Concerns:
     //: 1 That the resulting value is correct.
+    //:
     //: 2 That erase operations do not allocate memory.
+    //:
     //: 3 That no memory is leaked.
     //
     // Plan:
@@ -6756,33 +6820,45 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
     //
     // Concerns
     //: 1 That the resulting list value is correct.
+    //:
     //: 2 That the 'emplace' return (if any) value is a valid iterator to the
     //:   first inserted element or to the insertion position if no elements
     //:   are inserted.
+    //:
     //: 3 That 'emplace' has the strong exception guarantee.
+    //:
     //: 4 That 'emplace' is exception neutral w.r.t. memory allocation.
+    //:
     //: 5 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 6 That inserting a 'const T& value' that is a reference to an element
     //:   of the list does not suffer from aliasing problems.
+    //:
     //: 7 That no iterators are invalidated by the insertion.
+    //:
     //: 8 That 'emplace' passes 0 to 5 arguments to the 'T' constructor.
     //
     // Plan:
     //: 1 Create objects of various sizes and insert a distinct value into each
     //:   possible position.
+    //:
     //: 2 For concerns 1, 2 & 5, verify that the return value and modified list
     //:   are as expected.
+    //:
     //: 3 For concerns 3 & 4 perform the test using the exception-testing
     //:   infrastructure and verify the value and memory changes.
+    //:
     //: 4 For concern 6, we select the value to insert from the middle of the
     //:   list, thus testing insertion before, at, and after the aliased
     //:   element.
+    //:
     //: 5 For concern 7, save copies of the iterators before and after the
     //:   insertion point and verify that they point to the same (valid)
     //:   elements after the insertion by iterating to the same point in the
     //:   resulting list and comparing the new iterators to the old ones.
+    //:
     //: 6 For concern 8, test each 'emplace' call with 0 to 5 arguments.  The
     //:   test types are designed to ignore all but the last argument, but
     //:   verify that the preceding arguments are the values '1', '2', '3', and
@@ -7053,20 +7129,28 @@ void TestDriver<TYPE,ALLOC>::test17_insert()
     //
     // Concerns
     //: 1 That the resulting list value is correct.
+    //:
     //: 2 That the 'insert' return (if any) value is a valid iterator to the
     //:   first inserted element or to the insertion position if no elements
     //:   are inserted.
+    //:
     //: 3 That insertion of one element has the strong exception guarantee.
+    //:
     //: 4 That insertion is exception neutral w.r.t. memory allocation.
+    //:
     //: 5 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 6 That inserting a 'const T& value' that is a reference to an element
     //:   of the list does not suffer from aliasing problems.
+    //:
     //: 7 That no iterators are invalidated by the insertion.
+    //:
     //: 8 That inserting 'n' copies of value 'v' selects the correct overload
     //:   when 'n' and 'v' are identical arithmetic types (i.e., the
     //:   iterator-range overload is not selected).
+    //:
     //: 9 That inserting 'n' copies of value 'v' selects the correct overload
     //:   when 'v' is a pointer type and 'n' is a null pointer literal ,'0'.
     //:   (i.e., the iterator-range overload is not selected).
@@ -7419,23 +7503,31 @@ void TestDriver<TYPE,ALLOC>::test17_insertRange()
     //
     // Concerns
     //: 1 That the resulting list value is correct.
+    //:
     //: 2 That the 'insert' return (if any) value is a valid iterator to the
     //:   first inserted element or to the insertion position if no elements
     //:   are inserted.
+    //:
     //: 3 That insertion of one element has the strong exception guarantee.
+    //:
     //: 4 That insertion is exception neutral w.r.t. memory allocation.
+    //:
     //: 5 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 6 That no iterators are invalidated by the insertion.
     //
     // Plan:
     //: 1 Create objects of various sizes and insert a range of 0 to 3 values
     //:   at each possible position.
+    //:
     //: 2 For concerns 1, 2 & 5, verify that the return value and modified list
     //:   are as expected.
+    //:
     //: 3 For concerns 3 & 4 perform the test using the exception-testing
     //:   infrastructure and verify the value and memory changes.
+    //:
     //: 4 For concern 7, save copies of the iterators before and after the
     //:   insertion point and verify that they point to the same (valid)
     //:   elements after the insertion by iterating to the same point in the
@@ -7471,7 +7563,8 @@ void TestDriver<TYPE,ALLOC>::test16_iterators_dispatch()
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::false_type dontDoTest)
 {
-    if (verbose) printf("test16_iterators<%s>: not tested\n", nameOf<TYPE>());
+    if (verbose) printf("test16_iterators<%s>: not tested\n",
+                        NameOf<TYPE>().name());
 
     // Something about 'TYPE' is such that this test should not be run.
 
@@ -7486,18 +7579,24 @@ void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::true_type doTest)
     //
     // Concerns:
     //: 1 That 'iterator' and 'const_iterator' are bi-directional iterators.
+    //:
     //: 2 That 'iterator' and 'const_iterator' are CopyConstructible,
     //:   Assignable, and EqualityComparable, that 'iterator' is convertible to
     //:   'const_iterator', and that 'reverse_iterator' is constructible from
     //:   'iterator'.
+    //:
     //: 3 That 'begin' and 'end' return mutable iterators for a reference to a
     //:   modifiable list, and non-mutable iterators otherwise.
+    //:
     //: 4 That the iterators can be dereferenced using 'operator*' or
     //:   'operator->', yielding a reference or pointer with the correct
     //:   constness.
+    //:
     //: 5 That the range '[begin(), end())' equals the value of the list.
+    //:
     //: 6 That iterators can be pre-incremented, post-incremented,
     //:   pre-decremented, and post-decremented.
+    //:
     //: 7 Same concerns with 'rbegin', 'rend', 'reverse_iterator', and
     //:   'const_reverse_iterator'.
     //
@@ -7505,10 +7604,11 @@ void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::true_type doTest)
     //: 1 For concerns 1, 3, 4, and 7 create a one-element list and verify the
     //:   static properties of 'iterator', 'const_iterator',
     //:   ''reverse_iterator', and 'const_reverse_iterator'.
+    //:
     //: 2 For concerns 1, 2, 5, 6, and 7, for each value given by variety of
     //:   specifications of different lengths, create a test list with this
     //:   value, and access each element in sequence and in reverse sequence,
-    //:   both as a reference providing modiable access (setting it to a
+    //:   both as a reference providing modifiable access (setting it to a
     //:   default value, then back to its original value), and as a reference
     //:   providing non-modifiable access.  At each step in the traversal, save
     //:   the current iterator using both copy construction and assignment and,
@@ -7552,7 +7652,8 @@ void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::true_type doTest)
     };
     enum { NUM_DATA = sizeof(DATA) / sizeof *DATA };
 
-    if (verbose) printf("test16_iterators<%s>: Testing\n", nameOf<TYPE>());
+    if (verbose) printf("test16_iterators<%s>: Testing\n",
+                        NameOf<TYPE>().name());
     {
         Obj mX(2); const Obj& X = mX;
 
@@ -7829,7 +7930,8 @@ void TestDriver<TYPE,ALLOC>::test15_elementAccess()
     //   const T& back() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("testElementAccess for TYPE: %s\n", nameOf<TYPE>());
+    if (verbose) printf("testElementAccess for TYPE: %s\n",
+                        NameOf<TYPE>().name());
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
@@ -7875,7 +7977,7 @@ void TestDriver<TYPE,ALLOC>::test15_elementAccess()
 
                 LOOP_ASSERT(LINE,   is_mutable(mX.front()));
                 LOOP_ASSERT(LINE, ! is_mutable(X.front()));
-                ASSERTV(LINE, nameOf<TYPE>(), value_of(EXP_FRONT),
+                ASSERTV(LINE, NameOf<TYPE>(), value_of(EXP_FRONT),
                                   value_of(X.front()), EXP_FRONT == X.front());
                 assignTo<TYPE>(bsls::Util::addressOf(mX.front()),
                                value_of(STRANGE_VALUE));
@@ -7887,7 +7989,7 @@ void TestDriver<TYPE,ALLOC>::test15_elementAccess()
 
                 LOOP_ASSERT(LINE,   is_mutable(mX.back()));
                 LOOP_ASSERT(LINE, ! is_mutable(X.back()));
-                ASSERTV(LINE, nameOf<TYPE>(), value_of(EXP_BACK),
+                ASSERTV(LINE, NameOf<TYPE>(), value_of(EXP_BACK),
                                      value_of(X.back()), EXP_BACK == X.back());
                 assignTo<TYPE>(bsls::Util::addressOf(mX.back()),
                               value_of(STRANGE_VALUE));
@@ -8229,11 +8331,16 @@ void TestDriver<TYPE,ALLOC>::test14_resize()
     //
     // Concerns:
     //: 1 Resized list has the correct value.
+    //:
     //: 2 Resizing to the current size allocates and frees no memory.
+    //:
     //: 3 Resizing to a smaller size allocates no memory.
+    //:
     //: 4 Resizing to a larger size frees no memory.
+    //:
     //: 5 Resizing to a larger size propagates the allocator to elements
     //:   appropriately.
+    //:
     //: 6 'resize' is exception neutral.
     //
     // Plan:
@@ -8254,11 +8361,13 @@ template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::test13_initialLengthAssign()
 {
     // ------------------------------------------------------------------------
-    // TESTING INITIAL-LENGTH AND RANGE ASSIGMENT:
+    // TESTING INITIAL-LENGTH AND RANGE ASSIGNMENT:
     //
     // Concerns:
     //: 1 The assigned value is correct.
+    //:
     //: 2 The 'assign' call is exception neutral w.r.t. memory allocation.
+    //:
     //: 3 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
@@ -8270,6 +8379,7 @@ void TestDriver<TYPE,ALLOC>::test13_initialLengthAssign()
     //:   o With various initial values before the assignment.
     //:   o In the presence of exceptions during memory allocations using a
     //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+    //:
     //: 2 Use basic accessors and equality comparison to verify that assignment
     //:   was successful.
     //
@@ -8600,16 +8710,20 @@ template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::test13_assignRange()
 {
     // ------------------------------------------------------------------------
-    // TESTING INITIAL-LENGTH AND RANGE ASSIGMENT:
+    // TESTING INITIAL-LENGTH AND RANGE ASSIGNMENT:
     //
     // Concerns:
     //: 1 That the initial value is correct.
+    //:
     //: 2 That the initial range is correctly imported if the initial
     //:   'FWD_ITER' is an input iterator.
+    //:
     //: 3 That the constructor is exception neutral w.r.t. memory allocation.
+    //:
     //: 4 That the internal memory management system is hooked up properly so
     //:   that *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 5 The previous value is freed properly.
     //
     // Plan:
@@ -8619,6 +8733,7 @@ void TestDriver<TYPE,ALLOC>::test13_assignRange()
     //:   o From the parameterized 'CONTAINER::const_iterator'.
     //:   o In the presence of exceptions during memory allocations using a
     //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+    //:
     //: 2 Use basic accessors to verify:
     //:   o size
     //:   o capacity
@@ -8698,7 +8813,8 @@ void TestDriver<TYPE,ALLOC>::test12_initialLengthConstructorDefault()
     }
 
     if (verbose) printf("Testing TYPE: %s initial-length ctor "
-                        "without (default) initial value.\n", nameOf<TYPE>());
+                        "without (default) initial value.\n",
+                        NameOf<TYPE>().name());
     {
         static const struct {
             int         d_lineNum;          // source line number
@@ -8779,7 +8895,7 @@ void TestDriver<TYPE,ALLOC>::test12_initialLengthConstructorNonDefault()
     }
 
     if (verbose) printf("Testing TYPE: %s initial-length ctor "
-                        "with initial value.\n", nameOf<TYPE>());
+                        "with initial value.\n", NameOf<TYPE>().name());
     {
         static const struct {
             int         d_lineNum;          // source line number
@@ -8976,7 +9092,7 @@ void TestDriver<TYPE,ALLOC>::test12_initialLengthConstructorNonDefault()
 
                         ASSERT(TB == defaultAllocator_p->numBlocksInUse());
                     }
-                    ASSERTV(nameOf<TYPE>(), expectedBlocks(LENGTH) ==
+                    ASSERTV(NameOf<TYPE>(), expectedBlocks(LENGTH) ==
                            objectAllocator_p->numBlocksInUse());
                 }
 
@@ -9057,15 +9173,20 @@ void TestDriver<TYPE,ALLOC>::test12_initialLengthConstructor()
     //
     // Concerns:
     //: 1 The initial value is correct.
+    //:
     //: 2 The constructor is exception neutral w.r.t. memory allocation.
+    //:
     //: 3 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
+    //:
     //: 4 TBD: The C++0x move constructor moves value and allocator correctly,
     //:   and without performing any allocation.
+    //:
     //: 5 Constructing a list with 'n' copies of value 'v' selects the correct
     //:   overload when 'n' and 'v' are identical arithmetic types (i.e., the
     //:   iterator-range overload is not selected).
+    //:
     //: 6 Constructing a list with 'n' copies of value 'v' selects the correct
     //:   overload when 'v' is a pointer type and 'n' is a null pointer literal
     //:   ,'0'.  (i.e., the iterator-range overload is not selected).
@@ -9080,13 +9201,16 @@ void TestDriver<TYPE,ALLOC>::test12_initialLengthConstructor()
     //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
     //:   o Where the object is constructed with an object allocator, and
     //:     neither of global and default allocator is used to supply memory.
+    //:
     //: 2 Use basic accessors to verify
     //:   o size
     //:   o allocator
     //:   o element value at each iterator position { begin() .. end() }.
+    //:
     //: 3 As for concern 4, we simply move-construct each value into a new list
     //:   and check that the value, and allocator are as expected, and that no
     //:   allocation was performed.
+    //:
     //: 4 For concerns 5 and 6, construct a list with 2 elements of arithmetic
     //:   or pointer types and verify that it compiles and that the resultant
     //:   list contains the expected values.
@@ -9262,9 +9386,12 @@ void TestDriver<TYPE,ALLOC>::test12_constructorRange()
     //
     // Concerns:
     //: 1 That the initial value is correct.
+    //:
     //: 2 That the initial range is correctly imported if the initial
     //:   'FWD_ITER' is an input iterator.
+    //:
     //: 3 That the constructor is exception neutral w.r.t. memory allocation.
+    //:
     //: 4 That the internal memory management system is hooked up properly so
     //:   that *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
@@ -9277,6 +9404,7 @@ void TestDriver<TYPE,ALLOC>::test12_constructorRange()
     //:   o With and without passing in an allocator.
     //:   o In the presence of exceptions during memory allocations using a
     //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+    //:
     //: 2 Use basic accessors to verify
     //:   o size
     //:   o element value at each index position { 0 .. length - 1 }.
@@ -9327,8 +9455,10 @@ void TestDriver<TYPE,ALLOC>::test11_allocators(bsl::true_type, bsl::true_type)
     // Plan:
     //: 1 Default construct a list and observe that a single allocation takes
     //:   place (for the sentinel).
+    //:
     //: 2 If the type contained in the list allocates, push a value onto the
     //:   back of the list and observe that 2 more allocations take place.
+    //:
     //: 3 Call the 'allocator' accessor on an element in the list and observe
     //:   that the allocator matches that passed to the list.
     //
@@ -9598,16 +9728,22 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
     //
     // Concerns:
     //: 1 The 'rhs' value must not be affected by the operation.
+    //:
     //: 2 'rhs' going out of scope has no effect on the value of 'lhs' after
     //:   the assignment.
+    //:
     //: 3 After the assignment, no element of the 'lhs' has the same address an
     //:   element of 'rhs' (except in the case of self-assignment).
+    //:
     //: 4 Aliasing (x = x): The assignment operator must always work -- even
     //:   when the lhs and rhs are identically the same object.
+    //:
     //: 5 The assignment operator must be neutral with respect to memory
     //:   allocation exceptions.
+    //:
     //: 6 The 'lhs' object must allocate all of its internal memory from its
     //:   own allocator, even of 'rhs' uses a different allocator.
+    //:
     //: 7 TBD: C++0x move assignment moves the value but not the allocator.
     //:   Memory is allocated only if the 'lhs' and 'rhs' allocators are
     //:   different.
@@ -9620,6 +9756,7 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
     //:   unique so that re-ordering elements cannot preserve equality.
     //:   Attempt to affect every aspect of white-box state by altering each xi
     //:   in a unique way.  Let the union of all such objects be the set T.
+    //:
     //: 2 To address concerns 2, 3, and 5, construct tests u = v for all
     //:   '(u, v)' in T X T.  Using canonical controls 'UU' and 'VV', assert
     //:   before the assignment that 'UU == u', 'VV == v', and 'v == u' if and
@@ -9631,19 +9768,20 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
     //:   the execution time is lengthy with exceptions, not every permutation
     //:   is performed when exceptions are tested.  Every permutation is also
     //:   tested separately without exceptions.
+    //:
     //: 3 As a separate exercise, we address 4 and 5 by constructing tests
     //:   y = y for all y in T.  Using a canonical control X, we will verify
     //:   that X == y before and after the assignment, again within the bslma
     //:   exception testing apparatus.
+    //:
     //: 4 To address concern 5, all these tests are performed on user defined
     //:   types:
     //:   o With allocator, copyable
-    //:   o With allocator, moveable
-    //:   o With allocator, not moveable
+    //:   o With allocator, movable
+    //:   o With allocator, not movable
     //
     // Testing:
     //   list& operator=(const list& rhs);
-    //   list& operator=(list&& rhs);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator1(veryVeryVerbose);
@@ -9678,7 +9816,7 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
 
     if (verbose) printf(
                     "Testing 'operator=' with TYPE: %s, assignAllocates: %d\n",
-                                        nameOf<TYPE>(), assignOfTypeAllocates);
+                                 NameOf<TYPE>().name(), assignOfTypeAllocates);
 
     // ------------------------------------------------------------------------
 
@@ -9791,7 +9929,7 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
                         }
                     }
 
-                    // Try move assign with differrent allocators, should be
+                    // Try move assign with different allocators, should be
                     // the same.
 
                     {
@@ -10007,7 +10145,7 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
                                            B2 + deltaBlocks(difference) == A2);
 
                     ASSERTV(numThrows, U_SPEC, V_SPEC, assignOfTypeAllocates,
-                            nameOf<TYPE>(), k_NO_EXCEPT ||
+                            NameOf<TYPE>(), k_NO_EXCEPT ||
                         (numThrows > 0) ==
                             (VV.size() > UU.size() ||
                                       (!VV.empty() && assignOfTypeAllocates)));
@@ -10198,20 +10336,27 @@ void TestDriver<TYPE,ALLOC>::test07_copyCtor()
     //: 1 The new object's value is the same as that of the original object
     //:   (relying on the equality operator) and created with the correct
     //:   allocator.
+    //:
     //: 2 The value of the original object is left unaffected.
+    //:
     //: 3 Subsequent changes in or destruction of the source object have no
     //:   effect on the copy-constructed object.
+    //:
     //: 4 Subsequent changes ('push_back's) on the created object have no
     //:   effect on the original.
+    //:
     //: 5 The object has its internal memory management system hooked up
     //:   properly so that *all* internally allocated memory draws from a
     //:   user-supplied allocator whenever one is specified.
+    //:
     //: 6 The function is exception neutral w.r.t. memory allocation.
+    //:
     //: 7 An object copied from an rvalue with no allocator, or with a matching
     //:   allocator specified, will leave the copied object in a valid,
     //:   default-constructed state.
     //:   1 No allocator specified to c'tor.
     //:   2 Allocator specified to c'tor.
+    //:
     //: 8 An object copied from an rvalue with a non-matching allocator
     //:   supplied will not modify the rvalue.
     //
@@ -10219,21 +10364,25 @@ void TestDriver<TYPE,ALLOC>::test07_copyCtor()
     //: 1 Specify a set S of object values with substantial and varied
     //:   differences, ordered by increasing length, to be used in the
     //:   following tests.
+    //:
     //: 2 For concerns 1 - 3, for each value in S, initialize objects w and x,
     //:   copy construct y from x and use 'operator==' to verify that both x
     //:   and y subsequently have the same value as w.  Let x go out of scope
     //:   and again verify that w == y.
+    //:
     //: 3 For concern 4, for each value in S initialize objects w and x, and
     //:   copy construct y from x.  Change the state of y, by using the
     //:   *primary* *manipulator* 'push_back'.  Using the 'operator!=' verify
     //:   that y differs from x and w.
+    //:
     //: 4 To address concern 5, we will perform tests performed for concern 1:
     //:   o While passing a testAllocator as a parameter to the new object and
     //:     ascertaining that the new object gets its memory from the provided
     //:     testAllocator.  Also perform test for concerns 2 and 4.
     //:   o Where the object is constructed with an object allocator, and
     //:     neither of global and default allocator is used to supply memory.
-    //: 4 To address concern 6, perform tests for concern 1 performed in the
+    //:
+    //: 5 To address concern 6, perform tests for concern 1 performed in the
     //:   presence of exceptions during memory allocations using a
     //:   'bslma_TestAllocator' and varying its *allocation* *limit*.
     //
@@ -10693,6 +10842,7 @@ void TestDriver<TYPE,ALLOC>::test06_equalityOp()
     //
     // Concerns:
     //: 1 Objects constructed with the same values compare equal.
+    //:
     //: 2 Objects constructed such that they have same (logical) value but
     //:   different internal representation (due to the lack or presence of an
     //:   allocator) always compare as equal.  3 Unequal objects are always
@@ -10797,14 +10947,21 @@ void TestDriver<TYPE,ALLOC>::test04_basicAccessors()
     //
     // Concerns:
     //: 1 size() returns the list size.
+    //:
     //: 2 begin() == end() if and only if the list is empty
+    //:
     //: 3 Iterating from begin() to end() will visit every value in a list and
     //:   only the values in that list.
+    //:
     //: 4 Iteration works for both const containers (using const_iterator) and
     //:   non-const containers (using iterator).
+    //:
     //: 5 empty() returns true if size() return 0.
+    //:
     //: 6 The test function 'succ' increments an iterator by n.
+    //:
     //: 7 The test function 'nthElem' returns the nth element of a list.
+    //:
     //: 8 The test function 'is_mutable' returns true if its argument is a
     //:   mutable lvalue.
     //
@@ -11079,6 +11236,7 @@ void TestDriver<TYPE,ALLOC>::test03_generatorGG()
     //:   test for a longer 'spec' generated by prepending a string ending in a
     //:   '~' character (denoting 'clear').  Note that we are testing the
     //:   parser only; the primary manipulators are already assumed to work.
+    //:
     //: 2 For each of an enumerated sequence of 'spec' values, ordered by
     //:   increasing 'spec' length, use the primitive generator function 'ggg'
     //:   to set the state of a newly created object.  Verify that 'ggg'
@@ -11268,8 +11426,10 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
     //: 1 The default constructor
     //:   o creates the correct initial value.
     //:   o allocates exactly one block.
+    //:
     //: 2 The destructor properly deallocates all allocated memory to its
     //:   corresponding allocator from any attainable state.
+    //:
     //: 3 'primaryManipulator' and 'primaryCopier'
     //:   o produces the expected value.
     //:   o maintains valid internal state.
@@ -11279,12 +11439,14 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
     //:   o has the internal memory management system hooked up properly so
     //:     that *all* internally allocated memory draws from the same
     //:     user-supplied allocator whenever one is specified.
+    //:
     //: 4 'clear'
     //:   o produces the expected value (empty).
     //:   o properly destroys each contained element value.
     //:   o maintains valid internal state.
     //:   o does not allocate memory.
     //:   o deallocates all element memory
+    //:
     //: 5 The size-based parameters of the class reflect the platform.
     //
     // Plan:
@@ -11295,6 +11457,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
     //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
     //:   o Where the object is constructed with an object allocator and
     //:     neither of global and default allocator is used to supply memory.
+    //:
     //: 2 To address concerns 3a - 3e, construct a series of independent
     //:   objects, ordered by increasing length.  In each test, allow the
     //:   object to leave scope without further modification, so that the
@@ -11303,9 +11466,11 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
     //:   accessors to cross-check the value of the object and the
     //:   'bslma_TestAllocator' to confirm whether memory allocation has
     //:   occurred.
+    //:
     //: 3 To address concerns 4a-4e, construct a similar test, replacing
     //:   'primaryCopier' with 'clear'; this time, however, use the test
     //:   allocator to record *numBlocksInUse* rather than *numBlocksTotal*.
+    //:
     //: 4 To address concerns 2, 3d, 4d, create a small "area" test that
     //:   exercises the construction and destruction of objects of various
     //:   lengths in the presence of memory allocation exceptions.  Two
@@ -11328,6 +11493,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
     //:   blame.  We will rely on 'bslma_TestAllocator' and purify to address
     //:   concern 2, and on the object invariant assertions in the destructor
     //:   to address concerns 3d and 4d.
+    //:
     //: 6 To address concern 5, the values will be explicitly compared to the
     //:   expected values.  This will be done first so as to ensure all other
     //:   tests are reliable and may depend upon the class's constants.
@@ -11537,7 +11703,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
                 P_(AA); P_(A); P(X);
             }
 
-            ASSERTV(li, nameOf<TYPE>(), BB, deltaBlocks(1), AA,
+            ASSERTV(li, NameOf<TYPE>(), BB, deltaBlocks(1), AA,
                                                     BB + deltaBlocks(1) == AA);
             LOOP_ASSERT(li, B + deltaBlocks(1) == A);
 
@@ -11596,7 +11762,7 @@ void TestDriver<TYPE,ALLOC>::test02_primaryManipulators()
                 P_(AA); P_(A); P(X);
             }
 
-            ASSERTV(li, nameOf<TYPE>(), BB, deltaBlocks(1), AA,
+            ASSERTV(li, NameOf<TYPE>(), BB, deltaBlocks(1), AA,
                                                     BB + deltaBlocks(1) == AA);
             LOOP_ASSERT(li, B + deltaBlocks(1) == A);
 
@@ -11848,14 +12014,17 @@ void TestDriver<TYPE,ALLOC>::test01_breathingTest()
     //
     // Plan:
     //: 1 Create four objects using both the default and copy constructors.
+    //:
     //: 2 Exercise these objects using
     //:   o primary manipulators
     //:   o basic accessors
     //:   o equality operators
     //:   o the assignment operator
+    //:
     //: 3 Try aliasing with assignment for a non-empty instance [11] and allow
     //:   the result to leave scope, enabling the destructor to assert internal
     //:   object invariants.
+    //:
     //: 4 Display object values frequently in verbose mode:
     //..
     // 1) Create an object x1 (default ctor).         { x1: }
@@ -12128,6 +12297,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The usage examples in the header file compile.
+        //:
         //: 2 The usage examples in the header produce correct results
         //
         // Plan:
@@ -12198,17 +12368,24 @@ int main(int argc, char *argv[])
         //: 1 That lists can be constructed from an initializer list.
         //:   o Without an allocator passed.
         //:   o With an allocator passed.
+        //:
         //: 2 That lists can be assigned from an initializer list, either
         //:   through
         //:   o 'operator='
         //:   o 'assign'
+        //:
         //: 3 That after the operation, the values are correct.
+        //:
         //: 4 That if a c'tor throws, no memory is leaked.
+        //:
         //: 5 That if an 'operator=' or 'assign' throws, the destination is
         //:   left in a valid state (though it may be changed).
+        //:
         //: 6 That the expected amount of memory is allocated.
+        //:
         //: 7 If the list is passed a non-default allocator at construction,
         //:   the default allocator is not used.
+        //:
         //: 8 'operator=' returns a reference to the modifiable object assigned
         //:   to.
         //
@@ -12220,13 +12397,16 @@ int main(int argc, char *argv[])
         //:   o in the case of c'tors, make sure any allocator passed, and the
         //:     default allocator, are bslma::TestAllocators, which will detect
         //:     any leaks.  (C-4)
+        //:
         //: 2 Create an 'expected' value, do the operation, and compare the
         //:   result to the expected value.  In cases of assignment, make sure
         //:   the initial state of the object is either always (in the case of
         //:   not being done in loops) or usually (in the case of done in
         //:   loops) different from the expected value.  (C-1) (C-2) (C-3)
+        //:
         //: 3 Monitor the number of allocations and the blocks in use to verify
         //:   the amount of allocation.  (C-6)
+        //:
         //: 4 When the test object is created with a non-default allocator,
         //:   observe that the default allocator is never used.  (C-7)
         //
@@ -12248,6 +12428,7 @@ int main(int argc, char *argv[])
                       test33_initializerList,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 #else
         if (verbose) printf("INITIALIZER LISTS NOT TESTED -- CPP11 ONLY:\n"
@@ -12310,14 +12491,18 @@ int main(int argc, char *argv[])
         //: 1 The destination object's value is the same as that of the source
         //:   object (relying on the equality operator) and created with the
         //:   correct allocator.
-        //: 2 If the allocators match, the assigment is a swap.
+        //:
+        //: 2 If the allocators match, the assignment is a swap.
+        //:
         //: 3 If the allocators don't match, the assignment is a copy and the
         //:   value of the 'rhs' is unaffected (this is not a guaranteed
         //:   property of the component -- it's just that for the types we
         //:   test, a 'move' between objects that don't share the same
         //:   allocator is a copy).
+        //:
         //: 4 Subsequent changes to the source object have no effect on the
         //:   assigned object.
+        //:
         //: 5 The object has its internal memory management system hooked up
         //:   properly so that *all* internally allocated memory draws from a
         //:   user-supplied allocator whenever one is specified.
@@ -12326,17 +12511,20 @@ int main(int argc, char *argv[])
         //: 1 Specify a set S of object values with substantial and varied
         //:   differences, ordered by increasing length, to be used in the
         //:   following tests.
+        //:
         //: 2 For concerns 1 - 3, for each value in S, initialize objects w and
         //:   v.  Copy object w to x and v to y.  Move assign y to x.
         //:   o If the allocators match, verify it was a swap.
         //:   o If the allocators don't match, verify it was a copy.
+        //:
         //: 3 For concern 4, clear x and observe y is unchanged.
+        //:
         //: 4 To address concern 5, observe the default allocator before and
         //:   after the whole test and observe that it is never used (after the
         //:   first call to 'checkIntegrity'.
         //
         // Testing:
-        //   list& operator=(list&& orig);
+        //   list& operator=(list&& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING MOVE ASSIGN:\n"
@@ -12350,34 +12538,42 @@ int main(int argc, char *argv[])
                       test31_moveAssign,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING MOVE COPY CONSTRUCTOR:
+        // TESTING MOVE CONSTRUCTOR:
         //
         // Concerns:
         //: 1 The new object's value is the same as the initial value of the
         //:   original object (relying on the equality operator) and created
         //:   with the correct allocator.
+        //:
         //: 2 If no allocator is passed, or if the allocators match, the
         //:   operation is a swap.
+        //:
         //: 3 if an allocator that does not match the allocator of the source
         //:   object, the operation is a copy (this is not guaranteed by the
         //:   component -- individual elements are moved, but for all the types
         //:   we test, a move with different allocators is a copy.
+        //:
         //: 4 Subsequent changes of the source object have no effect on the
         //:   copy-constructed object.
+        //:
         //: 5 The object has its internal memory management system hooked up
         //:   properly so that *all* internally allocated memory draws from a
         //:   user-supplied allocator whenever one is specified.
+        //:
         //: 6 The function is exception neutral w.r.t. memory allocation.
+        //:
         //: 7 An object copied from an rvalue with no allocator, or with a
         //:   matching allocator specified, will leave the copied object in a
         //:   valid, default-constructed state.
         //:   1 No allocator specified to c'tor.
         //:   2 Allocator specified to c'tor.
+        //:
         //: 8 An object copied from an rvalue with a non-matching allocator
         //:   supplied will not modify the rvalue.
         //
@@ -12385,13 +12581,17 @@ int main(int argc, char *argv[])
         //: 1 Specify a set S of object values with substantial and varied
         //:   differences, ordered by increasing length, to be used in the
         //:   following tests.
+        //:
         //: 2 Default-construct a const object D.
+        //:
         //: 3 For concerns 1 - 3, for each value in S, initialize objects w and
-        //:   x, move copy construct y from x passing no allocator, and passing
+        //:   x, move construct y from x passing no allocator, and passing
         //:   an allocator that matches 'x's allocator, and in both cases use
         //:   'operator==' to verify that y subsequently has the same value as
         //:   w, and that 'D == x'.
+        //:
         //: 4 Modify x and observe y is unchanged.
+        //:
         //: 5 Construct an object y from x where the allocators don't match,
         //:   and observe afterward that both y and x equal w.
         //
@@ -12399,17 +12599,18 @@ int main(int argc, char *argv[])
         //   list(list&& orig, const A& = A());
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING MOVE COPY CONSTRUCTOR:\n"
-                            "==============================\n");
+        if (verbose) printf("TESTING MOVE CONSTRUCTOR:\n"
+                            "=========================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      test30_moveCopy,
+                      test30_moveCtor,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
-                      test30_moveCopy,
+                      test30_moveCtor,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12419,20 +12620,28 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That the resulting list value is correct.
+        //:
         //: 2 That the 'insert' return (if any) value is a valid iterator to
         //:   the first inserted element or to the insertion position if no
         //:   elements are inserted.
+        //:
         //: 3 That insertion of one element has the strong exception guarantee.
+        //:
         //: 4 That insertion is exception neutral w.r.t. memory allocation.
+        //:
         //: 5 The internal memory management system is hooked up properly so
         //:   that *all* internally allocated memory draws from a user-supplied
         //:   allocator whenever one is specified.
+        //:
         //: 6 That inserting a 'const T& value' that is a reference to an
         //:   element of the list does not suffer from aliasing problems.
+        //:
         //: 7 That no iterators are invalidated by the insertion.
+        //:
         //: 8 That inserting 'n' copies of value 'v' selects the correct
         //:   overload when 'n' and 'v' are identical arithmetic types (i.e.,
         //:   the iterator-range overload is not selected).
+        //:
         //: 9 That inserting 'n' copies of value 'v' selects the correct
         //:   overload when 'v' is a pointer type and 'n' is a null pointer
         //:   literal ,'0'.  (i.e., the iterator-range overload is not
@@ -12441,18 +12650,23 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create objects of various sizes and insert a distinct value one
         //:   or more times into each possible position.
+        //:
         //: 2 For concerns 1, 2 & 5, verify that the return value and modified
         //:   list are as expected.
+        //:
         //: 3 For concerns 3 & 4 perform the test using the exception-testing
         //:   infrastructure and verify the value and memory changes.
+        //:
         //: 4 For concern 6, we select the value to insert from the middle of
         //:   the list, thus testing insertion before, at, and after the
         //:   aliased element.
+        //:
         //: 5 For concern 7, save copies of the iterators before and after the
         //:   insertion point and verify that they point to the same (valid)
         //:   elements after the insertion by iterating to the same point in
         //:   the resulting list and comparing the new iterators to the old
         //:   ones.
+        //:
         //: 6 For concerns 8 and 9, insert 2 elements of integral or pointer
         //:   types into lists and verify that it compiles and that the
         //:   resultant list contains the expected values.
@@ -12477,6 +12691,7 @@ int main(int argc, char *argv[])
                       test29_moveInsert,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12487,19 +12702,28 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Sorts correctly in the presence of equivalent (duplicate)
         //:   elements.
+        //:
         //: 2 Sorts correctly if the input is already sorted or sorted in
         //:   reverse.
+        //:
         //: 3 No memory is allocated or deallocated during the sort.
+        //:
         //: 4 No constructors, destructors, or assignment of elements takes
         //:   place.
+        //:
         //: 5 Iterators to all elements remain valid.
+        //:
         //: 6 The predicate version of 'sort' can be used to sort using a
         //:   different comparison criterion.
+        //:
         //: 7 The non-predicate version of 'sort' does not use 'std::less'.
+        //:
         //: 8 The sort is stable -- equivalent elements remain in the same
         //:   order as in the original list.
+        //:
         //: 9 The number of calls to the comparison operation is no larger than
         //:   'N*log2(N)', where 'N' is the number of elements.
+        //:
         //: 10 If the comparison function throws an exception, no memory is
         //:    leaked.  (The order of the elements is indeterminate.)
         //
@@ -12507,28 +12731,37 @@ int main(int argc, char *argv[])
         //: 1 Create a series of list specifications of different lengths, some
         //:   containing duplicates, triplicates, and multiple sets of
         //:   duplicates and triplicates.
+        //:
         //: 2 Generate every permutation of elements within each specification.
+        //:
         //: 3 Create a list from the permutation, store an iterator to each
         //:   list element, and sort the list.
+        //:
         //: 4 Verify that:
         //:   o The resultant list is a sorted version of the original.
         //:   o Iterating over each element in the sorted list results in an
         //:     iterator that existed in the original list.
         //:   o For equivalent elements, the iterators appear in the same
         //:     order.
+        //:
         //: 5 Test allocations, constructor counts, destructor counts, and
         //:   assignment counts before and after the sort and verify that they
         //:   haven't changed.  (Constructor, destructor, and assignment counts
         //:   are meaningful only if 'TYPE' is 'TestType', but will are
         //:   accessible and will remain unchanged anyway for other types.)
+        //:
         //: 6 To address concern 7, std::less<TestType> is specialized to
         //:   detect being called inappropriately.
+        //:
         //: 7 To address concern 6, repeat the test using a predicate that
         //:   sorts in reverse order.
+        //:
         //: 8 To address concern 9, the predicate counts the number of
         //:   invocations.
+        //:
         //: 9 To address concern 10, the predicate operator is instrumented to
         //:   throw an exception after a specific number of iterations.
+        //:
         //: 10 Using a sample string, set the comparison operator to throw at
         //:    different counts and verify, after each exception, that:
         //:    o No memory is leaked.
@@ -12556,15 +12789,23 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Merging produces correct results with and without duplicate
         //:   elements within and between the lists to be merged.
+        //:
         //: 2 The argument to merge is empty after the merge.
+        //:
         //: 3 No memory is allocated or deallocated during the merge.
+        //:
         //: 4 No constructors, destructors, or assignment of elements takes
         //:   place.
+        //:
         //: 5 Iterators to all elements remain valid.
+        //:
         //: 6 The predicate version of 'merge' can be used to merge using a
         //:   different comparison criterion.
+        //:
         //: 7 The non-predicate version of 'merge' does not use 'std::less'.
+        //:
         //: 8 Merging a list with itself has no effect.
+        //:
         //: 9 If the comparison function throws an exception, no memory is
         //:   leaked and all elements remain in one list or the other.
         //
@@ -12573,19 +12814,25 @@ int main(int argc, char *argv[])
         //:   specifications.  The elements in the lists are chosen so that
         //:   every combination of duplicate and non-duplicate elements, both
         //:   within and between lists, is represented.
+        //:
         //: 2 Save the iterators to all elements of both lists and record the
         //:   memory usage before the merge.
+        //:
         //: 3 Merge one list into the other.
+        //:
         //: 4 Verify that:
         //:   o The merged value is correct.
         //:   o All of the pre-merge iterators are still valid.
         //:   o The non-merged list is now empty.
+        //:
         //: 5 To address concern 6, sort the initial specifications using the
         //:   reverse sort order, then use a custom "greater-than" predicate to
         //:   merge the lists and verify the same values as for the
         //:   non-predicate case.
+        //:
         //: 6 To address concern 7, std::less<TestType> is specialized to
         //:   detect being called inappropriately.
+        //:
         //: 7 To address concern 8, merge each list with itself and verify that
         //:   no memory is allocated or deallocated and that all iterators
         //:   remain valid.
@@ -12608,6 +12855,7 @@ int main(int argc, char *argv[])
                       test27_merge,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12618,31 +12866,42 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The predicate and non-predicate versions of 'unique' have
         //:   essentially the same characteristics.
+        //:
         //: 2 Can remove elements from any or all positions in the list except
         //:   the first.
+        //:
         //: 3 Destructors are called for removed elements and memory is deleted
         //:   for removed elements.
+        //:
         //: 4 No constructors, destructors, or assignment operators are called
         //:   on the remaining (non-removed) elements.
+        //:
         //: 5 No memory is allocated.
+        //:
         //: 6 Iterators to non-removed elements, including the 'end()'
         //:   iterator, remain valid after removal.
+        //:
         //: 7 The non-removed elements retain their relative order.
+        //:
         //: 8 The 'unique' operation is exception-neutral, if the equality
         //:   operator or predicate throw an exception.
+        //:
         //: 9 The non-predicate version calls operator==(T,T) directly; it does
         //:   not call std::equal_to<T>::operator()(T,T).
         //
         // Plan:
         //: 1 For concern 1, perform the same tests for both the predicate and
         //:   non-predicate versions of 'unique.
+        //:
         //: 2 Generate lists of various lengths up to 10 elements, filling the
         //:   lists with different sequences of values such that every
         //:   combination of matching and non-matching subsequences is
         //:   generated.  (For the predicate version, matching elements need to
         //:   be equal only in their low bit).
+        //:
         //: 3 For each combination, make a copy of all of the iterators to
         //:   non-repeated elements, then call 'unique'.
+        //:
         //: 4 Validate that:
         //:   o The number of new destructor calls matches the number of
         //:     elements removed.
@@ -12653,9 +12912,11 @@ int main(int argc, char *argv[])
         //:   o The iterating over the remaining elements produces a sequence
         //:     of values and iterators matching those saved before the
         //:     'unique' operation.
+        //:
         //: 5 For concern 8, perform the tests in an exception-testing
         //:   framework, using a special feature of the 'LowBitEQ' predicate to
         //:   cause exceptions to be thrown.
+        //:
         //: 6 For concern 9, std::equal_to<TestType> is specialized to detect
         //:   being called inappropriately.
         //
@@ -12675,6 +12936,7 @@ int main(int argc, char *argv[])
                       test26_unique,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12685,26 +12947,37 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'remove' and 'remove_if' have essentially the same
         //:   characteristics.
+        //:
         //: 2 Will remove 0..N elements from an N-element list.
+        //:
         //: 3 Can remove elements from any or all positions in the list
+        //:
         //: 4 Destructors are called for removed elements and memory is deleted
         //:   for removed elements.
+        //:
         //: 5 No constructors, destructors, or assignment operators are called
         //:   on the remaining (non-removed) elements.
+        //:
         //: 6 No memory is allocated.
+        //:
         //: 7 Iterators to non-removed elements, including the 'end()'
         //:   iterator, remain valid after removal.
+        //:
         //: 8 The non-'E' elements retain their relative order.
         //
         // Plan:
         //: 1 For concern 1, perform the same tests for both 'remove' and
         //:   'remove_if'.
+        //:
         //: 2 Generate lists from a small set of specifications from empty to
         //:   10 elements, none of which contain the value 'E'.
+        //:
         //: 3 Replace 0 to 'LENGTH' elements with the value 'E', in every
         //:   possible combination.
+        //:
         //: 4 For each specification and combination, make a copy of all of the
         //:   iterators to non-'E' elements, then call 'remove' or 'remove_if'.
+        //:
         //: 5 Validate that:
         //:   o The number of new destructor call matches the number of
         //:     elements removed.
@@ -12741,18 +13014,24 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Can splice into any position within target list.
+        //:
         //: 2 Can splice from any position within source list.
+        //:
         //: 3 No iterators or pointers are invalidated.
+        //:
         //: 4 No allocations or deallocations occur.
+        //:
         //: 5 No constructor calls, destructor calls, or assignments occur.
         //
         // Plan:
         //: 1 Perform a small area test with source and target lists of 0 to 5
         //:   elements each, splicing into every target position from every
         //:   source position and every source length.
+        //:
         //: 2 Keep track of the original iterators and element addresses from
         //:   each list and verify that they remain valid and point to the
         //:   correct element in the post-splice lists.
+        //:
         //: 3 Query the number of allocations, deallocations, constructor
         //:   calls, destructor calls, and assignment operator calls before and
         //:   after each splice and verify that they do not change.
@@ -12777,6 +13056,7 @@ int main(int argc, char *argv[])
                       test24_splice,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12787,9 +13067,12 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Reversing a list produced the correct result with 0, 1, 2, or
         //:   more elements.
+        //:
         //: 2 Reversing a list with duplicate elements works as expected.
+        //:
         //: 3 No constructors, destructors, or assignment operators of
         //:   contained elements are called.
+        //:
         //: 4 No memory is allocated or deallocated.
         //
         // Plan:
@@ -12797,11 +13080,14 @@ int main(int argc, char *argv[])
         //:   lists, lists of different lengths, and lists with consecutive or
         //:   non-consecutive duplicate elements and call 'reverse' on the
         //:   list.
+        //:
         //: 2 For concerns 1 and 2, verify that calling 'reverse' produces the
         //:   expected result.
+        //:
         //: 3 For concern 3, compare the counts of 'TestType' constructors and
         //:   destructors before and after calling 'reverse' and verify that
         //:   they do not change.
+        //:
         //: 4 For concern 4, use a test allocator and compare the counts of
         //:   total blocks allocated and blocks in use before and after calling
         //:   'reverse' and verify that the counts do not change.
@@ -12821,6 +13107,7 @@ int main(int argc, char *argv[])
                       test23_reverse,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12830,21 +13117,24 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That the list has the 'bslalg::HasStlIterators' trait.
+        //:
         //: 2 If instantiated with 'bsl::allocator', then list has the
         //:   'bslma::UsesBslmaAllocator' trait.
-        //: 3 If instantiated with an allocator that is bitwise moveable, then
+        //:
+        //: 3 If instantiated with an allocator that is bitwise movable, then
         //:   the list has the 'bslmf::IsBitwiseMoveable' trait.
+        //:
+        //: 4 That a list never has the 'bsl::is_trivially_copyable' trait.
         //
         // Plan:
-        //: 1 Test each of the above three traits and compare their value to
-        //:   the expected value as expressed in the 'uses_bslma' and
-        //:   'bitwise_moveable' arguments to this function.
+        //: 1 Test each of the above four traits and compare their values to
+        //:   the expected values.
         //
         // Testing:
         //   bslalg::HasStlIterators
         //   bslma::UsesBslmaAllocator
         //   bslmf::IsBitwiseMoveable
-        //   !bsl::is_trivially_copyable
+        //   bsl::is_trivially_copyable
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING TYPE TRAITS:\n"
@@ -12858,6 +13148,7 @@ int main(int argc, char *argv[])
                       test22_typeTraits,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12867,6 +13158,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That all of the required typedefs are defined.
+        //:
         //: 2 That the typedefs are identical to the corresponding typedefs
         //:   from the allocator.
         //
@@ -12897,6 +13189,7 @@ int main(int argc, char *argv[])
                       test21_typedefs,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -12906,8 +13199,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'operator<' returns the lexicographic comparison on two lists.
+        //:
         //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
         //:   'operator<'.
+        //:
         //: 3 That traits get selected properly.
         //
         // Plan:
@@ -12934,7 +13229,9 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       test20_comparisonOps,
                       T,
-                      TNA);
+                      TNA,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -12942,26 +13239,36 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Swapping containers does not swap allocators.
+        //:
         //: 2 Swapping containers with same allocator results in no allocation
         //:   or deallocation operations.
+        //:
         //: 3 Swapping containers with the same allocator causes iterators to
         //:   remain valid but to refer to the opposite container.
+        //:
         //: 4 DEPRECATED: Swapping containers with different allocator
         //:   instances will have the same memory usage copy-constructing each
         //:   container and destroying the original.
+        //:
         //: 5 DEPRECATED: An exception thrown while swapping containers with
         //:   different allocator instances will leave the containers
         //:   unchanged.
         //
         // Plan:
         //: 1 Construct 'lst1' and 'lst2' with same test allocator.
+        //:
         //: 2 Add data to each list.  Remember allocation statistics and
         //:   iterators.
+        //:
         //: 3 Verify that contents were swapped.
+        //:
         //: 4 Verify that allocator is unchanged.
+        //:
         //: 5 Verify that no memory was allocated or deallocated.
+        //:
         //: 6 Verify that each iterator now refers to the same element in the
         //:   other container.
+        //:
         //: 7 For concerns 4 and 5, construct two containers with different
         //:   allocators and swap them within an exception test harness.
         //:   Verify the expected memory usage and verify that an exception
@@ -12983,6 +13290,7 @@ int main(int argc, char *argv[])
                       test19_swap,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
         // NOTE: It would be nice if we could get this to work with a moveonly
@@ -12999,7 +13307,9 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That the resulting value is correct.
+        //:
         //: 2 That erase operations do not allocate memory.
+        //:
         //: 3 That no memory is leaked.
         //
         // Plan:
@@ -13030,6 +13340,7 @@ int main(int argc, char *argv[])
                       test18_erase,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -13040,100 +13351,143 @@ int main(int argc, char *argv[])
         // Concerns
         //: 1 For single-element insert/push, or insertion of copies of the
         //:   same element:
+        //:
         //:   1 That the resulting list value is correct.
+        //:
         //:   2 That the 'insert' return (if any) value is a valid iterator to
         //:     the first inserted element or to the insertion position if no
         //:     elements are inserted.
+        //:
         //:   3 That insertion of one element has the strong exception
         //:     guarantee.
+        //:
         //:   4 That insertion is exception neutral w.r.t. memory allocation.
+        //:
         //:   5 The internal memory management system is hooked up properly so
         //:     that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //:   6 That inserting a 'const T& value' that is a reference to an
         //:     element of the list does not suffer from aliasing problems.
+        //:
         //:   7 That no iterators are invalidated by the insertion.
+        //:
         //:   8 That inserting 'n' copies of value 'v' selects the correct
         //:     overload when 'n' and 'v' are identical arithmetic types (i.e.,
         //:     the iterator-range overload is not selected).
+        //:
         //:   9 That inserting 'n' copies of value 'v' selects the correct
         //:     overload when 'v' is a pointer type and 'n' is a null pointer
         //:     literal ,'0'.  (i.e., the iterator-range overload is not
         //:     selected).
+        //:
         //: 2 For 'emplace':
+        //:
         //:   1 That the resulting list value is correct.
+        //:
         //:   2 That the 'emplace' return (if any) value is a valid iterator to
         //:     the first inserted element or to the insertion position if no
         //:     elements are inserted.
+        //:
         //:   3 That 'emplace' has the strong exception guarantee.
+        //:
         //:   4 That 'emplace' is exception neutral w.r.t. memory allocation.
+        //:
         //:   5 The internal memory management system is hooked up properly so
         //:     that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //:   6 That inserting a 'const T& value' that is a reference to an
         //:     element of the list does not suffer from aliasing problems.
+        //:
         //:   7 That no iterators are invalidated by the insertion.
+        //:
         //:   8 That 'emplace' passes 0 to 5 arguments to the 'T' constructor.
+        //:
         //: 3 For range insertion:
+        //:
         //:   1 That the resulting list value is correct.
+        //:
         //:   2 That the 'insert' return (if any) value is a valid iterator to
         //:     the first inserted element or to the insertion position if no
         //:     elements are inserted.
+        //:
         //:   3 That insertion of one element has the strong exception
         //:     guarantee.
+        //:
         //:   4 That insertion is exception neutral w.r.t. memory allocation.
+        //:
         //:   5 The internal memory management system is hooked up properly so
         //:     that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //:   6 That no iterators are invalidated by the insertion.
         //
         // Plan:
         //: 1 For single-element insert/push, or insertion of copies of the
         //:   same element:
+        //:
         //:   1 Create objects of various sizes and insert a distinct value one
         //:     or more times into each possible position.
+        //:
         //:     o For concerns 1, 2 & 5, verify that the return value and
         //:       modified list are as expected.
+        //:
         //:     o For concerns
         //:       3 & 4 perform the test using the exception-testing
         //:         infrastructure and verify the value and memory changes.
+        //:
         //:     o For concern 6, we select the value to insert from the middle
         //:       of the list, thus testing insertion before, at, and after the
         //:       aliased element.
+        //:
         //:     o For concern 7, save copies of the iterators before and after
         //:       the insertion point and verify that they point to the same
         //:       (valid) elements after the insertion by iterating to the same
         //:       point in the resulting list and comparing the new iterators
         //:       to the old ones.
+        //:
         //:     o For concerns 8 and 9, insert 2 elements of integral or
         //:       pointer types into lists and verify that it compiles and that
         //:       the resultant list contains the expected values.
+        //:
         //: 2 For 'emplace':
+        //:
         //:   1 Create objects of various sizes and insert a distinct value
         //:     into each possible position.
+        //:
         //:   2 For concerns 1, 2 & 5, verify that the return value and
         //:     modified list are as expected.
+        //:
         //:   3 For concerns 3 & 4 perform the test using the exception-testing
         //:     infrastructure and verify the value and memory changes.
+        //:
         //:   4 For concern 6, we select the value to insert from the middle of
         //:     the list, thus testing insertion before, at, and after the
         //:     aliased element.
+        //:
         //:   5 For concern 7, save copies of the iterators before and after
         //:     the insertion point and verify that they point to the same
         //:     (valid) elements after the insertion by iterating to the same
         //:     point in the resulting list and comparing the new iterators to
         //:     the old ones.
+        //:
         //:   6 For concern 8, test each 'emplace' call with 0 to 5 arguments.
         //:     The test types are designed to ignore all but the last
         //:     argument, but verify that the preceding arguments are the
         //:     values '1', '2', '3', and '4'.
+        //:
         //: 3 For range insertion:
+        //:
         //:   1 Create objects of various sizes and insert a range of 0 to 3
         //:     values at each possible position.
+        //:
         //:   2 For concerns 1, 2 & 5, verify that the return value and
         //:     modified list are as expected.
+        //:
         //:   3 For concerns 3 & 4 perform the test using the exception-testing
         //:     infrastructure and verify the value and memory changes.
+        //:
         //:   4 For concern 7, save copies of the iterators before and after
         //:     the insertion point and verify that they point to the same
         //:     (valid) elements after the insertion by iterating to the same
@@ -13165,6 +13519,7 @@ int main(int argc, char *argv[])
                       test17_insert,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
         if (verbose) printf("Testing Emplace Insertion\n"
@@ -13195,6 +13550,7 @@ int main(int argc, char *argv[])
                       test17_insertRange,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
         if (verbose) printf("Testing overloading disambiguation\n");
@@ -13280,18 +13636,24 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That 'iterator' and 'const_iterator' are bi-directional
         //:   iterators.
+        //:
         //: 2 That 'iterator' and 'const_iterator' are CopyConstructible,
         //:   Assignable, and EqualityComparable, that 'iterator' is
         //:   convertible to 'const_iterator', and that 'reverse_iterator' is
         //:   constructible from 'iterator'.
+        //:
         //: 3 That 'begin' and 'end' return mutable iterators for a reference
         //:   to a modifiable list, and non-mutable iterators otherwise.
+        //:
         //: 4 That the iterators can be dereferenced using 'operator*' or
         //:   'operator->', yielding a reference or pointer with the correct
         //:   constness.
+        //:
         //: 5 That the range '[begin(), end())' equals the value of the list.
+        //:
         //: 6 That iterators can be pre-incremented, post-incremented,
         //:   pre-decremented, and post-decremented.
+        //:
         //: 7 Same concerns with 'rbegin', 'rend', 'reverse_iterator', and
         //:   'const_reverse_iterator'.
         //
@@ -13299,16 +13661,18 @@ int main(int argc, char *argv[])
         //: 1 For concerns 1, 3, 4, and 7 create a one-element list and verify
         //:   the static properties of 'iterator', 'const_iterator',
         //:   ''reverse_iterator', and 'const_reverse_iterator'.
+        //:
         //: 2 For concerns 1, 2, 5, 6, and 7, for each value given by variety
         //:   of specifications of different lengths, create a test list with
         //:   this value, and access each element in sequence and in reverse
-        //:   sequence, both as a reference providing modiable access (setting
-        //:   it to a default value, then back to its original value), and as a
-        //:   reference providing non-modifiable access.  At each step in the
-        //:   traversal, save the current iterator using both copy construction
-        //:   and assignment and, in a nested second loop, traverse the whole
-        //:   list in reverse order, testing that the nested-traversal iterator
-        //:   matches the saved iterator if they refer to the same element.
+        //:   sequence, both as a reference providing modifiable access
+        //:   (setting it to a default value, then back to its original value),
+        //:   and as a reference providing non-modifiable access.  At each step
+        //:   in the traversal, save the current iterator using both copy
+        //:   construction and assignment and, in a nested second loop,
+        //:   traverse the whole list in reverse order, testing that the
+        //:   nested-traversal iterator matches the saved iterator if they
+        //:   refer to the same element.
         //
         // Testing:
         //   type iterator
@@ -13336,6 +13700,7 @@ int main(int argc, char *argv[])
                       test16_iterators_dispatch,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -13374,6 +13739,7 @@ int main(int argc, char *argv[])
                       test15_elementAccess,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -13383,28 +13749,41 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 For 'max_size':
+        //:
         //:   1 The reported value is no more than one less than the maximum
         //:     allowed by the allocator.
+        //:
         //:   2 The allocator's 'max_size' is honored.
+        //:
         //: 2 For 'resize':
+        //:
         //:   1 Resized list has the correct value.
+        //:
         //:   2 Resizing to the current size allocates and frees no memory.
+        //:
         //:   3 Resizing to a smaller size allocates no memory.
+        //:
         //:   4 Resizing to a larger size frees no memory.
+        //:
         //:   5 Resizing to a larger size propagates the allocator to elements
         //:     appropriately.
+        //:
         //:   6 'resize' is exception neutral.
         //
         // Plan:
         //: 1 For 'max_size':
+        //:
         //:   1 Using the default allocator, test that 'max_size' returns a
         //:     value no larger than all of memory divided by the size of one
         //:     element.
+        //:
         //:   2 Repeat this test with 'char' and TestType' element types.
         //:     Using the 'LimitAllocator', test that 'max_size' returns the
         //:     same value as 'LimitAllocator<T>::max_size()', except that a
         //:     node of overhead is allowed to be subtracted from the result.
+        //:
         //: 2 For 'resize':
+        //:
         //:   1 Using a set of input specs and result sizes, try each
         //:     combination with and without specifying a value for the new
         //:     elements.  Verify each of the above concerns for each
@@ -13464,52 +13843,74 @@ int main(int argc, char *argv[])
                       test14_resize,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING INITIAL-LENGTH AND RANGE ASSIGMENT:
+        // TESTING INITIAL-LENGTH AND RANGE ASSIGNMENT:
         //
         // Concerns:
         //: 1 Initial-length assignment:
+        //:
         //:   1 The assigned value is correct.
+        //:
         //:   2 The 'assign' call is exception neutral w.r.t. memory
         //:     allocation.
+        //:
         //:   3 The internal memory management system is hooked up properly so
         //:     that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //: 2 Range assignment:
+        //:
         //:   1 That the initial value is correct.
+        //:
         //:   2 That the initial range is correctly imported if the initial
         //:     'FWD_ITER' is an input iterator.
+        //:
         //:   3 That the constructor is exception neutral w.r.t. memory
         //:     allocation.
+        //:
         //:   4 That the internal memory management system is hooked up
         //:     properly so that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //:   5 The previous value is freed properly.
         //
         // Plan:
         //: 1 Initial-length assignment:
+        //:
         //:   1 For the assignment we will create objects of varying sizes
         //:     containing default values for type T, and then assign different
         //:     'value'.  Perform the above tests:
+        //:
         //:     o With various initial values before the assignment.
+        //:
         //:     o In the presence of exceptions during memory allocations using
         //:       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
         //:   2 Use basic accessors and equality comparison to verify that
         //:     assignment was successful.
+        //:
         //: 2 Range assignment:
+        //:
         //:   1 For the assignment we will create objects of varying sizes
         //:     containing default values for type T, and then assign different
         //:     'value' as argument.  Perform the above tests:
+        //:
         //:     o From the parameterized 'CONTAINER::const_iterator'.
+        //:
         //:     o In the presence of exceptions during memory allocations using
         //:       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
         //:   2 Use basic accessors to verify:
+        //:
         //:     o size
+        //:
         //:     o capacity
+        //:
         //:     o element value at each index position { 0 .. length - 1 }.
         //
         // Note that we relax the concerns about memory consumption, since this
@@ -13521,8 +13922,8 @@ int main(int argc, char *argv[])
         //   template <class Iter> assign(Iter first, Iter last);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING INITIAL-LENGTH AND RANGE ASSIGMENT:\n"
-                            "===========================================\n");
+        if (verbose) printf("TESTING INITIAL-LENGTH AND RANGE ASSIGNMENT:\n"
+                            "============================================\n");
 
         if (verbose) printf("TESTING INITIAL-LENGTH ASSIGNMENT:\n"
                             "==================================\n");
@@ -13535,6 +13936,7 @@ int main(int argc, char *argv[])
                       test13_initialLengthAssign,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
         if (verbose) printf("TESTING RANGE ASSIGNMENT:\n"
@@ -13548,6 +13950,7 @@ int main(int argc, char *argv[])
                       test13_assignRange,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
       case 12: {
@@ -13556,64 +13959,93 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Initial-length constructor:
+        //:
         //:   1 The initial value is correct.
+        //:
         //:   2 The constructor is exception neutral w.r.t. memory allocation.
+        //:
         //:   3 The internal memory management system is hooked up properly so
         //:     that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
+        //:
         //:   4 TBD: The C++0x move constructor moves value and allocator
         //:     correctly, and without performing any allocation.
+        //:
         //:   5 Constructing a list with 'n' copies of value 'v' selects the
         //:     correct overload when 'n' and 'v' are identical arithmetic
         //:     types (i.e., the iterator-range overload is not selected).
+        //:
         //:   6 Constructing a list with 'n' copies of value 'v' selects the
         //:     correct overload when 'v' is a pointer type and 'n' is a null
         //:     pointer literal ,'0'.  (i.e., the iterator-range overload is
         //:     not selected).
+        //:
         //: 2 Range constructor (*NOT* the C++11 'std::initializer_list'
         //:   c'tor):
+        //:
         //:   1 That the initial value is correct.
+        //:
         //:   2 That the initial range is correctly imported if the initial
         //:     'FWD_ITER' is an input iterator.
+        //:
         //:   3 That the constructor is exception neutral w.r.t. memory
         //:     allocation.
+        //:
         //:   4 That the internal memory management system is hooked up
         //:     properly so that *all* internally allocated memory draws from a
         //:     user-supplied allocator whenever one is specified.
         //
         // Plan:
         //: 1 Initial-length constructor:
+        //:
         //:   1 For the constructor we will create objects of varying sizes
         //:     with different 'value' as argument.  Test first with the
         //:     default value for type T, and then test with different values.
         //:     Perform the above tests:
+        //:
         //:     o With and without passing in an allocator.
+        //:
         //:     o In the presence of exceptions during memory allocations using
         //:       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
         //:     o Where the object is constructed with an object allocator, and
         //:       neither of global and default allocator is used to supply
         //:       memory.
+        //:
         //:   2 Use basic accessors to verify
+        //:
         //:     o size
+        //:
         //:     o allocator
+        //:
         //:     o element value at each iterator position { begin() .. end() }.
+        //:
         //:   3 As for concern 4, we simply move-construct each value into a
         //:     new list and check that the value, and allocator are as
         //:     expected, and that no allocation was performed.
+        //:
         //:   4 For concerns 5 and 6, construct a list with 2 elements of
         //:     arithmetic or pointer types and verify that it compiles and
         //:     that the resultant list contains the expected values.
+        //:
         //: 2 Range constructor (*NOT* the C++11 'std::initializer_list'
         //:   c'tor):
+        //:
         //:   1 We will create objects of varying sizes containing default
         //:     values, and insert a range containing distinct values as
         //:     argument.  Perform the above tests:
+        //:
         //:     o From the parameterized 'CONTAINER::const_iterator'.
+        //:
         //:     o With and without passing in an allocator.
+        //:
         //:     o In the presence of exceptions during memory allocations using
         //:       a 'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
         //:   2 Use basic accessors to verify
+        //:
         //:     o size
+        //:
         //:     o element value at each index position { 0 .. length - 1 }.
         //
         // Testing:
@@ -13635,6 +14067,7 @@ int main(int argc, char *argv[])
                       test12_initialLengthConstructor,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
 
@@ -13727,19 +14160,26 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 For ALLOC that is a bslma_Allocator
+        //:
         //:   1 The list class has the 'bslma::UsesBslmaAllocator' trait.
+        //:
         //:   2 The allocator is not copied when the list is copy-constructed.
+        //:
         //:   3 The allocator is set with the extended copy-constructor.
+        //:
         //:   4 The allocator is passed through to elements if the elements
         //:     also use bslma_Allocator.
+        //:
         //:   5 Creating an empty list allocates exactly one block.
         //
         // Plan:
         //: 1 Default construct a list and observe that a single allocation
         //:   takes place (for the sentinel).
+        //:
         //: 2 If the type contained in the list allocates, push a value onto
         //:   the back of the list and observe that 2 more allocations take
         //:   place.
+        //:
         //: 3 Call the 'allocator' accessor on an element in the list and
         //:   observe that the allocator matches that passed to the list.
         //
@@ -13759,6 +14199,7 @@ int main(int argc, char *argv[])
                       test11_allocators,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
       case 10: {
@@ -13786,17 +14227,23 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'rhs' value must not be affected by the operation.
+        //:
         //: 2 'rhs' going out of scope has no effect on the value of 'lhs'
         //:   after the assignment.
+        //:
         //: 3 After the assignment, no element of the 'lhs' has the same
         //:   address an element of 'rhs' (except in the case of
         //:   self-assignment).
+        //:
         //: 4 Aliasing (x = x): The assignment operator must always work --
         //:   even when the lhs and rhs are identically the same object.
+        //:
         //: 5 The assignment operator must be neutral with respect to memory
         //:   allocation exceptions.
+        //:
         //: 6 The 'lhs' object must allocate all of its internal memory from
         //:   its own allocator, even of 'rhs' uses a different allocator.
+        //:
         //: 7 TBD: C++0x move assignment moves the value but not the allocator.
         //:   Memory is allocated only if the 'lhs' and 'rhs' allocators are
         //:   different.
@@ -13810,6 +14257,7 @@ int main(int argc, char *argv[])
         //:   preserve equality.  Attempt to affect every aspect of white-box
         //:   state by altering each xi in a unique way.  Let the union of all
         //:   such objects be the set T.
+        //:
         //: 2 To address concerns 2, 3, and 5, construct tests u = v for all
         //:   '(u, v)' in T X T.  Using canonical controls 'UU' and 'VV',
         //:   assert before the assignment that 'UU == u', 'VV == v', and
@@ -13822,15 +14270,20 @@ int main(int argc, char *argv[])
         //:   lengthy with exceptions, not every permutation is performed when
         //:   exceptions are tested.  Every permutation is also tested
         //:   separately without exceptions.
+        //:
         //: 3 As a separate exercise, we address 4 and 5 by constructing tests
         //:   y = y for all y in T.  Using a canonical control X, we will
         //:   verify that X == y before and after the assignment, again within
         //:   the bslma exception testing apparatus.
+        //:
         //: 4 To address concern 5, all these tests are performed on user
         //:   defined types:
+        //:
         //:   o With allocator, copyable
-        //:   o With allocator, moveable
-        //:   o With allocator, not moveable
+        //:
+        //:   o With allocator, movable
+        //:
+        //:   o With allocator, not movable
         //
         // Testing:
         //   list& operator=(const list& rhs);
@@ -13848,6 +14301,7 @@ int main(int argc, char *argv[])
                       test09_copyAssignmentOp,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
       case 8: {
@@ -13868,8 +14322,9 @@ int main(int argc, char *argv[])
                             "===============================\n");
 
         if (verbose) printf("The 'g' generator function has been removed as\n"
-                            "it offends bde verify and it's not really\n"
-                            "that useful.\n");
+                            "bde verify gives warnings whenever an object\n"
+                            "that allocates memory is returned by value.\n"
+                            "Also, it is not an essential function.\n");
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -13879,20 +14334,27 @@ int main(int argc, char *argv[])
         //: 1 The new object's value is the same as that of the original
         //:   object (relying on the equality operator) and created with
         //:   the correct allocator.
+        //:
         //: 2 The value of the original object is left unaffected.
+        //:
         //: 3 Subsequent changes in or destruction of the source object have
         //:   no effect on the copy-constructed object.
+        //:
         //: 4 Subsequent changes ('push_back's) on the created object have no
         //:   effect on the original.
+        //:
         //: 5 The object has its internal memory management system hooked up
         //:   properly so that *all* internally allocated memory draws
         //:   from a user-supplied allocator whenever one is specified.
+        //:
         //: 6 The function is exception neutral w.r.t. memory allocation.
+        //:
         //: 7 An object copied from an rvalue with no allocator, or with a
         //:   matching allocator specified, will leave the copied object
         //:   in a valid, default-constructed state.
         //:   1 No allocator specified to c'tor.
         //:   2 Allocator specified to c'tor.
+        //:
         //: 8 An object copied from an rvalue with a non-matching allocator
         //:   supplied will not modify the rvalue.
         //
@@ -13900,23 +14362,29 @@ int main(int argc, char *argv[])
         //: 1 Specify a set S of object values with substantial and varied
         //:   differences, ordered by increasing length, to be used in the
         //:   following tests.
+        //:
         //: 2 For concerns 1 - 3, for each value in S, initialize objects w and
         //:   x, copy construct y from x and use 'operator==' to verify that
         //:   both x and y subsequently have the same value as w.  Let x go out
         //:   of scope and again verify that w == y.
+        //:
         //: 3 For concern 4, for each value in S initialize objects w and x,
         //:   and copy construct y from x.  Change the state of y, by using the
         //:   *primary* *manipulator* 'push_back'.  Using the 'operator!='
         //:   verify that y differs from x and w.
+        //:
         //: 4 To address concern 5, we will perform tests performed for concern
         //:   1:
+        //:
         //:   o While passing a testAllocator as a parameter to the new object
         //:     and ascertaining that the new object gets its memory from the
         //:     provided testAllocator.  Also perform test for concerns 2 and
         //:     4.
+        //:
         //:   o Where the object is constructed with an object allocator, and
         //:     neither of global and default allocator is used to supply
         //:     memory.
+        //:
         //: 4 To address concern 6, perform tests for concern 1 performed in
         //:   the presence of exceptions during memory allocations using a
         //:   'bslma_TestAllocator' and varying its *allocation* *limit*.
@@ -13925,7 +14393,6 @@ int main(int argc, char *argv[])
         //   list(const list& orig);
         //   list(const list& orig, const A&);
         //   list(list&& orig);
-        //   list(list&& orig, const A&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING COPY CONSTRUCTORS:\n"
@@ -13939,6 +14406,7 @@ int main(int argc, char *argv[])
                       test07_copyCtor,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
       case 6: {
@@ -13947,6 +14415,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Objects constructed with the same values compare equal.
+        //:
         //: 2 Objects constructed such that they have same (logical) value but
         //:   different internal representation (due to the lack or presence of
         //:   an allocator) always compare as equal.  3 Unequal objects are
@@ -13988,6 +14457,7 @@ int main(int argc, char *argv[])
                       test06_equalityOp,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -14018,14 +14488,21 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 size() returns the list size.
+        //:
         //: 2 begin() == end() if and only if the list is empty
+        //:
         //: 3 Iterating from begin() to end() will visit every value in a list
         //:   and only the values in that list.
+        //:
         //: 4 Iteration works for both const containers (using const_iterator)
         //:   and non-const containers (using iterator).
+        //:
         //: 5 empty() returns true if size() return 0
+        //:
         //: 6 The test function 'succ' increments an iterator by n.
+        //:
         //: 7 The test function 'nthElem' returns the nth element of a list.
+        //:
         //: 8 The test function 'is_mutable' returns true if its argument is a
         //:   mutable lvalue.
         //
@@ -14042,10 +14519,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   size_type size() const;
         //   bool empty() const;
-        //   iterator begin();
-        //   iterator end();
-        //   const_iterator begin() const;
-        //   const_iterator end() const;
         //
         //   iterator succ(iterator);
         //   const_iterator succ(iterator) const;
@@ -14066,6 +14539,7 @@ int main(int argc, char *argv[])
                       test04_basicAccessors,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -14089,6 +14563,7 @@ int main(int argc, char *argv[])
         //:   prepending a string ending in a '~' character (denoting 'clear').
         //:   Note that we are testing the parser only; the primary
         //:   manipulators are already assumed to work.
+        //:
         //: 2 For each of an enumerated sequence of 'spec' values, ordered by
         //:   increasing 'spec' length, use the primitive generator function
         //:   'ggg' to set the state of a newly created object.  Verify that
@@ -14114,6 +14589,7 @@ int main(int argc, char *argv[])
                       test03_generatorGG,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -14125,8 +14601,10 @@ int main(int argc, char *argv[])
         //: 1 The default constructor
         //:   o creates the correct initial value.
         //:   o allocates exactly one block.
+        //:
         //: 2 The destructor properly deallocates all allocated memory to its
         //:   corresponding allocator from any attainable state.
+        //:
         //: 3 'primaryManipulator' and 'primaryCopier'
         //:   o produces the expected value.
         //:   o maintains valid internal state.
@@ -14136,23 +14614,29 @@ int main(int argc, char *argv[])
         //:   o has the internal memory management system hooked up properly so
         //:     that *all* internally allocated memory draws from the same
         //:     user-supplied allocator whenever one is specified.
+        //:
         //: 4 'clear'
         //:   o produces the expected value (empty).
         //:   o properly destroys each contained element value.
         //:   o maintains valid internal state.
         //:   o does not allocate memory.
         //:   o deallocates all element memory
+        //:
         //: 5 The size-based parameters of the class reflect the platform.
         //
         // Plan:
         //: 1 To address concerns 1a - 1c, create an object using the default
         //:   constructor:
+        //:
         //:   o With and without passing in an allocator.
+        //:
         //:   o In the presence of exceptions during memory allocations using a
         //:     'bslma_TestAllocator' and varying its *allocation* *limit*.
+        //:
         //:   o Where the object is constructed with an object allocator and
         //:     neither of global and default allocator is used to supply
         //:     memory.
+        //:
         //: 2 To address concerns 3a - 3e, construct a series of independent
         //:   objects, ordered by increasing length.  In each test, allow the
         //:   object to leave scope without further modification, so that the
@@ -14161,10 +14645,12 @@ int main(int argc, char *argv[])
         //:   basic accessors to cross-check the value of the object and the
         //:   'bslma_TestAllocator' to confirm whether memory allocation has
         //:   occurred.
+        //:
         //: 3 To address concerns 4a-4e, construct a similar test, replacing
         //:   'primaryCopier' with 'clear'; this time, however, use the test
         //:   allocator to record *numBlocksInUse* rather than
         //:   *numBlocksTotal*.
+        //:
         //: 4 To address concerns 2, 3d, 4d, create a small "area" test that
         //:   exercises the construction and destruction of objects of various
         //:   lengths in the presence of memory allocation exceptions.  Two
@@ -14187,6 +14673,7 @@ int main(int argc, char *argv[])
         //:   is to blame.  We will rely on 'bslma_TestAllocator' and purify to
         //:   address concern 2, and on the object invariant assertions in the
         //:   destructor to address concerns 3d and 4d.
+        //:
         //: 6 To address concern 5, the values will be explicitly compared to
         //:   the expected values.  This will be done first so as to ensure all
         //:   other tests are reliable and may depend upon the class's
@@ -14211,6 +14698,7 @@ int main(int argc, char *argv[])
                       test02_primaryManipulators,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
       } break;
@@ -14222,22 +14710,34 @@ int main(int argc, char *argv[])
         //: 1 We want to exercise basic value-semantic functionality.  In
         //:   particular we want to demonstrate a base-line level of correct
         //:   operation of the following methods and operators:
+        //:
         //:   o default and copy constructors (and also the destructor)
+        //:
         //:   o the assignment operator (including aliasing)
+        //:
         //:   o equality operators: 'operator==' and 'operator!='
+        //:
         //:   o primary manipulators: 'push_back' and 'clear' methods
+        //:
         //:   o basic accessors: 'size' and 'operator[]'
         //
         // Plan:
         //: 1 Create four objects using both the default and copy constructors.
+        //:
         //: 2 Exercise these objects using
+        //:
         //:   o primary manipulators
+        //:
         //:   o basic accessors
+        //:
         //:   o equality operators
+        //:
         //:   o the assignment operator
+        //:
         //: 3 Try aliasing with assignment for a non-empty instance [11] and
         //:   allow the result to leave scope, enabling the destructor to
         //:   assert internal object invariants.
+        //:
         //: 4 Display object values frequently in verbose mode.
         //
         // Testing:
@@ -14257,6 +14757,7 @@ int main(int argc, char *argv[])
                       test01_breathingTest,
                       T,
                       TNA,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
         if (verbose) printf("Additional tests: allocators.\n");
@@ -14295,6 +14796,14 @@ int main(int argc, char *argv[])
             ASSERT('a' == *citer);
         }
         if (verbose) P(myLst);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        citer = myLst.insert(succ(myLst.begin(), 2), { 'd', 'e', 'f'});
+        ASSERT('d' == *citer);    ASSERT(succ(myLst.begin(), 2) == citer);
+        ASSERT(7 == myLst.size());
+
+        ASSERT(list<char>({'z', 'a', 'd', 'e', 'f', 'a', 'a'}) == myLst);
+#endif
 
         list<list<char> > vv;
         vv.push_front(myLst);
