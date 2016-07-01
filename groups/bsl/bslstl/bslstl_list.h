@@ -589,6 +589,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -1110,7 +1114,8 @@ class list {
         // are copy-assigned to, to minimize the number of nodes that need to
         // be copy-inserted or erased.
 
-    list& operator=(BloombergLP::bslmf::MovableRef<list> rhs);
+    list& operator=(BloombergLP::bslmf::MovableRef<list> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_copy_assignment', and return
@@ -1819,7 +1824,7 @@ class list {
         // Remove and destroy all elements in this list for which the specifid
         // 'pred' returns 'true'.
 
-    void reverse();
+    void reverse() BSLS_CPP11_NOEXCEPT;
         // Reverse the order of the elements in this list.
 
     void sort();
@@ -1904,7 +1909,8 @@ class list {
 
                               // *** misc ***
 
-    void swap(list& other);
+    void swap(list& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2053,7 +2059,8 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
 
 // FREE FUNCTIONS
 template <class VALUE, class ALLOCATOR>
-void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs);
+void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2731,6 +2738,7 @@ list<VALUE, ALLOCATOR>::~list()
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (this == &rhs) {
         return *this;                                                 // RETURN
@@ -4061,7 +4069,7 @@ void list<VALUE, ALLOCATOR>::remove_if(Predicate pred)
 }
 
 template <class VALUE, class ALLOCATOR>
-void list<VALUE, ALLOCATOR>::reverse()
+void list<VALUE, ALLOCATOR>::reverse() BSLS_CPP11_NOEXCEPT
 {
     NodePtr sentinel = d_sentinel;
     NodePtr p = sentinel;
@@ -4246,6 +4254,7 @@ void list<VALUE, ALLOCATOR>::unique(EqPredicate binary_pred)
 
 template <class VALUE, class ALLOCATOR>
 void list<VALUE, ALLOCATOR>::swap(list& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
@@ -4475,6 +4484,7 @@ bool bsl::operator<=(const list<VALUE, ALLOCATOR>& lhs,
 template <class VALUE, class ALLOCATOR>
 inline
 void bsl::swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     lhs.swap(rhs);
 }

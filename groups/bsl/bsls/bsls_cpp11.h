@@ -20,13 +20,14 @@ BSLS_IDENT("$Id: $")
 //  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 'noexcept' function qualifier
 //  BSLS_CPP11_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
 //  BSLS_CPP11_OVERRIDE: C++11 'override' keyword
+//  BSLS_CPP11_PROVISIONALLY_FALSE: C++11 specification placeholder
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
 // both C++03 and C++11 without using conditional compilation where the
 // features are used. The goal is to allow implementation of components such
 // that they can take advantage of some C++11 features when compiled with C++11
 // mode enabled while also correctly compiling in C++03 mode. The
-// functionality of the respective features won't be avaiable in C++03 mode.
+// functionality of the respective features won't be available in C++03 mode.
 //
 ///Macro Summary
 ///-------------
@@ -67,6 +68,13 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_CPP11_OVERRIDE'
 //:     This macro inserts the keyword 'override' when compiling with C++11
 //:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_PROVISIONALLY_FALSE':
+//:     This macro inserts the keyword 'false' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.  This macro
+//:     is intended to be used as a placeholder in the
+//:     'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)' macro when
+//:     traits needed for 'BOOL_EXPRESSION' have not yet been implemented.
 //
 ///Usage
 ///-----
@@ -241,10 +249,12 @@ BSLS_IDENT("$Id: $")
 #define BSLS_CPP11_NOEXCEPT noexcept
 #define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
 #define BSLS_CPP11_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
+#define BSLS_CPP11_PROVISIONALLY_FALSE false
 #else
 #define BSLS_CPP11_NOEXCEPT
 #define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)
 #define BSLS_CPP11_NOEXCEPT_OPERATOR(...) false
+#define BSLS_CPP11_PROVISIONALLY_FALSE
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT

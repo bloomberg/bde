@@ -1026,7 +1026,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // This method requires that (template parameter) types 'T1' and 'T2'
         // be copy-assignable.
 
-    pair& operator=(BloombergLP::bslmf::MovableRef<pair> rhs);
+    pair& operator=(BloombergLP::bslmf::MovableRef<pair> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this 'pair' the value of the specified 'rhs' pair (before
         // the call to the assignment), and return a reference providing
         // modifiable access to this object.  Note that 'rhs' is left in a
@@ -1072,7 +1073,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // 'T2' supply assignment operators, and 'T1' is assignable from 'U1'
         // and 'T2' is assignable from 'U2'.
 
-    void swap(pair& other);
+    void swap(pair& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Swap the value of this pair with the value of the specified 'other'
         // pair by applying 'swap' to each of the 'first' and 'second' pair
         // fields.  Note that this method is no-throw only if 'swap' on each
@@ -1133,7 +1135,8 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 // FREE FUNCTIONS
 template <class T1, class T2>
-void swap(pair<T1, T2>& a, pair<T1, T2>& b);
+void swap(pair<T1, T2>& a, pair<T1, T2>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
     // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
@@ -1852,6 +1855,7 @@ pair<T1, T2>& pair<T1, T2>::operator=(const pair& rhs)
 template <class T1, class T2>
 inline
 pair<T1, T2>& pair<T1, T2>::operator=(BloombergLP::bslmf::MovableRef<pair> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     pair& lvalue = rhs;
     first = MovUtil::move(lvalue.FirstBase::first);
@@ -1905,6 +1909,7 @@ pair<T1, T2>::operator=(const native_std::pair<U1, U2>& rhs)
 template <class T1, class T2>
 inline
 void pair<T1, T2>::swap(pair& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
     // ADL.
@@ -1964,6 +1969,7 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 template <class T1, class T2>
 inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

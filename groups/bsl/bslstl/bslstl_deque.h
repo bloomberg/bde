@@ -695,18 +695,18 @@ class Deque_Base {
 
     // *** iterators ***
 
-    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
     const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this deque, and the past-the-end iterator if this deque
         // is empty.
 
-    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
     const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing non-modifiable
         // access to this deque.
 
-    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator  rbegin() const BSLS_CPP11_NOEXCEPT;
     const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this deque, and the past-the-end reverse iterator if
@@ -1142,7 +1142,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
         // deque (see {Requirements on 'VALUE_TYPE'}).
 
-    deque& operator=(BloombergLP::bslmf::MovableRef<deque> rhs);
+    deque& operator=(BloombergLP::bslmf::MovableRef<deque> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_copy_assignment', and return
@@ -1826,7 +1827,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // included) and 'last' is an iterator in the range
         // '[first .. cend()]' (both endpoints included).
 
-    void swap(deque<VALUE_TYPE, ALLOCATOR>& other);
+    void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1922,7 +1924,8 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
-void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b);
+void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value of the specified 'a' object with the value of the
     // specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -3277,6 +3280,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>&
 deque<VALUE_TYPE, ALLOCATOR>::operator=(
                                      BloombergLP::bslmf::MovableRef<deque> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     deque& lvalue = rhs;
 
@@ -6341,6 +6345,7 @@ deque<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Deque_Util::swap(static_cast<Base *>(this),
@@ -6489,6 +6494,7 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

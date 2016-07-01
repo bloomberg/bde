@@ -7,7 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide container adapter class template 'queue'.
 //
 //@CLASSES:
@@ -200,6 +199,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 namespace bsl {
@@ -519,7 +522,8 @@ class queue {
         // Remove the front (the earliest pushed) element from this 'queue'
         // object.
 
-    void swap(queue& other);
+    void swap(queue& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  In effect, performs
         // 'using bsl::swap; swap(c, other.c);'.
@@ -599,7 +603,8 @@ bool operator<=(const queue<VALUE, CONTAINER>& lhs,
 
 template <class VALUE, class CONTAINER>
 void swap(queue<VALUE, CONTAINER>& lhs,
-          queue<VALUE, CONTAINER>& rhs);
+          queue<VALUE, CONTAINER>& rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Swap the value of the specified 'lhs' queue with the value of the
     // specified 'rhs' queue.
 
@@ -1008,6 +1013,7 @@ void queue<VALUE, CONTAINER>::pop()
 template <class VALUE, class CONTAINER>
 inline
 void queue<VALUE, CONTAINER>::swap(queue& q)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &q.c);
 }
@@ -1113,6 +1119,7 @@ template <class VALUE, class CONTAINER>
 inline
 void swap(queue<VALUE, CONTAINER>& lhs,
           queue<VALUE, CONTAINER>& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     lhs.swap(rhs);
 }
