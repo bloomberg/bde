@@ -1,6 +1,6 @@
 {
-	"project_id"  : "bde/bsl-internal",
-	"conduit_uri" : "https://apireview.dev.bloomberg.com:8443/",
+	"project_id"  : "bde/bde",
+	"conduit_uri" : "https://all.phab.dev.bloomberg.com/",
 	"immutable_history" : true,
 	"base" : "git:merge-base(upstream/master), arc:prompt"
 }
