@@ -69,10 +69,12 @@ def build(bld):
         is_bde = False
 
     jit_cflags = ['-DSUPPORT_JIT']
+
+    print "===== config['cflags']: ", config['cflags']
+    print "===== '-m64' in config['cflags']:", ('-m64' in config['cflags'])
+    print "===== bld.env: ", bld.env
+
     try:
-        print "===== config['cflags']: ", config['cflags']
-        print "===== '-m64' in config['cflags']:", ('-m64' in config['cflags'])
-        print "===== bld.env.env['PROCTYPE']: ", bld.env.env['PROCTYPE']
 
         if '-m64' in config['cflags'] and 'sparc' == bld.env.env['PROCTYPE']:
             print "Disabling JIT support"
