@@ -117,7 +117,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Just-in-time compiling is a heavyweight optimization that can greatly speed
 // up pattern matching on supported platforms.  However, it comes at the cost
 // of extra processing before the match is performed, so it is of most benefit
-// when the same pattern is going to be matched many times. This does not
+// when the same pattern is going to be matched many times.  This does not
 // necessarily mean many calls of a matching function; if the pattern is not
 // anchored, matching attempts may take place many times at various positions
 // in the subject, even for a single call.  Therefore, if the subject string is
@@ -697,15 +697,15 @@ class RegEx {
                 int          flags = 0,
                 size_t       jitStackSize = 0);
         // Prepare this regular-expression object with the specified 'pattern'
-        // and the optionally specified 'flags'. 'flags', if supplied, should
+        // and the optionally specified 'flags'.  'flags', if supplied, should
         // contain a bit-wise or of the 'k_FLAG_*' constants defined by this
         // class, which indicate additional configuration parameters for the
-        // regular expression.  Optionally specify 'jitStackSize'. If 'flags'
+        // regular expression.  Optionally specify 'jitStackSize'.  If 'flags'
         // has the 'k_FLAG_JIT' flag set, 'jitStackSize' indicates the size of
-        // the allocated JIT stack to be used for this pattern. If 'flags'
+        // the allocated JIT stack to be used for this pattern.  If 'flags'
         // has the 'k_FLAG_JIT' bit set and 'jitStackSize' is 0 (or not
         // supplied), no memory will be allocated for the JIT stack and the
-        // program stack will be used as the JIT stack. If 'flags' does not
+        // program stack will be used as the JIT stack.  If 'flags' does not
         // have 'k_FLAG_JIT' set, or 'isJitAvailable is 'false', the
         // 'jitStackSize' parameter, if supplied, is ignored.  On success, put
         // this object into the "prepared" state and return 0, with no effect

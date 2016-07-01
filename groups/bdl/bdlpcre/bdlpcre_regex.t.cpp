@@ -915,7 +915,11 @@ int main(int argc, char *argv[])
             ASSERT(0               == X1.jitStackSize());
             ASSERT(0               == X2.jitStackSize());
 
-            ASSERT(Z1->numAllocations() < Z2->numAllocations());
+            if (Obj::isJitAvailable()) {
+                ASSERT(Z1->numAllocations() <  Z2->numAllocations());
+            } else {
+                ASSERT(Z1->numAllocations() == Z2->numAllocations());
+            }
         }
 
         {
