@@ -1,5 +1,5 @@
 {
-	"project_id"  : "bde/bde",
+	"project_id"  : "PHID-PROJ-5r6kpg6e4vflozc64jgb",
 	"conduit_uri" : "https://all.phab.dev.bloomberg.com/",
 	"immutable_history" : true,
 	"base" : "git:merge-base(upstream/master), arc:prompt"
