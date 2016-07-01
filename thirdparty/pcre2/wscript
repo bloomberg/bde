@@ -5,6 +5,7 @@ from waflib import Logs, Utils
 from waflib.Configure import ConfigurationContext
 
 import os
+import platform
 import sys
 
 top = '.'
@@ -70,19 +71,11 @@ def build(bld):
 
     jit_cflags = ['-DSUPPORT_JIT']
 
-    print "===== config['cflags']: ", config['cflags']
-    print "===== '-m64' in config['cflags']:", ('-m64' in config['cflags'])
-    print "===== bld.env: ", bld.env
-
-    try:
-
-        if '-m64' in config['cflags'] and 'sparc' == bld.env.env['PROCTYPE']:
-            print "Disabling JIT support"
-            jit_cflags = []
-        else:
-            print "Enabling JIT support (bld.env.env detected)"
-    except KeyError:
-        print "Enabling JIT support (bld.env.env not detected)"
+    if '-m64' in config['cflags'] and 'sparc' == platform.processor():
+        print "Disabling JIT support"
+        jit_cflags = []
+    else:
+        print "Enabling JIT support (bld.env.env detected)"
 
     cflags += jit_cflags
 
