@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide the most awkward type that is convertible to 'bool'.
 //
 //@CLASSES:
-//  bsltf::EnumeratedTestType: most awkward type that is convertible to 'bool'
+//  bsltf::EvilBooleanType: most awkward type that is convertible to 'bool'
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
@@ -76,14 +76,19 @@ struct EvilBooleanType {
 
   private:
     // PRIVATE TYPES
-    struct ImpDetail { int d_member; };
+    struct ImpDetail
+        // Struct, containing value to be pointed to.
+    {
+        int d_member;
+    };
+
 
     typedef int ImpDetail::* BoolResult;
         // Typedef for pointer to the nested class field, that can be converted
         // to boolean.
 
     // DATA
-    BoolResult d_value;  // ponter being converted to boolean value
+    BoolResult d_value;  // pointer being converted to boolean value
 
   private:
     // NOT IMPLEMENTED
@@ -115,7 +120,8 @@ struct EvilBooleanType {
 EvilBooleanType operator==(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
     // Return being converted to 'true' object, if the specified 'lhs' and
-    // 'rhs' objects have the same value, and being converted to 'false' otherwise.
+    // 'rhs' objects have the same value, and being converted to 'false'
+    // otherwise.
 
 EvilBooleanType operator!=(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);

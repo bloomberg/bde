@@ -38,7 +38,7 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
-// [ 7] NOT IMPEMENTED OPERATORS
+// [ 7] NOT IMPLEMENTED OPERATORS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
