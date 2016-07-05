@@ -50,12 +50,13 @@ using namespace bsl;
 // [  ] float decimalToFloat(Decimal32);
 // [  ] float decimalToFloat(Decimal64);
 // [  ] float decimalToFloat(Decimal128);
-// [  ] Decimal32 decimal32FromDouble(double, int);
 // [ 5] Decimal64 decimal64FromDouble(double, int);
-// [  ] Decimal128 decimal128FromDouble(double, int);
-// [  ] Decimal32 decimal32FromFloat(float, int);
-// [  ] Decimal64 decimal64FromFloat(float, int);
-// [  ] Decimal128 decimal128FromFloat(float, int);
+// [ 6] Decimal32 decimal32FromDouble(double, int);
+// [ 6] Decimal64 decimal64FromDouble(double, int);
+// [ 6] Decimal128 decimal128FromDouble(double, int);
+// [ 6] Decimal32 decimal32FromFloat(float, int);
+// [ 6] Decimal64 decimal64FromFloat(float, int);
+// [ 6] Decimal128 decimal128FromFloat(float, int);
 // [  ] decimal32ToBID(uc*, Decimal32);
 // [  ] decimal64ToBID(uc*, Decimal64);
 // [  ] decimal128ToBID(uc*, Decimal128);
@@ -772,7 +773,7 @@ int main(int argc, char* argv[])
         //:   is produced.
         //
         // Testing:
-        //   Decimal64 decimal64FromDouble(double);
+        //   Decimal64 decimal64FromDouble(double, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nDTOA CONVERSION TEST"
