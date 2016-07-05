@@ -203,7 +203,7 @@ BSLS_IDENT("$Id$")
 //:   seen above, for example, for numbers near one trillion, there is not
 //:   enough precision in a 'double' for 4 decimal places.
 //:
-//: 4 Express the value as the shortest decimal number which converts back
+//: 4 Express the value as the shortest decimal number that converts back
 //:   exactly to the binary value.  For example. given the binary value
 //:   0x3DCCCCCD above, that corresponding shortest decimal value is
 //:   (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
@@ -512,10 +512,10 @@ struct DecimalConvertUtil {
                         // decimalFromDouble functions
 
     static Decimal32  decimal32FromDouble (double binary, int digits = 0);
-    static Decimal64  decimal64FromDouble (double binary, int digits = 0);
-    static Decimal128 decimal128FromDouble(double binary, int digits = 0);
     static Decimal32  decimal32FromFloat  (float  binary, int digits = 0);
+    static Decimal64  decimal64FromDouble (double binary, int digits = 0);
     static Decimal64  decimal64FromFloat  (float  binary, int digits = 0);
+    static Decimal128 decimal128FromDouble(double binary, int digits = 0);
     static Decimal128 decimal128FromFloat (float  binary, int digits = 0);
         // Return the decimal floating-point number with at most the optionally
         // specified 'digits' significant digits closest in value to the
