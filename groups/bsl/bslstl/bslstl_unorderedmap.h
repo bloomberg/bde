@@ -202,7 +202,6 @@ BSLS_IDENT("$Id: $")
 //  'i1', 'i2'          - two iterators defining a sequence of 'value_type'
 //                        objects
 //  'k'                 - object of type 'K'
-//  'm'                 - object of type 'M'
 //  'vt'                - object of type 'bsl::pair<const K, M>'
 //  'Args&&...'         - variable number of arguments
 //  't&&'               - movable reference to variable 't'
