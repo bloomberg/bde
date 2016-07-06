@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // Now, we can use it for if-else conditions or another constructions, that
 // require boolen value:
 //..
-//  if(trueValue) {
+//  if (trueValue) {
 //      assert(trueValue);
 //  }
 //..
@@ -108,6 +108,10 @@ struct EvilBooleanType {
         // Create a 'EvilBooleanType' object having the attribute value defined
         // by the specified 'value'.
 
+    //! EvilBooleanType(const EvilBooleanType& original) = default;
+        // Create a 'EvilBooleanType' object having the same value as the
+        // specified 'original' object.
+
     // ACCESSORS
     operator BoolResult() const;
         // Return the value of this object.
@@ -119,16 +123,19 @@ struct EvilBooleanType {
 
 EvilBooleanType operator==(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
-    // Return being converted to 'true' object, if the specified 'lhs' and
-    // 'rhs' objects have the same value, and being converted to 'false'
-    // otherwise.
+    // Return an 'EvilBoolanType' value that converts to 'true' if the
+    // specified 'lhs' and 'rhs' have the same value, and a value that converts
+    // to 'false' otherwise. Two 'EvilBooleanType' objects have the same value
+    // if the values resulting from converting each to 'bool' have the same
+    // value.
 
 EvilBooleanType operator!=(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
-    // Return being converted to 'true' object, if the specified 'lhs' and
-    // 'rhs' objects do not have the same value, and being converted to 'false'
-    // otherwise.
-
+    // Return an 'EvilBoolanType' value that converts to 'true' if the
+    // specified 'lhs' and 'rhs' do not have the same value, and a value that
+    // converts to 'false' otherwise. Two 'EvilBooleanType' objects do not have
+    // the same value if the values resulting from converting each to 'bool' do
+    // not have the same value.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS

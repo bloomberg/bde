@@ -27,9 +27,10 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] EvilBooleanType(bool value);
+// [ 7] EvilBooleanType(const EvilBooleanType& original);
 //
 // ACCESSORS
-// [ 2] operator BoolResult() const;
+// [ 3] operator BoolResult() const;
 // [ 3] EvilBooleanType operator!() const;
 //
 // FREE OPERATORS
@@ -38,7 +39,7 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
-// [ 7] NOT IMPLEMENTED OPERATORS
+// [ 8] NOT IMPLEMENTED OPERATORS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
 // Now, we can use it for if-else conditions or another constructions, that
 // require boolen value:
 //..
-    if(trueValue) {
+    if (trueValue) {
         ASSERT(trueValue);
     }
 //..
@@ -168,12 +169,6 @@ int main(int argc, char *argv[])
 
       } break;
       case 8: {
-        // --------------------------------------------------------------------
-        // BSLX STREAMING
-        //   N/A
-        // --------------------------------------------------------------------
-      } break;
-      case 7: {
         // --------------------------------------------------------------------
         // NOT IMPLEMENTED OPERATORS
         //
@@ -208,6 +203,59 @@ int main(int argc, char *argv[])
         // (Y,X);  // This will not compile
         // (Y,Y);  // This will not compile
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the two objects have the same value.
+        //
+        // Concerns:
+        //: 1 The copy constructor creates an object having the same value as
+        //:   that of the supplied original object.
+        //:
+        //: 2 The original object is passed as a reference providing
+        //:   non-modifiable access to that object.
+        //:
+        //: 3 The value of the original object is unchanged.
+        //
+        // Plan:
+        //: 1 Use the value constructor to create two 'const' objects 'X' and
+        //:   'Y', both having the same value.
+        //:
+        //: 2 Use the copy constructor to create an object 'X' from 'Z'.  (C-2)
+        //:
+        //: 3 Use the equality-comparison operator to verify that:
+        //:
+        //:   1 'Z' has the same value as that of 'X'.  (C-1)
+        //:
+        //:   2 'X' still has the same value as that of 'Y'.  (C-3)
+        //
+        // Testing:
+        //   EvilBooleanType(const EvilBooleanType& original);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCOPY CONSTRUCTOR"
+                            "\n================\n");
+        {
+            const Obj X(false);
+            const Obj Y(false);
+
+            const Obj Z = X;
+
+            ASSERT(X == Z);
+            ASSERT(Y == X);
+        }
+
+        {
+            const Obj X(true);
+            const Obj Y(true);
+
+            const Obj Z = X;
+
+            ASSERT(X == Z);
+            ASSERT(Y == X);
+        }
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
@@ -220,8 +268,8 @@ int main(int argc, char *argv[])
         //   Ensure that '==' and '!=' are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   have the same value.
+        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they have
+        //:   the same value.
         //:
         //: 2 Comparison is symmetric with respect to user-defined conversion
         //:   (i.e., both comparison operators are free functions).
@@ -259,6 +307,16 @@ int main(int argc, char *argv[])
             ASSERT(trueValue2 == trueValue1);
             ASSERT(trueValue2 == trueValue2);
 
+            ASSERT(!(falseValue1 == trueValue1));
+            ASSERT(!(falseValue1 == trueValue2));
+            ASSERT(!(falseValue2 == trueValue1));
+            ASSERT(!(falseValue2 == trueValue2));
+
+            ASSERT(!(trueValue1 == falseValue1));
+            ASSERT(!(trueValue1 == falseValue2));
+            ASSERT(!(trueValue2 == falseValue1));
+            ASSERT(!(trueValue2 == falseValue2));
+
             ASSERT(falseValue1 != trueValue1);
             ASSERT(falseValue1 != trueValue2);
             ASSERT(falseValue2 != trueValue1);
@@ -268,6 +326,16 @@ int main(int argc, char *argv[])
             ASSERT(trueValue1 != falseValue2);
             ASSERT(trueValue2 != falseValue1);
             ASSERT(trueValue2 != falseValue2);
+
+            ASSERT(!(falseValue1 != falseValue1));
+            ASSERT(!(falseValue1 != falseValue2));
+            ASSERT(!(falseValue2 != falseValue1));
+            ASSERT(!(falseValue2 != falseValue2));
+
+            ASSERT(!(trueValue1 != trueValue1));
+            ASSERT(!(trueValue1 != trueValue2));
+            ASSERT(!(trueValue2 != trueValue1));
+            ASSERT(!(trueValue2 != trueValue2));
         }
       } break;
       case 4: {
@@ -279,19 +347,26 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
-        //   Ensure basic accessor properly interprets object state.
+        //   Ensure basic accessors properly interprets object state.
         //
         // Concerns:
-        //: 1 Accessor returns the newly created object having the logically
-        //    negated value of the object.
+        //: 1 The 'operator!' returns the newly created object having the
+        //:   logically negated value of the object.
+        //:
+        //: 2 The type conversion operator returns object's value, that can be
+        //:   converted to boolean.
         //
         // Plan:
-        //: 1 Create couple objects, having different values.  Using the
-        //    accessor, create logically negated copies,  and verify their
-        //    values.  (C-1)
+        //: 1 Create couple objects, having different values.
+        //:
+        //: 2 Use logical negation operator to create inverted objects.  (C-1)
+        //:
+        //: 3 Use type coversion operator to check values of all created
+        //:   objects.  (C-2)
         //
         // Testing:
         //   EvilBooleanType operator!() const;
+        //   operator BoolResult() const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -318,12 +393,12 @@ int main(int argc, char *argv[])
         //: 1 An object created with the constructor has the specified value.
         //
         // Plan:
-        //: 1 Using the value create couple objects, having different values
-        //    and verify them.  (C-1)
+        //: 1 Using the value constructor create couple objects, having
+        //:   different values.  Use the (untested) basic accessors to check
+        //:   the value of the object.  (C-1)
         //
         // Testing:
         //   EvilBooleanType(bool value);
-        //   operator BoolResult() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPRIMARY MANIPULATORS"
