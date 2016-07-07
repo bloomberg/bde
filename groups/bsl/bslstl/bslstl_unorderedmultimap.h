@@ -719,7 +719,8 @@ class unordered_multimap {
         // This 'typedef' is an alias for the type of key-value pair objects
         // maintained by this unordered multimap.
 
-    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<ValueType>
+    typedef ::BloombergLP::bslstl::UnorderedMapKeyConfiguration<const KEY,
+                                                                ValueType>
                                                              ListConfiguration;
         // This 'typedef' is an alias for the policy used internally by this
         // container to extract the 'KEY' value from the values maintained by
@@ -779,12 +780,6 @@ class unordered_multimap {
 
     typedef ::BloombergLP::bslstl::HashTableBucketIterator<
                    const value_type, difference_type>  const_local_iterator;
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                         unordered_multimap,
-                         ::BloombergLP::bslmf::IsBitwiseMoveable,
-                         ::BloombergLP::bslmf::IsBitwiseMoveable<Impl>::value);
 
   private:
     // DATA
@@ -2382,6 +2377,20 @@ struct UsesBslmaAllocator<bsl::unordered_multimap<KEY,
 
 }  // close namespace bslma
 
+namespace bslmf {
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+struct IsBitwiseMoveable<
+    bsl::unordered_multimap<KEY, MAPPED, HASH, EQUAL, ALLOCATOR> >
+    : ::BloombergLP::bslmf::IsBitwiseMoveable<BloombergLP::bslstl::HashTable<
+          ::BloombergLP::bslstl::
+              UnorderedMapKeyConfiguration<KEY, bsl::pair<const KEY, MAPPED> >,
+          HASH,
+          EQUAL,
+          ALLOCATOR> >::type
+{};
+
+}
 }  // close enterprise namespace
 
 #endif

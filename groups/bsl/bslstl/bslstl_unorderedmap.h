@@ -1098,8 +1098,9 @@ class unordered_map {
         // This 'typedef' is an alias for the type of key-value pair objects
         // maintained by this unordered map.
 
-    typedef BloombergLP::bslstl::UnorderedMapKeyConfiguration<ValueType>
-                                                             ListConfiguration;
+    typedef BloombergLP::bslstl::UnorderedMapKeyConfiguration<const KEY,
+                                                              ValueType>
+                                                        ListConfiguration;
         // This 'typedef' is an alias for the policy used internally by this
         // unordered map to extract the 'KEY' value from the key-value pair
         // objects maintained by this unordered map.
@@ -1135,10 +1136,6 @@ class unordered_map {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                    unordered_map,
-                    ::BloombergLP::bslmf::IsBitwiseMoveable,
-                    ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
     // PUBLIC TYPES
     typedef KEY                                        key_type;
@@ -3689,6 +3686,20 @@ struct UsesBslmaAllocator<bsl::unordered_map<KEY,
 
 }  // close namespace bslma
 
+namespace bslmf {
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+struct IsBitwiseMoveable<
+    bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR> >
+    : ::BloombergLP::bslmf::IsBitwiseMoveable<BloombergLP::bslstl::HashTable<
+          ::BloombergLP::bslstl::
+              UnorderedMapKeyConfiguration<KEY, bsl::pair<const KEY, MAPPED> >,
+          HASH,
+          EQUAL,
+          ALLOCATOR> >::type
+{};
+
+}
 }  // close enterprise namespace
 
 #endif

@@ -200,7 +200,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [35] USAGE EXAMPLE
+// [36] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multimap *object, const char *s, int verbose);
@@ -209,7 +209,8 @@ using bsls::NameOf;
 // [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [  ] CONCERN: The type provides the full interface defined by the standard.
-// [35] CONCERN: The values are spread into different buckets.
+// [36] CONCERN: The values are spread into different buckets.
+// [35] CONCERN: 'unordered_multimap' supports incomplete types
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -9641,6 +9642,40 @@ void testErase(CONTAINER& mX)
 
 }  // close namespace BREATHING_TEST
 
+class IncompleteType;
+
+class TestIncompleteType
+{
+    bsl::unordered_multimap<int, IncompleteType> d_cache;
+
+    // NOT IMPLEMENTED
+    TestIncompleteType(const TestIncompleteType&);
+    TestIncompleteType& operator=(const TestIncompleteType&);
+
+    typedef bsl::unordered_multimap<int, IncompleteType>::iterator Iter;
+
+  public:
+
+    TestIncompleteType();
+    ~TestIncompleteType();
+
+    const IncompleteType *add(const char *name, int value);
+
+    int getValue(const IncompleteType *entry) const;
+};
+
+class IncompleteType
+{
+};
+
+TestIncompleteType::TestIncompleteType()
+{
+}
+
+TestIncompleteType::~TestIncompleteType()
+{
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -9662,7 +9697,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9684,6 +9719,14 @@ int main(int argc, char *argv[])
         {
             usage();
         }
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // INCOMPLETE TYPES
+        // --------------------------------------------------------------------
+
+        TestIncompleteType obj;
+
       } break;
       case 34: {
         // --------------------------------------------------------------------
