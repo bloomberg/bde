@@ -331,7 +331,8 @@ int main(int argc, char *argv[])
 // 'EmployeePair', which will extract the '.first' field, which is the wage,
 // from an employee pair:
 //..
-        bslstl::UnorderedMapKeyConfiguration<EmployeePair> wageExtractor;
+        bslstl::UnorderedMapKeyConfiguration<double, EmployeePair>
+                                                                 wageExtractor;
 //..
 // Next, we sort:
 //..
@@ -403,14 +404,22 @@ int main(int argc, char *argv[])
 
         IntDoublePr pr = { 3, 4.7 };    const IntDoublePr& PR = pr;
 
-        ASSERT(1 == IsSameType<int>()(
-           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(pr)));
-        ASSERT(1 == IsSameType<int>()(
-           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(PR)));
-        ASSERT(0 == IsSameType<IntDoublePr>()(
-           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(pr)));
-        ASSERT(0 == IsSameType<double>()(
-           bslstl::UnorderedMapKeyConfiguration<IntDoublePr>::extractKey(PR)));
+        ASSERT(1 ==
+               IsSameType<int>()(
+                   bslstl::UnorderedMapKeyConfiguration<int, IntDoublePr>::
+                       extractKey(pr)));
+        ASSERT(1 ==
+               IsSameType<int>()(
+                   bslstl::UnorderedMapKeyConfiguration<int, IntDoublePr>::
+                       extractKey(PR)));
+        ASSERT(0 ==
+               IsSameType<IntDoublePr>()(
+                   bslstl::UnorderedMapKeyConfiguration<int, IntDoublePr>::
+                       extractKey(pr)));
+        ASSERT(0 ==
+               IsSameType<double>()(
+                   bslstl::UnorderedMapKeyConfiguration<int, IntDoublePr>::
+                       extractKey(PR)));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -429,8 +438,10 @@ int main(int argc, char *argv[])
 
         typedef MyPair<int, FILE> IntFilePr;
 
-        typedef bslstl::UnorderedMapKeyConfiguration<IntFilePr>::KeyType   KT;
-        typedef bslstl::UnorderedMapKeyConfiguration<IntFilePr>::ValueType VT;
+        typedef bslstl::UnorderedMapKeyConfiguration<int, IntFilePr>::KeyType
+                                                                           KT;
+        typedef bslstl::UnorderedMapKeyConfiguration<int, IntFilePr>::ValueType
+            VT;
 
         // TBD: Should 'KeyType' be const?  It's not.
 
@@ -450,10 +461,16 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == isConstObject(jp));
 
-        ASSERT(1 == isConstObject(
-               bslstl::UnorderedMapKeyConfiguration<IntPair>::extractKey(ip)));
-        ASSERT(1 == isConstObject(
-               bslstl::UnorderedMapKeyConfiguration<IntPair>::extractKey(jp)));
+        ASSERT(
+            1 ==
+            isConstObject(
+                bslstl::UnorderedMapKeyConfiguration<int, IntPair>::extractKey(
+                    ip)));
+        ASSERT(
+            1 ==
+            isConstObject(
+                bslstl::UnorderedMapKeyConfiguration<int, IntPair>::extractKey(
+                    jp)));
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -475,7 +492,8 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         typedef MyPair<int, int> VTypeII;
-        typedef bslstl::UnorderedMapKeyConfiguration<VTypeII> ConfigurationII;
+        typedef bslstl::UnorderedMapKeyConfiguration<int, VTypeII>
+            ConfigurationII;
 
         const VTypeII v1 = { 5, 7 };
 
@@ -483,7 +501,8 @@ int main(int argc, char *argv[])
 
 
         typedef MyPair<double, int> VTypeDI;
-        typedef bslstl::UnorderedMapKeyConfiguration<VTypeDI> ConfigurationDI;
+        typedef bslstl::UnorderedMapKeyConfiguration<double, VTypeDI>
+            ConfigurationDI;
 
         const double x = 7.3;
 

@@ -258,11 +258,11 @@ namespace bslstl {
                       // struct UnorderedMapKeyConfiguration
                       // ===================================
 
-template <class VALUE_TYPE>
+template <class KEY, class VALUE_TYPE>
 struct UnorderedMapKeyConfiguration {
   public:
-    typedef          VALUE_TYPE             ValueType;
-    typedef typename ValueType::first_type  KeyType;
+    typedef   VALUE_TYPE    ValueType;
+    typedef   KEY           KeyType;
 
     // Choosing to implement for each configuration, to reduce the template
     // mess.  With only two policies, not much is saved using a shared
@@ -285,10 +285,10 @@ struct UnorderedMapKeyConfiguration {
                        //-----------------------------------
 
 // CLASS METHODS
-template <class VALUE_TYPE>
+template <class KEY, class VALUE_TYPE>
 inline
-const typename UnorderedMapKeyConfiguration<VALUE_TYPE>::KeyType&
-UnorderedMapKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
+const KEY&
+UnorderedMapKeyConfiguration<KEY, VALUE_TYPE>::extractKey(const VALUE_TYPE& obj)
 {
     return obj.first;
 }
