@@ -165,7 +165,7 @@ BSLS_IDENT("$Id$")
 // decimal values (in the representable range of the target binary type)
 // convert to two different binary values.  There is a maximum number of
 // significant digits for which this will be true.  For example, all decimals
-// with 6 signficant digits convert to distinct 'float' values, but 8589973000
+// with 6 significant digits convert to distinct 'float' values, but 8589973000
 // and 8589974000, with 7 significant digits, convert to the same 'float'
 // value.  Similarly, all decimals with 15 significant digits convert to unique
 // 'double' values but 900719925474.0992 and 900719925474.0993, with 16
@@ -177,24 +177,78 @@ BSLS_IDENT("$Id$")
 // Because binary floating-point values are generally not equal to their
 // decimal progenitors, "converting from binary to decimal" does not have a
 // single meaning, and programmers who seek such an operation therefore need to
-// specify the conversion they want.  Possibilities are:
+// know and specify the conversion they want.  Common examples of conversions a
+// programmer might seek are listed below:
 //
-//: 1 Express the binary floating-point value exactly as a decimal.  For
-//:   example, the decimal value .1 converts to the 32-bit IEEE float value
-//:   0x3DCCCCCD, which has the exact value .100000001490116119384765625.  This
-//:   conversion is seldom useful, except perhaps for debugging, since the
-//:   exact value may have over 1000 digits, and as well cannot be represented
-//:   as a decimal floating-point type since those types do not have enough
-//:   digits.
+//: 1 Express the value as its nearest decimal value.
 //:
-//: 2 Instead of the exact value in (1), express the value rounded to a given
-//:   number of significant digits.  (The significant digits of a decimal
-//:   number are the digits with all leading and trailing 0s removed; e.g.,
-//:   0.00103, 10.3 and 10300 each have 3 significant digits.)  This conversion
-//:   is the one that leads programmers to complain about "rounding error"; for
-//:   example, .1f rounded to 9 digits is .100000001.
+//:   For this conversion, use the conversion constructors:
+//:       Decimal{32,64,128}(value)
 //:
-//: 3 Express the value rounded to a given number of decimal places.  (The
+//: 2 Express the value rounded to a given number of significant digits.  (The
+//:   significant digits of a decimal number are the digits with all leading
+//:   and trailing 0s removed; e.g., 0.00103, 10.3 and 10300 each have 3
+//:   significant digits.)  This conversion is the one that leads programmers
+//:   to complain about "rounding error" (for example, .1f rounded to 9 digits
+//:   is .100000001) but is the appropriate one to use when the programmer
+//:   knows that the binary value was originally converted from a decimal value
+//:   with that many significant digits.
+//:
+//:   For this conversion, use
+//:       Decimal{32,64,128}From{Float,Double}(value, digits)
+//:
+//: 3 Express the value using the minimum number of significant digits for the
+//:   type of the binary such that converting the decimal value back to binary
+//:   will yield the same value.  (Note that 17 digits are needed for 'double'
+//:   and 9 for 'float', so not all decimal types can hold such a result.)
+//:
+//:   For this conversion, use
+//:       Decimal{64,128}FromFloat(value, 9)
+//:       Decimal128FromDouble(value, 17)
+//:
+//: 4 Express the value using a number of decimal places that restores the
+//:   original decimal value from which the binary value was converted,
+//:   assuming that the original decimal value had sufficiently few significant
+//:   digits so that no two values with that number of digits would convert to
+//:   the same binary value.  (That number is 15 for 'double' and 6 for 'float'
+//:   in general but 7 over a limited range that spans '[1e-3 .. 8.5e9]').
+//:
+//:   For this conversion, use
+//:       Decimal{32,64,128}From{Float,Double}(value)
+//:
+//: 5 Express the value as the shortest decimal number that converts back
+//:   exactly to the binary value.  For example. given the binary value
+//:   0x3DCCCCCD above, that corresponding shortest decimal value is
+//:   (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
+//:   shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the
+//:   shortest decimal .010000001.  This is the most visually appealing result,
+//:   but can be expensive and slow to compute.
+//:
+//:   For this conversion, use
+//:       Decimal{32,64,128}From{Float,Double}(value, -1)
+//:
+//: 6 Express the value using a number of decimal places that restores the
+//:   original decimal value assuming that it is a 'float' which originated as
+//:   an IBM/Perkin-Elmer/Interdata 'float' value itself originally converted
+//:   from a decimal value.
+//:
+//:   For this conversion, use
+//:       Decimal{32,64,128}FromFloat(value, 6)
+//:
+//: 7 Express the value exactly as a decimal.  For example, the decimal
+//:   value .1 converts to the 32-bit IEEE float value 0x3DCCCCCD, which has
+//:   the exact value .100000001490116119384765625.  This conversion is seldom
+//:   useful, except perhaps for debugging, since the exact value may have over
+//:   1000 digits, and as well cannot be represented as a decimal
+//:   floating-point type since those types do not have enough digits.
+//:
+//:   For this conversion, use sprintf into a large-enough buffer:
+//:       char buf[2000];
+//:       double value;
+//:       sprintf(buf, "%.1100f", value);
+//:   The result will have trailing 0s, which may be trimmed.
+//:
+//: 8 Express the value rounded to a given number of decimal places.  (The
 //:   decimal places of a decimal number are the number of digits after the
 //:   decimal point, with trailing 0s removed; .01, 10.01, and 1000.01 each
 //:   have two decimal places.)  This conversion can be problematic when the
@@ -203,37 +257,10 @@ BSLS_IDENT("$Id$")
 //:   seen above, for example, for numbers near one trillion, there is not
 //:   enough precision in a 'double' for 4 decimal places.
 //:
-//: 4 Express the value as the shortest decimal number that converts back
-//:   exactly to the binary value.  For example. given the binary value
-//:   0x3DCCCCCD above, that corresponding shortest decimal value is
-//:   (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
-//:   shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the
-//:   shortest decimal .010000001.  This is the most visually appealing result,
-//:   but can be expensive and slow to compute.
-//:
-//: 5 There is a minimum number of digits such that all binary values rounded
-//:   to that number of significant decimal digits will produce a unique value.
-//:   That number is 9 for 'float'; for example, the two 'float' values
-//:   0x4131B848 and 0x4131B849 rounded to 8 significant digits are both
-//:   11.107491, but are respectively 11.1074905 and 11.1074915 when rounded to
-//:   9 digits.  For 'double' that number of digits is 17.  Express the value
-//:   using this number of significant digits.
-//:
-//: 6 If the programmer knows that the binary value was originally converted
-//:   from a decimal value with a limited number of significant digits, express
-//:   the value using that number of significant digits.
-//:
-//: 7 There is a maximum number of significant digits such that all decimal
-//:   values with at most that number of significant digits convert to unique
-//:   binary values (6 for 'float', 15 for 'double', and 7 for 'float' over
-//:   a limited range that spans '[1e-3 .. 8.5e9]').  If the programmer knows
-//:   that the binary value was originally converted from a decimal value with
-//:   such a limited number of significant digits, express the value using this
-//:   limit.
-//
-// This utility offers a set of conversion functions from binary to decimal,
-// 'decimal{32,64,128}From{Float,Double}', that provide (2,4,5,6,7) from the
-// above list.  See the function contract below for details.
+//:   For this conversion, use sprintf into a large-enough buffer:
+//:       char buf[2000];
+//:       double value;
+//:       sprintf(buf, "%.*f", places, value);
 //
 ///Usage
 ///-----
@@ -372,12 +399,15 @@ struct DecimalConvertUtil {
 #endif
 
     // PRIVATE CLASS DATA
-    static const int                k_EXPONENT_SHIFT_SMALL64 = 53;
+
+                    // 'bid64' REPRESENTATION CONSTANTS
+
+    static const int k_EXPONENT_SHIFT_SMALL64 = 53; // exponent position
+    static const int k_EXPONENT_MASK64 = 0x3ff;     // exponent mask bits
     static const unsigned long long k_SPECIAL_ENCODING_MASK64 =
-        0x6000000000000000ull;
-    static const int                k_EXPONENT_MASK64 = 0x3ff;
+        0x6000000000000000ull;                      // special when non-zero
     static const unsigned long long k_SMALL_COEFF_MASK64 =
-        0x001fffffffffffffull;
+        0x001fffffffffffffull;                      // mask for mantissa
 
     // PRIVATE CLASS METHODS
     static int decimal64ToUnpackedSpecial(bool                *isNegative,
@@ -517,33 +547,42 @@ struct DecimalConvertUtil {
     static Decimal64  decimal64FromFloat  (float  binary, int digits = 0);
     static Decimal128 decimal128FromDouble(double binary, int digits = 0);
     static Decimal128 decimal128FromFloat (float  binary, int digits = 0);
-        // Return the decimal floating-point number with at most the optionally
-        // specified 'digits' significant digits closest in value to the
-        // specified 'binary'.
+        // Return a decimal floating-point number converted from the specified
+        // 'binary'.
         //
-        // If 'binary' is singular (NaN, Inf, or 0) or is not within the
-        // representable range of the return type, an appropriate decimal
-        // singular value will be returned.
+        // If 'binary' is singular (+/-NaN, +/-Inf, or +/-0) or is not within
+        // the representable range of the return type, return a corresponding
+        // decimal singular value.
+        //
+        // Optionally specify 'digits' to indicate the number of significant
+        // digits to produce in the returned value.  The 'digits' parameter is
+        // treated as follows:
+        //
+        // If 'digits' is larger than the number of digits in the destination
+        // type, it will be reduced to that number of digits.
+        //
+        // If 'digits' is positive, the result is 'binary' rounded to that many
+        // significant digits.
         //
         // If 'digits' is negative, the decimal value with the fewest
-        // significant digits that converts back to 'binary' is returned
-        // (except for 'decimal32FromDouble', where 7 is used for 'digits').
+        // significant digits that converts back to 'binary' is returned if
+        // possible, and otherwise the value closest to 'binary' is returned.
+        // Note that this provides the most visually appealing result but is
+        // the most expensive to compute.
         //
         // If 'digits' is not specified or 0, a default value will be used
         // (possibly depending on the value of 'binary') based on the premise
         // that 'binary' is a converted decimal value of no more significant
         // digits than is guaranteed to have a uniquely converted binary value
-        // (6 for 'float', 15 for 'double', and 7 for 'float' in the range
-        // '[ .0009999995 .. 8589972000 ]').
-        //
-        // If 'digits' is larger than the number of digits in the destination
-        // type, the number of digits in the destination type will be used.
+        // (15 for 'double', 6 for 'float' in general, and 7 for 'float' in the
+        // range '[ .0009999995 .. 8589972000 ]').  Note that this is likely to
+        // have the best performance for "business" numbers (i.e., numbers that
+        // originate as decimal values in external market quote feeds).
         //
         // Note that the purpose of these functions is to restore a decimal
-        // value that has been converted to a binary floating-point type.
-        // Otherwise, use the conversion constructors.  Those are equivalent to
-        // invoking these functions with 'digits' set to the number of digits
-        // in the destination type, but gave better performance.
+        // value that has been converted to a binary floating-point type.  It
+        // is more efficient to use conversion constructors when all that is
+        // needed is the nearest decimal to the 'binary' value.
         //
         // Note that if 'binary' is a 'float' value that was converted from an
         // IBM/Perkin-Elmer/Interdata binary 'float' value itself converted
