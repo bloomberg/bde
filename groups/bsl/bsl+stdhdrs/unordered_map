@@ -31,9 +31,13 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if __cplusplus >= 201103L
-        // TBD: Replace this '#if __cplusplus >= 201103L' with
-        // '#if defined(BSLS_LIBRARYFEATURES ...)' once bsls_libraryfeatures.h
+#   if defined(BSLS_PLATFORM_CMP_MSVC) ? BSLS_PLATFORM_CMP_VERSION >= 1500    \
+                                       : __cplusplus >= 201103L
+        // In C++11 (On Windows, cmp version >= 1500 corresponds to Visual
+        // Studio 2008, the earliest version that supports 'unordered_map').
+        //
+        // TBD: Replace this '#if ...' with
+        // '#if defined(BSLS_LIBRARYFEATURES_...)' once bsls_libraryfeatures.h
         // exists.
 
 #       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
@@ -58,7 +62,11 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if __cplusplus >= 201103L
+#   if defined(BSLS_PLATFORM_CMP_MSVC) ? BSLS_PLATFORM_CMP_VERSION >= 1500    \
+                                       : __cplusplus >= 201103L
+        // In C++11 (On Windows, cmp version >= 1500 corresponds to Visual
+        // Studio 2008, the earliest version that supports 'unordered_map').
+        //
         // TBD: Replace this '#if __cplusplus >= 201103L' with
         // '#if defined(BSLS_LIBRARYFEATURES ...)' once bsls_libraryfeatures.h
         // exists.
