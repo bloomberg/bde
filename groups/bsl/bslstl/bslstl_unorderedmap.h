@@ -1866,9 +1866,9 @@ bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // 'value_type'}).
 
 // FREE FUNCTIONS
-template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
-void swap(unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
+          unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, the hasher, the key-equality functor, and the
     // 'max_load_factor' of the specified 'a' object with those of the
@@ -2202,16 +2202,16 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_impl.elementListRoot());
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator();
 }
@@ -2239,7 +2239,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     d_impl.removeAll();
 }
@@ -2577,7 +2577,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
@@ -2843,8 +2843,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
-            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
-            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs)
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     return lhs.d_impl == rhs.d_impl;
@@ -2863,8 +2863,8 @@ bool bsl::operator!=(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-bsl::swap(bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
-          bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b)
+bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
+          bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
@@ -2907,12 +2907,12 @@ struct UsesBslmaAllocator<bsl::unordered_map<KEY,
 
 namespace bslmf {
 
-template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 struct IsBitwiseMoveable<
-    bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR> >
+    bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
     : ::BloombergLP::bslmf::IsBitwiseMoveable<BloombergLP::bslstl::HashTable<
           ::BloombergLP::bslstl::
-              UnorderedMapKeyConfiguration<KEY, bsl::pair<const KEY, MAPPED> >,
+               UnorderedMapKeyConfiguration<KEY, bsl::pair<const KEY, VALUE> >,
           HASH,
           EQUAL,
           ALLOCATOR> >::type
