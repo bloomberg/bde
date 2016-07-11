@@ -74,10 +74,10 @@ def build(bld):
     # PCRE2 does not support JIT correctly on sparc 64-bit builds.
     if '-m64' in config['cflags'] and 'sparc' == platform.processor():
         if Logs.verbose:
-            print "Disabling JIT support"
+            print("Disabling JIT support")
     else:
         if Logs.verbose:
-            print "Enabling JIT support"
+            print("Enabling JIT support")
         jit_cflags = ['-DSUPPORT_JIT']
 
     cflags += jit_cflags
