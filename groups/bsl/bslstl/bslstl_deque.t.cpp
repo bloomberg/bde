@@ -205,9 +205,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [32] USAGE EXAMPLE
+// [32] USAGE EXAMPLE 1
+// [33] USAGE EXAMPLE 2
 // [23] CONCERN: 'std::length_error' is used properly.
 // [ *] CONCERN: In no case does memory come from the global allocator.
+// [34] CONCERN: All methods have the standard 'noexcept' specification.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(Obj *object, const char *spec, bool vF = true);
@@ -1908,6 +1910,9 @@ struct TestDriver {
         // semantics based on integer template parameters '[N01 .. N10]'.
 
     // TEST CASES
+    static void testCase34();
+        // Test 'noexcept' specifications
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for methods that take a range of inputs.
@@ -3131,6 +3136,120 @@ TestDriver<TYPE, ALLOC>::testCase29a_RunTest(Obj *target, const_iterator pos)
                                  // ----------
                                  // TEST CASES
                                  // ----------
+                                 //
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase34()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: All methods have the standard 'noexcept' specification.
+    // ------------------------------------------------------------------------
+
+// N4594 page 835-836: 23.3.8.1 Class template 'deque' overview
+//
+//     deque& operator=(deque&& x)
+//         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    {
+        Obj d;
+        Obj x;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d = x));
+    }
+
+// N4594 page 836: 23.3.8.1 Class template 'deque' overview
+//     allocator_type get_allocator() const noexcept;
+    {
+        Obj d;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
+    }
+
+// N4594 page 836: 23.3.8.1 Class template 'deque' overview
+// Iterators
+//     iterator begin() noexcept;
+//     const_iterator begin() const noexcept;
+//     iterator end() noexcept;
+//     const_iterator end() const noexcept;
+//     reverse_iterator rbegin() noexcept;
+//     const_reverse_iterator rbegin() const noexcept;
+//     reverse_iterator rend() noexcept;
+//     const_reverse_iterator rend() const noexcept;
+//     const_iterator cbegin() const noexcept;
+//     const_iterator cend() const noexcept;
+//     const_reverse_iterator crbegin() const noexcept;
+//     const_reverse_iterator crend() const noexcept;
+    {
+        Obj d; const Obj& D = d;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rend()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rend()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cend()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
+    }
+
+// N4594 page 836: 23.3.8.1 Class template 'deque' overview
+// Capacity
+//     bool empty() const noexcept;
+//     size_type size() const noexcept;
+//     size_type max_size() const noexcept;
+    {
+        Obj d; const Obj& D = d;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
+    }
+
+// N4594 page 837: 23.3.8.1 Class template 'deque' overview
+//     void swap(deque&)
+//         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+//     void clear() noexcept;
+    {
+        Obj d;
+        Obj x;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.swap(x)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
+    }
+
+// N4594 page 837: 23.3.8.1 Class template 'deque' overview
+//     void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
+//         noexcept(noexcept(x.swap(y)));
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
+}
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
