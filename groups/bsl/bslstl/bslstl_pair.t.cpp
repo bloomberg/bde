@@ -79,8 +79,8 @@ using bsls::NameOf;
 // [ 2] pair(AllocatorPtr basicAllocator);
 // [ 2] pair(const T1& a, const T2& b);
 // [ 2] pair(const T1& a, const T2& b, AllocatorPtr basicAllocator);
-// [11] template <class U1, class U2> pair(U1&& a, U2&& b);
-// [11] template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
+// [10] template <class U1, class U2> pair(U1&& a, U2&& b);
+// [10] template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
 // [11] template <class U1, class U2> pair(const U1&, const U2&);
 // [11] template <class U1, class U2> pair(const U1&, const U2&, AllocatorPtr);
 // [11] template <class U1, class U2> pair(U1&, const U2&);
@@ -89,12 +89,13 @@ using bsls::NameOf;
 // [11] template <class U1, class U2> pair(const U1&, U2&, AllocatorPtr);
 // [11] template <class U1, class U2> pair(U1&, U2&);
 // [11] template <class U1, class U2> pair(U1&, U2&, AllocatorPtr);
-// [14] pair(piecewise_construct_t, tuple aArgs, tuple bArgs)
-// [14] pair(piecewise_construct_t, tuple aArgs, tuple bArgs, basicAllocator)
+// [13] pair(piecewise_construct_t, tuple aArgs, tuple bArgs)
+// [13] pair(piecewise_construct_t, tuple aArgs, tuple bArgs, basicAllocator)
+// [14] pair(native_std::pair<*>, bool>)
 // [ 2] pair(const pair& original);
 // [ 2] pair(const pair& original, AllocatorPtr basicAllocator);
-// [10] pair(pair&& original)
-// [10] pair(pair&& original, AllocatorPtr basicAllocator)
+// [ 9] pair(pair&& original)
+// [ 9] pair(pair&& original, AllocatorPtr basicAllocator)
 // [ 4] pair(const pair<U1, U2>& rhs);
 // [ 4] pair(const pair<U1, U2>& rhs, AllocatorPtr basicAllocator);
 // [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other)
@@ -102,9 +103,9 @@ using bsls::NameOf;
 // [  ] pair(const native_std::pair<U1, U2>& rhs);
 // [  ] pair(const native_std::pair<U1, U2>&, BloombergLP::bslma::Allocator *);
 // [ 2] ~pair();
-// [ 2] pair& operator=(const pair& rhs);
-// [13] pair& operator=(pair&& rhs);
-// [ 8] pair& operator=(const pair<U1, U2>& rhs)
+// [12] pair& operator=(const pair& rhs);
+// [12] pair& operator=(pair&& rhs);
+// [12] pair& operator=(const pair<U1, U2>& rhs)
 // [12] pair& operator=(pair<U1, U2>&& rhs)
 // [  ] pair& operator=(const native_std::pair<U1, U2>& rhs);
 // [ 2] bool operator==(const pair& x, const pair& y);
@@ -3066,10 +3067,13 @@ class TestDriver {
     static void testCase14();
         // Test constructor from 'native_std::pair'.
 
+    static void testCase12_copy(bsl::false_type pairAllocates);
+    static void testCase12_copy(bsl::true_type  pairAllocates);
+    static void testCase12_copy();
     static void testCase12(bsl::false_type pairAllocates);
     static void testCase12(bsl::true_type  pairAllocates);
     static void testCase12();
-        // Test move assignment.
+        // Test move and copy assignment.
 
     static void testCase11(bsl::false_type pairAllocates);
     static void testCase11(bsl::true_type  pairAllocates);
@@ -3262,6 +3266,151 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14()
     // memory.
 
     testCase14(UsesBslma());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12_copy(
+                                                               bsl::false_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case12_copy, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'A', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('A' == u::valueOf(tp));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);    const FromPair& FP = fp;
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('F' == u::valueOf(fp));
+
+        ToPair *tpp = &(tp = FP);
+
+        ASSERT(&tp == tpp);
+        ASSERT('F' == u::valueOf(tp));
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+    }
+
+    ASSERT(0 == ta.numAllocations());
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12_copy(
+                                                                bsl::true_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case12_copy, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'A', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('A' == u::valueOf(tp));
+
+        ASSERT(u::allocatorMatches(tp.first,  &ta));
+        ASSERT(u::allocatorMatches(tp.second, &ta));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);    const FromPair& FP = fp;
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('F' == u::valueOf(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+
+        ToPair *tpp = &(tp = FP);
+
+        ASSERT(&tp == tpp);
+        ASSERT('F' == u::valueOf(tp));
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+
+        ASSERT(0 < ta.numAllocations());
+    }
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'B', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('B' == u::valueOf(tp));
+
+        ASSERT(u::allocatorMatches(tp.first,  &ta));
+        ASSERT(u::allocatorMatches(tp.second, &ta));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'H', &tb);    const FromPair& FP = fp;
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('H' == u::valueOf(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &tb));
+        ASSERT(u::allocatorMatches(fp.second, &tb));
+
+        ToPair *tpp = &(tp = FP);
+
+        ASSERT(&tp == tpp);
+        ASSERT('H' == u::valueOf(tp));
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+    }
+
+    ASSERT(0 < tb.numAllocations());
+
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12_copy(
+                                                                              )
+{
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
+
+    testCase12_copy(UsesBslma());
 }
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
@@ -4168,6 +4317,7 @@ struct MetaTestDriver {
 #endif
 
     static void testCase14();
+    static void testCase12_copy();
     static void testCase12();
     static void testCase11();
     static void testCase10();
@@ -4220,6 +4370,7 @@ void MetaTestDriver<TYPE>::funcName()                                         \
 #endif
 
 u_META_FUNCTION(testCase14)
+u_META_FUNCTION(testCase12_copy)
 u_META_FUNCTION(testCase12)
 u_META_FUNCTION(testCase11)
 u_META_FUNCTION(testCase10)
@@ -4274,6 +4425,9 @@ int main(int argc, char *argv[])
       case 14: {
         // --------------------------------------------------------------------
         // TESTING C'TOR FROM NATIVE_STD::PAIR
+        //
+        // TESTING:
+        //   pair(native_std::pair<*>, bool>)
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(MetaTestDriver,
@@ -4285,7 +4439,8 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-                   // bsltf::MoveOnlyAllocTestType -- test case need copy c'tor
+                   // bsltf::MoveOnlyAllocTestType -- test case needs copy
+                   // c'tor.
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -4302,6 +4457,7 @@ int main(int argc, char *argv[])
         // TESTING MOVE ASSIGNMENT
         //
         // template <class U1, class U2> pair& operator=(pair<U1, U2>&&);
+        // template <class U1, class U2> pair& operator=(const pair<U1, U2>&);
         // --------------------------------------------------------------------
 
         RUN_EACH_TYPE(MetaTestDriver,
@@ -4313,6 +4469,17 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
+
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase12_copy,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase12_copy,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+                   // bsltf::MoveOnlyAllocTestType - copy assign is needed
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -5302,7 +5469,6 @@ int main(int argc, char *argv[])
 
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
