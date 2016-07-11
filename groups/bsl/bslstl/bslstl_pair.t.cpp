@@ -1,7 +1,11 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
 #include <bslstl_pair.h>
 
+#include <bsltf_allocargumenttype.h>
 #include <bsltf_allocbitwisemoveabletesttype.h>
+#include <bsltf_allocemplacabletesttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_emplacabletesttype.h>
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_movabletesttype.h>
 #include <bsltf_moveonlyalloctesttype.h>
@@ -11,6 +15,7 @@
 
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
+#include <bslma_constructionutil.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
@@ -186,6 +191,9 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bsltf::TemplateTestFacility TTF;
 typedef bslmf::MovableRefUtil       MoveUtil;
 typedef bsls::Types::Int64          Int64;
+typedef bslma::ConstructionUtil     ConstrUtil;
+
+
 
 bool             verbose = false;
 bool         veryVerbose = false;
@@ -222,6 +230,7 @@ class Base {
 class AlBase {
     // Like 'Base', except it thinks it allocates.
 
+  protected:
     // DATA
     int              *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -254,7 +263,13 @@ class AlBase {
     }
 
     //! ~AlBase() = default;
-    //! AlBase& operator=(const AlBase&) = default;
+
+    // MANIPULATOR
+    AlBase& operator=(const AlBase& rhs)
+    {
+        *d_data_p = *rhs.d_data_p;
+        return *this;
+    }
 
     // ACCESSORS
     operator int() const { return *d_data_p; }
@@ -313,23 +328,46 @@ struct AlDerived : public AlBase {
     : AlBase(data, allocator)
     {}
 
-    AlDerived(const Derived& original, bslma::Allocator *allocator = 0)
+    AlDerived(const AlDerived& original, bslma::Allocator *allocator = 0)
     : AlBase(original, allocator)
     {}
+
+    // MANIPULATOR
+    AlDerived& operator=(const AlDerived& rhs)
+    {
+        *d_data_p = *rhs.d_data_p;
+
+        return *this;
+    }
 };
 
-template <class TYPE, bool hasAllocatorAccessor =
-                 bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
+template <class TYPE, int ALLOCATOR_ACCESSOR_CLASS =
+                (bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
               || bsl::is_same<TYPE, bsltf::AllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
               || bsl::is_same<TYPE, AlBase>::value
-              || bsl::is_same<TYPE, AlDerived>::value>
+              || bsl::is_same<TYPE, AlDerived>::value)
+              ? 1    // 'allocator()'
+              : (bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value)
+              ? 2    // 'getAllocator()'
+              : 0>   // no accessor
 struct AllocatorMatchesImp {
 };
 
 template <class TYPE>
-struct AllocatorMatchesImp<TYPE, true> {
+struct AllocatorMatchesImp<TYPE, 0> {
+    bool operator()(const TYPE&, bslma::Allocator *) const
+        // The specified 'TYPE' has no 'allocator' accessor.  Dummy function.
+    {
+        return true;
+    }
+};
+
+template <class TYPE>
+struct AllocatorMatchesImp<TYPE, 1> {
     bool operator()(const TYPE&       object,
                     bslma::Allocator *alloc) const
         // The specified 'object' has an 'allocator' accessor.  Check that the
@@ -343,11 +381,16 @@ struct AllocatorMatchesImp<TYPE, true> {
 };
 
 template <class TYPE>
-struct AllocatorMatchesImp<TYPE, false> {
-    bool operator()(const TYPE&, bslma::Allocator *) const
-        // The specified 'TYPE' has no 'allocator' accessor.  Dummy function.
+struct AllocatorMatchesImp<TYPE, 2> {
+    bool operator()(const TYPE&       object,
+                    bslma::Allocator *alloc) const
+        // The specified 'object' has a 'getAllocator' accessor.  Check that
+        // the specied 'alloc' matches the allocator of 'object'.
     {
-        return true;
+        bool ret;
+        ASSERTV(NameOf<TYPE>(), (ret = alloc == object.getAllocator()));
+
+        return ret;
     }
 };
 
@@ -525,6 +568,20 @@ struct PairGuard {
     {
         d_pair_p = 0;
     }
+};
+
+template <class ETYPE,
+          int   NUM_FIRST_ARGS,
+          int   NF1,
+          int   NF2,
+          int   NF3,
+          int   NUM_SECOND_ARGS,
+          int   NS1,
+          int   NS2,
+          int   NS3>
+struct DisplayType {
+    // This 'struct' is just to be created to be passed to 'NameOf' to display
+    // the template args.
 };
 
 }  // close namespace u
@@ -1895,6 +1952,1072 @@ void testFunctionality(bsl::true_type usesBslmaAllocator)
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+class TupleTestDriver {
+    // This 'class' is used for doing the tests with 'EmplacableTestType' and
+    // 'AllocEmplacableTestType'.  For simplicity, we chose to implement them
+    // as two functions rather than implementing by one with a template
+    // parameter.
+
+    // PRIVATE CLASS METHODS
+    template <class T>
+    static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
+        // If the second argument is a 'true_type', return the argument moved.
+    {
+        return MoveUtil::move(t);
+    }
+
+    template <class T>
+    static const T&             testArg(T& t, bsl::false_type)
+        // If the second argument is a 'false_type', return a reference
+        // providing modifiable access to the argument.
+    {
+        return t;
+    }
+
+    static void checkArgs(const char *displayName,
+                          int         numFirstArgs,
+                          int         nf1,
+                          int         nf2,
+                          int         nf3,
+                          int         numSecondArgs,
+                          int         ns1,
+                          int         ns2,
+                          int         ns3);
+        // Passed as run time 'int's the template args to a 'runTest*' routine,
+        // check for sanity, where the specified 'displayName' is the name of
+        // the passed display type.  The thinking here is to shrink code size
+        // by handling this in a single routine called by all the different
+        // template instantiations.
+
+  public:
+    // CLASS METHODS
+    template <int NUM_FIRST_ARGS,
+              int NF1,
+              int NF2,
+              int NF3,
+              int NUM_SECOND_ARGS,
+              int NS1,
+              int NS2,
+              int NS3>
+    static void runTestAlloc();
+        // Construct a pair of 'bsltf::AllocEmplacableType' with two tuples,
+        // each taking 0-3 args.  The number of args for the first tuple is the
+        // specified 'NUM_FIRST_ARGS', the number for the second is the
+        // specified 'NUM_SECOND_ARGS'.  Interpret the values of 'NFi' and
+        // 'NSi' as follows:
+        //..
+        //  NFi == 0 => forward the i'th 'first' argument using copy semantics
+        //  NSi == 0 => forward the i'th 'second' argument using copy semantics
+        //
+        //  NFi == 1 => forward the i'th 'first' argument using move semantics
+        //  NSi == 1 => forward the i'th 'second' argument using move semantics
+        //
+        //  NFi == 2 => don't forward a value for the i'th 'first' argument
+        //  NSi == 2 => don't forward a value for the i'th 'second' argument
+        //..
+        // The behavior is undefined unless '0 <= NUM_FIRST_ARGS <= 3',
+        // '0 <= NUM_SECOND_ARGS <= 3', all '[NF1 .. NF3]' and '[NS1 .. NS3]'
+        // parameters are in the range '[0 .. 2]', '2 == NF2' if '2 == NF1',
+        // '2 == NF3' if '2 == NF2', '2 == NS2' if '2 == NS1', and '2 == NS3'
+        // if '2 == NS2'.
+
+    template <int NUM_FIRST_ARGS,
+              int NF1,
+              int NF2,
+              int NF3,
+              int NUM_SECOND_ARGS,
+              int NS1,
+              int NS2,
+              int NS3>
+    static void runTestNoAlloc();
+        // Construct a pair of 'bsltf::EmplacableType' with two tuples, each
+        // taking 0-3 args.  The number of args for the first tuple is the
+        // specified 'NUM_FIRST_ARGS', the number for the second is the
+        // specified 'NUM_SECOND_ARGS'.  Interpret the values of 'NFi' and
+        // 'NSi' as follows:
+        //..
+        //  NFi == 0 => forward the i'th 'first' argument using copy semantics
+        //  NSi == 0 => forward the i'th 'second' argument using copy semantics
+        //
+        //  NFi == 1 => forward the i'th 'first' argument using move semantics
+        //  NSi == 1 => forward the i'th 'second' argument using move semantics
+        //
+        //  NFi == 2 => don't forward a value for the i'th 'first' argument
+        //  NSi == 2 => don't forward a value for the i'th 'second' argument
+        //..
+        // The behavior is undefined unless '0 <= NUM_FIRST_ARGS <= 3',
+        // '0 <= NUM_SECOND_ARGS <= 3', all '[NF1 .. NF3]' and '[NS1 .. NS3]'
+        // parameters are in the range '[0 .. 2]', '2 == NF2' if '2 == NF1',
+        // '2 == NF3' if '2 == NF2', '2 == NS2' if '2 == NS1', and '2 == NS3'
+        // if '2 == NS2'.
+
+    static void testCase13();
+        // Call 'runTestAlloc' with every legal combination of arguments.
+};
+
+void TupleTestDriver::checkArgs(const char *displayName,
+                                int         numFirstArgs,
+                                int         nf1,
+                                int         nf2,
+                                int         nf3,
+                                int         numSecondArgs,
+                                int         ns1,
+                                int         ns2,
+                                int         ns3)
+{
+    ASSERTV(displayName, 0 <= numFirstArgs  && numFirstArgs  <= 3);
+    ASSERTV(displayName, 0 <= numSecondArgs && numSecondArgs <= 3);
+
+    ASSERTV(displayName, 0 <= nf1 && nf1 <= 2);
+    ASSERTV(displayName, 0 <= nf2 && nf2 <= 2);
+    ASSERTV(displayName, 0 <= nf3 && nf3 <= 2);
+
+    ASSERTV(displayName, 0 <= ns1 && ns1 <= 2);
+    ASSERTV(displayName, 0 <= ns2 && ns2 <= 2);
+    ASSERTV(displayName, 0 <= ns3 && ns3 <= 2);
+
+    ASSERTV(displayName, (numFirstArgs  < 3) == (2 == nf3));
+    ASSERTV(displayName, (numFirstArgs  < 2) == (2 == nf2));
+    ASSERTV(displayName, (numFirstArgs  < 1) == (2 == nf1));
+
+    ASSERTV(displayName, (numSecondArgs < 3) == (2 == ns3));
+    ASSERTV(displayName, (numSecondArgs < 2) == (2 == ns2));
+    ASSERTV(displayName, (numSecondArgs < 1) == (2 == ns1));
+}
+
+template <int NUM_FIRST_ARGS,
+          int NF1,
+          int NF2,
+          int NF3,
+          int NUM_SECOND_ARGS,
+          int NS1,
+          int NS2,
+          int NS3>
+void TupleTestDriver::runTestAlloc()
+{
+    typedef bsltf::AllocEmplacableTestType                        EType;
+    typedef bsl::pair<EType, EType>                               Pair;
+    typedef u::DisplayType<EType, NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                                  NUM_SECOND_ARGS, NS1, NS2, NS3> DT;
+    typedef typename EType::ArgType01                             Arg1;
+    typedef typename EType::ArgType02                             Arg2;
+    typedef typename EType::ArgType03                             Arg3;
+
+    if (veryVerbose) printf("runTestAlloc(%d, %d,%d,%d, %d, %d,%d,%d);\n",
+                             NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                             NUM_SECOND_ARGS, NS1, NS2, NS3);
+
+    const char *name = NameOf<DT>();
+
+    checkArgs(name, NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                    NUM_SECOND_ARGS, NS1, NS2, NS3);
+
+    // In C++17, these become the simpler-to-name 'bool_constant'.
+
+    static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
+    static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
+    static const bsl::integral_constant<bool, NF3 == 1> MOVE_F3 = {};
+    static const bsl::integral_constant<bool, NS1 == 1> MOVE_S1 = {};
+    static const bsl::integral_constant<bool, NS2 == 1> MOVE_S2 = {};
+    static const bsl::integral_constant<bool, NS3 == 1> MOVE_S3 = {};
+
+    bslma::TestAllocator aa("args",    veryVeryVeryVerbose);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    bool silenceVeryVerbose = veryVeryVerbose;
+#   define veryVerbose silenceVeryVerbose
+    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(aa) {
+#   undef  veryVerbose
+        Arg1 AF1(1,  &aa);
+        Arg2 AF2(20, &aa);
+        Arg3 AF3(23, &aa);
+
+        Arg1 AS1(2,  &aa);
+        Arg2 AS2(18, &aa);
+        Arg3 AS3(31, &aa);
+
+        bsls::ObjectBuffer<Pair> oDst;
+        Pair *p = oDst.address();
+
+        switch (NUM_FIRST_ARGS) {
+          case 0: {
+            switch (NUM_SECOND_ARGS) {
+              case 0: {
+                new (p) Pair(native_std::piecewise_construct,
+                             native_std::forward_as_tuple(),
+                             native_std::forward_as_tuple(),
+                             &aa);
+              } break;
+              case 1: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          &aa);
+              } break;
+              case 2: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2)),
+                          &aa);
+              } break;
+              case 3: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2),
+                                                       testArg(AS3, MOVE_S3)),
+                          &aa);
+              } break;
+              default: {
+                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+              } return;                                               // RETURN
+            }
+          } break;
+          case 1: {
+            switch (NUM_SECOND_ARGS) {
+              case 0: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          native_std::forward_as_tuple(),
+                          &aa);
+              } break;
+              case 1: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          &aa);
+              } break;
+              case 2: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2)),
+                          &aa);
+              } break;
+              case 3: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2),
+                                                       testArg(AS3, MOVE_S3)),
+                          &aa);
+              } break;
+              default: {
+                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+              } return;                                               // RETURN
+            }
+          } break;
+          case 2: {
+            switch (NUM_SECOND_ARGS) {
+              case 0: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2)),
+                          native_std::forward_as_tuple(),
+                          &aa);
+              } break;
+              case 1: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          &aa);
+              } break;
+              case 2: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2)),
+                          &aa);
+              } break;
+              case 3: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2),
+                                                       testArg(AS3, MOVE_S3)),
+                          &aa);
+              } break;
+              default: {
+                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+              } return;                                               // RETURN
+            }
+          } break;
+          case 3: {
+            switch (NUM_SECOND_ARGS) {
+              case 0: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2),
+                                                       testArg(AF3, MOVE_F3)),
+                          native_std::forward_as_tuple(),
+                          &aa);
+              } break;
+              case 1: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2),
+                                                       testArg(AF3, MOVE_F3)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1)),
+                          &aa);
+              } break;
+              case 2: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2),
+                                                       testArg(AF3, MOVE_F3)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2)),
+                          &aa);
+              } break;
+              case 3: {
+                new (p) Pair(
+                          native_std::piecewise_construct,
+                          native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                       testArg(AF2, MOVE_F2),
+                                                       testArg(AF3, MOVE_F3)),
+                          native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                       testArg(AS2, MOVE_S2),
+                                                       testArg(AS3, MOVE_S3)),
+                          &aa);
+              } break;
+              default: {
+                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+              } return;                                               // RETURN
+            }
+          } break;
+          default: {
+            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+          } return;                                                   // RETURN
+        }
+        u::PairGuard<Pair> pg(p);
+
+        ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
+        ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
+        ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+
+        ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
+        ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
+        ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+
+        const EType& F = p->first;
+
+        ASSERTV(name, AF1 == F.arg01() || 2 == NF1);
+        ASSERTV(name, AF2 == F.arg02() || 2 == NF2);
+        ASSERTV(name, AF3 == F.arg03() || 2 == NF3);
+
+        const EType& S = p->second;
+
+        ASSERTV(name, AS1 == S.arg01() || 2 == NS1);
+        ASSERTV(name, AS2 == S.arg02() || 2 == NS2);
+        ASSERTV(name, AS3 == S.arg03() || 2 == NS3);
+
+        ASSERTV(name, u::allocatorMatches(F.arg01(), &aa));
+        ASSERTV(name, u::allocatorMatches(F.arg02(), &aa));
+        ASSERTV(name, u::allocatorMatches(F.arg03(), &aa));
+
+        ASSERTV(name, u::allocatorMatches(S.arg01(), &aa));
+        ASSERTV(name, u::allocatorMatches(S.arg02(), &aa));
+        ASSERTV(name, u::allocatorMatches(S.arg03(), &aa));
+    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+    const bool copyHappened = !NF1 || !NF2 || !NF3 || !NS1 || !NS2 || !NS3;
+
+    ASSERTV(name, copyHappened, da.numAllocations(),
+                                    copyHappened == (0 < da.numAllocations()));
+}
+
+template <int NUM_FIRST_ARGS,
+          int NF1,
+          int NF2,
+          int NF3,
+          int NUM_SECOND_ARGS,
+          int NS1,
+          int NS2,
+          int NS3>
+void TupleTestDriver::runTestNoAlloc()
+{
+    typedef bsltf::EmplacableTestType                             EType;
+    typedef bsl::pair<EType, EType>                               Pair;
+    typedef u::DisplayType<EType, NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                                  NUM_SECOND_ARGS, NS1, NS2, NS3> DT;
+    typedef typename EType::ArgType01                             Arg1;
+    typedef typename EType::ArgType02                             Arg2;
+    typedef typename EType::ArgType03                             Arg3;
+
+    if (veryVerbose) printf("runTestNoAlloc(%d, %d,%d,%d, %d, %d,%d,%d);\n",
+                             NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                             NUM_SECOND_ARGS, NS1, NS2, NS3);
+
+    const char *name = NameOf<DT>();
+
+    checkArgs(name, NUM_FIRST_ARGS,  NF1, NF2, NF3,
+                    NUM_SECOND_ARGS, NS1, NS2, NS3);
+
+    // In C++17, these become the simpler-to-name 'bool_constant'.
+
+    static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
+    static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
+    static const bsl::integral_constant<bool, NF3 == 1> MOVE_F3 = {};
+    static const bsl::integral_constant<bool, NS1 == 1> MOVE_S1 = {};
+    static const bsl::integral_constant<bool, NS2 == 1> MOVE_S2 = {};
+    static const bsl::integral_constant<bool, NS3 == 1> MOVE_S3 = {};
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    Arg1 AF1(1);
+    Arg2 AF2(20);
+    Arg3 AF3(23);
+
+    Arg1 AS1(2);
+    Arg2 AS2(18);
+    Arg3 AS3(31);
+
+    bsls::ObjectBuffer<Pair> oDst;
+    Pair *p = oDst.address();
+
+    switch (NUM_FIRST_ARGS) {
+      case 0: {
+        switch (NUM_SECOND_ARGS) {
+          case 0: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(),
+                         native_std::forward_as_tuple());
+          } break;
+          case 1: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+          } break;
+          case 2: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2)));
+          } break;
+          case 3: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2),
+                                                      testArg(AS3, MOVE_S3)));
+          } break;
+          default: {
+            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+          } return;                                                   // RETURN
+        }
+      } break;
+      case 1: {
+        switch (NUM_SECOND_ARGS) {
+          case 0: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         native_std::forward_as_tuple());
+          } break;
+          case 1: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+          } break;
+          case 2: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2)));
+          } break;
+          case 3: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2),
+                                                      testArg(AS3, MOVE_S3)));
+          } break;
+          default: {
+            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+          } return;                                                   // RETURN
+        }
+      } break;
+      case 2: {
+        switch (NUM_SECOND_ARGS) {
+          case 0: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2)),
+                         native_std::forward_as_tuple());
+          } break;
+          case 1: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+          } break;
+          case 2: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2)));
+          } break;
+          case 3: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2),
+                                                      testArg(AS3, MOVE_S3)));
+          } break;
+          default: {
+            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+          } return;                                                   // RETURN
+        }
+      } break;
+      case 3: {
+        switch (NUM_SECOND_ARGS) {
+          case 0: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2),
+                                                      testArg(AF3, MOVE_F3)),
+                         native_std::forward_as_tuple());
+          } break;
+          case 1: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2),
+                                                      testArg(AF3, MOVE_F3)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1)));
+          } break;
+          case 2: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2),
+                                                      testArg(AF3, MOVE_F3)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2)));
+          } break;
+          case 3: {
+            new (p) Pair(native_std::piecewise_construct,
+                         native_std::forward_as_tuple(testArg(AF1, MOVE_F1),
+                                                      testArg(AF2, MOVE_F2),
+                                                      testArg(AF3, MOVE_F3)),
+                         native_std::forward_as_tuple(testArg(AS1, MOVE_S1),
+                                                      testArg(AS2, MOVE_S2),
+                                                      testArg(AS3, MOVE_S3)));
+          } break;
+          default: {
+            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+          } return;                                                   // RETURN
+        }
+      } break;
+      default: {
+        // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+      } return;                                                       // RETURN
+    }
+    u::PairGuard<Pair> pg(p);
+
+    ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
+    ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
+    ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+
+    ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
+    ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
+    ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+
+    const EType& F = p->first;
+
+    ASSERTV(name, AF1 == F.arg01() || 2 == NF1);
+    ASSERTV(name, AF2 == F.arg02() || 2 == NF2);
+    ASSERTV(name, AF3 == F.arg03() || 2 == NF3);
+
+    const EType& S = p->second;
+
+    ASSERTV(name, AS1 == S.arg01() || 2 == NS1);
+    ASSERTV(name, AS2 == S.arg02() || 2 == NS2);
+    ASSERTV(name, AS3 == S.arg03() || 2 == NS3);
+
+    ASSERTV(name, da.numAllocations(), 0 == da.numAllocations());
+}
+
+void TupleTestDriver::testCase13()
+{
+    // These series were machine generated to generate all possible
+    // combinations of calls with no repetition:
+
+    runTestAlloc<0, 2,2,2, 0, 2,2,2>();
+    runTestAlloc<0, 2,2,2, 1, 0,2,2>();
+    runTestAlloc<0, 2,2,2, 1, 1,2,2>();
+    runTestAlloc<0, 2,2,2, 2, 0,0,2>();
+    runTestAlloc<0, 2,2,2, 2, 0,1,2>();
+    runTestAlloc<0, 2,2,2, 2, 1,0,2>();
+    runTestAlloc<0, 2,2,2, 2, 1,1,2>();
+    runTestAlloc<0, 2,2,2, 3, 0,0,0>();
+    runTestAlloc<0, 2,2,2, 3, 0,0,1>();
+    runTestAlloc<0, 2,2,2, 3, 0,1,0>();
+    runTestAlloc<0, 2,2,2, 3, 0,1,1>();
+    runTestAlloc<0, 2,2,2, 3, 1,0,0>();
+    runTestAlloc<0, 2,2,2, 3, 1,0,1>();
+    runTestAlloc<0, 2,2,2, 3, 1,1,0>();
+    runTestAlloc<0, 2,2,2, 3, 1,1,1>();
+    runTestAlloc<1, 0,2,2, 0, 2,2,2>();
+    runTestAlloc<1, 0,2,2, 1, 0,2,2>();
+    runTestAlloc<1, 0,2,2, 1, 1,2,2>();
+    runTestAlloc<1, 0,2,2, 2, 0,0,2>();
+    runTestAlloc<1, 0,2,2, 2, 0,1,2>();
+    runTestAlloc<1, 0,2,2, 2, 1,0,2>();
+    runTestAlloc<1, 0,2,2, 2, 1,1,2>();
+    runTestAlloc<1, 0,2,2, 3, 0,0,0>();
+    runTestAlloc<1, 0,2,2, 3, 0,0,1>();
+    runTestAlloc<1, 0,2,2, 3, 0,1,0>();
+    runTestAlloc<1, 0,2,2, 3, 0,1,1>();
+    runTestAlloc<1, 0,2,2, 3, 1,0,0>();
+    runTestAlloc<1, 0,2,2, 3, 1,0,1>();
+    runTestAlloc<1, 0,2,2, 3, 1,1,0>();
+    runTestAlloc<1, 0,2,2, 3, 1,1,1>();
+    runTestAlloc<1, 1,2,2, 0, 2,2,2>();
+    runTestAlloc<1, 1,2,2, 1, 0,2,2>();
+    runTestAlloc<1, 1,2,2, 1, 1,2,2>();
+    runTestAlloc<1, 1,2,2, 2, 0,0,2>();
+    runTestAlloc<1, 1,2,2, 2, 0,1,2>();
+    runTestAlloc<1, 1,2,2, 2, 1,0,2>();
+    runTestAlloc<1, 1,2,2, 2, 1,1,2>();
+    runTestAlloc<1, 1,2,2, 3, 0,0,0>();
+    runTestAlloc<1, 1,2,2, 3, 0,0,1>();
+    runTestAlloc<1, 1,2,2, 3, 0,1,0>();
+    runTestAlloc<1, 1,2,2, 3, 0,1,1>();
+    runTestAlloc<1, 1,2,2, 3, 1,0,0>();
+    runTestAlloc<1, 1,2,2, 3, 1,0,1>();
+    runTestAlloc<1, 1,2,2, 3, 1,1,0>();
+    runTestAlloc<1, 1,2,2, 3, 1,1,1>();
+    runTestAlloc<2, 0,0,2, 0, 2,2,2>();
+    runTestAlloc<2, 0,0,2, 1, 0,2,2>();
+    runTestAlloc<2, 0,0,2, 1, 1,2,2>();
+    runTestAlloc<2, 0,0,2, 2, 0,0,2>();
+    runTestAlloc<2, 0,0,2, 2, 0,1,2>();
+    runTestAlloc<2, 0,0,2, 2, 1,0,2>();
+    runTestAlloc<2, 0,0,2, 2, 1,1,2>();
+    runTestAlloc<2, 0,0,2, 3, 0,0,0>();
+    runTestAlloc<2, 0,0,2, 3, 0,0,1>();
+    runTestAlloc<2, 0,0,2, 3, 0,1,0>();
+    runTestAlloc<2, 0,0,2, 3, 0,1,1>();
+    runTestAlloc<2, 0,0,2, 3, 1,0,0>();
+    runTestAlloc<2, 0,0,2, 3, 1,0,1>();
+    runTestAlloc<2, 0,0,2, 3, 1,1,0>();
+    runTestAlloc<2, 0,0,2, 3, 1,1,1>();
+    runTestAlloc<2, 0,1,2, 0, 2,2,2>();
+    runTestAlloc<2, 0,1,2, 1, 0,2,2>();
+    runTestAlloc<2, 0,1,2, 1, 1,2,2>();
+    runTestAlloc<2, 0,1,2, 2, 0,0,2>();
+    runTestAlloc<2, 0,1,2, 2, 0,1,2>();
+    runTestAlloc<2, 0,1,2, 2, 1,0,2>();
+    runTestAlloc<2, 0,1,2, 2, 1,1,2>();
+    runTestAlloc<2, 0,1,2, 3, 0,0,0>();
+    runTestAlloc<2, 0,1,2, 3, 0,0,1>();
+    runTestAlloc<2, 0,1,2, 3, 0,1,0>();
+    runTestAlloc<2, 0,1,2, 3, 0,1,1>();
+    runTestAlloc<2, 0,1,2, 3, 1,0,0>();
+    runTestAlloc<2, 0,1,2, 3, 1,0,1>();
+    runTestAlloc<2, 0,1,2, 3, 1,1,0>();
+    runTestAlloc<2, 0,1,2, 3, 1,1,1>();
+    runTestAlloc<2, 1,0,2, 0, 2,2,2>();
+    runTestAlloc<2, 1,0,2, 1, 0,2,2>();
+    runTestAlloc<2, 1,0,2, 1, 1,2,2>();
+    runTestAlloc<2, 1,0,2, 2, 0,0,2>();
+    runTestAlloc<2, 1,0,2, 2, 0,1,2>();
+    runTestAlloc<2, 1,0,2, 2, 1,0,2>();
+    runTestAlloc<2, 1,0,2, 2, 1,1,2>();
+    runTestAlloc<2, 1,0,2, 3, 0,0,0>();
+    runTestAlloc<2, 1,0,2, 3, 0,0,1>();
+    runTestAlloc<2, 1,0,2, 3, 0,1,0>();
+    runTestAlloc<2, 1,0,2, 3, 0,1,1>();
+    runTestAlloc<2, 1,0,2, 3, 1,0,0>();
+    runTestAlloc<2, 1,0,2, 3, 1,0,1>();
+    runTestAlloc<2, 1,0,2, 3, 1,1,0>();
+    runTestAlloc<2, 1,0,2, 3, 1,1,1>();
+    runTestAlloc<2, 1,1,2, 0, 2,2,2>();
+    runTestAlloc<2, 1,1,2, 1, 0,2,2>();
+    runTestAlloc<2, 1,1,2, 1, 1,2,2>();
+    runTestAlloc<2, 1,1,2, 2, 0,0,2>();
+    runTestAlloc<2, 1,1,2, 2, 0,1,2>();
+    runTestAlloc<2, 1,1,2, 2, 1,0,2>();
+    runTestAlloc<2, 1,1,2, 2, 1,1,2>();
+    runTestAlloc<2, 1,1,2, 3, 0,0,0>();
+    runTestAlloc<2, 1,1,2, 3, 0,0,1>();
+    runTestAlloc<2, 1,1,2, 3, 0,1,0>();
+    runTestAlloc<2, 1,1,2, 3, 0,1,1>();
+    runTestAlloc<2, 1,1,2, 3, 1,0,0>();
+    runTestAlloc<2, 1,1,2, 3, 1,0,1>();
+    runTestAlloc<2, 1,1,2, 3, 1,1,0>();
+    runTestAlloc<2, 1,1,2, 3, 1,1,1>();
+    runTestAlloc<3, 0,0,0, 0, 2,2,2>();
+    runTestAlloc<3, 0,0,0, 1, 0,2,2>();
+    runTestAlloc<3, 0,0,0, 1, 1,2,2>();
+    runTestAlloc<3, 0,0,0, 2, 0,0,2>();
+    runTestAlloc<3, 0,0,0, 2, 0,1,2>();
+    runTestAlloc<3, 0,0,0, 2, 1,0,2>();
+    runTestAlloc<3, 0,0,0, 2, 1,1,2>();
+    runTestAlloc<3, 0,0,0, 3, 0,0,0>();
+    runTestAlloc<3, 0,0,0, 3, 0,0,1>();
+    runTestAlloc<3, 0,0,0, 3, 0,1,0>();
+    runTestAlloc<3, 0,0,0, 3, 0,1,1>();
+    runTestAlloc<3, 0,0,0, 3, 1,0,0>();
+    runTestAlloc<3, 0,0,0, 3, 1,0,1>();
+    runTestAlloc<3, 0,0,0, 3, 1,1,0>();
+    runTestAlloc<3, 0,0,0, 3, 1,1,1>();
+    runTestAlloc<3, 0,0,1, 0, 2,2,2>();
+    runTestAlloc<3, 0,0,1, 1, 0,2,2>();
+    runTestAlloc<3, 0,0,1, 1, 1,2,2>();
+    runTestAlloc<3, 0,0,1, 2, 0,0,2>();
+    runTestAlloc<3, 0,0,1, 2, 0,1,2>();
+    runTestAlloc<3, 0,0,1, 2, 1,0,2>();
+    runTestAlloc<3, 0,0,1, 2, 1,1,2>();
+    runTestAlloc<3, 0,0,1, 3, 0,0,0>();
+    runTestAlloc<3, 0,0,1, 3, 0,0,1>();
+    runTestAlloc<3, 0,0,1, 3, 0,1,0>();
+    runTestAlloc<3, 0,0,1, 3, 0,1,1>();
+    runTestAlloc<3, 0,0,1, 3, 1,0,0>();
+    runTestAlloc<3, 0,0,1, 3, 1,0,1>();
+    runTestAlloc<3, 0,0,1, 3, 1,1,0>();
+    runTestAlloc<3, 0,0,1, 3, 1,1,1>();
+    runTestAlloc<3, 0,1,0, 0, 2,2,2>();
+    runTestAlloc<3, 0,1,0, 1, 0,2,2>();
+    runTestAlloc<3, 0,1,0, 1, 1,2,2>();
+    runTestAlloc<3, 0,1,0, 2, 0,0,2>();
+    runTestAlloc<3, 0,1,0, 2, 0,1,2>();
+    runTestAlloc<3, 0,1,0, 2, 1,0,2>();
+    runTestAlloc<3, 0,1,0, 2, 1,1,2>();
+    runTestAlloc<3, 0,1,0, 3, 0,0,0>();
+    runTestAlloc<3, 0,1,0, 3, 0,0,1>();
+    runTestAlloc<3, 0,1,0, 3, 0,1,0>();
+    runTestAlloc<3, 0,1,0, 3, 0,1,1>();
+    runTestAlloc<3, 0,1,0, 3, 1,0,0>();
+    runTestAlloc<3, 0,1,0, 3, 1,0,1>();
+    runTestAlloc<3, 0,1,0, 3, 1,1,0>();
+    runTestAlloc<3, 0,1,0, 3, 1,1,1>();
+    runTestAlloc<3, 0,1,1, 0, 2,2,2>();
+    runTestAlloc<3, 0,1,1, 1, 0,2,2>();
+    runTestAlloc<3, 0,1,1, 1, 1,2,2>();
+    runTestAlloc<3, 0,1,1, 2, 0,0,2>();
+    runTestAlloc<3, 0,1,1, 2, 0,1,2>();
+    runTestAlloc<3, 0,1,1, 2, 1,0,2>();
+    runTestAlloc<3, 0,1,1, 2, 1,1,2>();
+    runTestAlloc<3, 0,1,1, 3, 0,0,0>();
+    runTestAlloc<3, 0,1,1, 3, 0,0,1>();
+    runTestAlloc<3, 0,1,1, 3, 0,1,0>();
+    runTestAlloc<3, 0,1,1, 3, 0,1,1>();
+    runTestAlloc<3, 0,1,1, 3, 1,0,0>();
+    runTestAlloc<3, 0,1,1, 3, 1,0,1>();
+    runTestAlloc<3, 0,1,1, 3, 1,1,0>();
+    runTestAlloc<3, 0,1,1, 3, 1,1,1>();
+    runTestAlloc<3, 1,0,0, 0, 2,2,2>();
+    runTestAlloc<3, 1,0,0, 1, 0,2,2>();
+    runTestAlloc<3, 1,0,0, 1, 1,2,2>();
+    runTestAlloc<3, 1,0,0, 2, 0,0,2>();
+    runTestAlloc<3, 1,0,0, 2, 0,1,2>();
+    runTestAlloc<3, 1,0,0, 2, 1,0,2>();
+    runTestAlloc<3, 1,0,0, 2, 1,1,2>();
+    runTestAlloc<3, 1,0,0, 3, 0,0,0>();
+    runTestAlloc<3, 1,0,0, 3, 0,0,1>();
+    runTestAlloc<3, 1,0,0, 3, 0,1,0>();
+    runTestAlloc<3, 1,0,0, 3, 0,1,1>();
+    runTestAlloc<3, 1,0,0, 3, 1,0,0>();
+    runTestAlloc<3, 1,0,0, 3, 1,0,1>();
+    runTestAlloc<3, 1,0,0, 3, 1,1,0>();
+    runTestAlloc<3, 1,0,0, 3, 1,1,1>();
+    runTestAlloc<3, 1,0,1, 0, 2,2,2>();
+    runTestAlloc<3, 1,0,1, 1, 0,2,2>();
+    runTestAlloc<3, 1,0,1, 1, 1,2,2>();
+    runTestAlloc<3, 1,0,1, 2, 0,0,2>();
+    runTestAlloc<3, 1,0,1, 2, 0,1,2>();
+    runTestAlloc<3, 1,0,1, 2, 1,0,2>();
+    runTestAlloc<3, 1,0,1, 2, 1,1,2>();
+    runTestAlloc<3, 1,0,1, 3, 0,0,0>();
+    runTestAlloc<3, 1,0,1, 3, 0,0,1>();
+    runTestAlloc<3, 1,0,1, 3, 0,1,0>();
+    runTestAlloc<3, 1,0,1, 3, 0,1,1>();
+    runTestAlloc<3, 1,0,1, 3, 1,0,0>();
+    runTestAlloc<3, 1,0,1, 3, 1,0,1>();
+    runTestAlloc<3, 1,0,1, 3, 1,1,0>();
+    runTestAlloc<3, 1,0,1, 3, 1,1,1>();
+    runTestAlloc<3, 1,1,0, 0, 2,2,2>();
+    runTestAlloc<3, 1,1,0, 1, 0,2,2>();
+    runTestAlloc<3, 1,1,0, 1, 1,2,2>();
+    runTestAlloc<3, 1,1,0, 2, 0,0,2>();
+    runTestAlloc<3, 1,1,0, 2, 0,1,2>();
+    runTestAlloc<3, 1,1,0, 2, 1,0,2>();
+    runTestAlloc<3, 1,1,0, 2, 1,1,2>();
+    runTestAlloc<3, 1,1,0, 3, 0,0,0>();
+    runTestAlloc<3, 1,1,0, 3, 0,0,1>();
+    runTestAlloc<3, 1,1,0, 3, 0,1,0>();
+    runTestAlloc<3, 1,1,0, 3, 0,1,1>();
+    runTestAlloc<3, 1,1,0, 3, 1,0,0>();
+    runTestAlloc<3, 1,1,0, 3, 1,0,1>();
+    runTestAlloc<3, 1,1,0, 3, 1,1,0>();
+    runTestAlloc<3, 1,1,0, 3, 1,1,1>();
+    runTestAlloc<3, 1,1,1, 0, 2,2,2>();
+    runTestAlloc<3, 1,1,1, 1, 0,2,2>();
+    runTestAlloc<3, 1,1,1, 1, 1,2,2>();
+    runTestAlloc<3, 1,1,1, 2, 0,0,2>();
+    runTestAlloc<3, 1,1,1, 2, 0,1,2>();
+    runTestAlloc<3, 1,1,1, 2, 1,0,2>();
+    runTestAlloc<3, 1,1,1, 2, 1,1,2>();
+    runTestAlloc<3, 1,1,1, 3, 0,0,0>();
+    runTestAlloc<3, 1,1,1, 3, 0,0,1>();
+    runTestAlloc<3, 1,1,1, 3, 0,1,0>();
+    runTestAlloc<3, 1,1,1, 3, 0,1,1>();
+    runTestAlloc<3, 1,1,1, 3, 1,0,0>();
+    runTestAlloc<3, 1,1,1, 3, 1,0,1>();
+    runTestAlloc<3, 1,1,1, 3, 1,1,0>();
+    runTestAlloc<3, 1,1,1, 3, 1,1,1>();
+
+    runTestNoAlloc<0, 2,2,2, 0, 2,2,2>();
+    runTestNoAlloc<0, 2,2,2, 1, 0,2,2>();
+    runTestNoAlloc<0, 2,2,2, 1, 1,2,2>();
+    runTestNoAlloc<0, 2,2,2, 2, 0,0,2>();
+    runTestNoAlloc<0, 2,2,2, 2, 0,1,2>();
+    runTestNoAlloc<0, 2,2,2, 2, 1,0,2>();
+    runTestNoAlloc<0, 2,2,2, 2, 1,1,2>();
+    runTestNoAlloc<0, 2,2,2, 3, 0,0,0>();
+    runTestNoAlloc<0, 2,2,2, 3, 0,0,1>();
+    runTestNoAlloc<0, 2,2,2, 3, 0,1,0>();
+    runTestNoAlloc<0, 2,2,2, 3, 0,1,1>();
+    runTestNoAlloc<0, 2,2,2, 3, 1,0,0>();
+    runTestNoAlloc<0, 2,2,2, 3, 1,0,1>();
+    runTestNoAlloc<0, 2,2,2, 3, 1,1,0>();
+    runTestNoAlloc<0, 2,2,2, 3, 1,1,1>();
+    runTestNoAlloc<1, 0,2,2, 0, 2,2,2>();
+    runTestNoAlloc<1, 0,2,2, 1, 0,2,2>();
+    runTestNoAlloc<1, 0,2,2, 1, 1,2,2>();
+    runTestNoAlloc<1, 0,2,2, 2, 0,0,2>();
+    runTestNoAlloc<1, 0,2,2, 2, 0,1,2>();
+    runTestNoAlloc<1, 0,2,2, 2, 1,0,2>();
+    runTestNoAlloc<1, 0,2,2, 2, 1,1,2>();
+    runTestNoAlloc<1, 0,2,2, 3, 0,0,0>();
+    runTestNoAlloc<1, 0,2,2, 3, 0,0,1>();
+    runTestNoAlloc<1, 0,2,2, 3, 0,1,0>();
+    runTestNoAlloc<1, 0,2,2, 3, 0,1,1>();
+    runTestNoAlloc<1, 0,2,2, 3, 1,0,0>();
+    runTestNoAlloc<1, 0,2,2, 3, 1,0,1>();
+    runTestNoAlloc<1, 0,2,2, 3, 1,1,0>();
+    runTestNoAlloc<1, 0,2,2, 3, 1,1,1>();
+    runTestNoAlloc<1, 1,2,2, 0, 2,2,2>();
+    runTestNoAlloc<1, 1,2,2, 1, 0,2,2>();
+    runTestNoAlloc<1, 1,2,2, 1, 1,2,2>();
+    runTestNoAlloc<1, 1,2,2, 2, 0,0,2>();
+    runTestNoAlloc<1, 1,2,2, 2, 0,1,2>();
+    runTestNoAlloc<1, 1,2,2, 2, 1,0,2>();
+    runTestNoAlloc<1, 1,2,2, 2, 1,1,2>();
+    runTestNoAlloc<1, 1,2,2, 3, 0,0,0>();
+    runTestNoAlloc<1, 1,2,2, 3, 0,0,1>();
+    runTestNoAlloc<1, 1,2,2, 3, 0,1,0>();
+    runTestNoAlloc<1, 1,2,2, 3, 0,1,1>();
+    runTestNoAlloc<1, 1,2,2, 3, 1,0,0>();
+    runTestNoAlloc<1, 1,2,2, 3, 1,0,1>();
+    runTestNoAlloc<1, 1,2,2, 3, 1,1,0>();
+    runTestNoAlloc<1, 1,2,2, 3, 1,1,1>();
+    runTestNoAlloc<2, 0,0,2, 0, 2,2,2>();
+    runTestNoAlloc<2, 0,0,2, 1, 0,2,2>();
+    runTestNoAlloc<2, 0,0,2, 1, 1,2,2>();
+    runTestNoAlloc<2, 0,0,2, 2, 0,0,2>();
+    runTestNoAlloc<2, 0,0,2, 2, 0,1,2>();
+    runTestNoAlloc<2, 0,0,2, 2, 1,0,2>();
+    runTestNoAlloc<2, 0,0,2, 2, 1,1,2>();
+    runTestNoAlloc<2, 0,0,2, 3, 0,0,0>();
+    runTestNoAlloc<2, 0,0,2, 3, 0,0,1>();
+    runTestNoAlloc<2, 0,0,2, 3, 0,1,0>();
+    runTestNoAlloc<2, 0,0,2, 3, 0,1,1>();
+    runTestNoAlloc<2, 0,0,2, 3, 1,0,0>();
+    runTestNoAlloc<2, 0,0,2, 3, 1,0,1>();
+    runTestNoAlloc<2, 0,0,2, 3, 1,1,0>();
+    runTestNoAlloc<2, 0,0,2, 3, 1,1,1>();
+    runTestNoAlloc<2, 0,1,2, 0, 2,2,2>();
+    runTestNoAlloc<2, 0,1,2, 1, 0,2,2>();
+    runTestNoAlloc<2, 0,1,2, 1, 1,2,2>();
+    runTestNoAlloc<2, 0,1,2, 2, 0,0,2>();
+    runTestNoAlloc<2, 0,1,2, 2, 0,1,2>();
+    runTestNoAlloc<2, 0,1,2, 2, 1,0,2>();
+    runTestNoAlloc<2, 0,1,2, 2, 1,1,2>();
+    runTestNoAlloc<2, 0,1,2, 3, 0,0,0>();
+    runTestNoAlloc<2, 0,1,2, 3, 0,0,1>();
+    runTestNoAlloc<2, 0,1,2, 3, 0,1,0>();
+    runTestNoAlloc<2, 0,1,2, 3, 0,1,1>();
+    runTestNoAlloc<2, 0,1,2, 3, 1,0,0>();
+    runTestNoAlloc<2, 0,1,2, 3, 1,0,1>();
+    runTestNoAlloc<2, 0,1,2, 3, 1,1,0>();
+    runTestNoAlloc<2, 0,1,2, 3, 1,1,1>();
+    runTestNoAlloc<2, 1,0,2, 0, 2,2,2>();
+    runTestNoAlloc<2, 1,0,2, 1, 0,2,2>();
+    runTestNoAlloc<2, 1,0,2, 1, 1,2,2>();
+    runTestNoAlloc<2, 1,0,2, 2, 0,0,2>();
+    runTestNoAlloc<2, 1,0,2, 2, 0,1,2>();
+    runTestNoAlloc<2, 1,0,2, 2, 1,0,2>();
+    runTestNoAlloc<2, 1,0,2, 2, 1,1,2>();
+    runTestNoAlloc<2, 1,0,2, 3, 0,0,0>();
+    runTestNoAlloc<2, 1,0,2, 3, 0,0,1>();
+    runTestNoAlloc<2, 1,0,2, 3, 0,1,0>();
+    runTestNoAlloc<2, 1,0,2, 3, 0,1,1>();
+    runTestNoAlloc<2, 1,0,2, 3, 1,0,0>();
+    runTestNoAlloc<2, 1,0,2, 3, 1,0,1>();
+    runTestNoAlloc<2, 1,0,2, 3, 1,1,0>();
+    runTestNoAlloc<2, 1,0,2, 3, 1,1,1>();
+    runTestNoAlloc<2, 1,1,2, 0, 2,2,2>();
+    runTestNoAlloc<2, 1,1,2, 1, 0,2,2>();
+    runTestNoAlloc<2, 1,1,2, 1, 1,2,2>();
+    runTestNoAlloc<2, 1,1,2, 2, 0,0,2>();
+    runTestNoAlloc<2, 1,1,2, 2, 0,1,2>();
+    runTestNoAlloc<2, 1,1,2, 2, 1,0,2>();
+    runTestNoAlloc<2, 1,1,2, 2, 1,1,2>();
+    runTestNoAlloc<2, 1,1,2, 3, 0,0,0>();
+    runTestNoAlloc<2, 1,1,2, 3, 0,0,1>();
+    runTestNoAlloc<2, 1,1,2, 3, 0,1,0>();
+    runTestNoAlloc<2, 1,1,2, 3, 0,1,1>();
+    runTestNoAlloc<2, 1,1,2, 3, 1,0,0>();
+    runTestNoAlloc<2, 1,1,2, 3, 1,0,1>();
+    runTestNoAlloc<2, 1,1,2, 3, 1,1,0>();
+    runTestNoAlloc<2, 1,1,2, 3, 1,1,1>();
+    runTestNoAlloc<3, 0,0,0, 0, 2,2,2>();
+    runTestNoAlloc<3, 0,0,0, 1, 0,2,2>();
+    runTestNoAlloc<3, 0,0,0, 1, 1,2,2>();
+    runTestNoAlloc<3, 0,0,0, 2, 0,0,2>();
+    runTestNoAlloc<3, 0,0,0, 2, 0,1,2>();
+    runTestNoAlloc<3, 0,0,0, 2, 1,0,2>();
+    runTestNoAlloc<3, 0,0,0, 2, 1,1,2>();
+    runTestNoAlloc<3, 0,0,0, 3, 0,0,0>();
+    runTestNoAlloc<3, 0,0,0, 3, 0,0,1>();
+    runTestNoAlloc<3, 0,0,0, 3, 0,1,0>();
+    runTestNoAlloc<3, 0,0,0, 3, 0,1,1>();
+    runTestNoAlloc<3, 0,0,0, 3, 1,0,0>();
+    runTestNoAlloc<3, 0,0,0, 3, 1,0,1>();
+    runTestNoAlloc<3, 0,0,0, 3, 1,1,0>();
+    runTestNoAlloc<3, 0,0,0, 3, 1,1,1>();
+    runTestNoAlloc<3, 0,0,1, 0, 2,2,2>();
+    runTestNoAlloc<3, 0,0,1, 1, 0,2,2>();
+    runTestNoAlloc<3, 0,0,1, 1, 1,2,2>();
+    runTestNoAlloc<3, 0,0,1, 2, 0,0,2>();
+    runTestNoAlloc<3, 0,0,1, 2, 0,1,2>();
+    runTestNoAlloc<3, 0,0,1, 2, 1,0,2>();
+    runTestNoAlloc<3, 0,0,1, 2, 1,1,2>();
+    runTestNoAlloc<3, 0,0,1, 3, 0,0,0>();
+    runTestNoAlloc<3, 0,0,1, 3, 0,0,1>();
+    runTestNoAlloc<3, 0,0,1, 3, 0,1,0>();
+    runTestNoAlloc<3, 0,0,1, 3, 0,1,1>();
+    runTestNoAlloc<3, 0,0,1, 3, 1,0,0>();
+    runTestNoAlloc<3, 0,0,1, 3, 1,0,1>();
+    runTestNoAlloc<3, 0,0,1, 3, 1,1,0>();
+    runTestNoAlloc<3, 0,0,1, 3, 1,1,1>();
+    runTestNoAlloc<3, 0,1,0, 0, 2,2,2>();
+    runTestNoAlloc<3, 0,1,0, 1, 0,2,2>();
+    runTestNoAlloc<3, 0,1,0, 1, 1,2,2>();
+    runTestNoAlloc<3, 0,1,0, 2, 0,0,2>();
+    runTestNoAlloc<3, 0,1,0, 2, 0,1,2>();
+    runTestNoAlloc<3, 0,1,0, 2, 1,0,2>();
+    runTestNoAlloc<3, 0,1,0, 2, 1,1,2>();
+    runTestNoAlloc<3, 0,1,0, 3, 0,0,0>();
+    runTestNoAlloc<3, 0,1,0, 3, 0,0,1>();
+    runTestNoAlloc<3, 0,1,0, 3, 0,1,0>();
+    runTestNoAlloc<3, 0,1,0, 3, 0,1,1>();
+    runTestNoAlloc<3, 0,1,0, 3, 1,0,0>();
+    runTestNoAlloc<3, 0,1,0, 3, 1,0,1>();
+    runTestNoAlloc<3, 0,1,0, 3, 1,1,0>();
+    runTestNoAlloc<3, 0,1,0, 3, 1,1,1>();
+    runTestNoAlloc<3, 0,1,1, 0, 2,2,2>();
+    runTestNoAlloc<3, 0,1,1, 1, 0,2,2>();
+    runTestNoAlloc<3, 0,1,1, 1, 1,2,2>();
+    runTestNoAlloc<3, 0,1,1, 2, 0,0,2>();
+    runTestNoAlloc<3, 0,1,1, 2, 0,1,2>();
+    runTestNoAlloc<3, 0,1,1, 2, 1,0,2>();
+    runTestNoAlloc<3, 0,1,1, 2, 1,1,2>();
+    runTestNoAlloc<3, 0,1,1, 3, 0,0,0>();
+    runTestNoAlloc<3, 0,1,1, 3, 0,0,1>();
+    runTestNoAlloc<3, 0,1,1, 3, 0,1,0>();
+    runTestNoAlloc<3, 0,1,1, 3, 0,1,1>();
+    runTestNoAlloc<3, 0,1,1, 3, 1,0,0>();
+    runTestNoAlloc<3, 0,1,1, 3, 1,0,1>();
+    runTestNoAlloc<3, 0,1,1, 3, 1,1,0>();
+    runTestNoAlloc<3, 0,1,1, 3, 1,1,1>();
+    runTestNoAlloc<3, 1,0,0, 0, 2,2,2>();
+    runTestNoAlloc<3, 1,0,0, 1, 0,2,2>();
+    runTestNoAlloc<3, 1,0,0, 1, 1,2,2>();
+    runTestNoAlloc<3, 1,0,0, 2, 0,0,2>();
+    runTestNoAlloc<3, 1,0,0, 2, 0,1,2>();
+    runTestNoAlloc<3, 1,0,0, 2, 1,0,2>();
+    runTestNoAlloc<3, 1,0,0, 2, 1,1,2>();
+    runTestNoAlloc<3, 1,0,0, 3, 0,0,0>();
+    runTestNoAlloc<3, 1,0,0, 3, 0,0,1>();
+    runTestNoAlloc<3, 1,0,0, 3, 0,1,0>();
+    runTestNoAlloc<3, 1,0,0, 3, 0,1,1>();
+    runTestNoAlloc<3, 1,0,0, 3, 1,0,0>();
+    runTestNoAlloc<3, 1,0,0, 3, 1,0,1>();
+    runTestNoAlloc<3, 1,0,0, 3, 1,1,0>();
+    runTestNoAlloc<3, 1,0,0, 3, 1,1,1>();
+    runTestNoAlloc<3, 1,0,1, 0, 2,2,2>();
+    runTestNoAlloc<3, 1,0,1, 1, 0,2,2>();
+    runTestNoAlloc<3, 1,0,1, 1, 1,2,2>();
+    runTestNoAlloc<3, 1,0,1, 2, 0,0,2>();
+    runTestNoAlloc<3, 1,0,1, 2, 0,1,2>();
+    runTestNoAlloc<3, 1,0,1, 2, 1,0,2>();
+    runTestNoAlloc<3, 1,0,1, 2, 1,1,2>();
+    runTestNoAlloc<3, 1,0,1, 3, 0,0,0>();
+    runTestNoAlloc<3, 1,0,1, 3, 0,0,1>();
+    runTestNoAlloc<3, 1,0,1, 3, 0,1,0>();
+    runTestNoAlloc<3, 1,0,1, 3, 0,1,1>();
+    runTestNoAlloc<3, 1,0,1, 3, 1,0,0>();
+    runTestNoAlloc<3, 1,0,1, 3, 1,0,1>();
+    runTestNoAlloc<3, 1,0,1, 3, 1,1,0>();
+    runTestNoAlloc<3, 1,0,1, 3, 1,1,1>();
+    runTestNoAlloc<3, 1,1,0, 0, 2,2,2>();
+    runTestNoAlloc<3, 1,1,0, 1, 0,2,2>();
+    runTestNoAlloc<3, 1,1,0, 1, 1,2,2>();
+    runTestNoAlloc<3, 1,1,0, 2, 0,0,2>();
+    runTestNoAlloc<3, 1,1,0, 2, 0,1,2>();
+    runTestNoAlloc<3, 1,1,0, 2, 1,0,2>();
+    runTestNoAlloc<3, 1,1,0, 2, 1,1,2>();
+    runTestNoAlloc<3, 1,1,0, 3, 0,0,0>();
+    runTestNoAlloc<3, 1,1,0, 3, 0,0,1>();
+    runTestNoAlloc<3, 1,1,0, 3, 0,1,0>();
+    runTestNoAlloc<3, 1,1,0, 3, 0,1,1>();
+    runTestNoAlloc<3, 1,1,0, 3, 1,0,0>();
+    runTestNoAlloc<3, 1,1,0, 3, 1,0,1>();
+    runTestNoAlloc<3, 1,1,0, 3, 1,1,0>();
+    runTestNoAlloc<3, 1,1,0, 3, 1,1,1>();
+    runTestNoAlloc<3, 1,1,1, 0, 2,2,2>();
+    runTestNoAlloc<3, 1,1,1, 1, 0,2,2>();
+    runTestNoAlloc<3, 1,1,1, 1, 1,2,2>();
+    runTestNoAlloc<3, 1,1,1, 2, 0,0,2>();
+    runTestNoAlloc<3, 1,1,1, 2, 0,1,2>();
+    runTestNoAlloc<3, 1,1,1, 2, 1,0,2>();
+    runTestNoAlloc<3, 1,1,1, 2, 1,1,2>();
+    runTestNoAlloc<3, 1,1,1, 3, 0,0,0>();
+    runTestNoAlloc<3, 1,1,1, 3, 0,0,1>();
+    runTestNoAlloc<3, 1,1,1, 3, 0,1,0>();
+    runTestNoAlloc<3, 1,1,1, 3, 0,1,1>();
+    runTestNoAlloc<3, 1,1,1, 3, 1,0,0>();
+    runTestNoAlloc<3, 1,1,1, 3, 1,0,1>();
+    runTestNoAlloc<3, 1,1,1, 3, 1,1,0>();
+    runTestNoAlloc<3, 1,1,1, 3, 1,1,1>();
+}
+#endif
+
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 class TestDriver {
     // PRIVATE TYPES
@@ -1914,11 +3037,12 @@ class TestDriver {
                        bslma::UsesBslmaAllocator<FromFirst >::value ||
                        bslma::UsesBslmaAllocator<FromSecond>::value> UsesBslma;
 
-    enum { k_ALLOC_1 = bslma::UsesBslmaAllocator<ToFirst>::value,
-           k_ALLOC_2 = bslma::UsesBslmaAllocator<ToSecond>::value,
+    enum TestDriverBools {
+                      k_ALLOC_1 = bslma::UsesBslmaAllocator<ToFirst>::value,
+                      k_ALLOC_2 = bslma::UsesBslmaAllocator<ToSecond>::value,
 
-           k_MOVE_1  = u::IsMoveAware<ToFirst>::value,
-           k_MOVE_2  = u::IsMoveAware<ToSecond>::value };
+                      k_MOVE_1 = u::IsMoveAware<ToFirst>::value,
+                      k_MOVE_2 = u::IsMoveAware<ToSecond>::value };
 
     // Organization of functions: It turns out that the c'tor for 'pair' only
     // takes an allocator argument if the members of 'pair' allocate memory,
@@ -1936,7 +3060,17 @@ class TestDriver {
     // allocates, both do.
 
   public:
-    // MANIPULATOR
+    // MANIPULATORS
+    static void testCase14(bsl::false_type pairAllocates);
+    static void testCase14(bsl::true_type  pairAllocates);
+    static void testCase14();
+        // Test constructor from 'native_std::pair'.
+
+    static void testCase12(bsl::false_type pairAllocates);
+    static void testCase12(bsl::true_type  pairAllocates);
+    static void testCase12();
+        // Test move assignment.
+
     static void testCase11(bsl::false_type pairAllocates);
     static void testCase11(bsl::true_type  pairAllocates);
     static void testCase11();
@@ -1957,6 +3091,336 @@ class TestDriver {
         // Testing pair to pair move c'tors.
 };
 
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
+                                                               bsl::false_type)
+{
+#if 1
+    // TBD: reenable
+    if (veryVerbose) printf("TD<%s, %s>::case14, no alloc, *** DISABLED ***\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+#else
+    if (veryVerbose) printf("TD<%s, %s>::case14, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        bsl::pair<FromPair, bool> tp(native_std::make_pair(fp, false));
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+    }
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        bsl::pair<ToPair, bool> tp(native_std::make_pair(fp, false));
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+    }
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        native_std::pair<FromPair, bool> np(fp, false);
+
+        bsl::pair<FromPair, bool> tp(np);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+    }
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        native_std::pair<FromPair, bool> np(fp, false);
+
+        bsl::pair<ToPair, bool> tp(np);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+    }
+
+    ASSERT(0 == da.numAllocations());
+#endif
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
+                                                                bsl::true_type)
+{
+#if 1
+    // TBD: reenable
+    if (veryVerbose) printf("TD<%s, %s>::case14, alloc, *** DISABLED ***\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+#else
+    if (veryVerbose) printf("TD<%s, %s>::case14, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    Int64 taSoFar = 0, tbSoFar = 0, daSoFar = 0;
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        bsl::pair<FromPair, bool> tp(native_std::make_pair(fp, false), &tb);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+
+        ASSERT(u::allocatorMatches(tp.first.first,  &tb));
+        ASSERT(u::allocatorMatches(tp.first.second, &tb));
+    }
+
+    ASSERT(taSoFar < ta.numAllocations());
+    ASSERT(tbSoFar < tb.numAllocations());
+    ASSERT(daSoFar < da.numAllocations());
+    taSoFar = ta.numAllocations();
+    tbSoFar = tb.numAllocations();
+    daSoFar = da.numAllocations();
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        bsl::pair<ToPair, bool> tp(native_std::make_pair(fp, false), &tb);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+
+        ASSERT(u::allocatorMatches(tp.first.first,  &tb));
+        ASSERT(u::allocatorMatches(tp.first.second, &tb));
+    }
+
+    ASSERT(taSoFar < ta.numAllocations());
+    ASSERT(tbSoFar < tb.numAllocations());
+    ASSERT(daSoFar < da.numAllocations());
+    taSoFar = ta.numAllocations();
+    tbSoFar = tb.numAllocations();
+    daSoFar = da.numAllocations();
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        native_std::pair<FromPair, bool> np(fp, false);
+
+        bsl::pair<FromPair, bool> tp(np, &tb);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+
+        ASSERT(u::allocatorMatches(tp.first.first,  &tb));
+        ASSERT(u::allocatorMatches(tp.first.second, &tb));
+    }
+
+    ASSERT(taSoFar < ta.numAllocations());
+    ASSERT(tbSoFar < tb.numAllocations());
+    ASSERT(daSoFar < da.numAllocations());
+    taSoFar = ta.numAllocations();
+    tbSoFar = tb.numAllocations();
+    daSoFar = da.numAllocations();
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        native_std::pair<FromPair, bool> np(fp, false);
+
+        bsl::pair<ToPair, bool> tp(np, &tb);
+        ASSERT(!tp.second);
+        ASSERT('F'                    == u::valueOf(tp.first.first));
+        ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
+
+        ASSERT(u::allocatorMatches(tp.first.first,  &tb));
+        ASSERT(u::allocatorMatches(tp.first.second, &tb));
+    }
+
+    ASSERT(taSoFar < ta.numAllocations());
+    ASSERT(tbSoFar < tb.numAllocations());
+    ASSERT(daSoFar < da.numAllocations());
+#endif
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14()
+{
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
+
+    testCase14(UsesBslma());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12(
+                                                               bsl::false_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case12, no alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'A', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('A' == u::valueOf(tp));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('F' == u::valueOf(fp));
+
+        ToPair *tpp = &(tp = MoveUtil::move(fp));
+
+        ASSERT(&tp == tpp);
+        ASSERT('F' == u::valueOf(tp));
+
+        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedFrom(fp));
+    }
+
+    ASSERT(0 == ta.numAllocations());
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12(
+                                                                bsl::true_type)
+{
+    if (veryVerbose) printf("TD<%s, %s>::case12, alloc\n",
+                            NameOf<ToFirst>().name(),
+                            NameOf<ToSecond>().name());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'A', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('A' == u::valueOf(tp));
+
+        ASSERT(u::allocatorMatches(tp.first,  &ta));
+        ASSERT(u::allocatorMatches(tp.second, &ta));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'F', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('F' == u::valueOf(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+
+        ToPair *tpp = &(tp = MoveUtil::move(fp));
+
+        ASSERT(&tp == tpp);
+        ASSERT('F' == u::valueOf(tp));
+
+        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedFrom(fp));
+
+        ASSERT(0 < ta.numAllocations());
+    }
+
+    {
+        bsls::ObjectBuffer<ToPair> otp;
+        ToPair& tp = u::initPair(&otp, 'B', &ta);
+        u::PairGuard<ToPair> tpg(&tp);
+
+        ASSERT(u::isNotMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+        ASSERT('B' == u::valueOf(tp));
+
+        ASSERT(u::allocatorMatches(tp.first,  &ta));
+        ASSERT(u::allocatorMatches(tp.second, &ta));
+
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'H', &tb);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isNotMovedFrom(fp));
+        ASSERT('H' == u::valueOf(fp));
+
+        ASSERT(u::allocatorMatches(fp.first,  &tb));
+        ASSERT(u::allocatorMatches(fp.second, &tb));
+
+        ToPair *tpp = &(tp = MoveUtil::move(fp));
+
+        ASSERT(&tp == tpp);
+        ASSERT('H' == u::valueOf(tp));
+
+        ASSERT(u::isMovedInto(tp));
+        ASSERT(u::isNotMovedFrom(tp));
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::isMovedFrom(fp));
+    }
+
+    ASSERT(0 < tb.numAllocations());
+
+    ASSERT(0 == da.numAllocations());
+}
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase12()
+{
+    // Dispatch depending on whether any of the parameter types allocate
+    // memory.
+
+    testCase12(UsesBslma());
+}
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase11(
@@ -2706,7 +4170,7 @@ struct MetaTestDriver {
     typedef TestDriver<u::Base,   u::Base,   u::Derived,   u::Derived  > Dr11;
 
     typedef TestDriver<TYPE,      u::AlBase, TYPE,         u::AlDerived> Dr0a;
-    typedef TestDriver<u::AlBase, TYPE,      u::AlDerived, TYPE       >  Dra0;
+    typedef TestDriver<u::AlBase, TYPE,      u::AlDerived, TYPE        > Dra0;
     typedef TestDriver<u::AlBase, u::AlBase, u::AlDerived, u::AlDerived> Draa;
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2717,6 +4181,8 @@ struct MetaTestDriver {
 
 #endif
 
+    static void testCase14();
+    static void testCase12();
     static void testCase11();
     static void testCase10();
     static void testCase9();
@@ -2767,6 +4233,8 @@ void MetaTestDriver<TYPE>::funcName()                                         \
 
 #endif
 
+u_META_FUNCTION(testCase14)
+u_META_FUNCTION(testCase12)
 u_META_FUNCTION(testCase11)
 u_META_FUNCTION(testCase10)
 u_META_FUNCTION(testCase9)
@@ -2819,211 +4287,40 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // BREATHING TEST for
-        //
-        //   pair(piecewise_construct_t, tuple aArgs, tuple bArgs);
-        //   pair(piecewise_construct_t, tuple aArgs, tuple bArgs, alloc);
+        // TESTING C'TOR FROM NATIVE_STD::PAIR
         // --------------------------------------------------------------------
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
-        typedef bsl::pair<int, bsltf::MovableAllocTestType>        ObjA1;
 
-        typedef bsltf::TemplateTestFacility TstFacility;
-        {
-            ObjA1 a1(std::piecewise_construct,
-                     std::forward_as_tuple(2),
-                     std::forward_as_tuple(4));
-            ASSERT(2 == a1.first);
-            ASSERT(4 == TstFacility::getIdentifier(a1.second));
-        }
-        {
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            bslma::Default::setDefaultAllocatorRaw(&da);
-            bslma::TestAllocatorMonitor dam(&da);
-
-            ObjA1 a1(std::piecewise_construct,
-                     std::forward_as_tuple(2),
-                     std::forward_as_tuple(4),
-                     &oa);
-            ASSERT(2 == a1.first);
-            ASSERT(4 == TstFacility::getIdentifier(a1.second));
-            ASSERT(&oa == a1.second.allocator());
-
-            ASSERT(dam.isTotalSame());
-        }
-        {
-            typedef bsl::pair<int, int> Obj;
-            typedef bsl::allocator<Obj> A;
-
-            bsls::ObjectBuffer<Obj> buffer;
-            Obj *p = (Obj *) buffer.buffer();
-
-            bslma::TestAllocator testAlloc;
-            A m(&testAlloc);
-
-            bsl::allocator_traits<A>::construct(m, p,
-                                                std::piecewise_construct,
-                                                std::forward_as_tuple(1),
-                                                std::forward_as_tuple(2));
-            const Obj& X = buffer.object();
-            ASSERTV(X.first , 1 == X.first );
-            ASSERTV(X.second, 2 == X.second);
-        }
-#endif
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase14,
+                      signed char,
+                      bsltf::AllocTestType);
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // BREATHING TEST for
-        //
-        //   pair& operator=(pair&& rhs);
+        // TESTING TUPLE-BASED CONSTRUCTION
         // --------------------------------------------------------------------
 
-        typedef bsl::pair<int, bsltf::MovableAllocTestType>        ObjA1;
-        typedef bsl::pair<bsltf::MovableAllocTestType, int>        ObjA2;
-
-        typedef bsltf::MoveState            MovState;
-        typedef bslmf::MovableRefUtil       MovUtil;
-        typedef bsltf::TemplateTestFacility TstFacility;
-
-        bsltf::MoveState::Enum miState, mfState;
-        {
-            bsltf::MovableAllocTestType t;
-            ObjA1 s1(1, t);
-            mfState = TstFacility::getMovedFromState(s1.second);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA1 d1(0, t);
-            miState = TstFacility::getMovedIntoState(d1.second);
-            ASSERT(MovState::e_NOT_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            d1 = MovUtil::move(s1);
-
-            ASSERT(1 == d1.first);
-            mfState = TstFacility::getMovedFromState(s1.second);
-            miState = TstFacility::getMovedIntoState(d1.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-        }
-        {
-            bsltf::MovableAllocTestType t;
-            ObjA2 s2(t, 1);
-            mfState = TstFacility::getMovedFromState(s2.first);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA2 d2(t, 0);
-            miState = TstFacility::getMovedIntoState(d2.first);
-            ASSERT(MovState::e_NOT_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            d2 = MovUtil::move(s2);
-
-            ASSERT(1 == d2.second);
-            mfState = TstFacility::getMovedFromState(s2.first);
-            miState = TstFacility::getMovedIntoState(d2.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-        }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+        TupleTestDriver::testCase13();
+#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // BREATHING TEST for
+        // TESTING MOVE ASSIGNMENT
         //
-        //   template <class U1, class U2> pair& operator=(pair<U1, U2>&& rhs);
+        // template <class U1, class U2> pair& operator=(pair<U1, U2>&&);
         // --------------------------------------------------------------------
 
-        typedef bsl::pair<u::Base *,    bsltf::MovableAllocTestType> ObjA1;
-        typedef bsl::pair<u::Derived *, bsltf::MovableAllocTestType> ObjB1;
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase12,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-        typedef bsl::pair<bsltf::MovableAllocTestType, u::Base *>    ObjA2;
-        typedef bsl::pair<bsltf::MovableAllocTestType, u::Derived *> ObjB2;
-
-        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
-        typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
-
-        typedef bsltf::MoveState            MovState;
-        typedef bslmf::MovableRefUtil       MovUtil;
-        typedef bsltf::TemplateTestFacility TstFacility;
-
-        bsltf::MoveState::Enum miState, mfState;
-        {
-            bsltf::MovableAllocTestType t;
-            ObjB1 b1((u::Derived *) 0, t);
-            mfState = TstFacility::getMovedFromState(b1.second);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA1 a1((u::Base *) 0, t);
-            miState = TstFacility::getMovedIntoState(a1.second);
-            ASSERT(MovState::e_NOT_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            a1 = MovUtil::move(b1);
-
-            mfState = TstFacility::getMovedFromState(b1.second);
-            miState = TstFacility::getMovedIntoState(a1.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-        }
-        {
-            bsltf::MovableAllocTestType t;
-            ObjB2 b2(t, (u::Derived *) 0);
-            mfState = TstFacility::getMovedFromState(b2.first);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA2 a2(t, (u::Base *) 0);
-            miState = TstFacility::getMovedIntoState(a2.first);
-            ASSERT(MovState::e_NOT_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            a2 = MovUtil::move(b2);
-
-            mfState = TstFacility::getMovedFromState(b2.first);
-            miState = TstFacility::getMovedIntoState(a2.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-        }
-        {
-            bsltf::MoveOnlyAllocTestType t(3);
-            mfState = TstFacility::getMovedFromState(t);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            bsltf::MoveOnlyAllocTestType t2(3);
-            ObjB3 b3(MovUtil::move(t2), 3);
-
-            ObjA3 a3(MovUtil::move(t), 3);
-            mfState = TstFacility::getMovedFromState(t);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            miState = TstFacility::getMovedIntoState(a3.first);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            // The following does not (and should not) compile because the
-            // dest pair has a 'first' type that is 'const' so you can't
-            // assign to it.  Left here because of the educational value.
-            // a3 = MovUtil::move(b3);
-
-            // mfState = TstFacility::getMovedFromState(b3.first);
-            // miState = TstFacility::getMovedIntoState(a3.first);
-            // ASSERT(MovState::e_MOVED == mfState
-            //    || MovState::e_UNKNOWN == mfState);
-            // ASSERT(MovState::e_MOVED == miState
-            //    || MovState::e_UNKNOWN == miState);
-        }
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase12,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
       } break;
       case 11: {
         // --------------------------------------------------------------------
