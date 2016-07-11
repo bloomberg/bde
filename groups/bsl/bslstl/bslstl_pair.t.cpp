@@ -3095,12 +3095,6 @@ template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
                                                                bsl::false_type)
 {
-#if 1
-    // TBD: reenable
-    if (veryVerbose) printf("TD<%s, %s>::case14, no alloc, *** DISABLED ***\n",
-                            NameOf<ToFirst>().name(),
-                            NameOf<ToSecond>().name());
-#else
     if (veryVerbose) printf("TD<%s, %s>::case14, no alloc\n",
                             NameOf<ToFirst>().name(),
                             NameOf<ToSecond>().name());
@@ -3158,19 +3152,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     }
 
     ASSERT(0 == da.numAllocations());
-#endif
 }
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
                                                                 bsl::true_type)
 {
-#if 1
-    // TBD: reenable
-    if (veryVerbose) printf("TD<%s, %s>::case14, alloc, *** DISABLED ***\n",
-                            NameOf<ToFirst>().name(),
-                            NameOf<ToSecond>().name());
-#else
     if (veryVerbose) printf("TD<%s, %s>::case14, alloc\n",
                             NameOf<ToFirst>().name(),
                             NameOf<ToSecond>().name());
@@ -3266,7 +3253,6 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     ASSERT(taSoFar < ta.numAllocations());
     ASSERT(tbSoFar < tb.numAllocations());
     ASSERT(daSoFar < da.numAllocations());
-#endif
 }
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
