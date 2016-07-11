@@ -4278,8 +4278,14 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase14,
-                      signed char,
-                      bsltf::AllocTestType);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(MetaTestDriver,
+                      testCase14,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+                   // bsltf::MoveOnlyAllocTestType -- test case need copy c'tor
       } break;
       case 13: {
         // --------------------------------------------------------------------
