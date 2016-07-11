@@ -7595,6 +7595,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
                 ASSERTV(NameOf<KEY>(), SPEC, mFromState,
                                 !k_IS_KEY_MOVE_AWARE || e_MOVED == mFromState);
 #else
+                // TBD: See the TBD in the .h file in 'operator[key&&]' where
+                // it has been temporarily hobbled in C++03 (and this test
+                // similarly had to be hobbled to not expose the fact that
+                // the imp is broken.  Once 'operator[key&&]' is restored,
+                // restore this test.
+
                 (void) mFromState;    // suppress 'unused'
                 if (0 == iterations++) {
                     printf("'From' test suppressed on C++03, type: %s\n",
