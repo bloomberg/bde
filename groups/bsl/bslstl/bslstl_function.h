@@ -203,23 +203,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDLIB_H
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-namespace BloombergLP {
-
-template <class PROTOTYPE>
-class bdef_Function;
-    // Forward declaration of legacy 'bdef_Function' in order to implement
-    // by-reference conversion from 'bsl::function<F>'.  This declaration
-    // produces a by-name cyclic dependency between 'bsl' and 'bde' in order
-    // to allow legacy code to transition to 'bsl::function' from (the
-    // deprecated) 'bdef_Function'. The conversion, and therefore this forward
-    // reference, should not appear in the open-source version of this
-    // component.
-
-} //  close enterprise namespace
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 namespace bsl {
 
 // Forward declarations
@@ -1040,22 +1023,6 @@ class function<RET(ARGS...)> :
     }
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // CONVERSIONS TO LEGACY TYPE
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&();
-        // (Deprecated) Return '*this', converted to a mutable 'bdef_Function'
-        // reference by downcasting.  The behavior is undefined unless
-        // 'bdef_Function<F*>' is derived from 'bsl::function<F>' and adds no
-        // new data members.
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const;
-        // (Deprecated) Return '*this' converted to a const 'bdef_Function'
-        // reference by downcasting.  The behavior is undefined unless
-        // 'bdef_Function<F*>' is derived from 'bsl::function<F>' and adds no
-        // new data members.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 };
 
 // FREE FUNCTIONS
@@ -1269,13 +1236,6 @@ class function<RET()> :
     }
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)()>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)()>&() const;
-
-#endif
-
 };
 
 template <class RET, class ARGS_01>
@@ -1472,12 +1432,6 @@ class function<RET(ARGS_01)> :
     }
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01)>&() const;
-
-#endif
 
 };
 
@@ -1682,15 +1636,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02)>&() const;
-
 #endif
 
 };
@@ -1905,17 +1850,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03)>&() const;
-
 #endif
 
 };
@@ -2139,19 +2073,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04)>&() const;
-
 #endif
 
 };
@@ -2384,21 +2305,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05)>&() const;
-
 #endif
 
 };
@@ -2640,23 +2546,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06)>&() const;
-
 #endif
 
 };
@@ -2907,25 +2796,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07)>&() const;
-
 #endif
 
 };
@@ -3185,27 +3055,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08)>&() const;
-
 #endif
 
 };
@@ -3474,29 +3323,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09)>&() const;
-
 #endif
 
 };
@@ -3774,31 +3600,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10)>&() const;
-
 #endif
 
 };
@@ -4664,13 +4465,6 @@ class function<RET(ARGS...)> :
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&();
-
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const;
-
 #endif
 
 };
@@ -7767,27 +7561,6 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     return invoker();
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// CONVERSIONS TO LEGACY TYPE
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS...)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS...)> Ret;
-    return *static_cast<Ret*>(this);
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>
@@ -13768,568 +13541,6 @@ bsl::function<RET(ARGS_01,
 
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class RET>
-inline
-bsl::function<RET()>::
-    operator BloombergLP::bdef_Function<RET(*)()>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)()> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01>
-inline
-bsl::function<RET(ARGS_01)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                              ARGS_02,
-                                              ARGS_03,
-                                              ARGS_04,
-                                              ARGS_05,
-                                              ARGS_06,
-                                              ARGS_07,
-                                              ARGS_08,
-                                              ARGS_09,
-                                              ARGS_10)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-
-template <class RET>
-inline
-bsl::function<RET()>::
-    operator const BloombergLP::bdef_Function<RET(*)()>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)()> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01>
-inline
-bsl::function<RET(ARGS_01)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05,
-                                                    ARGS_06)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05,
-                                                    ARGS_06,
-                                                    ARGS_07)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05,
-                                                    ARGS_06,
-                                                    ARGS_07,
-                                                    ARGS_08)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05,
-                                                    ARGS_06,
-                                                    ARGS_07,
-                                                    ARGS_08,
-                                                    ARGS_09)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                    ARGS_02,
-                                                    ARGS_03,
-                                                    ARGS_04,
-                                                    ARGS_05,
-                                                    ARGS_06,
-                                                    ARGS_07,
-                                                    ARGS_08,
-                                                    ARGS_09,
-                                                    ARGS_10)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-#endif
-
 template <class RET>
 inline
 bool bsl::operator==(const bsl::function<RET()>& f,
@@ -15554,25 +14765,6 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 }
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&()
-{
-    typedef BloombergLP::bdef_Function<RET(*)(ARGS...)> Ret;
-    return *static_cast<Ret*>(this);
-}
-
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const
-{
-    typedef const BloombergLP::bdef_Function<RET(*)(ARGS...)> Ret;
-    return *static_cast<Ret*>(this);
-}
-#endif
 
 template <class RET, class... ARGS>
 inline
