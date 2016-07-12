@@ -209,7 +209,7 @@ using namespace bsl;
 // [33] USAGE EXAMPLE 2
 // [23] CONCERN: 'std::length_error' is used properly.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [34] CONCERN: All methods have the standard 'noexcept' specification.
+// [34] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(Obj *object, const char *spec, bool vF = true);
@@ -3157,7 +3157,7 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: All methods have the standard 'noexcept' specification.
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
 // N4594 page 835-836: 23.3.8.1 Class template 'deque' overview

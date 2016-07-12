@@ -144,7 +144,7 @@ using namespace bsl;
 // [10] allocator
 // [ 3] Primary generator functions 'gg' and 'ggg'
 // [ 1] Breathing Test
-// [19] CONCERN: All methods have the standard 'noexcept' specification.
+// [19] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -2419,7 +2419,7 @@ void TestDriver<CONTAINER>::testCase19()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: All methods have the standard 'noexcept' specification.
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
 // N4594 page 905: 23.6.6.1 'stack' definition
