@@ -243,6 +243,7 @@ using namespace bsl;
 //*[23] CONCERN: The object has the necessary type traits
 //*[23] TBD: Not yet working for all types.
 //*[  ] CONCERN: The type provides the full interface defined by the standard.
+// [34] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1426,6 +1427,9 @@ class TestDriver {
     static void testCase99();
         // Test spread of nodes into different buckets
 
+    static void testCase34();
+        // Test 'noexcept' specifications
+
     static void testCase32();
         // Test initializer lists.
 
@@ -2190,6 +2194,138 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31b_RunTest(Obj  *target,
 
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     return result;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
+// 'stack' definition
+//     unordered_set& operator=(unordered_set&&)
+//         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+//                  is_nothrow_move_assignable<Hash>::value &&
+//                  is_nothrow_move_assignable<Pred>::value);
+    {
+        Obj s;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = Obj()));
+        
+    }
+
+// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
+//     allocator_type get_allocator() const noexcept;
+    {
+        Obj s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.get_allocator()));
+    }
+
+// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
+// iterators:
+//     iterator begin() noexcept;
+//     const_iterator begin() const noexcept;
+//     iterator end() noexcept;
+//     const_iterator end() const noexcept;
+//     const_iterator cbegin() const noexcept;
+//     const_iterator cend() const noexcept;
+    {
+        Obj s; const Obj& S = s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
+    }
+
+// N4594 page 892-893: 23.5.6.1: Class template 'unordered_set' overview
+// capacity:
+//    bool empty() const noexcept;
+//    size_type size() const noexcept;
+//    size_type max_size() const noexcept;
+    {
+        Obj s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.empty()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_size()));
+    }
+
+
+// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
+//     void swap(unordered_set&)
+//         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+//                  is_nothrow_swappable_v<Hash> &&
+//                  is_nothrow_swappable_v<Pred>);
+//     void clear() noexcept;
+    {
+        Obj s;
+        Obj x;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.swap(x)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
+    }
+
+// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
+// bucket interface:
+//     size_type bucket_count() const noexcept;
+//     size_type max_bucket_count() const noexcept;
+    {
+        Obj s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.bucket_count()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_bucket_count()));
+    }
+
+
+// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
+// hash policy:
+//     float load_factor() const noexcept;
+//     float max_load_factor() const noexcept;
+    {
+        Obj s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.load_factor()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_load_factor()));
+    }
+
+// N4594 page 894: 23.5.6.1: Class template 'unordered_set' overview
+// 23.5.6.3, swap:
+//     template <class Key, class Hash, class Pred, class Alloc>
+//     void swap(unordered_set<Key, Hash, Pred, Alloc>& x,
+//         unordered_set<Key, Hash, Pred, Alloc>& y)
+//             noexcept(noexcept(x.swap(y)));
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
@@ -9374,6 +9510,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+       
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase34();
+
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
