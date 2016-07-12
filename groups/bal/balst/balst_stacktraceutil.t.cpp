@@ -453,7 +453,10 @@ void stackTop()
     if (!v.empty()) {
         ST st;
 
-        int rc = Util::loadStackTraceFromAddressArray(&st, &v[0], v.size());
+        int rc = Util::loadStackTraceFromAddressArray(
+                                                   &st,
+                                                   &v[0],
+                                                   static_cast<int>(v.size()));
         ASSERT(0 == rc);
 
         if (veryVerbose) {
@@ -857,9 +860,15 @@ void case_5_top(bool demangle, bool useTestAllocator)
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
                 cc(", wall time: ") << sw.accumulatedWallTime() << endl;
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
- && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-        demangle = false;    // demangling never happens with Sun CC
+#if (defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
+  && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)))   \
+  || (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))
+        // demangling never happens with Sun CC, and there is a problem with
+        // the configuration of our Linux machines with respect to the Clang
+        // compiler and its demangler being out of sync with each other with
+        // regard to how they handle file-scope statics.
+
+        demangle = false;
 #endif
 
         if (DEBUG_ON || !PLAT_WIN) {
@@ -889,10 +898,6 @@ void case_5_top(bool demangle, bool useTestAllocator)
 
                 LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
             }
-
-            demangle &= !PLAT_LINUX;    // The LInux demangler has a bug where
-                                        // it fails on file-scope static
-                                        // functions.
 
             match = ".case_5_bottom";
             match += !dot;
