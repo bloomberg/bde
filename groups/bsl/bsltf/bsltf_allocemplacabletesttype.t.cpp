@@ -175,7 +175,13 @@ static const AllocEmplacableTestType::ArgType12 V12(333,  &g_argAlloc);
 static const AllocEmplacableTestType::ArgType13 V13(712,  &g_argAlloc);
 static const AllocEmplacableTestType::ArgType14 V14(1414, &g_argAlloc);
 
-struct TestDriver {
+class TestDriver {
+  private:
+    // TYPES
+
+    // Shorthands
+    typedef bsltf::MoveState                      MoveState;
+
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
     template <class T>
@@ -191,6 +197,7 @@ struct TestDriver {
         return basicAllocator;
     }
 
+  public:
     template <int N_ARGS,
               int N01,
               int N02,
@@ -620,36 +627,50 @@ void TestDriver::testCase1()
         ASSERTV(CONFIG, &aa == A13.getAllocator());
         ASSERTV(CONFIG, &aa == A14.getAllocator());
 
-        ASSERTV(CONFIG, &oa ==   X.arg01().getAllocator() || 2 == N01);
-        ASSERTV(CONFIG, &oa ==   X.arg02().getAllocator() || 2 == N02);
-        ASSERTV(CONFIG, &oa ==   X.arg03().getAllocator() || 2 == N03);
-        ASSERTV(CONFIG, &oa ==   X.arg04().getAllocator() || 2 == N04);
-        ASSERTV(CONFIG, &oa ==   X.arg05().getAllocator() || 2 == N05);
-        ASSERTV(CONFIG, &oa ==   X.arg06().getAllocator() || 2 == N06);
-        ASSERTV(CONFIG, &oa ==   X.arg07().getAllocator() || 2 == N07);
-        ASSERTV(CONFIG, &oa ==   X.arg08().getAllocator() || 2 == N08);
-        ASSERTV(CONFIG, &oa ==   X.arg09().getAllocator() || 2 == N09);
-        ASSERTV(CONFIG, &oa ==   X.arg10().getAllocator() || 2 == N10);
-        ASSERTV(CONFIG, &oa ==   X.arg11().getAllocator() || 2 == N11);
-        ASSERTV(CONFIG, &oa ==   X.arg12().getAllocator() || 2 == N12);
-        ASSERTV(CONFIG, &oa ==   X.arg13().getAllocator() || 2 == N13);
-        ASSERTV(CONFIG, &oa ==   X.arg14().getAllocator() || 2 == N14);
+        ASSERTV(CONFIG, &oa == X.arg01().getAllocator() || 2 == N01);
+        ASSERTV(CONFIG, &oa == X.arg02().getAllocator() || 2 == N02);
+        ASSERTV(CONFIG, &oa == X.arg03().getAllocator() || 2 == N03);
+        ASSERTV(CONFIG, &oa == X.arg04().getAllocator() || 2 == N04);
+        ASSERTV(CONFIG, &oa == X.arg05().getAllocator() || 2 == N05);
+        ASSERTV(CONFIG, &oa == X.arg06().getAllocator() || 2 == N06);
+        ASSERTV(CONFIG, &oa == X.arg07().getAllocator() || 2 == N07);
+        ASSERTV(CONFIG, &oa == X.arg08().getAllocator() || 2 == N08);
+        ASSERTV(CONFIG, &oa == X.arg09().getAllocator() || 2 == N09);
+        ASSERTV(CONFIG, &oa == X.arg10().getAllocator() || 2 == N10);
+        ASSERTV(CONFIG, &oa == X.arg11().getAllocator() || 2 == N11);
+        ASSERTV(CONFIG, &oa == X.arg12().getAllocator() || 2 == N12);
+        ASSERTV(CONFIG, &oa == X.arg13().getAllocator() || 2 == N13);
+        ASSERTV(CONFIG, &oa == X.arg14().getAllocator() || 2 == N14);
 
 
-        ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-        ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-        ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-        ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-        ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-        ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-        ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-        ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-        ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-        ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-        ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-        ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-        ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-        ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+        ASSERTV(MOVE_01, A01.movedFrom(),
+                           MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+        ASSERTV(MOVE_02, A02.movedFrom(),
+                           MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+        ASSERTV(MOVE_03, A03.movedFrom(),
+                           MOVE_03 ==(MoveState::e_MOVED ==  A03.movedFrom()));
+        ASSERTV(MOVE_04, A04.movedFrom(),
+                           MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+        ASSERTV(MOVE_05, A05.movedFrom(),
+                           MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+        ASSERTV(MOVE_06, A06.movedFrom(),
+                           MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+        ASSERTV(MOVE_07, A07.movedFrom(),
+                           MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+        ASSERTV(MOVE_08, A08.movedFrom(),
+                           MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+        ASSERTV(MOVE_09, A09.movedFrom(),
+                           MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+        ASSERTV(MOVE_10, A10.movedFrom(),
+                           MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+        ASSERTV(MOVE_11, A11.movedFrom(),
+                           MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+        ASSERTV(MOVE_12, A12.movedFrom(),
+                           MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+        ASSERTV(MOVE_13, A13.movedFrom(),
+                           MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+        ASSERTV(MOVE_14, A14.movedFrom(),
+                           MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
         ASSERTV(V01, X.arg01(), V01 == X.arg01() || 2 == N01);
         ASSERTV(V02, X.arg02(), V02 == X.arg02() || 2 == N02);
