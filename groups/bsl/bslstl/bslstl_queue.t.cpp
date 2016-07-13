@@ -124,7 +124,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [**] CONCERN: The object is compatible with STL allocator. 
+// [**] CONCERN: The object is compatible with STL allocator.
 // [20] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // ============================================================================
@@ -2164,22 +2164,29 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-// N4594 page 900: 23.6.4.1 'queue' definition
-//     void swap(queue& q) noexcept(is_nothrow_swappable_v<Container>)
-//         { using std::swap; swap(c, q.c); }
+    // N4594: 23.6.4.1 'queue' definition
+
+    // page 900
+    //..
+    //     void swap(queue& q) noexcept(is_nothrow_swappable_v<Container>)
+    //         { using std::swap; swap(c, q.c); }
+    //..
 
     {
-        Obj c;
+        Obj x;
         Obj q;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(c.swap(q)));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(q)));
     }
 
-// N4594 page 900: 23.6.4.1 'queue' definition
-//     template <class T, class Container>
-//     void swap(queue<T, Container>& x, queue<T, Container>& y)
-//         noexcept(noexcept(x.swap(y)));
+    // page 900
+    //..
+    //     template <class T, class Container>
+    //     void swap(queue<T, Container>& x, queue<T, Container>& y)
+    //         noexcept(noexcept(x.swap(y)));
+    //..
+
     {
         Obj x;
         Obj y;
@@ -5356,7 +5363,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "------------------------" "\n");
+
         TestDriver<int, bsl::vector<int> >::testCase20();
+
       } break;
       case 19: {
         // --------------------------------------------------------------------

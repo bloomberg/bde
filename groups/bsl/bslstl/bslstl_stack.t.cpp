@@ -2422,10 +2422,14 @@ void TestDriver<CONTAINER>::testCase19()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-// N4594 page 905: 23.6.6.1 'stack' definition
-//
-//    void swap(stack& s) noexcept(is_nothrow_swappable_v<Container>)
-//        { using std::swap; swap(c, s.c); }
+    // N4594: 23.6.6.1 'stack' definition
+
+    // page 905:
+    //..
+    //    void swap(stack& s) noexcept(is_nothrow_swappable_v<Container>)
+    //        { using std::swap; swap(c, s.c); }
+    //..
+
     {
         Obj c;
         Obj s;
@@ -2434,10 +2438,13 @@ void TestDriver<CONTAINER>::testCase19()
             == BSLS_CPP11_NOEXCEPT_OPERATOR(c.swap(s)));
     }
 
-// N4594 page 905: 23.6.6.1 'stack' definition
-//    template <class T, class Container>
-//    void swap(stack<T, Container>& x, stack<T, Container>& y)
-//        noexcept(noexcept(x.swap(y)));
+    // page 905
+    //..
+    //    template <class T, class Container>
+    //    void swap(stack<T, Container>& x, stack<T, Container>& y)
+    //        noexcept(noexcept(x.swap(y)));
+    //..
+
     {
         Obj x;
         Obj y;
@@ -5559,7 +5566,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "------------------------" "\n");
+
         TestDriver<bsl::vector<int> >::testCase19();
+
       } break;
       case 18: {
         // --------------------------------------------------------------------

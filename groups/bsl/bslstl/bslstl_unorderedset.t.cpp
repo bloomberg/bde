@@ -2219,36 +2219,38 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
-// 'stack' definition
-//     unordered_set& operator=(unordered_set&&)
-//         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
-//                  is_nothrow_move_assignable<Hash>::value &&
-//                  is_nothrow_move_assignable<Pred>::value);
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+    // page 892
+    //..
+    //     unordered_set& operator=(unordered_set&&)
+    //         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //                  is_nothrow_move_assignable<Hash>::value &&
+    //                  is_nothrow_move_assignable<Pred>::value);
+    //     allocator_type get_allocator() const noexcept;
+    //..
+
     {
         Obj s;
+        Obj x;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = Obj()));
-        
-    }
-
-// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
-//     allocator_type get_allocator() const noexcept;
-    {
-        Obj s;
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = MovUtil::move(x)));
 
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.get_allocator()));
     }
 
-// N4594 page 892: 23.5.6.1: Class template 'unordered_set' overview
-// iterators:
-//     iterator begin() noexcept;
-//     const_iterator begin() const noexcept;
-//     iterator end() noexcept;
-//     const_iterator end() const noexcept;
-//     const_iterator cbegin() const noexcept;
-//     const_iterator cend() const noexcept;
+    // page 892
+    //..
+    // // iterators:
+    //     iterator begin() noexcept;
+    //     const_iterator begin() const noexcept;
+    //     iterator end() noexcept;
+    //     const_iterator end() const noexcept;
+    //     const_iterator cbegin() const noexcept;
+    //     const_iterator cend() const noexcept;
+    //..
+
     {
         Obj s; const Obj& S = s;
 
@@ -2260,11 +2262,14 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
     }
 
-// N4594 page 892-893: 23.5.6.1: Class template 'unordered_set' overview
-// capacity:
-//    bool empty() const noexcept;
-//    size_type size() const noexcept;
-//    size_type max_size() const noexcept;
+    // page 892-893
+    //..
+    // // capacity:
+    //    bool empty() const noexcept;
+    //    size_type size() const noexcept;
+    //    size_type max_size() const noexcept;
+    //..
+
     {
         Obj s;
 
@@ -2273,13 +2278,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_size()));
     }
 
+    // page 893
+    //..
+    //     void swap(unordered_set&)
+    //         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //                  is_nothrow_swappable_v<Hash> &&
+    //                  is_nothrow_swappable_v<Pred>);
+    //     void clear() noexcept;
+    //..
 
-// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
-//     void swap(unordered_set&)
-//         noexcept(allocator_traits<Allocator>::is_always_equal::value &&
-//                  is_nothrow_swappable_v<Hash> &&
-//                  is_nothrow_swappable_v<Pred>);
-//     void clear() noexcept;
     {
         Obj s;
         Obj x;
@@ -2290,10 +2297,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
     }
 
-// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
-// bucket interface:
-//     size_type bucket_count() const noexcept;
-//     size_type max_bucket_count() const noexcept;
+    // page 893
+    //..
+    // // bucket interface:
+    //    size_type bucket_count() const noexcept;
+    //    size_type max_bucket_count() const noexcept;
+    //..
+
     {
         Obj s;
 
@@ -2301,11 +2311,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_bucket_count()));
     }
 
+    // page 893
+    //..
+    // // hash policy:
+    //    float load_factor() const noexcept;
+    //    float max_load_factor() const noexcept;
+    //..
 
-// N4594 page 893: 23.5.6.1: Class template 'unordered_set' overview
-// hash policy:
-//     float load_factor() const noexcept;
-//     float max_load_factor() const noexcept;
     {
         Obj s;
 
@@ -2313,12 +2325,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.max_load_factor()));
     }
 
-// N4594 page 894: 23.5.6.1: Class template 'unordered_set' overview
-// 23.5.6.3, swap:
-//     template <class Key, class Hash, class Pred, class Alloc>
-//     void swap(unordered_set<Key, Hash, Pred, Alloc>& x,
-//         unordered_set<Key, Hash, Pred, Alloc>& y)
-//             noexcept(noexcept(x.swap(y)));
+    // page 894
+    //..
+    // // 23.5.6.3, swap:
+    //    template <class Key, class Hash, class Pred, class Alloc>
+    //    void swap(unordered_set<Key, Hash, Pred, Alloc>& x,
+    //              unordered_set<Key, Hash, Pred, Alloc>& y)
+    //                  noexcept(noexcept(x.swap(y)));
+    //..
+
     {
         Obj x;
         Obj y;
@@ -9514,7 +9529,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
         // --------------------------------------------------------------------
-       
+
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 

@@ -1,4 +1,5 @@
 // bslstl_deque.t.cpp                                                 -*-C++-*-
+
 #include <bslstl_deque.h>
 
 #include <bslstl_forwarditerator.h>        // for testing only
@@ -3136,7 +3137,7 @@ TestDriver<TYPE, ALLOC>::testCase29a_RunTest(Obj *target, const_iterator pos)
                                  // ----------
                                  // TEST CASES
                                  // ----------
-                                 //
+
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::testCase34()
 {
@@ -3160,40 +3161,41 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-// N4594 page 835-836: 23.3.8.1 Class template 'deque' overview
-//
-//     deque& operator=(deque&& x)
-//         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    // N4594: 23.3.8.1 Class template 'deque' overview
+
+    // pages 835-836
+    //..
+    //     deque& operator=(deque&& x)
+    //         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //..
+
     {
         Obj d;
         Obj x;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d = x));
-    }
-
-// N4594 page 836: 23.3.8.1 Class template 'deque' overview
-//     allocator_type get_allocator() const noexcept;
-    {
-        Obj d;
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d = MoveUtil::move(x)));
 
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
     }
 
-// N4594 page 836: 23.3.8.1 Class template 'deque' overview
-// Iterators
-//     iterator begin() noexcept;
-//     const_iterator begin() const noexcept;
-//     iterator end() noexcept;
-//     const_iterator end() const noexcept;
-//     reverse_iterator rbegin() noexcept;
-//     const_reverse_iterator rbegin() const noexcept;
-//     reverse_iterator rend() noexcept;
-//     const_reverse_iterator rend() const noexcept;
-//     const_iterator cbegin() const noexcept;
-//     const_iterator cend() const noexcept;
-//     const_reverse_iterator crbegin() const noexcept;
-//     const_reverse_iterator crend() const noexcept;
+    // page 836
+    //..
+    // // Iterators
+    //     iterator begin() noexcept;
+    //     const_iterator begin() const noexcept;
+    //     iterator end() noexcept;
+    //     const_iterator end() const noexcept;
+    //     reverse_iterator rbegin() noexcept;
+    //     const_reverse_iterator rbegin() const noexcept;
+    //     reverse_iterator rend() noexcept;
+    //     const_reverse_iterator rend() const noexcept;
+    //     const_iterator cbegin() const noexcept;
+    //     const_iterator cend() const noexcept;
+    //     const_reverse_iterator crbegin() const noexcept;
+    //     const_reverse_iterator crend() const noexcept;
+    //..
+
     {
         Obj d; const Obj& D = d;
 
@@ -3212,23 +3214,29 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
     }
 
-// N4594 page 836: 23.3.8.1 Class template 'deque' overview
-// Capacity
-//     bool empty() const noexcept;
-//     size_type size() const noexcept;
-//     size_type max_size() const noexcept;
+    // page 836
+    // // Capacity
+    //..
+    //     bool empty() const noexcept;
+    //     size_type size() const noexcept;
+    //     size_type max_size() const noexcept;
+    //..
+
     {
-        Obj d; const Obj& D = d;
+        Obj d;
 
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
     }
 
-// N4594 page 837: 23.3.8.1 Class template 'deque' overview
-//     void swap(deque&)
-//         noexcept(allocator_traits<Allocator>::is_always_equal::value);
-//     void clear() noexcept;
+    // page 837
+    //..
+    //     void swap(deque&)
+    //         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //     void clear() noexcept;
+    //..
+
     {
         Obj d;
         Obj x;
@@ -3239,9 +3247,12 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
     }
 
-// N4594 page 837: 23.3.8.1 Class template 'deque' overview
-//     void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
-//         noexcept(noexcept(x.swap(y)));
+    // page 837
+    //..
+    //     void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
+    //         noexcept(noexcept(x.swap(y)));
+    //..
+
     {
         Obj x;
         Obj y;
@@ -14189,6 +14200,17 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase34();
+
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
