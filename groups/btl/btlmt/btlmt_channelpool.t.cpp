@@ -714,6 +714,151 @@ void populateMessage(btlb::Blob       *msg,
 }
 
 //-----------------------------------------------------------------------------
+// TEST_CASE_WATERMARK_SEQUENCING
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_WATERMARK_SEQUENCING {
+
+void poolStateCb(int state, int source, int error)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source
+               << " Error: " << error << MTENDL;
+    }
+}
+
+bool      highWatCbInvoked = false;
+int       numLowWatCalled  = 0;
+const int BLOB_BUFFER_LEN = 1024;
+
+btlb::PooledBlobBufferFactory bf(BLOB_BUFFER_LEN);
+btlb::Blob                    blob(&bf);
+int                           clientNumBytesRead = 0;
+
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            * , // arg,
+                    int             *cid,
+                    bslmt::Barrier   *barrier,
+                    bslmt::Condition *condition)
+{
+    if (veryVerbose) {
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << serverId
+               << " State: " << state << MTENDL;
+    }
+
+    switch (state) {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
+        *cid = channelId;
+        barrier->wait();
+      } break;
+
+      case btlmt::ChannelPool::e_WRITE_QUEUE_HIGHWATER: {
+        ASSERT(!highWatCbInvoked);
+        highWatCbInvoked = true;
+      } break;
+
+      case btlmt::ChannelPool::e_WRITE_QUEUE_LOWWATER: {
+        ASSERT(highWatCbInvoked);
+        highWatCbInvoked = false;
+        ++numLowWatCalled;
+        condition->signal();
+      } break;
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     btlb::Blob      *msg,
+                     int              channelId,
+                     void            *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Blob Based Read Cb called with"
+               << " Channel Id: " << channelId
+               << " of length: "  << msg->length() << MTENDL;
+    }
+    *needed = 1;
+
+    msg->removeAll();
+}
+
+void setHighWatermarkLevel(btlmt::ChannelPool *pool,
+                           int                channelId,
+                           int                levelMax,
+                           bsls::AtomicInt    *terminateFlag)
+{
+    int currLevel = 1;
+    while (!*terminateFlag) {
+        int newLevel = (currLevel + rand()) % levelMax;
+        int rc = pool->setWriteQueueHighWatermark(channelId, newLevel);
+        ASSERT(0 == rc);
+    }
+}
+
+void setLowWatermarkLevel(btlmt::ChannelPool *pool,
+                          int                channelId,
+                          int                levelMax,
+                          bsls::AtomicInt    *terminateFlag)
+{
+    int currLevel = 1;
+    while (!*terminateFlag) {
+        int newLevel = (currLevel + rand()) % levelMax;
+        int rc = pool->setWriteQueueLowWatermark(channelId, newLevel);
+        ASSERT(0 == rc);
+    }
+}
+
+void clientReader(btlso::StreamSocket<btlso::IPv4Address> *socket,
+                  bsls::AtomicInt                         *terminateFlag)
+{
+    const int BUF_LEN = 8192 * 10;
+    char      buffer[BUF_LEN];
+
+    while (!*terminateFlag) {
+        int rc = socket->read(buffer, BUF_LEN);
+        if (rc > 0) {
+            clientNumBytesRead += rc;
+        }
+    }
+}
+
+void writerThread(btlmt::ChannelPool *pool,
+                  int                channelId,
+                  int                maxWriteSize,
+                  bslmt::Mutex       *mutex,
+                  bslmt::Condition   *condition,
+                  bsls::AtomicInt    *terminateFlag)
+{
+    while (!*terminateFlag) {
+        int newLen = (BLOB_BUFFER_LEN + rand()) % maxWriteSize;
+        int enqueueMark = newLen / 2;
+        if (0 == newLen) {
+            newLen = 1;
+            enqueueMark = 1;
+        }
+        blob.setLength(newLen);
+        int rc = pool->write(channelId, blob, enqueueMark);
+        if (0 != rc) {
+            ASSERT(btlmt::ChannelStatus::e_QUEUE_HIGHWATER == rc
+                || btlmt::ChannelStatus::e_ENQUEUE_HIGHWATER == rc);
+
+            bsls::TimeInterval timeout = bdlt::CurrentTime::now() + 1;
+
+            bslmt::LockGuard<bslmt::Mutex> guard(mutex);
+            condition->timedWait(mutex, timeout);
+        }
+    }
+}
+
+}
+
+//-----------------------------------------------------------------------------
 //                  TEST_CASE_PLATFORM_ERRORS
 //-----------------------------------------------------------------------------
 
@@ -7815,8 +7960,12 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase38();
+    static void testCase39();
         // Test usage example.
+
+    static void testCase38();
+        // Test that the high and low watermark callbacks are always in
+        // sequence and only one of each type is outstanding at a time.
 
     static void testCase37();
         // Test that platform-specific errors are returned.
@@ -7946,7 +8095,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase38()
+void TestDriver::testCase39()
 {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -7981,6 +8130,158 @@ void TestDriver::testCase38()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase38()
+{
+    // --------------------------------------------------------------------
+    // TESTING: High and low watermark callbacks are invoked in sequence
+    //
+    // Concerns:
+    //: 1 The high and low-watermark alerts are always provided to the user in
+    //:   sequence.  That is a high-watermark alert is always followed by a
+    //:   low-watermark alert and a low-watermark alert is always followed by
+    //:   a high-watemark alert.
+    //:
+    //: 2 Only one callback of each alert type is active at any time.
+    //
+    // Plan:
+    //: 1 Create a channel pool object and establish a connection within it.
+    //:
+    //: 2 Create multiple threads that invoke various 'write'-related
+    //:   functions on this channel pool object: 'setWriteQueueHighWatermark',
+    //:   'setWriteQueueLowWatermark' and 'write' using different high and
+    //:   low-watermark level values and data sizes.
+    //:
+    //: 3 In the channel state callback confirm that each time the
+    //:   watermark callbacks are always in sequence,
+    //
+    // Plan:
+    //
+    // Testing:
+    // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING: High and Low Watermark sequencing"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        using namespace TEST_CASE_WATERMARK_SEQUENCING;
+        {
+            enum {
+                LOW_WATERMARK =  512,
+                HI_WATERMARK  = 4096
+            };
+
+            btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+
+            btlmt::ChannelPoolConfiguration config;
+            config.setMaxThreads(1);
+            config.setWriteQueueWatermarks(LOW_WATERMARK, HI_WATERMARK);
+            if (verbose) { P(config); }
+
+            bslmt::Barrier   barrier(2);
+            bslmt::Condition condition;
+            bslmt::Mutex     conditionMutex;
+            int             channelId;
+
+            btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
+                                    bdlf::BindUtil::bind(&channelStateCb,
+                                                        _1, _2, _3, _4,
+                                                        &channelId,
+                                                        &barrier,
+                                                        &condition));
+
+            btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+            btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+
+            Obj mX(channelCb, dataCb, poolCb, config);
+
+            ASSERT(0 == mX.start());
+
+            const int SID = 101;
+
+            const btlso::IPv4Address ADDRESS("127.0.0.1", 0);
+            int ret = mX.listen(ADDRESS, 1, SID);
+            ASSERT(0 == ret);
+            btlso::IPv4Address PEER;
+            mX.getServerAddress(&PEER, SID);
+
+            btlso::StreamSocket<btlso::IPv4Address> *clientSocket =
+                                                            factory.allocate();
+            ASSERT(clientSocket);
+
+            ASSERT(0 == clientSocket->connect(PEER));
+
+            barrier.wait();
+
+            bslmt::ThreadUtil::Handle h1, h2, h3, h4;
+            bslmt::ThreadAttributes   attr;
+
+            bsls::AtomicInt terminateFlag(0);
+
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                   &h1,
+                                   attr,
+                                   bdlf::BindUtil::bind(&setHighWatermarkLevel,
+                                                        &mX,
+                                                        channelId,
+                                                        8192,
+                                                        &terminateFlag)));
+
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                    &h2,
+                                    attr,
+                                    bdlf::BindUtil::bind(&setLowWatermarkLevel,
+                                                         &mX,
+                                                         channelId,
+                                                         4096,
+                                                         &terminateFlag)));
+
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                    &h3,
+                                    attr,
+                                    bdlf::BindUtil::bind(&writerThread,
+                                                         &mX,
+                                                         channelId,
+                                                         8192,
+                                                         &conditionMutex,
+                                                         &condition,
+                                                         &terminateFlag)));
+
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                    &h4,
+                                    attr,
+                                    bdlf::BindUtil::bind(&clientReader,
+                                                         clientSocket,
+                                                         &terminateFlag)));
+
+            bslmt::ThreadUtil::microSleep(0, 5);
+            terminateFlag = 1;
+
+            ASSERT(0 == bslmt::ThreadUtil::join(h1));
+            ASSERT(0 == bslmt::ThreadUtil::join(h2));
+            ASSERT(0 == bslmt::ThreadUtil::join(h3));
+
+            bsls::Types::Int64 bytesWritten;
+            bsls::Types::Int64 bytesRequestedToBeWritten;
+            bsls::Types::Int64 bytesRead;
+
+            mX.numBytesRead(&bytesRead, channelId);
+            mX.numBytesWritten(&bytesWritten, channelId);
+            mX.numBytesRequestedToBeWritten(
+                                       &bytesRequestedToBeWritten, channelId);
+
+            if (veryVerbose) {
+                cout << "server read "      << bytesRead          << endl;
+                cout << "server wrote "     << bytesWritten       << endl;
+                cout << "server requested " << bytesRequestedToBeWritten
+                     << endl;
+                cout << "client read " << clientNumBytesRead << endl;
+                cout << "numLowWatCalled " << numLowWatCalled << endl;
+            }
+        }
 }
 
 void TestDriver::testCase37()
@@ -11552,6 +11853,15 @@ void TestDriver::testCase21()
                                    btlmt::ChannelPool::e_WRITE_QUEUE_HIGHWATER,
                                    bsls::TimeInterval(0.25)));
 
+            int numBytesRead = drainSocket(clientSocket, totalBytesWritten);
+            LOOP2_ASSERT(numBytesRead, totalBytesWritten,
+                                            numBytesRead == totalBytesWritten);
+
+            ASSERT(0 == mX.waitForState(
+                                &states,
+                                btlmt::ChannelPool::e_WRITE_QUEUE_LOWWATER,
+                                bsls::TimeInterval(0.25)));
+
             // 3. Double the write queue size, verify that the 'HIGHWATER'
             //    alert is not delivered.  Then refill the queue and verify
             //    that the queue increased by the expected amount and that
@@ -11575,7 +11885,7 @@ void TestDriver::testCase21()
                 PT2(numBytesWritten, totalBytesWritten);
             }
             LOOP2_ASSERT(HIGH_WATERMARK, numBytesWritten,
-                                            HIGH_WATERMARK == numBytesWritten);
+                                        numBytesWritten >= 2 * HIGH_WATERMARK);
             ASSERT(0 != pool.write(channelId, oneByteMsg));
             ASSERT(0 == mX.waitForState(
                                    &states,
@@ -11584,10 +11894,12 @@ void TestDriver::testCase21()
 
             // 4. Double the write queue size again, add one byte (to verify
             //    it is not full), then reduce the write queue size to the
-            //    original size and verify the 'HIGHWATER' alert is generated.
+            //    original size and verify the 'HIGHWATER' alert is not
+            //    generated.
+
             if (verbose) {
-                bsl::cout << "\tVerify decreasing the queue size & generating "
-                          << "a 'HIGHWATER' alert" << bsl::endl;
+                bsl::cout << "\tVerify decreasing the queue size & not "
+                          << "generating a 'HIGHWATER' alert" << bsl::endl;
             }
             ASSERT(0 ==
                pool.setWriteQueueHighWatermark(channelId, 4 * HIGH_WATERMARK));
@@ -11601,7 +11913,7 @@ void TestDriver::testCase21()
 
             ASSERT(0 ==
                    pool.setWriteQueueHighWatermark(channelId, HIGH_WATERMARK));
-            ASSERT(0 == mX.waitForState(
+            ASSERT(0 != mX.waitForState(
                                    &states,
                                    btlmt::ChannelPool::e_WRITE_QUEUE_HIGHWATER,
                                    bsls::TimeInterval(0.25)));
@@ -11630,15 +11942,11 @@ void TestDriver::testCase21()
             if (verbose) {
                 bsl::cout << "\tConcurrency Test" << bsl::endl;
             }
-            int numBytesRead = drainSocket(clientSocket, totalBytesWritten);
+            const int numBytesToRead = totalBytesWritten - numBytesRead;
+            numBytesRead = drainSocket(clientSocket, numBytesToRead);
+            LOOP2_ASSERT(numBytesRead, numBytesToRead,
+                         numBytesRead == numBytesToRead);
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            LOOP2_ASSERT(numBytesRead, totalBytesWritten,
-                                            numBytesRead == totalBytesWritten);
-#else
-            LOOP2_ASSERT(numBytesRead, totalBytesWritten,
-                         numBytesRead == totalBytesWritten + 1);
-#endif
             TestCaseConcurrencyTest concurrencyTest(&pool,
                                                     channelId,
                                                     clientSocket,
