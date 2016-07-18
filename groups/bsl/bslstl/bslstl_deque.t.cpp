@@ -25,6 +25,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -3160,6 +3161,11 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     // Testing:
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
+    
+    if (verbose) {
+            P_(bsls::NameOf<TYPE>())                                       
+            P(bsls::NameOf<ALLOC>())                                       
+    }
 
     // N4594: 23.3.8.1 Class template 'deque' overview
 

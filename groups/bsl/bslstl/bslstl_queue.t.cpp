@@ -2164,6 +2164,11 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
+    if (verbose) {
+        P_(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<CONTAINER>())
+    }
+
     // N4594: 23.6.4.1 'queue' definition
 
     // page 900

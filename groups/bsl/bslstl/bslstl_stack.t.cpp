@@ -2422,6 +2422,10 @@ void TestDriver<CONTAINER>::testCase19()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
+    if (verbose) {
+        P(bsls::NameOf<CONTAINER>())
+    }
+
     // N4594: 23.6.6.1 'stack' definition
 
     // page 905:

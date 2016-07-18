@@ -20,6 +20,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_util.h>
 
 #include <bsltf_stdallocatoradaptor.h>
@@ -2219,6 +2220,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
+    if (verbose) {
+        P_(bsls::NameOf<KEY>())
+        P_(bsls::NameOf<HASH>())
+        P_(bsls::NameOf<EQUAL>())
+         P(bsls::NameOf<ALLOC>())
+    }
+   
     // N4594: 23.5.6.1: Class template 'unordered_set' overview
 
     // page 892
