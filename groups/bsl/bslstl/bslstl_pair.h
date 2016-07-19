@@ -1021,6 +1021,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     : FirstBase(MovUtil::move(MovUtil::access(other).first))
     , SecondBase(MovUtil::move(MovUtil::access(other).second))
     {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
     }
     template <class U1, class U2>
     pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
