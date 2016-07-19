@@ -93,6 +93,7 @@ using namespace BloombergLP;
 // [13] void numProcessed(int *, int *) const;
 // [ 4] int numQueues() const;
 // [ 4] int numElements(int id) const;
+// [ 6] bool isEnabledQueue(int id);
 // [ 2] const bdlmt::ThreadPool& threadPool() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -733,6 +734,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         // verify pool is still enabled
         startTime = now();
         for (int i = 0; i < NUM_QUEUES; ++i) {
+            ASSERT(mX.isEnabledQueue(queueIds[i]));
             ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
         }
 
@@ -742,18 +744,25 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 
         ASSERT(0 == mX.start());
         Sleeper::s_finished = 0;
+        ASSERT(mX.isEnabledQueue(queueIds[2]));
         ASSERT(0 == mX.enqueueJob(queueIds[2], sleepALittle));
         ASSERT(0 == mX.disableQueue(queueIds[2]));
+        ASSERT(!mX.isEnabledQueue(queueIds[2]));
+
+        ASSERT(mX.isEnabledQueue(queueIds[4]));
         ASSERT(0 == mX.enqueueJob(queueIds[4], sleepALittle));
         ASSERT(0 == mX.disableQueue(queueIds[4]));
+        ASSERT(!mX.isEnabledQueue(queueIds[4]));
         mX.drainQueue(queueIds[2]);
 
         // verify queues are disabled as expected after 'drainQueue()'
         for (int i = 0; i < NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
+                ASSERT(!mX.isEnabledQueue(queueIds[i]));
                 ASSERT(0 != mX.enqueueJob(queueIds[i], sleepHardly));
             }
             else {
+                ASSERT(mX.isEnabledQueue(queueIds[i]));
                 ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
             }
         }
@@ -763,9 +772,11 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         // verify queues are disabled as expected after 'drain()'
         for (int i = 0; i < NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
+                ASSERT(!mX.isEnabledQueue(queueIds[i]));
                 ASSERT(0 != mX.enqueueJob(queueIds[i], sleepHardly));
             }
             else {
+                ASSERT(mX.isEnabledQueue(queueIds[i]));
                 ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
             }
         }

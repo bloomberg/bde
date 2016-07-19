@@ -478,6 +478,10 @@ class MultiQueueThreadPool_Queue {
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset.
+
+    bool isEnabled() const;
+        // Report whether enqueuing to this object is enabled.  This object is
+        // constructed with enqueuing enabled.
 };
 
                   // =======================================
@@ -783,7 +787,13 @@ class MultiQueueThreadPool {
     // ACCESSORS
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
-        // currently paused, or 'false' otherwise.
+        // currently paused, or 'false' otherwise.  The effect of this function
+        // is undefined if no queue 'id' exists.
+
+    bool isEnabledQueue(int id) const;
+        // Report whether the queue identified by the specified 'id' is
+        // enabled.  A queue's initial state is enabled.  The effect of this
+        // function is undefined if no queue 'id' exists.
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
@@ -792,7 +802,8 @@ class MultiQueueThreadPool {
     int numElements(int id) const;
         // Return an instantaneous snapshot of the number of elements enqueued
         // in the queue associated with the specified 'id' as a non-negative
-        // integer, or -1 if 'id' does not specify a valid queue.
+        // integer, or -1 if 'id' does not specify a valid queue.  The effect
+        // of this function is undefined if no queue 'id' exists.
 
     void numProcessed(int *numDequeued, int *numEnqueued) const;
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
