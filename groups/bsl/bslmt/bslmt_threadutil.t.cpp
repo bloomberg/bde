@@ -537,13 +537,9 @@ class AllCreateTestFunctor {
     // MANIPULATORS
     void operator()()
     {
-        static u::Mutex localMutex;
-        memset(&localMutex, 0xa5, sizeof(localMutex));
-
         ++*d_numToInc;
         d_mutex->lock();
         BSLS_ASSERT(d_created);
-        BSLS_ASSERT(0 != memcmp(&localMutex, d_mutex, sizeof(*d_mutex)));
         d_mutex->unlock();
         ++*d_numToInc;
 
