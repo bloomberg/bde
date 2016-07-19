@@ -8,6 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
+#include <bsls_log.h>
 
 #include <exception>
 
@@ -66,11 +67,6 @@ void printError(const char *text, const char *file, int line)
     // 'text' or 'file' is empty ("") or null (0), replace it with some
     // informative, "human-readable" text, before formatting.
 {
-
-    // Note that we deliberately use 'stdio' rather than 'iostream' to
-    // avoid issues pertaining to memory allocation for file-scope 'static'
-    // objects such as 'std::cerr'.
-
     if (!text) {
         text = "(* Unspecified Expression Text *)";
     }
@@ -85,11 +81,7 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    std::fprintf(stderr,
-                 "Assertion failed: %s, file %s, line %d\n", text, file, line);
-
-    std::fflush(stderr);  // Not necessary for the default 'stderr', but just
-                          // in case it has been reopened as a buffered stream.
+    bsls::Log::logFormattedMessage(file, line, "Assertion failed: %s", text);
 }
 
 namespace bsls {
@@ -204,9 +196,9 @@ void Assert::failThrow(const char *text, const char *file, int line)
         throw AssertTestException(text, file, line);
     }
     else {
-        std::fprintf(stderr,
+        bsls::Log::logMessage(file, line,
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                " cannot throw 'AssertTestException'.\n");
+                " cannot throw 'AssertTestException'.");
     }
 #endif
 

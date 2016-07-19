@@ -1406,24 +1406,23 @@ class Assert {
         // (Default Handler) Emulate the invocation of the standard 'assert'
         // macro with a 'false' argument, using the specified expression
         // 'text', 'file' name, and 'line' number to generate a helpful output
-        // message and then, after printing this message to 'stderr',
-        // unconditionally aborting.  Note that this handler function is
-        // initially the currently installed one by default.
+        // message and then, after logging, unconditionally aborting.  Note
+        // that this handler function is initially the currently installed one
+        // by default.
 
     BSLS_ASSERT_NORETURN
     static void failSleep(const char *text, const char *file, int line);
         // Use the specified expression 'text', 'file' name, and 'line' number
-        // to generate a helpful output message and then, after printing this
-        // message to 'stderr', sleep within an infinite loop.  Note that this
-        // handler function is useful for hanging a process so that a debugger
-        // may be attached to it.
+        // to generate a helpful output message and then, after logging, spin
+        // in an infinite loop.  Note that this handler function is useful for
+        // hanging a process so that a debugger may be attached to it.
 
     BSLS_ASSERT_NORETURN
     static void failThrow(const char *text, const char *file, int line);
         // Throw a 'AssertTestException' (whose attributes are 'expression',
         // 'filename', and 'lineNumber'), provided that 'BDE_BUILD_TARGET_EXC'
-        // is defined; otherwise, write an appropriate message to 'stderr' and
-        // abort the program (similar to 'failAbort').
+        // is defined; otherwise, log an appropriate message and abort the
+        // program (similar to 'failAbort').
 };
 
                     // ===============================
