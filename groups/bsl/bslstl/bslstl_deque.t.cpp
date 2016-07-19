@@ -3163,8 +3163,8 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     // ------------------------------------------------------------------------
     
     if (verbose) {
-            P_(bsls::NameOf<TYPE>())                                       
-            P(bsls::NameOf<ALLOC>())                                       
+        P(bsls::NameOf<TYPE>())                                       
+        P(bsls::NameOf<ALLOC>())                                       
     }
 
     // N4594: 23.3.8.1 Class template 'deque' overview

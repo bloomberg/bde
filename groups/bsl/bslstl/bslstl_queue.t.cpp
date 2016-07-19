@@ -2165,7 +2165,7 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     // ------------------------------------------------------------------------
 
     if (verbose) {
-        P_(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<VALUE>())
         P(bsls::NameOf<CONTAINER>())
     }
 

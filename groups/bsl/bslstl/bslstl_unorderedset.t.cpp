@@ -2221,10 +2221,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
     // ------------------------------------------------------------------------
 
     if (verbose) {
-        P_(bsls::NameOf<KEY>())
-        P_(bsls::NameOf<HASH>())
-        P_(bsls::NameOf<EQUAL>())
-         P(bsls::NameOf<ALLOC>())
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<HASH>())
+        P(bsls::NameOf<EQUAL>())
+        P(bsls::NameOf<ALLOC>())
     }
    
     // N4594: 23.5.6.1: Class template 'unordered_set' overview
