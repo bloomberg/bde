@@ -296,8 +296,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutilimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
-#include <bslmt_platform.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -356,7 +364,8 @@ struct ThreadUtil {
 
     // TYPES
     typedef ThreadUtilImpl<Platform::ThreadPolicy> Imp;
-        // Platform-specific implementation type.  Do not use directly.
+        // Platform-specific implementation type.  Non-bslmt components should
+        // not use directly.
 
     typedef Imp::Handle                            Handle;
         // Thread handle type.  Use this type to refer to a thread in a
@@ -423,7 +432,6 @@ struct ThreadUtil {
         // 'bslmt'-wide default using 'bslmt::Configuration', because the
         // default stack size is surprisingly small on some platforms.
 
-
     template <class INVOKABLE>
     static int create(Handle                  *handle,
                       const INVOKABLE&         function);
@@ -454,6 +462,37 @@ struct ThreadUtil {
         // newly-created thread.  Also note that users are encouraged to either
         // explicitly provide a stack size attribute, or configure a
         // 'bslmt'-wide default using 'bslmt::Configuration',  because the
+        // default stack size is surprisingly small on some platforms.
+
+    static int createWithAllocator(Handle                  *handle,
+                                   ThreadFunction           function,
+                                   void                    *userData,
+                                   bslma::Allocator        *allocator);
+    static int createWithAllocator(Handle                  *handle,
+                                   const ThreadAttributes&  attributes,
+                                   ThreadFunction           function,
+                                   void                    *userData,
+                                   bslma::Allocator        *allocator);
+        // Create a new thread of program control whose entry point will be the
+        // specified 'function', and which will be passed 'userData' as its
+        // sole argument, and load into the specified 'handle' an identifier
+        // that may be used to refer to this thread in calls to other
+        // 'ThreadUtil' methods.  Optionally specify 'attributes' describing
+        // the properties for the new thread to create.  If 'attributes' is not
+        // supplied, a default 'ThreadAttributes' object is used.  Use the
+        // specified 'allocator' to allocate memory.  Return 0 on success, and
+        // a non-zero value otherwise.  'bslmt::Configuration' is used to
+        // determine the created thread's default stack-size if either
+        // 'attributes' is not supplied or if 'attributes.stackSize()' has the
+        // unset value.  The behavior is undefined unless unless 'attributes',
+        // if specified, has a 'stackSize' that is either greater than 0 or
+        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
+        // explicitly "detached" (by invoking the 'detach' class method with
+        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
+        // to 'join' must be made to reclaim any system resources associated
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
         // default stack size is surprisingly small on some platforms.
 
     template <class INVOKABLE>
@@ -526,6 +565,11 @@ struct ThreadUtil {
         // platform / policy combinations, 'getMinSchedulingPriority(policy)'
         // and 'getMaxSchedulingPriority(policy)' return the same value.
 
+    static void getThreadName(bsl::string *threadName);
+        // Load the name of the current thread into the specified
+        // '*threadName'.  Note that this method clears '*threadName' on all
+        // platforms other than Linux and Darwin.
+
     static int join(Handle& threadHandle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
         // by the specified 'threadHandle' terminates, and reclaim any system
@@ -541,6 +585,13 @@ struct ThreadUtil {
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
         // resolution, and may be significantly longer than the time requested.
+
+    static void setThreadName(const bslstl::StringRef& threadName);
+        // Set the name of the current thread to the specified 'threadName'.
+        // On all platforms other than Linux and Darwin this method has no
+        // effect.  Note that on those two platforms 'threadName' will be
+        // truncated to a length of 15 bytes, not including the terminating
+        // '\0'.
 
     static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
@@ -655,6 +706,8 @@ struct ThreadUtil {
         // note that this value is valid only until the thread terminates, and
         // may be reused thereafter.
 
+
+
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
     static int createKey(Key *key, Destructor threadKeyCleanupFunction);
@@ -714,15 +767,6 @@ struct ThreadUtil {
 
 // CLASS METHODS
 inline
-int bslmt::ThreadUtil::create(Handle                  *handle,
-                              const ThreadAttributes&  attributes,
-                              ThreadFunction           function,
-                              void                    *userData)
-{
-    return Imp::create(handle, attributes, function, userData);
-}
-
-inline
 int bslmt::ThreadUtil::create(Handle         *handle,
                               ThreadFunction  function,
                               void           *userData)
@@ -735,9 +779,7 @@ inline
 int bslmt::ThreadUtil::create(Handle           *handle,
                               const INVOKABLE&  function)
 {
-    return createWithAllocator(handle,
-                               function,
-                               bslma::Default::globalAllocator());
+    return createWithAllocator(handle, function, 0);
 }
 
 template <class INVOKABLE>
@@ -746,10 +788,21 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
                               const INVOKABLE&         function)
 {
-    return createWithAllocator(handle,
-                               attributes,
-                               function,
-                               bslma::Default::globalAllocator());
+    return createWithAllocator(handle, attributes, function, 0);
+}
+
+inline
+int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
+                                           ThreadFunction           function,
+                                           void                    *userData,
+                                           bslma::Allocator        *allocator)
+{
+    (void) allocator;   // 'allocator' is unused in this function, which is
+                        // provided for symmetry and in case this function
+                        // comes to need an allocator at sometime in the
+                        // future.
+
+    return Imp::create(handle, function, userData);
 }
 
 template <class INVOKABLE>
@@ -763,10 +816,13 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
     EntryPointFunctorAdapterUtil::allocateAdapter(
                                    &threadData,
                                    function,
+                                   attributes.threadName(),
                                    bslma::Default::globalAllocator(allocator));
 
-    int rc = create(handle, attributes, bslmt_EntryPointFunctorAdapter_invoker,
-                    threadData.ptr());
+    int rc = Imp::create(handle,
+                         attributes,
+                         bslmt_EntryPointFunctorAdapter_invoker,
+                         threadData.ptr());
     if (0 == rc) {
         threadData.release();
     }
@@ -783,10 +839,11 @@ int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
     EntryPointFunctorAdapterUtil::allocateAdapter(
                                    &threadData,
                                    function,
+                                   bslstl::StringRef(),
                                    bslma::Default::globalAllocator(allocator));
 
-    int rc = create(handle, bslmt_EntryPointFunctorAdapter_invoker,
-                    threadData.ptr());
+    int rc = Imp::create(handle, bslmt_EntryPointFunctorAdapter_invoker,
+                         threadData.ptr());
     if (0 == rc) {
         threadData.release();
     }
@@ -820,6 +877,14 @@ int bslmt::ThreadUtil::getMaxSchedulingPriority(
 }
 
 inline
+void bslmt::ThreadUtil::getThreadName(bsl::string *threadName)
+{
+    BSLS_ASSERT_SAFE(threadName);
+
+    return Imp::getThreadName(threadName);
+}
+
+inline
 int bslmt::ThreadUtil::join(Handle& threadHandle, void **status)
 {
     return Imp::join(threadHandle, status);
@@ -829,6 +894,12 @@ inline
 void bslmt::ThreadUtil::microSleep(int microseconds, int seconds)
 {
     Imp::microSleep(microseconds, seconds);
+}
+
+inline
+void bslmt::ThreadUtil::setThreadName(const bslstl::StringRef& threadName)
+{
+    Imp::setThreadName(threadName);
 }
 
 inline

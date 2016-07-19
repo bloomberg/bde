@@ -128,7 +128,7 @@ inline WordCountJob::WordCountJob(const WordCountJob&  other,
 void WordCountJob::operator()() {
   bool inWord = false;
   *d_result_p = 0;
-  for (int i = 0; i < d_message.length(); ++i) {
+  for (unsigned i = 0; i < d_message.length(); ++i) {
     if (isspace(d_message[i])) {
        inWord = false;
     } else if (!inWord) {
@@ -145,8 +145,8 @@ void WordCountJob::operator()() {
 int main(int argc, char *argv[])
 {
     const int             test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool         verbose = argc > 2;
-    const bool     veryVerbose = argc > 3;
+//  const bool         verbose = argc > 2;    // unused
+//  const bool     veryVerbose = argc > 3;    // unused
     const bool veryVeryVerbose = argc > 4;
 
     bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
@@ -176,7 +176,8 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<
                 bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
             bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
-                                                                 job);
+                                                                 job,
+                                                                 "");
 
             executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
                                 threadData.ptr());

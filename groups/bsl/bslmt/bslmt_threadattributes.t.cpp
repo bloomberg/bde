@@ -13,6 +13,11 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
+
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
@@ -75,6 +80,7 @@ void aSsErT(bool condition, const char *message, int line)
 int verbose;
 int veryVerbose;
 
+typedef bsls::Types::Int64      Int64;
 typedef bslmt::ThreadAttributes Obj;
 
 // ============================================================================
@@ -297,10 +303,15 @@ int main(int argc, char *argv[])
         // newly constructed object, copy the object, and use the accessor for
         // that attribute to verify the value.
         // ------------------------------------------------------------------
+
         if (verbose) {
             cout << "PRIMARY METHOD TEST" << endl;
             cout << "==============" << endl;
         }
+
+        bslma::TestAllocator ta;
+        bslma::TestAllocator da;
+        bslma::DefaultAllocatorGuard dag(&da);
 
         struct Parameters {
             int                    d_line;
@@ -316,29 +327,30 @@ int main(int argc, char *argv[])
             int                   d_whichVerify;
         } PARAM[] = {
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER,
-                0, 0, 0, 0, "woof", 1 },
+                0, 0, 0, 0, "incredibly terribly long thread name", 1 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                0, 0, 0, 0, "woof", 2 },
+                0, 0, 0, 0, "incredibly terribly long thread name", 2 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                5, 0, 0, 0, "woof", 3 },
+                5, 0, 0, 0, "incredibly terribly long thread name", 3 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                4, true, 0, 0, "woof", 4 },
+                4, true, 0, 0, "incredibly terribly long thread name", 4 },
 #ifdef BSLS_PLATFORM_CPU_64_BIT
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 300000, 0, "woof", 5 },
+                3, 0, 300000, 0, "incredibly terribly long thread name", 5 },
 #else
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 80000, 0, "woof", 5 },
+                3, 0, 80000, 0, "incredibly terribly long thread name", 5 },
 #endif
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, "woof", 6 },
+                2, 0, 0, 2000, "incredibly terribly long thread name", 6 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, "woof", 7 }
+                2, 0, 0, 2000, "incredibly terribly long thread name", 7 }
         };
 
         size_t numParams = sizeof(PARAM) / sizeof(Parameters);
         for (unsigned i = 0; i < numParams; ++i) {
-            Obj mX;
+            Int64 numTaPreAlloc = ta.numAllocations();
+            Obj mX(&ta);
             mX.setDetachedState(PARAM[i].d_detachedState);
             mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
             mX.setSchedulingPriority(PARAM[i].d_schedulingPriority);
@@ -347,25 +359,43 @@ int main(int argc, char *argv[])
             mX.setGuardSize(PARAM[i].d_guardSize);
             mX.setThreadName(PARAM[i].d_threadName);
 
+            ASSERT(0 == da.numAllocations());
+            ASSERT(ta.numAllocations() > numTaPreAlloc);
+
             const Obj& X = mX;
 
-            Obj mY;
+            Obj mY(&ta);
             LOOP_ASSERT(i, X != mY);
             mY = X;
             LOOP_ASSERT(i, X == mY);
+
+            const Obj Z(X, &ta);
 
             const Obj& Y = mY;
             switch (PARAM[i].d_whichVerify) {
             case 1:
                 LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_detachedState == X.detachedState());
+                LOOP_ASSERT(PARAM[i].d_line,
                             PARAM[i].d_detachedState == Y.detachedState());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_detachedState == Z.detachedState());
                 break;
             case 2:
                 LOOP_ASSERT(PARAM[i].d_line,
                             PARAM[i].d_schedulingPolicy ==
+                            X.schedulingPolicy());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_schedulingPolicy ==
                             Y.schedulingPolicy());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_schedulingPolicy ==
+                            Z.schedulingPolicy());
                 break;
             case 3:
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_schedulingPriority ==
+                            X.schedulingPriority());
                 LOOP_ASSERT(PARAM[i].d_line,
                             PARAM[i].d_schedulingPriority ==
                             Y.schedulingPriority());
@@ -373,20 +403,40 @@ int main(int argc, char *argv[])
             case 4:
                 LOOP_ASSERT(PARAM[i].d_line,
                             PARAM[i].d_inheritSchedule ==
+                            X.inheritSchedule());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_inheritSchedule ==
                             Y.inheritSchedule());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_inheritSchedule ==
+                            Z.inheritSchedule());
                 break;
             case 5:
                 LOOP2_ASSERT(PARAM[i].d_line,
+                             X.stackSize(), PARAM[i].d_stackSize ==
+                             X.stackSize());
+                LOOP2_ASSERT(PARAM[i].d_line,
                              Y.stackSize(), PARAM[i].d_stackSize ==
                              Y.stackSize());
+                LOOP2_ASSERT(PARAM[i].d_line,
+                             Z.stackSize(), PARAM[i].d_stackSize ==
+                             Z.stackSize());
                 break;
             case 6:
                 LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                            X.guardSize());
+                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
                             Y.guardSize());
+                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                            Z.guardSize());
                 break;
             case 7:
                 LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_threadName == X.threadName());
+                LOOP_ASSERT(PARAM[i].d_line,
                             PARAM[i].d_threadName == Y.threadName());
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_threadName == Z.threadName());
                 break;
             }
         }

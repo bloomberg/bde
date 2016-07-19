@@ -513,8 +513,8 @@ class ThreadAttributes {
 
     bslstl::StringRef threadName() const;
         // Return the 'threadName' attribute of this object.  Note that the
-        // returned string will change if 'setThreadName' is subsequently
-        // called on this object.
+        // returned string reference will be invalidated if 'setThreadName' is
+        // subsequently called on this object.
 };
 
 // FREE OPERATORS

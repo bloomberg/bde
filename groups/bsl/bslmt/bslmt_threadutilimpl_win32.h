@@ -223,6 +223,11 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // policy combinations, 'getMinSchedulingPriority(policy)' and
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
+    static void getThreadName(bsl::string *threadName);
+        // Load the name of the current thread into the specified 'threadName'.
+        // Note that this method clears '*threadName' as thread naming is not
+        // implemented on Windows.
+
     static int join(Handle& thread, void **status = 0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
@@ -234,6 +239,10 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
         // Put the current thread to the end of the scheduler's queue and
         // schedule another thread to run.  This allows cooperating threads of
         // the same priority to share CPU resources equally.
+
+    static void setThreadName(const bslstl::StringRef&  threadName);
+        // Set the name of the current thread to the specified 'threadName'.
+        // On Windows this function has no effect.
 
     static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
@@ -420,9 +429,28 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
 }
 
 inline
+void bslmt::ThreadUtilImpl<bces_Platform::Win32Threads>::getThreadName(
+                                                       bsl::string *threadName)
+{
+    BSLS_ASSERT(threadName);
+
+    threadName->clear();    // Not implemented on Windows, but does clear the
+                            // passed 'bsl::string'.
+}
+
+inline
 void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 {
     ::SleepEx(0, 0);
+}
+
+inline
+void bslmt::hreadUtilImpl<bces_Platform::Win32Threads>::setThreadName(
+                                           const bslstl::StringRef& threadName)
+{
+    // Not implemented on Windows.
+
+    (void) threadName;
 }
 
 inline

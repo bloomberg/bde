@@ -194,6 +194,11 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // platform / policy combinations, 'getMinSchedulingPriority(policy)'
         // and 'getMaxSchedulingPriority(policy)' return the same value.
 
+    static void getThreadName(bsl::string *threadName);
+        // Load the name of the current thread into the specified 'threadName'.
+        // Note that this method clears '*threadName' on all platforms other
+        // than Linux and Darwin.
+
     static int join(Handle& threadHandle, void **status = (void**)0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
@@ -214,6 +219,13 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // and system timer resolution.  Note that the actual time suspended
         // depends on many factors including system scheduling, and system
         // timer resolution.
+
+    static void setThreadName(const bslstl::StringRef& threadName);
+        // Set the name of the current thread to the specified 'threadName'.
+        // On all platforms other than Linux and Darwin this method has no
+        // effect.  Note that on those two platforms 'threadName' will be
+        // truncated to a length of 15 bytes, not including the terminating
+        // '\0'.
 
     static int sleep(const bsls::TimeInterval&  sleepTime,
                      bsls::TimeInterval        *unsleptTime = 0);

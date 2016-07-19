@@ -66,7 +66,7 @@ bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
 
 void bslmt::ThreadAttributes::setThreadName(const bslstl::StringRef& value)
 {
-    d_threadName = value;
+    d_threadName.assign(value);
 }
 
 // FREE OPERATORS
