@@ -429,7 +429,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::
 }
 
 inline
-void bslmt::ThreadUtilImpl<bces_Platform::Win32Threads>::getThreadName(
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::getThreadName(
                                                        bsl::string *threadName)
 {
     BSLS_ASSERT(threadName);
@@ -445,7 +445,7 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 }
 
 inline
-void bslmt::hreadUtilImpl<bces_Platform::Win32Threads>::setThreadName(
+void bslmt::hreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
                                            const bslstl::StringRef& threadName)
 {
     // Not implemented on Windows.
