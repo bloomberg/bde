@@ -296,6 +296,7 @@ using namespace BloombergLP;
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
+// [40] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [-1] PERFORMANCE
 //-----------------------------------------------------------------------------
 //
@@ -3173,13 +3174,15 @@ struct Harness {
         // 'ALLOCATOR'.  See the test case function for documented concerns and
         // test plan.
 
+    static void testCase40(int value);
+        // Test 'noexcept' specifications
+
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
     template <class T>
     static const T&             testArg(T& t, bsl::false_type);
         // TBD write a contract for these overloads
 };
-
 
 // Inline methods are defined before the remaining class methods.
 
@@ -5844,6 +5847,35 @@ void Harness::testCase34_AllocatorAware()
     ASSERT(dam.isInUseSame());
 }
 
+void Harness::testCase40(int value)
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(value)
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
 
 template <int N>
 void testMyTestArg()
@@ -6081,6 +6113,17 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 40: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        Harness::testCase40(40);
+
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY

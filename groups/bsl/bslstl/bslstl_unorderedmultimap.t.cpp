@@ -210,7 +210,8 @@ using bsls::NameOf;
 // [23] CONCERN: 'unordered_multimap' has the necessary type traits.
 // [  ] CONCERN: The type provides the full interface defined by the standard.
 // [36] CONCERN: The values are spread into different buckets.
-// [35] CONCERN: 'unordered_multimap' supports incomplete types.
+// [35] CONCERN: 'unordered_multimap' supports incomplete types
+// [37] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1144,6 +1145,9 @@ class TestDriver {
 #endif
   public:
     // TEST CASES
+    static void testCase37();
+        // Test 'noexcept' specifications
+
     static void testCase34();
         // Growing functions.
 
@@ -1910,6 +1914,41 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
     return result;
 }
 #endif
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<HASH>())
+        P(bsls::NameOf<EQUAL>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
@@ -9743,6 +9782,17 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 37: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase37();
+
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

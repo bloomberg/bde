@@ -207,6 +207,7 @@ using bsls::NameOf;
 // [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [25] CONCERN: The type provides the full interface defined by the standard.
+// [34] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1086,6 +1087,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase34();
+        // Test 'noexcept' specifications
+
     static void testCase32();
         // Test initializer list functions.
 
@@ -1728,6 +1732,41 @@ TestDriver<KEY, COMP, ALLOC>::testCase31a_RunTest(Obj *target,
 
     return result;
 }
+
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase34()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<COMP>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
+
+
 
 template <class KEY, class COMP, class ALLOC>
 void TestDriver<KEY, COMP, ALLOC>::testCase32()
@@ -9660,6 +9699,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase34();
+
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

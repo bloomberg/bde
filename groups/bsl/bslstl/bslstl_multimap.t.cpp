@@ -22,6 +22,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 
 #include <limits.h>
@@ -209,6 +210,7 @@ using namespace bsl;
 // [24] CONCERN: Constructor of a template wrapper class compiles.
 // [25] CONCERN: The type provides the full interface defined by the standard.
 // [33] CONCERN: 'multimap' supports incomplete types.
+// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1055,7 +1057,7 @@ class TestDriver {
     // to right to configure the object according to a custom language.
     // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
     // values to be appended to the 'multimap<KEY, VALUE, COMP, ALLOC>' object.
-    //
+    //..
     // LANGUAGE SPECIFICATION:
     // -----------------------
     //
@@ -1076,6 +1078,7 @@ class TestDriver {
     // "AA"         Insert two values both corresponding to A.
     // "ABC"        Insert three values corresponding to A, B and C.
     //-------------------------------------------------------------------------
+    //..
 
     static int ggg(Obj *object, const char *spec, int verbose = 1);
         // Configure the specified 'object' according to the specified 'spec',
@@ -1192,6 +1195,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase34();
+        // Test 'noexcept' specifications
+
     static void testCase32();
         // Test initializer list functions.
 
@@ -1900,6 +1906,40 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj   *target,
     return result;
 }
 #endif
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<COMP>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
@@ -9836,6 +9876,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 35: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase34();
+
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

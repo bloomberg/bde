@@ -228,6 +228,7 @@ using bsl::pair;
 // [ 3] Obj& gg(Obj *, const char *);
 // [11] Obj  g(const char *);
 // [ 3] bool verifySpec(const Obj&, const char *, bool = false);
+// [38] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // [22] CONCERN: 'unordered_map' is compatible with standard allocators.
 // [23] CONCERN: 'unordered_map' has the necessary type traits.
@@ -6475,6 +6476,8 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase38();
+        // Test 'noexcept' specifications
 
     static void testCase35();
         // Bucket Growth
@@ -7241,8 +7244,49 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
 }
 #endif
 
+<<<<<<< HEAD
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase35()
+=======
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<MAPPED>())
+        P(bsls::NameOf<HASH>())
+        P(bsls::NameOf<EQUAL>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
+
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
+>>>>>>> 9373a9c... BDE-1247: 'noexcept': Added empty, but working test cases.
 {
     // ------------------------------------------------------------------------
     // BUCKET GROWTH
@@ -16206,6 +16250,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
+      case 38: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase38();
+
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

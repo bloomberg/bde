@@ -22,6 +22,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -187,6 +188,7 @@ using namespace bsl;
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
+// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -929,7 +931,7 @@ struct TestDriver {
     // indicates that the logical (but not necessarily physical) state of the
     // object is to be set to its initial, empty state (via the 'clear'
     // method).
-    //
+    //..
     // LANGUAGE SPECIFICATION:
     // -----------------------
     //
@@ -959,6 +961,7 @@ struct TestDriver {
     // "ABC~DE"     Append three values corresponding to A, B, and C; empty
     //              the object; and append values corresponding to D and E.
     //-------------------------------------------------------------------------
+    //..
 
     // TYPES
     typedef bsl::vector<TYPE,ALLOC>               Obj;
@@ -1108,6 +1111,9 @@ struct TestDriver {
         // semantics based on integer template parameters 'N01' ... 'N10'.
 
     // TEST CASES
+    static void testCase35();
+        // Test 'noexcept' specifications
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for operators that take a range of inputs.
@@ -1373,6 +1379,38 @@ void TestDriver<TYPE, ALLOC>::stretchRemoveAll(Obj         *object,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase35()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
@@ -13084,6 +13122,18 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int  >::testCase35();
+        TestDriver<int *>::testCase35();
+
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

@@ -219,7 +219,8 @@ using bsl::list;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [34] USAGE EXAMPLE
-// [29] Concern: All emplace methods handle rvalues.
+// [29] CONCERN: All emplace methods handle rvalues.
+// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -2545,6 +2546,9 @@ struct TestDriver {
 
     static void test33_initializerList();
         // Test initializer lists.
+
+    static void testCase35_noexcept();
+        // Test 'noexcept' specifications
 };
 
                         // --------------------------------
@@ -2807,6 +2811,37 @@ void TestDriver<TYPE,ALLOC>::primaryManipulator(Obj *container,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    if (verbose) {
+        P_(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+}
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::test33_initializerList()
@@ -12525,6 +12560,17 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase35_noexcept();
+
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:

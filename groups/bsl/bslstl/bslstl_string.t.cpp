@@ -315,6 +315,7 @@ using bsls::nameOfType;
 // [25] CONCERN: 'std::length_error' is used properly
 // [27] DRQS 16870796
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
+// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1100,6 +1101,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase35();
+        // Test 'noexcept' specifications
+
     static void testCase33();
         // Test the 'initializer_list' functions where supported.
 
@@ -1405,6 +1409,41 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<TRAITS>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
+
+
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
@@ -17197,6 +17236,17 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase35();
+
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
