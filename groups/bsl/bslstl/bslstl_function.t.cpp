@@ -305,6 +305,21 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+namespace BloombergLP {
+
+template <class PROTOTYPE>
+class bdef_Function<PROTOTYPE*> : public bsl::function<PROTOTYPE>
+{
+    // Stub implementation of 'bdef_Function' for conversion testing.
+    // An object of this type is never created in this test driver, but
+    // conversion to and from this type is tested.
+};
+
+} //  close enterprise namespace
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 // Size type used by test allocator.
 typedef bsls::Types::Int64 AllocSizeType;
 
@@ -1400,6 +1415,20 @@ const Obj& movedFromMarker = movedFromMarkerBuf.object();
 //=============================================================================
 //                  TEST FUNCTIONS
 //-----------------------------------------------------------------------------
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// Return 1 if called with a non-const 'bsl::function<PROTO>'.
+int bdefOverload(BloombergLP::bdef_Function<PROTO*>&)
+{
+    return 1;
+}
+
+// Return 2 if called with a const 'bsl::function<PROTO>'.
+int bdefOverload(const BloombergLP::bdef_Function<PROTO*>&)
+{
+    return 2;
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class T, class RET, class ARG>
 void testPtrToMemFunc(const char *prototypeStr)
@@ -2954,6 +2983,69 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
+      case 18: {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        // --------------------------------------------------------------------
+        // CONVERSION TO/FROM 'bdef_Function' 
+        //
+        // Concerns:
+        //: 1 An object of 'bsl::function<F*>' type can be implicitly converted
+        //:   to a reference to 'bdef_Function<F>'.
+        //: 2 The resulting 'bdef_Function' reference, when upcast back to a
+        //:   'bsl::function' reference has the same address as the original.
+        //: 3 Constness is perserved in the conversion.
+        //: 4 The implicit conversion to 'bdef_Function' reference works with
+        //:   overloading.
+        //
+        // Plan
+        //: 1 For concern 1, initialize a reference to 'bdef_Function<F*>' from
+        //:   a non-empty object of type 'bsl::function<F>'.
+        //: 2 For concern 2, initialize a reference to 'bsl::function<F>'.
+        //:   from the reference created in step 1.  Verify that the address
+        //:   of the original object matches the address of the new reference.
+        //: 3 For concern 3, repeat steps 1 and 2, except initialize const
+        //:   references from non-const references and const references from
+        //:   const references.
+        //: 4 For concern 4, create two functions named 'bdefOverload', one
+        //:   taking a 'bdef_Function<F*>&' and returning '1' and the other
+        //:   taking a 'const bdef_Function<F*>&' and returning '2'.  Call
+        //:   'bdefOverload' with each the const and non-const
+        //:   'bsl::function<F>' objects and verify that the correct one was
+        //:   called.
+        //
+        // Testing:
+        //      operator BloombergLP::bdef_Function<RET(*)(Args...)>&()
+        //      operator BloombergLP::bdef_Function<RET(*)(Args...)> const&()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONVERSION TO 'bdef_Function'"
+                            "\n=============================\n");
+
+        typedef bsl::function<PROTO>               BslObj;
+        typedef BloombergLP::bdef_Function<PROTO*> BdefObj;
+
+        SmallFunctor sf(1);
+        BslObj f1(sf); const BslObj& F1 = f1;
+
+        // Step 1
+        BdefObj &r1 = f1;
+
+        // Step 2
+        BslObj  &r2 = r1;
+        ASSERT(&f1 == &r2);
+
+        // Step 3
+        const BdefObj &r3 = f1;
+        ASSERT(&f1 == &r3);
+        const BdefObj &R4 = F1;
+        ASSERT(&F1 == &R4);
+
+        // Step 4
+        ASSERT(1 == bdefOverload(f1));
+        ASSERT(2 == bdefOverload(F1));
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TRAITS
