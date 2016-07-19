@@ -445,7 +445,7 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::yield()
 }
 
 inline
-void bslmt::hreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
+void bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::setThreadName(
                                            const bslstl::StringRef& threadName)
 {
     // Not implemented on Windows.
