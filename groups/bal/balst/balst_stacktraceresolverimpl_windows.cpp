@@ -26,6 +26,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 #include <bsls_platform.h>
+#include <bsls_log.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -75,7 +76,7 @@ void reportError(const char *string)
     if (reportTimes > 0) {
         --reportTimes;
 
-        bsl::cerr << string << lastError << bsl::endl;
+        BSLS_LOG("%s: %d", string, static_cast<int>(lastError));
     }
 }
 
@@ -88,8 +89,8 @@ namespace balst {
        // =============================================================
 
 int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
-                                                  StackTrace *stackTrace,
-                                                  bool              demangle)
+                                                    StackTrace *stackTrace,
+                                                    bool              demangle)
     // Given a specified stack trace object 'stackTrace' of stack trace frames
     // with only their 'address' fields valid, set as many other fields of the
     // frames as possible.  The 'demangle' argument is ignored, demangling
@@ -141,7 +142,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
             frame->setLineNumber(line.LineNumber);
         }
         else {
-            reportError("stack trace resovler error: symGetLineFromAddr64"
+            reportError("stack trace resolver error: symGetLineFromAddr64"
                         " error code: ");
         }
         DWORD64 offsetFromSymbol = 0;
@@ -169,10 +170,10 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
         }
         else {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-            reportError("stack trace resovler error: SymFromAddr"
+            reportError("stack trace resolver error: SymFromAddr"
                         " error code: ");
 #else
-            reportError("stack trace resovler error: SymGetSymFromAddr64"
+            reportError("stack trace resolver error: SymGetSymFromAddr64"
                         " error code: ");
 #endif
         }

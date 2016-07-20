@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(bslx_testinstream_cpp,"$Id$ $CSID$")
 #include <bslx_testoutstream.h>                 // for testing only
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iomanip.h>
@@ -55,11 +56,8 @@ void TestInStream::checkArray(TypeCode::Enum code,
     d_cursor += k_SIZEOF_ARRLEN;
     if (numElemFound != numElements) {
         if (!d_quietFlag) {
-            bsl::fprintf(stderr,
-                         "*** TestInStream: Expecting array length %d"
-                         ", but found length %d ***\n",
-                         numElements,
-                         numElemFound);
+            BSLS_LOG("*** TestInStream: Expecting array length %d,"
+               " but found length %d ***", numElements, numElemFound);
         }
         invalidate();
         return;                                                       // RETURN
@@ -82,12 +80,10 @@ void TestInStream::checkTypeCodeAndAvailableLength(
         d_cursor += k_SIZEOF_CODE;
         if (codeFound != code) {
             if (!d_quietFlag) {
-                bsl::fprintf(stderr,
-                             "*** TestInStream: Expecting type %s"
-                             ", but found type %s ***\n",
-                             TypeCode::toAscii(code),
-                             TypeCode::toAscii(
-                                      static_cast<TypeCode::Enum>(codeFound)));
+                BSLS_LOG("*** TestInStream: Expecting type %s,"
+                    " but found type %s ***\n",
+                    TypeCode::toAscii(code),
+                    TypeCode::toAscii(static_cast<TypeCode::Enum>(codeFound)));
             }
             invalidate();
             return;                                                   // RETURN
