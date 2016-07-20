@@ -366,7 +366,7 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         static unsigned int count = 0;
         if (count <= 100 && 0 == count % 10) {
-            BSLS_LOG_SIMPLE("Error: Allocating 0 bytes [reserveCapacity]");
+            BSLS_LOG_ERROR("Error: Allocating 0 bytes [reserveCapacity]");
         }
         ++count;
         return;                                                       // RETURN

@@ -747,11 +747,9 @@ struct LogMessageSink {
                                    const char              *file,
                                    int                      line,
                                    const char              *message);
-        // Copy the 'severity' to 's_severity', the specified 'file' string
-        // into 's_file'.  Write the specified 'line' to 's_line'.  Copy the
-        // specified 'message' into 's_message'.  The behavior is undefined
-        // unless 'f' is a null-terminated string, 'line' is not negative, and
-        // 'message' is a null-terminated string.
+        // Copy the specified 'severity', 'file', 'line', and 'message' to the
+        // correspondng public data members of this 'struct'.  The behavior is
+        // undefined unless 'line >= 0'.
 };
 
 // PUBLIC CLASS DATA
@@ -1597,7 +1595,7 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 'BSLS_LOG_[LEVEL]' forwards its arguments to 'BSLS_LOG'
-        //:    correctly, suppling 'LEVEL' as the severity (where 'LEVEL' is
+        //:    correctly, supplying 'LEVEL' as the severity (where 'LEVEL' is
         //:    'FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', or 'TRACE').
         //:
         // Plan:
@@ -1708,13 +1706,13 @@ int main(int argc, char *argv[]) {
         // CLASS METHODS 'setSeverityThreshold','severityThreshold'
         //
         // Concerns:
-        //: 1 That the default value for 'severityThreshold' is 'e_WARN'
+        //: 1 That the default value for 'severityThreshold' is 'e_WARN'.
         //:
         //: 2 That 'setSeverityThreshold' sets 'severityThreshold' to the
-        //:   supplied 'severity'
-        //:
+        //:   supplied 'severity'.
+        //
         // Plan:
-        //: 1 Manually test the default 'severityThreshold' value (C-1)
+        //: 1 Manually test the default 'severityThreshold' value. (C-1)
         //:
         //: 2 Perform a loop-based test setting the threshold with
         //:   'severityThreshold', and verifying the value is assigned
@@ -2135,7 +2133,8 @@ int main(int argc, char *argv[]) {
         //:   parameters. (C-1)
         //:
         //: 4 Perform a table based test to confirm that 'logMessage' writes
-        //:   a message only if it exceeds the current threshold.  (C-4)
+        //:   a message only if it meets or exceeds the current threshold. 
+        //:   (C-4)
         //:
         //: 5 Reset the sink.  Call 'BSLS_LOG_SIMPLE' with a simple message
         //:   that includes 'printf'-style formats that should not be formatted
@@ -2752,10 +2751,10 @@ int main(int argc, char *argv[]) {
         //:   other line number} X {empty message string, non-empty message
         //:   string}
         //:
-        //: 4 Both methods handle different values for 'severity'
+        //: 4 Both methods handle different values for 'severity'.
         //:
         //: 5 Both methods properly handle the extreme value 'INT_MAX' for the
-        //:   line number
+        //:   line number.
         //
         // Plan:
         //: 1 For each handler, write a simple string and capture its output.

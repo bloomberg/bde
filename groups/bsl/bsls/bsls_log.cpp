@@ -75,7 +75,7 @@ BufferScopedGuard::BufferScopedGuard()
 
 BufferScopedGuard::~BufferScopedGuard()
 {
-    if(d_buffer_p) {
+    if (d_buffer_p) {
         free(d_buffer_p);
     }
 }
@@ -88,7 +88,7 @@ char* BufferScopedGuard::allocate(size_t numBytes) {
     // block is moved).  The code itself does not rely on this ability, so we
     // do not want the inefficiency of the copy if it does not need to be done.
 
-    if(d_buffer_p) {
+    if (d_buffer_p) {
         free(d_buffer_p);
     }
 
@@ -150,10 +150,10 @@ int vsnprintf_alwaysCount(char       *buffer,
     count = _vscprintf(format, substitutions_copy);
     va_end(substitutions_copy);
 
-    if(count >= 0) {
+    if (count >= 0) {
         // Because 'count >= 0', the cast to 'size_t' is safe.
         const size_t countCasted = static_cast<size_t>(count);
-        if(size > countCasted) {
+        if (size > countCasted) {
             count = vsnprintf(buffer, size, format, substitutions);
         }
     }
@@ -208,24 +208,24 @@ int vsnprintf_allocate(char                 *originalBuffer,
                                        substitutions_copy);
     va_end(substitutions_copy);
 
-    if(status >= 0) {
+    if (status >= 0) {
         // Cast is safe because status is nonnegative
         const size_t statusCasted = static_cast<size_t>(status);
-        if(statusCasted + 1 > originalBufferSize) {
+        if (statusCasted + 1 > originalBufferSize) {
             // The number of needed characters did not fit in the buffer, so we
             // must allocate and then call 'vsnprintf' again (this time, we do
             // not need the alwaysCount variant).
             bufferSize = statusCasted + 1;
             buffer = guard.allocate(bufferSize);
 
-            if(buffer) {
+            if (buffer) {
                 const int newStatus = vsnprintf(buffer,
                                                 bufferSize,
                                                 format,
                                                 substitutions);
-                if(newStatus != status) {
+                if (newStatus != status) {
                     // Some weird error.
-                    if(newStatus < 0) {
+                    if (newStatus < 0) {
                         // If the new status was negative then we should return
                         // the new status so the user can get better error
                         // information:
@@ -351,7 +351,7 @@ void Log::logFormattedMessage(bsls::LogSeverity::Enum  severity,
                                           substitutions);
     va_end(substitutions);
 
-    if(status < 0) {
+    if (status < 0) {
         BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR, "Low-level log failure.");
         // Weird error.  Could be a memory allocation failure.  Just quit.
         return;                                                       // RETURN
@@ -368,7 +368,7 @@ void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // First, we will check if we have a valid handle to 'stderr'.
     const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
-    if(   stderrHandle == NULL
+    if (   stderrHandle == NULL
        || stderrHandle == INVALID_HANDLE_VALUE
        || GetConsoleWindow() == NULL) {
         // Even if the handle is neither null nor 'INVALID_HANDLE_VALUE', it
@@ -409,7 +409,7 @@ void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
                                           line,
                                           message);
 
-        if(status >= 4) {
+        if (status >= 4) {
             // Ensure no weird errors happened.  At least four characters must
             // have been written.  Note that checking for 'status >= 4' and not
             // 'status >= 0' is simply a convenience, and should not make a

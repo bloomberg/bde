@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::LogSeverity: namespace for enumerating logging severity levels
 //
+//@SEE_ALSO: bsls_log
+//
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
@@ -76,14 +78,14 @@ namespace bsls {
                          // ==================
 
 struct LogSeverity {
-    // This 'struct' provides a namespace for enumerating the set of system
-    // clock type for use in distinguishing which system clock to use for
-    // measuring time.  See 'Enum' in the TYPES sub-section for details.
+    // This 'struct' provides a namespace for enumerating the set of logging
+    // severity levels used in the 'bsls' logging framework (see {'bsls_log'}).
+    // See 'Enum' in the TYPES sub-section for details.
 
   public:
     // TYPES
     enum Enum {
-        // Enumeration clock type values.
+        // Enumeration of logging severity levels.
 
         e_FATAL = 0,  // a condition that will (likely) cause a *crash*
         e_ERROR = 1,  // a condition that *will* cause incorrect behavior
@@ -119,7 +121,7 @@ struct LogSeverity {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

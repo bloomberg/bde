@@ -159,18 +159,18 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
 
 inline static 
 ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
-    // Return the bael log severity equivalent to the specified 'severity'.
+    // Return the bsls log severity equivalent to the specified 'severity'.
 {
     switch (severity) {
-        case bsls::LogSeverity::e_FATAL: return bael_Severity::e_FATAL;
-        case bsls::LogSeverity::e_ERROR: return bael_Severity::e_ERROR;
-        case bsls::LogSeverity::e_WARN:  return bael_Severity::e_WARN;
-        case bsls::LogSeverity::e_INFO:  return bael_Severity::e_INFO;
-        case bsls::LogSeverity::e_DEBUG: return bael_Severity::e_DEBUG;
-        case bsls::LogSeverity::e_TRACE: return bael_Severity::e_TRACE;
+        case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
+        case bsls::LogSeverity::e_ERROR: return ball::Severity::e_ERROR;
+        case bsls::LogSeverity::e_WARN:  return ball::Severity::e_WARN;
+        case bsls::LogSeverity::e_INFO:  return ball::Severity::e_INFO;
+        case bsls::LogSeverity::e_DEBUG: return ball::Severity::e_DEBUG;
+        case bsls::LogSeverity::e_TRACE: return ball::Severity::e_TRACE;
     }
     BSLS_ASSERT_OPT(false && "Unreachable by design");
-    return bael_Severity::BAEL_ERROR;
+    return ball::Severity::e_ERROR;
 }
 
 static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
@@ -178,11 +178,12 @@ static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
     // handler.  This lock prevents the logger manager from being destroyed
     // concurrently to an attempt to log a record.
 
-void bslsLogMessage(const char *fileName,
-                    int         lineNumber,
-                    const char *message)
-    // Write a 'ball' record having the specified 'fileName', 'lineNumber', and
-    // 'message'.  Note that this function signature matches
+void bslsLogMessage(bsls::LogSeverity::Enum  severity,
+                    const char              *fileName,
+                    int                      lineNumber,
+                    const char              *message)
+    // Write a 'ball' record having the specified 'severity', 'fileName',
+    // 'lineNumber', and 'message'.  Note that this function signature matches
     // 'bsls_Log::LogMessageHandler' and is intended to be installed a
     // 'bsls_Log' message handler.
 {

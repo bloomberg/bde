@@ -56,7 +56,7 @@ void TestInStream::checkArray(TypeCode::Enum code,
     d_cursor += k_SIZEOF_ARRLEN;
     if (numElemFound != numElements) {
         if (!d_quietFlag) {
-            BSLS_LOG("*** TestInStream: Expecting array length %d,"
+            BSLS_LOG_ERROR("*** TestInStream: Expecting array length %d,"
                " but found length %d ***", numElements, numElemFound);
         }
         invalidate();
@@ -80,7 +80,7 @@ void TestInStream::checkTypeCodeAndAvailableLength(
         d_cursor += k_SIZEOF_CODE;
         if (codeFound != code) {
             if (!d_quietFlag) {
-                BSLS_LOG("*** TestInStream: Expecting type %s,"
+                BSLS_LOG_ERROR("*** TestInStream: Expecting type %s,"
                     " but found type %s ***\n",
                     TypeCode::toAscii(code),
                     TypeCode::toAscii(static_cast<TypeCode::Enum>(codeFound)));

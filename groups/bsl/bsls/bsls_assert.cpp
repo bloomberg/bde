@@ -9,6 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
 #include <bsls_log.h>
+#include <bsls_logseverity.h>
 
 #include <exception>
 
@@ -81,7 +82,8 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    bsls::Log::logFormattedMessage(file, line, "Assertion failed: %s", text);
+    bsls::Log::logFormattedMessage(
+        bsls::LogSeverity::e_ERROR, file, line, "Assertion failed: %s", text);
 }
 
 namespace bsls {
@@ -196,7 +198,7 @@ void Assert::failThrow(const char *text, const char *file, int line)
         throw AssertTestException(text, file, line);
     }
     else {
-        bsls::Log::logMessage(file, line,
+        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR, file, line,
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
                 " cannot throw 'AssertTestException'.");
     }
