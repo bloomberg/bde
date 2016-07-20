@@ -1,11 +1,11 @@
 // bslstl_unorderedmultimap.cpp                                       -*-C++-*-
 #include <bslstl_unorderedmultimap.h>
 
-#include <bslstl_pair.h>    // for testing only
-#include <bslstl_string.h>  // for testing only
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslstl_iterator.h>  // for testing only
+#include <bslstl_string.h>    // for testing only
 
 namespace bsl
 {
