@@ -805,8 +805,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class U1, class U2>
     pair(U1&& a,
          U2&& b,
-         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value &&
-                                     bsl::is_convertible<U2, T2>::value,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0)
     : FirstBase(BSLS_COMPILERFEATURES_FORWARD(U1, a))
     , SecondBase(BSLS_COMPILERFEATURES_FORWARD(U2, b))
@@ -822,8 +822,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class U1, class U2>
     pair(const U1& a,
          const U2& b,
-         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value &&
-                                     bsl::is_convertible<U2, T2>::value,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0)
     : FirstBase(a)
     , SecondBase(b)
@@ -839,8 +839,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class U1, class U2>
     pair(U1&       a,
          const U2& b,
-         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value &&
-                                     bsl::is_convertible<U2, T2>::value,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0)
     : FirstBase(a)
     , SecondBase(b)
@@ -856,8 +856,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class U1, class U2>
     pair(const U1& a,
          U2&       b,
-         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value &&
-                                     bsl::is_convertible<U2, T2>::value,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0)
     : FirstBase(a)
     , SecondBase(b)
@@ -873,8 +873,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     template <class U1, class U2>
     pair(U1& a,
          U2& b,
-         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value &&
-                                     bsl::is_convertible<U2, T2>::value,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0)
     : FirstBase(a)
     , SecondBase(b)
@@ -931,6 +931,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // compile-time error.  This method requires that 'T1' and 'T2' be
         // copy-constructible.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    pair(pair&& original);
+    pair(pair&& original, AllocatorPtr basicAllocator);
+#else
     pair(BloombergLP::bslmf::MovableRef<pair> original);
     pair(BloombergLP::bslmf::MovableRef<pair> original,
          AllocatorPtr                         basicAllocator);
@@ -943,9 +947,13 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // 'original' is left in a valid but unspecified state.  Also note that
         // this method requires that (template parameter) types 'T1' and 'T2'
         // be move-constructible.
+#endif
 
     template <class U1, class U2>
-    pair(const pair<U1, U2>& other);
+    pair(const pair<U1, U2>& other,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
+                                 void *>::type = 0);
     template <class U1, class U2>
     pair(const pair<U1, U2>& other, AllocatorPtr basicAllocator);
         // Construct a 'pair' from the specified 'other' pair, holding 'first'
@@ -959,7 +967,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U1, class U2>
-    pair(pair<U1, U2>&& other);
+    pair(pair<U1, U2>&& other,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
+                                 void *>::type = 0);
     template <class U1, class U2>
     pair(pair<U1, U2>&& other, AllocatorPtr basicAllocator);
         // Construct a 'pair' from the specified 'other' pair, holding 'first'
@@ -972,7 +983,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // from 'U1' and 'U2', respectively.
 #else
     template <class U1, class U2>
-    pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other);
+    pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
+                                 void *>::type = 0);
     template <class U1, class U2>
     pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
          AllocatorPtr basicAllocator);
@@ -987,7 +1001,10 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 #endif
 
     template <class U1, class U2>
-    pair(const native_std::pair<U1, U2>&  rhs);                     // IMPLICIT
+    pair(const native_std::pair<U1, U2>&  rhs,
+         typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                              && bsl::is_convertible<U2, T2>::value,
+                                 void *>::type = 0);                // IMPLICIT
     template <class U1, class U2>
     pair(const native_std::pair<U1, U2>&  rhs,
          BloombergLP::bslma::Allocator   *basicAllocator);
@@ -1723,6 +1740,27 @@ pair<T1, T2>::pair(const pair& original, AllocatorPtr basicAllocator)
 {
 }
 
+#if defined (BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class T1, class T2>
+inline
+pair<T1, T2>::pair(pair&& original)
+: FirstBase(BSLS_COMPILERFEATURES_FORWARD(T1,original.first))
+, SecondBase(BSLS_COMPILERFEATURES_FORWARD(T2,original.second))
+{
+}
+
+template <class T1, class T2>
+inline
+pair<T1, T2>::pair(pair&& original, AllocatorPtr basicAllocator)
+: FirstBase(BSLS_COMPILERFEATURES_FORWARD(T1,original.first),
+            basicAllocator,
+            FirstBslmaIdiom())
+, SecondBase(BSLS_COMPILERFEATURES_FORWARD(T2,original.second),
+             basicAllocator,
+             SecondBslmaIdiom())
+{
+}
+#else
 template <class T1, class T2>
 inline
 pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original)
@@ -1743,11 +1781,15 @@ pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original,
              SecondBslmaIdiom())
 {
 }
+#endif
 
 template <class T1, class T2>
 template <class U1, class U2>
 inline
-pair<T1, T2>::pair(const pair<U1, U2>& other)
+pair<T1, T2>::pair(const pair<U1, U2>& other,
+                   typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                                        && bsl::is_convertible<U2, T2>::value,
+                                           void *>::type)
 : FirstBase(other.first)
 , SecondBase(other.second)
 {
@@ -1765,7 +1807,10 @@ pair<T1, T2>::pair(const pair<U1, U2>& other, AllocatorPtr basicAllocator)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class T1, class T2>
 template <class U1, class U2>
-pair<T1, T2>::pair(pair<U1, U2>&& other)
+pair<T1, T2>::pair(pair<U1, U2>&& other,
+                   typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                                        && bsl::is_convertible<U2, T2>::value,
+                                           void *>::type)
 : FirstBase(MovUtil::move(other.first))
 , SecondBase(MovUtil::move(other.second))
 {
@@ -1781,7 +1826,10 @@ pair<T1, T2>::pair(pair<U1, U2>&& other, AllocatorPtr basicAllocator)
 #else
 template <class T1, class T2>
 template <class U1, class U2>
-pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other)
+pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
+                   typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                                        && bsl::is_convertible<U2, T2>::value,
+                                           void *>::type)
 : FirstBase(MovUtil::move(MovUtil::access(other).first))
 , SecondBase(MovUtil::move(MovUtil::access(other).second))
 {
@@ -1802,7 +1850,10 @@ pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
 
 template <class T1, class T2>
 template <class U1, class U2>
-pair<T1, T2>::pair(const native_std::pair<U1, U2>& rhs)
+pair<T1, T2>::pair(const native_std::pair<U1, U2>& rhs,
+                   typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
+                                        && bsl::is_convertible<U2, T2>::value,
+                                           void *>::type)
 : FirstBase(rhs.first)
 , SecondBase(rhs.second)
 {
