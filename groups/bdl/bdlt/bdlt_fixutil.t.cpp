@@ -1,5 +1,5 @@
-// bdlt_iso8601util.t.cpp                                             -*-C++-*-
-#include <bdlt_iso8601util.h>
+// bdlt_fixutil.t.cpp                                                 -*-C++-*-
+#include <bdlt_fixutil.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -31,7 +31,7 @@ using namespace bsl;
 // The component under test consists of a suite of static member functions
 // (pure functions) that perform conversions between the values of several
 // 'bdlt' vocabulary types and corresponding string representations, where the
-// latter are defined by the ISO 8601 standard.  The general plan is that each
+// latter are defined by the FIX standard.  The general plan is that each
 // function is to be independently tested using the table-driven technique.  A
 // set of test vectors is defined globally for use in testing all functions.
 // This global data is sufficient for thoroughly testing the string generating
@@ -167,17 +167,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBALS, TYPEDEFS, CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlt::Iso8601Util              Util;
-typedef bdlt::Iso8601UtilConfiguration Config;
+typedef bdlt::FixUtil              Util;
+typedef bdlt::FixUtilConfiguration Config;
 
-typedef bslstl::StringRef              StrRef;
+typedef bslstl::StringRef          StrRef;
 
 const int k_DATE_MAX_PRECISION       = 3;
 const int k_DATETZ_MAX_PRECISION     = 3;
 const int k_DATETIME_MAX_PRECISION   = 6;
 const int k_DATETIMETZ_MAX_PRECISION = 6;
 const int k_TIME_MAX_PRECISION       = 3;
-const int k_TIMETZ_MAX_PRECISION     = 3;
+
+const int k_TIMETZ_MAX_PRECISION     = 0;  // ensures a fractional second is
+                                           // never generated
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -189,25 +191,25 @@ const int k_TIMETZ_MAX_PRECISION     = 3;
 // *** 'Date' Data ***
 
 struct DefaultDateDataRow {
-    int         d_line;     // source line number
-    int         d_year;     // year (of calendar date)
-    int         d_month;    // month
-    int         d_day;      // day
-    const char *d_iso8601;  // ISO 8601 string
+    int         d_line;   // source line number
+    int         d_year;   // year (of calendar date)
+    int         d_month;  // month
+    int         d_day;    // day
+    const char *d_fix;    // FIX string
 };
 
 static
 const DefaultDateDataRow DEFAULT_DATE_DATA[] =
 {
-    //LINE   YEAR   MONTH   DAY      ISO8601
-    //----   ----   -----   ---    ------------
-    { L_,       1,      1,    1,   "0001-01-01" },
-    { L_,       9,      9,    9,   "0009-09-09" },
-    { L_,      30,     10,   20,   "0030-10-20" },
-    { L_,     842,     12,   19,   "0842-12-19" },
-    { L_,    1847,      5,   19,   "1847-05-19" },
-    { L_,    2000,      2,   29,   "2000-02-29" },
-    { L_,    9999,     12,   31,   "9999-12-31" },
+    //LINE   YEAR   MONTH   DAY      FIX
+    //----   ----   -----   ---    ----------
+    { L_,       1,      1,    1,   "00010101" },
+    { L_,       9,      9,    9,   "00090909" },
+    { L_,      30,     10,   20,   "00301020" },
+    { L_,     842,     12,   19,   "08421219" },
+    { L_,    1847,      5,   19,   "18470519" },
+    { L_,    2000,      2,   29,   "20000229" },
+    { L_,    9999,     12,   31,   "99991231" },
 };
 const int NUM_DEFAULT_DATE_DATA =
         static_cast<int>(sizeof DEFAULT_DATE_DATA / sizeof *DEFAULT_DATE_DATA);
@@ -215,26 +217,25 @@ const int NUM_DEFAULT_DATE_DATA =
 // *** 'Time' Data ***
 
 struct DefaultTimeDataRow {
-    int         d_line;     // source line number
-    int         d_hour;     // hour (of day)
-    int         d_min;      // minute
-    int         d_sec;      // second
-    int         d_msec;     // millisecond
-    int         d_usec;     // microsecond
-    const char *d_iso8601;  // ISO 8601 string
+    int         d_line;  // source line number
+    int         d_hour;  // hour (of day)
+    int         d_min;   // minute
+    int         d_sec;   // second
+    int         d_msec;  // millisecond
+    int         d_usec;  // microsecond
+    const char *d_fix;   // FIX string
 };
 
 static
 const DefaultTimeDataRow DEFAULT_TIME_DATA[] =
 {
-    //LINE   HOUR   MIN   SEC   MSEC   USEC         ISO8601
+    //LINE   HOUR   MIN   SEC   MSEC   USEC           FIX
     //----   ----   ---   ---   ----   ----    -----------------
     { L_,       0,    0,    0,     0,     0,   "00:00:00.000000" },
     { L_,       1,    2,    3,     4,     5,   "01:02:03.004005" },
     { L_,      10,   20,   30,    40,    50,   "10:20:30.040050" },
     { L_,      19,   43,   27,   805,   107,   "19:43:27.805107" },
     { L_,      23,   59,   59,   999,   999,   "23:59:59.999999" },
-    { L_,      24,    0,    0,     0,     0,   "24:00:00.000000" },
 };
 const int NUM_DEFAULT_TIME_DATA =
         static_cast<int>(sizeof DEFAULT_TIME_DATA / sizeof *DEFAULT_TIME_DATA);
@@ -244,13 +245,13 @@ const int NUM_DEFAULT_TIME_DATA =
 struct DefaultZoneDataRow {
     int         d_line;     // source line number
     int         d_offset;   // offset (in minutes) from UTC
-    const char *d_iso8601;  // ISO 8601 string
+    const char *d_fix;  // FIX string
 };
 
 static
 const DefaultZoneDataRow DEFAULT_ZONE_DATA[] =
 {
-    //LINE   OFFSET   ISO8601
+    //LINE   OFFSET     FIX
     //----   ------   --------
     { L_,     -1439,  "-23:59" },
     { L_,      -120,  "-02:00" },
@@ -258,50 +259,51 @@ const DefaultZoneDataRow DEFAULT_ZONE_DATA[] =
     { L_,         0,  "+00:00" },
     { L_,        90,  "+01:30" },
     { L_,       240,  "+04:00" },
-    { L_,      1439,  "+23:59" },
+    { L_,      1439,  "+23:59" }
 };
 const int NUM_DEFAULT_ZONE_DATA =
         static_cast<int>(sizeof DEFAULT_ZONE_DATA / sizeof *DEFAULT_ZONE_DATA);
+
+static
+const DefaultZoneDataRow EXTENDED_ZONE_DATA[] =
+{
+    //LINE   OFFSET    FIX
+    //----   ------   -----
+    { L_,         0,  "Z"   },
+    { L_,      -120,  "-02" },
+    { L_,         0,  "-00" },
+    { L_,         0,  "+00" },
+    { L_,        60,  "+01" },
+    { L_,       600,  "+10" }
+};
+const int NUM_EXTENDED_ZONE_DATA =
+      static_cast<int>(sizeof EXTENDED_ZONE_DATA / sizeof *EXTENDED_ZONE_DATA);
 
 // *** Configuration Data ***
 
 struct DefaultCnfgDataRow {
     int  d_line;       // source line number
-    bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
     int  d_precision;  // 'precision'                     "
-    bool d_useComma;   // 'useCommaForDecimalSign'        "
     bool d_useZ;       // 'useZAbbreviationForUtc'        "
 };
 
 static
 const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
 {
-    //LINE   omit ':'   precision   use ','   use 'Z'
-    //----   --------   ---------   -------   -------
-    { L_,      false,          3,   false,    false  },
-    { L_,      false,          3,   false,     true  },
-    { L_,      false,          3,    true,    false  },
-    { L_,      false,          3,    true,     true  },
-    { L_,      false,          6,   false,    false  },
-    { L_,      false,          6,   false,     true  },
-    { L_,      false,          6,    true,    false  },
-    { L_,      false,          6,    true,     true  },
-    { L_,       true,          3,   false,    false  },
-    { L_,       true,          3,   false,     true  },
-    { L_,       true,          3,    true,    false  },
-    { L_,       true,          3,    true,     true  },
-    { L_,       true,          6,   false,    false  },
-    { L_,       true,          6,   false,     true  },
-    { L_,       true,          6,    true,    false  },
-    { L_,       true,          6,    true,     true  },
+    //LINE   precision   use 'Z'
+    //----   ---------   -------
+    { L_,            3,    false },
+    { L_,            3,     true },
+    { L_,            6,    false },
+    { L_,            6,     true },
 
     // additional configurations
 
-    { L_,      false,          0,   false,    false  },
-    { L_,      false,          1,   false,    false  },
-    { L_,      false,          2,   false,    false  },
-    { L_,      false,          4,   false,    false  },
-    { L_,      false,          5,   false,    false  }
+    { L_,            0,    false },
+    { L_,            1,    false },
+    { L_,            2,    false },
+    { L_,            4,    false },
+    { L_,            5,    false }
 };
 const int NUM_DEFAULT_CNFG_DATA =
         static_cast<int>(sizeof DEFAULT_CNFG_DATA / sizeof *DEFAULT_CNFG_DATA);
@@ -420,6 +422,7 @@ const BadTimeDataRow BAD_TIME_DATA[] =
 
     { L_,   "12:60"                  },  // length = 5
     { L_,   "2:001"                  },
+    { L_,   "23,01"                  },
     { L_,   "24:01"                  },
     { L_,   "25:00"                  },
     { L_,   "99:00"                  },
@@ -439,7 +442,9 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "12:2:001"               },  // length = 8
     { L_,   "3:02:001"               },
     { L_,   "3:2:0001"               },
+    { L_,   "20:20,51"               },
     { L_,   "20:20:61"               },
+    { L_,   "24:00:00"               },
     { L_,   "24:00:01"               },
 
     { L_,   "04:05:06."              },  // length = 9
@@ -452,8 +457,11 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "24:00:00.1"             },
 
     { L_,   "24:00:00.01"            },  // length = 11
+    { L_,   "03:02:001,9"            },
 
-    { L_,   "24:00:00.001"           },  // length = 12
+    { L_,   "23:00:00,000"           },  // length = 12
+    { L_,   "24:00:00.000"           },
+    { L_,   "24:00:00.001"           },
     { L_,   "24:00:00.999"           },
     { L_,   "25:00:00.000"           },
 };
@@ -476,13 +484,14 @@ const BadZoneDataRow BAD_ZONE_DATA[] =
     { L_,   "+"                      },
     { L_,   "-"                      },
     { L_,   "T"                      },
+    { L_,   "z"                      },
 
     { L_,   "+0"                     },  // length = 2
     { L_,   "-0"                     },
     { L_,   "Z0"                     },
 
-    { L_,   "+01"                    },  // length = 3
-    { L_,   "-01"                    },
+    { L_,   "+24"                    },  // length = 3
+    { L_,   "-24"                    },
 
     { L_,   "+10:"                   },  // length = 4
     { L_,   "-10:"                   },
@@ -493,6 +502,8 @@ const BadZoneDataRow BAD_ZONE_DATA[] =
     { L_,   "-01:1"                  },
     { L_,   "+1:12"                  },
     { L_,   "+12:1"                  },
+    { L_,   "+0000"                  },
+    { L_,   "-0000"                  },
     { L_,   "+2360"                  },
     { L_,   "-2360"                  },
     { L_,   "+2400"                  },
@@ -523,20 +534,16 @@ const int NUM_BAD_ZONE_DATA =
 static
 Config& gg(Config *object,
            int     fractionalSecondPrecision,
-           bool    omitColonInZoneDesignatorFlag,
-           bool    useCommaForDecimalSignFlag,
            bool    useZAbbreviationForUtcFlag)
     // Return, by reference, the specified '*object' with its value adjusted
-    // according to the specified 'omitColonInZoneDesignatorFlag',
-    // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
+    // according to the specified 'fractionalSecondPrecision' and
+    // 'useZAbbreviationForUtcFlag'.
 {
     if (fractionalSecondPrecision > 6) {
         fractionalSecondPrecision = 6;
     }
 
     object->setFractionalSecondPrecision(fractionalSecondPrecision);
-    object->setOmitColonInZoneDesignator(omitColonInZoneDesignatorFlag);
-    object->setUseCommaForDecimalSign(useCommaForDecimalSignFlag);
     object->setUseZAbbreviationForUtc(useZAbbreviationForUtcFlag);
 
     return *object;
@@ -546,20 +553,14 @@ static
 void updateExpectedPerConfig(bsl::string   *expected,
                              const Config&  configuration,
                              int            maxPrecision)
-    // Update the specified 'expected' ISO 8601 string as if it were generated
-    // using the specified 'configuration'.  The behavior is undefined unless
-    // the zone designator within 'expected' (if any) is of the form
-    // "(+|-)dd:dd".
+    // Update the specified 'expected' FIX string as if it were generated using
+    // the specified 'configuration' with the precision limited by the
+    // specified 'maxPrecision'.  The behavior is undefined unless the timezone
+    // offset within 'expected' (if any) is of the form "(+|-)dd:dd".
 {
     ASSERT(expected);
 
     const bsl::string::size_type index = expected->find('.');
-
-    if (configuration.useCommaForDecimalSign()) {
-        if (index != bsl::string::npos) {
-            (*expected)[index] = ',';
-        }
-    }
 
     if (index != bsl::string::npos) {
         bsl::string::size_type length = 0;
@@ -588,12 +589,11 @@ void updateExpectedPerConfig(bsl::string   *expected,
     const int ZONELEN = static_cast<int>(sizeof "+dd:dd") - 1;
 
     if (expected->length() < ZONELEN
-     || (!configuration.useZAbbreviationForUtc()
-      && !configuration.omitColonInZoneDesignator())) {
+     || (!configuration.useZAbbreviationForUtc())) {
         return;                                                       // RETURN
     }
 
-    // See if the tail of 'expected' has the pattern of a zone designator.
+    // See if the tail of 'expected' has the pattern of a timezone offset.
 
     const bsl::string::size_type zdx = expected->length() - ZONELEN;
 
@@ -615,14 +615,6 @@ void updateExpectedPerConfig(bsl::string   *expected,
             expected->push_back('Z');
 
             return;                                                   // RETURN
-        }
-    }
-
-    if (configuration.omitColonInZoneDesignator()) {
-        const bsl::string::size_type index = expected->find_last_of(':');
-
-        if (index != bsl::string::npos) {
-            expected->erase(index, 1);
         }
     }
 }
@@ -687,8 +679,8 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::Iso8601Util' Usage
-/// - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Basic 'bdlt::FixUtil' Usage
+/// - - - - - - - - - - - - - - - - - - -
 // This example demonstrates basic use of one 'generate' function and two
 // 'parse' functions.
 //
@@ -699,14 +691,14 @@ int main(int argc, char *argv[])
     const bdlt::Time time(8, 59, 59, 123);  // 08:59:59.123
     const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
 //..
-// Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding ISO
-// 8601-compliant string will be generated shortly:
+// Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding
+// FIX-compliant string will be generated shortly:
 //..
     const bdlt::DatetimeTz sourceDatetimeTz(bdlt::Datetime(date, time),
                                             tzOffset);
 //..
-// For comparison with the ISO 8601 string generated below, note that streaming
-// the value of 'sourceDatetimeTz' to 'stdout':
+// For comparison with the FIX string generated below, note that streaming the
+// value of 'sourceDatetimeTz' to 'stdout':
 //..
 if (veryVerbose)
     bsl::cout << sourceDatetimeTz << bsl::endl;
@@ -715,18 +707,16 @@ if (veryVerbose)
 //..
 //  31JAN2005_08:59:59.123000+0400
 //..
-// Next, we use a 'generate' function to produce an ISO 8601-compliant string
-// for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
-// assert that both the return value and the string that is produced are as
-// expected:
+// Next, we use a 'generate' function to produce a FIX-compliant string for
+// 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and assert
+// that both the return value and the string that is produced are as expected:
 //..
     bsl::ostringstream  oss;
-    const bsl::ostream& ret =
-                           bdlt::Iso8601Util::generate(oss, sourceDatetimeTz);
+    const bsl::ostream& ret = bdlt::FixUtil::generate(oss, sourceDatetimeTz);
     ASSERT(&oss == &ret);
 
-    const bsl::string iso8601 = oss.str();
-    ASSERT(iso8601 == "2005-01-31T08:59:59.123+04:00");
+    const bsl::string fix = oss.str();
+    ASSERT(fix == "20050131-08:59:59.123+04:00");
 //..
 // For comparison, see the output that was produced by the streaming operator
 // above.
@@ -738,149 +728,129 @@ if (veryVerbose)
 //..
     bdlt::DatetimeTz targetDatetimeTz;
 
-    int rc = bdlt::Iso8601Util::parse(&targetDatetimeTz,
-                                      iso8601.c_str(),
-                                      static_cast<int>(iso8601.length()));
+    int rc = bdlt::FixUtil::parse(&targetDatetimeTz,
+                                  fix.c_str(),
+                                  static_cast<int>(fix.length()));
     ASSERT(               0 == rc);
     ASSERT(sourceDatetimeTz == targetDatetimeTz);
 //..
-// Finally, we parse the 'iso8601' string a second time, this time loading the
+// Finally, we parse the 'fix' string a second time, this time loading the
 // result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
 //..
     bdlt::Datetime targetDatetime;
 
-    rc = bdlt::Iso8601Util::parse(&targetDatetime,
-                                  iso8601.c_str(),
-                                  static_cast<int>(iso8601.length()));
+    rc = bdlt::FixUtil::parse(&targetDatetime,
+                              fix.c_str(),
+                              static_cast<int>(fix.length()));
     ASSERT(                             0 == rc);
     ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
 //
-///Example 2: Configuring ISO 8601 String Generation
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates use of a 'bdlt::Iso8601UtilConfiguration' object
-// to influence the format of the ISO 8601 strings that are generated by this
-// component by passing that configuration object to 'generate'.  We also take
-// this opportunity to illustrate the flavor of the 'generate' functions that
+///Example 2: Configuring FIX String Generation
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates use of a 'bdlt::FixUtilConfiguration' object to
+// influence the format of the FIX strings that are generated by this component
+// by passing that configuration object to 'generate'.  We also take this
+// opportunity to illustrate the flavor of the 'generate' functions that
 // outputs to a 'char *' buffer of a specified length.
 //
-// First, we construct a 'bdlt::TimeTz' object for which a corresponding ISO
-// 8601-compliant string will be generated shortly:
+// First, we construct the 'bdlt::FixUtilConfiguration' object that indicates
+// how we would like to affect the generated output FIX string.  In this case,
+// we want to have microsecond precision displayed:
 //..
-    const bdlt::TimeTz sourceTimeTz(time, tzOffset);
+    bdlt::FixUtilConfiguration configuration;
+
+    configuration.setFractionalSecondPrecision(6);
 //..
-// For comparison with the ISO 8601 string generated below, note that streaming
-// the value of 'sourceTimeTz' to 'stdout':
-//..
-if (veryVerbose)
-    bsl::cout << sourceTimeTz << bsl::endl;
-//..
-// produces:
-//..
-//  08:59:59.123+0400
-//..
-// Then, we construct the 'bdlt::Iso8601UtilConfiguration' object that
-// indicates how we would like to affect the generated output ISO 8601 string.
-// In this case, we want to use ',' as the decimal sign (in fractional seconds)
-// and omit the ':' in zone designators:
-//..
-    bdlt::Iso8601UtilConfiguration configuration;
-    configuration.setOmitColonInZoneDesignator(true);
-    configuration.setUseCommaForDecimalSign(true);
-//..
-// Next, we define the 'char *' buffer that will be used to stored the
-// generated string.  A buffer of size 'bdlt::Iso8601Util::k_TIMETZ_STRLEN + 1'
+// Then, we define the 'char *' buffer that will be used to stored the
+// generated string.  A buffer of size 'bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1'
 // is large enough to hold any string generated by this component for a
-// 'bdlt::TimeTz' object, including a null terminator:
+// 'bdlt::DatetimeTz' object, including a null terminator:
 //..
-    const int BUFLEN = bdlt::Iso8601Util::k_TIMETZ_STRLEN + 1;
+    const int BUFLEN = bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1;
     char      buffer[BUFLEN];
 //..
-// Then, we use a 'generate' function that accepts our 'configuration' to
-// produce an ISO 8601-compliant string for 'sourceTimeTz', this time writing
-// the output to a 'char *' buffer, and assert that both the return value and
-// the string that is produced are as expected.  Note that in comparing the
-// return value against 'BUFLEN - 2' we account for the omission of the ':'
-// from the zone designator, and also for the fact that, although a null
+// Next, we use a 'generate' function that accepts our 'configuration' to
+// produce a FIX-compliant string for 'sourceDatetimeTz', this time writing the
+// output to a 'char *' buffer, and assert that both the return value and the
+// string that is produced are as expected.  Note that in comparing the return
+// value against 'BUFLEN - 1' we account for the fact that, although a null
 // terminator was generated, it is not included in the character count returned
 // by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
 // string knowing that we supplied a buffer having sufficient capacity to
 // accommodate a null terminator:
 //..
-    rc = bdlt::Iso8601Util::generate(buffer,
-                                     BUFLEN,
-                                     sourceTimeTz,
-                                     configuration);
-    ASSERT(BUFLEN - 2 == rc);
-    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
+    rc = bdlt::FixUtil::generate(buffer,
+                                 BUFLEN,
+                                 sourceDatetimeTz,
+                                 configuration);
+    ASSERT(BUFLEN - 1 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer,
+                                     "20050131-08:59:59.123000+04:00"));
 //..
 // For comparison, see the output that was produced by the streaming operator
 // above.
 //
 // Next, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::TimeTz' object, and assert that the parse was
+// parse into a second 'bdlt::DatetimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
-// 'BUFLEN' because the former indicates the correct number of characters in
-// 'buffer' that we wish to parse:
+// original (i.e., 'sourceDatetimeTz').  Note that 'BUFLEN - 1' is passed and
+// *not* 'BUFLEN' because the former indicates the correct number of characters
+// in 'buffer' that we wish to parse:
 //..
-    bdlt::TimeTz targetTimeTz;
+    rc = bdlt::FixUtil::parse(&targetDatetimeTz, buffer, BUFLEN - 1);
 
-    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
-
-    ASSERT(           0 == rc);
-    ASSERT(sourceTimeTz == targetTimeTz);
+    ASSERT(               0 == rc);
+    ASSERT(sourceDatetimeTz == targetDatetimeTz);
 //..
 // Then, we parse the string in 'buffer' a second time, this time loading the
-// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
 //..
-    bdlt::Time targetTime;
+    rc = bdlt::FixUtil::parse(&targetDatetime, buffer, BUFLEN - 1);
 
-    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
-    ASSERT(                     0 == rc);
-    ASSERT(sourceTimeTz.utcTime() == targetTime);
+    ASSERT(                             0 == rc);
+    ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
 //
-// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
-// fractional seconds:
+// Finally, we modify the 'configuration' to display the 'bdlt::DatetimeTz'
+// without fractional seconds:
 //..
     configuration.setFractionalSecondPrecision(0);
-    rc = bdlt::Iso8601Util::generate(buffer,
-                                     BUFLEN,
-                                     sourceTimeTz,
-                                     configuration);
-    ASSERT(BUFLEN - 6 == rc);
-    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+    rc = bdlt::FixUtil::generate(buffer,
+                                 BUFLEN,
+                                 sourceDatetimeTz,
+                                 configuration);
+    ASSERT(BUFLEN - 8 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer, "20050131-08:59:59+04:00"));
 //..
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
         // PARSE: DATETIME & DATETIMETZ
         //
         // Concerns:
-        //: 1 All ISO 8601 string representations supported by this component
+        //: 1 All FIX string representations supported by this component
         //:   (as documented in the header file) for 'Datetime' and
         //:   'DatetimeTz' values are parsed successfully.
         //:
         //: 2 If parsing succeeds, the result 'Datetime' or 'DatetimeTz' object
         //:   has the expected value.
         //:
-        //: 3 If the optional zone designator is present in the input string
+        //: 3 If the optional timezone offset is present in the input string
         //:   when parsing into a 'Datetime' object, the resulting value is
         //:   converted to the equivalent UTC datetime.
         //:
-        //: 4 If the optional zone designator is *not* present in the input
+        //: 4 If the optional timezone offset is *not* present in the input
         //:   string when parsing into a 'DatetimeTz' object, it is assumed to
         //:   be UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
-        //: 6 All strings that are not ISO 8601 representations supported by
+        //: 6 All strings that are not FIX representations supported by
         //:   this component for 'Datetime' and 'DatetimeTz' values are
         //:   rejected (i.e., parsing fails).
         //:
@@ -897,7 +867,7 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values ('D'), 'Time' values ('T'), zone designators ('Z'),
+        //:   'Date' values ('D'), 'Time' values ('T'), timezone offsets ('Z'),
         //:   and configurations ('C').
         //:
         //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
@@ -908,15 +878,15 @@ if (veryVerbose)
         //:   result objects have the expected values.  (C-1..5)
         //:
         //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not ISO 8601 representations supported by this
+        //:   strings that are not FIX representations supported by this
         //:   component for 'Datetime' and 'DatetimeTz' values.
         //:
         //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
         //:   that parsing fails, i.e., that a non-zero value is returned and
         //:   the result objects are unchanged.  (C-6..8)
         //:
-        //: 6 Using the table-driven technique, specify a set of distinct ISO
-        //:   8601 strings that specifically cover cases involving leap
+        //: 6 Using the table-driven technique, specify a set of distinct FIX
+        //:   strings that specifically cover cases involving leap
         //:   seconds, fractional seconds containing more than three digits,
         //:   and extremal values.
         //:
@@ -958,11 +928,15 @@ if (veryVerbose)
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
 
+        const int                  NUM_EXT_ZONE_DATA =  NUM_EXTENDED_ZONE_DATA;
+        const DefaultZoneDataRow (&EXT_ZONE_DATA)[NUM_EXT_ZONE_DATA] =
+                                                            EXTENDED_ZONE_DATA;
+
         const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
         const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
                                                              DEFAULT_CNFG_DATA;
 
-        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+        if (verbose) cout << "\nValid FIX strings." << endl;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
             const int ILINE = DATE_DATA[ti].d_line;
@@ -991,9 +965,7 @@ if (veryVerbose)
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
-                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                         const int  PRECISION = CNFG_DATA[tc].d_precision;
-                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                         int expMsec = MSEC;
@@ -1041,14 +1013,13 @@ if (veryVerbose)
                                 T_ P_(ILINE) P_(JLINE) P_(KLINE)
                                                     P_(DATETIME) P(DATETIMETZ);
                             }
-                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                          P_(USECOMMA) P(USEZ);
+                            T_ P_(CLINE) P_(PRECISION) P(USEZ);
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, USEZ);
 
-                        // without zone designator in parsed string
+                        // without timezone offset in parsed string
                         {
                             const int LENGTH = Util::generateRaw(buffer,
                                                                  DATETIME,
@@ -1095,7 +1066,123 @@ if (veryVerbose)
                                            0 == Z.offset());
                         }
 
-                        // with zone designator in parsed string
+                        // with timezone offset in parsed string
+                        {
+                            if ((DATE == bdlt::Date() && OFFSET > 0)
+                             || (DATE == bdlt::Date(9999, 12, 31)
+                              && OFFSET < 0)) {
+                                continue;  // skip invalid compositions
+                            }
+
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIMETZ,
+                                                                 C);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                                  bdlt::Datetime    mX(XX);
+                            const bdlt::Datetime&   X = mX;
+
+                                  bdlt::DatetimeTz  mZ(ZZ);
+                            const bdlt::DatetimeTz& Z = mZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ.utcDatetime() == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ               == Z);
+
+                            mX = XX;
+                            mZ = ZZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ.utcDatetime() == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ,
+                                                     StrRef(buffer, LENGTH)));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ               == Z);
+                        }
+                    }  // loop over 'CNFG_DATA'
+                }  // loop over 'ZONE_DATA'
+
+                for (int tk = 0; tk < NUM_EXT_ZONE_DATA; ++tk) {
+                    const int KLINE  = EXT_ZONE_DATA[tk].d_line;
+                    const int OFFSET = EXT_ZONE_DATA[tk].d_offset;
+
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
+                        && OFFSET != 0) {
+                        continue;  // skip invalid compositions
+                    }
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        int expMsec = MSEC;
+                        int expUsec = USEC;
+                        {
+                            // adjust the expected milliseconds to account for
+                            // PRECISION truncating the value generated
+
+                            int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec *= 10;
+                            }
+
+                            // adjust the expected microseconds to account for
+                            // PRECISION truncating the value generated
+
+                            precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec *= 10;
+                            }
+                        }
+
+                        const bdlt::Datetime   DATETIME(YEAR,
+                                                        MONTH,
+                                                        DAY,
+                                                        HOUR,
+                                                        MIN,
+                                                        SEC,
+                                                        expMsec,
+                                                        expUsec);
+                        const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                        if (veryVerbose) {
+                            if (0 == tc) {
+                                T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                                                    P_(DATETIME) P(DATETIMETZ);
+                            }
+                            T_ P_(CLINE) P_(PRECISION) P(USEZ);
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, PRECISION, USEZ);
+
+                        // with timezone offset in parsed string
                         {
                             if ((DATE == bdlt::Date() && OFFSET > 0)
                              || (DATE == bdlt::Date(9999, 12, 31)
@@ -1148,19 +1235,6 @@ if (veryVerbose)
             }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
 
-        {
-            // verify 't' and 'z' are accepted
-
-            bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
-            bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
-
-            ASSERT(0 == Util::parse(&mX, "0001-02-03t01:02:03z", 20));
-            ASSERT(X == bdlt::Datetime(1, 2, 3, 1, 2, 3));
-
-            ASSERT(0 == Util::parse(&mZ, "0001-02-03t01:02:03z", 20));
-            ASSERT(Z == bdlt::DatetimeTz(bdlt::Datetime(1, 2, 3, 1, 2, 3), 0));
-        }
-
         if (verbose) cout << "\nInvalid strings." << endl;
         {
             bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
@@ -1207,7 +1281,7 @@ if (veryVerbose)
                 // Initialize with a *valid* date string, then append an
                 // invalid time.
 
-                bsl::string bad("2010-08-17");
+                bsl::string bad("20100817");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -1257,9 +1331,9 @@ if (veryVerbose)
                 const int LINE = ZONE_DATA[tk].d_line;
 
                 // Initialize with a *valid* datetime string, then append an
-                // invalid zone designator.
+                // invalid timezone offset.
 
-                bsl::string bad("2010-08-17T12:26:52.726");
+                bsl::string bad("20100817-12:26:52.726");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -1310,12 +1384,14 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                          << endl;
+        if (verbose) {
+            cout << "\nTesting optional, leap, and fractional seconds."
+                 << endl;
+        }
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_year;
                 int         d_month;
                 int         d_day;
@@ -1326,69 +1402,81 @@ if (veryVerbose)
                 int         d_usec;
                 int         d_offset;
             } DATA[] = {
-                // leap seconds
-                { L_, "0001-01-01T00:00:60.000",
+                // optional seconds
+                { L_, "00010101-00:00",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "00010101-00:01",
                                      0001, 01, 01, 00, 01, 00, 000, 000,   0 },
-                { L_, "9998-12-31T23:59:60.999",
+                { L_, "00010101-01:00",
+                                     0001, 01, 01, 01, 00, 00, 000, 000,   0 },
+                { L_, "00010101-01:01",
+                                     0001, 01, 01, 01, 01, 00, 000, 000,   0 },
+
+                // leap seconds
+                { L_, "00010101-00:00:60.000",
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
+                { L_, "99981231-23:59:60.999",
                                      9999, 01, 01, 00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
-                { L_, "0001-01-01T00:00:00.0000001",
+                { L_, "00010101-00:00:00.0000001",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.0000009",
+                { L_, "00010101-00:00:00.0000009",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.00000001",
+                { L_, "00010101-00:00:00.00000001",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.00000049",
+                { L_, "00010101-00:00:00.00000049",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.00000050",
+                { L_, "00010101-00:00:00.00000050",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.00000099",
+                { L_, "00010101-00:00:00.00000099",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.0001",
+                { L_, "00010101-00:00:00.0001",
                                      0001, 01, 01, 00, 00, 00, 000, 100,   0 },
-                { L_, "0001-01-01T00:00:00.0009",
+                { L_, "00010101-00:00:00.0009",
                                      0001, 01, 01, 00, 00, 00, 000, 900,   0 },
-                { L_, "0001-01-01T00:00:00.00001",
+                { L_, "00010101-00:00:00.00001",
                                      0001, 01, 01, 00, 00, 00, 000,  10,   0 },
-                { L_, "0001-01-01T00:00:00.00049",
+                { L_, "00010101-00:00:00.00049",
                                      0001, 01, 01, 00, 00, 00, 000, 490,   0 },
-                { L_, "0001-01-01T00:00:00.00050",
+                { L_, "00010101-00:00:00.00050",
                                      0001, 01, 01, 00, 00, 00, 000, 500,   0 },
-                { L_, "0001-01-01T00:00:00.00099",
+                { L_, "00010101-00:00:00.00099",
                                      0001, 01, 01, 00, 00, 00, 000, 990,   0 },
-                { L_, "0001-01-01T00:00:00.9994" ,
+                { L_, "00010101-00:00:00.9994" ,
                                      0001, 01, 01, 00, 00, 00, 999, 400,   0 },
-                { L_, "0001-01-01T00:00:00.9995" ,
+                { L_, "00010101-00:00:00.9995" ,
                                      0001, 01, 01, 00, 00, 00, 999, 500,   0 },
-                { L_, "0001-01-01T00:00:00.9999" ,
+                { L_, "00010101-00:00:00.9999" ,
                                      0001, 01, 01, 00, 00, 00, 999, 900,   0 },
-                { L_, "9998-12-31T23:59:60.9999" ,
+                { L_, "99981231-23:59:60.9999" ,
                                      9999, 01, 01, 00, 00, 00, 999, 900,   0 },
-                { L_, "0001-01-01T00:00:00.9999994" ,
+                { L_, "00010101-00:00:00.9999994" ,
                                      0001, 01, 01, 00, 00, 00, 999, 999,   0 },
-                { L_, "0001-01-01T00:00:00.9999995" ,
+                { L_, "00010101-00:00:00.9999995" ,
                                      0001, 01, 01, 00, 00, 01, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.9999999" ,
+                { L_, "00010101-00:00:00.9999999" ,
                                      0001, 01, 01, 00, 00, 01, 000, 000,   0 },
-                { L_, "9998-12-31T23:59:60.9999999" ,
+                { L_, "99981231-23:59:60.9999999" ,
                                      9999, 01, 01, 00, 00, 01, 000, 000,   0 },
 
                 // omit fractional seconds
-                { L_, "2014-12-23T12:34:45",
+                { L_, "00010101-00:00:60",
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
+                { L_, "20141223-12:34:45",
                                      2014, 12, 23, 12, 34, 45, 000, 000,   0 },
-                { L_, "2014-12-23T12:34:45Z",
+                { L_, "20141223-12:34:45Z",
                                      2014, 12, 23, 12, 34, 45, 000, 000,   0 },
-                { L_, "2014-12-23T12:34:45+00:30",
+                { L_, "20141223-12:34:45+00:30",
                                      2014, 12, 23, 12, 34, 45, 000, 000,  30 },
-                { L_, "2014-12-23T12:34:45-01:30",
+                { L_, "20141223-12:34:45-01:30",
                                      2014, 12, 23, 12, 34, 45, 000, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   YEAR   = DATA[ti].d_year;
                 const int   MONTH  = DATA[ti].d_month;
@@ -1437,12 +1525,12 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting zone designators that overflow a 'Datetime'."
+            cout << "\nTesting timezone offsets that overflow a 'Datetime'."
                  << endl;
         {
             struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_year;
                 int         d_month;
                 int         d_day;
@@ -1452,25 +1540,25 @@ if (veryVerbose)
                 int         d_msec;
                 int         d_offset;
             } DATA[] = {
-                { L_, "0001-01-01T00:00:00.000+00:00",
+                { L_, "00010101-00:00:00.000+00:00",
                                         0001, 01, 01, 00, 00, 00, 000,     0 },
-                { L_, "0001-01-01T00:00:00.000+00:01",
+                { L_, "00010101-00:00:00.000+00:01",
                                         0001, 01, 01, 00, 00, 00, 000,     1 },
-                { L_, "0001-01-01T23:58:59.000+23:59",
+                { L_, "00010101-23:58:59.000+23:59",
                                         0001, 01, 01, 23, 58, 59, 000,  1439 },
 
-                { L_, "9999-12-31T23:59:59.999+00:00",
+                { L_, "99991231-23:59:59.999+00:00",
                                         9999, 12, 31, 23, 59, 59, 999,     0 },
-                { L_, "9999-12-31T23:59:59.999-00:01",
+                { L_, "99991231-23:59:59.999-00:01",
                                         9999, 12, 31, 23, 59, 59, 999,    -1 },
-                { L_, "9999-12-31T00:01:00.000-23:59",
+                { L_, "99991231-00:01:00.000-23:59",
                                         9999, 12, 31, 00, 01, 00, 000, -1439 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   YEAR   = DATA[ti].d_year;
                 const int   MONTH  = DATA[ti].d_month;
@@ -1586,24 +1674,24 @@ if (veryVerbose)
         // PARSE: TIME & TIMETZ
         //
         // Concerns:
-        //: 1 All ISO 8601 string representations supported by this component
+        //: 1 All FIX string representations supported by this component
         //:   (as documented in the header file) for 'Time' and 'TimeTz' values
         //:   are parsed successfully.
         //:
         //: 2 If parsing succeeds, the result 'Time' or 'TimeTz' object has the
         //:   expected value.
         //:
-        //: 3 If the optional zone designator is present in the input string
+        //: 3 If the optional timezone offset is present in the input string
         //:   when parsing into a 'Time' object, the resulting value is
         //:   converted to the equivalent UTC time.
         //:
-        //: 4 If the optional zone designator is *not* present in the input
+        //: 4 If the optional timezone offset is *not* present in the input
         //:   string when parsing into a 'TimeTz' object, it is assumed to be
         //:   UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
-        //: 6 All strings that are not ISO 8601 representations supported by
+        //: 6 All strings that are not FIX representations supported by
         //:   this component for 'Time' and 'TimeTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
@@ -1619,7 +1707,7 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values ('T'), zone designators ('Z'), and configurations
+        //:   'Time' values ('T'), timezone offsets ('Z'), and configurations
         //:   ('C').
         //:
         //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
@@ -1630,7 +1718,7 @@ if (veryVerbose)
         //:   result objects have the expected values.  (C-1..5)
         //:
         //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not ISO 8601 representations supported by this
+        //:   strings that are not FIX representations supported by this
         //:   component for 'Time' and 'TimeTz' values.
         //:
         //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
@@ -1638,7 +1726,7 @@ if (veryVerbose)
         //:   the result objects are unchanged.  (C-6..8)
         //:
         //: 6 Using the table-driven technique, specify a set of distinct
-        //:   ISO 8601 strings that specifically cover cases involving leap
+        //:   FIX strings that specifically cover cases involving leap
         //:   seconds and fractional seconds containing more than three digits.
         //:
         //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
@@ -1672,11 +1760,15 @@ if (veryVerbose)
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
 
+        const int                  NUM_EXT_ZONE_DATA =  NUM_EXTENDED_ZONE_DATA;
+        const DefaultZoneDataRow (&EXT_ZONE_DATA)[NUM_EXT_ZONE_DATA] =
+                                                            EXTENDED_ZONE_DATA;
+
         const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
         const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
                                                              DEFAULT_CNFG_DATA;
 
-        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+        if (verbose) cout << "\nValid FIX strings." << endl;
 
         for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
             const int ILINE = TIME_DATA[ti].d_line;
@@ -1696,9 +1788,7 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     int expMsec = MSEC;
@@ -1717,22 +1807,20 @@ if (veryVerbose)
                         }
                     }
 
-                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec);
-
+                    const bdlt::Time   TIME(HOUR, MIN, SEC, expMsec);
                     const bdlt::TimeTz TIMETZ(TIME, OFFSET);
 
                     if (veryVerbose) {
                         if (0 == tc) {
                             T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
                         }
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                          P_(USECOMMA) P(USEZ);
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ);
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
-                    // without zone designator in parsed string
+                    // without timezone offset in parsed string
                     {
                         const int LENGTH = Util::generateRaw(buffer, TIME, C);
 
@@ -1750,8 +1838,10 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIME == Z.localTime());
-                        ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ.localTime() == Z.localTime());
+                        ASSERTV(ILINE, JLINE, CLINE, 0 == Z.offset());
 
                         mX = XX;
                         mZ = ZZ;
@@ -1766,7 +1856,7 @@ if (veryVerbose)
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
 
-                    // with zone designator in parsed string
+                    // with timezone offset in parsed string
                     {
                         const int LENGTH = Util::generateRaw(buffer,
                                                              TIMETZ,
@@ -1780,41 +1870,121 @@ if (veryVerbose)
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
+                        // 'TimeTz' uses the FIX "TZTimeOnly" format during
+                        // generation so there are no milliseconds.
+
+                        const bdlt::TimeTz EXPTIMETZ(
+                                                    bdlt::Time(HOUR, MIN, SEC),
+                                                    OFFSET);
+
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
 
                         mX = XX;
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
+                    }
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+
+            for (int tj = 0; tj < NUM_EXT_ZONE_DATA; ++tj) {
+                const int JLINE  = EXT_ZONE_DATA[tj].d_line;
+                const int OFFSET = EXT_ZONE_DATA[tj].d_offset;
+
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
+                    && OFFSET != 0) {
+                    continue;  // skip invalid compositions
+                }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    int expMsec = MSEC;
+                    {
+                        // adjust the expected milliseconds to account for
+                        // PRECISION truncating the value generated
+
+                        int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec *= 10;
+                        }
+                    }
+
+                    const bdlt::Time   TIME(HOUR, MIN, SEC, expMsec);
+                    const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
+                    if (veryVerbose) {
+                        if (0 == tc) {
+                            T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
+                        }
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ);
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, USEZ);
+
+                    // with timezone offset in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer,
+                                                             TIMETZ,
+                                                             C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
+                        bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
+
+                        // 'TimeTz' uses the FIX "TZTimeOnly" format during
+                        // generation so there are no milliseconds.
+
+                        const bdlt::TimeTz EXPTIMETZ(
+                                                    bdlt::Time(HOUR, MIN, SEC),
+                                                    OFFSET);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
                     }
                 }  // loop over 'CNFG_DATA'
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
-
-        {
-            // verify 'z' is accepted
-
-            bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
-            bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
-
-            ASSERT(0 == Util::parse(&mX, "01:02:03z", 9));
-            ASSERT(X == bdlt::Time(1, 2, 3));
-
-            ASSERT(0 == Util::parse(&mZ, "01:02:03z", 9));
-            ASSERT(Z == bdlt::TimeTz(bdlt::Time(1, 2, 3), 0));
-        }
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -1854,7 +2024,7 @@ if (veryVerbose)
                 const int LINE = ZONE_DATA[ti].d_line;
 
                 // Initialize with a *valid* time string, then append an
-                // invalid zone designator.
+                // invalid timezone offset.
 
                 bsl::string bad("12:26:52.726");
 
@@ -1907,18 +2077,26 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                          << endl;
+        if (verbose) {
+            cout << "\nTesting optional, leap, and fractional seconds."
+                 << endl;
+        }
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_hour;
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
                 int         d_offset;
             } DATA[] = {
+                // optional seconds
+                { L_, "00:00",           00, 00, 00, 000,   0 },
+                { L_, "00:01",           00, 01, 00, 000,   0 },
+                { L_, "01:00",           01, 00, 00, 000,   0 },
+                { L_, "01:01",           01, 01, 00, 000,   0 },
+
                 // leap seconds
                 { L_, "00:00:60.000",    00, 01, 00, 000,   0 },
                 { L_, "22:59:60.999",    23, 00, 00, 999,   0 },
@@ -1938,6 +2116,7 @@ if (veryVerbose)
                 { L_, "22:59:60.9999",   23, 00, 01, 000,   0 },
 
                 // omit fractional seconds
+                { L_, "00:00:60",        00, 01, 00, 000,   0 },
                 { L_, "12:34:45",        12, 34, 45, 000,   0 },
                 { L_, "12:34:45Z",       12, 34, 45, 000,   0 },
                 { L_, "12:34:45+00:30",  12, 34, 45, 000,  30 },
@@ -1949,7 +2128,7 @@ if (veryVerbose)
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   HOUR   = DATA[ti].d_hour;
                 const int   MIN    = DATA[ti].d_min;
@@ -2051,24 +2230,24 @@ if (veryVerbose)
         // PARSE: DATE & DATETZ
         //
         // Concerns:
-        //: 1 All ISO 8601 string representations supported by this component
+        //: 1 All FIX string representations supported by this component
         //:   (as documented in the header file) for 'Date' and 'DateTz' values
         //:   are parsed successfully.
         //:
         //: 2 If parsing succeeds, the result 'Date' or 'DateTz' object has the
         //:   expected value.
         //:
-        //: 3 If the optional zone designator is present in the input string
+        //: 3 If the optional timezone offset is present in the input string
         //:   when parsing into a 'Date' object, it is parsed for validity but
         //:   is otherwise ignored.
         //:
-        //: 4 If the optional zone designator is *not* present in the input
+        //: 4 If the optional timezone offset is *not* present in the input
         //:   string when parsing into a 'DateTz' object, it is assumed to be
         //:   UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
-        //: 6 All strings that are not ISO 8601 representations supported by
+        //: 6 All strings that are not FIX representations supported by
         //:   this component for 'Date' and 'DateTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
@@ -2081,7 +2260,7 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values ('D'), zone designators ('Z'), and configurations
+        //:   'Date' values ('D'), timezone offsets ('Z'), and configurations
         //:   ('C').
         //:
         //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
@@ -2092,7 +2271,7 @@ if (veryVerbose)
         //:   result objects have the expected values.  (C-1..5)
         //:
         //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not ISO 8601 representations supported by this
+        //:   strings that are not FIX representations supported by this
         //:   component for 'Date' and 'DateTz' values.
         //:
         //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
@@ -2127,11 +2306,15 @@ if (veryVerbose)
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
 
+        const int                  NUM_EXT_ZONE_DATA =  NUM_EXTENDED_ZONE_DATA;
+        const DefaultZoneDataRow (&EXT_ZONE_DATA)[NUM_EXT_ZONE_DATA] =
+                                                            EXTENDED_ZONE_DATA;
+
         const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
         const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
                                                              DEFAULT_CNFG_DATA;
 
-        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+        if (verbose) cout << "\nValid FIX strings." << endl;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
             const int ILINE = DATE_DATA[ti].d_line;
@@ -2151,20 +2334,17 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
-                    // without zone designator in parsed string
+                    // without timezone offset in parsed string
                     {
                         const int LENGTH = Util::generateRaw(buffer, DATE, C);
 
@@ -2198,7 +2378,63 @@ if (veryVerbose)
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
 
-                    // with zone designator in parsed string
+                    // with timezone offset in parsed string
+                    {
+                        const int LENGTH = Util::generateRaw(buffer,
+                                                             DATETZ,
+                                                             C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
+                        bdlt::Date   mX(XX);  const bdlt::Date&   X = mX;
+                        bdlt::DateTz mZ(ZZ);  const bdlt::DateTz& Z = mZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, DATE   == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, buffer, LENGTH));
+                        ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
+
+                        mX = XX;
+                        mZ = ZZ;
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, DATE   == X);
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                        ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
+                    }
+                }  // loop over 'CNFG_DATA'
+            }  // loop over 'ZONE_DATA'
+
+            for (int tj = 0; tj < NUM_EXT_ZONE_DATA; ++tj) {
+                const int JLINE  = EXT_ZONE_DATA[tj].d_line;
+                const int OFFSET = EXT_ZONE_DATA[tj].d_offset;
+
+                const bdlt::DateTz DATETZ(DATE, OFFSET);
+
+                if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(DATE) P(DATETZ) }
+
+                for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                    const int  CLINE     = CNFG_DATA[tc].d_line;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
+                    const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
+                    }
+
+                    Config mC;  const Config& C = mC;
+                    gg(&mC, PRECISION, USEZ);
+
+                    // with timezone offset in parsed string
                     {
                         const int LENGTH = Util::generateRaw(buffer,
                                                              DATETZ,
@@ -2234,19 +2470,6 @@ if (veryVerbose)
                 }  // loop over 'CNFG_DATA'
             }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
-
-        {
-            // verify 'z' is accepted
-
-            bdlt::Date   mX(XX);  const bdlt::Date&   X = mX;
-            bdlt::DateTz mZ(ZZ);  const bdlt::DateTz& Z = mZ;
-
-            ASSERT(0 == Util::parse(&mX, "0001-02-03z", 11));
-            ASSERT(X == bdlt::Date(1, 2, 3));
-
-            ASSERT(0 == Util::parse(&mZ, "0001-02-03z", 11));
-            ASSERT(Z == bdlt::DateTz(bdlt::Date(1, 2, 3), 0));
-        }
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -2286,9 +2509,9 @@ if (veryVerbose)
                 const int LINE = ZONE_DATA[ti].d_line;
 
                 // Initialize with a *valid* date string, then append an
-                // invalid zone designator.
+                // invalid timezone offset.
 
-                bsl::string bad("2010-08-17");
+                bsl::string bad("20100817");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -2414,14 +2637,14 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   'Date' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 In a second table, specify a set of distinct 'Time' values (one
-        //:   per row) and their corresponding ISO 8601 string representations.
+        //:   per row) and their corresponding FIX string representations.
         //:
         //: 3 In a third table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding ISO 8601 string representations.
+        //:   per row) and their corresponding FIX string representations.
         //:
         //: 4 For each element 'R' in the cross product of the tables from P-1,
         //:   P-2, and P-3:  (C-1..5)
@@ -2481,33 +2704,33 @@ if (veryVerbose)
                                                              DEFAULT_CNFG_DATA;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
-            const int   ILINE   = DATE_DATA[ti].d_line;
-            const int   YEAR    = DATE_DATA[ti].d_year;
-            const int   MONTH   = DATE_DATA[ti].d_month;
-            const int   DAY     = DATE_DATA[ti].d_day;
-            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+            const int   ILINE = DATE_DATA[ti].d_line;
+            const int   YEAR  = DATE_DATA[ti].d_year;
+            const int   MONTH = DATE_DATA[ti].d_month;
+            const int   DAY   = DATE_DATA[ti].d_day;
+            const char *FIX   = DATE_DATA[ti].d_fix;
 
             const bdlt::Date  DATE(YEAR, MONTH, DAY);
-            const bsl::string EXPECTED_DATE(ISO8601);
+            const bsl::string EXPECTED_DATE(FIX);
 
             for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
-                const int   JLINE   = TIME_DATA[tj].d_line;
-                const int   HOUR    = TIME_DATA[tj].d_hour;
-                const int   MIN     = TIME_DATA[tj].d_min;
-                const int   SEC     = TIME_DATA[tj].d_sec;
-                const int   MSEC    = TIME_DATA[tj].d_msec;
-                const int   USEC    = TIME_DATA[tj].d_usec;
-                const char *ISO8601 = TIME_DATA[tj].d_iso8601;
+                const int   JLINE = TIME_DATA[tj].d_line;
+                const int   HOUR  = TIME_DATA[tj].d_hour;
+                const int   MIN   = TIME_DATA[tj].d_min;
+                const int   SEC   = TIME_DATA[tj].d_sec;
+                const int   MSEC  = TIME_DATA[tj].d_msec;
+                const int   USEC  = TIME_DATA[tj].d_usec;
+                const char *FIX   = TIME_DATA[tj].d_fix;
 
                 const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
-                const bsl::string EXPECTED_TIME(ISO8601);
+                const bsl::string EXPECTED_TIME(FIX);
 
                 for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
                     const int   KLINE   = ZONE_DATA[tk].d_line;
                     const int   OFFSET  = ZONE_DATA[tk].d_offset;
-                    const char *ISO8601 = ZONE_DATA[tk].d_iso8601;
+                    const char *FIX = ZONE_DATA[tk].d_fix;
 
-                    const bsl::string EXPECTED_ZONE(ISO8601);
+                    const bsl::string EXPECTED_ZONE(FIX);
 
                     if (TIME == bdlt::Time() && OFFSET != 0) {
                         continue;  // skip invalid compositions
@@ -2523,7 +2746,7 @@ if (veryVerbose)
                                                        USEC),
                                         OFFSET);
                     const bsl::string BASE_EXPECTED(
-                          EXPECTED_DATE + 'T' + EXPECTED_TIME + EXPECTED_ZONE);
+                          EXPECTED_DATE + '-' + EXPECTED_TIME + EXPECTED_ZONE);
 
                     if (veryVerbose) {
                         T_ P_(ILINE) P_(JLINE) P_(KLINE) P_(X) P(BASE_EXPECTED)
@@ -2531,18 +2754,15 @@ if (veryVerbose)
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
-                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                         const int  PRECISION = CNFG_DATA[tc].d_precision;
-                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                         if (veryVerbose) {
-                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                            T_ P_(CLINE) P_(PRECISION) P(USEZ)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, USEZ);
 
                         Config::setDefaultConfiguration(C);
 
@@ -2634,18 +2854,15 @@ if (veryVerbose)
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
-                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                         const int  PRECISION = CNFG_DATA[tc].d_precision;
-                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                         if (veryVerbose) {
-                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                            T_ P_(CLINE) P_(PRECISION) P(USEZ)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, USEZ);
 
                         // Set the default configuration to the complement of
                         // 'C'.
@@ -2653,8 +2870,6 @@ if (veryVerbose)
                         Config mDFLT;  const Config& DFLT = mDFLT;
                         gg(&mDFLT,
                            9 - PRECISION,
-                           !OMITCOLON,
-                           !USECOMMA,
                            !USEZ);
                         Config::setDefaultConfiguration(DFLT);
 
@@ -2741,8 +2956,6 @@ if (veryVerbose)
                                                      BUFLEN - OUTLEN));
                         }
                     }  // loop over 'CNFG_DATA'
-
-
                 }  // loop over 'ZONE_DATA'
             }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
@@ -2817,11 +3030,11 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values (one per row) and their corresponding ISO 8601
+        //:   'Time' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 In a second table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding ISO 8601 string representations.
+        //:   per row) and their corresponding FIX string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
         //:   and P-2:  (C-1..5)
@@ -2882,17 +3095,17 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
-            const char *ISO8601 = TIME_DATA[ti].d_iso8601;
+            const char *FIX = TIME_DATA[ti].d_fix;
 
             const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
-            const bsl::string EXPECTED_TIME(ISO8601);
+            const bsl::string EXPECTED_TIME(FIX);
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
                 const int   JLINE   = ZONE_DATA[tj].d_line;
                 const int   OFFSET  = ZONE_DATA[tj].d_offset;
-                const char *ISO8601 = ZONE_DATA[tj].d_iso8601;
+                const char *FIX = ZONE_DATA[tj].d_fix;
 
-                const bsl::string EXPECTED_ZONE(ISO8601);
+                const bsl::string EXPECTED_ZONE(FIX);
 
                 if (TIME == bdlt::Time() && OFFSET != 0) {
                     continue;  // skip invalid compositions
@@ -2907,20 +3120,19 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     Config::setDefaultConfiguration(C);
+
+                    // 'k_TIMETZ_MAX_PRECISION' ensures no fractional seconds.
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED,
@@ -3008,24 +3220,23 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
+
+                    // 'k_TIMETZ_MAX_PRECISION' ensures no fractional seconds.
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED,
@@ -3109,8 +3320,6 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'CNFG_DATA'
-
-
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
 
@@ -3184,11 +3393,11 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   'Date' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 In a second table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding ISO 8601 string representations.
+        //:   per row) and their corresponding FIX string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
         //:   and P-2:  (C-1..5)
@@ -3248,17 +3457,17 @@ if (veryVerbose)
             const int   YEAR    = DATE_DATA[ti].d_year;
             const int   MONTH   = DATE_DATA[ti].d_month;
             const int   DAY     = DATE_DATA[ti].d_day;
-            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+            const char *FIX = DATE_DATA[ti].d_fix;
 
             const bdlt::Date  DATE(YEAR, MONTH, DAY);
-            const bsl::string EXPECTED_DATE(ISO8601);
+            const bsl::string EXPECTED_DATE(FIX);
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
                 const int   JLINE   = ZONE_DATA[tj].d_line;
                 const int   OFFSET  = ZONE_DATA[tj].d_offset;
-                const char *ISO8601 = ZONE_DATA[tj].d_iso8601;
+                const char *FIX = ZONE_DATA[tj].d_fix;
 
-                const bsl::string EXPECTED_ZONE(ISO8601);
+                const bsl::string EXPECTED_ZONE(FIX);
 
                 const TYPE        X(DATE, OFFSET);
                 const bsl::string BASE_EXPECTED(EXPECTED_DATE + EXPECTED_ZONE);
@@ -3269,18 +3478,15 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
@@ -3370,23 +3576,20 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3471,8 +3674,6 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'CNFG_DATA'
-
-
             }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
 
@@ -3546,11 +3747,11 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   'Date' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 In a second table, specify a set of distinct 'Time' values (one
-        //:   per row) and their corresponding ISO 8601 string representations.
+        //:   per row) and their corresponding FIX string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
         //:   and P-2:  (C-1..5)
@@ -3610,10 +3811,10 @@ if (veryVerbose)
             const int   YEAR    = DATE_DATA[ti].d_year;
             const int   MONTH   = DATE_DATA[ti].d_month;
             const int   DAY     = DATE_DATA[ti].d_day;
-            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+            const char *FIX = DATE_DATA[ti].d_fix;
 
             const bdlt::Date  DATE(YEAR, MONTH, DAY);
-            const bsl::string EXPECTED_DATE(ISO8601);
+            const bsl::string EXPECTED_DATE(FIX);
 
             for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
                 const int   JLINE   = TIME_DATA[tj].d_line;
@@ -3622,9 +3823,9 @@ if (veryVerbose)
                 const int   SEC     = TIME_DATA[tj].d_sec;
                 const int   MSEC    = TIME_DATA[tj].d_msec;
                 const int   USEC    = TIME_DATA[tj].d_usec;
-                const char *ISO8601 = TIME_DATA[tj].d_iso8601;
+                const char *FIX = TIME_DATA[tj].d_fix;
 
-                const bsl::string EXPECTED_TIME(ISO8601);
+                const bsl::string EXPECTED_TIME(FIX);
 
                 const TYPE        X(YEAR,
                                     MONTH,
@@ -3635,7 +3836,7 @@ if (veryVerbose)
                                     MSEC,
                                     USEC);
                 const bsl::string BASE_EXPECTED(
-                                          EXPECTED_DATE + 'T' + EXPECTED_TIME);
+                                          EXPECTED_DATE + '-' + EXPECTED_TIME);
 
                 if (veryVerbose) {
                     T_ P_(ILINE) P_(JLINE) P_(X) P(BASE_EXPECTED)
@@ -3643,18 +3844,15 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
@@ -3744,23 +3942,20 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
-                    const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                     const int  PRECISION = CNFG_DATA[tc].d_precision;
-                    const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(PRECISION) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3918,7 +4113,7 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values (one per row) and their corresponding ISO 8601
+        //:   'Time' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 For each row 'R' in the table from P-1:  (C-1..5)
@@ -3975,27 +4170,24 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
-            const char *ISO8601 = TIME_DATA[ti].d_iso8601;
+            const char *FIX = TIME_DATA[ti].d_fix;
 
             const TYPE        X(HOUR, MIN, SEC, MSEC);
-            const bsl::string BASE_EXPECTED(ISO8601);
+            const bsl::string BASE_EXPECTED(FIX);
 
             if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
-                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                 const int  PRECISION = CNFG_DATA[tc].d_precision;
-                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(PRECISION) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
@@ -4082,23 +4274,20 @@ if (veryVerbose)
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
-                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                 const int  PRECISION = CNFG_DATA[tc].d_precision;
-                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(PRECISION) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
@@ -4254,7 +4443,7 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding ISO 8601
+        //:   'Date' values (one per row) and their corresponding FIX
         //:   string representations.
         //:
         //: 2 For each row 'R' in the table from P-1:  (C-1..5)
@@ -4310,27 +4499,24 @@ if (veryVerbose)
             const int   YEAR    = DATE_DATA[ti].d_year;
             const int   MONTH   = DATE_DATA[ti].d_month;
             const int   DAY     = DATE_DATA[ti].d_day;
-            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
+            const char *FIX = DATE_DATA[ti].d_fix;
 
             const TYPE        X(YEAR, MONTH, DAY);
-            const bsl::string BASE_EXPECTED(ISO8601);
+            const bsl::string BASE_EXPECTED(FIX);
 
             if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
-                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                 const int  PRECISION = CNFG_DATA[tc].d_precision;
-                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(PRECISION) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
@@ -4417,23 +4603,20 @@ if (veryVerbose)
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
-                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
                 const int  PRECISION = CNFG_DATA[tc].d_precision;
-                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(PRECISION) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);

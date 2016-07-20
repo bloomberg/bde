@@ -5,6 +5,7 @@ bdlt_calendarreverseiteratoradapter
 bdlt_currenttime
 bdlt_date
 bdlt_datetime
+bdlt_datetimeimputil
 bdlt_datetimeinterval
 bdlt_datetimetz
 bdlt_datetimeutil
@@ -14,6 +15,8 @@ bdlt_dayofweek
 bdlt_dayofweekset
 bdlt_defaultcalendarcache
 bdlt_epochutil
+bdlt_fixutil
+bdlt_fixutilconfiguration
 bdlt_intervalconversionutil
 bdlt_iso8601util
 bdlt_iso8601utilconfiguration

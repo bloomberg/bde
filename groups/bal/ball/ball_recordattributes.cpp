@@ -156,7 +156,13 @@ bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    stream << d_timestamp;
+
+    const int SIZE = 32;
+    char buffer[SIZE];
+
+    const int numWritten = d_timestamp.printToBuffer(buffer, SIZE, 3);
+
+    stream.write(buffer, numWritten);
 
     if (0 <= spacesPerLevel) {
         stream << '\n';

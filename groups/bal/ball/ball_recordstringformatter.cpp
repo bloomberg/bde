@@ -31,6 +31,8 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_localtimeoffset.h>
+#include <bdlt_iso8601util.h>
+#include <bdlt_iso8601utilconfiguration.h>
 #include <bdlb_print.h>
 
 #include <bsls_platform.h>
@@ -201,19 +203,23 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
 
 {
     const RecordAttributes& fixedFields = record.fixedFields();
-    bdlt::Datetime                timestamp   = fixedFields.timestamp();
+    bdlt::DatetimeInterval  offset;
 
     if (k_ENABLE_PUBLISH_IN_LOCALTIME ==
                                        d_timestampOffset.totalMilliseconds()) {
         bsls::Types::Int64 localTimeOffsetInSeconds =
-            bdlt::LocalTimeOffset::localTimeOffset(timestamp).totalSeconds();
-        timestamp.addSeconds(localTimeOffsetInSeconds);
+            bdlt::LocalTimeOffset::localTimeOffset(
+                                       fixedFields.timestamp()).totalSeconds();
+        offset.setTotalSeconds(localTimeOffsetInSeconds);
     } else if(k_DISABLE_PUBLISH_IN_LOCALTIME ==
                                        d_timestampOffset.totalMilliseconds()) {
-        // Do not adjust 'timestamp'.
+        // Do not adjust 'offset'.
     } else {
-        timestamp += d_timestampOffset;
+        offset = d_timestampOffset;
     }
+
+    bdlt::DatetimeTz timestamp(fixedFields.timestamp() + offset,
+                               static_cast<int>(offset.totalMinutes()));
 
     // Step through the format string, outputting the required elements.
 
@@ -248,40 +254,49 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               case '%': {
                 output += '%';
               } break;
-              case 'd': {
+              case 'd': // fall through intentionally
+              case 'D': {
+                const int fractionalSecondPrecision = 'd' == *iter ? 3 : 6;
+
                 char buffer[32];
-                timestamp.printToBuffer(buffer, sizeof buffer);
+                timestamp.localDatetime().printToBuffer(
+                                                    buffer,
+                                                    sizeof buffer,
+                                                    fractionalSecondPrecision);
 
                 output += buffer;
               } break;
-              case 'I': // fall through intentionally
+              case 'I':                                         // FALL THROUGH
+              case 'O':                                         // FALL THROUGH
               case 'i': {
-                // use ISO8601 "extended" format
+                // Use ISO8601 "extended" format.
 
-                char buffer[32];
+                const int fractionalSecondPrecision = 'O' == *iter ? 6 : 3;
 
-                snprintf(buffer,
-                         sizeof(buffer),
-                         "%04d-%02d-%02dT%02d:%02d:%02d",
-                         timestamp.year(),
-                         timestamp.month(),
-                         timestamp.day(),
-                         timestamp.hour(),
-                         timestamp.minute(),
-                         timestamp.second());
-                output += buffer;
+                bdlt::Iso8601UtilConfiguration config;
+                config.setFractionalSecondPrecision(fractionalSecondPrecision);
+                config.setUseZAbbreviationForUtc(true);
 
-                if ('I' == *iter) {
-                    snprintf(buffer,
-                             sizeof(buffer),
-                             ".%03d",
-                             timestamp.millisecond());
+                char buffer[bdlt::Iso8601Util::k_DATETIMETZ_STRLEN + 1];
 
-                    output += buffer;
+                int outputLength = bdlt::Iso8601Util::generateRaw(buffer,
+                                                                  timestamp,
+                                                                  config);
+
+                if ('i' == *iter) {
+                    // Remove milliseconds part.
+
+                    enum { k_DECIMAL_SIGN_OFFSET = 19,
+                           k_TZINFO_OFFSET       = k_DECIMAL_SIGN_OFFSET + 4 };
+                    bslstl::StringRef head(buffer, k_DECIMAL_SIGN_OFFSET);
+
+                    bslstl::StringRef tail(buffer + k_TZINFO_OFFSET,
+                                           outputLength - k_TZINFO_OFFSET);
+
+                    output += head + tail;
                 }
-
-                if (0 == d_timestampOffset.totalMilliseconds()) {
-                    output += 'Z';
+                else {
+                    output.append(buffer, outputLength);
                 }
               } break;
               case 'p': {
