@@ -9,6 +9,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignedbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
@@ -48,13 +49,13 @@ using namespace bdlpcre;
 // MANIPULATORS
 // [ 3] void clear();
 // [ 3] int prepare(bsl::string*, size_t *, const char *, int, size_t);
-// [14] int setDepthLimit(int)
-// [14] int setDefaultDepthLimit(int)
+// [15] int setDepthLimit(int);
+// [15] int setDefaultDepthLimit(int);
 //
 // ACCESSORS
 // [ 6] int flags() const;
 // [ 3] bool isPrepared() const;
-// [13] size_t jitStackSize() const;
+// [14] size_t jitStackSize() const;
 // [ 4] int match(const char *subject, ...) const;
 // [ 4] int match(bsl::pair<size_t, size_t> *result, ...) const;
 // [ 4] int match(bsl::vector<bsl::pair<size_t, size_t> > *result, ...) const;
@@ -68,8 +69,9 @@ using namespace bdlpcre;
 // [11] int numSubpatterns() const;
 // [ 2] const bsl::string& pattern() const;
 // [11] int subpatternIndex(const char *name) const;
-// [14] int getDepthLimit(int)
-// [14] int getDefaultDepthLimit(int)
+// [15] int depthLimit(int);
+// [15] int defaultDepthLimit(int);
+// [13] bool isJitAvailable();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] k_FLAG_CASELESS
@@ -77,10 +79,10 @@ using namespace bdlpcre;
 // [ 9] k_FLAG_UTF8
 // [10] k_FLAG_DOTMATCHESALL
 // [12] ALLOCATOR PROPAGATION
-// [13] JIT OPTIMIZATION SUPPORT
-// [15] UNICODE CHARACTER PROPERTY SUPPORT
-// [16] MEMORY ALIGNMENT
-// [17] USAGE EXAMPLE
+// [14] JIT OPTIMIZATION SUPPORT
+// [16] UNICODE CHARACTER PROPERTY SUPPORT
+// [17] MEMORY ALIGNMENT
+// [18] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -535,7 +537,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -588,7 +590,7 @@ int main(int argc, char *argv[])
 //  }
 //..
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING MEMORY ALIGNMENT
         //
@@ -618,7 +620,7 @@ int main(int argc, char *argv[])
 
         regex.prepare(0, 0, k_PATTERN, 0);
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING UNICODE CHARACTER PROPERTY SUPPORT
         //   This will test that the underlying PCRE2 library correctly handles
@@ -709,7 +711,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, retCode, MATCH == !retCode);
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING DEPTH LIMIT
         //  This will test both the default and per-regex depth limit
@@ -739,10 +741,10 @@ int main(int argc, char *argv[])
         //:   expected.  (C-2)
         //
         // Testing:
-        //   int setDepthLimit(int)
-        //   int setDefaultDepthLimit(int)
-        //   int getDepthLimit(int)
-        //   int getDefaultDepthLimit(int)
+        //   int setDepthLimit(int);
+        //   int setDefaultDepthLimit(int);
+        //   int depthLimit(int);
+        //   int defaultDepthLimit(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -752,26 +754,26 @@ int main(int argc, char *argv[])
         Obj x;
         int originalDepthLimit = x.depthLimit();
 
-        ASSERT(x.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(x.depthLimit() == Obj::defaultDepthLimit());
 
-        int previousGlobalLimit = RegEx::setDefaultDepthLimit(3);
+        int previousGlobalLimit = Obj::setDefaultDepthLimit(3);
 
-        ASSERT(3                  == RegEx::defaultDepthLimit());
+        ASSERT(3                  == Obj::defaultDepthLimit());
         ASSERT(3                  != originalDepthLimit);
         ASSERT(originalDepthLimit == x.depthLimit());
         ASSERT(originalDepthLimit == previousGlobalLimit);
 
         Obj y;
 
-        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == Obj::defaultDepthLimit());
 
         int previousXLimit = x.setDepthLimit(5);
 
         ASSERT(5              == x.depthLimit());
         ASSERT(5              != originalDepthLimit);
-        ASSERT(3              == RegEx::defaultDepthLimit());
+        ASSERT(3              == Obj::defaultDepthLimit());
         ASSERT(previousXLimit == previousGlobalLimit);
-        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == Obj::defaultDepthLimit());
 
         const char *testString       = "a\n\n\n\n\nb";
         bsl::size_t testStringLength = bsl::strlen(testString);
@@ -807,7 +809,7 @@ int main(int argc, char *argv[])
         ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
         ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING JIT OPTIMIZATION SUPPORT
         //  As component doesn't provide a mechanism to find out if JIT
@@ -815,44 +817,52 @@ int main(int argc, char *argv[])
         //  using is comparison of memory allocations. JIT optimization needs
         //  some memory to store the result of pattern JIT compiling. Also
         //  JIT stack machinery occupies some memory (if it is allocated).
+        //  These statements are matter only if JIT optimization is supported
+        //  on hardware platform.
         //
         // Concerns:
-        //: 1 All actions, necessary for JIT optimization, are performed if
+        //: 1 JIT optimization is used only if it is supported on current
+        //:   hardware platform.
+        //:
+        //: 2 All actions, necessary for JIT optimization, are performed if
         //:   respective flag is provided to 'prepare' method.
         //:
-        //: 2 JIT stack size can be set via last parameter of 'prepare' method.
+        //: 3 JIT stack size can be set via last parameter of 'prepare' method.
         //:
-        //: 3 Proper failure code is returned when the memory used for the JIT
+        //: 4 Proper failure code is returned when the memory used for the JIT
         //:   stack is insufficient.
         //:
-        //: 4 'jitStackSize' returns the requested size of the dynamically
+        //: 5 'jitStackSize' returns the requested size of the dynamically
         //:   allocated JIT stack if it was set by user and '0' otherwise.
         //
         // Plan:
         //: 1 Create two objects using two different test allocators. Provide
         //:   default flag value to 'prepare' method for the first object and
         //:   k_JIT_FLAG for another. Verify that second method's call invokes
-        //:   more memory allocations than the first one.  Verify that
-        //:   'jitStackSize' method returns correct value.  (C-1,4)
+        //:   more memory allocations than the first one, if JIT optimization
+        //:   is supported and the same number, if it isn't.  Verify that
+        //:   'jitStackSize' method returns correct value.  (C-1,2,4)
         //:
         //: 2 Create two objects using two different test allocators. Provide
         //:   k_JIT_FLAG to 'prepare' method for both of them. Provide default
         //:   jitStackSize value to 'prepare' method for the first object and
         //:   non-default for another. Verify that second method's call invokes
-        //:   more memory allocations than the first one.  Verify that
-        //:   'jitStackSize' method returns correct value.  (C-2,4)
+        //:   more memory allocations than the first one, if JIT optimization
+        //:   is supported and the same number, if it isn't.  Verify that
+        //:   'jitStackSize' method returns correct value.  (C-1,2,4)
         //:
         //: 3 Create an object. Provide k_JIT_FLAG and zero jitStackSize value
-        //    to 'prepare' method.  Exercise the 'match' method using a subject
-        //    that matches the pattern passed to 'prepare' method.  Verify that
-        //    method call succeeds.  Provide the same pattern, k_JIT_FLAG and
-        //    tiniest non-zero jitStackSize value to 'prepare' method.
-        //    Exercise the 'match' method using the same subject.  Verify that
-        //    method call fails.  Provide the same pattern k_JIT_FLAG and
-        //    bigger jitStackSize value to 'prepare' method.  Exercise the
-        //    'match' method using the same subject.  Verify that method call
-        //    succeeds.  After each 'prepare' method call verify that
-        //    'jitStackSize' method returns correct value.  (C-2..4)
+        //:   to 'prepare' method.  Exercise the 'match' method using a subject
+        //:   that matches the pattern passed to 'prepare' method.  Verify that
+        //:   method call succeeds.  Provide the same pattern, k_JIT_FLAG and
+        //:   tiniest non-zero jitStackSize value to 'prepare' method.
+        //:   Exercise the 'match' method using the same subject.  Verify that
+        //:   method call fails, if JIT optimization is supported and succeeds,
+        //:   if it isn't.  Provide the same pattern k_JIT_FLAG and bigger
+        //:   jitStackSize value to 'prepare' method.  Exercise the 'match'
+        //:   method using the same subject.  Verify that method call succeeds.
+        //:   After each 'prepare' method call verify that 'jitStackSize'
+        //:   method returns correct value.  (C-1,2..4)
 
         //
         // Testing:
@@ -905,7 +915,11 @@ int main(int argc, char *argv[])
             ASSERT(0               == X1.jitStackSize());
             ASSERT(0               == X2.jitStackSize());
 
-            ASSERT(Z1->numAllocations() < Z2->numAllocations());
+            if (Obj::isJitAvailable()) {
+                ASSERT(Z1->numAllocations() <  Z2->numAllocations());
+            } else {
+                ASSERT(Z1->numAllocations() == Z2->numAllocations());
+            }
         }
 
         {
@@ -938,10 +952,13 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_FLAG_JIT == X1.flags());
             ASSERT(Obj::k_FLAG_JIT == X2.flags());
             ASSERT(0               == X1.jitStackSize());
-            ASSERT(1               == X2.jitStackSize());
-
-            ASSERT(Z1->numAllocations() < Z2->numAllocations());
-
+            if (Obj::isJitAvailable()) {
+                ASSERT(1                    == X2.jitStackSize());
+                ASSERT(Z1->numAllocations() <  Z2->numAllocations());
+            } else {
+                ASSERT(0                    == X2.jitStackSize());
+                ASSERT(Z1->numAllocations() == Z2->numAllocations());
+            }
         }
 
         {
@@ -968,8 +985,13 @@ int main(int argc, char *argv[])
                                    PATTERN,
                                    Obj::k_FLAG_JIT,
                                    1));
-            ASSERT(1 == X.jitStackSize());
-            ASSERT(2 == X.match(SUBJECT, SUBJECT_LENGTH));
+            if (Obj::isJitAvailable()) {
+                ASSERT(1 == X.jitStackSize());
+                ASSERT(2 == X.match(SUBJECT, SUBJECT_LENGTH));
+            } else {
+                ASSERT(0 == X.jitStackSize());
+                ASSERT(0 == X.match(SUBJECT, SUBJECT_LENGTH));
+            }
 
             // Allocated 32k stack is used.
 
@@ -978,9 +1000,39 @@ int main(int argc, char *argv[])
                                    PATTERN,
                                    Obj::k_FLAG_JIT,
                                    32768));
-            ASSERT(32768 == X.jitStackSize());
-            ASSERT(0     == X.match(SUBJECT, SUBJECT_LENGTH));
+            if (Obj::isJitAvailable()) {
+                ASSERT(32768 == X.jitStackSize());
+            } else {
+                ASSERT(0     == X.jitStackSize());
+            }
+            ASSERT(0 == X.match(SUBJECT, SUBJECT_LENGTH));
         }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'isJitAvailable' METHOD
+        //
+        // Concerns:
+        //: 1 The 'isJitAvailable' returns correct hardcoded value in
+        //:   accordance with hardware platform.
+        //
+        // Plan:
+        //: 1 Call 'isJitAvailable' method and compare returned result with the
+        //:   hardcoded expected value.  (C-1)
+        //
+        // Testing:
+        //   bool isJitAvailable();
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'isJitAvailable' METHOD" << endl
+                          << "===============================" << endl;
+
+#if defined(BSLS_PLATFORM_CPU_SPARC_V9)
+        ASSERT(false == Obj::isJitAvailable());
+#else
+        ASSERT(true == Obj::isJitAvailable());
+#endif
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2090,7 +2142,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Options passed to the 'prepare' method are stored as an object
-        //:   data member and returned by the 'flags; method.
+        //:   data member and returned by the 'flags' method.
         //
         // Plan:
         //: 1 Call 'prepare' with a different set of flags and verify that the
@@ -3394,11 +3446,18 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 JIT compiling optimization speed up pattern matching.
+        //:
+        //: 2 JIT compiling optimization slow down pattern preparation.
         //
         // Plan:
         //: 1 Using 'bsls_stopwatch' measure the run time of the 'match' method
-        //:   with and without JIT compiling support.  Compare the results
-        //:   and verify that 'match' with JIT support is faster.
+        //:   with and without JIT compiling support.  Compare the results and
+        //:   verify that 'match' with JIT support is faster.  (C-1)
+        //:
+        //: 2 Using 'bsls_stopwatch' measure the run time of the 'prepare'
+        //:   method with and without JIT compiling support.  Compare the
+        //:   results and verify that 'prepare' with JIT support is slower.
+        //:   (C-2)
         //
         // Testing:
         //  PERFORMANCE TEST 1
@@ -3442,7 +3501,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting '" << PATTERN << "'. pattern" << endl;
             }
 
-            // Testing object without JIT compiling support.
+            // Testing 'match' without JIT compiling support.
 
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
@@ -3463,7 +3522,26 @@ int main(int argc, char *argv[])
             timer.reset();
             mX.clear();
 
-            // Testing object with JIT compiling support.
+            // Testing 'prepare' without JIT compiling support.
+
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+                retCode = mX.prepare(&errorMsg,
+                                     &errorOffset,
+                                     PATTERN,
+                                     0,
+                                     0);
+                ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+
+                ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            }
+            timer.stop();
+            double prepareTime = timer.elapsedTime();
+
+            timer.reset();
+            mX.clear();
+
+            // Testing 'match' with JIT compiling support.
 
             retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
@@ -3480,12 +3558,41 @@ int main(int argc, char *argv[])
             timer.stop();
             double matchJitTime = timer.elapsedTime();
 
+            timer.reset();
+            mX.clear();
+
+            // Testing 'prepare' with JIT compiling support.
+
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+                retCode = mX.prepare(&errorMsg,
+                                     &errorOffset,
+                                     PATTERN,
+                                     Obj::k_FLAG_JIT,
+                                     0);
+                ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+
+                ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            }
+            timer.stop();
+            double prepareJitTime = timer.elapsedTime();
+
             if (veryVeryVerbose) {
                 cout << "\tResults:" << endl
-                     << "\t\t'match'          time: " << matchTime << endl
-                     << "\t\t'match' with JIT time: " << matchJitTime << endl;
+                     << "\t\t'match'            time: " << matchTime << endl
+                     << "\t\t'match'   with JIT time: " << matchJitTime << endl
+                     << endl
+                     << "\t\t'prepare'          time: " << prepareTime << endl
+                     << "\t\t'prepare' with JIT time: " << prepareJitTime
+                     << endl;
             }
+
             ASSERTV(LINE, matchTime, matchJitTime, matchTime > matchJitTime);
+            ASSERTV(LINE,
+                    matchTime,
+                    matchJitTime,
+                    prepareTime < prepareJitTime);
+
         }
       } break;
       case -2: {
