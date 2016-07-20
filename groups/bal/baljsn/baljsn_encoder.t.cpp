@@ -31957,6 +31957,9 @@ int main(int argc, char *argv[])
         //: 2 Output contains only information contained in the type being
         //:   encoded.  (i.e., encoding 'bdlt::Date' will not print out a time
         //:   or offset.)
+        //:
+        //: 3 The encoder option "datetimeFractionalSecondPrecision" affects
+        //:   the number of digits of precision in the outputs.
         //
         // Plan:
         //: 1 Use the table-driven technique:
@@ -31966,6 +31969,10 @@ int main(int argc, char *argv[])
         //:   2 Encode each value and verify the output is as expected.
         //:
         //: 2 Perform step one for every date/time types.
+        //:
+        //: 3 For a Datetime and DatetimeTz value, set the
+        //:   "datetimeFractionalSecondPrecision" attribute from 0 to 6, and
+        //:   verify that the output is as expected.
         //
         // Testing:
         //   int encode(ostream& s, const TYPE& v, o);
@@ -32165,6 +32172,57 @@ int main(int argc, char *argv[])
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+        {
+            bdlt::Datetime theDatetime(2010, 03, 15, 17, 23, 45, 123, 456);
+
+            const char *expectedDatetime[] = {
+                "\"2010-03-15T17:23:45\"",
+                "\"2010-03-15T17:23:45.1\"",
+                "\"2010-03-15T17:23:45.12\"",
+                "\"2010-03-15T17:23:45.123\"",
+                "\"2010-03-15T17:23:45.1234\"",
+                "\"2010-03-15T17:23:45.12345\"",
+                "\"2010-03-15T17:23:45.123456\"",
+            };
+
+            for (int pi = 0; pi <= 6; ++pi) {
+                const char *EXP = expectedDatetime[pi];
+                bsl::ostringstream oss;
+                Obj  encoder;
+                Options opt;
+                opt.setDatetimeFractionalSecondPrecision(pi);
+                Impl impl(&encoder, oss.rdbuf(), opt);
+                impl.encode(theDatetime, 0);
+                bsl::string result = oss.str();
+                ASSERTV(pi, result, EXP, result == EXP);
+            }
+        }
+        {
+            bdlt::Datetime theDatetime(2010, 03, 15, 17, 23, 45, 123, 456);
+            bdlt::DatetimeTz theDatetimeTz(theDatetime, -300);
+
+            const char *expectedDatetimeTz[] = {
+                "\"2010-03-15T17:23:45-05:00\"",
+                "\"2010-03-15T17:23:45.1-05:00\"",
+                "\"2010-03-15T17:23:45.12-05:00\"",
+                "\"2010-03-15T17:23:45.123-05:00\"",
+                "\"2010-03-15T17:23:45.1234-05:00\"",
+                "\"2010-03-15T17:23:45.12345-05:00\"",
+                "\"2010-03-15T17:23:45.123456-05:00\"",
+            };
+
+            for (int pi = 0; pi <= 6; ++pi) {
+                const char *EXP = expectedDatetimeTz[pi];
+                bsl::ostringstream oss;
+                Obj  encoder;
+                Options opt;
+                opt.setDatetimeFractionalSecondPrecision(pi);
+                Impl impl(&encoder, oss.rdbuf(), opt);
+                impl.encode(theDatetimeTz, 0);
+                bsl::string result = oss.str();
+                ASSERTV(pi, result, EXP, result == EXP);
             }
         }
       } break;
