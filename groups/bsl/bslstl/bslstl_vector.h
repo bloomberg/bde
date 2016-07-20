@@ -713,7 +713,7 @@ struct Vector_Util {
         // specified 'b' vector.
 };
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
                           // =======================
                           // class Vector_RangeCheck
@@ -1254,7 +1254,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Assign to this object the value resulting from first clearing this
         // vector and then inserting the specified 'numElements' copies of the
         // specified 'value'.  If an exception is thrown, '*this' is left in a
-        // valid but unspecified state.  Throw 'std::length_error' if 
+        // valid but unspecified state.  Throw 'std::length_error' if
         // 'numElements > max_size()'.  This method requires that the (template
         // parameter) type 'VALUE_TYPE' be 'copy-insertable' into this vector
         // (see {Requirements on 'VALUE_TYPE'}).
