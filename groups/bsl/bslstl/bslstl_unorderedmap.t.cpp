@@ -221,7 +221,7 @@ using bsl::pair;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
+// [37] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -232,6 +232,7 @@ using bsl::pair;
 // [22] CONCERN: 'Obj' is compatible with standard allocators.
 // [23] CONCERN: 'Obj' has the necessary type traits.
 // [26] CONCERN: 'map' provides the full interface defined by the standard.
+// [36] CONCERN: 'unordered_map' supports incomplete types
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -16097,6 +16098,40 @@ void testImplicitInsert(CONTAINER& mX)
 
 }  // close namespace BREATHING_TEST
 
+class IncompleteType;
+
+class TestIncompleteType
+{
+    bsl::unordered_map<int, IncompleteType> d_cache;
+
+    // NOT IMPLEMENTED
+    TestIncompleteType(const TestIncompleteType&);
+    TestIncompleteType& operator=(const TestIncompleteType&);
+
+    typedef bsl::unordered_map<int, IncompleteType>::iterator Iter;
+
+  public:
+
+    TestIncompleteType();
+    ~TestIncompleteType();
+
+    const IncompleteType *add(const char *name, int value);
+
+    int getValue(const IncompleteType *entry) const;
+};
+
+class IncompleteType
+{
+};
+
+TestIncompleteType::TestIncompleteType()
+{
+}
+
+TestIncompleteType::~TestIncompleteType()
+{
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -16115,7 +16150,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -16134,6 +16169,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
         usage();
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // INCOMPLETE TYPES
+        // --------------------------------------------------------------------
+
+        TestIncompleteType obj;
+
       } break;
       case 35: {
         // --------------------------------------------------------------------
