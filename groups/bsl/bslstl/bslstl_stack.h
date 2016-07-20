@@ -451,7 +451,8 @@ class stack {
         // not exist, this constructor may not be used.
 
     // MANIPULATORS
-    stack& operator=(const stack& rhs);
+    stack& operator=(const stack& rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -618,7 +619,8 @@ class stack {
         // the new object on this stack.  'value' is left in a valid but
         // unspecified state.
 
-    void swap(stack& other);
+    void swap(stack& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this stack with the value of the specified
         // 'other' stack.
 
@@ -690,7 +692,8 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
 
 template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
-          stack<VALUE, CONTAINER>& rhs);
+          stack<VALUE, CONTAINER>& rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Swap the value of the specified 'lhs' stack with the value of the
     // specified 'rhs' stack.
 
@@ -807,6 +810,7 @@ template <class VALUE, class CONTAINER>
 inline
 stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(
                                      BloombergLP::bslmf::MovableRef<stack> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     c = MoveUtil::move(MoveUtil::access(rhs).c);
     return *this;
@@ -1098,6 +1102,7 @@ void stack<VALUE, CONTAINER>::push(BloombergLP::bslmf::MovableRef<value_type>
 template <class VALUE, class CONTAINER>
 inline
 void stack<VALUE, CONTAINER>::swap(stack& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
 }
@@ -1186,6 +1191,7 @@ template <class VALUE, class CONTAINER>
 inline
 void swap(stack<VALUE, CONTAINER>& lhs,
           stack<VALUE, CONTAINER>& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     lhs.swap(rhs);
 }

@@ -647,17 +647,20 @@ class bitset :
 
 // FREE OPERATORS
 template <std::size_t N>
-bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs);
+bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise AND of the specified 'lhs'
     // and 'rhs'.
 
 template <std::size_t N>
-bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs);
+bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise OR of the specified 'lhs'
     // and 'rhs'.
 
 template <std::size_t N>
-bitset<N> operator^(const bitset<N>& lhs, const bitset<N>& rhs);
+bitset<N> operator^(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise XOR of the specified 'lhs'
     // and 'rhs'.
 
@@ -1314,6 +1317,7 @@ unsigned long bitset<N>::to_ulong() const
 // FREE OPERATORS
 template <std::size_t N>
 bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp &= rhs;
@@ -1321,6 +1325,7 @@ bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
 
 template <std::size_t N>
 bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp |= rhs;
@@ -1328,6 +1333,7 @@ bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
 
 template <std::size_t N>
 bitset<N> operator^(const bitset<N>& lhs, const bitset<N>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp ^= rhs;

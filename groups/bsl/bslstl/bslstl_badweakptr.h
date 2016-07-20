@@ -35,6 +35,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -72,7 +76,7 @@ namespace bslstl {
 
 class BadWeakPtr : public native_std::exception {
   public:
-    BadWeakPtr();
+    BadWeakPtr() BSLS_CPP11_NOEXCEPT;
         // Create a 'BadWeakPtr' object.  Note that this function is explicitly
         // user-declared, to make it simple to declare 'const' objects of this
         // type.
@@ -97,7 +101,7 @@ class BadWeakPtr : public native_std::exception {
                        // ----------------
 
 inline
-BadWeakPtr::BadWeakPtr()
+BadWeakPtr::BadWeakPtr() BSLS_CPP11_NOEXCEPT
 : native_std::exception()
 {
 }

@@ -2228,7 +2228,7 @@ class shared_ptr {
         // to unrelated types to be compared (e.g., via '<' or '>').
 
     typename add_lvalue_reference<ELEMENT_TYPE>::type
-    operator*() const;
+    operator*() const BSLS_CPP11_NOEXCEPT;
         // Return a reference providing modifiable access to the object
         // referred to by this shared pointer.  The behavior is undefined
         // unless this shared pointer refers to an object, and 'ELEMENT_TYPE'
@@ -4804,7 +4804,7 @@ shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_CPP11_NOEXCEPT
 template <class ELEMENT_TYPE>
 inline
 typename add_lvalue_reference<ELEMENT_TYPE>::type
-shared_ptr<ELEMENT_TYPE>::operator*() const
+shared_ptr<ELEMENT_TYPE>::operator*() const BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_ptr_p);
 

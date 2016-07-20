@@ -13696,7 +13696,7 @@ int main(int argc, char *argv[])
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                ASSERT_SAFE_FAIL(*x);
+             // ASSERT_SAFE_FAIL(*x);  // TBD: negative testing of 'noexcept's
                 ASSERT_SAFE_FAIL(x[0]);
             }
         }

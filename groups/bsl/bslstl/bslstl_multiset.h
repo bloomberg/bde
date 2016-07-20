@@ -887,7 +887,8 @@ class multiset {
         // parameter) type 'KEY' be 'copy-assignable' and 'copy-insertable'
         // into this multiset (see {Requirements on 'KEY'}).
 
-    multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs);
+    multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -1320,7 +1321,8 @@ class multiset {
         // the 'last' position in the ordered sequence provided by this
         // container.
 
-    void swap(multiset& other);
+    void swap(multiset& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1561,7 +1563,8 @@ bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
-          multiset<KEY, COMPARATOR, ALLOCATOR>& b);
+          multiset<KEY, COMPARATOR, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1901,6 +1904,7 @@ inline
 multiset<KEY, COMPARATOR, ALLOCATOR>&
 multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
                                   BloombergLP::bslmf::MovableRef<multiset> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     multiset& lvalue = rhs;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
@@ -3123,6 +3127,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
@@ -3454,6 +3459,7 @@ template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,
                bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

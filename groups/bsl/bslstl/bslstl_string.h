@@ -670,6 +670,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -1324,7 +1328,8 @@ class basic_string
                    // *** 21.3.2 construct/copy/destroy: ***
 
     explicit
-    basic_string(const ALLOCATOR& basicAllocator = ALLOCATOR());
+    basic_string(const ALLOCATOR& basicAllocator = ALLOCATOR())
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create an empty string.  Optionally specify the 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
@@ -1346,7 +1351,8 @@ class basic_string
         // then causes extra allocations when returning by value in
         // 'operator+'.
 
-    basic_string(BloombergLP::bslmf::MovableRef<basic_string> original);
+    basic_string(BloombergLP::bslmf::MovableRef<basic_string> original)
+                                                           BSLS_CPP11_NOEXCEPT;
     basic_string(BloombergLP::bslmf::MovableRef<basic_string> original,
                  const ALLOCATOR&                             basicAllocator);
         // Create a string that has the same value as the specified 'original'
@@ -1445,7 +1451,8 @@ class basic_string
         // Assign to this string the value of the specified 'rhs' string, and
         // return a reference providing modifiable access to this object.
 
-    basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs);
+    basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'rhs' string, and
         // return a reference providing modifiable access to this object.
         // 'rhs' is left in a valid but unspecified state.  No memory
@@ -1488,27 +1495,27 @@ class basic_string
         // accommodate without reallocation.  The actual storage allocated may
         // be higher.
 
-    void clear();
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Reset this string to an empty value.  Note that the capacity may
         // change (or not if 'BASIC_STRING_DEALLOCATE_IN_CLEAR' is 'false').
         // Note that the Standard doesn't allow to reduce capacity on 'clear'.
 
                           // *** 21.3.3 iterators: ***
 
-    iterator begin();
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator referring to the first character in this
         // modifiable string (or the past-the-end iterator if this string is
         // empty).
 
-    iterator end();
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end iterator for this modifiable string.
 
-    reverse_iterator rbegin();
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator referring to the last character in this
         // modifiable string (or the past-the-end reverse iterator if this
         // string is empty).
 
-    reverse_iterator rend();
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator for this modifiable string.
 
                        // *** 21.3.5 element access: ***
@@ -1608,7 +1615,8 @@ class basic_string
         // string.
 
     basic_string& assign(
-                     BloombergLP::bslmf::MovableRef<basic_string> replacement);
+                     BloombergLP::bslmf::MovableRef<basic_string> replacement)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'replacement'
         // string, and return a reference providing modifiable access to this
         // string.  'replacement' is left in a valid but unspecified state.
@@ -1899,7 +1907,8 @@ class basic_string
         // 'first <= last', and '[stringFirst .. stringLast)' is a valid
         // iterator range.
 
-    void swap(basic_string& other);
+    void swap(basic_string& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this string with that of the specified
         // 'string', so that the value of this string upon return equals that
         // of 'other' prior to this call, and vice-versa.
@@ -1908,50 +1917,50 @@ class basic_string
 
                      // *** 21.3.3 iterators: ***
 
-    const_iterator begin() const;
-    const_iterator cbegin() const;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // character of this string (or the past-the-end iterator if this
         // string is empty).
 
-    const_iterator end() const;
-    const_iterator cend() const;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end iterator for this string.
 
-    const_reverse_iterator rbegin() const;
-    const_reverse_iterator crbegin() const;
+    const_reverse_iterator  rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last character of this string (or the past-the-end reverse iterator
         // if this string is empty).
 
-    const_reverse_iterator rend() const;
-    const_reverse_iterator crend() const;
+    const_reverse_iterator  rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator for this string.
 
                           // *** 21.3.4 capacity: ***
 
-    size_type length() const;
+    size_type length() const BSLS_CPP11_NOEXCEPT;
         // Return the length of this string.  Note that this number may differ
         // from 'CHAR_TRAITS::length(c_str())' in case the string contains null
         // characters.  Also note that a null-terminating character added by
         // the 'c_str' method is *not* counted in this length.
 
-    size_type size() const;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the length of this string.  Note that this number may differ
         // from 'CHAR_TRAITS::length(c_str())' in case the string contains null
         // characters.  Also note that a null-terminating character added by
         // the 'c_str' method is *not* counted in this length.
 
-    size_type max_size() const;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return the maximal possible length of this string.  Note that
         // requests to create a string longer than this number of characters
         // are guaranteed to raise a 'length_error' exception.
 
-    size_type capacity() const;
+    size_type capacity() const BSLS_CPP11_NOEXCEPT;
         // Return the capacity of this string, i.e., the maximum length for
         // which resizing is guaranteed not to trigger a reallocation.
 
-    bool empty() const;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this string has length 0, and 'false' otherwise.
 
                        // *** 21.3.5 element access: ***
@@ -1990,25 +1999,25 @@ class basic_string
 
                      // *** 21.3.7 string operations: ***
 
-    const CHAR_TYPE *c_str() const;
+    const CHAR_TYPE *c_str() const BSLS_CPP11_NOEXCEPT;
         // Return an address providing non-modifiable access to the
         // null-terminated buffer of 'length() + 1' characters whose contents
         // are identical to the value of this string.  Note that any call to
         // the string destructor or any of its manipulators invalidates the
         // returned pointer.
 
-    const CHAR_TYPE *data() const;
+    const CHAR_TYPE *data() const BSLS_CPP11_NOEXCEPT;
         // Return an address providing non-modifiable access to the
         // null-terminated buffer of 'length()' characters whose contents are
         // identical to the value of this string.  Note that any call to the
         // string destructor or any of its manipulators invalidates the
         // returned pointer.
 
-    allocator_type get_allocator() const;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return the allocator used by this string to supply memory.
 
     size_type find(const basic_string& substring,
-                   size_type           position = 0) const;
+                   size_type           position = 0) const BSLS_CPP11_NOEXCEPT;
         // Return the starting position of the *first* occurrence of the
         // specified 'substring', if such a substring can be found in this
         // string (on or *after* the optionally specified 'position' if such a
@@ -2035,7 +2044,8 @@ class basic_string
         // is specified), and return 'npos' otherwise.
 
     size_type rfind(const basic_string& substring,
-                    size_type           position = npos) const;
+                    size_type           position = npos) const
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the starting position of the *last* occurrence of the
         // specified 'substring' within this string, if such a sequence can be
         // found in this string (on or *before* the optionally specified
@@ -2063,7 +2073,8 @@ class basic_string
         // is specified), and return 'npos' otherwise.
 
     size_type find_first_of(const basic_string& characterString,
-                            size_type           position = 0) const;
+                            size_type           position = 0) const
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the position of the *first* occurrence of a character
         // belonging to the specified 'characterString', if such an occurrence
         // can be found in this string (on or *after* the optionally specified
@@ -2091,7 +2102,8 @@ class basic_string
         // is specified), and return 'npos' otherwise.
 
     size_type find_last_of(const basic_string& characterString,
-                           size_type           position = npos) const;
+                           size_type           position = npos) const
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the position of the *last* occurrence of a character
         // belonging to the specified 'characterString', if such an occurrence
         // can be found in this string (on or *before* the optionally specified
@@ -2119,7 +2131,8 @@ class basic_string
         // is specified), and return 'npos' otherwise.
 
     size_type find_first_not_of(const basic_string& characterString,
-                                size_type           position = 0) const;
+                                size_type           position = 0) const
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the position of the *first* occurrence of a character *not*
         // belonging to the specified 'characterString', if such an occurrence
         // can be found in this string (on or *after* the optionally specified
@@ -2148,7 +2161,8 @@ class basic_string
         // otherwise.
 
     size_type find_last_not_of(const basic_string& characterString,
-                               size_type           position = npos) const;
+                               size_type           position = npos) const
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the position of the *last* occurrence of a character *not*
         // belonging to the specified 'characterString', if such an occurrence
         // can be found in this string (on or *before* the optionally specified
@@ -2186,7 +2200,7 @@ class basic_string
         // not specified, 'npos' is used (i.e., the entire suffix from
         // 'position' to the end of the string is returned).
 
-    int compare(const basic_string& other) const;
+    int compare(const basic_string& other) const BSLS_CPP11_NOEXCEPT;
         // Lexicographically compare this string with the specified 'other'
         // string (using 'CHAR_TRAITS::lt' to compare characters), and return a
         // negative value if this string is less than 'other', a positive value
@@ -2260,15 +2274,18 @@ class basic_string
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
+                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator==(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
@@ -2282,15 +2299,19 @@ bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
+                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator!=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator!=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator!=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
@@ -2304,16 +2325,20 @@ bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
+               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator<(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+
 bool operator<(const CHAR_TYPE                                  *lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -2325,15 +2350,19 @@ bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs);
+               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator>(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+          const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+          const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const CHAR_TYPE                                  *lhs,
                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
@@ -2346,15 +2375,19 @@ bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
+                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator<=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator<=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
@@ -2368,15 +2401,19 @@ bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
+                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator>=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs);
+           const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
 operator>=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
+           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const CHAR_TYPE                                  *lhs,
                 const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs);
@@ -2447,7 +2484,8 @@ operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
-          basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs);
+          basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the values of the specified 'lhs' and 'rhs' strings in constant
     // time without throwing an exception.  The behavior is undefined unless
     // 'lhs.get_allocator() == rhs.get_allocator()'.
@@ -3558,6 +3596,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                const ALLOCATOR& basicAllocator)
+                                                            BSLS_CPP11_NOEXCEPT
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3599,6 +3638,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                          BloombergLP::bslmf::MovableRef<basic_string> original)
+                                                            BSLS_CPP11_NOEXCEPT
 : Imp(original)
 , BloombergLP::bslalg::ContainerBase<allocator_type>(
           BloombergLP::bslmf::MovableRefUtil::access(original).get_allocator())
@@ -3761,6 +3801,7 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                               BloombergLP::bslmf::MovableRef<basic_string> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     return assign(BloombergLP::bslmf::MovableRefUtil::move(rhs));
 }
@@ -3841,7 +3882,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     // Note: Stlport and Dinkumware do not deallocate the allocated buffer in
     // long string representation, ApacheSTL does.
@@ -3854,7 +3895,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin()
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return this->dataPtr();
 }
@@ -3862,7 +3903,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end()
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return begin() + this->d_length;
 }
@@ -3870,7 +3911,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin()
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -3878,7 +3919,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend()
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -4100,6 +4141,7 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     basic_string& other = BloombergLP::bslmf::MovableRefUtil::access(
                                                                   replacement);
@@ -4736,6 +4778,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (get_allocator() == other.get_allocator()) {
         privateBase().swap(other.privateBase());
@@ -4757,6 +4800,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->dataPtr();
 }
@@ -4765,6 +4809,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cbegin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return begin();
 }
@@ -4772,7 +4817,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cbegin() const
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return begin() + this->d_length;
 }
@@ -4780,7 +4825,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cend() const
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return end();
 }
@@ -4789,6 +4834,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -4797,6 +4843,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crbegin() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -4805,6 +4852,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -4813,6 +4861,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crend() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -4823,6 +4872,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->d_length;
 }
@@ -4831,6 +4881,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::length() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->d_length;
 }
@@ -4839,6 +4890,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::max_size() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     // Must take into account the null-terminating character.
 
@@ -4851,6 +4903,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::capacity() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->d_capacity;
 }
@@ -4858,6 +4911,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::capacity() const
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 bool basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::empty() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->d_length == 0;
 }
@@ -4936,6 +4990,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 const CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->dataPtr();
 }
@@ -4944,6 +4999,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 const CHAR_TYPE*
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return this->dataPtr();
 }
@@ -4952,6 +5008,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bslalg::ContainerBase<allocator_type>::allocator();
 }
@@ -4962,6 +5019,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                            const basic_string&  substring,
                                            size_type            position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return find(substring.data(), position, substring.length());
 }
@@ -5030,6 +5088,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                             const basic_string& substring,
                                             size_type           position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return rfind(substring.data(), position, substring.length());
 }
@@ -5091,6 +5150,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                            const basic_string& characterString,
                                            size_type           position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return find_first_of(characterString.data(),
                          position,
@@ -5150,6 +5210,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                            const basic_string& characterString,
                                            size_type           position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return find_last_of(characterString.data(),
                         position,
@@ -5213,6 +5274,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                            const basic_string& characterString,
                                            size_type           position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return find_first_not_of(characterString.data(),
                              position,
@@ -5273,6 +5335,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                            const basic_string& characterString,
                                            size_type           position) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return find_last_not_of(characterString.data(),
                             position,
@@ -5342,6 +5405,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                const basic_string& other) const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return privateCompareRaw(size_type(0),
                              length(),
@@ -5455,6 +5519,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
                basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BSLS_ASSERT_SAFE(lhs.get_allocator() == rhs.get_allocator());
 
@@ -5466,6 +5531,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
@@ -5477,6 +5543,7 @@ bool
 bsl::operator==(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
@@ -5488,6 +5555,7 @@ bool
 bsl::operator==(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
@@ -5521,6 +5589,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs == rhs);
 }
@@ -5531,6 +5600,7 @@ bool
 bsl::operator!=(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs == rhs);
 }
@@ -5541,6 +5611,7 @@ bool
 bsl::operator!=(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs == rhs);
 }
@@ -5568,6 +5639,7 @@ bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
@@ -5584,6 +5656,7 @@ bool
 bsl::operator<(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
@@ -5600,6 +5673,7 @@ bool
 bsl::operator<(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
@@ -5647,6 +5721,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return rhs < lhs;
 }
@@ -5657,6 +5732,7 @@ bool
 bsl::operator>(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return rhs < lhs;
 }
@@ -5667,6 +5743,7 @@ bool
 bsl::operator>(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return rhs < lhs;
 }
@@ -5695,6 +5772,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(rhs < lhs);
 }
@@ -5705,6 +5783,7 @@ bool
 bsl::operator<=(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(rhs < lhs);
 }
@@ -5715,6 +5794,7 @@ bool
 bsl::operator<=(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(rhs < lhs);
 }
@@ -5743,6 +5823,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs < rhs);
 }
@@ -5753,6 +5834,7 @@ bool
 bsl::operator>=(
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs < rhs);
 }
@@ -5763,6 +5845,7 @@ bool
 bsl::operator>=(
              const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
              const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !(lhs < rhs);
 }

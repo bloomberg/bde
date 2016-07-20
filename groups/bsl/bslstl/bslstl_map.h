@@ -982,7 +982,8 @@ class map {
         // 'copy-insertable' into this map (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
-    map& operator=(BloombergLP::bslmf::MovableRef<map> rhs);
+    map& operator=(BloombergLP::bslmf::MovableRef<map> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
@@ -1088,7 +1089,7 @@ class map {
 
     template <class ALT_VALUE_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
-    pair<iterator, bool> 
+    pair<iterator, bool>
 #else
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        pair<iterator, bool> >::type
@@ -1112,7 +1113,7 @@ class map {
         // convention, as the MSVC compiler cannot match the out-of-class
         // definition of the declaration in the class.
 
-        return emplace(BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));    
+        return emplace(BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));
     }
 
     iterator insert(const_iterator hint, const value_type& value);
@@ -1569,7 +1570,8 @@ class map {
         // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
-    void swap(map& other);
+    void swap(map& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1826,7 +1828,8 @@ bool operator>=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 void swap(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
-          map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b);
+          map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2176,6 +2179,7 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
                                        BloombergLP::bslmf::MovableRef<map> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     map& lvalue = rhs;
 
@@ -3535,6 +3539,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
@@ -3879,6 +3884,7 @@ template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
                bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

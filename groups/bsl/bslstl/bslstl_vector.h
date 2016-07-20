@@ -876,24 +876,24 @@ class Vector_ImpBase {
 
                              // *** iterators ***
 
-    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
     const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this vector, and the past-the-end iterator if this vector
         // is empty.
 
-    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
     const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing non-modifiable
         // access to this vector.
 
-    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator  rbegin() const BSLS_CPP11_NOEXCEPT;
     const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this vector, and the past-the-end reverse iterator
         // if this vector is empty.
 
-    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator  rend() const BSLS_CPP11_NOEXCEPT;
     const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this vector.
@@ -1185,8 +1185,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // object that uses the specified 'basicAllocator' to supply memory.
         // This method requires that the (template parameter) type 'VALUE_TYPE'
         // be 'copy-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
+        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
     Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original,
@@ -1275,15 +1275,15 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void resize(size_type newSize);
         // Change the size of this vector to the specified 'newSize'.  If
         // 'newSize < size()', the elements in the range '[newSize .. size())'
-        // are erased, and this function does not throw.  If 'newSize > size()',
-        // the (newly created) elements in the range '[size() .. newSize)' are
-        // default-constructed 'value_type' objects, and if an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), '*this' is unaffected.  Throw 'std::length_error' if
-        // 'newSize > max_size()'.  This method requires that the (template
-        // parameter) type 'VALUE_TYPE' be 'default-insertable' and
-        // 'move-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // are erased, and this function does not throw.  If
+        // 'newSize > size()', the (newly created) elements in the range
+        // '[size() .. newSize)' are default-constructed 'value_type' objects,
+        // and if an exception is thrown (other than by the move constructor of
+        // a non-copy-insertable 'value_type'), '*this' is unaffected.  Throw
+        // 'std::length_error' if 'newSize > max_size()'.  This method requires
+        // that the (template parameter) type 'VALUE_TYPE' be
+        // 'default-insertable' and 'move-insertable' into this vector (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     void resize(size_type newSize, const VALUE_TYPE& value);
         // Change the size of this vector to the specified 'newSize', inserting
@@ -2451,7 +2451,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // included) and 'last' is an iterator in the range
         // '[first .. cend()]' (both endpoints included).
 
-    void swap(Vector_Imp& other);
+    void swap(Vector_Imp& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2553,7 +2554,8 @@ bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(Vector_Imp<VALUE_TYPE, ALLOCATOR>& a,
-          Vector_Imp<VALUE_TYPE, ALLOCATOR>& b);
+          Vector_Imp<VALUE_TYPE, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value of the specified 'a' object with the value of the
     // specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2612,7 +2614,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
 
     // *** construct/copy/destroy ***
 
-    explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR());
+    explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create an empty vector.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed object of the (template parameter) type
@@ -2687,7 +2690,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // type 'VALUE_TYPE' be 'copy-insertable' into this vector (see
         // {Requirements on 'VALUE_TYPE'}).
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original);
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
@@ -2699,8 +2703,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // object that uses the specified 'basicAllocator' to supply memory.
         // This method requires that the (template parameter) type 'VALUE_TYPE'
         // be 'copy-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
+        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
     vector(BloombergLP::bslmf::MovableRef<vector> original,
@@ -2747,7 +2751,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
         // vector (see {Requirements on 'VALUE_TYPE'}).
 
-    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs);
+    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -2947,6 +2952,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     }
 
     vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
     {
         Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
         return *this;
@@ -3456,7 +3462,8 @@ bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
-          vector<VALUE_TYPE *, ALLOCATOR>& b);
+          vector<VALUE_TYPE *, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
              // ===========================================
              // class vector<const VALUE_TYPE *, ALLOCATOR>
@@ -3497,6 +3504,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
                       // *** construct/copy/destroy ***
 
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
+                                                            BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
     {
     }
@@ -3527,7 +3535,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original)
+    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }
@@ -3564,6 +3572,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     }
 
     vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
     {
         Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
         return *this;
@@ -4065,7 +4074,8 @@ bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
-          vector<const VALUE_TYPE *, ALLOCATOR>& b);
+          vector<const VALUE_TYPE *, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -4785,7 +4795,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(const Vector_Imp& rhs)
 template <class VALUE_TYPE, class ALLOCATOR>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>&
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(
-                                 BloombergLP::bslmf::MovableRef<Vector_Imp> rhs)
+                                BloombergLP::bslmf::MovableRef<Vector_Imp> rhs)
 {
     Vector_Imp& lvalue = rhs;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
@@ -5620,6 +5630,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first,
 template <class VALUE_TYPE, class ALLOCATOR>
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
                                       Vector_Imp<VALUE_TYPE, ALLOCATOR>& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
@@ -5746,6 +5757,7 @@ bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
+                                                            BSLS_CPP11_NOEXCEPT
 : Base(basicAllocator)
 {
 }
@@ -5799,6 +5811,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE, ALLOCATOR>::vector(
                                BloombergLP::bslmf::MovableRef<vector> original)
+                                                            BSLS_CPP11_NOEXCEPT
 : Base(MoveUtil::move(static_cast<Base&>(original)))
 {
 }
@@ -5841,6 +5854,7 @@ inline
 vector<VALUE_TYPE, ALLOCATOR>&
 vector<VALUE_TYPE, ALLOCATOR>::operator=(
                                     BloombergLP::bslmf::MovableRef<vector> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     vector& lvalue = rhs;
     Base::operator=(MoveUtil::move(*static_cast<Base *>(&lvalue)));
@@ -5928,6 +5942,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
     static_cast<Base&>(a).swap(static_cast<Base&>(b));

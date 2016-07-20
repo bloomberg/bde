@@ -1011,7 +1011,8 @@ class multimap {
         // 'copy-insertable' into this multimap (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
-    multimap& operator=(BloombergLP::bslmf::MovableRef<multimap> rhs);
+    multimap& operator=(BloombergLP::bslmf::MovableRef<multimap> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
@@ -1268,7 +1269,8 @@ class multimap {
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
 
-    void swap(multimap& other);
+    void swap(multimap& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1279,7 +1281,7 @@ class multimap {
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
-    void clear();
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this multimap.  Note that the multimap is
         // empty after this call, but allocated memory may be retained for
         // future use.
@@ -1517,7 +1519,8 @@ bool operator>=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 void swap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
-          multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& b);
+          multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1879,6 +1882,7 @@ inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
                                   BloombergLP::bslmf::MovableRef<multimap> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     multimap& lvalue = rhs;
 
@@ -2377,6 +2381,7 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(multimap& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
@@ -2409,7 +2414,7 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(multimap& other)
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear()
+void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
     if (d_tree.rootNode()) {
@@ -2725,6 +2730,7 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void bsl::swap(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
                bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

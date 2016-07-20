@@ -987,7 +987,8 @@ class unordered_multimap {
         // unordered multimap (see {Requirements on 'KEY' and 'VALUE'}).
 
     unordered_multimap&
-    operator=(BloombergLP::bslmf::MovableRef<unordered_multimap> rhs);
+    operator=(BloombergLP::bslmf::MovableRef<unordered_multimap> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value, hash function, and key-equivalence
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1282,7 +1283,8 @@ class unordered_multimap {
         // growing the container to 'size() == numElements'.  Also note that
         // this operation has no effect if 'numElements <= size()'.
 
-    void swap(unordered_multimap& other);
+    void swap(unordered_multimap& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value, hash function, and key-equivalence comparator of
         // this object with the value, hash function, and key-equivalence
         // comparator of the specified 'other' object.  Additionally, if
@@ -1301,14 +1303,14 @@ class unordered_multimap {
         // Return (a copy of) the allocator used for memory allocation by this
         // unordered multimap.
 
-    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
     const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered multimap, or the 'end' iterator if this
         // unordered multimap is empty.
 
-    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
     const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end position in the sequence of 'value_type' objects
@@ -1358,7 +1360,7 @@ class unordered_multimap {
         // multimap contains no 'value_type' objects with a key equivalent to
         // 'key', then the two returned iterators will have the same value.
 
-    const_local_iterator begin(size_type index) const;
+    const_local_iterator  begin(size_type index) const;
     const_local_iterator cbegin(size_type index) const;
         // Return a local iterator providing non-modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects) of the
@@ -1367,7 +1369,7 @@ class unordered_multimap {
         // if the indexed bucket is empty.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
-    const_local_iterator end(size_type index) const;
+    const_local_iterator  end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
         // past-the-end position (in the sequence of 'value_type' objects) of
@@ -1440,7 +1442,8 @@ bool operator!=(
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b);
+          unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, hash function, and key-equivalence comparator of the
     // specified 'a' object with the value, hash function, and key-equivalence
     // comparator of the specified 'b' object.  Additionally, if
@@ -1690,6 +1693,7 @@ inline
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
                         BloombergLP::bslmf::MovableRef<unordered_multimap> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
@@ -2056,6 +2060,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(
                                                      unordered_multimap& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     d_impl.swap(other.d_impl);
 }
@@ -2330,6 +2335,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
                bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

@@ -953,7 +953,8 @@ class unordered_set
         // {Requirements on 'KEY'}).
 
     unordered_set&
-    operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs);
+    operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value, hash function, and equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1417,7 +1418,8 @@ class unordered_set
         // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the sequence provided by this container.
 
-    void swap(unordered_set& other);
+    void swap(unordered_set& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value, hash function, and equality comparator of this
         // object with the value, hash function, and equality comparator of the
         // specified 'other' object.  Additionally, if
@@ -1626,7 +1628,8 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b);
+          unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, hash function, and equality comparator of the
     // specified 'a' object with the value, hash function, and equality
     // comparator of the specified 'b' object.  Additionally, if
@@ -1867,6 +1870,7 @@ inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_set> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     unordered_set& lvalue = rhs;
     if (this != &lvalue) {
@@ -2808,6 +2812,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::reserve(size_type numElements)
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
 
@@ -3050,6 +3055,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
                bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }
