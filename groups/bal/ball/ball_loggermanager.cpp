@@ -157,6 +157,21 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
     return category.maxLevel() >= severity;
 }
 
+inline static 
+ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
+    // Return the bael log severity equivalent to the specified 'severity'.
+{
+    switch (severity) {
+        case bsls::LogSeverity::e_FATAL: return bael_Severity::e_FATAL;
+        case bsls::LogSeverity::e_ERROR: return bael_Severity::e_ERROR;
+        case bsls::LogSeverity::e_WARN:  return bael_Severity::e_WARN;
+        case bsls::LogSeverity::e_INFO:  return bael_Severity::e_INFO;
+        case bsls::LogSeverity::e_DEBUG: return bael_Severity::e_DEBUG;
+        case bsls::LogSeverity::e_TRACE: return bael_Severity::e_TRACE;
+    }
+    BSLS_ASSERT_OPT(false && "Unreachable by design");
+    return bael_Severity::BAEL_ERROR;
+}
 
 static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
     // A lock used to protect the configuration of the 'bsl_Log' callback
@@ -193,10 +208,11 @@ void bslsLogMessage(const char *fileName,
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
 
-        logger.logMessage(*category, ball::Severity::e_ERROR, record);
+        logger.logMessage(*category, convertBslsLogSeverity(severity), record);
     }
     else {
-        (bsls::Log::platformDefaultMessageHandler)(fileName,
+        (bsls::Log::platformDefaultMessageHandler)(severity,
+                                                   fileName,
                                                    lineNumber,
                                                    message);
     }

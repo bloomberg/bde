@@ -295,7 +295,10 @@ const int DEFAULT_NUM_DATA =
 
 static int s_countingLogMessageHandlerCount = 0;
 
-static void countingLogMessageHandler(const char *, const int, const char *)
+static void countingLogMessageHandler(bsls::LogSeverity::Enum,
+                                      const char *,
+                                      const int,
+                                      const char *)
     // Increment 's_countingLogMessageHandlerCount'.
 {
     ++s_countingLogMessageHandlerCount;
