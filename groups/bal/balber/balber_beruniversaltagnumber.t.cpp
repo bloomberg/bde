@@ -329,15 +329,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 #endif
 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
-
 // test_customizedstring.cpp  -*-C++-*-
 
 #include <bsl_string.h>
@@ -370,15 +361,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 
 }  // close namespace test
 }  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mychoice.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYCHOICE
@@ -911,15 +893,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
 
 #endif
 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
-
 // test_mychoice.cpp  -*-C++-*-
 
 #include <bsl_iostream.h>
@@ -1085,15 +1058,6 @@ bsl::ostream& MyChoice::print(
 }  // close namespace test
 }  // close enterprise namespace
 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
-
 // test_myenumeration.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYENUMERATION
 #define INCLUDED_TEST_MYENUMERATION
@@ -1249,15 +1213,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 #endif
 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
-
 // test_myenumeration.cpp  -*-C++-*-
 
 #include <bsl_iostream.h>
@@ -1344,15 +1299,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 
 }  // close namespace test
 }  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
 
 // test_mysequence.h   -*-C++-*-
 #ifndef INCLUDED_TEST_MYSEQUENCE
@@ -1806,15 +1752,6 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
 
 #endif
 
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
-
 // test_mysequence.cpp  -*-C++-*-
 
 #include <bsl_iostream.h>
@@ -1969,15 +1906,6 @@ bsl::ostream& MySequence::print(
 
 }  // close namespace test
 }  // close enterprise namespace
-
-// ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ----------------------------------
 
 namespace BloombergLP {
 namespace test {
