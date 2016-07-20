@@ -1,6 +1,6 @@
 // bslmf_allocatorargt.t.cpp                                          -*-C++-*-
 
-#include "bslmf_allocatorargt.h"
+#include <bslmf_allocatorargt.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -427,6 +427,10 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    (void)        veryVerbose;  // unused variable warning
+    (void)    veryVeryVerbose;  // unused variable warning
+    (void)veryVeryVeryVerbose;  // unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to identify compiler support for C++11 features.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //
 //@MACROS
@@ -34,6 +36,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
+//
+//  BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER: tuple header is available
+//  BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT: piece-wise construct def
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -95,9 +100,10 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'include_next' is supported by the current
 //:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT':
-//:     This macro is defined if 'noexcept' is supported by the current
-//:     compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+//:     This macro is defined if the 'noexcept' keyword is supported by the
+//:     current compiler settings for this platform, both for designating a
+//:     function as not throwing and for testing if an expression may throw.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR':
 //:    This macro is defined if 'nullptr' is supported by the current compiler
@@ -128,13 +134,26 @@ BSLS_IDENT("$Id: $")
 //:     <type_traits> header.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
-//:     This macro is defined if the compiler suports the 'char16_t' and
+//:     This macro is defined if the compiler supports the 'char16_t' and
 //:     'char32_t' types.
 //
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
 //
+///Special Note: Library Features
+///------------------------------
+// The following are macros that are related to library support but are housed
+// here temporarily until we can define more clearly a new component.
+//
+//: 'BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER':
+//:     This macro is defined if the standard 'tuple' header is provided by the
+//:     standard library.
+//:
+//: 'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT':
+//:     This macro is defined if the definition of 'piecewise_construct_t'
+//:     is provided in the '<utility>' header of the standard library.
+//:
 ///Usage
 ///-----
 // The following code snippets illustrate use of this component.
@@ -204,7 +223,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
 ///- - - - - - - - - - - - - - - - - - - - -
-// This macro is defined in the compilier supports the 'constexpr' reserved
+// This macro is defined in the compiler supports the 'constexpr' reserved
 // keyword.
 //
 //: o Compiler support:
@@ -250,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports allowing supression of
+// This macro is defined if the compiler supports allowing suppression of
 // implicit instantiation of templates by prefixing an explicit instantiation
 // directive with the 'extern' keyword.
 //
@@ -383,6 +402,30 @@ BSLS_IDENT("$Id: $")
 //:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
+///'BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// TBD: confirm below
+// This macro is defined if the 'tuple' header is available in std library.
+//
+//: o Compiler support:
+//:   o gcc 4.3
+//:   o clang 3.1
+//:   o MSVC 2010
+//:   o xlC not supported
+//:   o Oracle CC not supported
+//
+///'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// TBD: confirm below
+// This macro is defined if the 'tuple' header is available in std library.
+//
+//: o Compiler support:
+//:   o gcc 4.7
+//:   o clang 3.1
+//:   o MSVC 2012
+//:   o xlC not supported
+//:   o Oracle CC not supported
+//
 // Note that bugs in MSVC 2013 support for variadic templates preclude
 // enabling the feature for BSL.
 //
@@ -501,6 +544,13 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // clang supports __attribute__((noreturn)) in earlier versions
 #endif
+// TBD: need help here - can we fix up to get the earliest version on darwin
+//      that supports <type_traits> header; what about non-darwin platforms?
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)
+#if __APPLE_CC__ >= 6000
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#endif
+#endif
 #endif
 
 
@@ -519,22 +569,25 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 //#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// Disable native type traits while investigating a rescursion problem that
+// Disable native type traits while investigating a recursion problem that
 // arises in the standard header include-graph in BSL_OVERRIDES_STD mode.
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
 // the 2015 compiler where those issues are ironed out.
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 // MSVC has __declspec(noreturn)
@@ -558,7 +611,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #endif
 #if defined(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS)
-#define BSLS_COMPILEFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if defined(__IBMCPP_EXPLICIT)
@@ -684,7 +737,8 @@ namespace bsls {
     // with 'const T&', the classic way to accept arguments of unknown
     // rvalue/lvalue-ness.
 
-#   define BSLS_COMPILERFEATURES_FORWARD(T,V) (V)
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V) \
+        ::BloombergLP::bslmf::Util::forward(V)
     // On compilers that support C++11 perfect forwarding, replace with
     // 'bsl::forward<T>(V)', i.e., use perfect-forwarding; otherwise, replace
     // with '(V)', the classic way to forward arguments safely.
@@ -696,6 +750,38 @@ namespace bsls {
 #   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
 #   define BSLS_COMPILERFEATURES_FORWARD(T,V)       \
         ::BloombergLP::bsls::Util::forward<T>(V)
+#endif
+
+// TBD: confirm this
+// gcc (library features)
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#if BSLS_PLATFORM_CMP_VERSION >= 40300
+#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40700
+#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#if defined(__APPLE_CC__)
+#if __APPLE_CC__ >= 6000
+#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
+#else
+#if BSLS_PLATFORM_CMP_VERSION >= 30100
+#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
+#endif
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
+#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
 #endif
 
 #endif

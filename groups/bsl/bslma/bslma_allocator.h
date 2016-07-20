@@ -375,6 +375,34 @@ BSLS_IDENT("$Id: $")
 #include <bslma_deleterhelper.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -458,8 +486,6 @@ class Allocator {
 };
 
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 // FREE OPERATORS
@@ -533,16 +559,18 @@ void operator delete(void                           *address,
 // NOTE: The following two operators are declared but never defined to force a
 // link-time error should any code inadvertently use them.
 
-void *operator new(std::size_t                    size,
-                   BloombergLP::bslma::Allocator *basicAllocator);
+void *operator new(
+             std::size_t                    size,
+             BloombergLP::bslma::Allocator *basicAllocator) BSLS_CPP11_DELETED;
     // Note that this operator is intentionally not defined.
 
-void operator delete(void                          *address,
-                     BloombergLP::bslma::Allocator *basicAllocator);
+void operator delete(
+             void                          *address,
+             BloombergLP::bslma::Allocator *basicAllocator) BSLS_CPP11_DELETED;
     // Note that this operator is intentionally not defined.
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {

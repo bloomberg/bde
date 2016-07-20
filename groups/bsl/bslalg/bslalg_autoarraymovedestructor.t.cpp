@@ -276,11 +276,9 @@ void insertItems(TestType         *start,
 //
     std::memcpy(divider, start, (divider - start) * sizeof(TestType));
 //
-    bslalg::AutoArrayMoveDestructor<TestType> guard(start,
-                                                    divider,
-                                                    divider,
-                                                    finish);
-//
+    typedef bslalg::AutoArrayMoveDestructor<TestType> Obj;
+    Obj guard(start, divider, divider, finish, allocator);
+    //
     while (guard.middle() < guard.end()) {
         // Call the copy c'tor, which may throw.
 //
@@ -452,6 +450,8 @@ int main(int argc, char *argv[])
         const int GUARD_SIZE = 8;
         const int MAX_SIZE   = 2 * GUARD_SIZE;  // do not change
 
+        typedef bslalg::AutoArrayMoveDestructor<T> Obj;
+
         static union {
             char                                d_raw[MAX_SIZE * sizeof(T)];
             bsls::AlignmentUtil::MaxAlignedType d_align;
@@ -461,11 +461,8 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\tSimple interface test.\n");
         {
-            bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                  &buf[0],
-                                                  &buf[0],
-                                                  &buf[GUARD_SIZE]);
-            const bslalg::AutoArrayMoveDestructor<T>& G = mG;
+            Obj mG( &buf[GUARD_SIZE], &buf[0], &buf[0], &buf[GUARD_SIZE], Z);
+            const Obj& G = mG;
 
             ASSERT(&buf[0]          == G.begin());
             ASSERT(&buf[0]          == G.middle());
@@ -492,7 +489,7 @@ int main(int argc, char *argv[])
         {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                bslalg::AutoArrayDestructor<T> mExcGuard(&buf[0], &buf[0]);
+                bslalg::AutoArrayDestructor<T> mExcGuard(&buf[0], &buf[0], Z);
 
                 char c = 'a';
                 for (int i = 0; i < GUARD_SIZE; ++i, ++c) {
@@ -502,11 +499,12 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                          &buf[0],
-                                                          &buf[0],
-                                                          &buf[GUARD_SIZE]);
-                    const bslalg::AutoArrayMoveDestructor<T>& G = mG;
+                    Obj mG(&buf[GUARD_SIZE],
+                           &buf[0],
+                           &buf[0],
+                           &buf[GUARD_SIZE],
+                           Z);
+                    const Obj& G = mG;
                         // guards as follows (upon destruction): destroys first
                         // portion of first half, move second portion of first
                         // half beyond constructed elements in second half
@@ -553,6 +551,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        typedef bslalg::AutoArrayMoveDestructor<T> Obj;
+
         const int GUARD_SIZE = 8;
         const int MAX_SIZE   = 2 * GUARD_SIZE;  // do not change
 
@@ -563,11 +563,8 @@ int main(int argc, char *argv[])
         T *buf = (T *) (void *) &u.d_raw[0];
 
         {
-            bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                  &buf[0],
-                                                  &buf[1],
-                                                  &buf[GUARD_SIZE]);
-            const bslalg::AutoArrayMoveDestructor<T>& G = mG;
+            Obj mG(&buf[GUARD_SIZE], &buf[0], &buf[1], &buf[GUARD_SIZE], Z);
+            const Obj& G = mG;
 
             ASSERT(&buf[GUARD_SIZE] == G.destination());
             ASSERT(&buf[0]          == G.begin());

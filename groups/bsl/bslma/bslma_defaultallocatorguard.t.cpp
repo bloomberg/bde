@@ -111,9 +111,11 @@ class my_CountingAllocator : public bslma::Allocator
     my_CountingAllocator();
     ~my_CountingAllocator();
 
+    // MANIPULATORS
     virtual void *allocate(size_type size);
     virtual void deallocate(void *address);
 
+    // ACCESSORS
     int blocksOutstanding() const { return d_blocksOutstanding; }
 };
 
@@ -151,7 +153,7 @@ class my_Container
     bslma::Allocator *d_allocator_p;
     int              *d_intArray;
   public:
-    my_Container(bslma::Allocator* alloc = 0);
+    explicit my_Container(bslma::Allocator* alloc = 0);
 
     // Containers don't typically have a function to return their
     // allocators, but this is useful for exposition:

@@ -1,4 +1,5 @@
 // bsltf_nontypicaloverloadstesttype.t.cpp                            -*-C++-*-
+#define BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER 1
 #include <bsltf_nontypicaloverloadstesttype.h>
 
 #include <bslma_default.h>
@@ -8,7 +9,12 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
+#include <bsls_platform.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_util.h>
+
+#include <new>
 
 #include <limits.h>
 #include <stdlib.h>
@@ -172,10 +178,7 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)aSsErT;               // suppress warning
-    (void)veryVerbose;          // suppress warning
     (void)veryVeryVerbose;      // suppress warning
-    (void)veryVeryVeryVerbose;  // suppress warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -196,7 +199,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
         if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+                            "\n=============\n");
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -209,16 +212,15 @@ int main(int argc, char *argv[])
 // First, we verify that calling 'operator new' will result in an
 // assertion:
 //..
-          bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
+    bsls::AssertTestHandlerGuard guard;
+    BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
 //..
 // Finally, we verify that calling 'operator delete' will result in an
 // assertion:
 //..
-          NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
+    NonTypicalOverloadsTestType obj;
+    BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
 //..
-
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -238,12 +240,19 @@ int main(int argc, char *argv[])
         //   static void operator delete(void *ptr);
         // --------------------------------------------------------------------
 
-          bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
+          bsls::AssertTestHandlerGuard guard;
 
-          NonTypicalOverloadsTestType obj;
-          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete bsls::Util::addressOf(obj));
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new Obj());
 
+          bsls::ObjectBuffer<Obj> obj;
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(  new(obj.address()) Obj());
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(  new((void *)obj.buffer()) Obj());
+          BSLS_ASSERTTEST_ASSERT_OPT_PASS(::new((void *)obj.buffer()) Obj());
+
+          ASSERT(!BSLS_CPP11_NOEXCEPT_OPERATOR(delete obj.address()));
+          BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj.address());
+          BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                  obj.object().~NonTypicalOverloadsTestType());
 
           bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
           Obj *arr = reinterpret_cast<Obj*>(scratch.allocate(sizeof(Obj)));

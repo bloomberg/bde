@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a hash-container with support for duplicate values.
 //
+//@REVIEW_FOR_MASTER: test new methods, review comments
+//
 //@CLASSES:
 //   bslstl::HashTable : hashed-table container for user-supplied object types
 //
@@ -66,11 +68,56 @@ BSLS_IDENT("$Id: $")
 // instantiation, the requirements apply specifically to the 'HashTable's
 // element type, 'ValueType'.
 //
-//: "default-constructible": The type provides a default constructor.
+// Legend
+// ------
+// 'X'    - denotes an allocator-aware container type (e.g., 'unordered_set')
+// 'T'    - 'value_type' associated with 'X'
+// 'A'    - type of the allocator used by 'X'
+// 'm'    - lvalue of type 'A' (allocator)
+// 'p'    - address ('T *') of uninitialized storage for a 'T' within an 'X'
+// 'rv'   - rvalue of type (non-'const') 'T'
+// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+// 'args' - 0 or more arguments
+//
+// The following terms are used to more precisely specify the requirements on
+// template parameter types in function-level documentation.
 //:
-//: "copy-constructible": The type provides a copy constructor.
+//: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
+//:     is 'default-insertable' into 'X' means that the following expression is
+//:     well-formed:
 //:
-//: "equality-comparable": The type provides an equality-comparison operator
+//:      'allocator_traits<A>::construct(m, p)'
+//:
+//: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
+//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:     means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, rv)'
+//:
+//: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
+//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:     'copy-insertable' into 'X' means that the following expression is
+//:     well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, v)'
+//:
+//: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
+//:     of type (non-'const') 'T'.
+//:
+//: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
+//:     or rvalue of type (possibly 'const') 'T'.
+//:
+//: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
+//:     'args' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, args)'
+//:
+//: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
+//:     from 'X' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::destroy(m, p)'
+//:
+//: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
 //
@@ -1459,14 +1506,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL
 #include <bslstl_bidirectionalnodepool.h>
 #endif
@@ -1483,6 +1522,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_functoradapter.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
+#include <bslalg_hashtableanchor.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
 #include <bslalg_hashtablebucket.h>
 #endif
@@ -1493,6 +1536,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
+#include <bslma_destructorguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -1531,8 +1586,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_bslexceptionutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
@@ -1551,6 +1614,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef> // for 'size_t'
 #define INCLUDED_CSTDDEF
+#endif
+
+#ifndef INCLUDED_CSTRING
+#include <cstring> // for 'memset'
+#define INCLUDED_CSTRING
 #endif
 
 #ifndef INCLUDED_LIMITS
@@ -1609,6 +1677,7 @@ struct CallableVariable {
     // language does not allow variables of function type, nor may functions
     // return a function type.
 
+    // TYPES
     typedef typename bsl::conditional<
                             bsl::is_function<CALLABLE>::value,
                             typename bsl::add_lvalue_reference<CALLABLE>::type,
@@ -1920,6 +1989,10 @@ class HashTable {
     HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
                                                                 ImplParameters;
 
+    typedef bslmf::MovableRefUtil                               MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+
   private:
     // DATA
     ImplParameters      d_parameters;    // policies governing table behavior
@@ -1943,6 +2016,23 @@ class HashTable {
         // from copy constructors, which will have assigned some initial values
         // for the 'size' and other attributes that may not be consistent with
         // the class invariants until after this method is called.
+
+    void moveDataStructure(bslalg::BidirectionalLink *cursor);
+        // Recreate the sequence of elements from the list starting at the
+        // specified 'cursor' and having (member) 'd_size' elements, ensuring
+        // that each 'ValueType' object in the source list is move-inserted
+        // into the new sequence.  Allocate a bucket array sufficiently large
+        // to store 'd_size' elements, while respecting the 'maxLoadFactor',
+        // and index the new list into that new array of hash buckets.  This
+        // hash table then takes ownership of the list and bucket array.  Note
+        // that this method is intended to be called from move constructors
+        // (where the source and target allocators do not match), which will
+        // have assigned some initial values for the 'size' and other
+        // attributes that may not be consistent with the class invariants
+        // until after this method completes.  If an exception is thrown during
+        // this operation, this object is left in a valid but unspecified
+        // state; it is the caller's responsibility, however, to ensure the
+        // source hash-table is in a valid state if an exception is thrown
 
     void quickSwapExchangeAllocators(HashTable *other);
         // Efficiently exchange the value, functors, and allocator of this
@@ -2014,19 +2104,20 @@ class HashTable {
   public:
     // CREATORS
     explicit HashTable(const ALLOCATOR& basicAllocator = ALLOCATOR());
-        // Create an empty 'HashTable' object with a 'maxLoadFactor' of 1.0.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'ALLOCATOR' is used.  Use a default
-        // constructed object of the (template parameter) type 'HASHER' and a
-        // default constructed object of the (template parameter) type
-        // 'COMPARATOR' to organize elements in the table.  If the 'ALLOCATOR'
-        // is 'bsl::allocator' (the default), then 'allocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator is used to supply memory.  No memory
-        // is allocated unless the 'HASHER' or 'COMPARATOR' types allocate
-        // memory in their default constructor.
+        // Create an empty hash-table.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
+        // default-constructed object of the (template paramater) type
+        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
+        // and 'basicAllocator'is not supplied, the currently installed default
+        // allocator is used to supply memory.  Use 1.0 for the 'maxLoadFactor.
+        // object with a 'maxLoadFactor' of 1.0.  Use a default constructed
+        // object of the (template parameter) type 'HASHER' and a default
+        // constructed object of the (template parameter) type 'COMPARATOR' to
+        // organize elements in the table.  No memory is allocated unless the
+        // 'HASHER' or 'COMPARATOR' types allocate memory in their default
+        // constructor.  Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
 
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,
@@ -2039,43 +2130,75 @@ class HashTable {
         // 'maxLoadFactor' of the specified 'initialMaxLoadFactor'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not supplied, a default-constructed object of
-        // the (template parameter) type 'ALLOCATOR' is used.  If the
-        // 'ALLOCATOR' is 'bsl::allocator' (the default), then
-        // 'basicAllocator', if supplied, shall be convertible to
-        // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
-        // 'basicAllocator' is not supplied, the currently installed default
-        // allocator is used to supply memory.  If this constructor tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash-table's 'SizeType', a 'std::length_error' exception is thrown.
-        // The behavior is undefined unless '0 < initialMaxLoadFactor'.  Note
-        // that more than 'initialNumBuckets' buckets may be created in order
-        // to preserve the bucket allocation strategy of the hash-table (but
-        // never fewer).
+        // the (template parameter) type 'ALLOCATOR' is used.  If the type
+        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator is used to
+        // supply memory.  If this constructor tries to allocate a number of
+        // buckets larger than can be represented by this hash-table's
+        // 'SizeType', a 'std::length_error' exception is thrown.  The behavior
+        // is undefined unless '0 < initialMaxLoadFactor'.  Note that more than
+        // 'initialNumBuckets' buckets may be created in order to preserve the
+        // bucket allocation strategy of the hash-table (but never fewer).
+        // Also note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
 
     HashTable(const HashTable& original);
-        // Create a 'HashTable' having the same value as the specified
-        // 'original', and the same 'maxLoadFactor'.  Use a copy of
-        // 'original.hasher()' and a copy of 'original.comparator()' to
-        // organize elements in this hash-table.  Use the allocator returned by
+        // Create a hash-table having the same value (and 'maxLoadFactor') as
+        // the specified 'original' object.  Use a copy of 'original.hasher()'
+        // and a copy of 'original.comparator()' to organize elements in this
+        // hash-table.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
         //  select_on_container_copy_construction(original.allocator())'
-        // to allocate memory.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), the currently installed default allocator is used to
-        // supply memory.  Note that this hash-table may have fewer buckets
+        // to allocate memory.  This method requires that the 'ValueType'
+        // defined by the (template parameter) type 'KEY_CONFIG' be
+        // 'copy-insertable' into this hash-table (see '{Requirements on
+        // 'KEY_CONFIG'}).   Note that this hash-table may have fewer buckets
         // than 'original', and a correspondingly higher 'loadFactor', so long
-        // as 'maxLoadFactor' is not exceeded.  Note that the created hash
+        // as 'maxLoadFactor' is not exceeded.  Also note that the created hash
         // table may have a different 'numBuckets' than 'original', and a
         // correspondingly different 'loadFactor', as long as 'maxLoadFactor'
         // is not exceeded.
 
-    HashTable(const HashTable& original, const ALLOCATOR& allocator);
-        // Create a 'HashTable' having the same value and 'maxLoadFactor' as
-        // the specified 'original', that will use the specified 'allocator' to
-        // supply memory.  Use a copy of 'original.hasher()' and a copy of
-        // 'original.comparator()' to organize elements in this hash- table.
-        // Note that this hash-table may have a different 'numBuckets' than
-        // 'original', and a correspondingly different 'loadFactor', as long as
-        // 'maxLoadFactor' is not exceeded.
+    HashTable(BloombergLP::bslmf::MovableRef<HashTable> original);
+        // Create a hash-table having the same value (and 'maxLoadFactor') as
+        // the specified 'original' object by moving (in constant time) the
+        // contents of 'original' to the new hash-table.  Use a copy of
+        // 'original.hasher()' and a copy of 'original.comparator()' to
+        // organize elements in this hash-table.  The allocator associated with
+        // 'original' is propagated for use in the newly created hash-table.
+        // 'original' is left in a valid but unspecified state.
+
+    HashTable(const HashTable& original, const ALLOCATOR& basicAllocator);
+        // Create a hash-table having the same value (and 'maxLoadFactor') as
+        // the specified 'original' object that uses the specified
+        // 'basicAllocator' to supply memory.  Use a copy of
+        // 'original.hasher()' and a copy of 'original.comparator()' to
+        // organize elements in this hash-table.  This method requires that the
+        // 'ValueType' defined by the (template parameter) type 'KEY_CONFIG' be
+        // 'move-insertable' into this hash-table.  Note that this hash-table
+        // may have a different 'numBuckets' than 'original', and a
+        // correspondingly different 'loadFactor', as long as 'maxLoadFactor'
+        // is not exceeded.
+
+    HashTable(BloombergLP::bslmf::MovableRef<HashTable> original,
+              const ALLOCATOR&                          basicAllocator);
+        // Create a hash table having the same value (and 'maxLoadFactor') as
+        // the specified 'original' object that uses the specified
+        // 'basicAllocator' to supply memory.  The contents of 'original' are
+        // moved (in constant time) to the new hash-table if
+        // 'basicAllocator == original.get_allocator()', and are move-inserted
+        // (in linear time) using 'basicAllocator' otherwise.  'original' is
+        // left in a valid but unspecified state.  Use a copy of
+        // 'original.hasher()' and a copy of 'original.comparator()' to
+        // organize elements in this hash-table.  This method requires that the
+        // 'ValueType' defined by the (template parameter) type 'KEY_CONFIG' be
+        // 'move-insertable' into this hash-table.  Note that this hash-table
+        // may have a different 'numBuckets' than 'original', and a
+        // correspondingly different 'loadFactor', as long as 'maxLoadFactor'
+        // is not exceeded.  Also note that a 'bslma::Allocator *' can be
+        // supplied for 'basicAllocator' if the (template parameter)
+        // 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     ~HashTable();
         // Destroy this object.
@@ -2083,78 +2206,659 @@ class HashTable {
     // MANIPULATORS
     HashTable& operator=(const HashTable& rhs);
         // Assign to this object the value, hasher, comparator and
-        // 'maxLoadFactor' of the specified 'rhs' object, replace the allocator
-        // of this object with the allocator of 'rhs' if the 'ALLOCATOR' type
-        // has the trait 'propagate_on_container_copy_assignment', and return a
-        // reference providing modifiable access to this object.  Note that
-        // this method requires that the parameterized 'HASHER' and
-        // 'COMPARATOR' types be "copy-constructible", "copy-assignable" and
-        // "swappable" (see {Requirements on 'KEY_CONFIG'}).  Also note that
-        // these requirements are modeled after the unordered container
+        // 'maxLoadFactor' of the specified 'rhs' object, propagate to this
+        // object the allocator of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_copy_assignment', and return a reference
+        // providing modifiable access to this object.  This method requires
+        // that the 'ValueType' defined by the (template parameter) type
+        // 'KEY_CONFIG' be 'copy-assignable' and 'copy-insertable' into this
+        // hash-table (see {Requirements on 'KEY_CONFIG'}).  This method
+        // requires that the (template parameter) types 'HASHER' and
+        // 'COMPARATOR' be 'copy-constructible' and 'copy-assignable'.  Note
+        // that these requirements are modeled after the unordered container
         // requirements table in the C++11 standard, which is imprecise on this
         // operation; these requirements might simplify in the future, if the
         // standard is updated.
 
-    template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *insert(const SOURCE_TYPE& value);
-        // Insert the specified 'value' into this hash-table, and return the
-        // address of the new node.  If this hash-table already contains an
-        // element having the same key as 'value' (according to this hash-
-        // table's 'comparator'), then insert 'value' immediately before the
-        // first element having the same key.  Additional buckets are
+    HashTable& operator=(BloombergLP::bslmf::MovableRef<HashTable> rhs);
+        // Assign to this object the value, hasher, comparator, and
+        // 'maxLoadFactor' of the specified 'rhs' object, propagate to this
+        // object the allocator of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_move_assignment', and return a reference
+        // providing modifiable access to this object.  If this hash-table and
+        // 'rhs' use the same allocator (after considering the aforementioned
+        // trait), all of the contents of 'rhs' are moved to this hash-table in
+        // constant time; otherwise, all elements in this hash table are either
+        // destroyed or move-assigned to and each additional element in 'rhs'
+        // is move-inserted into this hash-table.  'rhs' is left in a valid but
+        // unspecified state.  This method requires that the 'ValueType'
+        // defined by the (template parameter) type 'KEY_CONFIG' be both
+        // 'move-assignable' and 'move-insertable' into this hash-table (see
+        // {Requirements on 'KEY_CONFIG'}).
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    bslalg::BidirectionalLink *emplace(Args&&... arguments);
+        // Insert into this hash-table a newly-created 'ValueType' object,
+        // constructed by forwarding the specified (variable number of)
+        // 'arguments' to the corresponding constructor of 'ValueType', and
+        // return the address of the newly inserted node.  If a key equivalent
+        // to that of the newly-created object already exists in this
+        // hash-table, then insert the newly-created object immediately before
+        // the first such element.  Additional buckets are allocated, as
+        // needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.  If
+        // this function tries to allocate a number of buckets larger than can
+        // be represented by this hash-table's 'SizeType', a
+        // 'std::length_error' exception is thrown.  This method requires that
+        // the 'ValueType' defined in the (template parameter) type
+        // 'KEY_CONFIG' be 'emplace-constructible' into this hash-table from
+        // 'arguments' (see {Requirements on 'KEY_CONFIG'});
+
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                                         Args&&...                  arguments);
+        // Insert into this hash-table a newly-created 'ValueType' object,
+        // constructed by forwarding the specified (variable number of)
+        // 'arguments' to the corresponding constructor of 'ValueType'
+        // (immediately preceding the specified 'hint' if 'hint' is not null
+        // and the key of the node pointed to by 'hint' is equivalent to that
+        // of the newly-created object), and return the address of the newly
+        // inserted node.  If 'hint' is null or the key of the node pointed to
+        // by 'hint' is not equivalent to that of the newly created object, and
+        // a key equivalent to that of the newly-created object already exists
+        // in this hash-table, then insert the newly-created object immediately
+        // before the first such element.  Additional buckets will be
         // allocated, as needed, to preserve the invariant
         // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
         // number of buckets larger than can be represented by this hash
-        // table's 'SizeType', a 'std::length_error' exception is thrown.
+        // table's 'SizeType', a 'std::length_error' exception is thrown.  This
+        // method requires that 'ValueType' defined in the (template parameter)
+        // type 'KEY_CONFIG' be 'emplace-constructible' into this hash-table
+        // from 'arguments' (see {Requirements on 'KEY_CONFIG'}).  The behavior
+        // is undefined unless 'hint' is either null or points to a node in
+        // this hash table.
 
-    template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *insert(const SOURCE_TYPE&         value,
-                                      bslalg::BidirectionalLink *hint);
-        // Insert the specified 'value' into this hash table, and return the
-        // address of the new node.  If the element stored in the node pointer
-        // to by the specified 'hint' has a key that compares equal to that of
-        // 'value', then 'value' is inserted immediately preceding 'hint' in
-        // the list of this hash table.  Additional buckets will be allocated,
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                                                Args&&... arguments);
+        // Insert into this hash-table a newly-created 'ValueType' object,
+        // constructed by forwarding the specified (variable number of)
+        // 'arguments' to the corresponding constructor of 'ValueType', if a
+        // key equivalent to that of the newly-created object does not already
+        // exist in this hash-table.  Return the address of the (possibly newly
+        // created and inserted) element in this hash table whose key is
+        // equivalent to that of an object created from 'arguments'.  Load
+        // 'true' into the specified 'isInsertedFlag' if a new value was
+        // inserted, and 'false' if an an equivalent key was already present.
+        // If this hash-table contains more than one element with an equivalent
+        // key, return the first such element (from the contiguous sequence of
+        // elements having a matching key).  Additional buckets are allocated,
         // as needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.
         // If this function tries to allocate a number of buckets larger than
-        // can be represented by this hash table's 'SizeType', a
-        // 'std::length_error' exception is thrown.  The behavior is undefined
-        // unless 'hint' points to a node in this hash table.
+        // can be represented by this hash-table's 'SizeType', a
+        // 'std::length_error' exception is thrown.  This method requires that
+        // the 'ValueType' defined in the (template parameter) type
+        // 'KEY_CONFIG' be 'emplace-constructible' into this hash-table from
+        // 'arguments' (see {Requirements on 'KEY_CONFIG'});
 
-    template <class SOURCE_TYPE>
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_hashtable.h
+    bslalg::BidirectionalLink *emplace(
+                         );
+
+    template <class Args_01>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    bslalg::BidirectionalLink *emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint);
+
+    template <class Args_01>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag);
+
+    template <class Args_01>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    bslalg::BidirectionalLink *emplace(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceWithHint(
+                                         bslalg::BidirectionalLink *hint,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceIfMissing(bool     *isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+
+// }}} END GENERATED CODE
+#endif
+
+    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
+        // Insert into this hash-table a newly-created 'ValueType' object,
+        // constructed by forwarding the specified 'key' and a
+        // default-constructed object of the type 'ValueType::second_type', to
+        // the corresponding constructor of 'ValueType', if 'key' does not
+        // already exist in this hash-table.  Return the address of the
+        // (possibly newly created and inserted) element in this hash-table
+        // whose key is equivalent to 'key'.  If this hash-table contains more
+        // than one element with the supplied 'key', return the first such
+        // element (from the contiguous sequence of elements having a matching
+        // key).  Additional buckets are allocated, as needed, to preserve the
+        // invariant 'loadFactor <= maxLoadFactor'.  If this function tries to
+        // allocate a number of buckets larger than can be represented by this
+        // hash table's 'SizeType', a 'std::length_error' exception is thrown.
+        // This method requires that the 'ValueType' defined in the (template
+        // parameter) type 'KEY_CONFIG' be 'emplace-constructible' into this
+        // hash-table from a 'pair' of arguments representing the key and
+        // value, respectively (see {Requirements on 'KEY_CONFIG'});
+
     bslalg::BidirectionalLink *insertIfMissing(
-                                            bool               *isInsertedFlag,
-                                            const SOURCE_TYPE&  value);
+                                              bool             *isInsertedFlag,
+                                              const ValueType&  value);
+        // Insert the specified 'value' into this hash-table if a key
+        // equivalent to that of 'value' does not already exist in this
+        // hash-table.  Return the address of the (possibly newly inserted)
+        // element in this hash-table whose key is equivalent to that of
+        // 'value'.  If this hash-table contains more than one element with a
+        // matching key, return the first such element (from the contiguous
+        // sequence of elements having a matching key).  Additional buckets are
+        // allocated, as needed, to preserve the invariant
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this
+        // hash-table's 'SizeType', a 'std::length_error' exception is thrown.
+        // This method requires that the 'ValueType' defined in the (template
+        // parameter) type 'KEY_CONFIG' be 'copy-insertable' into this
+        // hash-table (see {Requirements on 'KEY_CONFIG'});
+
     bslalg::BidirectionalLink *insertIfMissing(
-                                            bool               *isInsertedFlag,
-                                            const ValueType&    value);
-        // Return the address of an element in this hash table having a key
-        // that compares equal to the key of the specified 'value' using the
-        // 'comparator' functor of this hash-table.  If no such element exists,
-        // insert a 'value' into this hash-table and return the address of that
-        // newly inserted node.  Load 'true' into the specified
-        // 'isInsertedFlag' if insertion is performed, and 'false' if an
-        // existing element having a matching key was found.  If this
+                                   bool                        *isInsertedFlag,
+                                   bslmf::MovableRef<ValueType> value);
+        // Insert the specified 'value' into this hash-table if a key
+        // equivalent to that of 'value' does not already exist in this
+        // hash-table.  Return the address of the (possibly newly inserted)
+        // element in this hash-table whose key is equivalent to that of
+        // 'value'.  'value' is left in a valid but unspecified state.  If this
         // hash-table contains more than one element with a matching key,
         // return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets are allocated,
         // as needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.
         // If this function tries to allocate a number of buckets larger than
-        // can be represented by this hash table's 'SizeType', a
-        // 'std::length_error' exception is thrown.
+        // can be represented by this hash-table's 'SizeType', a
+        // 'std::length_error' exception is thrown.  This method requires that
+        // the 'ValueType' defined in the (template parameter) type
+        // 'KEY_CONFIG' be 'move-insertable' into this hash-table (see
+        // {Requirements on 'KEY_CONFIG'});
 
-    bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
-        // Return the address of a link holding an element whose key has the
-        // same value as the specified 'key' (according to this hash-table's
-        // 'comparator'), and, if no such link exists, insert a new link having
-        // a default value with a key that is the same as 'key'.  If this
-        // hash-table contains more than one element with the supplied 'key',
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *
+    insertIfMissing(
+                 bool                                          *isInsertedFlag,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
+        // Insert into this hash-table a 'ValueType' object created from the
+        // specified 'value' if a key equivalent to that of such an object does
+        // not already exist in this hash-table.  Return the address of the
+        // (possibly newly inserted) element in this hash-table whose key is
+        // equivalent to that of the object created from 'value'.  Load 'true'
+        // into the specified 'isInsertedFlag' if a new value was inserted, and
+        // 'false' if an an equivalent key was already present.  If this
+        // hash-table contains more than one element with an equivalent key,
         // return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets are allocated,
         // as needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.
         // If this function tries to allocate a number of buckets larger than
-        // can be represented by this hash table's 'SizeType', a
-        // 'std::length_error' exception is thrown.
+        // can be represented by this hash-table's 'SizeType', a
+        // 'std::length_error' exception is thrown.  This method requires that
+        // the 'ValueType' defined in the (template parameter) type
+        // 'KEY_CONFIG' be 'move-insertable' into this hash-table (see
+        // {Requirements on 'KEY_CONFIG'}) and the (template parameter) type
+        // 'SOURCE_TYPE' be implicitly convertible to 'ValueType'.
+
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insert(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
+        // Insert into this hash-table a 'ValueType' object created from the
+        // specified 'value' and return the address of the newly inserted node.
+        // If a key equivalent to that of the newly-created object already
+        // exists in this hash-table, then insert the new object immediately
+        // before the first such element.  Additional buckets are allocated, as
+        // needed, to preserve the invariant 'loadFactor <= maxLoadFactor'.  If
+        // this function tries to allocate a number of buckets larger than can
+        // be represented by this hash-table's 'SizeType', a
+        // 'std::length_error' exception is thrown.  This method requires that
+        // the 'ValueType' defined in the (template parameter) type
+        // 'KEY_CONFIG' be 'move-insertable' into this hash-table (see
+        // {Requirements on 'KEY_CONFIG'}) and the (template parameter) type
+        // 'SOURCE_TYPE' be implicitly convertible to 'ValueType'.  Note that
+        // this method is deprecated is provided only to ensure backward
+        // compatibility with existing clients; use the 'emplace' method
+        // instead.
+
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insert(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value,
+                          bslalg::BidirectionalLink                     *hint);
+        // Insert into this hash-table a 'ValueType' object created from the
+        // specified 'value' (immediately preceding the specified 'hint' if
+        // 'hint' is not null and the key of the node pointed to by 'hint' is
+        // equivalent to that of the newly-created object), and return the
+        // address of the newly inserted node.  If 'hint' is null or the key of
+        // the node pointed to by 'hint' is not equivalent to that of the newly
+        // created object, and a key equivalent to that of the newly-created
+        // object already exists in this hash-table, then insert the
+        // newly-created object immediately before the first such element.
+        // Additional buckets will be allocated, as needed, to preserve the
+        // invariant 'loadFactor <= maxLoadFactor'.  If this function tries to
+        // allocate a number of buckets larger than can be represented by this
+        // hash-table's 'SizeType', a 'std::length_error' exception is thrown.
+        // This method requires that 'ValueType' defined in the (template
+        // parameter) type 'KEY_CONFIG' be 'move-insertable' into this
+        // hash-table (see {Requirements on 'KEY_CONFIG'}) and the (template
+        // parameter) type 'SOURCE_TYPE' be implicitly convertible to
+        // 'ValueType'.  Note that this method is deprecated and is provided
+        // only to ensure backward compatibility with existing clients; use the
+        // 'emplaceWithHint' method instead.
 
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Re-organize this hash-table to have at least the specified
@@ -2406,8 +3110,8 @@ class HashTable_ArrayProctor {
 
   private:
     // DATA
-    FACTORY                 *d_factory;
-    bslalg::HashTableAnchor *d_anchor;
+    FACTORY                 *d_factory_p;
+    bslalg::HashTableAnchor *d_anchor_p;
 
   private:
     // NOT IMPLEMENTED
@@ -2452,8 +3156,8 @@ class HashTable_NodeProctor {
 
   private:
     // DATA
-    FACTORY                   *d_factory;
-    bslalg::BidirectionalLink *d_node;
+    FACTORY                   *d_factory_p;
+    bslalg::BidirectionalLink *d_node_p;
 
   private:
     // NOT IMPLEMENTED
@@ -2535,7 +3239,7 @@ struct HashTable_Util {
     // This utility 'struct' provide utilities for initializing and destroying
     // bucket lists in anchors that are managed by a 'HashTable'.  They cannot
     // migrate down to 'bslalg::HashTableImpUtil' as they rely on the standard
-    // library 'bslstl_allocatortraits' for their implementation.
+    // library 'bslma_allocatortraits' for their implementation.
 
     // CLASS METHODS
     template <class TYPE>
@@ -2605,25 +3309,30 @@ class HashTable_ImplParameters
     // unforeseen namespace associations to the 'HashTable' class itself due to
     // the structural inheritance.
 
-    typedef typename HashTable_BaseHasher<HASHER>::Type     BaseHasher;
-    typedef typename HashTable_Comparator<COMPARATOR>::Type BaseComparator;
+    // PRIVATE TYPES
+    typedef typename HashTable_BaseHasher<HASHER>::Type        BaseHasher;
+    typedef typename HashTable_Comparator<COMPARATOR>::Type    BaseComparator;
+
+    typedef bslmf::MovableRefUtil                              MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
 
     // typedefs stolen from HashTable
-    typedef ALLOCATOR                              AllocatorType;
-    typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-    typedef typename KEY_CONFIG::ValueType         ValueType;
-    typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+    typedef ALLOCATOR                                          AllocatorType;
+    typedef ::bsl::allocator_traits<AllocatorType>             AllocatorTraits;
+    typedef typename KEY_CONFIG::ValueType                     ValueType;
+    typedef bslalg::BidirectionalNode<ValueType>               NodeType;
 
   public:
     // PUBLIC TYPES
     typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR> HashTableType;
     typedef typename HashTableType::AllocatorTraits::
-                                template rebind_traits<NodeType> ReboundTraits;
-    typedef typename ReboundTraits::allocator_type               NodeAllocator;
+                              template rebind_traits<NodeType> ReboundTraits;
+    typedef typename ReboundTraits::allocator_type             NodeAllocator;
 
     typedef
     BidirectionalNodePool<typename HashTableType::ValueType, NodeAllocator>
-                                                                   NodeFactory;
+                                                               NodeFactory;
 
   private:
     // DATA
@@ -2676,6 +3385,14 @@ class HashTable_ImplParameters
         // Create a 'HashTable_ImplParameters' object having the same 'hasher'
         // and 'comparator' attributes as the specified 'original', and
         // providing a 'BidirectionalNodePool' using the specified 'allocator'.
+
+    HashTable_ImplParameters(
+                         bslmf::MovableRef<HashTable_ImplParameters> original);
+        // Create a 'HashTable_ImplParameters' object with a copy of the
+        // 'hasher' and 'comparator' attributes associated with the specified
+        // 'original' parameters object, and adopting all outstanding memory
+        // allocations and the allocator associated with 'original'.  Note that
+        // 'original' is left in a valid but unspecified state.
 
     // MANIPULATORS
     NodeFactory& nodeFactory();
@@ -2943,8 +3660,8 @@ inline
 HashTable_NodeProctor<FACTORY>::HashTable_NodeProctor(
                                             FACTORY                   *factory,
                                             bslalg::BidirectionalLink *node)
-: d_factory(factory)
-, d_node(node)
+: d_factory_p(factory)
+, d_node_p(node)
 {
     BSLS_ASSERT_SAFE(factory);
 }
@@ -2953,8 +3670,8 @@ template <class FACTORY>
 inline
 HashTable_NodeProctor<FACTORY>::~HashTable_NodeProctor()
 {
-    if (d_node) {
-        d_factory->deleteNode(d_node);
+    if (d_node_p) {
+        d_factory_p->deleteNode(d_node_p);
     }
 }
 
@@ -2963,7 +3680,7 @@ template <class FACTORY>
 inline
 void HashTable_NodeProctor<FACTORY>::release()
 {
-    d_node = 0;
+    d_node_p = 0;
 }
 
                     // ----------------------------
@@ -2976,8 +3693,8 @@ inline
 HashTable_ArrayProctor<FACTORY>::HashTable_ArrayProctor(
                                               FACTORY                 *factory,
                                               bslalg::HashTableAnchor *anchor)
-: d_factory(factory)
-, d_anchor(anchor)
+: d_factory_p(factory)
+, d_anchor_p(anchor)
 {
     BSLS_ASSERT_SAFE(factory);
     BSLS_ASSERT_SAFE(anchor);
@@ -2987,15 +3704,15 @@ template <class FACTORY>
 inline
 HashTable_ArrayProctor<FACTORY>::~HashTable_ArrayProctor()
 {
-    if (d_anchor) {
-        HashTable_Util::destroyBucketArray(d_anchor->bucketArrayAddress(),
-                                           d_anchor->bucketArraySize(),
-                                           d_factory->allocator());
+    if (d_anchor_p) {
+        HashTable_Util::destroyBucketArray(d_anchor_p->bucketArrayAddress(),
+                                           d_anchor_p->bucketArraySize(),
+                                           d_factory_p->allocator());
 
-        bslalg::BidirectionalLink *root = d_anchor->listRootAddress();
+        bslalg::BidirectionalLink *root = d_anchor_p->listRootAddress();
         while (root) {
             bslalg::BidirectionalLink *next = root->nextLink();
-            d_factory->deleteNode(root);
+            d_factory_p->deleteNode(root);
             root = next;
         }
     }
@@ -3006,7 +3723,7 @@ template <class FACTORY>
 inline
 void HashTable_ArrayProctor<FACTORY>::release()
 {
-    d_anchor = 0;
+    d_anchor_p = 0;
 }
 
                     // --------------------
@@ -3150,6 +3867,16 @@ HashTable_ImplParameters(const HashTable_ImplParameters& original,
 : BaseHasher(static_cast<const BaseHasher&>(original))
 , BaseComparator(static_cast<const BaseComparator&>(original))
 , d_nodeFactory(allocator)
+{
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable_ImplParameters(bslmf::MovableRef<HashTable_ImplParameters> original)
+: BaseHasher(static_cast<const BaseHasher&>(original))
+, BaseComparator(static_cast<const BaseComparator&>(original))
+, d_nodeFactory(MoveUtil::move(MoveUtil::access(original).d_nodeFactory))
 {
 }
 
@@ -3344,9 +4071,26 @@ HashTable(const HashTable& original)
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::HashTable(
+                            BloombergLP::bslmf::MovableRef<HashTable> original)
+: d_parameters(MoveUtil::move(MoveUtil::access(original).d_parameters))
+, d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
+, d_size()
+, d_capacity()
+, d_maxLoadFactor(1.0)
+{
+    HashTable& lvalue = original;
+    bslalg::SwapUtil::swap(&d_anchor,        &lvalue.d_anchor);
+    bslalg::SwapUtil::swap(&d_size,          &lvalue.d_size);
+    bslalg::SwapUtil::swap(&d_capacity,      &lvalue.d_capacity);
+    bslalg::SwapUtil::swap(&d_maxLoadFactor, &lvalue.d_maxLoadFactor);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
-HashTable(const HashTable& original, const ALLOCATOR& allocator)
-: d_parameters(original.d_parameters, allocator)
+HashTable(const HashTable& original, const ALLOCATOR& basicAllocator)
+: d_parameters(original.d_parameters, basicAllocator)
 , d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
 , d_size(original.d_size)
 , d_capacity(0)
@@ -3355,6 +4099,53 @@ HashTable(const HashTable& original, const ALLOCATOR& allocator)
     if (0 < d_size) {
         d_parameters.nodeFactory().reserveNodes(original.d_size);
         this->copyDataStructure(original.d_anchor.listRootAddress());
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable(bslmf::MovableRef<HashTable> original,
+          const ALLOCATOR&             basicAllocator)
+: d_parameters(MoveUtil::access(original).d_parameters.originalHasher(),
+               MoveUtil::access(original).d_parameters.originalComparator(),
+               basicAllocator)
+, d_anchor(HashTable_ImpDetails::defaultBucketAddress(), 1, 0)
+, d_size()
+, d_capacity()
+, d_maxLoadFactor(1.0)
+{
+    HashTable& lvalue = original;
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                    basicAllocator == lvalue.allocator())) {
+        d_parameters.nodeFactory().adopt(
+                            MoveUtil::move(lvalue.d_parameters.nodeFactory()));
+        bslalg::SwapUtil::swap(&d_anchor,        &lvalue.d_anchor);
+        bslalg::SwapUtil::swap(&d_size,          &lvalue.d_size);
+        bslalg::SwapUtil::swap(&d_capacity,      &lvalue.d_capacity);
+        bslalg::SwapUtil::swap(&d_maxLoadFactor, &lvalue.d_maxLoadFactor);
+    }
+    else {
+        d_size = lvalue.d_size;
+        d_maxLoadFactor = lvalue.d_maxLoadFactor;
+        if (0 < d_size) {
+            // 'original' left in the default state
+            bslalg::HashTableAnchor anchor(
+                           HashTable_ImpDetails::defaultBucketAddress(), 1, 0);
+            bslalg::SwapUtil::swap(&anchor, &lvalue.d_anchor);
+
+            lvalue.d_size = 0;
+            lvalue.d_capacity = 0;
+            lvalue.d_maxLoadFactor = 1.0f;
+
+            HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
+                          arrayProctor(&lvalue.d_parameters.nodeFactory(),
+                                       &anchor);
+
+            d_parameters.nodeFactory().reserveNodes(d_size);
+            this->moveDataStructure(anchor.listRootAddress());
+
+            // 'arrayProctor' will care of deleting the nodes
+        }
     }
 }
 
@@ -3437,6 +4228,58 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::moveDataStructure(
+                                             bslalg::BidirectionalLink *cursor)
+{
+    BSLS_ASSERT(0 != cursor);
+    BSLS_ASSERT(0 < d_size);
+
+    // This function will completely replace 'this->d_anchor's state.  It is
+    // the caller's responsibility to ensure this will not leak resources owned
+    // only by the previous state, such as the linked list.
+
+    // Allocate an appropriate number of buckets
+
+    size_t capacity;
+    size_t numBuckets = HashTable_ImpDetails::growBucketsForLoadFactor(
+                                                   &capacity,
+                                                   static_cast<size_t>(d_size),
+                                                   2,
+                                                   d_maxLoadFactor);
+
+    d_anchor.setListRootAddress(0);
+    HashTable_Util::initAnchor(&d_anchor, numBuckets, this->allocator());
+
+    d_capacity = static_cast<SizeType>(capacity);
+
+    // create a proctor for d_anchor's allocated array, and the list to follow.
+
+    HashTable_ArrayProctor<typename ImplParameters::NodeFactory>
+                          arrayProctor(&d_parameters.nodeFactory(), &d_anchor);
+
+    do {
+        // Computing hash code depends on user-supplied code, and may throw.
+        // Therefore, obtain the hash code from the node we are about to copy,
+        // before any memory is allocated, so there is no risk of leaking an
+        // object.  The hash code must be the same for both elements.
+
+        size_t hashCode = this->hashCodeForNode(cursor);
+        bslalg::BidirectionalLink *newNode =
+                            d_parameters.nodeFactory().moveIntoNewNode(cursor);
+
+        bslalg::HashTableImpUtil::insertAtBackOfBucket(&d_anchor,
+                                                       newNode,
+                                                       hashCode);
+    }
+    while (0 != (cursor = cursor->nextLink()));
+
+    // release the proctor
+
+    arrayProctor.release();
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 quickSwapExchangeAllocators(HashTable *other)
 {
@@ -3480,9 +4323,9 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
         // following a failed ImpUtil::rehash call.
 
       private:
-        HashTable               *d_this;
-        bslalg::HashTableAnchor *d_originalAnchor;
-        bslalg::HashTableAnchor *d_newAnchor;
+        HashTable               *d_table_p;
+        bslalg::HashTableAnchor *d_originalAnchor_p;
+        bslalg::HashTableAnchor *d_newAnchor_p;
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
         // Microsoft warns if these methods are declared private.
@@ -3498,9 +4341,9 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
         Proctor(HashTable               *table,
                 bslalg::HashTableAnchor *originalAnchor,
                 bslalg::HashTableAnchor *newAnchor)
-        : d_this(table)
-        , d_originalAnchor(originalAnchor)
-        , d_newAnchor(newAnchor)
+        : d_table_p(table)
+        , d_originalAnchor_p(originalAnchor)
+        , d_newAnchor_p(newAnchor)
         {
             BSLS_ASSERT_SAFE(table);
             BSLS_ASSERT_SAFE(originalAnchor);
@@ -3509,13 +4352,13 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 
         ~Proctor()
         {
-            if (d_originalAnchor) {
+            if (d_originalAnchor_p) {
                 // Not dismissed, and the newAnchor now holds the correct
                 // list-root.
 
-                d_originalAnchor->setListRootAddress(
-                                               d_newAnchor->listRootAddress());
-                d_this->removeAll();
+                d_originalAnchor_p->setListRootAddress(
+                                             d_newAnchor_p->listRootAddress());
+                d_table_p->removeAll();
             }
 
             // Always destroy the spare anchor's bucket array at the end of
@@ -3523,15 +4366,15 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
             // original bucket-array, as the anchors are swapped.
 
             HashTable_Util::destroyBucketArray(
-                                             d_newAnchor->bucketArrayAddress(),
-                                             d_newAnchor->bucketArraySize(),
-                                             d_this->allocator());
+                                           d_newAnchor_p->bucketArrayAddress(),
+                                           d_newAnchor_p->bucketArraySize(),
+                                           d_table_p->allocator());
         }
 
         // MANIPULATORS
         void dismiss()
         {
-            d_originalAnchor = 0;
+            d_originalAnchor_p = 0;
         }
     };
 
@@ -3655,10 +4498,36 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class SOURCE_TYPE>
+inline
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
+                                              bslmf::MovableRef<HashTable> rhs)
+{
+    HashTable& lvalue = rhs;
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
+        if (allocator() == lvalue.allocator()) {
+            HashTable other(MoveUtil::move(lvalue));
+            quickSwapRetainAllocators(&other);
+        }
+        else if (
+              AllocatorTraits::propagate_on_container_move_assignment::value) {
+            HashTable other(MoveUtil::move(lvalue));
+            quickSwapExchangeAllocators(&other);
+        }
+        else {
+            HashTable other(MoveUtil::move(lvalue), allocator());
+            quickSwapRetainAllocators(&other);
+        }
+    }
+    return *this;
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
 bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
-                                                      const SOURCE_TYPE& value)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                                                           Args&&... arguments)
 {
     typedef bslalg::HashTableImpUtil ImpUtil;
 
@@ -3669,12 +4538,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
-    // Create a node having the new 'value' we want to insert into the table.
-    // We can extract the 'key' from this value without accidentally creating a
-    // temporary (using the default allocator for any dynamic memory).
+    // Next we must create the node from the constructor arguments provided.
 
     bslalg::BidirectionalLink *newNode =
-                                  d_parameters.nodeFactory().createNode(value);
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 
     // This node needs wrapping in a proctor, in case either of the user-
     // supplied functors throws an exception.
@@ -3705,14 +4573,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class SOURCE_TYPE>
+template <class... Args>
 bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
-                                              const SOURCE_TYPE&         value,
-                                              bslalg::BidirectionalLink *hint)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                                          Args&&...                  arguments)
 {
-    BSLS_ASSERT(hint);
-
     typedef bslalg::HashTableImpUtil ImpUtil;
 
     // Rehash (if appropriate) first as it will reduce load factor and so
@@ -3722,11 +4588,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
-    // Next we must create the node, to avoid making a temporary of 'ValueType'
-    // from the object of template parameter 'SOURCE_TYPE'.
+    // Next we must create the node from the constructor arguments provided.
 
     bslalg::BidirectionalLink *newNode =
-                                  d_parameters.nodeFactory().createNode(value);
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 
     // There is potential for the user-supplied hasher and comparator to throw,
     // so now we need to manage our 'newNode' with a proctor.
@@ -3738,7 +4604,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 
     size_t hashCode = this->d_parameters.hashCodeForKey(
                                      ImpUtil::extractKey<KEY_CONFIG>(newNode));
-    if (!d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
                                    ImpUtil::extractKey<KEY_CONFIG>(hint))) {
         hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
     }
@@ -3757,42 +4624,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
 bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
-                                              const ValueType&  value)
-{
-    BSLS_ASSERT(isInsertedFlag);
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                                KEY_CONFIG::extractKey(value));
-    bslalg::BidirectionalLink *position = this->find(
-                                                 KEY_CONFIG::extractKey(value),
-                                                 hashCode);
-
-    *isInsertedFlag = (!position);
-
-    if(!position) {
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        position = d_parameters.nodeFactory().createNode(value);
-        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                        position,
-                                                        hashCode);
-        ++d_size;
-    }
-
-    return position;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class SOURCE_TYPE>
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                            bool               *isInsertedFlag,
-                                            const SOURCE_TYPE&  value)
+                                              Args&&...         arguments)
 {
     BSLS_ASSERT(isInsertedFlag);
 
@@ -3805,11 +4641,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
         this->rehashForNumBuckets(numBuckets() * 2);
     }
 
-    // Next we must create the node, to avoid making a temporary of 'ValueType'
-    // from the object of template parameter 'SOURCE_TYPE'.
+    // Next we must create the node from the constructor arguments provided.
 
     bslalg::BidirectionalLink *newNode =
-                                  d_parameters.nodeFactory().createNode(value);
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 
     // There is potential for the user-supplied hasher and comparator to throw,
     // so now we need to manage our 'newNode' with a proctor.
@@ -3841,6 +4677,2048 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 
     return position;
 }
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_hashtable.h
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                          )
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            );
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            );
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            );
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    if (!position) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
+                                          bslalg::BidirectionalLink *hint,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    if (!hint
+     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
+    }
+
+    if (!hint) {
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+    }
+    else {
+        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
+    }
+    nodeProctor.release();
+
+    ++d_size;
+
+    return newNode;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
+                                              bool             *isInsertedFlag,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+
+    bslalg::BidirectionalLink *newNode =
+        d_parameters.nodeFactory().emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                             nodeProctor(&d_parameters.nodeFactory(), newNode);
+
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
+    bslalg::BidirectionalLink *position = this->find(
+                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
+                                      hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
+        nodeProctor.release();
+
+        ++d_size;
+        position = newNode;
+    }
+
+    return position;
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
@@ -3854,9 +6732,21 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
             this->rehashForNumBuckets(numBuckets() * 2);
         }
 
-        position = d_parameters.nodeFactory().createNode(
-                                            key,
-                                            typename ValueType::second_type());
+        typedef typename ValueType::second_type MappedType;
+
+        // TBD: make 'this->allocator()' return the allocator by reference with
+        // modifiable access rather than by value.
+
+        AllocatorType alloc = this->allocator();
+
+        bsls::ObjectBuffer<MappedType> defaultMapped;
+        AllocatorTraits::construct(alloc, defaultMapped.address());
+        bslma::DestructorGuard<MappedType> mappedGuard(
+                                                      defaultMapped.address());
+
+        position = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                       key,
+                                       MoveUtil::move(defaultMapped.object()));
 
         bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
                                                         position,
@@ -3864,6 +6754,108 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
         ++d_size;
     }
     return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+                                              bool             *isInsertedFlag,
+                                              const ValueType&  value)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                                KEY_CONFIG::extractKey(value));
+    bslalg::BidirectionalLink *position = this->find(
+                                                 KEY_CONFIG::extractKey(value),
+                                                 hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        position = d_parameters.nodeFactory().emplaceIntoNewNode(value);
+        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
+                                                        position,
+                                                        hashCode);
+        ++d_size;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+                                   bool                        *isInsertedFlag,
+                                   bslmf::MovableRef<ValueType> value)
+{
+    ValueType& lvalue = value;
+
+    BSLS_ASSERT(isInsertedFlag);
+
+    size_t hashCode = this->d_parameters.hashCodeForKey(
+                                               KEY_CONFIG::extractKey(lvalue));
+    bslalg::BidirectionalLink *position = this->find(
+                                                KEY_CONFIG::extractKey(lvalue),
+                                                hashCode);
+
+    *isInsertedFlag = (!position);
+
+    if(!position) {
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        position = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       MoveUtil::move(lvalue));
+        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
+                                                        position,
+                                                        hashCode);
+        ++d_size;
+    }
+
+    return position;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
+                 bool                                          *isInsertedFlag,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+{
+    BSLS_ASSERT(isInsertedFlag);
+
+    return emplaceIfMissing(isInsertedFlag,
+                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+{
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value,
+                          bslalg::BidirectionalLink                     *hint)
+{
+    return emplaceWithHint(hint,
+                           BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>

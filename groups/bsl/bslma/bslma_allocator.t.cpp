@@ -33,6 +33,7 @@ using namespace BloombergLP;
 // [ 3] template<typename TYPE> deleteObjectRaw(const TYPE *);
 // [ 4] void *operator new(int size, bslma::Allocator& basicAllocator);
 // [ 5] void operator delete(void *address, bslma::Allocator& basicAllocator);
+// [  ] static throwBadAlloc();
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 4] OPERATOR TEST - Make sure overloaded operators call correct functions.
@@ -125,19 +126,21 @@ class my_Allocator : public bslma::Allocator {
         return this;
     }
 
+    // MANIPULATORS
     void deallocate(void *) { d_fun = 2;  ++d_deallocateCount; }
 
-    int fun() const { return d_fun; }
-        // Return descriptive code for the function called.
+    // ACCESSORS
+    int allocateCount() const { return d_allocateCount; }
+        // Return number of times allocate called.
 
     size_type arg() const { return d_arg; }
         // Return last argument value for allocate.
 
-    int allocateCount() const { return d_allocateCount; }
-        // Return number of times allocate called.
-
     int deallocateCount() const { return d_deallocateCount; }
         // Return number of times deallocate called.
+
+    int fun() const { return d_fun; }
+        // Return descriptive code for the function called.
 };
 
 class my_NewDeleteAllocator : public bslma::Allocator {
@@ -261,19 +264,19 @@ class my_DoubleStack {
 
   public:
     // CREATORS
-    my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+    explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
     my_DoubleStack(const my_DoubleStack&  other,
                    bslma::Allocator      *basicAllocator = 0);
     ~my_DoubleStack();
 
     // MANIPULATORS
     my_DoubleStack& operator=(const my_DoubleStack& rhs);
-    void push(double value);
     void pop();
+    void push(double value);
 
     // ACCESSORS
-    const double& top() const;
     bool isEmpty() const;
+    const double& top() const;
 };
 
 enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
@@ -305,24 +308,16 @@ my_DoubleStack::~my_DoubleStack()
     d_allocator_p->deallocate(d_stack_p);
 }
 
-inline
-void my_DoubleStack::push(double value)
-{
-    if (d_length >= d_size) {
-        increaseSize();
-    }
-    d_stack_p[d_length++] = value;
-}
-
 static inline
-void reallocate(double **array, int newSize, int length,
-                bslma::Allocator *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified
-    // 'newSize' using the specified 'basicAllocator'.  The specified
-    // 'length' number of leading elements are preserved.  Since the
-    //  class invariant requires that the physical capacity of the
-    // container may grow but never shrink; the behavior is undefined
-    // unless length <= newSize.
+void reallocate(double           **array,
+                int                newSize,
+                int                length,
+                bslma::Allocator  *basicAllocator)
+    // Reallocate memory in the specified 'array' to the specified 'newSize'
+    // using the specified 'basicAllocator'.  The specified 'length' number of
+    // leading elements are preserved.  Since the class invariant requires that
+    // the physical capacity of the container may grow but never shrink; the
+    // behavior is undefined unless 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -347,7 +342,16 @@ void my_DoubleStack::increaseSize()
      d_size = proposedNewSize;                        // we're committed
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+inline
+void my_DoubleStack::push(double value)
+{
+    if (d_length >= d_size) {
+        increaseSize();
+    }
+    d_stack_p[d_length++] = value;
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {
@@ -357,7 +361,7 @@ class my_DoubleStackIter {
     my_DoubleStackIter(const my_DoubleStackIter&);
     my_DoubleStackIter& operator=(const my_DoubleStackIter&);
   public:
-    my_DoubleStackIter(const my_DoubleStack& stack)
+    explicit my_DoubleStackIter(const my_DoubleStack& stack)
     : d_stack_p(stack.d_stack_p), d_index(stack.d_length - 1) { }
     void operator++() { --d_index; }
     operator const void *() const { return d_index >= 0 ? this : 0; }
@@ -441,7 +445,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
@@ -496,7 +500,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // EXCEPTION SAFETY OF OPERATOR NEW TEST:
+        // EXCEPTION SAFETY OF OPERATOR NEW TEST
         //   We want to make sure that when the overloaded operator new
         //   is invoked and the constructor of the new object throws an
         //   exception, the overloaded delete operator is invoked
@@ -544,7 +548,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // OPERATOR TEST:
+        // OPERATOR TEST
         //   We want to make sure that the correct underlying method is
         //   called based on the type of the overloaded 'new' operator.
         //
@@ -583,7 +587,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // MEMBER TEMPLATE METHOD 'deleteObjectRaw' TEST:
+        // MEMBER TEMPLATE METHOD 'deleteObjectRaw' TEST
         //   We want to make sure that when 'deleteObjRaw' is used both
         //   destructor and 'deallocate' are invoked.
         //
@@ -707,7 +711,7 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // MEMBER TEMPLATE METHOD 'deleteObject' TEST:
+        // MEMBER TEMPLATE METHOD 'deleteObject' TEST
         //   We want to make sure that when 'deleteObj' is used both
         //   destructor and 'deallocate' are invoked.
         //
@@ -889,7 +893,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // PROTOCOL TEST:
+        // PROTOCOL TEST
         //   All we need to do is make sure that a subclass of the
         //   'bslma::Allocator' class compiles and links when all virtual
         //   functions are defined.

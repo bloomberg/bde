@@ -799,15 +799,7 @@ inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs)
 {
-    typedef native_std::reverse_iterator<
-                 ITER,
-                 typename iterator_traits<ITER>::iterator_category,
-                 typename iterator_traits<ITER>::value_type,
-                 typename iterator_traits<ITER>::reference,
-                 typename iterator_traits<ITER>::pointer>                 Base;
-
-    return std::operator<(static_cast<const Base&>(lhs),
-                          static_cast<const Base&>(rhs));
+    return rhs.base() < lhs.base();
 }
 
 template <class ITER1, class ITER2>
@@ -817,7 +809,7 @@ bool operator<(const reverse_iterator<ITER1>& lhs,
 {
     // this is to compare reverse_iterator with const_reverse_iterator
 
-    return lhs.base() < rhs.base();
+    return rhs.base() < lhs.base();
 }
 
 template <class ITER>

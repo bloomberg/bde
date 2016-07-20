@@ -221,15 +221,20 @@ using bslstl::CallableVariable;
 // [ 2] HashTable(const HASHER&, const COMPARATOR&, SizeType, const ALLOCATOR&)
 // [ 7] HashTable(const HashTable& original);
 // [ 7] HashTable(const HashTable& original, const ALLOCATOR& allocator);
+// [  ] HashTable(MovableRef<HashTable> original);
+// [  ] HashTable(MovableRef<HashTable> original, const ALLOCATOR& allocator);
 // [ 2] ~HashTable();
 //
 // MANIPULATORS
 //*[ 9] operator=(const HashTable& rhs);
-//*[13] insert(const SOURCE_TYPE& obj);
-//*[13] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
-//*[16] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
-//*[16] insertIfMissing(bool *isInsertedFlag, const ValueType& obj);
-//*[17] insertIfMissing(const KeyType& key);
+// [  ] HashTable& operator=(BloombergLP::bslmf::MovableRef<HashTable> rhs);
+// [  ] template <class... Args> Link *emplaceIfMissing(Args&&... args);
+//*[13] template <class P> Link *insert(P&& obj);
+//*[13] template <class P> Link *insert(P&& obj, const Link *hint);
+//*[16] template <class P> Link *insertIfMissing(bool *isInserted, P&& obj);
+//*[16] Link *insertIfMissing(bool *isInsertedFlag, const ValueType& obj);
+// [  ] Link *insertIfMissing(bool *isInsertedFlag, MovableRef<ValueType> obj);
+//*[17] Link *insertIfMissing(const KeyType& key);
 // [  ] remove(bslalg::BidirectionalLink *node);
 // [ 2] removeAll();
 //*[11] rehashForNumBuckets(SizeType newNumBuckets);
@@ -5502,7 +5507,7 @@ void testVerifyListContents(const COMPARATOR& compare)
 
             Link *pRoot = 0;
             for (size_t i = LIST_VALS.size(); i; /**/) {
-                Link *newNode = pool.createNode(LIST_VALS[--i]);
+                Link *newNode = pool.emplaceIntoNewNode(LIST_VALS[--i]);
                 bslalg::BidirectionalLinkListUtil::insertLinkBeforeTarget(
                                                                      newNode,
                                                                      pRoot);

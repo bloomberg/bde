@@ -6,6 +6,7 @@
 #include <bslalg_rangecompare.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -285,7 +286,7 @@ class IntNodeAllocator{
         return newNode;
     }
 
-    RbTreeNode *createNode(const RbTreeNode& value)
+    RbTreeNode *cloneNode(const RbTreeNode& value)
     {
         ASSERT(d_next < d_numNodes);
         IntNode *newNode = &d_nodes[d_next++];
@@ -314,7 +315,7 @@ class ThrowableIntNodeAllocator{
         return newNode;
     }
 
-    RbTreeNode *createNode(const RbTreeNode& value)
+    RbTreeNode *cloneNode(const RbTreeNode& value)
     {
         IntNode *newNode = new (*d_allocator_p) IntNode;
         newNode->value() = static_cast<const IntNode&>(value).value();
@@ -459,9 +460,7 @@ int validateIntRbTree(const RbTreeNode *rootNode)
     return validateTestRbTree(rootNode, nodeComparator, &printIntNodeValue);
 }
 
-
-
-template <class VALUE>
+template <class VALUE, class ALLOCATOR = bsl::allocator<VALUE> >
 class Array {
     // This class provides an array of objects of the parameterized 'VALUE'
     // type.  The size of the array is initialized by a call to 'reset'.  Note
@@ -472,7 +471,8 @@ class Array {
     // DATA
     VALUE           *d_data_p;
     int              d_size;
-    bslma::Allocator *d_allocator_p;
+    ALLOCATOR        d_allocator;
+    // bslma::Allocator *d_allocator_p;
 
     Array(const Array&);
     Array& operator=(const Array&);
@@ -480,12 +480,12 @@ class Array {
   public:
 
     // CREATORS
-    Array(bslma::Allocator *allocator)
+    Array(const ALLOCATOR& basicAllocator)
         // Create a new 'Array' for holding objects of the parameterized
         // 'VALUE' type, using the specified 'allocator' to supply memory.
     : d_data_p(0)
     , d_size(0)
-    , d_allocator_p(allocator)
+    , d_allocator(basicAllocator)
     {
     }
 
@@ -500,8 +500,11 @@ class Array {
         // Destroy all the elements in the array and set its size to 0.
         if (d_data_p) {
             bslalg::ArrayDestructionPrimitives::destroy(d_data_p,
-                                                       d_data_p + d_size);
-            d_allocator_p->deallocate(d_data_p);
+                                                        d_data_p + d_size,
+                                                        d_allocator);
+            bsl::allocator_traits<ALLOCATOR>::deallocate(d_allocator,
+                                                         d_data_p,
+                                                         d_size);
             d_size = 0;
         }
     }
@@ -511,10 +514,11 @@ class Array {
         // contiguous sequence of 'VALUE' objects of the specified 'size'
         clear();
         if (0 != size) {
-            d_data_p = (VALUE *)d_allocator_p->allocate(size * sizeof(VALUE));
+            d_data_p = bsl::allocator_traits<ALLOCATOR>::allocate(d_allocator,
+                                                                  size);
             bslalg::ArrayPrimitives::defaultConstruct(d_data_p,
-                                                     size,
-                                                     d_allocator_p);
+                                                      size,
+                                                      d_allocator);
         }
         d_size = size;
     }
@@ -612,7 +616,7 @@ class DeleteTestNodeFactory {
         return 0;
     }
 
-    RbTreeNode *createNode(const RbTreeNode& )
+    RbTreeNode *cloneNode(const RbTreeNode& )
     {
         BSLS_ASSERT(false);
         return 0;
@@ -1438,7 +1442,7 @@ class TestNodeFactory {
     }
 
 
-    RbTreeNode *createNode(const RbTreeNode& value) {
+    RbTreeNode *cloneNode(const RbTreeNode& value) {
 
         const NodeType& nodeValue = static_cast<const NodeType&>(value);
 
@@ -2037,7 +2041,7 @@ if (verbose) {
             return newNode;
         }
 //
-        RbTreeNode *createNode(const RbTreeNode& node) const
+        RbTreeNode *cloneNode(const RbTreeNode& node) const
         {
             IntSet_Node *newNode = new (*d_allocator_p) IntSet_Node;
             newNode->value() = static_cast<const IntSet_Node&>(node).value();

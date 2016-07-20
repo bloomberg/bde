@@ -172,7 +172,7 @@ class my_Class : public my_Struct {
 
   public:
     // CREATORS
-    my_Class(int *counter)
+    explicit my_Class(int *counter)
         // Create this object using the address of the specified 'counter' to
         // be held.
     {
@@ -257,8 +257,8 @@ static void printArray(const int *array, int numElements)
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety*
-// in an *exception* *neutral* way by automatically destroying
+// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety* in
+// an *exception* *neutral* way by automatically destroying
 // (otherwise-unmanaged) orphaned objects for an "in-place" array should an
 // exception occur.  The following example illustrates the insertion operation
 // for a generic array.  Assume that the array initially contains the following
@@ -321,9 +321,9 @@ static void printArray(const int *array, int numElements)
 //
 //    Note: Configuration after shifting up three elements.
 //..
-// Next, a new copy of element "F" must be created.  If, during creation,
-// an allocation fails and an exception is thrown, the array (now of length 2)
-// is in a valid state, while the proctor is responsible for destroying the
+// Next, a new copy of element "F" must be created.  If, during creation, an
+// allocation fails and an exception is thrown, the array (now of length 2) is
+// in a valid state, while the proctor is responsible for destroying the
 // orphaned elements at index positions 3 - 5.  If no exception is thrown, the
 // proctor's 'release()' method is called, releasing its control over the
 // temporarily-managed contents:
@@ -344,15 +344,16 @@ static void printArray(const int *array, int numElements)
 
       public:
         // CREATORS
-        my_Array(bslma::Allocator *basicAllocator = 0);
+        explicit my_Array(bslma::Allocator *basicAllocator = 0);
             // Create a 'my_Array' object having an initial length and capacity
             // of 0.  Optionally specify a 'basicAllocator' used to supply
             // memory.  If 'basicAllocator' is 0, the currently installed
             // default allocator is used.
 
-        my_Array(int initialCapacity, bslma::Allocator *basicAllocator = 0);
-            // Create a 'my_Array' object having an initial length of 0 and
-            // the specified 'initialCapacity'.  Optionally specify a
+        explicit my_Array(int               initialCapacity,
+                          bslma::Allocator *basicAllocator = 0);
+            // Create a 'my_Array' object having an initial length of 0 and the
+            // specified 'initialCapacity'.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -527,7 +528,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 9: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -655,10 +656,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Since the 'length' method is thoroughly tested in case 7, we can
-        //   simply verify that 'operator++' and 'operator--' properly set
-        //   the length by checking the values returned by 'length()' for
-        //   positive, negative, and zero values of length using the
-        //   brute-force technique.
+        //   simply verify that 'operator++' and 'operator--' properly set the
+        //   length by checking the values returned by 'length()' for positive,
+        //   negative, and zero values of length using the brute-force
+        //   technique.
         //
         // Testing:
         //   void operator++();
@@ -1273,11 +1274,11 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE   = DATA[ti].d_line;
-                const int *ARRAY1 = DATA[ti].d_array1;
-                const int *ARRAY2 = DATA[ti].d_array2;
-                const int  LENGTH = DATA[ti].d_length;
-                const int  RESULT = DATA[ti].d_exp;
+                const int   LINE   = DATA[ti].d_line;
+                const int  *ARRAY1 = DATA[ti].d_array1;
+                const int  *ARRAY2 = DATA[ti].d_array2;
+                const int   LENGTH = DATA[ti].d_length;
+                const bool  RESULT = DATA[ti].d_exp;
 
                 if (veryVerbose) {
                     T_ P_(LINE); P_(LENGTH); P(RESULT)

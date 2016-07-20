@@ -670,7 +670,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
 #if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
                  __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40700
 #define ENABLE_CPP11_TESTS 1
-#elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L 
+#elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L
 #if  __has_include(<forward_list>)
 #define ENABLE_CPP11_TESTS 1
 #endif
@@ -678,7 +678,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
 #define ENABLE_CPP11_TESTS 1
 #endif
 
-#include <bsl_cstddef.h>  
+#include <bsl_cstddef.h>
 #include <bsl_memory.h>
 
 // The following headers can't be included unless the platform supports the

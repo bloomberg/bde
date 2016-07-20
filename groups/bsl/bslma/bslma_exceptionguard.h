@@ -14,16 +14,17 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_testallocator
 //
-//@DESCRIPTION: This component provides a class that can be used to ASSERT if
-// an object changes state when a method fails by throwing an exception.  This
-// is often used to validate the strong exception safety guarantee in a test
-// driver, usually with the test support macros provided by the component
-// 'bslma_testallocator', such as 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN'.
-// The object under test must be CopyConstructible, and support the extended
-// copy constructor taking an allocator.  Note that this may be a generalised
-// STL allocator, conforming to the Allocator requirements of the C++ standard,
-// rather than just a 'bslma::Allocator'.  This allows for testing standard
-// library components such as those in 'bsl'.
+//@DESCRIPTION: This component provides a class, 'bslma::ExceptionGuard', that
+// can be used to ASSERT if an object changes state when a method fails by
+// throwing an exception.  This is often used to validate the strong exception
+// safety guarantee in a test driver, usually with the test support macros
+// provided by the component 'bslma_testallocator', such as
+// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN'.  The object under test must be
+// CopyConstructible, and support the extended copy constructor taking an
+// allocator.  Note that this may be a generalised STL allocator, conforming to
+// the Allocator requirements of the C++ standard, rather than just a
+// 'bslma::Allocator'.  This allows for testing standard library components
+// such as those in 'bsl'.
 //
 // As the constructor must make a copy of the object under test, this class
 // should not be used in a test driver until after the extended copy
@@ -58,9 +59,9 @@ class Allocator;
 template <class OBJECT>
 class ExceptionGuard {
     // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
+    // in exception-throwing code.  On construction, this class stores the a
+    // copy of an object of the parameterized type 'OBJECT' and the address of
+    // that object.  On destruction, if 'release' was not invoked, it will
     // verify the value of the object is the same as the value of the copy
     // create on construction.  This class requires the copy constructor and
     // 'operator ==' to be tested before use.
@@ -103,7 +104,7 @@ class ExceptionGuard {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 

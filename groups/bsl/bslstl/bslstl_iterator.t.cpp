@@ -1,15 +1,16 @@
 // bslstl_iterator.t.cpp                                              -*-C++-*-
 
 #include <bslstl_iterator.h>
-#include <bslstl_allocator.h>
-#include <bslma_default.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
+#include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
+
+#include <new>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -75,73 +76,60 @@ using namespace std;
 // [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03 1
+#endif
 //=============================================================================
 //                  TESTING APPARATUS/CLASS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -359,12 +347,14 @@ bool operator==(const MyFixedSizeArray<VALUE,SIZE>& lhs,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    (void) veryVeryVerbose;
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
@@ -458,8 +448,8 @@ int main(int argc, char *argv[])
         //:   (C-4)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING FREE FUNCTIONS" << endl
-                                  << "======================" << endl;
+        if (verbose) printf("\nTESTING FREE FUNCTIONS"
+                            "\n======================\n");
 
         //  Declare test data and types.
 
@@ -472,20 +462,34 @@ int main(int argc, char *argv[])
 
         reverse_iterator it1(testData + numElements);
 
-        if (verbose) cout << "\nTest 'operator-', 'operator>', "
-                          << "'operator<=', and 'operator>='"   << endl;
+        if (verbose) printf("\nTest 'operator-', 'operator>', "
+                            "'operator<=', and 'operator>='\n");
 
-        ASSERT(it1 <= it1);
-        ASSERT(it1 >= it1);
-        for (int i = 0;i < numElements; ++i) {
+        for (int i = 0; i < numElements; ++i) {
             reverse_iterator it2(testData + i);
             LOOP3_ASSERT(i, *it1, *it2, it2 > it1);
+            LOOP3_ASSERT(i, *it1, *it2, !(it1 > it2));
             LOOP3_ASSERT(i, *it1, *it2, it1 < it2);
+            LOOP3_ASSERT(i, *it1, *it2, !(it2 < it1));
             LOOP3_ASSERT(i, *it1, *it2, it1 <= it2);
             LOOP3_ASSERT(i, *it1, *it2, !(it2 <= it1));
             LOOP3_ASSERT(i, *it1, *it2, it2 >= it1);
             LOOP3_ASSERT(i, *it1, *it2, !(it1 >= it2));
         }
+
+#if !defined(BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03)
+        for (int i = 0; i < numElements; ++i) {
+            const_reverse_iterator it2(testData + i);
+            LOOP3_ASSERT(i, *it1, *it2, it2 > it1);
+            LOOP3_ASSERT(i, *it1, *it2, !(it1 > it2));
+            LOOP3_ASSERT(i, *it1, *it2, it1 < it2);
+            LOOP3_ASSERT(i, *it1, *it2, !(it2 < it1));
+            LOOP3_ASSERT(i, *it1, *it2, it1 <= it2);
+            LOOP3_ASSERT(i, *it1, *it2, !(it2 <= it1));
+            LOOP3_ASSERT(i, *it1, *it2, it2 >= it1);
+            LOOP3_ASSERT(i, *it1, *it2, !(it1 >= it2));
+        }
+#endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -503,19 +507,17 @@ int main(int argc, char *argv[])
         //   operator-(typename difference_type n) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING OTHER ACCESSORS" << endl
-                                  << "=======================" << endl;
+        if (verbose) printf("\nTESTING OTHER ACCESSORS"
+                            "\n=======================\n");
 
         //  Declare test data and types.
 
         int testData[] = { 42, 13, 56, 72, 39, };
         int numElements = sizeof(testData) / sizeof(int);
-        typedef int                                   *iterator;
-        typedef int const                             *const_iterator;
-        typedef bsl::reverse_iterator<iterator>        reverse_iterator;
-        typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
+        typedef int                             *iterator;
+        typedef bsl::reverse_iterator<iterator>  reverse_iterator;
 
-        if (verbose) cout << "\nTest 'operator+'" << endl;
+        if (verbose) printf("\nTest 'operator+'\n");
 
         reverse_iterator it(testData + numElements);
         for (int i = 1;i < numElements; ++i) {
@@ -524,7 +526,7 @@ int main(int argc, char *argv[])
                          testData[numElements - i - 1] == *(it + i));
         }
 
-        if (verbose) cout << "\nTest 'operator-'" << endl;
+        if (verbose) printf("\nTest 'operator-'\n");
 
         it += numElements - 1;
         for (int i = 1;i < numElements; ++i) {
@@ -552,8 +554,8 @@ int main(int argc, char *argv[])
         //   bsl::reverse_iterator& operator-=(typename difference_type n);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING OTHER MANIPULATORS" << endl
-                                  << "=========================" << endl;
+        if (verbose) printf("\nTESTING OTHER MANIPULATORS"
+                            "\n==========================\n");
 
         //  Declare test data and types.
 
@@ -565,34 +567,38 @@ int main(int argc, char *argv[])
         typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
         reverse_iterator it1(testData + numElements);
+#if !defined(BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03)
+        const_reverse_iterator it2 = it1;
+#else
         reverse_iterator it2 = it1;
+#endif
 
-        if (verbose) cout << "\nTest post-increment" << endl;
+        if (verbose) printf("\nTest post-increment\n");
         it2++;
         it2++;
         ASSERT(it2 != it1);
         ASSERT(*it2 == testData[numElements - 3]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) cout << "\nTest pre-decrement" << endl;
+        if (verbose) printf("\nTest pre-decrement\n");
         --it2;
         ASSERT(it2 != it1);
         ASSERT(*it2 == testData[numElements - 2]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) cout << "\nTest post-decrement" << endl;
+        if (verbose) printf("\nTest post-decrement\n");
         it2--;
         ASSERT(it2 == it1);
         ASSERT(*it2 == testData[numElements - 1]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) cout << "\nTest 'operator+='" << endl;
+        if (verbose) printf("\nTest 'operator+='\n");
         it2 += numElements - 1;
         ASSERT(it2 != it1);
         ASSERT(*it2 == testData[0]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) cout << "\nTest 'operator-='" << endl;
+        if (verbose) printf("\nTest 'operator-='\n");
         it2 -= numElements - 1;
         ASSERT(it2 == it1);
         ASSERT(*it2 == testData[numElements - 1]);
@@ -648,8 +654,8 @@ int main(int argc, char *argv[])
         //   bsl::reverse_iterator(const bsl::reverse_iterator&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING COPY CONSTRUCTOR" << endl
-                                  << "========================" << endl;
+        if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
+                            "\n========================\n");
 
         //  Declare test data and types.
 
@@ -660,33 +666,33 @@ int main(int argc, char *argv[])
         typedef bsl::reverse_iterator<iterator>        reverse_iterator;
         typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
-        bsl::allocator<reverse_iterator> ta;  // Need a temp allocator to
-                                              // persist iterator.
-
-        if (verbose)
-            cout << "\nValidate copy-constructed object preserves value."
-                 << endl;
+        if (verbose) printf(
+                      "\nValidate copy-constructed object preserves value.\n");
         reverse_iterator it1(testData + numElements);
+#if !defined(BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03)
+        const_reverse_iterator it3(it1);
+#else
         reverse_iterator it3(it1);
+#endif
         ASSERT(it1 == it3);
         ASSERT(*it1 == testData[numElements - 1]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        reverse_iterator *pit4;
+        bsls::ObjectBuffer<reverse_iterator> buffer;  // Extend lifetime beyond
+        reverse_iterator *pit4 = buffer.address();    // the following block.
         {
             reverse_iterator it2(testData + numElements);
             ASSERT(it2 == it1);
-            pit4 = ta.allocate(1);
-            ta.construct(pit4, it2);  // Copy construct '*pit4' from 'it2'.
+            
+            new(pit4) reverse_iterator(it2); // construct '*pit4' from 'it2'.
 
             ASSERT( *pit4 == it2);
             ASSERT(  *it2 == testData[numElements - 1]);
             ASSERT(**pit4 == testData[numElements - 1]);
 
 
-            if (verbose)
-                cout << "\nValidate changing original does not affect copy."
-                     << endl;
+            if (verbose) printf(
+                       "\nValidate changing original does not affect copy.\n");
 
             // After this line, 'it2' will go out of scope.
 
@@ -699,19 +705,17 @@ int main(int argc, char *argv[])
         ASSERT( *pit4 == it1);
         ASSERT(**pit4 == testData[numElements - 1]);
 
-        if (verbose)
-            cout << "\nValidate changing copy does not affect original."
-                 << endl;
+        if (verbose) printf(
+                       "\nValidate changing copy does not affect original.\n");
 
         ++it3;
         ASSERT( it3 != it1);
         ASSERT(*it3 == testData[numElements - 2]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        // Destroy the allocated '*pit4'.
+        // Destroy '*pit4'.
 
-        ta.destroy(pit4);
-        ta.deallocate(pit4, 1);
+        buffer.object().~reverse_iterator();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -748,14 +752,13 @@ int main(int argc, char *argv[])
         //   bool operator==(const reverse_iterator&, const reverse_iterator&);
         //   bool operator!=(const reverse_iterator&, const reverse_iterator&);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl << "TESTING EQUALITY OPERATOR" << endl
-                                  << "=========================" << endl;
+
+        if (verbose) printf("\nTESTING EQUALITY OPERATOR"
+                            "\n=========================\n");
 
         using namespace testcontainer;
 
         typedef MyFixedSizeArray<int, 5>              TestContainer;
-        typedef TestContainer::iterator               iterator;
-        typedef TestContainer::const_iterator         const_iterator;
         typedef TestContainer::reverse_iterator       reverse_iterator;
         typedef TestContainer::const_reverse_iterator const_reverse_iterator;
 
@@ -764,14 +767,18 @@ int main(int argc, char *argv[])
             tc[i] = i * i + i * 13 + 1;
         }
 
-        if (verbose) cout << "\nValidate self-equality" << endl;
+        if (verbose) printf("\nValidate self-equality\n");
         const reverse_iterator ritBegin = tc.rbegin();
         ASSERT(   ritBegin == ritBegin );
         ASSERT( !(ritBegin != ritBegin));
         ASSERT(tc.rbegin() == ritBegin );
 
-        if (verbose) cout << "\nValidate inequality" << endl;
+        if (verbose) printf("\nValidate inequality\n");
+#if !defined(BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03)
+        const const_reverse_iterator ritEnd = tc.rend();
+#else
         const reverse_iterator ritEnd = tc.rend();
+#endif
         ASSERT(     ritBegin != ritEnd );
         ASSERT(   !(ritBegin == ritEnd));
         ASSERT(       ritEnd == ritEnd );
@@ -781,7 +788,7 @@ int main(int argc, char *argv[])
         ASSERT(    tc.rend() == ritEnd );
         ASSERT(  !(tc.rend() != ritEnd));
 
-        if (verbose) cout << "\nValidate transition to expected value" << endl;
+        if (verbose) printf("\nValidate transition to expected value\n");
         reverse_iterator ritCursor = tc.rbegin();
         ASSERT(ritBegin == ritCursor);
         ASSERT(ritEnd   != ritCursor);
@@ -853,12 +860,12 @@ int main(int argc, char *argv[])
         //   MyFixedSizeArray<VALUE, SIZE>::size() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING (PRIMITIVE) GENERATORS" << endl
-                                  << "==============================" << endl;
+        if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
+                            "\n==============================\n");
 
-        if (verbose) cout << "\nValidating primitive test machinery" << endl;
+        if (verbose) printf("\nValidating primitive test machinery\n");
 
-        if (verbose) cout << "\nTesting class MyFixedSizeArray<int>" << endl;
+        if (verbose) printf("\nTesting class MyFixedSizeArray<int>\n");
 
         using namespace testcontainer;
 
@@ -872,8 +879,7 @@ int main(int argc, char *argv[])
         TestContainer tc;
         ASSERT(arrayLength == tc.size());
 
-        if (verbose) cout << "\nCheck 'operator[]' and 'operator[] const'"
-                          << endl;
+        if (verbose) printf("\nCheck 'operator[]' and 'operator[] const'\n");
 
         for (int i = 0; i < tc.size(); ++i) {
             tc[i] = i + 1;
@@ -883,7 +889,7 @@ int main(int argc, char *argv[])
             ASSERT(i + 1 == tc2[i]);
         }
 
-        if (verbose) cout << "\nCheck iterator has right range" << endl;
+        if (verbose) printf("\nCheck iterator has right range\n");
         int length = 0;
         iterator itBegin = tc.begin();
         iterator itEnd   = tc.end();
@@ -893,8 +899,7 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(length, arrayLength == length);
 
-        if (verbose) cout << "\nCheck reverse iterator has right range"
-                          << endl;
+        if (verbose) printf("\nCheck reverse iterator has right range\n");
         length = 0;
         reverse_iterator ritBegin = tc.rbegin();
         reverse_iterator ritEnd   = tc.rend();
@@ -904,20 +909,20 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(length, arrayLength == length);
 
-        if (verbose) cout << "\nCheck iterators refer to right values" << endl;
+        if (verbose) printf("\nCheck iterators refer to right values\n");
         itBegin = tc.begin();
         for (int i = 0;i < tc.size(); ++i) {
             LOOP_ASSERT(*itBegin, i + 1 == *(itBegin++));
         }
 
-        if (verbose) cout << "\nCheck reverse iterators refer to right values"
-                          << endl;
+        if (verbose) printf(
+                          "\nCheck reverse iterators refer to right values\n");
         ritBegin = tc.rbegin();
         for (int i = tc.size() ;i > 0; --i) {
             LOOP_ASSERT(*ritBegin, i == *(ritBegin++));
         }
 
-        if (verbose) cout << "\nRepeat the tests for const_iterators" << endl;
+        if (verbose) printf("\nRepeat the tests for const_iterators\n");
 
         length = 0;
         const_iterator itcBegin = tc2.begin();
@@ -987,11 +992,11 @@ int main(int argc, char *argv[])
         //   bsl::reverse_iterator& operator++();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
-                                  << "============================" << endl;
+        if (verbose) printf("\nTESTING PRIMARY MANIPULATORS"
+                            "\n============================\n");
 
-        if (verbose) cout << "\nTesting default constructor and 'operator++'."
-                          << endl;
+        if (verbose) printf(
+                          "\nTesting default constructor and 'operator++'.\n");
 
         //  Declare test data and types.
 
@@ -1027,7 +1032,11 @@ int main(int argc, char *argv[])
         //  Confirm that incrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
 
+#if !defined(BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03)
+        const_reverse_iterator itData2(testData + numElements);
+#else
         reverse_iterator itData2(testData + numElements);
+#endif
         ASSERT(itcOrigin == itData2);
 
         ++itData2;
@@ -1053,8 +1062,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         int testData[] = { 0, 1, 2, 3 };
 
@@ -1063,18 +1072,17 @@ int main(int argc, char *argv[])
         typedef bsl::reverse_iterator<iterator>        reverse_iterator;
         typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
-        if (verbose) cout << "\nConstruct a basic reverse iterator value"
-                          << endl;
+        if (verbose) printf("\nConstruct a basic reverse iterator value\n");
         reverse_iterator it1(testData + 3);
         LOOP_ASSERT( *it1, 2 == *it1);
 
-        if (verbose) cout << "\nMake a copy of that iterator" << endl;
+        if (verbose) printf("\nMake a copy of that iterator\n");
         reverse_iterator it2(it1);
         LOOP_ASSERT(  *it2,            2 ==  *it2);
         LOOP2_ASSERT(&*it1, &*it2,   it1 ==   it2);
         LOOP2_ASSERT(&*it1, &*it2, &*it1 == &*it2);
 
-        if (verbose) cout << "\nIncrement an iterator" << endl;
+        if (verbose) printf("\nIncrement an iterator\n");
         ++it2;
         LOOP_ASSERT(  *it2,             1 == *it2);
         LOOP2_ASSERT(&*it1, &*it2,   it1 !=   it2);
@@ -1083,18 +1091,17 @@ int main(int argc, char *argv[])
         //  Increment the other iterator iterator, verify both iterators have
         //  the same value again.
 
-        if (verbose) cout << "\nVerify multipass property of reverse iterator"
-                          << endl;
+        if (verbose) printf(
+                          "\nVerify multipass property of reverse iterator\n");
         ++it1;
         LOOP_ASSERT(  *it1,            1 ==  *it1);
         LOOP2_ASSERT(&*it1, &*it2,   it1 ==   it2);
         LOOP2_ASSERT(&*it1, &*it2, &*it1 == &*it2);
 
-        if (verbose) cout << "\nConstruct a 'const_reverse_iterator'" << endl;
+        if (verbose) printf("\nConstruct a 'const_reverse_iterator'\n");
         const_reverse_iterator itEnd(testData + 4);
 
-        if (verbose) cout << "\nMake a copy of 'const_reverse_iterator'"
-                          << endl;
+        if (verbose) printf("\nMake a copy of 'const_reverse_iterator'\n");
 
         const_reverse_iterator itBegin(it1);
         bsl::iterator_traits<
@@ -1102,13 +1109,13 @@ int main(int argc, char *argv[])
                                                  bsl::distance(itEnd, itBegin);
         LOOP_ASSERT(distance, 2 == distance);
 
-        if (verbose) cout << "\nVerify writing through a dereferenced iterator"
-                          << endl;
+        if (verbose) printf(
+                         "\nVerify writing through a dereferenced iterator\n");
         *it1 = 42;
         LOOP_ASSERT( *it1, 42 == *it1);
 
-        if (verbose) cout << "\nVerify that writes through one iterator are"
-                          << "  visible through another" << endl;
+        if (verbose) printf(
+    "\nVerify that writes through one iterator are visible through another\n");
         LOOP_ASSERT( *it2,         42 == *it2);
         LOOP2_ASSERT(*it1, *it2, *it1 == *it2);
       } break;

@@ -1,5 +1,5 @@
 // bslstl_function.t.cpp                                              -*-C++-*-
-#include "bslstl_function.h"
+#include <bslstl_function.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -304,6 +304,7 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
 //-----------------------------------------------------------------------------
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+
 
 // Size type used by test allocator.
 typedef bsls::Types::Int64 AllocSizeType;
@@ -1127,7 +1128,8 @@ bool operator!=(const LargeFunctorWithAlloc& a, const LargeFunctorWithAlloc& b)
 }
 
 // Common function type used in most tests
-typedef bsl::function<int(const IntWrapper&, int)> Obj;
+typedef int PROTO(const IntWrapper&, int);  // Function prototype
+typedef bsl::function<PROTO> Obj;
 
 // Using the curiously-recurring template pattern with a template template
 // parameter, we can implement the boiler-plate part of an STL-style
@@ -1399,6 +1401,7 @@ const Obj& movedFromMarker = movedFromMarkerBuf.object();
 //=============================================================================
 //                  TEST FUNCTIONS
 //-----------------------------------------------------------------------------
+
 
 template <class T, class RET, class ARG>
 void testPtrToMemFunc(const char *prototypeStr)
@@ -1749,12 +1752,13 @@ bool allocPropagationCheckImp(const Obj&, bsl::false_type /*usesBslmaAlloc*/)
 template <class FUNC>
 inline
 bool allocPropagationCheck(const Obj& f)
-    // Return true if 'f.allocator()' for the specified 'f' functor returns
-    // the equivalent of the specified 'alloc' or if 'f' does not use a
-    // 'bslma::Allocator*' at all; otherwise return false.
+    // Return true if 'FUNC' does not use a 'bslma::Allocator*' or, if it
+    // does, 'f.target<FUNC>()->allocator()' returns the same allocator as
+    // 'f.allocator()' for the specified 'f' function object; otherwise
+    // return false.
 {
     return allocPropagationCheckImp<FUNC>(f,
-                                           bslma::UsesBslmaAllocator<FUNC>());
+                                          bslma::UsesBslmaAllocator<FUNC>());
 }
 
 enum WhatIsInplace {
@@ -1802,6 +1806,10 @@ void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
         minBytesUsed = sizeof(FUNC) + allocSize;
         maxBytesUsed = minBytesUsed + maxOverhead;
       } break;
+
+      default: {
+        ASSERTV(inplace, !"Bad inplace flag.");
+      } return;                                                       // RETURN
     } // end switch
 
     bslma::TestAllocator ta;
@@ -1899,7 +1907,10 @@ void testCopyCtorWithAlloc(FUNC_ARG    func,
             }
 
             // 'copyBuf' now holds the copy-constructed 'function'.
-            Obj& copy = *reinterpret_cast<Obj*>(copyBuf.d_bytes);
+            // Note that a redundant cast to 'void *' persuades gcc/Solaris
+            // that there are no alignment issues to warn about.
+            Obj& copy = *reinterpret_cast<Obj  *>(
+                         reinterpret_cast<void *>(copyBuf.d_bytes));
 
             ASSERT(copy.target_type() == original.target_type());
             ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(copyAlloc,
@@ -2076,7 +2087,6 @@ void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
             ASSERT(dest.target<FUNC>() == sourceTarget);
         }
 
-        ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, dest.allocator()));
         ASSERT(isEmpty == ! dest);
 
         if (dest) {
@@ -2946,6 +2956,38 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
+      case 18: {
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TRAITS
+        //
+        // Concerns:
+        //: 1 For an instantiation of 'function' F,
+        //:   'bslma::UsesBslmaAllocator<F>::value' is true.
+        //: 2 For an instantiation of 'function' F,
+        //:   'bslmf::UsesAllocatorArgT<F>::value' is true.
+        //
+        // Plan:
+        //: 1 For concern 1, instantiate
+        //:   'bslma::UsesBslmaAllocator<bsl::function<void()> >::value'
+        //:   and verify that it's 'value' member is 'true'.
+        //: 2 For concern 2, instantiate
+        //:   'bslmf::UsesAllocatorArgT<bsl::function<void()> >::value'
+        //:   and verify that it's 'value' member is 'true'.
+        //
+        // Testing:
+        //      'bslma::UsesBslmaAllocator<bsl::function<F>::value'
+        //      'bslmf::UsesAllocatorArgT<bsl::function<F>::value'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTRAITS"
+                            "\n======\n");
+
+        ASSERT(bslma::UsesBslmaAllocator<bsl::function<void()> >::value);
+        ASSERT(bslmf::UsesAllocatorArgT<bsl::function<void()> >::value);
+
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // COMPARISON TO NULLPTR
@@ -3874,7 +3916,7 @@ int main(int argc, char *argv[])
                      sizeof(MaxAlignedType),
                      sizeof(SmallObjectBuffer) >= 6 * sizeof(void*));
 
-        // Test our assumptions about the platform specific small-object buffer 
+        // Test our assumptions about the platform specific small-object buffer
         // size.  Note that this test is platform specific.
 
 #if BSLS_PLATFORM_OS_DARWIN && BSLS_PLATFORM_CPU_32_BIT
@@ -4307,7 +4349,7 @@ int main(int argc, char *argv[])
         //: 2 For concern 2, invoke every non-empty 'function' constructed by
         //:   this test and verify that it produces the expected results.
         //: 3 For concern 3, verify, for each 'function' constructed, that
-        //:   'tareget_type' and 'target<FUNC>' return the expected values.
+        //:   'target_type' and 'target<FUNC>' return the expected values.
         //: 4 For concern 4, construct a 'function' object with the address of
         //:   a 'bslma:TestAllocator'.  Verify that 'allocator' returns the
         //:   address of the test allocator.
@@ -4549,8 +4591,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Constructing a 'function' using this constructor yields an
         //:   empty 'function' object.
-        //: 2 If 'alloc' is a pointer to a 'bslma::Allocator' object, then the
-        //:   'allocator' accessor will return that pointer.
+        //: 2 If 'alloc' is a non-null pointer to a 'bslma::Allocator' object,
+        //:   then the 'allocator' accessor will return that pointer.  If
+        //:   'alloc' is a null pointer of type convertible to
+        //:   'bslma::Allocator *', then the 'allocator' accessor will return
+        //:   a pointer to the default allocator.
         //: 3 If 'alloc' is a 'bsl::allocator' object, then the 'allocator'
         //:   accessor will return 'alloc.mechanism()'.
         //: 4 If 'alloc' is an STL-style allocator with no state, then the
@@ -4575,7 +4620,9 @@ int main(int argc, char *argv[])
         //:   constructor to verify that converts to a Boolean false value.
         //: 2 For concern 2, construct a 'function' object with the address of
         //:   a 'bslma:TestAllocator'.  Verify that 'allocator' returns the
-        //:   address of the test allocator.
+        //:   address of the test allocator.  Constrct a 'function' object
+        //:   with a null pointer-to-'bslma::TestAllocator' and verify that
+        //:   'allocator' returns the address of the default allocator.
         //: 3 For concern 3, construct a 'bsl::allocator' wrapping a test
         //:   allocator.  Construct a 'function' object with the
         //:   'bsl::allocator' object.  Verify that 'allocator' returns the
@@ -4640,6 +4687,19 @@ int main(int argc, char *argv[])
                 ASSERT(! f2);
                 ASSERT(&ta == f2.allocator());
                 ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+
+                bslma::TestAllocator *nullTa_p = 0;
+
+                bsl::function<int(float)> f3(bsl::allocator_arg, nullTa_p);
+                ASSERT(! f3);
+                ASSERT(&globalTestAllocator == f3.allocator());
+                ASSERT(globalAllocMonitor.isInUseSame());
+
+                bsl::function<int(float)> f4(bsl::allocator_arg, nullTa_p,
+                                             bsl::nullptr_t());
+                ASSERT(! f4);
+                ASSERT(&globalTestAllocator == f4.allocator());
                 ASSERT(globalAllocMonitor.isInUseSame());
             } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
@@ -5989,7 +6049,7 @@ int main(int argc, char *argv[])
             ASSERT(0x4007 == iw_p->value());
 
             if (veryVerbose) printf("Wrap int (IntWrapper::*)(int) const\n");
-            bsl::function<int(const IntWrapper&, int)> fv(&IntWrapper::add1);
+            bsl::function<PROTO> fv(&IntWrapper::add1);
             ASSERT(fv);
             ASSERT(0x400f == fv(IW, 8));
         }

@@ -562,6 +562,8 @@ template <class TYPE>
 inline
 void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
 {
+    typedef bslalg::AutoArrayDestructor<TYPE> Obj;
+
     if (d_length >= d_size) {
         this->increaseSize(numItems);
     }
@@ -569,7 +571,7 @@ void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
     int   origLen = d_length;
     TYPE *src     = &d_array_p[d_length];
     TYPE *dest    = &d_array_p[d_length + numItems];
-    bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
+    Obj autoDtor(dest, dest, d_alloc_p);
 
     for (int i = d_length; i > dstIndex; --i, --d_length) {
         dest = autoDtor.moveBegin(-1);  // decrement destination
@@ -606,6 +608,9 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&da);
+
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
     Z = &testAllocator;
 
@@ -622,7 +627,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("TESTING USAGE\n"
                             "=============\n");
-
 // Then, we create a 'TestAllocator' to supply memory (and to verify that no
 // memory is leaked):
 
@@ -652,15 +656,19 @@ int main(int argc, char *argv[])
 // Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
 // elements in 'array' if an exception is thrown:
 
-        bslalg::AutoArrayDestructor<UsageType> arrayElementProctor(
-                                                                 array, array);
+        typedef bslalg::AutoArrayDestructor<UsageType> Obj;
 
-// Note that we pass 'arrayElementProctor' pointers to the beginning and end
-// of the range to be guarded (we start with an empty range since no elements
-// have been constructed yet).
-//
-// Then, we iterate through the valid chars in 'DATA' and use them to construct
-// the elements of the array:
+        Obj arrayElementProctor(array, array, &ta);
+
+        // Note that we pass 'arrayElementProctor' pointers to the beginning
+        // and end
+        // of the range to be guarded (we start with an empty range since no
+        // elements
+        // have been constructed yet).
+        //
+        // Then, we iterate through the valid chars in 'DATA' and use them to
+        // construct
+        // the elements of the array:
 
         UsageType *resultElement = array;
         for (const char *nextChar = DATA; *nextChar; ++nextChar) {
@@ -763,6 +771,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'release'."
                             "\n==================\n");
 
+        typedef bslalg::AutoArrayDestructor<T> Obj;
+
         const int MAX_SIZE = 16;
         static union {
             char                                d_raw[MAX_SIZE * sizeof(T)];
@@ -779,7 +789,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
+            Obj mG(&buf[0], &buf[0] + MAX_SIZE);
             mG.release();
         }
         ASSERT(0 <  testAllocator.numBytesInUse());
@@ -787,7 +797,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tWithout release.\n");
         {
-            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
+            Obj mG(&buf[0], &buf[0] + MAX_SIZE);
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
@@ -825,6 +835,8 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\tSimple interface tests (from breathing test).\n");
         {
+            typedef bslalg::AutoArrayDestructor<T> Obj;
+
             char c = 'a';
 
             for (int i = 0; i < MAX_SIZE; ++i, ++c) {
@@ -832,7 +844,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+            Obj mG(&buf[0], &buf[0]);
 
             ASSERT(&buf[5] == mG.moveEnd(5));
             ASSERT(&buf[3] == mG.moveBegin(3));
@@ -849,9 +861,11 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\tException test.\n");
         {
+            typedef bslalg::AutoArrayDestructor<T> Obj;
+
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+                Obj mG(&buf[0], &buf[0]);
 
                 char c = 'a';
                 for (int i = 0; i < MAX_SIZE; ++i, ++c) {
@@ -868,33 +882,37 @@ int main(int argc, char *argv[])
 
         if(verbose) printf("\nNegative testing constructors\n");
         {
+            typedef bslalg::AutoArrayDestructor<int> Obj;
+
             bsls::AssertFailureHandlerGuard g(
                     bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(0, 0));
+            ASSERT_SAFE_PASS(Obj(0, 0));
             int simpleArray[] = { 0, 1, 2, 3, 4 };
             int * begin = simpleArray;
             int * end = begin;
-            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(0, begin));
-            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(begin, 0));
-            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, begin));
+            ASSERT_SAFE_FAIL(Obj(    0, begin));
+            ASSERT_SAFE_FAIL(Obj(begin,     0));
+            ASSERT_SAFE_PASS(Obj(begin, begin));
 
             ++begin; ++begin;  // Advance begin by two to form an invalid range
             ++end;
-            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_FAIL(Obj(begin, end));
             ++end;
             ASSERT(begin == end);
-            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_PASS(Obj(begin, end));
             ++end;
-            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_PASS(Obj(begin, end));
         }
 
         if(verbose) printf("\nNegative testing 'moveBegin' and 'moveEnd'\n");
         {
+            typedef bslalg::AutoArrayDestructor<int> Obj;
+
             bsls::AssertFailureHandlerGuard g(
                     bsls::AssertTest::failTestDriver);
 
-            bslalg::AutoArrayDestructor<int> emptyGuard(0, 0);
+            Obj emptyGuard(0, 0);
             ASSERT_SAFE_PASS(emptyGuard.moveBegin(0));
             ASSERT_SAFE_PASS(emptyGuard.moveEnd(0));
             ASSERT_SAFE_FAIL(emptyGuard.moveBegin());
@@ -902,7 +920,7 @@ int main(int argc, char *argv[])
 
             int simpleArray[] = { 0, 1, 2, 3, 4 };
             int * begin = &simpleArray[2];
-            bslalg::AutoArrayDestructor<int> intGuard(begin, begin);
+            Obj intGuard(begin, begin);
             ASSERT_SAFE_PASS(intGuard.moveBegin(0));
             ASSERT_SAFE_PASS(intGuard.moveEnd(0));
 
@@ -941,13 +959,15 @@ int main(int argc, char *argv[])
             } u;
             T *buf = (T *) (void *) &u.d_raw[0];
 
+            typedef bslalg::AutoArrayDestructor<T> Obj;
+
             char c = 'a';
             for (int i = 0; i < MAX_SIZE; ++i, ++c) {
                 new (&buf[i]) T(c, Z);
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+            Obj mG(&buf[0], &buf[0]);
 
             ASSERT(&buf[5] == mG.moveEnd(5));
             ASSERT(&buf[3] == mG.moveBegin(3));

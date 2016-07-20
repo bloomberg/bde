@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to help with testing templates.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //
@@ -125,6 +127,27 @@ BSLS_IDENT("$Id: $")
 //                                      trait, and ensures it is not bitwise
 //                                      moved
 //
+//  MovableTestType                     class that has both move and copy
+//                                      semantics, and ensures it is not
+//                                      bitwise moved
+//
+//  MovableAllocTestType                class that has both move and copy
+//                                      semantics, allocates memory, defines
+//                                      the 'bslma::UsesBslmaAllocator'
+//                                      trait, and ensures it is not bitwise
+//                                      moved
+//
+//  MoveOnlyAllocTestType               class that has only move semantics,
+//                                      allocates memory, defines the
+//                                      'bslma::UsesBslmaAllocator'
+//                                      trait, and ensures it is not bitwise
+//                                      moved
+//
+//  BitwiseCopyableTestType             class that is bitwise-copyable and
+//                                      defines the
+//                                      'bsl::is_trivially_copyable'
+//                                      trait
+//
 //  BitwiseMoveableTestType             class that is bitwise-moveable and
 //                                      defines the
 //                                      'bslmf::IsBitwiseMoveable'
@@ -142,6 +165,20 @@ BSLS_IDENT("$Id: $")
 //                                      ('operator new', 'operator delete',
 //                                      'operator&') to ensure that they are
 //                                      not called
+//
+//  EmplacableTestType                  class that takes <= 14 non-allocating
+//                                      arguments and is used to ensure that
+//                                      arguments are forwarded correctly
+//                                      from functions and methods taking
+//                                      variable number of arguments and their
+//                                      analagous in C++03 environments.
+//
+//  AllocEmplacableTestType             class that takes up to 14 allocating
+//                                      arguments and is used to ensure that
+//                                      arguments are forwarded correctly
+//                                      from functions and methods taking
+//                                      variable number of arguments and their
+//                                      analagous in C++03 environments.
 //..
 //
 // The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' macro refers to the
@@ -462,16 +499,40 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_allocbitwisemoveabletesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLTF_ALLOCEMPLACABLETESTTYPE
+#include <bsltf_allocemplacabletesttype.h>
+#endif
+
 #ifndef INCLUDED_BSLTF_ALLOCTESTTYPE
 #include <bsltf_alloctesttype.h>
+#endif
+
+#ifndef INCLUDED_BSLTF_BITWISECOPYABLETESTTYPE
+#include <bsltf_bitwisecopyabletesttype.h>
 #endif
 
 #ifndef INCLUDED_BSLTF_BITWISEMOVEABLETESTTYPE
 #include <bsltf_bitwisemoveabletesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLTF_EMPLACABLETESTTYPE
+#include <bsltf_emplacabletesttype.h>
+#endif
+
 #ifndef INCLUDED_BSLTF_ENUMERATEDTESTTYPE
 #include <bsltf_enumeratedtesttype.h>
+#endif
+
+#ifndef INCLUDED_BSLTF_MOVABLEALLOCTESTTYPE
+#include <bsltf_movablealloctesttype.h>
+#endif
+
+#ifndef INCLUDED_BSLTF_MOVABLETESTTYPE
+#include <bsltf_movabletesttype.h>
+#endif
+
+#ifndef INCLUDED_BSLTF_MOVEONLYALLOCTESTTYPE
+#include <bsltf_moveonlyalloctesttype.h>
 #endif
 
 #ifndef INCLUDED_BSLTF_NONASSIGNABLETESTTYPE
@@ -494,16 +555,28 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_simpletesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLTF_STDALLOCTESTTYPE
+#include <bsltf_stdalloctesttype.h>
+#endif
+
 #ifndef INCLUDED_BSLTF_UNIONTESTTYPE
 #include <bsltf_uniontesttype.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
 #include <bslma_mallocfreeallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -609,38 +682,70 @@ struct TemplateTestFacility {
         // unless '0 <= value < 128' and 'TYPE' is contained in the macro
         // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
-    template <class TYPE>
-    static void emplace(TYPE             *address,
-                        int               identifier,
-                        bslma::Allocator *allocator);
+    template <class TYPE, class ALLOCATOR>
+    static void emplace(TYPE *address, int identifier, ALLOCATOR allocator);
+    template <class TYPE, class ALLOCATOR>
+    static void
+    emplace(TYPE *address, int identifier, ALLOCATOR *allocator);
         // Create an object of the parameterized 'TYPE' at the specified
         // 'address' whose state is unique for the specified 'identifier'.  The
         // behavior is undefined unless '0 <= identifier < 128' and 'TYPE' is
         // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
-    template <class TYPE>
-    static void emplace(TYPE             **address,
-                        int                identifier,
-                        bslma::Allocator  *allocator);
+    template <class TYPE, class ALLOCATOR>
+    static void emplace(TYPE **address, int identifier, ALLOCATOR allocator);
+    template <class TYPE, class ALLOCATOR>
+    static void
+    emplace(TYPE **address, int identifier, ALLOCATOR *allocator);
         // Create a pointer to the parameterized 'TYPE' at the specified
         // 'address' whose value is unique for the specified 'identifier'.  The
         // behavior is undefined unless '0 <= identifier < 128'.
 
-    static void emplace(char             *address,
-                        int               identifier,
-                        bslma::Allocator *allocator);
-    static void emplace(signed char      *address,
-                        int               identifier,
-                        bslma::Allocator *allocator);
-    static void emplace(unsigned char    *address,
-                        int               identifier,
-                        bslma::Allocator *allocator);
+    template <class ALLOCATOR>
+    static void emplace(char *address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(char *address, int identifier, ALLOCATOR *allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(signed char *address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(signed char *address, int identifier, ALLOCATOR *allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(unsigned char *address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(unsigned char *address, int identifier, ALLOCATOR *allocator);
         // Set the character object at the specified 'address' to the value of
         // the specified 'identifier'.  The specified 'allocator' is not used.
         // The behavior is undefined unless '0 <= identifier < 128'.  Note that
         // these overloads are needed only to avoid narrowing conversion
-        // warnings that will occur in 'bslalg::ScalarPrimitives' when using
-        // this test facility.
+        // warnings that will occur in lower-level utilities when using this
+        // test facility.
+
+    template <class ALLOCATOR>
+    static void emplace(EnumeratedTestType::Enum *address,
+                        int                       identifier,
+                        ALLOCATOR                 allocator);
+    template <class ALLOCATOR>
+    static void emplace(EnumeratedTestType::Enum *address,
+                        int                       identifier,
+                        ALLOCATOR                *allocator);
+        // Set the enumeration at the specified 'address' to the value of the
+        // specified 'identifier'.  The specified 'allocator' is not used.  The
+        // behavior is undefined unless '0 <= identifier < 128'.
+
+    template <class ALLOCATOR>
+    static void
+    emplace(MethodPtr *address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(MethodPtr *address, int identifier, ALLOCATOR *allocator);
+        // Set the pointer-to-method at the specified 'address' to the value of
+        // the specified 'identifier'.  The specified 'allocator' is not used.
+        // The behavior is undefined unless '0 <= identifier < 128'.
 
     template <class TYPE>
     static int getIdentifier(const TYPE& object);
@@ -648,19 +753,70 @@ struct TemplateTestFacility {
         // 'object'.  The behavior is undefined unless 'object' could be
         // created from the 'TemplateTestFacility::create' class method
         // template.
+
+    template <class ALLOC>
+    static int getIdentifier(const StdAllocTestType<ALLOC>& object);
+        // Return the integer identifier that uniquely identifies the specified
+        // 'object'.  The behavior is undefined unless 'object' could be
+        // created from the 'TemplateTestFacility::create' class method
+        // template.
+
+    template <class TYPE>
+    static bsltf::MoveState::Enum getMovedFromState(const TYPE& object);
+        // Return the moved-from state of the specified 'object, or 'e_UNKNOWN'
+        // if (template parameter) 'TYPE' does not support such a query.
+
+    template <class TYPE>
+    static bsltf::MoveState::Enum getMovedIntoState(const TYPE& object);
+        // Return the moved-into state of the specified 'object, or 'e_UNKNOWN'
+        // if (template parameter) 'TYPE' does not support such a query.
+
+    template <class TYPE>
+    static void setMovedIntoState(TYPE *object, bsltf::MoveState::Enum value);
+        // Set the moved-into state of the specified 'object to the specified
+        // 'value' if (template parameter) 'TYPE' does supports move states.
 };
 
 // FREE FUNCTIONS
-void debugprint(const EnumeratedTestType::Enum& obj);
-void debugprint(const UnionTestType& obj);
-void debugprint(const SimpleTestType& obj);
+template <class TYPE>
+bsltf::MoveState::Enum getMovedFrom(const TYPE& object);
+    // Return the moved-from state of the specified 'object if the (template
+    // parameter) 'TYPE' supports such as query.  The default implementation
+    // provided in this component returns 'e_UNKNOWN'; test types will
+    // presumably provide an specialized version of this function.
+
+template <class TYPE>
+bsltf::MoveState::Enum getMovedInto(const TYPE& object);
+    // Return the moved-into state of the specified 'object if the (template
+    // parameter) 'TYPE' supports such as query.  The default implementation
+    // provided in this component returns 'e_UNKNOWN'; test types will
+    // presumably provide an specialized version of this function.
+
+template <class TYPE>
+void setMovedInto(TYPE *object, bsltf::MoveState::Enum value);
+    // Set the moved-into state of the specified 'object to the specified
+    // 'value' if the (template parameter) 'TYPE' supports such move states.
+    // The default implementation provided in this component does nothing;
+    // test types will presumably provide an specialized version of this
+    // function.
+
 void debugprint(const AllocTestType& obj);
-void debugprint(const BitwiseMoveableTestType& obj);
 void debugprint(const AllocBitwiseMoveableTestType& obj);
+void debugprint(const AllocEmplacableTestType& obj);
+void debugprint(const BitwiseCopyableTestType& obj);
+void debugprint(const BitwiseMoveableTestType& obj);
+void debugprint(const EmplacableTestType& obj);
+void debugprint(const EnumeratedTestType::Enum& obj);
+void debugprint(const MovableAllocTestType& obj);
+void debugprint(const MovableTestType& obj);
+void debugprint(const MoveOnlyAllocTestType& obj);
 void debugprint(const NonTypicalOverloadsTestType& obj);
 void debugprint(const NonAssignableTestType& obj);
 void debugprint(const NonDefaultConstructibleTestType& obj);
 void debugprint(const NonEqualComparableTestType& obj);
+void debugprint(const SimpleTestType& obj);
+template <class ALLOC> void debugprint(const StdAllocTestType<ALLOC>& obj);
+void debugprint(const UnionTestType& obj);
     // Print the value of the specified 'obj' to the console.  Note that this
     // free function is provided to allow 'bsls_bsltestutil' to support these
     // types intended for testing.  See the component-level documentation for
@@ -685,6 +841,7 @@ void debugprint(const NonEqualComparableTestType& obj);
     bsltf::UnionTestType,                                                     \
     bsltf::SimpleTestType,                                                    \
     bsltf::AllocTestType,                                                     \
+    bsltf::BitwiseCopyableTestType,                                           \
     bsltf::BitwiseMoveableTestType,                                           \
     bsltf::AllocBitwiseMoveableTestType,                                      \
     bsltf::NonTypicalOverloadsTestType
@@ -703,6 +860,14 @@ void debugprint(const NonEqualComparableTestType& obj);
         bsltf::NonAssignableTestType,                                         \
         bsltf::NonDefaultConstructibleTestType,                               \
         bsltf::NonEqualComparableTestType
+        // TBD: can't add following -- test run failure in 'bslstl_hashtable'
+        // bsltf::MovableAllocTestType
+        // bsltf::MovableTestType
+        // TBD: can't add following -- 'create' relies on copy ctor
+        //  bsltf::MoveOnlyAllocTestType
+        // TBD: can't add following - supports only 14 valid values
+        //  bsltf::AllocEmplacableTestType
+        //  bsltf::EmplacableTestType
     // This macro refers to all of the awkward test types defined in this
     // package.  Note that the macro can be used as the last argument to the
     // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
@@ -899,6 +1064,24 @@ void debugprint(const NonEqualComparableTestType& obj);
                                                         bsltf::AllocTestType) \
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                 bsltf::MovableAllocTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                      bsltf::MovableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                bsltf::MoveOnlyAllocTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                              bsltf::AllocEmplacableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                                   bsltf::EmplacableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                              bsltf::BitwiseCopyableTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
                                               bsltf::BitwiseMoveableTestType) \
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
@@ -989,23 +1172,31 @@ TYPE TemplateTestFacility::create(int identifier)
     return obj.object();
 }
 
-template <class TYPE>
+template <class TYPE, class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace(TYPE             *address,
-                                   int               identifier,
-                                   bslma::Allocator *allocator)
+void TemplateTestFacility::emplace(TYPE      *address,
+                                   int        identifier,
+                                   ALLOCATOR  allocator)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
 
-    bslalg::ScalarPrimitives::construct(address, identifier, allocator);
+    bsl::allocator_traits<ALLOCATOR>::construct(
+                                               allocator, address, identifier);
 }
 
-template <class TYPE>
+template <class TYPE, class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace(TYPE             **address,
-                                   int                identifier,
-                                   bslma::Allocator  *)
+void TemplateTestFacility::emplace(TYPE      *address,
+                                   int        identifier,
+                                   ALLOCATOR *allocator)
+{
+    emplace(address, identifier, bsl::allocator<TYPE>(allocator));
+}
+
+template <class TYPE, class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(TYPE **address, int identifier, ALLOCATOR)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
@@ -1013,10 +1204,19 @@ void TemplateTestFacility::emplace(TYPE             **address,
     *address = reinterpret_cast<TYPE *>(bsls::Types::IntPtr(identifier));
 }
 
+template <class TYPE, class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace(char             *address,
-                                   int               identifier,
-                                   bslma::Allocator *)
+void TemplateTestFacility::emplace(TYPE **address, int identifier, ALLOCATOR *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+
+    *address = reinterpret_cast<TYPE *>(bsls::Types::IntPtr(identifier));
+}
+
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(char *address, int identifier, ALLOCATOR)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
@@ -1024,10 +1224,23 @@ void TemplateTestFacility::emplace(char             *address,
     *address = static_cast<char>(identifier);
 }
 
+template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace(signed char      *address,
-                                   int               identifier,
-                                   bslma::Allocator *)
+void TemplateTestFacility::emplace(char *address,
+                                   int   identifier,
+                                   ALLOCATOR *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+
+    *address = static_cast<char>(identifier);
+}
+
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(signed char *address,
+                                   int          identifier,
+                                   ALLOCATOR)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
@@ -1035,50 +1248,50 @@ void TemplateTestFacility::emplace(signed char      *address,
     *address = static_cast<signed char>(identifier);
 }
 
+template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace(unsigned char    *address,
-                                   int               identifier,
-                                   bslma::Allocator *)
+void TemplateTestFacility::emplace(signed char *address,
+                                   int          identifier,
+                                   ALLOCATOR *)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
 
-    *address = static_cast<unsigned char>(identifier);
+    *address = static_cast<signed char>(identifier);
 }
 
-template <>
+template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace<EnumeratedTestType::Enum>(
-                                          EnumeratedTestType::Enum *address,
-                                          int                       identifier,
-                                          bslma::Allocator         *allocator)
+void TemplateTestFacility::emplace(EnumeratedTestType::Enum *address,
+                                   int                       identifier,
+                                   ALLOCATOR)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
 
-    bslalg::ScalarPrimitives::construct(
-                             address,
-                             static_cast<EnumeratedTestType::Enum>(identifier),
-                             allocator);
+    *address = static_cast<EnumeratedTestType::Enum>(identifier);
 }
 
-template <>
+template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace<TemplateTestFacility::MethodPtr>(
-                                   TemplateTestFacility::MethodPtr *address,
+void TemplateTestFacility::emplace(EnumeratedTestType::Enum *address,
+                                   int                       identifier,
+                                   ALLOCATOR *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+
+    *address = static_cast<EnumeratedTestType::Enum>(identifier);
+}
+
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(TemplateTestFacility::MethodPtr *address,
                                    int                              identifier,
-                                   bslma::Allocator                *)
+                                   ALLOCATOR)
 {
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
-
-    // Note that we initialize the pointer-to-member with a simple assignment,
-    // rather than using 'bslalg::ScalarPrimitives' like most of the other
-    // 'emplace' implementations, as it fails to compile with Microsoft Visual
-    // C++.  This implementation may also be more efficient, and there is no
-    // risk of actually needing to use the 'allocator' argument for this type,
-    // so we use this as the only implementation, rather than using platform
-    // detection macros to make it Microsoft-only.
 
     switch (identifier) {
       case   0: *address = &TemplateTestFacility_StubClass::method<  0>; break;
@@ -1213,11 +1426,425 @@ void TemplateTestFacility::emplace<TemplateTestFacility::MethodPtr>(
     }
 }
 
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(MethodPtr *address,
+                                   int        identifier,
+                                   ALLOCATOR *allocator)
+{
+    emplace(address, identifier, bsl::allocator<MethodPtr>(allocator));
+}
+
+#if 0           
+// TBD: still working on this as part of C++11 project but should not affect
+//      component test drivers
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace<EmplacableTestType>(
+                                   EmplacableTestType *address,
+                                   int                 identifier,
+                                   ALLOCATOR allocator)
+{
+    const int N_ARGS = 14;
+    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < N_ARGS);
+
+    EmplacableTestType::ArgType01 A01(   1);
+    EmplacableTestType::ArgType02 A02(  20);
+    EmplacableTestType::ArgType03 A03(  23);
+    EmplacableTestType::ArgType04 A04(  44);
+    EmplacableTestType::ArgType05 A05(  66);
+    EmplacableTestType::ArgType06 A06( 176);
+    EmplacableTestType::ArgType07 A07( 878);
+    EmplacableTestType::ArgType08 A08(   8);
+    EmplacableTestType::ArgType09 A09( 912);
+    EmplacableTestType::ArgType10 A10( 102);
+    EmplacableTestType::ArgType11 A11( 111);
+    EmplacableTestType::ArgType12 A12( 333);
+    EmplacableTestType::ArgType13 A13( 712);
+    EmplacableTestType::ArgType14 A14(1414);
+
+    switch (identifier) {
+      case 0: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator);
+      } break;
+      case 1: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01));
+      } break;
+      case 2: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02));
+      } break;
+      case 3: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03));
+      } break;
+      case 4: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04));
+      } break;
+      case 5: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05));
+      } break;
+      case 6: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06));
+      } break;
+      case 7: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07));
+      } break;
+      case 8: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08));
+      } break;
+      case 9: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09));
+      } break;
+      case 10: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10));
+      } break;
+      case 11: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11));
+      } break;
+      case 12: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12));
+      } break;
+      case 13: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12),
+                                           bslmf::MovableRefUtil::move(A13));
+      } break;
+      case 14: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12),
+                                           bslmf::MovableRefUtil::move(A13),
+                                           bslmf::MovableRefUtil::move(A14));
+      } break;
+      default: {
+          BSLS_ASSERT_OPT(false);
+      }
+    }
+}
+
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace<AllocEmplacableTestType>(
+                                   AllocEmplacableTestType *address,
+                                   int                      identifier,
+                                   ALLOCATOR allocator)
+{
+    const int N_ARGS = 14;
+    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < N_ARGS);
+
+    AllocEmplacableTestType::ArgType01 A01(   1, allocator);
+    AllocEmplacableTestType::ArgType02 A02(  20, allocator);
+    AllocEmplacableTestType::ArgType03 A03(  23, allocator);
+    AllocEmplacableTestType::ArgType04 A04(  44, allocator);
+    AllocEmplacableTestType::ArgType05 A05(  66, allocator);
+    AllocEmplacableTestType::ArgType06 A06( 176, allocator);
+    AllocEmplacableTestType::ArgType07 A07( 878, allocator);
+    AllocEmplacableTestType::ArgType08 A08(   8, allocator);
+    AllocEmplacableTestType::ArgType09 A09( 912, allocator);
+    AllocEmplacableTestType::ArgType10 A10( 102, allocator);
+    AllocEmplacableTestType::ArgType11 A11( 111, allocator);
+    AllocEmplacableTestType::ArgType12 A12( 333, allocator);
+    AllocEmplacableTestType::ArgType13 A13( 712, allocator);
+    AllocEmplacableTestType::ArgType14 A14(1414, allocator);
+
+    switch (identifier) {
+      case 0: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator);
+      } break;
+      case 1: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01));
+      } break;
+      case 2: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02));
+      } break;
+      case 3: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03));
+      } break;
+      case 4: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04));
+      } break;
+      case 5: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05));
+      } break;
+      case 6: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06));
+      } break;
+      case 7: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07));
+      } break;
+      case 8: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08));
+      } break;
+      case 9: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09));
+      } break;
+      case 10: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10));
+      } break;
+      case 11: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11));
+      } break;
+      case 12: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12));
+      } break;
+      case 13: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12),
+                                           bslmf::MovableRefUtil::move(A13));
+      } break;
+      case 14: {
+        bslma::ConstructionUtil::construct(address,
+                                           allocator,
+                                           bslmf::MovableRefUtil::move(A01),
+                                           bslmf::MovableRefUtil::move(A02),
+                                           bslmf::MovableRefUtil::move(A03),
+                                           bslmf::MovableRefUtil::move(A04),
+                                           bslmf::MovableRefUtil::move(A05),
+                                           bslmf::MovableRefUtil::move(A06),
+                                           bslmf::MovableRefUtil::move(A07),
+                                           bslmf::MovableRefUtil::move(A08),
+                                           bslmf::MovableRefUtil::move(A09),
+                                           bslmf::MovableRefUtil::move(A10),
+                                           bslmf::MovableRefUtil::move(A11),
+                                           bslmf::MovableRefUtil::move(A12),
+                                           bslmf::MovableRefUtil::move(A13),
+                                           bslmf::MovableRefUtil::move(A14));
+      } break;
+      default: {
+          BSLS_ASSERT_OPT(false);
+      }
+    }
+}
+#endif
+
 template <class TYPE>
 inline
 int TemplateTestFacility::getIdentifier(const TYPE& object)
 {
     return int(object);
+}
+
+template <class ALLOC>
+inline
+int TemplateTestFacility::getIdentifier(const StdAllocTestType<ALLOC>& object)
+{
+    return object.data();
 }
 
 template <>
@@ -1287,6 +1914,38 @@ int TemplateTestFacility::getIdentifier<bsltf::AllocTestType>(
 
 template <>
 inline
+int TemplateTestFacility::getIdentifier<bsltf::MovableAllocTestType>(
+                                     const bsltf::MovableAllocTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<bsltf::MovableTestType>(
+                                     const bsltf::MovableTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<bsltf::MoveOnlyAllocTestType>(
+                                    const bsltf::MoveOnlyAllocTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<bsltf::BitwiseCopyableTestType>(
+                                  const bsltf::BitwiseCopyableTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
 int TemplateTestFacility::getIdentifier<bsltf::BitwiseMoveableTestType>(
                                   const bsltf::BitwiseMoveableTestType& object)
 {
@@ -1334,7 +1993,147 @@ int TemplateTestFacility::getIdentifier<bsltf::NonEqualComparableTestType>(
     return object.data();
 }
 
+template <>
+inline
+int TemplateTestFacility::getIdentifier<bsltf::EmplacableTestType>(
+                               const bsltf::EmplacableTestType& object)
+{
+    BSLS_ASSERT_SAFE(   1 == object.arg01() || -1 == object.arg01());
+    BSLS_ASSERT_SAFE(  20 == object.arg02() || -1 == object.arg02());
+    BSLS_ASSERT_SAFE(  23 == object.arg03() || -1 == object.arg03());
+    BSLS_ASSERT_SAFE(  44 == object.arg04() || -1 == object.arg04());
+    BSLS_ASSERT_SAFE(  66 == object.arg05() || -1 == object.arg05());
+    BSLS_ASSERT_SAFE( 176 == object.arg06() || -1 == object.arg06());
+    BSLS_ASSERT_SAFE( 878 == object.arg07() || -1 == object.arg07());
+    BSLS_ASSERT_SAFE(   8 == object.arg08() || -1 == object.arg08());
+    BSLS_ASSERT_SAFE( 912 == object.arg09() || -1 == object.arg09());
+    BSLS_ASSERT_SAFE( 102 == object.arg10() || -1 == object.arg10());
+    BSLS_ASSERT_SAFE( 111 == object.arg11() || -1 == object.arg11());
+    BSLS_ASSERT_SAFE( 333 == object.arg12() || -1 == object.arg12());
+    BSLS_ASSERT_SAFE( 712 == object.arg13() || -1 == object.arg13());
+    BSLS_ASSERT_SAFE(1414 == object.arg14() || -1 == object.arg14());
+
+    return -1 == object.arg01()
+           ? 0
+           : -1 == object.arg02()
+             ? 1
+             : -1 == object.arg03()
+               ? 2
+               : -1 == object.arg04()
+                 ? 3
+                 : -1 == object.arg05()
+                   ? 4
+                   : -1 == object.arg06()
+                     ? 5
+                     : -1 == object.arg07()
+                       ? 6
+                       : -1 == object.arg08()
+                         ? 7
+                         : -1 == object.arg09()
+                           ? 8
+                           : -1 == object.arg10()
+                             ? 9
+                             : -1 == object.arg11()
+                               ? 10
+                               : -1 == object.arg12()
+                                 ? 11
+                                 : -1 == object.arg13()
+                                   ? 12
+                                   : -1 == object.arg14()
+                                     ? 13
+                                     : 14;
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<bsltf::AllocEmplacableTestType>(
+                               const bsltf::AllocEmplacableTestType& object)
+{
+    BSLS_ASSERT_SAFE(   1 == object.arg01() || -1 == object.arg01());
+    BSLS_ASSERT_SAFE(  20 == object.arg02() || -1 == object.arg02());
+    BSLS_ASSERT_SAFE(  23 == object.arg03() || -1 == object.arg03());
+    BSLS_ASSERT_SAFE(  44 == object.arg04() || -1 == object.arg04());
+    BSLS_ASSERT_SAFE(  66 == object.arg05() || -1 == object.arg05());
+    BSLS_ASSERT_SAFE( 176 == object.arg06() || -1 == object.arg06());
+    BSLS_ASSERT_SAFE( 878 == object.arg07() || -1 == object.arg07());
+    BSLS_ASSERT_SAFE(   8 == object.arg08() || -1 == object.arg08());
+    BSLS_ASSERT_SAFE( 912 == object.arg09() || -1 == object.arg09());
+    BSLS_ASSERT_SAFE( 102 == object.arg10() || -1 == object.arg10());
+    BSLS_ASSERT_SAFE( 111 == object.arg11() || -1 == object.arg11());
+    BSLS_ASSERT_SAFE( 333 == object.arg12() || -1 == object.arg12());
+    BSLS_ASSERT_SAFE( 712 == object.arg13() || -1 == object.arg13());
+    BSLS_ASSERT_SAFE(1414 == object.arg14() || -1 == object.arg14());
+
+    return -1 == object.arg01()
+           ? 0
+           : -1 == object.arg02()
+             ? 1
+             : -1 == object.arg03()
+               ? 2
+               : -1 == object.arg04()
+                 ? 3
+                 : -1 == object.arg05()
+                   ? 4
+                   : -1 == object.arg06()
+                     ? 5
+                     : -1 == object.arg07()
+                       ? 6
+                       : -1 == object.arg08()
+                         ? 7
+                         : -1 == object.arg09()
+                           ? 8
+                           : -1 == object.arg10()
+                             ? 9
+                             : -1 == object.arg11()
+                               ? 10
+                               : -1 == object.arg12()
+                                 ? 11
+                                 : -1 == object.arg13()
+                                   ? 12
+                                   : -1 == object.arg14()
+                                     ? 13
+                                     : 14;
+}
+
+template <class TYPE>
+MoveState::Enum
+TemplateTestFacility::getMovedFromState(const TYPE& object)
+{
+    return getMovedFrom(object);
+}
+
+template <class TYPE>
+MoveState::Enum
+TemplateTestFacility::getMovedIntoState(const TYPE& object)
+{
+    return getMovedInto(object);
+}
+
+template <class TYPE>
+void TemplateTestFacility::setMovedIntoState(TYPE                   *object,
+                                             bsltf::MoveState::Enum  value)
+{
+    setMovedInto(object, value);
+}
+
 // FREE FUNCTIONS
+template <class TYPE>
+bsltf::MoveState::Enum getMovedFrom(const TYPE&)
+{
+    return bsltf::MoveState::e_UNKNOWN;
+}
+
+template <class TYPE>
+bsltf::MoveState::Enum getMovedInto(const TYPE&)
+{
+    return bsltf::MoveState::e_UNKNOWN;
+}
+
+template <class TYPE>
+void setMovedInto(TYPE *, bsltf::MoveState::Enum)
+{
+}
+
 inline
 void debugprint(const EnumeratedTestType::Enum& obj)
 {
@@ -1355,6 +2154,37 @@ void debugprint(const SimpleTestType& obj)
 
 inline
 void debugprint(const AllocTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+template <class ALLOC>
+inline
+void debugprint(const StdAllocTestType<ALLOC>& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const MovableAllocTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const MovableTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const MoveOnlyAllocTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const BitwiseCopyableTestType& obj)
 {
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
 }
@@ -1395,7 +2225,20 @@ void debugprint(const NonEqualComparableTestType& obj)
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
 }
 
+inline
+void debugprint(const AllocEmplacableTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const EmplacableTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
 }  // close package namespace
+
 }  // close enterprise namespace
 
 #endif

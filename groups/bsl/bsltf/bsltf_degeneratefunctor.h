@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -47,6 +47,11 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_NEW
+#include <new>
+#define INCLUDED_NEW
 #endif
 
 namespace BloombergLP {
@@ -61,17 +66,19 @@ template <class FUNCTOR, bool ENABLE_SWAP = true>
 class DegenerateFunctor : private FUNCTOR {
     // This test class template adapts a CopyConstructible class to offer
     // a minimal or outright obstructive interface for testing generic code.
-    // To support the testing of standard containers this adapter will be
-    // CopyConstructible, nothrow Destructible, and (optionally) Swappable as
-    // long as the adapted 'FUNCTOR' satisfies the same requirements.  The
-    // (inherited) function call operator should be the only other available
-    // method, no other operation (e.g., the unary address-of operator) should
-    // be usable.  We take advantage of the fact that defining a copy
-    // constructor inhibits the generation of a default constructor, and that
-    // constructors are not inherited by a derived class.  'DegenerateFunctor'
-    // objects must be created through either the copy constructor, or by
-    // wrapping a 'FUNCTOR' object through the static factory method of this
-    // class, 'cloneBaseObject'.
+    // To support the testing of standard containers, this adapter will be
+    // MoveConstructible, CopyConstructible, and nothrow Destructible as long
+    // as the adapted 'FUNCTOR' satisfies the same requirements.  This class
+    // will further be Swappable if (the template parameter) 'ENABLE_SWAP' is
+    // 'true' and the adapted 'FUNCTOR' is MoveConstructible.  The (inherited)
+    // function call operator should be the only other available method, no
+    // other operation (e.g., the unary address-of operator) should be usable.
+    // We take advantage of the fact that defining a copy constructor inhibits
+    // the generation of a default constructor, and that constructors are not
+    // inherited by a derived class.  'DegenerateFunctor' objects must be
+    // created through either the copy constructor, or by wrapping a 'FUNCTOR'
+    // object through the static factory method of this class,
+    // 'cloneBaseObject'.
 
   private:
     // PRIVATE CREATORS
@@ -116,21 +123,27 @@ class DegenerateFunctor : private FUNCTOR {
         // Create a 'DegenerateFunctor' having the same value the specified
         // 'original'.
 
+    DegenerateFunctor(bslmf::MovableRef<DegenerateFunctor> original);
+        // Create a 'DegenerateFunctor' having the same value the specified
+        // 'original, and leave 'original' in an unspecified (but valid) state.
+
     // MANIPULATORS
     using FUNCTOR::operator();
         // Expose the overloaded function call operator from the parameterizing
         // class 'FUNCTOR'.
 
     void exchangeValues(DegenerateFunctor *other);
-        // Swap the wrapped 'FUNCTOR' object, using ADL with 'std::swap' in
-        // the lookup set, with the functor wrapper by the specified '*other'.
-        // Note that this function is deliberately *not* named 'swap' as some
-        // "clever" template libraries may try to call a member-swap function
-        // when they can find it, and ADL-swap is not available.  Also note
-        // that this overload is needed only so that the ADL-enabling
+        // Swap the wrapped 'FUNCTOR' object, by move-constructing a temporary
+        // object from the specified '*other', then alternately destroying and
+        // in-place move-constructing new values for each of '*other' and
+        // '*this'.  Note that this function is deliberately *not* named 'swap'
+        // as some "clever" template libraries may try to call a member-swap
+        // function when they can find it, and ADL-swap is not available.  Also
+        // note that this overload is needed only so that the ADL-enabling
         // free-function 'swap' can be defined, as the native std library
-        // 'swap' function does will not accept this class on AIX or Visual C++
-        // prior to VC2010.
+        // 'std::swap' function will not accept this class (with its deliberate
+        // degenerate nature) on AIX, or on Windows with Visual C++ prior to
+        // VC2010.
 };
 
 template <class FUNCTOR>
@@ -165,6 +178,14 @@ DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::DegenerateFunctor(
 
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
+DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::DegenerateFunctor(
+                                 bslmf::MovableRef<DegenerateFunctor> original)
+: FUNCTOR(bslmf::MovableRefUtil::move(static_cast<FUNCTOR&>(original)))
+{
+}
+
+template <class FUNCTOR, bool ENABLE_SWAP>
+inline
 DegenerateFunctor<FUNCTOR, ENABLE_SWAP>
 DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::cloneBaseObject(const FUNCTOR& base)
 {
@@ -179,8 +200,11 @@ DegenerateFunctor<FUNCTOR, ENABLE_SWAP>::exchangeValues(
 {
     BSLS_ASSERT_SAFE(other);
 
-    bslalg::SwapUtil::swap(static_cast<FUNCTOR *>(this),
-                           static_cast<FUNCTOR *>(other) );
+    DegenerateFunctor temp(bslmf::MovableRefUtil::move(*other));
+    other->~DegenerateFunctor();
+    ::new((void *)other) DegenerateFunctor(bslmf::MovableRefUtil::move(*this));
+    this->~DegenerateFunctor();
+    ::new((void *)this) DegenerateFunctor(bslmf::MovableRefUtil::move(temp));
 }
 
 }  // close package namespace

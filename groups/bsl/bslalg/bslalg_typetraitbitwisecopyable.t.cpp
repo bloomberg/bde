@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraitbitwisecopyable.h>
 
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -68,6 +70,26 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslalg::TypeTraitBitwiseCopyable  Obj;
 
+struct AlmostTrivial {
+    AlmostTrivial() {}
+    AlmostTrivial(const AlmostTrivial&) {}
+};
+
+class NotTrivial {
+  private:
+    void *d_this;
+
+  public:
+    NotTrivial() : d_this(this) {}
+    NotTrivial(const NotTrivial&) : d_this(this) {}
+};
+
+namespace bsl {
+template <>
+struct is_trivially_copyable<AlmostTrivial> : true_type {};
+}  // close namespace bsl
+
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -128,6 +150,9 @@ int main(int argc, char *argv[])
         Obj mX;
 
         (void) mX;
+
+        ASSERT(( bslalg::HasTrait<AlmostTrivial, Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotTrivial,    Obj>::VALUE));
 
       } break;
 

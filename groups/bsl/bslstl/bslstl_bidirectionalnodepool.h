@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient creation of nodes used in a node-based container.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //   bslstl::BidirectionalNodePool: memory manager to allocate hash table nodes
 //
@@ -34,8 +36,8 @@ BSLS_IDENT("$Id: $")
 // If 'ALLOCATOR' is 'bsl::allocator' and the (template parameter) type 'VALUE'
 // defines the 'bslma::UsesBslmaAllocator' trait, then the 'bslma::Allocator'
 // object specified at construction will be supplied to constructors of the
-// (template parameter) type 'VALUE' in the 'cloneNode' method and 'createNode'
-// method overloads.
+// (template parameter) type 'VALUE' in the 'cloneNode' method and
+// 'emplaceIntoNewNode' method overloads.
 //
 ///Usage
 ///-----
@@ -133,10 +135,11 @@ BSLS_IDENT("$Id: $")
 //  MyList<VALUE, ALLOCATOR>::pushFront(const VALUE& value)
 //  {
 //..
-// Here, we call the memory pool's 'createNode' method to allocate a node and
-// copy-construct the specified 'value' at the 'value' attribute of the node:
+// Here, we call the memory pool's 'emplaceIntoNewNode' method to allocate a
+// node and copy-construct the specified 'value' at the 'value' attribute of
+// the node:
 //..
-//      Node *node = static_cast<Node *>(d_pool.createNode(value));
+//      Node *node = static_cast<Node *>(d_pool.emplaceIntoNewNode(value));
 //..
 // Note that the memory pool will allocate the footprint of the node using the
 // allocator specified at construction.  If the (template parameter) type
@@ -162,10 +165,10 @@ BSLS_IDENT("$Id: $")
 //  {
 //..
 // Here, just like how we implemented the 'pushFront' method, we call the
-// pool's 'createNode' method to allocate a node and copy-construct the
+// pool's 'emplaceIntoNewNode' method to allocate a node and copy-construct the
 // specified 'value' at the 'value' attribute of the node:
 //..
-//      Node *node = static_cast<Node *>(d_pool.createNode(value));
+//      Node *node = static_cast<Node *>(d_pool.emplaceIntoNewNode(value));
 //      if (!d_head_p) {
 //          d_head_p = node;
 //          node->setNextLink(0);
@@ -182,8 +185,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_SIMPLEPOOL
@@ -204,6 +207,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -227,12 +242,17 @@ class BidirectionalNodePool {
     // appropriate allocator-traits of the (template parameter) type
     // 'ALLOCATOR'.
 
-    typedef SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>       Pool;
+    // PRIVATE TYPES
+    typedef SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR> Pool;
         // This 'typedef' is an alias for the memory pool allocator.
 
-    typedef typename Pool::AllocatorTraits AllocatorTraits;
+    typedef typename Pool::AllocatorTraits                     AllocatorTraits;
         // This 'typedef' is an alias for the allocator traits defined by
         // 'SimplePool'.
+
+    typedef bslmf::MovableRefUtil                              MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
 
     // DATA
     Pool d_pool;  // pool for allocating memory
@@ -258,6 +278,13 @@ class BidirectionalNodePool {
         // (template parameter) 'ALLOCATOR' is 'bsl::allocator', then
         // 'allocator' shall be convertible to 'bslma::Allocator *'.
 
+    BidirectionalNodePool(bslmf::MovableRef<BidirectionalNodePool> original);
+        // Create a bidirectional node-pool, adopting all outstanding memory
+        // allocations associated with the specified 'original' node-pool, that
+        // will use the allocator associated with 'original' to supply memory
+        // for allocated node objects.  'original' is left in a valid but
+        // unspecified state.
+
     // ~BidirectionalNodePool() = default;
         // Destroy the memory pool maintained by this object, releasing all
         // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
@@ -266,6 +293,13 @@ class BidirectionalNodePool {
         // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
+    void adopt(bslmf::MovableRef<BidirectionalNodePool> pool);
+        // Adopt all outstanding memory allocations associated with the
+        // specified node 'pool'.  The behavior is undefined unless this pool
+        // uses the same allocator as that associated with 'pool'.  The
+        // behavior is also undefined unless this pool is in the
+        // default-constructed state.
+
     AllocatorType& allocator();
         // Return a reference providing modifiable access to the allocator
         // supplying memory for the memory pool maintained by this object.  The
@@ -273,33 +307,6 @@ class BidirectionalNodePool {
         // changed with this method.  Note that this method provides modifiable
         // access to enable a client to call non-'const' methods on the
         // allocator.
-
-    bslalg::BidirectionalLink *createNode();
-        // Allocate a node of the type 'BidirectionalNode<VALUE>', and default
-        // construct an object of the (template parameter) type 'VALUE' at the
-        // 'value' attribute of the node.  Return the address of the Node.
-        // Note that the 'next' and 'prev' attributes of the returned node will
-        // be uninitialized.
-
-    template <class SOURCE>
-    bslalg::BidirectionalLink *createNode(const SOURCE& value);
-        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
-        // construct an object of the (template parameter) type 'VALUE', using
-        // its single-argument constructor passing the specified 'value' as the
-        // argument, at the 'value' attribute of the node.  Return the address
-        // of the node.  Note that the 'next' and 'prev' attributes of the
-        // returned node will be uninitialized.
-
-    template <class FIRST_ARG, class SECOND_ARG>
-    bslalg::BidirectionalLink *createNode(const FIRST_ARG&  first,
-                                          const SECOND_ARG& second);
-        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
-        // construct an object of the (template parameter) type 'VALUE', using
-        // its two-arguments constructor passing the specified 'first' as the
-        // first argument and the specified 'second' as the second argument, at
-        // the 'value' attribute of the node.  Return the address of the node.
-        // Note that the 'next' and 'prev' attributes of the returned node will
-        // be uninitialized.
 
     bslalg::BidirectionalLink *cloneNode(
                                     const bslalg::BidirectionalLink& original);
@@ -315,6 +322,174 @@ class BidirectionalNodePool {
         // the memory footprint of 'linkNode' to this pool for potential reuse.
         // The behavior is undefined unless 'node' refers to a
         // 'bslalg::BidirectionalNode<VALUE>' that was allocated by this pool.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(Args&&... arguments);
+        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
+        // construct in-place an object of the (template parameter) type
+        // 'VALUE' with the specified constructor 'arguments'.  Return the
+        // address of the node.  Note that the 'next' and 'prev' attributes of
+        // the returned node will be uninitialized.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_bidirectionalnodepool.h
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                         );
+
+    template <class Args_01>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    bslalg::BidirectionalLink *emplaceIntoNewNode(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+// }}} END GENERATED CODE
+#endif
+
+    bslalg::BidirectionalLink *moveIntoNewNode(
+                                          bslalg::BidirectionalLink *original);
+        // Allocate a node of the type 'BidirectionalNode<VALUE>', and
+        // move-construct an object of the (template parameter) type 'VALUE'
+        // with the (explicitly moved) value indicated by the 'value' attribute
+        // of the specified 'original' link.  Return the address of the node.
+        // Note that the 'next' and 'prev' attributes of the returned node will
+        // be uninitialized.  Also note that the 'value' attribute of
+        // 'original' is left in a valid but unspecified state.
+
+    void release();
+        // Relinquish all memory currently allocated with the memory pool
+        // maintained by this object.
 
     void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
@@ -332,8 +507,6 @@ class BidirectionalNodePool {
         // those of the specified 'other' object.  This method provides the
         // no-throw exception-safety guarantee.
 
-    void release() { d_pool.release(); }
-
     // ACCESSORS
     const AllocatorType& allocator() const;
         // Return a reference providing non-modifiable access to the allocator
@@ -344,10 +517,10 @@ class BidirectionalNodePool {
 template <class VALUE, class ALLOCATOR>
 void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
           BidirectionalNodePool<VALUE, ALLOCATOR>& b);
-        // Efficiently exchange the nodes of the specified 'a' object with
-        // those of the specified 'b' object.  This method provides the
-        // no-throw exception-safety guarantee.  The behavior is undefined
-        // unless 'a.allocator() == b.allocator()'.
+    // Efficiently exchange the nodes of the specified 'a' object with those of
+    // the specified 'b' object.  This method provides the no-throw
+    // exception-safety guarantee.  The behavior is undefined unless
+    // 'a.allocator() == b.allocator()'.
 
 }  // close package namespace
 
@@ -383,11 +556,28 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::BidirectionalNodePool(
 {
 }
 
+template <class VALUE, class ALLOCATOR>
+inline
+BidirectionalNodePool<VALUE, ALLOCATOR>::BidirectionalNodePool(
+                             bslmf::MovableRef<BidirectionalNodePool> original)
+: d_pool(MoveUtil::move(MoveUtil::access(original).d_pool))
+{
+}
+
 // MANIPULATORS
 template <class VALUE, class ALLOCATOR>
 inline
-typename SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>::
-                                                                 AllocatorType&
+void BidirectionalNodePool<VALUE, ALLOCATOR>::adopt(
+                                 bslmf::MovableRef<BidirectionalNodePool> pool)
+{
+    BidirectionalNodePool& lvalue = pool;
+    d_pool.adopt(MoveUtil::move(lvalue.d_pool));
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+typename
+SimplePool<bslalg::BidirectionalNode<VALUE>, ALLOCATOR>::AllocatorType&
 BidirectionalNodePool<VALUE, ALLOCATOR>::allocator()
 {
     return d_pool.allocator();
@@ -396,64 +586,388 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::allocator()
 template <class VALUE, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
-BidirectionalNodePool<VALUE, ALLOCATOR>::createNode()
+BidirectionalNodePool<VALUE, ALLOCATOR>::cloneNode(
+                                     const bslalg::BidirectionalLink& original)
+{
+    return emplaceIntoNewNode(
+       static_cast<const bslalg::BidirectionalNode<VALUE>&>(original).value());
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE, class ALLOCATOR>
+template <class... Args>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                                                           Args&&... arguments)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(
+                             allocator(),
+                             bsls::Util::addressOf(node->value()),
+                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+    proctor.release();
+    return node;
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_bidirectionalnodepool.h
+template <class VALUE, class ALLOCATOR>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                               )
 {
     bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
                                bsls::Util::addressOf(node->value()));
-
     proctor.release();
     return node;
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class SOURCE>
+template <class Args_01>
 inline
 bslalg::BidirectionalLink *
-BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const SOURCE& value)
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
     bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
                                bsls::Util::addressOf(node->value()),
-                               value);
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
     proctor.release();
     return node;
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class FIRST_ARG, class SECOND_ARG>
+template <class Args_01,
+          class Args_02>
 inline
 bslalg::BidirectionalLink *
-BidirectionalNodePool<VALUE, ALLOCATOR>::createNode(const FIRST_ARG&  first,
-                                                    const SECOND_ARG& second)
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
 {
     bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
                                bsls::Util::addressOf(node->value()),
-                               first,
-                               second);
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
     proctor.release();
     return node;
 }
 
 template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
 inline
 bslalg::BidirectionalLink *
-BidirectionalNodePool<VALUE, ALLOCATOR>::cloneNode(
-                                     const bslalg::BidirectionalLink& original)
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
 {
-    return createNode(static_cast<const bslalg::BidirectionalNode<VALUE>&>
-                                                           (original).value());
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+    proctor.release();
+    return node;
 }
 
 template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
 inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+    proctor.release();
+    return node;
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class VALUE, class ALLOCATOR>
+template <class... Args>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    bslalg::BidirectionalNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               bsls::Util::addressOf(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    proctor.release();
+    return node;
+}
+// }}} END GENERATED CODE
+#endif
+
+template <class VALUE, class ALLOCATOR>
+inline
+bslalg::BidirectionalLink *
+BidirectionalNodePool<VALUE, ALLOCATOR>::moveIntoNewNode(
+                                           bslalg::BidirectionalLink *original)
+{
+    return emplaceIntoNewNode(MoveUtil::move(
+        static_cast<bslalg::BidirectionalNode<VALUE> *>(original)->value()));
+}
+
+template <class VALUE, class ALLOCATOR>
 void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
                                            bslalg::BidirectionalLink *linkNode)
 {
@@ -464,6 +978,13 @@ void BidirectionalNodePool<VALUE, ALLOCATOR>::deleteNode(
     AllocatorTraits::destroy(allocator(),
                              bsls::Util::addressOf(node->value()));
     d_pool.deallocate(node);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void BidirectionalNodePool<VALUE, ALLOCATOR>::release()
+{
+    d_pool.release();
 }
 
 template <class VALUE, class ALLOCATOR>

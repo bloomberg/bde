@@ -3,15 +3,18 @@
 
 #include <bslstl_badweakptr.h>
 
+#include <bslalg_autoscalardestructor.h>
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_assert.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_integralconstant.h>
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -19,13 +22,18 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
+#include <bsltf_allocargumenttype.h>
+#include <bsltf_allocemplacabletesttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_emplacabletesttype.h>
 #include <bsltf_stdstatefulallocator.h>
 
 // Look what the usage examples drag in...
-#include <bslstl_deque.h>
+//#include <bslstl_deque.h>
 #include <bslstl_list.h>
 #include <bslstl_map.h>
 #include <bslstl_string.h>
@@ -36,9 +44,9 @@
 #include <string.h>      // 'strcmp', 'strcpy'
 
 #ifdef BSLS_PLATFORM_CMP_MSVC   // Microsoft Compiler
-#ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
-#include <new>                  // if so, need to include <new> as well
-#endif
+# ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
+#   include <new>                  // if so, need to include <new> as well
+# endif
 #endif
 
 // BDE_VERIFY pragma: -FE01  // Testing throws exceptions not derived from std
@@ -46,10 +54,43 @@
 // Warnings that we hope to stop silencing one day:
 // BDE_VERIFY pragma:-IND01 // Test blocks not indenting after if (printf(""))
 // BDE_VERIFY pragma:-IND04 // Many violations of aligning variable declaration
+// BDE_VERIFY pragma:-IND06 // Many violations of aligning template parameters
 // BDE_VERIFY pragma:-TP03  // Many tests without assigned test case
+// BDE_VERIFY pragma:-TP29  // Formatting of test concerns as a numbered list
+// BDE_VERIFY pragma:-TP32  // Formatting of test concerns as a numbered list
 // BDE_VERIFY pragma:-UC01  // Warning on all-const identifiers is too strict
+//
+// BDE_VERIFY pragma:-AN01  // declaration/definition mismatch on parameters
 
 #undef ESP  //  From somewhere in SunOS2.10/x86 system headers
+
+#if defined BSLS_PLATFORM_CMP_SUN
+# define BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY 1
+// Some compilers struggle for resources when trying to compile all of the
+// template instantiations required for this test driver.  We will perform
+// slightly less thorough testing on those compilers, testing sufficient to
+// rely on the more thorough testing offered by platforms that are not as
+// constrained.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
+|| (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__)) \
+|| (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1900)
+# define BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING 1
+// Some compilers produce ambiguities when trying to construct our test types
+// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// compiler bug triggering in lower level components, so we simply disable
+// those aspects of testing, and rely on the extensive test coverage on other
+// platforms.
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+        // Here and throughout the file wherever 'auto_ptr' is used, suspend
+        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
+        // in this standard interface is required.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 using namespace BloombergLP;
 
@@ -82,9 +123,6 @@ using namespace BloombergLP;
 //   documentation) and there is code written specifically for avoiding memory
 //   leaks in the constructors (untested).
 // - The usage example is also untested.
-// - Many test cases assume that the default allocator will be the NewDelete
-//   allocator, and fail if a TestAllocator is installed as the default in
-//   'main'.  This should be addressed as part of resolving DRQS 27411521.
 //-----------------------------------------------------------------------------
 //
 // bsl::enable_shared_from_this
@@ -121,21 +159,25 @@ using namespace BloombergLP;
 // [ 3] shared_ptr(std::auto_ptr<OTHER> autoPtr, bslma::Allocator*=0)
 // [  ] shared_ptr(std::auto_ptr_ref<TYPE>, bslma::Allocator * = 0)
 // [12] shared_ptr(const shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
-// [  ] shared_ptr(const shared_ptr<OTHER>& other)
-// [ 7] shared_ptr(const shared_ptr& original)
+// [ 7] shared_ptr(const shared_ptr<OTHER>& other) noexcept
+// [ 7] shared_ptr(bslmf::MovableRef<shared_ptr> other) noexcept
+// [ 7] shared_ptr(shared_ptr<OTHER>&& other) noexcept
+// [ 7] shared_ptr(const shared_ptr& original) noexcept
 // [  ] shared_ptr(const weak_ptr<OTHER>& alias)
 // [ 2] ~shared_ptr()
 //
 // MANIPULATORS
-// [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs)
-// [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr<OTHER>& rhs)
-// [ 9] bsl::shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
+// [ 9] shared_ptr& operator=(const shared_ptr& rhs) noexcept
+// [ 9] shared_ptr& operator=(bslmf::MovableRef<shared_ptr> rhs) noexcept
+// [ 9] shared_ptr& operator=(const shared_ptr<OTHER>& rhs) noexcept
+// [ 9] shared_ptr& operator=(shared_ptr<OTHER>&& rhs) noexcept
+// [ 9] shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
 // [ 2] void reset()
 // [ 2] void reset(OTHER *ptr)
 // [ 2] void reset(OTHER *ptr, DELETER deleter)
 // [ 2] void reset(OTHER *ptr, DELETER deleter, ALLOCATOR basicAllocator)
 // [15] void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
-// [ 8] void swap(shared_ptr& src)
+// [ 8] void swap(shared_ptr& src) noexcept
 // [23] void createInplace(bslma::Allocator *allocator=0)
 // [23] void createInplace(bslma::Allocator *, const A1& a1)
 // [23] void createInplace(bslma::Allocator *, const A1& a1, ...& a2)
@@ -160,8 +202,8 @@ using namespace BloombergLP;
 // [ 4] add_lvalue_reference<ELEM_TYPE>::type operator*() const
 // [ 4] TYPE *operator->() const
 // [ 4] TYPE *get() const
-// [29] bool owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-// [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
+// [29] bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
 // [ 4] bool unique() const
 // [ 4] long use_count() const
 // [ 4] bslma::SharedPtrRep *rep() const
@@ -249,6 +291,7 @@ using namespace BloombergLP;
 // [ 3] shared_ptr(TYPE *ptr) // synthesized
 // [ 3] shared_ptr(TYPE *ptr, bslma::Allocator *allocator)  // synthesized
 // [15] CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
+// [30] CONCERN: Shared -> Managed -> Shared uses same 'rep' object
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
@@ -275,16 +318,21 @@ using namespace BloombergLP;
 // representation were attempted to be destroyed.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [24] weak_ptr()
-// [24] weak_ptr(const weak_ptr& original)
-// [24] weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other)
-// [24] weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
+// [24] weak_ptr() noexcept
+// [24] weak_ptr(weak_ptr&& original) noexcept
+// [24] weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) noexcept
+// [24] weak_ptr(const weak_ptr& original) noexcept
+// [24] weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) noexcept
+// [24] weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) noexcept
+// [24] weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) noexcept
 // [24] ~weak_ptr()
 //
 // MANIPULATORS
-// [25] weak_ptr& operator=(const weak_ptr& rhs)
-// [25] weak_ptr& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
-// [25] weak_ptr& operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs)
+// [25] weak_ptr& operator=(weak_ptr&& rhs) noexcept
+// [25] weak_ptr& operator=(weak_ptr<COMPATIBLE_TYPE>&& rhs) noexcept
+// [25] weak_ptr& operator=(const weak_ptr& rhs) noexcept
+// [25] weak_ptr& operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs) noexcept
+// [25] weak_ptr& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) noexcept
 // [26] void reset()
 // [28] void swap(weak_ptr& src)
 //
@@ -293,8 +341,8 @@ using namespace BloombergLP;
 // [24] bool expired() const
 // [24] long use_count() const
 // [27] shared_ptr<TYPE> lock() const
-// [29] bool owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-// [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
+// [29] bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (weak_ptr)
 // [36] USAGE EXAMPLE 1: weak_ptr
@@ -395,15 +443,6 @@ using namespace BloombergLP;
 // [  ] MyAllocTestDeleter& operator=(const MyAllocTestDeleter& rhs)
 // [  ] void operator()(OBJECT_TYPE *ptr) const
 //
-// class MyTestArg<N>
-//-------------------
-// [  ] MyTestArg(int value = -1)
-// [  ] operator int&()
-// [  ] operator int() const
-//
-// class MyInplaceTestObject
-//--------------------------
-//
 // class TestSharedPtrRep
 //-----------------------
 // [  ] TestSharedPtrRep(TYPE *dataPtr_p, bslma::Allocator *basicAllocator)
@@ -437,11 +476,10 @@ using namespace BloombergLP;
 // [  ] std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 // [  ] void TestDriver::doNotDelete(TYPE *)
 //
+
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
@@ -500,6 +538,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+# define ASSERT_NOEXCEPT(...) ASSERT(noexcept(__VA_ARGS__))
+#else
+# define ASSERT_NOEXCEPT(...)
+#endif
+// ============================================================================
+//                              USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+
 // Disable specific bde_verify warnings where practice of usage example may
 // differ.
 
@@ -509,10 +560,6 @@ void aSsErT(bool condition, const char *message, int line)
 // BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
 // BDE_VERIFY pragma: -FD02  // Banners diagnose badly unless we fix for FD01
 // BDE_VERIFY pragma: -FD03  // no contract, so no ticks
-
-// ============================================================================
-//                              USAGE EXAMPLES
-// ----------------------------------------------------------------------------
 
 namespace NAMESPACE_USAGE_EXAMPLE_1 {
 
@@ -923,9 +970,9 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 //..
     ;
 
-    void search(bsl::vector<SearchResult>       */* results */,
+    void search(bsl::vector<SearchResult>       * /* results */,
                 const PeerCache&                 peerCache,
-                const bsl::vector<bsl::string>&  /* keywords */)
+                const bsl::vector<bsl::string>&   /* keywords */)
     {
         for (PeerCache::PeerConstIter iter = peerCache.begin();
              iter != peerCache.end();
@@ -978,19 +1025,15 @@ struct UsesBslmaAllocator<NAMESPACE_USAGE_EXAMPLE_1::MyUser>
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef BloombergLP::bslmf::MovableRefUtil MovUtil;
+
 // 'MyTestObject' CLASS HIERARCHY (defined below)
 class MyTestObject;
-class MyInplaceTestObject;
 class MyTestBaseObject;
 class MyTestDerivedObject;
 
 // OTHER TEST OBJECTS (defined below)
 class MyPDTestObject;
-class MyInplaceTestObject;
-
-// SUPPORT TYPES FOR OTHER TEST OBJECTS (defined below)
-template <int N>
-class MyTestArg;
 
 // TEST DELETERS SECTION (defined below)
 class MyTestObjectFactory;
@@ -1002,10 +1045,20 @@ template <class POINTER>
 struct PerformanceTester;
 
 // TYPEDEFS
-typedef bsl::shared_ptr<MyTestObject> Obj;
-typedef bsl::shared_ptr<const MyTestObject> ConstObj;
-typedef bsl::shared_ptr<MyInplaceTestObject> TCObj;
-typedef MyTestObject TObj;
+typedef bsltf::AllocEmplacableTestType      MyInplaceAllocatableObject;
+typedef bsltf::EmplacableTestType           MyInplaceTestObject;
+
+typedef bsl::shared_ptr<MyTestObject>               Obj;
+typedef bsl::shared_ptr<const MyTestObject>         ConstObj;
+typedef bsl::shared_ptr<MyInplaceTestObject>        TCObj;
+typedef bsl::shared_ptr<MyInplaceAllocatableObject> TCAObj;
+typedef MyTestObject                                TObj;
+
+// GLOBAL VERBOSITY FLAGS
+bool             verbose = false;
+bool         veryVerbose = false;
+bool     veryVeryVerbose = false;
+bool veryVeryVeryVerbose = false;
 
 //=============================================================================
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -1133,6 +1186,15 @@ class MyTestDerivedObject : public MyTestObject2, public MyTestObject {
 
                          // *** OTHER TEST OBJECTS ***
 
+                       // =================
+                       // class MyAggregate
+                       // =================
+
+struct MyAggregate {
+    int    d_first;
+    double d_second;
+};
+
                        // ======================
                        // class MostEvilTestType
                        // ======================
@@ -1178,6 +1240,15 @@ class MostEvilTestType {
     int data() const { return d_data; }
         // Return the value of the 'data' attribute of this object.
 };
+
+#if defined(BSLSTL_SHAREDPTR_TEST_EVIL_BUILD_FAIL)
+namespace ConfirmTypeIsEvil
+{
+char g_buffer[sizeof(MostEvilTestType)];
+MostEvilTestType *g_addr = reinterpret_cast<MostEvilTestType*>(&g_buffer[0]);
+void *g_fail = new(g_addr) MostEvilTestType(5);
+}
+#endif
 
                      // =======================
                      // class ConstructorFailed
@@ -1245,383 +1316,47 @@ class MyPDTestObject {
         // Destroy this object.
 };
 
-                         // ====================
-                         // class MyTestArg<int>
-                         // ====================
+                         // =================
+                         // class MyTestArgNN
+                         // =================
 
-template <int N>
-class MyTestArg {
-    // This class template declares a separate type for each template parameter
-    // value 'N', that wraps an integer value and provides implicit conversion
-    // to and from 'int'.  Its main purpose is that having separate types for
-    // testing enables distinguishing them when calling through a function
-    // template interface, thereby avoiding ambiguities or accidental switching
-    // of arguments in the implementation of in-place constructors.
+typedef bsltf::ArgumentType< 1> MyTestArg01;
+typedef bsltf::ArgumentType< 2> MyTestArg02;
+typedef bsltf::ArgumentType< 3> MyTestArg03;
+typedef bsltf::ArgumentType< 4> MyTestArg04;
+typedef bsltf::ArgumentType< 5> MyTestArg05;
+typedef bsltf::ArgumentType< 6> MyTestArg06;
+typedef bsltf::ArgumentType< 7> MyTestArg07;
+typedef bsltf::ArgumentType< 8> MyTestArg08;
+typedef bsltf::ArgumentType< 9> MyTestArg09;
+typedef bsltf::ArgumentType<10> MyTestArg10;
+typedef bsltf::ArgumentType<11> MyTestArg11;
+typedef bsltf::ArgumentType<12> MyTestArg12;
+typedef bsltf::ArgumentType<13> MyTestArg13;
+typedef bsltf::ArgumentType<14> MyTestArg14;
+    // Define fourteen test argument types 'MyTestArg01..14' to be used with
+    // the in-place constructors of 'MyInplaceTestObject'.
 
-    // DATA
-    int d_value;
+                         // ========================
+                         // class MyAllocatableArgNN
+                         // ========================
 
-  public:
-    // CREATORS
-    explicit MyTestArg(int value = -1) : d_value(value) {}
-        // Create a test argument object having the optionally specified
-        // 'value', and having the value '-1' otherwise.
-
-    // ACCESSORS
-    operator int() const { return d_value; }
-        // Return the value of this test argument object.
-};
-
-typedef MyTestArg< 1> MyTestArg1;
-typedef MyTestArg< 2> MyTestArg2;
-typedef MyTestArg< 3> MyTestArg3;
-typedef MyTestArg< 4> MyTestArg4;
-typedef MyTestArg< 5> MyTestArg5;
-typedef MyTestArg< 6> MyTestArg6;
-typedef MyTestArg< 7> MyTestArg7;
-typedef MyTestArg< 8> MyTestArg8;
-typedef MyTestArg< 9> MyTestArg9;
-typedef MyTestArg<10> MyTestArg10;
-typedef MyTestArg<11> MyTestArg11;
-typedef MyTestArg<12> MyTestArg12;
-typedef MyTestArg<13> MyTestArg13;
-typedef MyTestArg<14> MyTestArg14;
-    // Define fourteen test argument types 'MyTestArg1..14' to be used with the
-    // in-place constructors of 'MyInplaceTestObject'.
-
-                         // =========================
-                         // class MyInplaceTestObject
-                         // =========================
-
-class MyInplaceTestObject {
-    // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
-
-    // DATA
-    MyTestArg1  d_a1;
-    MyTestArg2  d_a2;
-    MyTestArg3  d_a3;
-    MyTestArg4  d_a4;
-    MyTestArg5  d_a5;
-    MyTestArg6  d_a6;
-    MyTestArg7  d_a7;
-    MyTestArg8  d_a8;
-    MyTestArg9  d_a9;
-    MyTestArg10 d_a10;
-    MyTestArg11 d_a11;
-    MyTestArg12 d_a12;
-    MyTestArg13 d_a13;
-    MyTestArg14 d_a14;
-    static int  s_numDeletes;
-
-  public:
-    // CREATORS
-    MyInplaceTestObject();
-    explicit MyInplaceTestObject(MyTestArg1 a1);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13, MyTestArg14 a14);
-        // Create a 'MyInplaceTestObject' by initializing the data members
-        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and initializing any
-        // remaining data members with their default value (-1).
-
-    ~MyInplaceTestObject();
-        // Increment the count of calls to this destructor, and destroy this
-        // object.
-
-    // ACCESSORS
-    bool operator==(const MyInplaceTestObject& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'MyInplaceTestObject' objects
-        // have the same value if each of their corresponding data members
-        // 'd1'..'d14' have the same value.
-
-    static int getNumDeletes();
-        // Return the number of times an object of this type has been
-        // destroyed.
-};
-
-                         // -------------------------
-                         // class MyInplaceTestObject
-                         // -------------------------
-
-int MyInplaceTestObject::s_numDeletes = 0;
-
-// CREATORS
-MyInplaceTestObject::MyInplaceTestObject()
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1)
-: d_a1(a1)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
-: d_a1(a1)
-, d_a2(a2)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8,
-                                         MyTestArg9 a9)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8,
-                                         MyTestArg9 a9, MyTestArg10 a10)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-, d_a10(a10)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
-                                         MyTestArg3  a3, MyTestArg4  a4,
-                                         MyTestArg5  a5, MyTestArg6  a6,
-                                         MyTestArg7  a7, MyTestArg8  a8,
-                                         MyTestArg9  a9, MyTestArg10 a10,
-                                         MyTestArg11 a11)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-, d_a10(a10)
-, d_a11(a11)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-, d_a10(a10)
-, d_a11(a11)
-, d_a12(a12)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12,
-                                         MyTestArg13 a13)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-, d_a10(a10)
-, d_a11(a11)
-, d_a12(a12)
-, d_a13(a13)
-{
-}
-
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12,
-                                         MyTestArg13 a13, MyTestArg14 a14)
-: d_a1(a1)
-, d_a2(a2)
-, d_a3(a3)
-, d_a4(a4)
-, d_a5(a5)
-, d_a6(a6)
-, d_a7(a7)
-, d_a8(a8)
-, d_a9(a9)
-, d_a10(a10)
-, d_a11(a11)
-, d_a12(a12)
-, d_a13(a13)
-, d_a14(a14)
-{
-}
-
-inline
-MyInplaceTestObject::~MyInplaceTestObject()
-{
-    ++s_numDeletes;
-}
-
-// ACCESSORS
-bool MyInplaceTestObject::operator==(const MyInplaceTestObject& rhs) const
-{
-    return d_a1  == rhs.d_a1  &&
-           d_a1  == rhs.d_a1  &&
-           d_a2  == rhs.d_a2  &&
-           d_a3  == rhs.d_a3  &&
-           d_a4  == rhs.d_a4  &&
-           d_a5  == rhs.d_a5  &&
-           d_a6  == rhs.d_a6  &&
-           d_a7  == rhs.d_a7  &&
-           d_a8  == rhs.d_a8  &&
-           d_a9  == rhs.d_a9  &&
-           d_a10 == rhs.d_a10 &&
-           d_a11 == rhs.d_a11 &&
-           d_a12 == rhs.d_a12 &&
-           d_a13 == rhs.d_a13 &&
-           d_a14 == rhs.d_a14;
-}
-
-int MyInplaceTestObject::getNumDeletes()
-{
-    return s_numDeletes;
-}
+typedef bsltf::AllocArgumentType< 1> MyAllocatableArg01;
+typedef bsltf::AllocArgumentType< 2> MyAllocatableArg02;
+typedef bsltf::AllocArgumentType< 3> MyAllocatableArg03;
+typedef bsltf::AllocArgumentType< 4> MyAllocatableArg04;
+typedef bsltf::AllocArgumentType< 5> MyAllocatableArg05;
+typedef bsltf::AllocArgumentType< 6> MyAllocatableArg06;
+typedef bsltf::AllocArgumentType< 7> MyAllocatableArg07;
+typedef bsltf::AllocArgumentType< 8> MyAllocatableArg08;
+typedef bsltf::AllocArgumentType< 9> MyAllocatableArg09;
+typedef bsltf::AllocArgumentType<10> MyAllocatableArg10;
+typedef bsltf::AllocArgumentType<11> MyAllocatableArg11;
+typedef bsltf::AllocArgumentType<12> MyAllocatableArg12;
+typedef bsltf::AllocArgumentType<13> MyAllocatableArg13;
+typedef bsltf::AllocArgumentType<14> MyAllocatableArg14;
+    // Define fourteen test argument types 'MyAllocatableArg01..14' to be used
+    // with the in-place constructors of 'MyInplaceAllocatableObject'.
 
 
                        // *** TEST DELETERS SECTION ***
@@ -1772,11 +1507,8 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
 
     TestSharedPtrRep(TYPE *dataPtr_p, bslma::Allocator *basicAllocator);
         // Construct a test shared ptr rep object owning the object pointed to
-        // by the specified 'dataPtr_p' and that should be destroyed using the
+        // by the specified 'dataPtr_p', which should be destroyed using the
         // specified 'basicAllocator'.
-        // AJM CHANGING THE CONTRACT, TO SHARE TEST TYPES WITH THE ORIGINAL
-        // SHARED_PTR TEST DRIVER, WHICH ALSO MORE THOROUGHLY TESTS AWKWARD
-        // MULTIPLE-INHERITANCE CASES.
 
     ~TestSharedPtrRep();
         // Destroy this test shared ptr rep object.
@@ -1914,10 +1646,11 @@ class ShareThis : public bsl::enable_shared_from_this<ShareThis>
   public:
     // CREATORS
     explicit ShareThis(int *destructorCount)
-        // Create a 'ShareThis' object using the specified 'destructorCount'
-        // to report when this object is destroyed.
+        // Create a 'ShareThis' object using the specified 'destructorCount' to
+        // report when this object is destroyed.
         : d_destructorCount_p(destructorCount)
-    {}
+    {
+    }
 
     virtual ~ShareThis()
         // Increment the integer supplied at construction.
@@ -1944,10 +1677,13 @@ class ShareThisDerived : public ShareThis
         // Create a 'ShareThisDerived' object using the specified
         // 'destructorCount' to report when this object is destroyed.
         : ShareThis(destructorCount)
-    {}
+    {
+    }
 
     ~ShareThisDerived()
-        // Increment by 10 the integer supplied at construction.
+        // Increment by 10 the integer referenced by 'd_destructorCount_p',
+        // then destroy this object.  Note that the base class destructor will
+        // also increment the same integer, for a combined raise of 11.
     {
         *d_destructorCount_p += 10;
     }
@@ -1972,7 +1708,7 @@ template <class TYPE>
 struct UsesBslmaAllocator<NonOwningRep<TYPE> >
      : bsl::false_type {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 // ============================================================================
@@ -2810,6 +2546,13 @@ class SelfReference
 };
 
 
+#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
+
 std::auto_ptr<MyTestObject> makeAuto()
     // Return an empty 'auto_ptr' rvalue.
 {
@@ -2824,10 +2567,47 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 
     return std::auto_ptr<TObj>(new TObj(counter));
 }
-
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic pop
+# endif
+#endif
 //=============================================================================
 //                          TEST CASE TEMPLATES
 //-----------------------------------------------------------------------------
+
+// One allocator or an array of 14?
+static bslma::TestAllocator g_argAlloc("global arguments allocator",
+                                       veryVeryVeryVerbose);
+
+static const MyTestArg01 V01(1);
+static const MyTestArg02 V02(20);
+static const MyTestArg03 V03(23);
+static const MyTestArg04 V04(44);
+static const MyTestArg05 V05(66);
+static const MyTestArg06 V06(176);
+static const MyTestArg07 V07(878);
+static const MyTestArg08 V08(8);
+static const MyTestArg09 V09(912);
+static const MyTestArg10 V10(102);
+static const MyTestArg11 V11(111);
+static const MyTestArg12 V12(333);
+static const MyTestArg13 V13(712);
+static const MyTestArg14 V14(1414);
+
+static const MyAllocatableArg01 VA01(1,    &g_argAlloc);
+static const MyAllocatableArg02 VA02(20,   &g_argAlloc);
+static const MyAllocatableArg03 VA03(23,   &g_argAlloc);
+static const MyAllocatableArg04 VA04(44,   &g_argAlloc);
+static const MyAllocatableArg05 VA05(66,   &g_argAlloc);
+static const MyAllocatableArg06 VA06(176,  &g_argAlloc);
+static const MyAllocatableArg07 VA07(878,  &g_argAlloc);
+static const MyAllocatableArg08 VA08(8,    &g_argAlloc);
+static const MyAllocatableArg09 VA09(912,  &g_argAlloc);
+static const MyAllocatableArg10 VA10(102,  &g_argAlloc);
+static const MyAllocatableArg11 VA11(111,  &g_argAlloc);
+static const MyAllocatableArg12 VA12(333,  &g_argAlloc);
+static const MyAllocatableArg13 VA13(712,  &g_argAlloc);
+static const MyAllocatableArg14 VA14(1414, &g_argAlloc);
 
 namespace TestDriver {
 
@@ -2838,23 +2618,1683 @@ void doNotDelete(TYPE *) {}
 }  // close namespace TestDriver
 
 
-template <class ALLOCATOR>
-struct TestHarness {
-    static void testCase33(bool verbose,
-                           bool veryVerbose,
-                           bool veryVeryVerbose,
-                           bool veryVeryVeryVerbose);
-        // Implement test case 33 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
+struct Harness {
+    template <class ALLOCATOR>
+    static bslma::Allocator *extractBslma(ALLOCATOR basicAllocator) {
+        return basicAllocator.testAllocator();
+    }
+
+    template <class ALLOCATOR>
+    static bslma::Allocator *extractBslma(ALLOCATOR *basicAllocator) {
+        return basicAllocator;
+    }
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14>
+    static void prepareObject(MyInplaceAllocatableObject* target,
+                              MyAllocatableArg01&         A01,
+                              MyAllocatableArg02&         A02,
+                              MyAllocatableArg03&         A03,
+                              MyAllocatableArg04&         A04,
+                              MyAllocatableArg05&         A05,
+                              MyAllocatableArg06&         A06,
+                              MyAllocatableArg07&         A07,
+                              MyAllocatableArg08&         A08,
+                              MyAllocatableArg09&         A09,
+                              MyAllocatableArg10&         A10,
+                              MyAllocatableArg11&         A11,
+                              MyAllocatableArg12&         A12,
+                              MyAllocatableArg13&         A13,
+                              MyAllocatableArg14&         A14);
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14>
+    static void testCase23_RunTest(
+                     bsl::shared_ptr<const MyInplaceAllocatableObject> target);
+        // Implement test case 23 for a single set of arguments to
+        // 'createInplace'.  See the test case function for documented concerns
+        // and test plan.
+
+    static void testCase23(
+                     bsl::shared_ptr<const MyInplaceAllocatableObject> target);
+        // Implement test case 23 iterating over all sets of arguments where
+        // there is a concern to demonstrate that arguments forward correctly.
+        // See the test case function for documented concerns and test plan.
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14>
+    static void testCase32_DefaultAllocator();
+        // Implement test case 32 for the specified (template type parameter)
+        // 'ALLOCATOR'.  See the test case function for documented concerns and
+        // test plan.
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14>
+    static void testCase32_LocalAllocator();
+        // Implement test case 32 for the specified (template type parameter)
+        // 'ALLOCATOR'.  See the test case function for documented concerns and
+        // test plan.
+
+    template <class ALLOCATOR>
+    static void testCase33(ALLOCATOR basicAllocator);
+        // Implement test case 33 for the specified (template type parameter)
+        // 'ALLOCATOR'.  See the test case function for documented concerns and
+        // test plan.
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14,
+              class ALLOCATOR>
+    static void testCase33_RunTest(ALLOCATOR basicAllocator);
+        // Implement test case 33 for the specified (template type parameter)
+        // 'ALLOCATOR'.  See the test case function for documented concerns and
+        // test plan.
+
+    template <int N_ARGS,
+              int N01,
+              int N02,
+              int N03,
+              int N04,
+              int N05,
+              int N06,
+              int N07,
+              int N08,
+              int N09,
+              int N10,
+              int N11,
+              int N12,
+              int N13,
+              int N14>
+    static void testCase34_AllocatorAware();
+        // Implement test case 34 for the specified (template type parameter)
+        // 'ALLOCATOR'.  See the test case function for documented concerns and
+        // test plan.
+
+    template <class T>
+    static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
+    template <class T>
+    static const T&             testArg(T& t, bsl::false_type);
+        // TBD write a contract for these overloads
 };
 
+
+// Inline methods are defined before the remaining class methods.
+
+template <class T>
+inline
+bslmf::MovableRef<T> Harness::testArg(T& t, bsl::true_type)
+{
+    return bslmf::MovableRefUtil::move(t);
+}
+
+template <class T>
+inline
+const T& Harness::testArg(T& t, bsl::false_type)
+{
+    return  t;
+}
+
+
+// Remaining class methods for 'Harness'.
+
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14>
+void Harness::prepareObject(MyInplaceAllocatableObject *target,
+                            MyAllocatableArg01&         A01,
+                            MyAllocatableArg02&         A02,
+                            MyAllocatableArg03&         A03,
+                            MyAllocatableArg04&         A04,
+                            MyAllocatableArg05&         A05,
+                            MyAllocatableArg06&         A06,
+                            MyAllocatableArg07&         A07,
+                            MyAllocatableArg08&         A08,
+                            MyAllocatableArg09&         A09,
+                            MyAllocatableArg10&         A10,
+                            MyAllocatableArg11&         A11,
+                            MyAllocatableArg12&         A12,
+                            MyAllocatableArg13&         A13,
+                            MyAllocatableArg14&         A14)
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+    switch (N_ARGS) {
+      case 0: {
+        new(target) MyInplaceAllocatableObject();
+      }  break;
+      case 1: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01));
+      }  break;
+      case 2: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02));
+      }  break;
+      case 3: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03));
+      }  break;
+      case 4: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04));
+      }  break;
+      case 5: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05));
+      }  break;
+      case 6: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06));
+      }  break;
+      case 7: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07));
+      }  break;
+      case 8: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08));
+      }  break;
+      case 9: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09));
+      }  break;
+      case 10: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09),
+                                               testArg(A10, MOVE_10));
+      }  break;
+      case 11: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09),
+                                               testArg(A10, MOVE_10),
+                                               testArg(A11, MOVE_11));
+      }  break;
+      case 12: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09),
+                                               testArg(A10, MOVE_10),
+                                               testArg(A11, MOVE_11),
+                                               testArg(A12, MOVE_12));
+      }  break;
+      case 13: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09),
+                                               testArg(A10, MOVE_10),
+                                               testArg(A11, MOVE_11),
+                                               testArg(A12, MOVE_12),
+                                               testArg(A13, MOVE_13));
+      }  break;
+      case 14: {
+        new(target) MyInplaceAllocatableObject(testArg(A01, MOVE_01),
+                                               testArg(A02, MOVE_02),
+                                               testArg(A03, MOVE_03),
+                                               testArg(A04, MOVE_04),
+                                               testArg(A05, MOVE_05),
+                                               testArg(A06, MOVE_06),
+                                               testArg(A07, MOVE_07),
+                                               testArg(A08, MOVE_08),
+                                               testArg(A09, MOVE_09),
+                                               testArg(A10, MOVE_10),
+                                               testArg(A11, MOVE_11),
+                                               testArg(A12, MOVE_12),
+                                               testArg(A13, MOVE_13),
+                                               testArg(A14, MOVE_14));
+      }  break;
+    };
+
+    // The next two blocks are testing 'MyInplaceAllocatableObject', and belong
+    // in its own test driver.  Retained for now.
+
+    const MyInplaceAllocatableObject& EXP = *target;
+
+    ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01() || 2 == N01);
+    ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02() || 2 == N02);
+    ASSERTV(VA03, EXP.arg03(), VA03 == EXP.arg03() || 2 == N03);
+    ASSERTV(VA04, EXP.arg04(), VA04 == EXP.arg04() || 2 == N04);
+    ASSERTV(VA05, EXP.arg05(), VA05 == EXP.arg05() || 2 == N05);
+    ASSERTV(VA06, EXP.arg06(), VA06 == EXP.arg06() || 2 == N06);
+    ASSERTV(VA07, EXP.arg07(), VA07 == EXP.arg07() || 2 == N07);
+    ASSERTV(VA08, EXP.arg08(), VA08 == EXP.arg08() || 2 == N08);
+    ASSERTV(VA09, EXP.arg09(), VA09 == EXP.arg09() || 2 == N09);
+    ASSERTV(VA10, EXP.arg10(), VA10 == EXP.arg10() || 2 == N10);
+    ASSERTV(VA11, EXP.arg11(), VA11 == EXP.arg11() || 2 == N11);
+    ASSERTV(VA12, EXP.arg12(), VA12 == EXP.arg12() || 2 == N12);
+    ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13() || 2 == N13);
+    ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14() || 2 == N14);
+
+    ASSERTV(da, EXP.arg01().getAllocator(), da == EXP.arg01().getAllocator());
+    ASSERTV(da, EXP.arg02().getAllocator(), da == EXP.arg02().getAllocator());
+    ASSERTV(da, EXP.arg03().getAllocator(), da == EXP.arg03().getAllocator());
+    ASSERTV(da, EXP.arg04().getAllocator(), da == EXP.arg04().getAllocator());
+    ASSERTV(da, EXP.arg05().getAllocator(), da == EXP.arg05().getAllocator());
+    ASSERTV(da, EXP.arg06().getAllocator(), da == EXP.arg06().getAllocator());
+    ASSERTV(da, EXP.arg07().getAllocator(), da == EXP.arg07().getAllocator());
+    ASSERTV(da, EXP.arg08().getAllocator(), da == EXP.arg08().getAllocator());
+    ASSERTV(da, EXP.arg09().getAllocator(), da == EXP.arg09().getAllocator());
+    ASSERTV(da, EXP.arg10().getAllocator(), da == EXP.arg10().getAllocator());
+    ASSERTV(da, EXP.arg11().getAllocator(), da == EXP.arg11().getAllocator());
+    ASSERTV(da, EXP.arg12().getAllocator(), da == EXP.arg12().getAllocator());
+    ASSERTV(da, EXP.arg13().getAllocator(), da == EXP.arg13().getAllocator());
+    ASSERTV(da, EXP.arg14().getAllocator(), da == EXP.arg14().getAllocator());
+}
+
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14>
+void Harness::testCase23_RunTest(
+                      bsl::shared_ptr<const MyInplaceAllocatableObject> target)
+{
+    // This function will call itself recursively until it makes a 'shared_ptr'
+    // with a shared ownership that survives the 'createInplace' call.  This
+    // may be 0, 1, or 2 recursions, depending on the initial 'use_count' of
+    // 'target'.
+
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+
+    // First prepare a test object to compare against the shared object
+    // constructed by allocate_shared.  In particular, we want to pay attention
+    // to the moved-from state of each argument, and the final value of the
+    // whole test object.
+
+    bslma::TestAllocator localArgAlloc("local arguments allocator",
+                                               veryVeryVeryVerbose);
+
+    // 14 argumments, all using a local test allocator
+    MyAllocatableArg01 A01(VA01, &localArgAlloc);
+    MyAllocatableArg02 A02(VA02, &localArgAlloc);
+    MyAllocatableArg03 A03(VA03, &localArgAlloc);
+    MyAllocatableArg04 A04(VA04, &localArgAlloc);
+    MyAllocatableArg05 A05(VA05, &localArgAlloc);
+    MyAllocatableArg06 A06(VA06, &localArgAlloc);
+    MyAllocatableArg07 A07(VA07, &localArgAlloc);
+    MyAllocatableArg08 A08(VA08, &localArgAlloc);
+    MyAllocatableArg09 A09(VA09, &localArgAlloc);
+    MyAllocatableArg10 A10(VA10, &localArgAlloc);
+    MyAllocatableArg11 A11(VA11, &localArgAlloc);
+    MyAllocatableArg12 A12(VA12, &localArgAlloc);
+    MyAllocatableArg13 A13(VA13, &localArgAlloc);
+    MyAllocatableArg14 A14(VA14, &localArgAlloc);
+
+    bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
+
+    prepareObject<
+              N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
+    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+
+    bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
+                                                             &buffer.object());
+    const MyInplaceAllocatableObject& EXP = buffer.object();
+
+    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
+    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
+    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
+    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
+    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
+    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
+    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
+    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
+    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
+    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
+    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
+    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
+    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
+    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bslma::TestAllocator ta("test allocator for createInplace tests",
+                            veryVeryVeryVerbose);
+
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+
+    {
+        bslma::TestAllocator testArgAlloc("test arguments allocator",
+                                          veryVeryVeryVerbose);
+
+        // 14 argumments, all using a specific test allocator
+        MyAllocatableArg01 B01(VA01, &testArgAlloc);
+        MyAllocatableArg02 B02(VA02, &testArgAlloc);
+        MyAllocatableArg03 B03(VA03, &testArgAlloc);
+        MyAllocatableArg04 B04(VA04, &testArgAlloc);
+        MyAllocatableArg05 B05(VA05, &testArgAlloc);
+        MyAllocatableArg06 B06(VA06, &testArgAlloc);
+        MyAllocatableArg07 B07(VA07, &testArgAlloc);
+        MyAllocatableArg08 B08(VA08, &testArgAlloc);
+        MyAllocatableArg09 B09(VA09, &testArgAlloc);
+        MyAllocatableArg10 B10(VA10, &testArgAlloc);
+        MyAllocatableArg11 B11(VA11, &testArgAlloc);
+        MyAllocatableArg12 B12(VA12, &testArgAlloc);
+        MyAllocatableArg13 B13(VA13, &testArgAlloc);
+        MyAllocatableArg14 B14(VA14, &testArgAlloc);
+
+        bsl::shared_ptr<const MyInplaceAllocatableObject>
+                                                     mX(MovUtil::move(target));
+        const bsl::shared_ptr<const MyInplaceAllocatableObject>& X = mX;
+
+        long initialUseCount = X.use_count();
+
+        switch (N_ARGS) {
+          case 0: {
+            mX.createInplace(&ta);
+          } break;
+          case 1: {
+            mX.createInplace(&ta, testArg(B01, MOVE_01));
+          } break;
+          case 2: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02));
+          } break;
+          case 3: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03));
+          } break;
+          case 4: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04));
+          } break;
+          case 5: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05));
+          } break;
+          case 6: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06));
+          } break;
+          case 7: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07));
+          } break;
+          case 8: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08));
+          } break;
+          case 9: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09));
+          } break;
+          case 10: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09),
+                              testArg(B10, MOVE_10));
+          } break;
+          case 11: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09),
+                              testArg(B10, MOVE_10),
+                              testArg(B11, MOVE_11));
+          } break;
+          case 12: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09),
+                              testArg(B10, MOVE_10),
+                              testArg(B11, MOVE_11),
+                              testArg(B12, MOVE_12));
+          } break;
+          case 13: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09),
+                              testArg(B10, MOVE_10),
+                              testArg(B11, MOVE_11),
+                              testArg(B12, MOVE_12),
+                              testArg(B13, MOVE_13));
+          } break;
+          case 14: {
+            mX.createInplace(&ta,
+                              testArg(B01, MOVE_01),
+                              testArg(B02, MOVE_02),
+                              testArg(B03, MOVE_03),
+                              testArg(B04, MOVE_04),
+                              testArg(B05, MOVE_05),
+                              testArg(B06, MOVE_06),
+                              testArg(B07, MOVE_07),
+                              testArg(B08, MOVE_08),
+                              testArg(B09, MOVE_09),
+                              testArg(B10, MOVE_10),
+                              testArg(B11, MOVE_11),
+                              testArg(B12, MOVE_12),
+                              testArg(B13, MOVE_13),
+                              testArg(B14, MOVE_14));
+          } break;
+        };
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(1 == X.use_count());
+        ASSERT(X.get());
+        ASSERT(EXP == *X);
+        ASSERTV(da, X->getAllocator(), da == X->getAllocator() );
+
+        ASSERT(A01.movedFrom() == B01.movedFrom());
+        ASSERT(A02.movedFrom() == B02.movedFrom());
+        ASSERT(A03.movedFrom() == B03.movedFrom());
+        ASSERT(A04.movedFrom() == B04.movedFrom());
+        ASSERT(A05.movedFrom() == B05.movedFrom());
+        ASSERT(A06.movedFrom() == B06.movedFrom());
+        ASSERT(A07.movedFrom() == B07.movedFrom());
+        ASSERT(A08.movedFrom() == B08.movedFrom());
+        ASSERT(A09.movedFrom() == B09.movedFrom());
+        ASSERT(A10.movedFrom() == B10.movedFrom());
+        ASSERT(A11.movedFrom() == B11.movedFrom());
+        ASSERT(A12.movedFrom() == B12.movedFrom());
+        ASSERT(A13.movedFrom() == B13.movedFrom());
+        ASSERT(A14.movedFrom() == B14.movedFrom());
+
+        if (1 == initialUseCount) {
+            // TBD: confirm that the original shared object was destroyed, that
+            // the 'rep' object was de-allocated, and that de-allocation was
+            // performed with the correct allocator.
+        }
+
+        if (initialUseCount < 2) {
+            testCase23_RunTest<N_ARGS,
+                               N01, N02, N03, N04, N05, N06, N07,
+                               N08, N09, N10, N11, N12, N13, N14>(X);
+        }
+    }
+    ASSERT(++numDeallocations == ta.numDeallocations());
+
+    ASSERT(dam.isInUseSame());
+}
+
+void Harness::testCase23(
+                      bsl::shared_ptr<const MyInplaceAllocatableObject> target)
+{
+    // --------------------------------------------------------------------
+    // TESTING 'createInplace(A, ...)'
+    //
+    // Concerns:
+    //   All constructor is able to initialize the object correctly.
+    //
+    // Plan:
+    //   Call all 14 different constructors and supply it with the
+    //   appropriate arguments.  Then verify that the object created inside
+    //   the representation is initialized using the arguments supplied.
+    //
+    // Testing:
+    //   void createInplace(bslma::Allocator *allocator=0)
+    //   void createInplace(bslma::Allocator *, const A1& a1)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a2)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a3)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a4)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a5)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a6)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a7)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a8)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a9)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a10)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a11)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a12)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a13)
+    //   void createInplace(bslma::Allocator *, const A1& a1, ...& a14)
+    // --------------------------------------------------------------------
+
+#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+    if (verbose) printf("\nTesting 'createInplace' with 0 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 1 argument"
+                        "\n---------------------------------------\n");
+
+    testCase23_RunTest<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 2 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 3 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>(target);
+
+# if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+    if (verbose) printf("\nTesting 'createInplace' with 4 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 5 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 6 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 7 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 8 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 9 arguments"
+                        "\n-------------....-----------------------\n");
+
+    testCase23_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>(target);
+    testCase23_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 10 arguments"
+                        "\n-----------------....--------------------\n");
+
+    testCase23_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>(target);
+    testCase23_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 11 arguments"
+                        "\n------------------....-------------------\n");
+
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>(target);
+    testCase23_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 12 arguments"
+                        "\n-------------------....------------------\n");
+
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>(target);
+    testCase23_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 13 arguments"
+                        "\n-----------------....--------------------\n");
+
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>(target);
+    testCase23_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>(target);
+# else // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+    if (verbose) printf("\nTesting 'createInplace' with 4 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 5 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 6 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 7 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 8 arguments"
+                        "\n----------------------------------------\n");
+
+    testCase23_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 9 arguments"
+                        "\n-------------....-----------------------\n");
+
+    testCase23_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 10 arguments"
+                        "\n-----------------....--------------------\n");
+
+    testCase23_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 11 arguments"
+                        "\n------------------....-------------------\n");
+
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 12 arguments"
+                        "\n-------------------....------------------\n");
+
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>(target);
+
+    if (verbose) printf("\nTesting 'createInplace' with 13 arguments"
+                        "\n-----------------....--------------------\n");
+
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>(target);
+# endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+
+    if (verbose) printf("\nTesting 'createInplace' with 14 arguments"
+                        "\n-----------------------------------------\n");
+
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(target);
+    testCase23_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(target);
+#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+    testCase23_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(target);
+    testCase23_RunTest< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(target);
+    testCase23_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(target);
+    testCase23_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(target);
+    testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
+    testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
+    testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(target);
+#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+}
+
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14>
+void Harness::testCase32_DefaultAllocator()
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+
+    // First prepare a test object to compare against the shared object
+    // constructed by allocate_shared.  In particular, we want to pay attention
+    // to the moved-from state of each argument, and the final value of the
+    // whole test object.
+
+    // 14 argumments, all using a local test allocator
+    MyAllocatableArg01 A01(VA01);
+    MyAllocatableArg02 A02(VA02);
+    MyAllocatableArg03 A03(VA03);
+    MyAllocatableArg04 A04(VA04);
+    MyAllocatableArg05 A05(VA05);
+    MyAllocatableArg06 A06(VA06);
+    MyAllocatableArg07 A07(VA07);
+    MyAllocatableArg08 A08(VA08);
+    MyAllocatableArg09 A09(VA09);
+    MyAllocatableArg10 A10(VA10);
+    MyAllocatableArg11 A11(VA11);
+    MyAllocatableArg12 A12(VA12);
+    MyAllocatableArg13 A13(VA13);
+    MyAllocatableArg14 A14(VA14);
+
+    bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
+    prepareObject<
+              N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
+    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+
+    bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
+                                                             &buffer.object());
+    const MyInplaceAllocatableObject& EXP = buffer.object();
+
+    ASSERT(MOVE_01 == A01.movedFrom());
+    ASSERT(MOVE_02 == A02.movedFrom());
+    ASSERT(MOVE_03 == A03.movedFrom());
+    ASSERT(MOVE_04 == A04.movedFrom());
+    ASSERT(MOVE_05 == A05.movedFrom());
+    ASSERT(MOVE_06 == A06.movedFrom());
+    ASSERT(MOVE_07 == A07.movedFrom());
+    ASSERT(MOVE_08 == A08.movedFrom());
+    ASSERT(MOVE_09 == A09.movedFrom());
+    ASSERT(MOVE_10 == A10.movedFrom());
+    ASSERT(MOVE_11 == A11.movedFrom());
+    ASSERT(MOVE_12 == A12.movedFrom());
+    ASSERT(MOVE_13 == A13.movedFrom());
+    ASSERT(MOVE_14 == A14.movedFrom());
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bsls::Types::Int64 numAllocations   = da->numAllocations();
+    bsls::Types::Int64 numDeallocations = da->numDeallocations();
+
+    // In the next block of code we will create 14 argument objects using the
+    // default allocator, and then either copy or move a certain number of them
+    // accorting to the template arguments N1 -> N14.  When we move an "arg"
+    // object, no new allocation occurs, but when we copy an "arg" object an
+    // additional allocation will occur.  We need to account the additional
+    // allocations within the scope below, but we also need to account for the
+    // de-allocations /outside/ that scope.  Also, remember the allocation of
+    // the shared 'rep' object when accounting for total allocations and
+    // deallocations.
+
+    bsls::Types::Int64 nArgCopies = 0;
+    switch (N_ARGS) {
+      case 14: if (!N14) { ++nArgCopies; }  // fall-through
+      case 13: if (!N13) { ++nArgCopies; }  // fall-through
+      case 12: if (!N12) { ++nArgCopies; }  // fall-through
+      case 11: if (!N11) { ++nArgCopies; }  // fall-through
+      case 10: if (!N10) { ++nArgCopies; }  // fall-through
+      case  9: if (!N09) { ++nArgCopies; }  // fall-through
+      case  8: if (!N08) { ++nArgCopies; }  // fall-through
+      case  7: if (!N07) { ++nArgCopies; }  // fall-through
+      case  6: if (!N06) { ++nArgCopies; }  // fall-through
+      case  5: if (!N05) { ++nArgCopies; }  // fall-through
+      case  4: if (!N04) { ++nArgCopies; }  // fall-through
+      case  3: if (!N03) { ++nArgCopies; }  // fall-through
+      case  2: if (!N02) { ++nArgCopies; }  // fall-through
+      case  1: if (!N01) { ++nArgCopies; }  // fall-through
+      case  0: break;                       // silence warnings
+    };
+
+    {
+        bslma::TestAllocator testArgAlloc("test arguments allocator",
+                                          veryVeryVeryVerbose);
+
+        // 14 argumments, all using a specific test allocator
+        MyAllocatableArg01 B01(VA01);
+        MyAllocatableArg02 B02(VA02);
+        MyAllocatableArg03 B03(VA03);
+        MyAllocatableArg04 B04(VA04);
+        MyAllocatableArg05 B05(VA05);
+        MyAllocatableArg06 B06(VA06);
+        MyAllocatableArg07 B07(VA07);
+        MyAllocatableArg08 B08(VA08);
+        MyAllocatableArg09 B09(VA09);
+        MyAllocatableArg10 B10(VA10);
+        MyAllocatableArg11 B11(VA11);
+        MyAllocatableArg12 B12(VA12);
+        MyAllocatableArg13 B13(VA13);
+        MyAllocatableArg14 B14(VA14);
+
+        bsl::shared_ptr<const MyInplaceAllocatableObject> x;
+
+        switch (N_ARGS) {
+          case 0: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>();
+          } break;
+          case 1: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01));
+          } break;
+          case 2: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02));
+          } break;
+          case 3: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03));
+          } break;
+          case 4: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04));
+          } break;
+          case 5: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05));
+          } break;
+          case 6: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06));
+          } break;
+          case 7: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07));
+          } break;
+          case 8: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08));
+          } break;
+          case 9: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09));
+          } break;
+          case 10: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10));
+          } break;
+          case 11: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11));
+          } break;
+          case 12: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12));
+          } break;
+          case 13: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13));
+          } break;
+          case 14: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13),
+                                                        testArg(B14, MOVE_14));
+          } break;
+        };
+
+        ASSERTV(numAllocations + 15 + nArgCopies,   da->numAllocations(),
+                numAllocations + 15 + nArgCopies == da->numAllocations());
+        ASSERTV(numDeallocations,   da->numDeallocations(),
+                numDeallocations == da->numDeallocations());
+
+        numAllocations   = da->numAllocations();
+        numDeallocations = da->numDeallocations();
+
+        ASSERT(1 == x.use_count());
+        ASSERT(EXP == *x);
+        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+
+        ASSERT(A01.movedFrom() == B01.movedFrom());
+        ASSERT(A02.movedFrom() == B02.movedFrom());
+        ASSERT(A03.movedFrom() == B03.movedFrom());
+        ASSERT(A04.movedFrom() == B04.movedFrom());
+        ASSERT(A05.movedFrom() == B05.movedFrom());
+        ASSERT(A06.movedFrom() == B06.movedFrom());
+        ASSERT(A07.movedFrom() == B07.movedFrom());
+        ASSERT(A08.movedFrom() == B08.movedFrom());
+        ASSERT(A09.movedFrom() == B09.movedFrom());
+        ASSERT(A10.movedFrom() == B10.movedFrom());
+        ASSERT(A11.movedFrom() == B11.movedFrom());
+        ASSERT(A12.movedFrom() == B12.movedFrom());
+        ASSERT(A13.movedFrom() == B13.movedFrom());
+        ASSERT(A14.movedFrom() == B14.movedFrom());
+    }
+    ASSERTV(numAllocations,   da->numAllocations(),
+            numAllocations == da->numAllocations());
+    ASSERTV(numDeallocations + 15 + nArgCopies,   da->numDeallocations(),
+            numDeallocations + 15 + nArgCopies == da->numDeallocations());
+
+    ASSERT(dam.isInUseSame());
+}
+
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14>
+void Harness::testCase32_LocalAllocator()
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    bslma::TestAllocator ta("test allocator for allocator-aware testCase34",
+                            veryVeryVeryVerbose);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+    // First prepare a test object to compare against the shared object
+    // constructed by allocate_shared.  In particular, we want to pay attention
+    // to the moved-from state of each argument, and the final value of the
+    // whole test object.
+
+    bslma::TestAllocator localArgAlloc("local arguments allocator",
+                                               veryVeryVeryVerbose);
+    // 14 argumments, all using a local test allocator
+    MyAllocatableArg01 A01(VA01, &localArgAlloc);
+    MyAllocatableArg02 A02(VA02, &localArgAlloc);
+    MyAllocatableArg03 A03(VA03, &localArgAlloc);
+    MyAllocatableArg04 A04(VA04, &localArgAlloc);
+    MyAllocatableArg05 A05(VA05, &localArgAlloc);
+    MyAllocatableArg06 A06(VA06, &localArgAlloc);
+    MyAllocatableArg07 A07(VA07, &localArgAlloc);
+    MyAllocatableArg08 A08(VA08, &localArgAlloc);
+    MyAllocatableArg09 A09(VA09, &localArgAlloc);
+    MyAllocatableArg10 A10(VA10, &localArgAlloc);
+    MyAllocatableArg11 A11(VA11, &localArgAlloc);
+    MyAllocatableArg12 A12(VA12, &localArgAlloc);
+    MyAllocatableArg13 A13(VA13, &localArgAlloc);
+    MyAllocatableArg14 A14(VA14, &localArgAlloc);
+
+    bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
+    prepareObject<
+              N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
+    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+
+    bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
+                                                             &buffer.object());
+    const MyInplaceAllocatableObject& EXP = buffer.object();
+
+    ASSERT(MOVE_01 == A01.movedFrom());
+    ASSERT(MOVE_02 == A02.movedFrom());
+    ASSERT(MOVE_03 == A03.movedFrom());
+    ASSERT(MOVE_04 == A04.movedFrom());
+    ASSERT(MOVE_05 == A05.movedFrom());
+    ASSERT(MOVE_06 == A06.movedFrom());
+    ASSERT(MOVE_07 == A07.movedFrom());
+    ASSERT(MOVE_08 == A08.movedFrom());
+    ASSERT(MOVE_09 == A09.movedFrom());
+    ASSERT(MOVE_10 == A10.movedFrom());
+    ASSERT(MOVE_11 == A11.movedFrom());
+    ASSERT(MOVE_12 == A12.movedFrom());
+    ASSERT(MOVE_13 == A13.movedFrom());
+    ASSERT(MOVE_14 == A14.movedFrom());
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bsls::Types::Int64 numAllocations   = da->numAllocations();
+    bsls::Types::Int64 numDeallocations = da->numDeallocations();
+
+    {
+        bslma::TestAllocator testArgAlloc("test arguments allocator",
+                                          veryVeryVeryVerbose);
+
+        // 14 argumments, all using a specific test allocator
+        MyAllocatableArg01 B01(VA01, &testArgAlloc);
+        MyAllocatableArg02 B02(VA02, &testArgAlloc);
+        MyAllocatableArg03 B03(VA03, &testArgAlloc);
+        MyAllocatableArg04 B04(VA04, &testArgAlloc);
+        MyAllocatableArg05 B05(VA05, &testArgAlloc);
+        MyAllocatableArg06 B06(VA06, &testArgAlloc);
+        MyAllocatableArg07 B07(VA07, &testArgAlloc);
+        MyAllocatableArg08 B08(VA08, &testArgAlloc);
+        MyAllocatableArg09 B09(VA09, &testArgAlloc);
+        MyAllocatableArg10 B10(VA10, &testArgAlloc);
+        MyAllocatableArg11 B11(VA11, &testArgAlloc);
+        MyAllocatableArg12 B12(VA12, &testArgAlloc);
+        MyAllocatableArg13 B13(VA13, &testArgAlloc);
+        MyAllocatableArg14 B14(VA14, &testArgAlloc);
+
+        bsl::shared_ptr<const MyInplaceAllocatableObject> x;
+
+        switch (N_ARGS) {
+          case 0: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>();
+          } break;
+          case 1: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01));
+          } break;
+          case 2: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02));
+          } break;
+          case 3: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03));
+          } break;
+          case 4: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04));
+          } break;
+          case 5: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05));
+          } break;
+          case 6: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06));
+          } break;
+          case 7: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07));
+          } break;
+          case 8: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08));
+          } break;
+          case 9: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09));
+          } break;
+          case 10: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10));
+          } break;
+          case 11: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11));
+          } break;
+          case 12: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12));
+          } break;
+          case 13: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13));
+          } break;
+          case 14: {
+            x = bsl::make_shared<const MyInplaceAllocatableObject>(
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13),
+                                                        testArg(B14, MOVE_14));
+          } break;
+        };
+
+        // Argument types are always moved, if passed through a movable
+        // reference, as our test type takes its constructor arguments by
+        // value.  However, the emplaced members of the test type used the
+        // default alloocator used by 'make_shared', rather than propagating
+        // the allocator from the argument, so the overall observation is that
+        // the default allocator always allocates 1 item for the 'rep' object,
+        // plus one allocation per 'N_ARGS'.  A matching number of
+        // deallocations occur on exiting the block.  We do not attempt to
+        // track the specific local allocator allocations, as they do not
+        // transmit into the shared object itself.
+
+        ASSERTV(numAllocations + N_ARGS + 1,   da->numAllocations(),
+                numAllocations + N_ARGS + 1 == da->numAllocations());
+        ASSERTV(numDeallocations,   da->numDeallocations(),
+                numDeallocations == da->numDeallocations());
+
+        numAllocations   = da->numAllocations();
+        numDeallocations = da->numDeallocations();
+
+        ASSERT(1 == x.use_count());
+        ASSERT(EXP == *x);
+        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+
+        ASSERT(A01.movedFrom() == B01.movedFrom());
+        ASSERT(A02.movedFrom() == B02.movedFrom());
+        ASSERT(A03.movedFrom() == B03.movedFrom());
+        ASSERT(A04.movedFrom() == B04.movedFrom());
+        ASSERT(A05.movedFrom() == B05.movedFrom());
+        ASSERT(A06.movedFrom() == B06.movedFrom());
+        ASSERT(A07.movedFrom() == B07.movedFrom());
+        ASSERT(A08.movedFrom() == B08.movedFrom());
+        ASSERT(A09.movedFrom() == B09.movedFrom());
+        ASSERT(A10.movedFrom() == B10.movedFrom());
+        ASSERT(A11.movedFrom() == B11.movedFrom());
+        ASSERT(A12.movedFrom() == B12.movedFrom());
+        ASSERT(A13.movedFrom() == B13.movedFrom());
+        ASSERT(A14.movedFrom() == B14.movedFrom());
+    }
+    ASSERTV(numAllocations,   da->numAllocations(),
+            numAllocations == da->numAllocations());
+    ASSERTV(numDeallocations + N_ARGS + 1,   da->numDeallocations(),
+            numDeallocations + N_ARGS + 1 == da->numDeallocations());
+
+    ASSERT(dam.isInUseSame());
+}
+
 template <class ALLOCATOR>
-void TestHarness<ALLOCATOR>::testCase33(bool verbose,
-                                        bool veryVerbose,
-                                        bool veryVeryVerbose,
-                                        bool veryVeryVeryVerbose)
+void Harness::testCase33(ALLOCATOR basicAllocator)
 {
     // --------------------------------------------------------------------
     // TESTING 'allocate_shared<T>(A, ...)'
@@ -2884,299 +4324,1249 @@ void TestHarness<ALLOCATOR>::testCase33(bool verbose,
     //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a13)
     //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a14)
     // --------------------------------------------------------------------
-    if (verbose) printf("\nTESTING 'allocate_shared<T>(A, ...)'"
-                        "\n====================================\n");
 
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
-
-    typedef typename bsl::allocator_traits<ALLOCATOR>::
-                          template rebind_traits<MyTestObject> Obj_AllocTraits;
-    typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
-
-    typedef typename bsl::allocator_traits<ALLOCATOR>::
-                 template rebind_traits<MyInplaceTestObject> TCObj_AllocTraits;
-    typedef typename TCObj_AllocTraits::allocator_type TCObj_Alloc;
-
-    static const MyTestArg1  V1(1);
-    static const MyTestArg2  V2(20);
-    static const MyTestArg3  V3(23);
-    static const MyTestArg4  V4(44);
-    static const MyTestArg5  V5(66);
-    static const MyTestArg6  V6(176);
-    static const MyTestArg7  V7(878);
-    static const MyTestArg8  V8(8);
-    static const MyTestArg9  V9(912);
-    static const MyTestArg10 V10(102);
-    static const MyTestArg11 V11(111);
-    static const MyTestArg12 V12(333);
-    static const MyTestArg13 V13(712);
-    static const MyTestArg14 V14(1414);
-
-    bslma::TestAllocator ta("Tese case 3", veryVeryVeryVerbose);
-    ALLOCATOR alloc_base(&ta);
-
-    Obj_Alloc alloc1(alloc_base);
-    TCObj_Alloc alloc2(&ta);
-
-    if (verbose) printf("\nTesting constructor with no arguments"
+#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+    if (verbose) printf("\nTesting constructor with 0 arguments"
                         "\n-------------------------------------\n");
 
-    bsls::Types::Int64 numAllocations = ta.numAllocations();
-    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP = MyInplaceTestObject();
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 1 argument"
-                        "\n-----------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1);
+    testCase33_RunTest<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2, V1);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    if (verbose) printf("\nTesting constructor with 2 arguments"
+                        "\n-------------------------------------\n");
 
-    if (verbose) printf("\nTesting contructor with 2 arguments"
-                        "\n-----------------------------------\n");
-
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                                V1, V2);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 3 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3);
+    testCase33_RunTest<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                                V1, V2, V3);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
-
+# if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
     if (verbose) printf("\nTesting constructor with 4 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                               V1, V2, V3, V4);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 5 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                           V1, V2, V3, V4, V5);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 6 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                       V1, V2, V3, V4, V5, V6);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 7 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                                   V1, V2, V3, V4, V5, V6, V7);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 8 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7, V8);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                               V1, V2, V3, V4, V5, V6, V7, V8);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 9 arguments"
-                        "\n------------------------------------\n");
+                        "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                       V8, V9);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                           V1, V2, V3, V4, V5, V6, V7, V8, V9);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 10 arguments"
                         "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                  V8, V9, V10);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                      V1, V2, V3, V4, V5, V6, V7, V8, V9, V10);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 11 arguments"
                         "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                             V8, V9, V10, V11);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 12 arguments"
                         "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                        V8, V9, V10, V11, V12);
-
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                            V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>(basicAllocator);
+    testCase33_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>(basicAllocator);
 
     if (verbose) printf("\nTesting constructor with 13 arguments"
                         "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                   V8, V9, V10, V11, V12, V13);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>(basicAllocator);
+    testCase33_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>(basicAllocator);
+# else // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+    if (verbose) printf("\nTesting constructor with 4 arguments"
+                        "\n-------------------------------------\n");
 
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                       V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-    }
+    testCase33_RunTest<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 5 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 6 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 7 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 8 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 9 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 10 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 11 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 12 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>(basicAllocator);
+
+    if (verbose) printf("\nTesting constructor with 13 arguments"
+                        "\n-------------------------------------\n");
+
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>(basicAllocator);
+# endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
 
     if (verbose) printf("\nTesting constructor with 14 arguments"
                         "\n-------------------------------------\n");
 
-    numAllocations = ta.numAllocations();
-    numDeallocations = ta.numDeallocations();
-    {
-        static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                              V8, V9, V10, V11, V12, V13, V14);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(basicAllocator);
+    testCase33_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(basicAllocator);
+#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+    testCase33_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>(basicAllocator);
+    testCase33_RunTest<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>(basicAllocator);
+    testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
+    testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
+    testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
+#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+}
 
-        {
-            TCObj x = bsl::allocate_shared<MyInplaceTestObject>(alloc2,
-                  V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14);
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *x);
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14,
+          class ALLOCATOR>
+void Harness::testCase33_RunTest(ALLOCATOR basicAllocator)
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    bslma::Allocator      *wrappedAllocator = extractBslma(basicAllocator);
+    bslma::TestAllocator  *wrappedTest = dynamic_cast<bslma::TestAllocator *>(
+                                                             wrappedAllocator);
+    if (!wrappedTest) {
+        ASSERT(!"Allocator for case 33 does not wrap a bslma::TestAllocator");
+        return;                                                       // RETURN
     }
+
+    bslma::TestAllocator&  ta = *wrappedTest;
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+    MyTestArg01 A01(V01);
+    MyTestArg02 A02(V02);
+    MyTestArg03 A03(V03);
+    MyTestArg04 A04(V04);
+    MyTestArg05 A05(V05);
+    MyTestArg06 A06(V06);
+    MyTestArg07 A07(V07);
+    MyTestArg08 A08(V08);
+    MyTestArg09 A09(V09);
+    MyTestArg10 A10(V10);
+    MyTestArg11 A11(V11);
+    MyTestArg12 A12(V12);
+    MyTestArg13 A13(V13);
+    MyTestArg14 A14(V14);
+
+    bsls::ObjectBuffer<MyInplaceTestObject> buffer;
+    const MyInplaceTestObject& EXP = buffer.object();
+
+    switch (N_ARGS) {
+      case 0: {
+        new(buffer.address()) MyInplaceTestObject();
+        }  break;
+      case 1: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01));
+        }  break;
+      case 2: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02));
+        }  break;
+      case 3: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03));
+        }  break;
+      case 4: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04));
+        }  break;
+      case 5: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05));
+        }  break;
+      case 6: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06));
+        }  break;
+      case 7: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07));
+        }  break;
+      case 8: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08));
+        }  break;
+      case 9: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09));
+        }  break;
+      case 10: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09),
+                                                  testArg(A10, MOVE_10));
+        }  break;
+      case 11: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09),
+                                                  testArg(A10, MOVE_10),
+                                                  testArg(A11, MOVE_11));
+        }  break;
+      case 12: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09),
+                                                  testArg(A10, MOVE_10),
+                                                  testArg(A11, MOVE_11),
+                                                  testArg(A12, MOVE_12));
+        }  break;
+      case 13: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09),
+                                                  testArg(A10, MOVE_10),
+                                                  testArg(A11, MOVE_11),
+                                                  testArg(A12, MOVE_12),
+                                                  testArg(A13, MOVE_13));
+        }  break;
+      case 14: {
+        new(buffer.address()) MyInplaceTestObject(testArg(A01, MOVE_01),
+                                                  testArg(A02, MOVE_02),
+                                                  testArg(A03, MOVE_03),
+                                                  testArg(A04, MOVE_04),
+                                                  testArg(A05, MOVE_05),
+                                                  testArg(A06, MOVE_06),
+                                                  testArg(A07, MOVE_07),
+                                                  testArg(A08, MOVE_08),
+                                                  testArg(A09, MOVE_09),
+                                                  testArg(A10, MOVE_10),
+                                                  testArg(A11, MOVE_11),
+                                                  testArg(A12, MOVE_12),
+                                                  testArg(A13, MOVE_13),
+                                                  testArg(A14, MOVE_14));
+        }  break;
+    };
+    bslalg::AutoScalarDestructor<MyInplaceTestObject> proctor(
+                                                             &buffer.object());
+
+    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
+    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
+    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
+    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
+    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
+    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
+    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
+    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
+    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
+    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
+    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
+    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
+    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
+    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+
+    // The next blocks is testing 'MyInplaceTestObject', and belongs in its own
+    // test driver.  Retained for now.
+
+    ASSERTV(V01, EXP.arg01(), V01 == EXP.arg01() || 2 == N01);
+    ASSERTV(V02, EXP.arg02(), V02 == EXP.arg02() || 2 == N02);
+    ASSERTV(V03, EXP.arg03(), V03 == EXP.arg03() || 2 == N03);
+    ASSERTV(V04, EXP.arg04(), V04 == EXP.arg04() || 2 == N04);
+    ASSERTV(V05, EXP.arg05(), V05 == EXP.arg05() || 2 == N05);
+    ASSERTV(V06, EXP.arg06(), V06 == EXP.arg06() || 2 == N06);
+    ASSERTV(V07, EXP.arg07(), V07 == EXP.arg07() || 2 == N07);
+    ASSERTV(V08, EXP.arg08(), V08 == EXP.arg08() || 2 == N08);
+    ASSERTV(V09, EXP.arg09(), V09 == EXP.arg09() || 2 == N09);
+    ASSERTV(V10, EXP.arg10(), V10 == EXP.arg10() || 2 == N10);
+    ASSERTV(V11, EXP.arg11(), V11 == EXP.arg11() || 2 == N11);
+    ASSERTV(V12, EXP.arg12(), V12 == EXP.arg12() || 2 == N12);
+    ASSERTV(V13, EXP.arg13(), V13 == EXP.arg13() || 2 == N13);
+    ASSERTV(V14, EXP.arg14(), V14 == EXP.arg14() || 2 == N14);
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+
+    {
+        MyTestArg01 B01(V01);
+        MyTestArg02 B02(V02);
+        MyTestArg03 B03(V03);
+        MyTestArg04 B04(V04);
+        MyTestArg05 B05(V05);
+        MyTestArg06 B06(V06);
+        MyTestArg07 B07(V07);
+        MyTestArg08 B08(V08);
+        MyTestArg09 B09(V09);
+        MyTestArg10 B10(V10);
+        MyTestArg11 B11(V11);
+        MyTestArg12 B12(V12);
+        MyTestArg13 B13(V13);
+        MyTestArg14 B14(V14);
+
+        bsl::shared_ptr<const MyInplaceTestObject> x;
+
+        switch (N_ARGS) {
+          case 0: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator);
+          } break;
+          case 1: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01));
+          } break;
+          case 2: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02));
+          } break;
+          case 3: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03));
+          } break;
+          case 4: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04));
+          } break;
+          case 5: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05));
+          } break;
+          case 6: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06));
+          } break;
+          case 7: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07));
+          } break;
+          case 8: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08));
+          } break;
+          case 9: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09));
+          } break;
+          case 10: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10));
+          } break;
+          case 11: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11));
+          } break;
+          case 12: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12));
+          } break;
+          case 13: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13));
+          } break;
+          case 14: {
+            x = bsl::allocate_shared<const MyInplaceTestObject>(
+                                                        basicAllocator,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13),
+                                                        testArg(B14, MOVE_14));
+          } break;
+        };
+
+        ASSERT(++numAllocations == ta.numAllocations());
+        ASSERT(1 == x.use_count());
+        ASSERT(EXP == *x);
+
+        ASSERT(A01.movedFrom() == B01.movedFrom());
+        ASSERT(A02.movedFrom() == B02.movedFrom());
+        ASSERT(A03.movedFrom() == B03.movedFrom());
+        ASSERT(A04.movedFrom() == B04.movedFrom());
+        ASSERT(A05.movedFrom() == B05.movedFrom());
+        ASSERT(A06.movedFrom() == B06.movedFrom());
+        ASSERT(A07.movedFrom() == B07.movedFrom());
+        ASSERT(A08.movedFrom() == B08.movedFrom());
+        ASSERT(A09.movedFrom() == B09.movedFrom());
+        ASSERT(A10.movedFrom() == B10.movedFrom());
+        ASSERT(A11.movedFrom() == B11.movedFrom());
+        ASSERT(A12.movedFrom() == B12.movedFrom());
+        ASSERT(A13.movedFrom() == B13.movedFrom());
+        ASSERT(A14.movedFrom() == B14.movedFrom());
+    }
+    ASSERT(++numDeallocations == ta.numDeallocations());
+
+    ASSERT(dam.isMaxSame());
+    ASSERT(dam.isInUseSame());
+}
+
+template <int N_ARGS,
+          int N01,
+          int N02,
+          int N03,
+          int N04,
+          int N05,
+          int N06,
+          int N07,
+          int N08,
+          int N09,
+          int N10,
+          int N11,
+          int N12,
+          int N13,
+          int N14>
+void Harness::testCase34_AllocatorAware()
+{
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    bslma::TestAllocator ta("test allocator for allocator-aware testCase34",
+                            veryVeryVeryVerbose);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
+    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
+    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
+    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
+    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
+    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
+    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
+    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
+    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
+    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
+    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+
+
+    // First prepare a test object to compare against the shared object
+    // constructed by allocate_shared.  In particular, we want to pay attention
+    // to the moved-from state of each argument, and the final value of the
+    // whole test object.
+
+    bslma::TestAllocator localArgAlloc("local arguments allocator",
+                                               veryVeryVeryVerbose);
+
+    // 14 argumments, all using a local test allocator
+    MyAllocatableArg01 A01(VA01, &localArgAlloc);
+    MyAllocatableArg02 A02(VA02, &localArgAlloc);
+    MyAllocatableArg03 A03(VA03, &localArgAlloc);
+    MyAllocatableArg04 A04(VA04, &localArgAlloc);
+    MyAllocatableArg05 A05(VA05, &localArgAlloc);
+    MyAllocatableArg06 A06(VA06, &localArgAlloc);
+    MyAllocatableArg07 A07(VA07, &localArgAlloc);
+    MyAllocatableArg08 A08(VA08, &localArgAlloc);
+    MyAllocatableArg09 A09(VA09, &localArgAlloc);
+    MyAllocatableArg10 A10(VA10, &localArgAlloc);
+    MyAllocatableArg11 A11(VA11, &localArgAlloc);
+    MyAllocatableArg12 A12(VA12, &localArgAlloc);
+    MyAllocatableArg13 A13(VA13, &localArgAlloc);
+    MyAllocatableArg14 A14(VA14, &localArgAlloc);
+
+    bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
+    prepareObject<
+              N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
+    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+
+    bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
+                                                             &buffer.object());
+    const MyInplaceAllocatableObject& EXP = buffer.object();
+
+    ASSERT(MOVE_01 == A01.movedFrom());
+    ASSERT(MOVE_02 == A02.movedFrom());
+    ASSERT(MOVE_03 == A03.movedFrom());
+    ASSERT(MOVE_04 == A04.movedFrom());
+    ASSERT(MOVE_05 == A05.movedFrom());
+    ASSERT(MOVE_06 == A06.movedFrom());
+    ASSERT(MOVE_07 == A07.movedFrom());
+    ASSERT(MOVE_08 == A08.movedFrom());
+    ASSERT(MOVE_09 == A09.movedFrom());
+    ASSERT(MOVE_10 == A10.movedFrom());
+    ASSERT(MOVE_11 == A11.movedFrom());
+    ASSERT(MOVE_12 == A12.movedFrom());
+    ASSERT(MOVE_13 == A13.movedFrom());
+    ASSERT(MOVE_14 == A14.movedFrom());
+
+    // Here starts the actual test case
+    bslma::TestAllocatorMonitor dam(da);
+
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
+    bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+
+    {
+        bslma::TestAllocator testArgAlloc("test arguments allocator",
+                                          veryVeryVeryVerbose);
+
+        // 14 argumments, all using a specific test allocator
+        MyAllocatableArg01 B01(VA01, &testArgAlloc);
+        MyAllocatableArg02 B02(VA02, &testArgAlloc);
+        MyAllocatableArg03 B03(VA03, &testArgAlloc);
+        MyAllocatableArg04 B04(VA04, &testArgAlloc);
+        MyAllocatableArg05 B05(VA05, &testArgAlloc);
+        MyAllocatableArg06 B06(VA06, &testArgAlloc);
+        MyAllocatableArg07 B07(VA07, &testArgAlloc);
+        MyAllocatableArg08 B08(VA08, &testArgAlloc);
+        MyAllocatableArg09 B09(VA09, &testArgAlloc);
+        MyAllocatableArg10 B10(VA10, &testArgAlloc);
+        MyAllocatableArg11 B11(VA11, &testArgAlloc);
+        MyAllocatableArg12 B12(VA12, &testArgAlloc);
+        MyAllocatableArg13 B13(VA13, &testArgAlloc);
+        MyAllocatableArg14 B14(VA14, &testArgAlloc);
+
+        bsl::shared_ptr<const MyInplaceAllocatableObject> x;
+
+        switch (N_ARGS) {
+          case 0: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(&ta);
+          } break;
+          case 1: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01));
+          } break;
+          case 2: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02));
+          } break;
+          case 3: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03));
+          } break;
+          case 4: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04));
+          } break;
+          case 5: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05));
+          } break;
+          case 6: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06));
+          } break;
+          case 7: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07));
+          } break;
+          case 8: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08));
+          } break;
+          case 9: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09));
+          } break;
+          case 10: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10));
+          } break;
+          case 11: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11));
+          } break;
+          case 12: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12));
+          } break;
+          case 13: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13));
+          } break;
+          case 14: {
+            x = bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                       &ta,
+                                                        testArg(B01, MOVE_01),
+                                                        testArg(B02, MOVE_02),
+                                                        testArg(B03, MOVE_03),
+                                                        testArg(B04, MOVE_04),
+                                                        testArg(B05, MOVE_05),
+                                                        testArg(B06, MOVE_06),
+                                                        testArg(B07, MOVE_07),
+                                                        testArg(B08, MOVE_08),
+                                                        testArg(B09, MOVE_09),
+                                                        testArg(B10, MOVE_10),
+                                                        testArg(B11, MOVE_11),
+                                                        testArg(B12, MOVE_12),
+                                                        testArg(B13, MOVE_13),
+                                                        testArg(B14, MOVE_14));
+          } break;
+        };
+
+        ASSERTV(numAllocations + N_ARGS + 1,   ta.numAllocations(),
+                numAllocations + N_ARGS + 1 == ta.numAllocations());
+        ASSERTV(numDeallocations,   ta.numDeallocations(),
+                numDeallocations == ta.numDeallocations());
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+
+        ASSERT(1 == x.use_count());
+        ASSERT(EXP == *x);
+        ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
+
+        ASSERT(A01.movedFrom() == B01.movedFrom());
+        ASSERT(A02.movedFrom() == B02.movedFrom());
+        ASSERT(A03.movedFrom() == B03.movedFrom());
+        ASSERT(A04.movedFrom() == B04.movedFrom());
+        ASSERT(A05.movedFrom() == B05.movedFrom());
+        ASSERT(A06.movedFrom() == B06.movedFrom());
+        ASSERT(A07.movedFrom() == B07.movedFrom());
+        ASSERT(A08.movedFrom() == B08.movedFrom());
+        ASSERT(A09.movedFrom() == B09.movedFrom());
+        ASSERT(A10.movedFrom() == B10.movedFrom());
+        ASSERT(A11.movedFrom() == B11.movedFrom());
+        ASSERT(A12.movedFrom() == B12.movedFrom());
+        ASSERT(A13.movedFrom() == B13.movedFrom());
+        ASSERT(A14.movedFrom() == B14.movedFrom());
+    }
+    ASSERTV(numAllocations,   ta.numAllocations(),
+            numAllocations == ta.numAllocations());
+    ASSERTV(numDeallocations + N_ARGS + 1,   ta.numDeallocations(),
+            numDeallocations + N_ARGS + 1 == ta.numDeallocations());
+
+    ASSERT(dam.isInUseSame());
+}
+
+
+template <int N>
+void testMyTestArg()
+{
+    if (veryVerbose) {
+        printf("\nMyTestArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bsls::Types::Int64 numAllocations   = da_p->numAllocations();
+    bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
+
+    {
+        const bsltf::ArgumentType<N>  V1;
+        const bsltf::ArgumentType<N>  V2 = V1;
+
+        ASSERT(V1 == V2);
+        ASSERT(-1 == V1);
+        ASSERT(-1 == V2);
+    }
+
+    ASSERT(da_p->numAllocations()   == numAllocations);
+    ASSERT(da_p->numDeallocations() == numDeallocations);
+}
+
+template <int N>
+void testMyTestArg(const int value)
+{
+    if (veryVerbose) {
+        printf("\nMyTestArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bsls::Types::Int64 numAllocations   = da_p->numAllocations();
+    bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
+
+    {
+        const bsltf::ArgumentType<N>  V1(value);
+        const bsltf::ArgumentType<N>  V2 = V1;
+
+        ASSERT(V1 == V2);
+        ASSERT(value == V1);
+        ASSERT(value == V2);
+    }
+
+    ASSERT(da_p->numAllocations()   == numAllocations);
+    ASSERT(da_p->numDeallocations() == numDeallocations);
+}
+
+template <int N>
+void testMyAllocatableArg()
+{
+    if (veryVerbose) {
+        printf("\tMyAllocatableArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bsls::Types::Int64 numAllocations   = da_p->numAllocations();
+    bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
+
+    {
+        const bsltf::AllocArgumentType<N>  V1;       // +1 use of default allocator
+        const bsltf::AllocArgumentType<N>  V2 = V1;  // +1 use of default allocator
+        ASSERT(V1 == V2);
+        ASSERT(-1 == V1);
+        ASSERT(-1 == V2);
+    }
+
+    ASSERT(da_p->numAllocations()   == 2 + numAllocations);
+    ASSERT(da_p->numDeallocations() == 2 + numDeallocations);
+}
+
+template <int N>
+void testMyAllocatableArg(const int value)
+{
+    if (veryVerbose) {
+        printf("\tMyAllocatableArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bsls::Types::Int64 numAllocations   = da_p->numAllocations();
+    bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
+
+    {
+        const bsltf::AllocArgumentType<N>  V1(value);  // +1 use of default allocator
+        const bsltf::AllocArgumentType<N>  V2 = V1;    // +1 use of default allocator
+        ASSERT(value == V1);
+        ASSERT(value == V2);
+    }
+
+    ASSERT(da_p->numAllocations()   == 2 + numAllocations);
+    ASSERT(da_p->numDeallocations() == 2 + numDeallocations);
+}
+
+
+template <int N>
+void testMyAllocatableArgWithAllocator()
+{
+    if (veryVerbose) {
+        printf("\tMyAllocatableArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bslma::TestAllocator ta("Test machinery", veryVeryVeryVerbose);
+
+    const bsls::Types::Int64 numDefaultAllocations   = da_p->numAllocations();
+    const bsls::Types::Int64 numDefaultDeallocations =
+                                                      da_p->numDeallocations();
+
+    const bsls::Types::Int64 numTestAllocations   = ta.numAllocations();
+    const bsls::Types::Int64 numTestDeallocations = ta.numDeallocations();
+
+    {
+        const bsltf::AllocArgumentType<N>  V1(&ta);
+        const bsltf::AllocArgumentType<N>  V2(V1, &ta);
+        ASSERT(-1 == V1);
+        ASSERT(-1 == V2);
+    }
+
+    ASSERT(ta.numAllocations()   == 1 + numTestAllocations);
+    ASSERT(ta.numDeallocations() == 1 + numTestDeallocations);
+
+    ASSERT(da_p->numAllocations()   == numDefaultAllocations);
+    ASSERT(da_p->numDeallocations() == numDefaultDeallocations);
+}
+
+template <int N>
+void testMyAllocatableArgWithAllocator(const int value)
+{
+    if (veryVerbose) {
+        printf("\tMyAllocatableArg<%d>\n", N);
+    }
+
+    bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+    ASSERT(0 != da_p);
+    if (!da_p) {     // Avoid undefined behavior, this test has already failed.
+        return;                                                       // RETURN
+    }
+
+    bslma::TestAllocator ta("Test machinery", veryVeryVeryVerbose);
+
+    const bsls::Types::Int64 numDefaultAllocations   = da_p->numAllocations();
+    const bsls::Types::Int64 numDefaultDeallocations =
+                                                      da_p->numDeallocations();
+
+    const bsls::Types::Int64 numTestAllocations   = ta.numAllocations();
+    const bsls::Types::Int64 numTestDeallocations = ta.numDeallocations();
+
+    {
+        const bsltf::AllocArgumentType<N>  V1(value, &ta);
+        const bsltf::AllocArgumentType<N>  V2(V1, &ta);
+        ASSERT(V1 == V2);
+        ASSERT(value == V1);
+        ASSERT(value == V2);
+    }
+
+    ASSERT(ta.numAllocations()   == 2 + numTestAllocations);
+    ASSERT(ta.numDeallocations() == 2 + numTestDeallocations);
+
+    ASSERT(da_p->numAllocations()   == numDefaultAllocations);
+    ASSERT(da_p->numDeallocations() == numDefaultDeallocations);
 }
 
 //=============================================================================
@@ -3185,11 +5575,11 @@ void TestHarness<ALLOCATOR>::testCase33(bool verbose,
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -3222,6 +5612,38 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 39: {
+        // --------------------------------------------------------------------
+        // TESTING THE TEST MACHINERY
+        //   This test case will test all of the test machinery supplied by the
+        //   test driver prior to its use to prove the rest of the component
+        //   works as required.
+        //
+        //   TBD: THIS TEST CASE HAS A VERY HIGH NUMBER AS IT WAS MISSED AS A
+        //        MAJOR OVERSIGHT.  IT WILL MOVE DOWN TO TEST CASE 3 REQUIRING
+        //        A WHOLESALE RENUMBERING, ONCE IT IS COMPLETE AND HAS PROVEN
+        //        ITSELF CORRECT.
+        //
+        // Concerns:
+        //:  1 ...
+        //
+        // Plan:
+        //: 1 Provide at least a breathing test for all of the test machinery
+        //:   that remains untested.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING THE TEST MACHINERY"
+                            "\n==========================\n");
+
+        bslma::TestAllocator *da_p = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+        ASSERT(0 != da_p);
+
+
+
+      } break;
       case 38: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
@@ -4225,6 +6647,12 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
+#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         if (verbose) printf("\n\tTest with 'auto_ptr'\n");
         {
             ShareThis *pThis = new ShareThis(&destructorCount);
@@ -4251,6 +6679,10 @@ int main(int argc, char *argv[])
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic pop
+# endif
+#endif
 
         if (verbose) printf("\n\tTest with 'shared_ptr<void>'\n");
         {
@@ -4902,14 +7334,70 @@ int main(int argc, char *argv[])
       case 34: {
         // --------------------------------------------------------------------
         // TESTING 'allocate_shared<T>(A *, ...)'
+        //   This test is concerned with the 'allocate_shared' free-function
+        //   that takes BDE allocators, as an extension to the standard..
+        //   Concern for the overloads taking standard-confocrming  allocators
+        //   is handled by the immediately preceding test case.
         //
         // Concerns:
-        //   All constructor is able to initialize the object correctly.
+        //: 1.  'allocate_shared' returns a 'shared_ptr' pointing to a new
+        //:     object of the specified 'T' type, where 'T' must be a complete
+        //:     type.
+        //: 2.  The supplied allocator is used to create the shared rep holding
+        //:     the ref-counts, deleter, and shared object.
+        //: 3.  There is only one allocation to create the shared object,
+        //:     unless the shared object performs additional allocations.
+        //: 4.  The appropriate constructor for 'T' is called, forwarding all
+        //:     of the supplied arguments to that constructor, in the supplied
+        //:     order.
+        //: 5.  An allocator for 'T' can be supplied as an argument if 'T'
+        //:     supports allocators.
+        //: 6   The leading allocator argument is *not* passed to the shared
+        //:     object, even if it uses BDE allocators.
+        //: 7.  The reference count of the 'shared_ptr' object shall be 1.
+        //: 8.  No memory is leaked if the constructor of 'T' throws an
+        //:     exception.
+        //: 9.  The default allocator should not be used, unless called by the
+        //:     constructor of the shared object.
+        //: 10. The global allocator should not be used, unless called by the
+        //:     constructor of the shared object.
+        //: 11. 'allocate_shared<POD-TYPE> passed no arguments other than the
+        //:     allocator value-initializes the shared object.
+        //: 12  'allocate_shared<const TYPE>' compiles and respects all the
+        //:      conerns above.
         //
         // Plan:
-        //   Call all 14 different constructors and supply it with the
-        //   appropriate arguments.  Then verify that the object created inside
-        //   the representation is initialized using the arguments supplied.
+        //: 1. Intstall a test allocator as the default, to verify that the
+        //:    default is never used.
+        //:
+        //: 2. The (lack of) use of the global allocator is tested as a global
+        //:    test concern.
+        //:
+        //: 3. Create a test allocator object to observe allocation by the
+        //:    'allocate_shared' calls.
+        //:
+        //: 4. For each of the 15 overloads, taking 0-14 arguments plus a
+        //:    leading allocator:
+        //:    4.1. Install an allocator monitor on the default, to verify that
+        //:         it is not used.
+        //:    4.2  Create a 'shared_ptr' using the 'allocate_shared' function.
+        //:         passing '&ta' as the (first) allocator argument.
+        //:    4.3  verify exactly one allocation occurred using 'ta', implying
+        //:         the shared object is in the same allocated region as the
+        //;         reference counts.
+        //:    4.4  verify the shared object pointed to by the returned shared
+        //:         pointer has the expected value.
+        //:    4.5  verify the shared pointer has a reference count of 1
+        //:    4.6  allow the shared pointer to drop out of scope, and verify
+        //:         that the shared object is destroyed, and that 'ta' observes
+        //:         a single de-allocation.
+        //   Call all 15 overloads for a different number of arguments, and
+        //   provide each an instrumented 'bslma::TestAllocator'
+        //   and supply it with the
+        //   appropriate arguments and an instrumented test allocator.  Then
+        //   verify that only one allocation is performned, and the object
+        //   created inside the representation is initialized using the
+        //   arguments supplied,.
         //
         // Testing:
         //   shared_ptr<T> allocate_shared<T, ALLOC>(ALLOC *, ARGS&&...)
@@ -4933,289 +7421,543 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'allocate_shared<T>(A *, ...)'"
                             "\n======================================\n");
 
-        static const MyTestArg1  V1(1);
-        static const MyTestArg2  V2(20);
-        static const MyTestArg3  V3(23);
-        static const MyTestArg4  V4(44);
-        static const MyTestArg5  V5(66);
-        static const MyTestArg6  V6(176);
-        static const MyTestArg7  V7(878);
-        static const MyTestArg8  V8(8);
-        static const MyTestArg9  V9(912);
-        static const MyTestArg10 V10(102);
-        static const MyTestArg11 V11(111);
-        static const MyTestArg12 V12(333);
-        static const MyTestArg13 V13(712);
-        static const MyTestArg14 V14(1414);
+        bslma::TestAllocator *da = dynamic_cast<bslma::TestAllocator *>(
+                                                  bslma::Default::allocator());
+        ASSERT(0 != da);
 
         bslma::TestAllocator ta("allocate_shared", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("shared object alloctor", veryVeryVeryVerbose);
 
-        if (verbose) printf("\nTesting constructor with no arguments"
-                            "\n-------------------------------------\n");
+        if (verbose) printf("\nTesting 'int' with no arguments"
+                            "\n-------------------------------\n");
 
         bsls::Types::Int64 numAllocations = ta.numAllocations();
         bsls::Types::Int64 numDeallocations = ta.numDeallocations();
         {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<int> x = bsl::allocate_shared<int>(&ta);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(0 == *x);
+                ASSERT(1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        if (verbose) printf("\nTesting 'int' with a value"
+                            "\n--------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<int> x = bsl::allocate_shared<int>(&ta, 42);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(42 == *x);
+                ASSERT(1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        if (verbose) printf("\nTesting const int' with no arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const int> x =
+                                          bsl::allocate_shared<const int>(&ta);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERTV(*x, 0 == *x);
+                ASSERTV(x.use_count(), 1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        if (verbose) printf("\nTesting const int' with a value"
+                            "\n-------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
             static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const int> x =
+                                      bsl::allocate_shared<const int>(&ta, 13);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(13 == *x);
+                ASSERT(1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        if (verbose) printf("\nTesting deliberately engineered evil type"
+                            "\n-----------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const MostEvilTestType> x =
+                         bsl::allocate_shared<const MostEvilTestType>(&ta, 13);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(13 == x->data());
+                ASSERT(1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        if (verbose) printf("\nTesting aggregate type"
+                            "\n----------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const MyAggregate> x =
+                                  bsl::allocate_shared<const MyAggregate>(&ta);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERTV(x->d_first,    0 == x->d_first);
+                ASSERTV(x->d_second,   0 == x->d_second);
+                ASSERTV(x.use_count(), 1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+#if defined(BSLSTL_SHAREDPTR_ALLOCATE_SHARED_USING_BRACE_LIST)
+        // This branch should never expand, but can be used to demonstrate that
+        // 'allocate_shared' uses the correct form of new operator syntax.  If
+        // a brace-list were chosen instead, this #if branch would compile
+        // correctly and the tests should pass.  However, the C++ standard
+        // (as of early-2016 working paper) requires that these two checks fail
+        // to compile.  There are open Library Working Group isses in this area
+        // though.
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const MyAggregate> x =
+                              bsl::allocate_shared<const MyAggregate>(&ta, 13);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(13 == x->d_first);
+                ASSERT( 0 == x->d_second);
+                ASSERT( 1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            {
+                bsl::shared_ptr<const MyAggregate> x =
+                         bsl::allocate_shared<const MyAggregate>(&ta, 42, 8);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(42 == x->d_first);
+                ASSERT( 8 == x->d_second);
+                ASSERT( 1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+#else
+        // If 'allocate_shared' incorrectly used brace-initialization to
+        // construct the 'new' object, then this #if branch would fail to
+        // compile, at least prior to C++17.
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bslma::TestAllocatorMonitor dam(da);
+
+            MyAggregate a1 = { 13, 42 };
+            {
+                bsl::shared_ptr<const MyAggregate> x =
+                              bsl::allocate_shared<const MyAggregate>(&ta, a1);
+                ASSERT(++numAllocations == ta.numAllocations());
+                ASSERT(13 == x->d_first);
+                ASSERT(42 == x->d_second);
+                ASSERT(1 == x.use_count());
+            }
+            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
+        }
+#endif
+
+        if (verbose) printf("\nTesting constructor with no arguments"
+                            "\n-------------------------------------\n");
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            bslma::TestAllocatorMonitor dam(da);
 
             {
                 TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta);
                 ASSERT(++numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
+                ASSERT(1 == x.use_count());
             }
             ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
         }
 
-        if (verbose) printf("\nTesting constructor with 1 argument"
-                            "\n-----------------------------------\n");
-
-        numAllocations = ta.numAllocations();
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            static const MyInplaceTestObject EXP(V1);
+            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+
+            bslma::TestAllocatorMonitor dam(da);
 
             {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta, V1);
+                bsl::shared_ptr<const MyInplaceTestObject> x =
+                          bsl::allocate_shared<const MyInplaceTestObject>(&ta);
                 ASSERT(++numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
+                ASSERT(1 == x.use_count());
             }
             ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
         }
 
-        if (verbose) printf("\nTesting contructor with 2 arguments"
-                            "\n-----------------------------------\n");
-
-        numAllocations = ta.numAllocations();
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            static const MyInplaceTestObject EXP(V1, V2);
+            const MyInplaceAllocatableObject EXP =
+                                                  MyInplaceAllocatableObject();
+
+            bslma::TestAllocatorMonitor dam(da);
 
             {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                                     V1, V2);
-                ASSERT(++numAllocations == ta.numAllocations());
+                bsl::shared_ptr<const MyInplaceAllocatableObject> x =
+                   bsl::allocate_shared<const MyInplaceAllocatableObject>(&ta);
+                ++numAllocations;
+                ASSERTV(numAllocations,   ta.numAllocations(),
+                        numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
+                ASSERT(1 == x.use_count());
             }
-            ASSERT(++numDeallocations == ta.numDeallocations());
+            ++numDeallocations;
+            ASSERTV(numDeallocations,   ta.numDeallocations(),
+                    numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isInUseSame());
         }
 
-        if (verbose) printf("\nTesting constructor with 3 arguments"
-                            "\n------------------------------------\n");
+#if 0   // The use of a separate allocator for the element is not supported,
+        // unless the type has a constructor taking an allocator, but NOT
+        // marked with the 'UsesBslmaAllocator' trait.  This path exists to
+        // test an evolution of the 'allocate_shared' function where this was
+        // the expected (and therefore tested) behavior and is retained for
+        // reference purposes only.
 
-        numAllocations = ta.numAllocations();
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            static const MyInplaceTestObject EXP(V1, V2, V3);
+            const MyInplaceAllocatableObject EXP =
+                                                  MyInplaceAllocatableObject();
 
+            bslma::TestAllocatorMonitor dam(da);
+
+            bslma::TestAllocator sa("shared object allocator",
+                                    veryVeryVeryVerbose);
             {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                                   V1, V2, V3);
-                ASSERT(++numAllocations == ta.numAllocations());
+                bsl::shared_ptr<const MyInplaceAllocatableObject> x =
+                   bsl::allocate_shared<const MyInplaceAllocatableObject>(&ta,
+                                                                          &sa);
+                ++numAllocations;
+                ASSERTV(numAllocations,   ta.numAllocations(),
+                        numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
+                ASSERT(&sa == x->getAllocator());
+                ASSERT(1 == x.use_count());
+                ASSERTV(sa.numAllocations(), 0 == sa.numAllocations());
             }
-            ASSERT(++numDeallocations == ta.numDeallocations());
+            ++numDeallocations;
+            ASSERTV(numDeallocations,   ta.numDeallocations(),
+                    numDeallocations == ta.numDeallocations());
+
+            ASSERT(dam.isMaxSame());
         }
+#endif
+        if (verbose) printf("\nTesting with allocator-UNaware types"
+                            "\n====================================\n");
 
-        if (verbose) printf("\nTesting constructor with 4 arguments"
-                            "\n------------------------------------\n");
+        Harness::testCase33(&ta);
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
+        if (verbose) printf("\nTesting with allocator-aware types"
+                            "\n==================================\n");
 
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                               V1, V2, V3, V4);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
+#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+        if (verbose) printf("\nTesting constructor with 0-13 arguments"
+                            "\n---------------------------------------\n");
 
-        if (verbose) printf("\nTesting constructor with 5 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                           V1, V2, V3, V4, V5);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 6 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                       V1, V2, V3, V4, V5, V6);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 7 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                                   V1, V2, V3, V4, V5, V6, V7);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 8 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                           V8);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                               V1, V2, V3, V4, V5, V6, V7, V8);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 9 arguments"
-                            "\n------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                       V8, V9);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                           V1, V2, V3, V4, V5, V6, V7, V8, V9);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 10 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                                  V8, V9, V10);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                      V1, V2, V3, V4, V5, V6, V7, V8, V9, V10);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 11 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                             V8, V9, V10, V11);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 12 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                        V8, V9, V10, V11, V12);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                            V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
-
-        if (verbose) printf("\nTesting constructor with 13 arguments"
-                            "\n-------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                   V8, V9, V10, V11, V12, V13);
-
-            {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(
-                  &ta, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13);
-                ASSERT(++numAllocations == ta.numAllocations());
-                ASSERT(EXP == *x);
-            }
-            ASSERT(++numDeallocations == ta.numDeallocations());
-        }
+        // Provide overloads to support the following tests
+        Harness::testCase34_AllocatorAware< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+        Harness::testCase34_AllocatorAware<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+        Harness::testCase34_AllocatorAware<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+        Harness::testCase34_AllocatorAware<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
 
         if (verbose) printf("\nTesting constructor with 14 arguments"
                             "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
+        // Main test of 14 parameters
+        // Can we generate the integer sequences by macro?
+        // If we can automate cycle this way, could efficiently generate for
+        // 0-13 arguments as well, rather than rely on a special test case.
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
+        Harness::testCase34_AllocatorAware<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+
+
+        if (verbose) printf("\nTesting allocation when all arguments move"
+                            "\n------------------------------------------\n");
+
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                              V8, V9, V10, V11, V12, V13, V14);
+            // 14 argumments, all using the object allocator
+            MyAllocatableArg01 A01(VA01, &ta);
+            MyAllocatableArg02 A02(VA02, &ta);
+            MyAllocatableArg03 A03(VA03, &ta);
+            MyAllocatableArg04 A04(VA04, &ta);
+            MyAllocatableArg05 A05(VA05, &ta);
+            MyAllocatableArg06 A06(VA06, &ta);
+            MyAllocatableArg07 A07(VA07, &ta);
+            MyAllocatableArg08 A08(VA08, &ta);
+            MyAllocatableArg09 A09(VA09, &ta);
+            MyAllocatableArg10 A10(VA10, &ta);
+            MyAllocatableArg11 A11(VA11, &ta);
+            MyAllocatableArg12 A12(VA12, &ta);
+            MyAllocatableArg13 A13(VA13, &ta);
+            MyAllocatableArg14 A14(VA14, &ta);
+
+            ASSERTV(numAllocations + 14,   ta.numAllocations(),
+                    numAllocations + 14 == ta.numAllocations());
+            ASSERTV(numDeallocations,    ta.numDeallocations(),
+                    numDeallocations  == ta.numDeallocations());
+
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+
+            const MyInplaceAllocatableObject EXP(MovUtil::move(A01),
+                                                 MovUtil::move(A02),
+                                                 MovUtil::move(A03),
+                                                 MovUtil::move(A04),
+                                                 MovUtil::move(A05),
+                                                 MovUtil::move(A06),
+                                                 MovUtil::move(A07),
+                                                 MovUtil::move(A08),
+                                                 MovUtil::move(A09),
+                                                 MovUtil::move(A10),
+                                                 MovUtil::move(A11),
+                                                 MovUtil::move(A12),
+                                                 MovUtil::move(A13),
+                                                 MovUtil::move(A14),
+                                                &ta);
+            ASSERTV( &ta, EXP.getAllocator(),   &ta == EXP.getAllocator() );
+            ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01());
+            ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02());
+            ASSERTV(VA03, EXP.arg03(), VA03 == EXP.arg03());
+            ASSERTV(VA04, EXP.arg04(), VA04 == EXP.arg04());
+            ASSERTV(VA05, EXP.arg05(), VA05 == EXP.arg05());
+            ASSERTV(VA06, EXP.arg06(), VA06 == EXP.arg06());
+            ASSERTV(VA07, EXP.arg07(), VA07 == EXP.arg07());
+            ASSERTV(VA08, EXP.arg08(), VA08 == EXP.arg08());
+            ASSERTV(VA09, EXP.arg09(), VA09 == EXP.arg09());
+            ASSERTV(VA10, EXP.arg10(), VA10 == EXP.arg10());
+            ASSERTV(VA11, EXP.arg11(), VA11 == EXP.arg11());
+            ASSERTV(VA12, EXP.arg12(), VA12 == EXP.arg12());
+            ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13());
+            ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14());
+            ASSERT (A01.movedFrom());
+            ASSERT (A02.movedFrom());
+            ASSERT (A03.movedFrom());
+            ASSERT (A04.movedFrom());
+            ASSERT (A05.movedFrom());
+            ASSERT (A06.movedFrom());
+            ASSERT (A07.movedFrom());
+            ASSERT (A08.movedFrom());
+            ASSERT (A09.movedFrom());
+            ASSERT (A10.movedFrom());
+            ASSERT (A11.movedFrom());
+            ASSERT (A12.movedFrom());
+            ASSERT (A13.movedFrom());
+            ASSERT (A14.movedFrom());
+
+            ASSERTV(numAllocations,   ta.numAllocations(),
+                    numAllocations == ta.numAllocations());
+            ASSERTV(numDeallocations,    ta.numDeallocations(),
+                    numDeallocations  == ta.numDeallocations());
+
+            bslma::TestAllocatorMonitor dam(da);
 
             {
-                TCObj x = bsl::allocate_shared<MyInplaceTestObject>(&ta,
-                  V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14);
-                ASSERT(++numAllocations == ta.numAllocations());
+                // 14 argumments, all using the object allocator
+                MyAllocatableArg01 B01(VA01, &ta);
+                MyAllocatableArg02 B02(VA02, &ta);
+                MyAllocatableArg03 B03(VA03, &ta);
+                MyAllocatableArg04 B04(VA04, &ta);
+                MyAllocatableArg05 B05(VA05, &ta);
+                MyAllocatableArg06 B06(VA06, &ta);
+                MyAllocatableArg07 B07(VA07, &ta);
+                MyAllocatableArg08 B08(VA08, &ta);
+                MyAllocatableArg09 B09(VA09, &ta);
+                MyAllocatableArg10 B10(VA10, &ta);
+                MyAllocatableArg11 B11(VA11, &ta);
+                MyAllocatableArg12 B12(VA12, &ta);
+                MyAllocatableArg13 B13(VA13, &ta);
+                MyAllocatableArg14 B14(VA14, &ta);
+
+                ASSERTV(numAllocations + 14,   ta.numAllocations(),
+                        numAllocations + 14 == ta.numAllocations());
+                ASSERTV(numDeallocations,    ta.numDeallocations(),
+                        numDeallocations  == ta.numDeallocations());
+
+                numAllocations   = ta.numAllocations();
+                numDeallocations = ta.numDeallocations();
+
+                bsl::shared_ptr<const MyInplaceAllocatableObject> x =
+                       bsl::allocate_shared<const MyInplaceAllocatableObject>(
+                                                          &ta,
+                                                           MovUtil::move(B01),
+                                                           MovUtil::move(B02),
+                                                           MovUtil::move(B03),
+                                                           MovUtil::move(B04),
+                                                           MovUtil::move(B05),
+                                                           MovUtil::move(B06),
+                                                           MovUtil::move(B07),
+                                                           MovUtil::move(B08),
+                                                           MovUtil::move(B09),
+                                                           MovUtil::move(B10),
+                                                           MovUtil::move(B11),
+                                                           MovUtil::move(B12),
+                                                           MovUtil::move(B13),
+                                                           MovUtil::move(B14));
+                ASSERTV(numAllocations + 1,   ta.numAllocations(),
+                        numAllocations + 1 == ta.numAllocations());
+                ASSERTV(numDeallocations,    ta.numDeallocations(),
+                        numDeallocations  == ta.numDeallocations());
+
+                numAllocations   = ta.numAllocations();
+                numDeallocations = ta.numDeallocations();
+
                 ASSERT(EXP == *x);
+                ASSERT(1 == x.use_count());
+                ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
+                ASSERT(B01.movedFrom());
+                ASSERT(B02.movedFrom());
+                ASSERT(B03.movedFrom());
+                ASSERT(B04.movedFrom());
+                ASSERT(B05.movedFrom());
+                ASSERT(B06.movedFrom());
+                ASSERT(B07.movedFrom());
+                ASSERT(B08.movedFrom());
+                ASSERT(B09.movedFrom());
+                ASSERT(B10.movedFrom());
+                ASSERT(B11.movedFrom());
+                ASSERT(B12.movedFrom());
+                ASSERT(B13.movedFrom());
+                ASSERT(B14.movedFrom());
             }
-            ASSERT(++numDeallocations == ta.numDeallocations());
+
+            ASSERTV(numAllocations,   ta.numAllocations(),
+                    numAllocations == ta.numAllocations());
+            ASSERTV(numDeallocations + 15,    ta.numDeallocations(),
+                    numDeallocations + 15 == ta.numDeallocations());
+
+            numAllocations   = ta.numAllocations();
+            numDeallocations = ta.numDeallocations();
+
+            ASSERT(dam.isTotalSame());
         }
+#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+        Harness::testCase34_AllocatorAware< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase34_AllocatorAware<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase34_AllocatorAware<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase34_AllocatorAware<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase34_AllocatorAware<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+
+        // TBD: EXCEPTION-SAFETY TESTS (0-14 arguments)
+        //      (no negative testing as contract is wide)
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // Test for no leaks when allocated object's constructor throws..
         int constructCount = 0;
         int destroyCount = 0;
         try {
-            bsl::allocate_shared<MyInstrumentedObject>(&ta,
+            bsl::allocate_shared<const MyInstrumentedObject>(&ta,
                                                        &constructCount,
                                                        &destroyCount,
                                                         true);
@@ -5229,11 +7971,35 @@ int main(int argc, char *argv[])
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // TESTING 'allocate_shared'
+        // TESTING 'allocate_shared<T>(A, ...)'
+        //   This test is concerned with the 'allocate_shared' free-function
+        //   that takes a standard-confirming allocator, per the C++11/14 ISO
+        //   standard.  Concern for the overloads taking BDE allocator is
+        //   deferred to the next test case.
         //
         // Concerns:
+        //: 1  'allocate_shared' returns a 'shared_ptr' pointing to a new
+        //:    object of the specified 'T' type, where 'T' must be a complete
+        //:    type.
+        //: 2  The supplied allocator is used to create the shared rep holding
+        //:    the ref-counts, deleter, and shared object.
+        //: 3  There is only one allocation to create the shared object,
+        //:    unless the shared object performs additional allocations.
+        //: 4  The appropriate constructor for 'T' is called, forwarding all
+        //:    of the supplied arguments to that constructor, in the supplied
+        //:    order.
+        //: 5  An allocator for 'T' can be supplied as an argument if 'T'
+        //:    supports allocators.
+        //: 6  The reference count of the 'shared_ptr' object shall be 1.
+        //: 7  No memory is leaked if the constructor of 'T' throws an
+        //:    exception.
+        //: 8.  The default allocator should not be used, unless called by the
+        //:     constructor of the shared object.
+        //: 9.  The global allocator should not be used, unless called by the
+        //:     constructor of the shared object.
         //
-        // Plan: TBD
+        // Plan:
+        //: 1. TBD
         //
         // Testing:
         //   shared_ptr<T> allocate_shared<T, ALLOC>(ALLOC, ARGS&&...)
@@ -5254,31 +8020,23 @@ int main(int argc, char *argv[])
         //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1, ...& a13)
         //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1, ...& a14)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'allocate_shared'"
-                            "\n=========================\n");
+
+        if (verbose) printf("\nTESTING 'allocate_shared<T>(A, ...)'"
+                            "\n====================================\n");
 
         using BloombergLP::bsltf::StdStatefulAllocator;
 
-        typedef bsl::allocator<int> ALLOC_1;
-        typedef StdStatefulAllocator<int, true, true, true, true> ALLOC_2;
-        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_3;
+        typedef StdStatefulAllocator<int, true,  true,  true,  true > ALLOC_A;
+        typedef StdStatefulAllocator<int, false, false, false, false> ALLOC_B;
 
-        typedef TestHarness<ALLOC_1> T1;
-        typedef TestHarness<ALLOC_2> T2;
-        typedef TestHarness<ALLOC_3> T3;
+        bslma::TestAllocator ta("Test Case 33 wrapped test-allocator",
+                                veryVeryVeryVerbose);
 
-        T1::testCase33(verbose,
-                       veryVerbose,
-                       veryVeryVerbose,
-                       veryVeryVeryVerbose);
-        T2::testCase33(verbose,
-                       veryVerbose,
-                       veryVeryVerbose,
-                       veryVeryVeryVerbose);
-        T3::testCase33(verbose,
-                       veryVerbose,
-                       veryVeryVerbose,
-                       veryVeryVeryVerbose);
+        ALLOC_A allocA(&ta);
+        Harness::testCase33(allocA);
+
+        ALLOC_B allocB(&ta);
+        Harness::testCase33(allocB);
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // Test for no leaks when allocated object's constructor throws..
@@ -5305,8 +8063,24 @@ int main(int argc, char *argv[])
         // TESTING 'make_shared'
         //
         // Concerns:
+        //: 1.  'make_shared' returns a 'shared_ptr' pointing to a new object
+        //:     of the specified 'T' type, where 'T' must be a complete type.
+        //: 2.  The default allocator is used to create the shared rep holding
+        //:     the ref-counts, deleter, and shared object.
+        //: 3.  There is only one allocation to create the shared object,
+        //:     unless the shared object performs additional allocations.
+        //: 4.  The appropriate constructor for 'T' is called, forwarding all
+        //:     of the supplied arguments to that constructor, in the supplied
+        //:     order.
+        //: 5.  An allocator for 'T' can be supplied as an argument if 'T'
+        //:     supports allocators.
+        //: 6.  The reference count of the 'shared_ptr' object shall be 1.
+        //: 7.  No memory is leaked if the constructor of 'T' throws an
+        //:     exception.
+        //: 8.  'make_shared' works for allocator types, DRQS 75629850
         //
-        // Plan: TBD
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   shared_ptr<T> make_shared<T>(ARGS&&...args)
@@ -5327,319 +8101,573 @@ int main(int argc, char *argv[])
         //   shared_ptr<T> make_shared<T>(const A1& a1, ...& a13)
         //   shared_ptr<T> make_shared<T>(const A1& a1, ...& a14)
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nTESTING 'make_shared'"
                             "\n=====================\n");
 
-        static const MyTestArg1  V1(1);
-        static const MyTestArg2  V2(20);
-        static const MyTestArg3  V3(23);
-        static const MyTestArg4  V4(44);
-        static const MyTestArg5  V5(66);
-        static const MyTestArg6  V6(176);
-        static const MyTestArg7  V7(878);
-        static const MyTestArg8  V8(8);
-        static const MyTestArg9  V9(912);
-        static const MyTestArg10 V10(102);
-        static const MyTestArg11 V11(111);
-        static const MyTestArg12 V12(333);
-        static const MyTestArg13 V13(712);
-        static const MyTestArg14 V14(1414);
-
-        if (verbose) printf("\nTesting 'make_shared' with no arguments"
-                            "\n---------------------------------------\n");
-
-        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta("Test case 32 default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&ta);
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP = MyInplaceTestObject();
+        if (verbose) printf(
+                          "\n'make_shared' with default allocator for args"
+                          "\n---------------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                                       bsl::make_shared<MyInplaceTestObject>();
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+        if (verbose) printf("\nTesting constructor with no arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 1 argument"
-                            "\n---------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 1 argument"
+                            "\n-----------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1);
+        Harness::testCase32_DefaultAllocator<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                                     bsl::make_shared<MyInplaceTestObject>(V1);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        if (verbose) printf("\nTesting constructor with 2 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 2 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 3 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2);
+        Harness::testCase32_DefaultAllocator<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                                 bsl::make_shared<MyInplaceTestObject>(V1, V2);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 3 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3);
+        Harness::testCase32_DefaultAllocator<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                             bsl::make_shared<MyInplaceTestObject>(V1, V2, V3);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 4 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
+        Harness::testCase32_DefaultAllocator<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                         bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 5 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                     bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 6 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                 bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
+        Harness::testCase32_DefaultAllocator<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
 
-        if (verbose) printf("\nTesting 'make_shared' with 7 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
+        Harness::testCase32_DefaultAllocator<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+#else  // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n-------------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 9 arguments"
-                            "\n----------------------------------------\n");
+        Harness::testCase32_DefaultAllocator<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8);
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n-------------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 10 arguments"
-                            "\n-----------------------------------------\n");
+        Harness::testCase32_DefaultAllocator<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9);
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n-------------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 2 arguments"
-                            "\n----------------------------------------\n");
+        Harness::testCase32_DefaultAllocator<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10);
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9, V10);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 11 arguments"
-                            "\n----------------------------------------\n");
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11);
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9, V10, V11);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 12 arguments"
-                            "\n-----------------------------------------\n");
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+#endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11, V12);
+        if (verbose) printf("\nTesting constructor with 14 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9, V10, V11,
-                                                        V12);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
+        Harness::testCase32_DefaultAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+        Harness::testCase32_DefaultAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_DefaultAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
 
-        if (verbose) printf("\nTesting 'make_shared' with 13 arguments"
-                            "\n-----------------------------------------\n");
+        if (verbose) printf("\n'make_shared' with local allocator for args"
+                            "\n-------------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11, V12, V13);
+#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+        if (verbose) printf("\nTesting constructor with no arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9, V10, V11,
-                                                        V12, V13);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_LocalAllocator<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 1 argument"
+                            "\n-----------------------------------\n");
 
-        if (verbose) printf("\nTesting 'make_shared' with 14 arguments"
-                            "\n-----------------------------------------\n");
+        Harness::testCase32_LocalAllocator<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                    V8, V9, V10, V11, V12, V13, V14);
+        if (verbose) printf("\nTesting constructor with 2 arguments"
+                            "\n-------------------------------------\n");
 
-            bsl::shared_ptr<MyInplaceTestObject> x =
-                  bsl::make_shared<MyInplaceTestObject>(V1, V2, V3, V4, V5, V6,
-                                                        V7, V8, V9, V10, V11,
-                                                        V12, V13, V14);
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
+        Harness::testCase32_LocalAllocator<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
 
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        if (verbose) printf("\nTesting constructor with 3 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<3,0,0,1,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
+
+#if !defined(BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY)
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,0,0,1,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,0,0,0,1,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,0,0,1,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,0,0,0,1,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,0,0,0,0,1,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,0,0,1,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,0,0,0,1,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,0,0,0,0,1,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,0,0,0,0,0,1,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,0,1,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,0,0,1,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,0,0,0,1,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,0,0,0,0,1,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,0,0,0,0,0,0,1,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,1,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,0,1,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,1,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,0,1,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,0,0,1,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,0,0,0,1,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,1,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,1,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,1,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,1,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,0,1,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,0,0,1,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,0,0,0,1,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,1,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,1,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,1,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,1,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,1,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,1,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,0,1,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,0,0,1,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,1,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,1,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,1,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,1,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,1,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,1,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,1,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,0,1,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,0,0,1,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,1,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,1,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,1,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,1,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,1,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,1,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,1,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,1,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,1,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,1,2,2>();
+        Harness::testCase32_LocalAllocator<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,1,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,1,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,1,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,1,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,1,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,1,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,1,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,1,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,1,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,1,0,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,1,2>();
+        Harness::testCase32_LocalAllocator<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+#else  // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
+        if (verbose) printf("\nTesting constructor with 4 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 5 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 6 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 7 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 8 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 9 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 10 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 11 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 12 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
+
+        if (verbose) printf("\nTesting constructor with 13 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
+#endif // BSLSTL_SHAREDPTR_LIMIT_TESTING_COMPLEXITY
+
+        if (verbose) printf("\nTesting constructor with 14 arguments"
+                            "\n-------------------------------------\n");
+
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,1,0,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,1,0,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,1,0,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,1,0,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,1,0,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,1,0,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,1,0,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,1,0,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,1,0,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,1,0,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
+        Harness::testCase32_LocalAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
+#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+        Harness::testCase32_LocalAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator< 9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
+        Harness::testCase32_LocalAllocator<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
+        Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
+        Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
+        Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
+#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+
+
 
         if (verbose) printf("\nTesting 'make_shared' with evil type"
                             "\n------------------------------------\n");
 
-        numAllocations = ta.numAllocations();
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
             bsl::shared_ptr<MostEvilTestType> x =
@@ -5649,6 +8677,24 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
             ASSERT(13 == X.get()->data());
+            ASSERT(1 == x.use_count());
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with allocator type"
+                            "\n-----------------------------------------\n");
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bsl::shared_ptr<bslma::TestAllocator> x =
+                                bsl::make_shared<bslma::TestAllocator>("Name");
+            const bsl::shared_ptr<bslma::TestAllocator>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERTV(X->name(), 0 == strcmp("Name", X->name()));
+            ASSERT(0 == X.get()->numAllocations());
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5733,23 +8779,325 @@ int main(int argc, char *argv[])
           }
       }
     } break;
-    case 30: {
-      // --------------------------------------------------------------------
-      // TESTING NOTHING, THIS SLOT IS AVAILABLE TO BE RE-USED
-      //
-      // Concerns:
-      //
-      // Plan:
-      //
-      // Testing:
-      // --------------------------------------------------------------------
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING ROUND-TRIP THROUGH 'bslma::ManagedPtr'
+        //
+        // Concerns:
+        //: 1 Making a 'bslma::ManagedPtr' from a 'shared_ptr', and then making
+        //:   a new 'shared_ptr' from that 'ManagedPtr', does not allocate a
+        //:   new 'rep' object, but re-uses the managed 'rep'.
+        //:
+        //: 2 Making a 'bslma::ManagedPtr' from an aliased 'shared_ptr' handles
+        //:   the unusual empty/shared-null states when round-tripped.
+        //
+        // Plan:
+        //  TBD
+        //
+        // Testing:
+        //   CONCERN: Shared -> Managed -> Shared uses same 'rep' object
+        // --------------------------------------------------------------------
 
-      if (verbose)
-           printf("\nTESTING NOTHING, THIS SLOT IS AVAILABLE TO BE RE-USED"
-                  "\n=====================================================\n");
+        if (verbose)
+            printf("\nTESTING ROUND-TRIP THROUGH 'bslma::ManagedPtr'"
+                   "\n==============================================\n");
 
-    } break;
-    case 29: {
+        bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+        bslma::TestAllocator nullAllocator("Null Allocator for case 30");
+        nullAllocator.setAllocationLimit(0);
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+
+        if (verbose) printf("\nTesting simple round-trip"
+                            "\n-------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new(ta) TObj(&numDeletes);
+            ASSERTV(1 + numAllocations,   ta.numAllocations(),
+                    1 + numAllocations == ta.numAllocations());
+
+            Obj x(p, &ta);      const Obj&  X   = x;
+            bslma::SharedPtrRep const*const REP = X.rep();
+            ASSERTV(2 + numAllocations,   ta.numAllocations(),
+                    2 + numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                T_ T_ P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            {
+                bslma::ManagedPtr<TObj> y(X.managedPtr());
+                const bslma::ManagedPtr<TObj>& Y=y;
+
+                ASSERT(REP == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(p == X.get());
+                ASSERT(2 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(2 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+
+                // Give up original shared ownership, so 'y' is unique owner of
+                // shared object.
+
+                x.reset();
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(2 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+
+                // Transfer ownership to a new 'shared_ptr'.  No memory should
+                // be allocated.
+
+                Obj z(y, &nullAllocator); const Obj& Z = z;
+                ASSERT(REP == Z.rep());
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(0 == Y.ptr());
+                ASSERT(p == Z.get());
+                ASSERT(1 == Z.use_count());
+                ASSERT(2 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+
+                // Transfer ownership back out of the nested block.
+
+                x = MovUtil::move(z);
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+            ASSERT(REP == X.rep());
+            ASSERT(2 + numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations   == ta.numDeallocations());
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+        ASSERTV(2 + numDeallocations,   ta.numDeallocations(),
+                2 + numDeallocations == ta.numDeallocations());
+
+        // Reset counters.
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+
+        if (verbose) printf("\nTesting counted-null round-trip"
+                            "\n-------------------------------\n");
+        {
+            TObj *p = 0;    // null pointer must be the right type to ref-count
+
+            Obj x(p, &ta);      const Obj&  X   = x;
+            bslma::SharedPtrRep const*const REP = X.rep();
+            ASSERTV(1 + numAllocations,   ta.numAllocations(),
+                    1 + numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                T_ T_ P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            {
+                bslma::ManagedPtr<TObj> y(X.managedPtr());
+                const bslma::ManagedPtr<TObj>& Y=y;
+
+                ASSERT(REP == X.rep());
+                ASSERT(0 == X.get());
+                ASSERT(1 == X.use_count());
+                ASSERT(0 == Y.ptr());
+                ASSERT(1 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+
+                // Transfer ownership to a new 'shared_ptr'.  No memory should
+                // be allocated.
+
+                Obj z(y, &nullAllocator); const Obj& Z = z;
+                ASSERT(0 == Z.rep());  // does not round trip ownership of null
+                ASSERT(0 == Z.get());
+                ASSERT(0 == Z.use_count());
+                ASSERT(0 == Y.ptr());
+                ASSERT(1 + numAllocations == ta.numAllocations());
+                ASSERT(numDeallocations   == ta.numDeallocations());
+            }
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+            ASSERT(REP == X.rep());
+            ASSERT(1 + numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations   == ta.numDeallocations());
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+        ASSERTV(1 + numDeallocations,   ta.numDeallocations(),
+                1 + numDeallocations == ta.numDeallocations());
+
+        // Reset counters.
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+
+        if (verbose) printf("\nTesting empty non-null is supported"
+                            "\n-----------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj dummy(&numDeletes);
+            TObj *p = &dummy;
+
+            Obj nullPointer;
+            Obj x(nullPointer, p); const Obj& X = x;
+            bslma::SharedPtrRep const*const REP = X.rep();
+
+            ASSERTV(REP, 0 == REP);
+            ASSERTV(numAllocations,   ta.numAllocations(),
+                    numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                T_ T_ P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(0 == X.use_count());
+
+            {
+                bslma::ManagedPtr<TObj> y(X.managedPtr());
+                const bslma::ManagedPtr<TObj>& Y=y;
+
+                ASSERT(REP == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(p == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Give up original shared ownership, so 'y' is unique owner of
+                // shared object.
+
+                x.reset();
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Now release ownership, which should have no effect.
+
+                y.reset();
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(0 == Y.ptr());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Transfer remains back out of the nested block.
+
+                x = y;
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+            ASSERT(0 == X.rep());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeallocations,   ta.numDeallocations(),
+                numDeallocations == ta.numDeallocations());
+
+        // Reset counters.
+
+        numAllocations   = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+
+        if (verbose) printf("\nTesting empty non-null round-trip"
+                            "\n---------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj dummy(&numDeletes);
+            TObj *p = &dummy;
+
+            Obj nullPointer;
+            Obj x(nullPointer, p); const Obj& X = x;
+            bslma::SharedPtrRep const*const REP = X.rep();
+
+            ASSERTV(REP, 0 == REP);
+            ASSERTV(numAllocations,   ta.numAllocations(),
+                    numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                T_ T_ P_(numDeletes); P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(0 == X.use_count());
+
+            {
+                bslma::ManagedPtr<TObj> y(X.managedPtr());
+                const bslma::ManagedPtr<TObj>& Y=y;
+
+                ASSERT(REP == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(p == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Give up original shared ownership, so 'y' is unique owner of
+                // shared object.
+
+                x.reset();
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(p == Y.ptr());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Transfer ownership to a new 'shared_ptr'.  No memory should
+                // be allocated.
+
+                Obj z(y, &nullAllocator); const Obj& Z = z;
+                ASSERT(REP == Z.rep());
+                ASSERT(0 == X.rep());
+                ASSERT(0 == numDeletes);
+                ASSERT(0 == X.get());
+                ASSERT(0 == X.use_count());
+                ASSERT(0 == Y.ptr());
+                ASSERT(p == Z.get());
+                ASSERT(0 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+
+                // Transfer ownership back out of the nested block.
+
+                x = MovUtil::move(z);
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(0 == X.use_count());
+            ASSERT(REP == X.rep());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeallocations,   ta.numDeallocations(),
+                numDeallocations == ta.numDeallocations());
+
+        ASSERT(dam.isTotalSame());
+      } break;
+      case 29: {
       // --------------------------------------------------------------------
       // TESTING 'owner_before' METHODS
       //
@@ -5940,6 +9288,7 @@ int main(int argc, char *argv[])
       //   Test that 'lock' works as expected.
       //
       // Plan:
+      //   TBD
       //
       // Testing:
       //   shared_ptr<TYPE> lock() const
@@ -5948,6 +9297,11 @@ int main(int argc, char *argv[])
       if (verbose) printf("\nTESTING 'lock'"
                           "\n==============\n");
 
+      // Confirm that the default allocator never allocates in this test case
+      bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+      if (verbose) printf("\ndefault-constructed 'weak_ptr'"
+                          "\n------------------------------\n");
       {
           ObjWP mX; const ObjWP& X = mX;
           ObjWP mY; const ObjWP& Y = mY;
@@ -5967,11 +9321,15 @@ int main(int argc, char *argv[])
 
       }
 
+      if (verbose) printf("\n'regular' shared and weak pointers"
+                          "\n----------------------------------\n");
       {
           bslma::TestAllocator ta;
+
           MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
           TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestObject>& REP = rep;
+
           MyTestObject *PTR = REP.ptr();
           ASSERTV(REP_PTR, PTR, REP_PTR == PTR);
 
@@ -5982,32 +9340,330 @@ int main(int argc, char *argv[])
 
               ObjWP mX(S); const ObjWP& X = mX;
               ObjWP mY(S); const ObjWP& Y = mY;
-              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+              ASSERTV(REP.numReferences(), 1 == REP.numReferences());
 
               ObjSP SA = X.lock();
               ASSERT(SA);
               ASSERT(PTR  == SA.get());
               ASSERT(&REP == SA.rep());
-              LOOP_ASSERT(REP.numReferences(), 2 == REP.numReferences());
+              ASSERTV(REP.numReferences(), 2 == REP.numReferences());
 
               ObjSP SB = Y.lock();
               ASSERT(SB);
               ASSERT(PTR  == SB.get());
               ASSERT(&REP == SB.rep());
 
-              LOOP_ASSERT(REP.numReferences(), 3 == REP.numReferences());
+              ASSERTV(REP.numReferences(), 3 == REP.numReferences());
 
               SC = X.lock();
               LOOP_ASSERT(REP.numReferences(), 4 == REP.numReferences());
-              ASSERT(PTR  == SC.get());
-              ASSERT(&REP == SC.rep());
+              ASSERTV( PTR, SC.get(),  PTR == SC.get());
+              ASSERTV(&REP, SC.rep(), &REP == SC.rep());
           }
 
-          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      0 == REP.disposeObjectCount());
+          ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+          ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
       }
+
+      // This test scenario might be a little neater if we used a shared object
+      // that flagged when its destructor runs, or an instrumented custom
+      // deleter.  Similarly, running through the scenario twice to track the
+      // 'weak_ptr' to the aliased and non-aliased 'shared_ptr' would reduce
+      // the risk of masking bugs when we extend the lifetime of the one 'rep'
+      // object until all references are released.
+
+      if (verbose) printf("\nweak-ref to aliased shared pointer"
+                          "\n----------------------------------\n");
+      {
+          bslma::TestAllocator ta;
+
+          bsl::shared_ptr<int> mOriginal;
+          const bsl::shared_ptr<int>& ORIGINAL = mOriginal;
+          mOriginal.createInplace(&ta, 42);
+          bslma::SharedPtrRep const*const REP = ORIGINAL.rep();
+
+          ASSERTV(ORIGINAL.use_count(), 1 == ORIGINAL.use_count());
+
+          int target = 13;
+          bsl::shared_ptr<int> mAlias(ORIGINAL, &target);
+          const bsl::shared_ptr<int>& ALIAS = mAlias;
+
+          ASSERTV(ORIGINAL.use_count(),  2 == ORIGINAL.use_count());
+          ASSERTV(ALIAS.use_count(),     2 == ALIAS.use_count());
+          ASSERTV(REP, ORIGINAL.rep(), REP == ORIGINAL.rep());
+          ASSERTV(REP, ALIAS.rep(),    REP == ALIAS.rep());
+
+          {
+              bsl::weak_ptr<int> mX(ORIGINAL); const bsl::weak_ptr<int>& X=mX;
+              bsl::weak_ptr<int> mY(ALIAS);    const bsl::weak_ptr<int>& Y=mY;
+              ASSERTV(ORIGINAL.use_count(), 2  == ORIGINAL.use_count());
+              ASSERTV(ALIAS.use_count(),    2  == ALIAS.use_count());
+              ASSERTV(REP, ORIGINAL.rep(), REP == ORIGINAL.rep());
+              ASSERTV(REP, ALIAS.rep(),    REP == ALIAS.rep());
+
+              ASSERTV(X.use_count(), 2  == X.use_count());
+              ASSERTV(Y.use_count(), 2  == Y.use_count());
+              ASSERTV(REP, X.rep(), REP == X.rep());
+              ASSERTV(REP, Y.rep(), REP == Y.rep());
+
+              bsl::shared_ptr<int> lockOriginal = X.lock();
+              ASSERTV(ORIGINAL.get() == lockOriginal.get());
+              ASSERTV(ORIGINAL.rep() == lockOriginal.rep());
+              ASSERTV(3 == lockOriginal.use_count());
+              ASSERTV(3 == ORIGINAL.use_count());
+
+              bsl::shared_ptr<int> lockAlias = Y.lock();
+              ASSERTV(ALIAS.get() == lockAlias.get());
+              ASSERTV(ALIAS.rep() == lockAlias.rep());
+              ASSERTV(4 == lockAlias.use_count());
+              ASSERTV(4 == ALIAS.use_count());
+
+              mOriginal.reset();
+              mAlias.reset();
+              ASSERTV(2 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(2 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 2 == X.use_count());
+              ASSERTV(Y.use_count(), 2 == Y.use_count());
+
+              // lock the weak-pointers again, cross-assigning the lock results
+              // note that the reference count should not drop to zero for the
+              // one control block, so even though there is no 'shared_ptr' to
+              // '42' until 'lockAlias' is re-assigned, the shared 'rep' object
+              // remains alive throughout.
+
+              lockOriginal = Y.lock();
+              lockAlias = X.lock();
+              ASSERTV(*lockOriginal, 13 == *lockOriginal);
+              ASSERTV(*lockAlias,    42 == *lockAlias);
+
+              ASSERTV(2 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(2 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 2 == X.use_count());
+              ASSERTV(Y.use_count(), 2 == Y.use_count());
+
+              // Confirm there has been exactly one memory allocation so far,
+              // and nothing de-allocated
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(0 == ta.numDeallocations());
+
+              // reset the last two active 'shared_ptr's, releasing ownership
+              // of the shared 'int'
+
+              lockOriginal.reset();
+              lockAlias.reset();
+              ASSERTV(0 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(0 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 0 == X.use_count());
+              ASSERTV(Y.use_count(), 0 == Y.use_count());
+
+              // Confirm that despite releasing final ownership of the 'int',
+              // the 'weak_ptr' objects retain ownership of the 'rep' object
+              // footprint
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(0 == ta.numDeallocations());
+
+              // locking expired 'weak_ptr' objects should not produce an empty
+              // 'shared_ptr' aliasing the origina values, but always a null
+              // and empty 'shared_ptr'
+
+              lockOriginal = X.lock();
+              lockAlias = Y.lock();
+              ASSERT(!ORIGINAL);
+              ASSERT(!ORIGINAL.rep());
+              ASSERT(!ALIAS);
+              ASSERT(!ALIAS.rep());
+
+              // finally, allow the 'rep' object memory to be reclaimed too
+              mX.reset();
+              mY.reset();
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(1 == ta.numDeallocations());
+          }
+          // Confirm no double-deletes
+          ASSERT(1 == ta.numAllocations());
+          ASSERT(1 == ta.numDeallocations());
+      }
+
+      // This test scenario would benefit greatly from an instrumented deleter
+      // separately tracking the end of shared ownership, while the allocator
+      // tracks the end of the 'rep' object itself.
+
+      if (verbose) printf("\nweak-ref to counted null"
+                          "\n------------------------\n");
+      {
+          bslma::TestAllocator ta;
+
+          int *p = 0;
+          bsl::shared_ptr<int> mOriginal(p, &ta);
+          const bsl::shared_ptr<int>& ORIGINAL = mOriginal;
+          bslma::SharedPtrRep const*const REP = ORIGINAL.rep();
+
+          ASSERTV(ORIGINAL.use_count(), 1 == ORIGINAL.use_count());
+
+          int target = 13;
+          bsl::shared_ptr<int> mAlias(ORIGINAL, &target);
+          const bsl::shared_ptr<int>& ALIAS = mAlias;
+
+          ASSERTV(ORIGINAL.use_count(),  2 == ORIGINAL.use_count());
+          ASSERTV(ALIAS.use_count(),     2 == ALIAS.use_count());
+          ASSERTV(REP, ORIGINAL.rep(), REP == ORIGINAL.rep());
+          ASSERTV(REP, ALIAS.rep(),    REP == ALIAS.rep());
+
+          {
+              bsl::weak_ptr<int> mX(ORIGINAL); const bsl::weak_ptr<int>& X=mX;
+              bsl::weak_ptr<int> mY(ALIAS);    const bsl::weak_ptr<int>& Y=mY;
+              ASSERTV(ORIGINAL.use_count(), 2  == ORIGINAL.use_count());
+              ASSERTV(ALIAS.use_count(),    2  == ALIAS.use_count());
+              ASSERTV(REP, ORIGINAL.rep(), REP == ORIGINAL.rep());
+              ASSERTV(REP, ALIAS.rep(),    REP == ALIAS.rep());
+
+              ASSERTV(X.use_count(), 2  == X.use_count());
+              ASSERTV(Y.use_count(), 2  == Y.use_count());
+              ASSERTV(REP, X.rep(), REP == X.rep());
+              ASSERTV(REP, Y.rep(), REP == Y.rep());
+
+              bsl::shared_ptr<int> lockOriginal = X.lock();
+              ASSERTV(ORIGINAL.get() == lockOriginal.get());
+              ASSERTV(ORIGINAL.rep() == lockOriginal.rep());
+              ASSERTV(3 == lockOriginal.use_count());
+              ASSERTV(3 == ORIGINAL.use_count());
+
+              bsl::shared_ptr<int> lockAlias = Y.lock();
+              ASSERTV(ALIAS.get() == lockAlias.get());
+              ASSERTV(ALIAS.rep() == lockAlias.rep());
+              ASSERTV(4 == lockAlias.use_count());
+              ASSERTV(4 == ALIAS.use_count());
+
+              mOriginal.reset();
+              mAlias.reset();
+              ASSERTV(2 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(2 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 2 == X.use_count());
+              ASSERTV(Y.use_count(), 2 == Y.use_count());
+
+              // lock the weak-pointers again, cross-assigning the lock results
+              // note that the reference count should not drop to zero for the
+              // one control block, so even though there is no 'shared_ptr' to
+              // null until 'lockAlias' is re-assigned, the shared 'rep' object
+              // remains alive throughout.
+
+              lockOriginal = Y.lock();
+              lockAlias = X.lock();
+              ASSERTV(*lockOriginal, 13 == *lockOriginal);
+              ASSERTV(lockAlias.get(), !lockAlias);
+
+              ASSERTV(2 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(2 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 2 == X.use_count());
+              ASSERTV(Y.use_count(), 2 == Y.use_count());
+
+              // Confirm there has been exactly one memory allocation so far,
+              // and nothing de-allocated
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(0 == ta.numDeallocations());
+
+              // reset the last two active 'shared_ptr's, releasing ownership
+              // of the shared null
+
+              lockOriginal.reset();
+              lockAlias.reset();
+              ASSERTV(0 == lockOriginal.use_count());
+              ASSERTV(0 == ORIGINAL.use_count());
+              ASSERTV(0 == lockAlias.use_count());
+              ASSERTV(0 == ALIAS.use_count());
+              ASSERTV(X.use_count(), 0 == X.use_count());
+              ASSERTV(Y.use_count(), 0 == Y.use_count());
+
+              // Confirm that despite releasing final ownership of the null
+              // pointer, the 'weak_ptr' objects retain ownership of the 'rep'
+              // object footprint
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(0 == ta.numDeallocations());
+
+              // locking expired 'weak_ptr' objects should not produce an empty
+              // 'shared_ptr' aliasing the origina values, but always a null
+              // and empty 'shared_ptr'
+
+              lockOriginal = X.lock();
+              lockAlias = Y.lock();
+              ASSERT(!ORIGINAL);
+              ASSERT(!ORIGINAL.rep());
+              ASSERT(!ALIAS);
+              ASSERT(!ALIAS.rep());
+
+              // finally, allow the 'rep' object memory to be reclaimed too
+              mX.reset();
+              mY.reset();
+
+              ASSERT(1 == ta.numAllocations());
+              ASSERT(1 == ta.numDeallocations());
+          }
+          // Confirm no double-deletes
+          ASSERT(1 == ta.numAllocations());
+          ASSERT(1 == ta.numDeallocations());
+      }
+
+      if (verbose) printf("\nweak-ref to empty non-null 'shared_ptr'"
+                          "\n---------------------------------------\n");
+      {
+          bsl::shared_ptr<int> mOriginal;
+          const bsl::shared_ptr<int>& ORIGINAL = mOriginal;
+
+          ASSERTV(ORIGINAL.use_count(), 0 == ORIGINAL.use_count());
+
+          int target = 13;
+          bsl::shared_ptr<int> mAlias(ORIGINAL, &target);
+          const bsl::shared_ptr<int>& ALIAS = mAlias;
+
+          ASSERTV(ORIGINAL.use_count(), 0 == ORIGINAL.use_count());
+          ASSERTV(ALIAS.use_count(),    0 == ALIAS.use_count());
+          ASSERTV(ORIGINAL.rep(),       0 == ORIGINAL.rep());
+          ASSERTV(ALIAS.rep(),          0 == ALIAS.rep());
+
+          {
+              bsl::weak_ptr<int> mX(ORIGINAL); const bsl::weak_ptr<int>& X=mX;
+              bsl::weak_ptr<int> mY(ALIAS);    const bsl::weak_ptr<int>& Y=mY;
+              ASSERTV(ORIGINAL.use_count(), 0 == ORIGINAL.use_count());
+              ASSERTV(ALIAS.use_count(),    0 == ALIAS.use_count());
+              ASSERTV(ORIGINAL.rep(),       0 == ORIGINAL.rep());
+              ASSERTV(ALIAS.rep(),          0 == ALIAS.rep());
+
+              ASSERTV(X.use_count(), 0 == X.use_count());
+              ASSERTV(Y.use_count(), 0 == Y.use_count());
+              ASSERTV(X.rep(),       0 == X.rep());
+              ASSERTV(Y.rep(),       0 == Y.rep());
+
+              bsl::shared_ptr<int> lockOriginal = X.lock();
+              ASSERTV(lockOriginal.get(),       0 == lockOriginal.get());
+              ASSERTV(lockOriginal.rep(),       0 == lockOriginal.rep());
+              ASSERTV(lockOriginal.use_count(), 0 == lockOriginal.use_count());
+              ASSERTV(ORIGINAL.use_count(),     0 == ORIGINAL.use_count());
+
+              bsl::shared_ptr<int> lockAlias = Y.lock();
+              ASSERTV(lockAlias.get(),       0 == lockAlias.get());
+              ASSERTV(lockAlias.rep(),       0 == lockAlias.rep());
+              ASSERTV(lockAlias.use_count(), 0 == lockAlias.use_count());
+              ASSERTV(ALIAS.use_count(),     0 == ALIAS.use_count());
+          }
+      }
+
+      ASSERT(dam.isTotalSame());
     } break;
     case 26: {
       // --------------------------------------------------------------------
@@ -6124,7 +9780,7 @@ int main(int argc, char *argv[])
       }
     } break;
     case 25: {
-      // --------------------------------------------------------------------
+      // ----------------------------------------------------------------------
       // TESTING ASSIGNMENT OPERATORS ('weak_ptr')
       //
       // Concerns:
@@ -6136,10 +9792,12 @@ int main(int argc, char *argv[])
       // Plan:
       //
       // Testing:
-      //   weak_ptr& operator=(const weak_ptr& rhs)
-      //   weak_ptr& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
-      //   weak_ptr& operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs)
-      // --------------------------------------------------------------------
+      //   weak_ptr& operator=(weak_ptr&& rhs) noexcept
+      //   weak_ptr& operator=(weak_ptr<COMPATIBLE_TYPE>&& rhs) noexcept
+      //   weak_ptr& operator=(const weak_ptr& rhs) noexcept
+      //   weak_ptr& operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs) noexcept
+      //   weak_ptr& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) noexcept
+      // ----------------------------------------------------------------------
 
       if (verbose) printf("\nTESTING ASSIGNMENT OPERATORS ('weak_ptr')"
                           "\n=========================================\n");
@@ -6326,15 +9984,15 @@ int main(int argc, char *argv[])
               ASSERT(&REP2 == Y.rep());
           }
 
-          LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
+          LOOP_ASSERT(REP1.numReferences(),   0 == REP1.numReferences());
           LOOP_ASSERT(REP1.disposeRepCount(), 1 == REP1.disposeRepCount());
           LOOP_ASSERT(REP1.disposeObjectCount(),
-                                             1 == REP1.disposeObjectCount());
+                                              1 == REP1.disposeObjectCount());
 
-          LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
+          LOOP_ASSERT(REP2.numReferences(),   0 == REP2.numReferences());
           LOOP_ASSERT(REP2.disposeRepCount(), 1 == REP2.disposeRepCount());
           LOOP_ASSERT(REP2.disposeObjectCount(),
-                                             1 == REP2.disposeObjectCount());
+                                              1 == REP2.disposeObjectCount());
       }
     } break;
     case 24: {
@@ -6347,10 +10005,12 @@ int main(int argc, char *argv[])
       // Plan:
       //
       // Testing:
-      //   weak_ptr()
-      //   weak_ptr(const weak_ptr& original)
-      //   weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other)
-      //   weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
+      //   weak_ptr() noexcept
+      //   weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) noexcept
+      //   weak_ptr(const weak_ptr& original) noexcept
+      //   weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) noexcept
+      //   weak_ptr(weak_ptr&& original) noexcept
+      //   weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) noexcept
       //   ~weak_ptr()
       //   bslma::SharedPtrRep *rep() const
       //   bool expired() const
@@ -6365,181 +10025,226 @@ int main(int argc, char *argv[])
       {
           ObjWP mX; const ObjWP& X = mX;
           ASSERT(X.expired());
-          ASSERT(0 == X.use_count());
           ASSERT(0 == X.rep());
-          ObjSP mS1 = X.lock(); const ObjSP& S1 = mS1;
+          ASSERT(0 == X.use_count());
 
+          ObjSP mS1 = X.lock(); const ObjSP& S1 = mS1;
           ASSERT(!S1);
-          ASSERT(0 == S1.get());
+          ASSERT(0 == S1.rep());
+          ASSERT(0 == S1.use_count());
+
+      }
+
+      if (verbose) printf("\nTesting copy of the default"
+                          "\n---------------------------\n");
+      {
+          ObjWP mX;       const ObjWP& X = mX;
+
+          ObjWP mY = X;   const ObjWP& Y = mY;
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+          ASSERT(0 == Y.use_count());
+      }
+
+      if (verbose) printf("\nTesting move of the default"
+                          "\n---------------------------\n");
+      {
+          ObjWP mX; const ObjWP& X = mX;
+
+          ObjWP mY(bslmf::MovableRefUtil::move(mX)); const ObjWP& Y = mY;
+          ASSERT(Y.expired());
+          ASSERT(0 == Y.rep());
+          ASSERT(0 == Y.use_count());
       }
 
       if (verbose) printf("\nTesting same TYPE constructors"
-                          "\n------------------------------\n");
+                          "\n-------------------------------\n");
       {
           bslma::TestAllocator ta;
-          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          MyTestObject *const REP_PTR = new(ta) MyTestObject(&numDeletes);
+
           TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestObject>& REP = rep;
-          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
-          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      0 == REP.disposeObjectCount());
+
+          ASSERTV(REP_PTR, REP.ptr(), REP_PTR == REP.ptr());
+          ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
+
           MyTestObject *PTR = REP.ptr();
           {
               ObjSP mS(PTR, &rep);
               const ObjSP& S = mS;
-              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
 
-              ObjWP mX(S); const ObjWP& X = mX;
+              ObjWP mX(S); const ObjWP& X = mX;   // testing this constructor
+
               ASSERT(!X.expired());
               ASSERT(&REP == X.rep());
-              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
-              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+              ASSERTV(X.use_count(),            1 == X.use_count());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  1 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
 
-              ObjWP mY(X); const ObjWP& Y = mY;
+              ObjWP mY(X); const ObjWP& Y = mY;   // testing this constructor
+
               ASSERT(!Y.expired());
               ASSERT(&REP == Y.rep());
-              LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
+              ASSERTV(Y.use_count(),            1 == Y.use_count());
+              ASSERTV(X.use_count(),            1 == X.use_count());
 
-              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  2 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
 
-              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
           }
-          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      1 == REP.disposeObjectCount());
+          ASSERTV(REP.numReferences(),      0 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    1 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 1 == REP.disposeObjectCount());
       }
 
-      if (verbose) printf("\nTesting different TYPE constructors"
-                          "\n-----------------------------------\n");
+      if (verbose) printf("\nTesting compatible TYPE constructors"
+                          "\n------------------------------------\n");
       {
           bslma::TestAllocator ta;
-          MyTestDerivedObject *REP_PTR =
+          MyTestDerivedObject *const REP_PTR =
                                       new(ta) MyTestDerivedObject(&numDeletes);
+
           TestSharedPtrRep<MyTestDerivedObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestDerivedObject>& REP = rep;
-          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
-          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                                            0 == REP.disposeObjectCount());
+
+          ASSERTV(REP_PTR, REP.ptr(), REP_PTR == REP.ptr());
+          ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
+
           MyTestDerivedObject *PTR = REP.ptr();
           {
               DerivedSP mS(PTR, &rep);
               const DerivedSP& S = mS;
-              LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
 
-              ObjWP mX(S); const ObjWP& X = mX;
+              ObjWP mX(S); const ObjWP& X = mX;   // testing this constructor
               ASSERT(!X.expired());
               ASSERT(&REP == X.rep());
-              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
-              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+              ASSERTV(X.use_count(),            1 == X.use_count());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  1 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
+
 
               DerivedWP mZ(S); const DerivedWP& Z = mZ;
-              ObjWP mY(Z); const ObjWP& Y = mY;
+              ObjWP mY(Z); const ObjWP& Y = mY;   // testing this constructor
               ASSERT(!Y.expired());
               ASSERT(&REP == Y.rep());
-              LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
+              ASSERTV(Y.use_count(),            1 == Y.use_count());
+              ASSERTV(X.use_count(),            1 == X.use_count());
 
-              LOOP_ASSERT(X.use_count(),         1 == X.use_count());
+              ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  3 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
 
-              LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
           }
-          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      1 == REP.disposeObjectCount());
+          ASSERTV(REP.numReferences(),      0 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    1 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 1 == REP.disposeObjectCount());
       }
 
       if (verbose) printf("\nTesting destructor"
                           "\n------------------\n");
       {
           bslma::TestAllocator ta;
-          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+          MyTestObject *const REP_PTR = new(ta) MyTestObject(&numDeletes);
+
           TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
           const TestSharedPtrRep<MyTestObject>& REP = rep;
-          ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
-          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      0 == REP.disposeObjectCount());
+
+          ASSERTV(REP_PTR, REP.ptr(), REP_PTR == REP.ptr());
+          ASSERTV(REP.numReferences(),      1 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 0 == REP.disposeObjectCount());
+
           MyTestObject *PTR = REP.ptr();
           {
-              ObjWP mY; const ObjWP& Y = mY;
-              (void) Y;  // Suppress 'unused variable' warning
+              ObjWP mY;   const ObjWP& Y = mY;
+              (void) Y;   // Suppress 'unused variable' warning
               {
-                  ObjSP mS(PTR, &rep); const ObjSP& S = mS;
-                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                  LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                  LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+                  ObjSP mS(PTR, &rep);    const ObjSP& S = mS;
+                  ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                  ASSERTV(REP.numWeakReferences(),
+                                               0 == REP.numWeakReferences());
+                  ASSERTV(REP.disposeRepCount(),
+                                               0 == REP.disposeRepCount());
+                  ASSERTV(REP.disposeObjectCount(),
+                                               0 == REP.disposeObjectCount());
 
                   {
-                      ObjWP mX(S); const ObjWP& X = mX;
-                      (void) X;  // Suppress 'unused variable' warning
-                      LOOP_ASSERT(REP.numReferences(),
-                                                   1 == REP.numReferences());
-                      LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                      LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+                      ObjWP mX(S);    const ObjWP& X = mX;
+                      (void) X;       // Suppress 'unused variable' warning
+                      ASSERTV(REP.numReferences(),
+                                               1 == REP.numReferences());
+                      ASSERTV(REP.numWeakReferences(),
+                                               1 == REP.numWeakReferences());
+                      ASSERTV(REP.disposeRepCount(),
+                                               0 == REP.disposeRepCount());
+                      ASSERTV(REP.disposeObjectCount(),
+                                               0 == REP.disposeObjectCount());
                   }
 
-                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                  LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                  LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+                  ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                  ASSERTV(REP.numWeakReferences(),
+                                               0 == REP.numWeakReferences());
+                  ASSERTV(REP.disposeRepCount(),
+                                               0 == REP.disposeRepCount());
+                  ASSERTV(REP.disposeObjectCount(),
+                                               0 == REP.disposeObjectCount());
 
-                  mY = S;
-                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                  LOOP_ASSERT(REP.disposeRepCount(),
-                              0 == REP.disposeRepCount());
-                  LOOP_ASSERT(REP.disposeObjectCount(),
-                              0 == REP.disposeObjectCount());
+                  mY = S;    // NOT YET TESTED
+                  ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                  ASSERTV(REP.numWeakReferences(),
+                                               1 == REP.numWeakReferences());
+                  ASSERTV(REP.disposeRepCount(),
+                                               0 == REP.disposeRepCount());
+                  ASSERTV(REP.disposeObjectCount(),
+                                               0 == REP.disposeObjectCount());
               }
 
-              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(),
-                          0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                          1 == REP.disposeObjectCount());
+              ASSERTV(REP.numReferences(),      0 == REP.numReferences());
+              ASSERTV(REP.numWeakReferences(),  1 == REP.numWeakReferences());
+              ASSERTV(REP.disposeRepCount(),    0 == REP.disposeRepCount());
+              ASSERTV(REP.disposeObjectCount(), 1 == REP.disposeObjectCount());
           }
 
-          LOOP_ASSERT(REP.numReferences(),   0 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(), 1 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                                             1 == REP.disposeObjectCount());
+          ASSERTV(REP.numReferences(),      0 == REP.numReferences());
+          ASSERTV(REP.numWeakReferences(),  0 == REP.numWeakReferences());
+          ASSERTV(REP.disposeRepCount(),    1 == REP.disposeRepCount());
+          ASSERTV(REP.disposeObjectCount(), 1 == REP.disposeObjectCount());
       }
     } break;
-    case 23: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING 'createInplace'
         //
         // Concerns:
+        //  TBD
         //
-        // Plan: TBD
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   void createInplace(bslma::Allocator *allocator=0)
@@ -6561,303 +10266,28 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'createInplace'"
                             "\n=======================\n");
 
-        static const MyTestArg1  V1(1);
-        static const MyTestArg2  V2(20);
-        static const MyTestArg3  V3(23);
-        static const MyTestArg4  V4(44);
-        static const MyTestArg5  V5(66);
-        static const MyTestArg6  V6(176);
-        static const MyTestArg7  V7(878);
-        static const MyTestArg8  V8(8);
-        static const MyTestArg9  V9(912);
-        static const MyTestArg10 V10(102);
-        static const MyTestArg11 V11(111);
-        static const MyTestArg12 V12(333);
-        static const MyTestArg13 V13(712);
-        static const MyTestArg14 V14(1414);
+        bsl::shared_ptr<const MyInplaceAllocatableObject> x;
+        Harness::testCase23(x);
 
-        if (verbose) printf("\nTesting 'createInplace' with 0 arguments"
-                            "\n----------------------------------------\n");
+        if (verbose) printf(
+                         "\nTesting 'createInplace' with default allocator"
+                         "\n----------------------------------------------\n");
 
-        bslma::TestAllocator ta("Rep. allocator", veryVeryVerbose);
 
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
+        numAllocations = defaultAllocator.numAllocations();
+        numDeallocations = defaultAllocator.numDeallocations();
         {
             bsl::shared_ptr<MyInplaceTestObject> x;
             const bsl::shared_ptr<MyInplaceTestObject>& X=x;
             static const MyInplaceTestObject EXP = MyInplaceTestObject();
 
-            x.createInplace(&ta);
+            x.createInplace();
 
-            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(++numAllocations == defaultAllocator.numAllocations());
             ASSERT(X);
             ASSERT(EXP == *(X.get()));
         }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 1 argument"
-                            "\n---------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1);
-
-            x.createInplace(&ta, V1);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 2 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2);
-
-            x.createInplace(&ta, V1, V2);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 3 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3);
-
-            x.createInplace(&ta, V1, V2, V3);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 4 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4);
-
-            x.createInplace(&ta, V1, V2, V3, V4);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 5 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 6 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 7 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 9 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 10 arguments"
-                            "\n-----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 2 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 11 arguments"
-                            "\n----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 12 arguments"
-                            "\n-----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11, V12);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                                 V12);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 13 arguments"
-                            "\n-----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11, V12, V13);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10,
-                                 V11, V12, V13);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-
-        if (verbose) printf("\nTesting 'createInplace' with 14 arguments"
-                            "\n-----------------------------------------\n");
-
-        numAllocations = ta.numAllocations();
-        numDeallocations = ta.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
-                                                 V8, V9, V10, V11, V12, V13,
-                                                 V14);
-
-            x.createInplace(&ta, V1, V2, V3, V4, V5, V6,V7, V8, V9, V10, V11,
-                                 V12, V13, V14);
-
-            ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
+        ASSERT(++numDeallocations == defaultAllocator.numDeallocations());
 
 #if 0 // TBD Waiting on a usable 'bind' facility to port to a good level
         if (verbose)
@@ -6918,30 +10348,6 @@ int main(int argc, char *argv[])
                                                          verbose));
         }
 #endif
-        ASSERTV(defaultAllocator.numAllocations(),   numDefaultAllocations,
-                defaultAllocator.numAllocations() == numDefaultAllocations);
-        ASSERTV(defaultAllocator.numDeallocations(),  numDefaultDeallocations,
-               defaultAllocator.numDeallocations() == numDefaultDeallocations);
-
-        if (verbose) printf(
-                         "\nTesting 'createInplace' with default allocator"
-                         "\n----------------------------------------------\n");
-
-
-        numAllocations = defaultAllocator.numAllocations();
-        numDeallocations = defaultAllocator.numDeallocations();
-        {
-            bsl::shared_ptr<MyInplaceTestObject> x;
-            const bsl::shared_ptr<MyInplaceTestObject>& X=x;
-            static const MyInplaceTestObject EXP = MyInplaceTestObject();
-
-            x.createInplace();
-
-            ASSERT(++numAllocations == defaultAllocator.numAllocations());
-            ASSERT(X);
-            ASSERT(EXP == *(X.get()));
-        }
-        ASSERT(++numDeallocations == defaultAllocator.numDeallocations());
 
       } break;
       case 22: {
@@ -7062,8 +10468,8 @@ int main(int argc, char *argv[])
             ASSERT(&dY == static_cast<const volatile double *>(Y.get()));
         }
 #endif
-    } break;
-    case 21: {
+      } break;
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING 'reset' USING A SELF-REFERENCED 'shared_ptr'
         //   Verify that 'reset' can be called safely on a 'shared_ptr' that is
@@ -7194,7 +10600,11 @@ int main(int argc, char *argv[])
         // TESTING EXPLICIT CAST OPERATIONS
         //   Test that explicit cast operations properly loads the object
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //  shared_ptr<TARGET> const_pointer_cast(const shared_ptr<SRC>& ptr)
@@ -7445,7 +10855,8 @@ int main(int argc, char *argv[])
         // This appears to be properly the concern of the out-of-place rep
         // component's test driver, and should be removed from here.
         //
-        // Plan: TBD
+        // Plan:
+        //  TBD
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -7500,10 +10911,11 @@ int main(int argc, char *argv[])
         //: 8 Do the right thing for empty null pointers, which means tracking
         //:   our expected behavior for reference-counting deleters.
         //
-        // Plan:  Create shared pointers with various representations, release
-        // them (getting back a pointer to the representation object) and
-        // assert that the 'originalPtr' of that representation is identical to
-        // the address of the managed object.
+        // Plan:
+        //   Create shared pointers with various representations, release them
+        //   (getting back a pointer to the representation object) and assert
+        //   that the 'originalPtr' of that representation is identical to the
+        //   address of the managed object.
         //
         // Testing:
         //   pair<TYPE *, bslma::SharedPtrRep *> release()
@@ -7593,16 +11005,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO BOOL
         //
-        // Concerns: Implicit conversion to 'bool' are troublesome, because a
-        //   bool is further convertible to integral types, and thus such
-        //   conversions should be banned.  Specifically, we are concerned that
+        // Concerns:
+        //   Implicit conversion to 'bool' are troublesome, because a 'bool' is
+        //   further convertible to integral types, and thus such conversions
+        //   should be banned.  Specifically, we are concerned that
         //     o SharedPtr can be used in "boolean" contexts such as 'if (p)',
         //       'if (!p)', 'if
         //     o SharedPtr cannot be converted to an 'int'.
         //     o SharedPtr returned by a function (as a temporary) does not
         //       lead to erroneous bool value (DRQS 12252806).
         //
-        // Plan: We test the conversion in a variety of "boolean" contexts and
+        // Plan:
+        //   We test the conversion in a variety of "boolean" contexts and
         //   assert that the result is as expected.  In order to test for the
         //   *absence* of conversion, we can use 'bslmf_isconvertible'.  In
         //   order to test for the absence of 'operator<', we use our own
@@ -7687,7 +11101,7 @@ int main(int argc, char *argv[])
         ASSERT(!(ptrNilFun() && *ptrNilFun() != *ptr1));
 
 #if 0
-        if (verbose) printf("Should not compile.\n\n");;
+        if (verbose) printf("Should not compile.\n\n");
 
         // COMPARISON SHR PTR TO INT
         ASSERT(ptrNil != 1);
@@ -7701,7 +11115,7 @@ int main(int argc, char *argv[])
         ASSERT(1 != ptrNil);
         ASSERT(1 == ptr1);
         ASSERT(2 != ptrNil);
-        ASSERT(2 == ptr1);  printf("r on CC, error on x.\n\n");;
+        ASSERT(2 == ptr1);  printf("r on CC, error on x.\n\n");
 #endif
 
       } break;
@@ -7712,7 +11126,10 @@ int main(int argc, char *argv[])
         //   NewDelete allocator; installing a test allocator for the default
         //   will break this test.
         //
-        // Plan:  Check that the 'reset' function works, by simply exercising
+        // Concerns:
+        //
+        // Plan:
+        //   Check that the 'reset' function works, by simply exercising
         //   them on a non-empty shared pointer, and checking that the result
         //   and reference counts are as expected.  Also check that the 'swap'
         //   global function works, using the same test plan as in case 11.
@@ -7789,8 +11206,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING ALIAS OPERATIONS
         //
+        // Concerns:
+        //  TBD
         //
-        // Plan: TBD
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   void loadAlias(const bsl::shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
@@ -7927,7 +11347,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO 'bslma::ManagedPtr'
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   bslma::ManagedPtr<TYPE> managedPtr() const
@@ -8016,7 +11440,11 @@ int main(int argc, char *argv[])
         // TESTING ALIASING CONSTRUCTOR
         //   Test that the aliasing constructor work as expected
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   shared_ptr(const shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
@@ -8126,6 +11554,218 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
 
 
+        if (verbose) printf("\nRetesting constructors with strange aliases"
+                            "\n-------------------------------------------\n");
+
+        // Now that we can create obscure 'shared_ptr' states with the aliasing
+        // constructor, verify that passing aliased shared pointers do not
+        // cause surprising problems when passed to already-tested constructors
+        // that take 'shared_ptr' parameters,
+
+        // First, alias a null-pointer of a different type
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            MyTestDerivedObject *p = new(ta) MyTestDerivedObject(&numDeletes);
+            Obj x(p,&ta, 0); const Obj& X = x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bsl::shared_ptr<double> y(X, 0);
+            const bsl::shared_ptr<double>& Y = y;
+
+            ASSERT(0 == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Make a copy of the same kind of 'shared_ptr'
+            {
+                bsl::shared_ptr<double> z(Y);
+                const bsl::shared_ptr<double>& Z = z;
+
+                ASSERTV(Z.get(),       0 == Z.get());
+                ASSERTV(X.use_count(), 3 == X.use_count());
+                ASSERTV(Y.use_count(), 3 == Y.use_count());
+                ASSERTV(Z.use_count(), 3 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 2 == X.use_count());
+            ASSERTV(Y.use_count(), 2 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Move a 'shared_ptr' of the same kind
+            {
+                bsl::shared_ptr<double> temp(Y);
+                bsl::shared_ptr<double> z(MovUtil::move(temp));
+                const bsl::shared_ptr<double>& Z = z;
+
+                ASSERTV(temp.get(),       0 == temp.use_count());
+                ASSERTV(temp.use_count(), 0 == temp.use_count());
+
+                ASSERTV(Z.get(),       0 == Z.get());
+                ASSERTV(X.use_count(), 3 == X.use_count());
+                ASSERTV(Y.use_count(), 3 == Y.use_count());
+                ASSERTV(Z.use_count(), 3 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 2 == X.use_count());
+            ASSERTV(Y.use_count(), 2 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Make a copy of a pointer-compatible 'shared_ptr'
+            {
+                bsl::shared_ptr<void> z(Y);
+                const bsl::shared_ptr<void>& Z = z;
+
+                ASSERTV(Z.get(),       0 == Z.get());
+                ASSERTV(X.use_count(), 3 == X.use_count());
+                ASSERTV(Y.use_count(), 3 == Y.use_count());
+                ASSERTV(Z.use_count(), 3 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 2 == X.use_count());
+            ASSERTV(Y.use_count(), 2 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Move a pointer-compatible 'shared_ptr'
+            {
+                bsl::shared_ptr<double> temp(Y);
+                bsl::shared_ptr<void> z(MovUtil::move(temp));
+                const bsl::shared_ptr<void>& Z = z;
+
+                ASSERTV(temp.get(),       0 == temp.use_count());
+                ASSERTV(temp.use_count(), 0 == temp.use_count());
+
+                ASSERTV(Z.get(),       0 == Z.get());
+                ASSERTV(X.use_count(), 3 == X.use_count());
+                ASSERTV(Y.use_count(), 3 == Y.use_count());
+                ASSERTV(Z.use_count(), 3 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 2 == X.use_count());
+            ASSERTV(Y.use_count(), 2 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+        ASSERT(1 == numDeletes);
+
+        // Second, alias a non-null-pointer without ownership
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            Obj x; const Obj& X = x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            double dummy;
+            bsl::shared_ptr<double> y(X, &dummy);
+            const bsl::shared_ptr<double>& Y = y;
+
+            ASSERT(&dummy == Y.get());
+            ASSERT(0 == X.use_count());
+            ASSERT(0 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(0 == numDeletes);
+
+            // Make a copy of the same kind of 'shared_ptr'
+            {
+                bsl::shared_ptr<double> z(Y);
+                const bsl::shared_ptr<double>& Z = z;
+
+                ASSERTV(&dummy, Z.get(), &dummy == Z.get());
+                ASSERTV(X.use_count(), 0 == X.use_count());
+                ASSERTV(Y.use_count(), 0 == Y.use_count());
+                ASSERTV(Z.use_count(), 0 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 0 == X.use_count());
+            ASSERTV(Y.use_count(), 0 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Move a 'shared_ptr' of the same kind
+            {
+                bsl::shared_ptr<double> temp(Y);
+                bsl::shared_ptr<double> z(MovUtil::move(temp));
+                const bsl::shared_ptr<double>& Z = z;
+
+                ASSERTV(temp.get(),       0 == temp.use_count());
+                ASSERTV(temp.use_count(), 0 == temp.use_count());
+
+                ASSERTV(&dummy, Z.get(), &dummy == Z.get());
+                ASSERTV(X.use_count(), 0 == X.use_count());
+                ASSERTV(Y.use_count(), 0 == Y.use_count());
+                ASSERTV(Z.use_count(), 0 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 0 == X.use_count());
+            ASSERTV(Y.use_count(), 0 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Make a copy of a pointer-compatible 'shared_ptr'
+            {
+                bsl::shared_ptr<void> z(Y);
+                const bsl::shared_ptr<void>& Z = z;
+
+                ASSERTV(&dummy, Z.get(), &dummy == Z.get());
+                ASSERTV(X.use_count(), 0 == X.use_count());
+                ASSERTV(Y.use_count(), 0 == Y.use_count());
+                ASSERTV(Z.use_count(), 0 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 0 == X.use_count());
+            ASSERTV(Y.use_count(), 0 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            // Move a pointer-compatible 'shared_ptr'
+            {
+                bsl::shared_ptr<double> temp(Y);
+                bsl::shared_ptr<void> z(MovUtil::move(temp));
+                const bsl::shared_ptr<void>& Z = z;
+
+                ASSERTV(temp.get(),       0 == temp.use_count());
+                ASSERTV(temp.use_count(), 0 == temp.use_count());
+
+                ASSERTV(&dummy, Z.get(), &dummy == Z.get());
+                ASSERTV(X.use_count(), 0 == X.use_count());
+                ASSERTV(Y.use_count(), 0 == Y.use_count());
+                ASSERTV(Z.use_count(), 0 == Z.use_count());
+                ASSERT(numAllocations   == ta.numAllocations());
+                ASSERT(numDeallocations == ta.numDeallocations());
+            }
+            ASSERTV(X.use_count(), 0 == X.use_count());
+            ASSERTV(Y.use_count(), 0 == Y.use_count());
+            ASSERT(numAllocations   == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+
+            ASSERT(0 == numDeletes);
+        }
+        ASSERT(numDeallocations == ta.numDeallocations());
+
+
         if (verbose) printf("\nTesting global 'swap' function."
                             "\n-------------------------------\n");
 
@@ -8172,8 +11812,12 @@ int main(int argc, char *argv[])
         //   the specified size, properly aligned, and that the buffer is
         //   deallocated properly.
         //
-        // Plan:  For every size between 1 and 5 times the maximal alignment,
-        //   create a shared pointer to a buffer of this size using
+        // Concerns:
+        //   TBD
+        //
+        // Plan:
+        //   For every size between 1 and 5 times the maximal alignment, create
+        //   a shared pointer to a buffer of this size using
         //   'createInplaceUninitializedBuffer', and verify that the returned
         //   pointer is at least naturally aligned, that we can write into that
         //   buffer, and that the allocated buffer has at least the requested
@@ -8299,7 +11943,11 @@ int main(int argc, char *argv[])
         // TESTING 'SharedPtrUtil' CAST OPERATIONS
         //   Test that explicit cast operations properly loads the object
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //  shared_ptr<TARGET> constCast(const shared_ptr<SOURCE>& source)
@@ -8779,18 +12427,25 @@ int main(int argc, char *argv[])
         //   NewDelete allocator; installing a test allocator for the default
         //   will break this test.
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
-        //   bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs)
-        //   bsl::shared_ptr& operator=(const bsl::shared_ptr<OTHER>& rhs)
-        //   bsl::shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
+        //   shared_ptr& operator=(const shared_ptr& rhs) noexcept
+        //   shared_ptr& operator=(bslmf::MovableRef<shared_ptr> rhs) noexcept
+        //   shared_ptr& operator=(const shared_ptr<OTHER>& rhs) noexcept
+        //   shared_ptr& operator=(shared_ptr<OTHER>&& rhs) noexcept
+        //   shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nTESTING ASSIGNMENT OPERATORS"
                             "\n============================\n");
 
-        if (verbose) printf("\nTesting ASSIGNMENT to empty object"
-                            "\n----------------------------------\n");
+        if (verbose) printf("\nTesting COPY-ASSIGNMENT to empty object"
+                            "\n---------------------------------------\n");
         {
             Obj x1;
             const Obj& X1 = x1;
@@ -8800,7 +12455,7 @@ int main(int argc, char *argv[])
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
 
-            Obj x2(p); const Obj& X2=x2;
+            Obj x2(p); const Obj& X2 = x2;
 
             if (veryVerbose) {
                 P_(numDeletes); P_(X1.use_count());
@@ -8811,12 +12466,17 @@ int main(int argc, char *argv[])
             ASSERT(1 == X2.use_count());
 
             x1 = X2;
+            ASSERT_NOEXCEPT(x1 = X2);
 
             if (veryVerbose) {
                 P_(numDeletes); P_(X1.use_count());
                 P(X2.use_count());
             }
             ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
             ASSERT(p == X2.get());
             ASSERT(p == X1.get());
 
@@ -8825,6 +12485,452 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+        if (verbose) printf("\nTesting COPY-ASSIGNMENT of empty object"
+                            "\n---------------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p); const Obj& X1=x1;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
+
+            Obj x2;
+            const Obj& X2 = x2;
+            ASSERT(0 == x2.get());
+            ASSERT(0 == x2.use_count());
+
+            x1 = X2;
+            ASSERT_NOEXCEPT(x1 = X2);
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(1 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting COPY-ASSIGNMENT to non-empty object"
+                            "\n-------------------------------------------\n");
+        {
+            bsls::Types::Int64 localDeletes = 0;
+            TObj *p1 = new TObj(&localDeletes);
+
+            Obj x1(p1); const Obj& X1 = x1;
+            ASSERT(p1 == x1.get());
+            ASSERT( 1 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p2 = new TObj(&numDeletes);
+
+            Obj x2(p2); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 0 == localDeletes);
+            ASSERT( 0 == numDeletes);
+            ASSERT(p2 == X2.get());
+            ASSERT( 1 == X2.use_count());
+
+            x1 = X2;
+            ASSERT_NOEXCEPT(x1 = X2);
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 1 == localDeletes);
+            ASSERT( 0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(p2 == X2.get());
+            ASSERT(p2 == X1.get());
+
+            ASSERT(2 == X2.use_count());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting COPY-ASSIGNMENT to self"
+                            "\n-------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p); const Obj& X1=x1;
+
+            x1 = X1;
+            ASSERT_NOEXCEPT(x1 = X1);
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
+        }
+
+        if (verbose) printf(
+        "\nTesting COPY-ASSIGNMENT (of compatible pointer) to empty object"
+        "\n---------------------------------------------------------------\n");
+        {
+            ConstObj x1;
+            const ConstObj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x2(p); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            x1 = X2;
+            ASSERT_NOEXCEPT(x1 = X2);
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(p == X2.get());
+            ASSERT(p == X1.get());
+
+            ASSERT(2 == X2.use_count());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf(
+    "\nTesting COPY-ASSIGNMENT (of compatible pointer) to non-empty object"
+    "\n-------------------------------------------------------------------\n");
+        {
+            bsls::Types::Int64 localDeletes = 0;
+            TObj *p1 = new TObj(&localDeletes);
+
+            ConstObj x1(p1); const ConstObj& X1 = x1;
+            ASSERT(p1 == x1.get());
+            ASSERT( 1 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p2 = new TObj(&numDeletes);
+
+            Obj x2(p2); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 0 == localDeletes);
+            ASSERT( 0 == numDeletes);
+            ASSERT(p2 == X2.get());
+            ASSERT( 1 == X2.use_count());
+
+            x1 = X2;
+            ASSERT_NOEXCEPT(x1 = X2);
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 1 == localDeletes);
+            ASSERT( 0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(p2 == X2.get());
+            ASSERT(p2 == X1.get());
+
+            ASSERT(2 == X2.use_count());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting MOVE-ASSIGNMENT to empty object"
+                            "\n---------------------------------------\n");
+        {
+            Obj x1;
+            const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x2(p); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            bslma::SharedPtrRep const*const REP = X2.rep();
+
+            x1 = bslmf::MovableRefUtil::move(x2);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x2));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(  0 == X2.rep());
+            ASSERT(REP == X1.rep());
+
+            ASSERT(0 == X2.get());
+            ASSERT(p == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(1 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting MOVE-ASSIGNMENT of empty object"
+                            "\n---------------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p); const Obj& X1=x1;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
+
+            Obj x2;
+            const Obj& X2 = x2;
+            ASSERT(0 == x2.get());
+            ASSERT(0 == x2.use_count());
+
+            bslma::SharedPtrRep const*const REP = X2.rep();
+
+            x1 = bslmf::MovableRefUtil::move(x2);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x2));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(1 == numDeletes);
+
+            ASSERT(  0 == X2.rep());
+            ASSERT(REP == X1.rep());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting MOVE-ASSIGNMENT to non-empty object"
+                            "\n-------------------------------------------\n");
+        {
+            bsls::Types::Int64 localDeletes = 0;
+            TObj *p1 = new TObj(&localDeletes);
+
+            Obj x1(p1); const Obj& X1 = x1;
+            ASSERT(p1 == x1.get());
+            ASSERT( 1 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p2 = new TObj(&numDeletes);
+
+            Obj x2(p2); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 0 == localDeletes);
+            ASSERT( 0 == numDeletes);
+
+            ASSERT(p2 == X2.get());
+            ASSERT( 1 == X2.use_count());
+
+            bslma::SharedPtrRep const*const REP = X2.rep();
+
+            x1 = bslmf::MovableRefUtil::move(x2);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x2));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 1 == localDeletes);
+            ASSERT( 0 == numDeletes);
+
+            ASSERT(  0 == X2.rep());
+            ASSERT(REP == X1.rep());
+
+            ASSERT( 0 == X2.get());
+            ASSERT(p2 == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(1 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf("\nTesting MOVE-ASSIGNMENT to self"
+                            "\n-------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p); const Obj& X1=x1;
+
+            x1 = bslmf::MovableRefUtil::move(x1);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
+        }
+
+        if (verbose) printf(
+        "\nTesting MOVE-ASSIGNMENT (of compatible pointer) to empty object"
+        "\n---------------------------------------------------------------\n");
+        {
+            ConstObj x1;
+            const ConstObj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x2(p); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            bslma::SharedPtrRep const*const REP = X2.rep();
+
+            x1 = bslmf::MovableRefUtil::move(x2);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x2));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(  0 == X2.rep());
+            ASSERT(REP == X1.rep());
+
+            ASSERT(0 == X2.get());
+            ASSERT(p == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(1 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+        if (verbose) printf(
+    "\nTesting MOVE-ASSIGNMENT (of compatible pointer) to non-empty object"
+    "\n-------------------------------------------------------------------\n");
+        {
+            bsls::Types::Int64 localDeletes = 0;
+            TObj *p1 = new TObj(&localDeletes);
+
+            ConstObj x1(p1); const ConstObj& X1 = x1;
+            ASSERT(p1 == x1.get());
+            ASSERT( 1 == x1.use_count());
+
+            numDeletes = 0;
+            TObj *p2 = new TObj(&numDeletes);
+
+            Obj x2(p2); const Obj& X2 = x2;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 0 == localDeletes);
+            ASSERT( 0 == numDeletes);
+            ASSERT(p2 == X2.get());
+            ASSERT( 1 == X2.use_count());
+
+            bslma::SharedPtrRep const*const REP = X2.rep();
+
+            x1 = bslmf::MovableRefUtil::move(x2);
+            ASSERT_NOEXCEPT(x1 = bslmf::MovableRefUtil::move(x2));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT( 1 == localDeletes);
+            ASSERT( 0 == numDeletes);
+
+            ASSERT(  0 == X2.rep());
+            ASSERT(REP == X1.rep());
+
+            ASSERT( 0 == X2.get());
+            ASSERT(p2 == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(1 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
+#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         if (verbose) printf("\nTesting ASSIGNMENT of auto_ptr"
                             "\n------------------------------\n");
         {
@@ -8873,41 +12979,10 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
         }
         ASSERT(1 == numDeletes);
-
-        if (verbose) printf("\nTesting ASSIGNMENT of empty object"
-                            "\n----------------------------------\n");
-        {
-            numDeletes = 0;
-            TObj *p = new TObj(&numDeletes);
-
-            Obj x1(p); const Obj& X1=x1;
-
-            if (veryVerbose) {
-                P_(numDeletes); P_(X1.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X1.get());
-            ASSERT(1 == X1.use_count());
-
-            Obj x2;
-            const Obj& X2 = x2;
-            ASSERT(0 == x2.get());
-            ASSERT(0 == x2.use_count());
-
-            x1 = X2;
-
-            if (veryVerbose) {
-                P_(numDeletes); P_(X1.use_count());
-                P(X2.use_count());
-            }
-            ASSERT(1 == numDeletes);
-            ASSERT(0 == X2.get());
-            ASSERT(0 == X1.get());
-
-            ASSERT(0 == X2.use_count());
-            ASSERT(0 == X1.use_count());
-        }
-        ASSERT(1 == numDeletes);
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic pop
+# endif
+#endif
 
         if (verbose) printf("\nTesting ASSIGNMENT of null pointer"
                             "\n----------------------------------\n");
@@ -8943,76 +13018,19 @@ int main(int argc, char *argv[])
             ASSERT(0 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
-
-        if (verbose) printf("\nTesting ASSIGNMENT of loaded object"
-                            "\n----------------------------------\n");
-        {
-            bsls::Types::Int64 numDeletes1 = 0;
-            numDeletes = 0;
-            TObj *p1 = new TObj(&numDeletes1);
-
-            Obj x1(p1); const Obj& X1=x1;
-
-            if (veryVerbose) {
-                P_(numDeletes1); P_(X1.use_count());
-            }
-            ASSERT(0 == numDeletes1);
-            ASSERT(p1 == X1.get());
-            ASSERT(1 == X1.use_count());
-
-            numDeletes = 0;
-            TObj *p2 = new TObj(&numDeletes);
-            Obj x2(p2);
-            const Obj& X2 = x2;
-
-            ASSERT(0 == numDeletes);
-            ASSERT(p2 == x2.get());
-            ASSERT(1 == x2.use_count());
-
-            x1 = X2;
-
-            if (veryVerbose) {
-                P_(numDeletes1); P_(numDeletes); P_(X1.use_count());
-                P(X2.use_count());
-            }
-
-            ASSERT(1 == numDeletes1);
-            ASSERT(0 == numDeletes);
-            ASSERT(p2 == X2.get());
-            ASSERT(p2 == X1.get());
-
-            ASSERT(2 == X2.use_count());
-            ASSERT(2 == X1.use_count());
-        }
-        ASSERT(1 == numDeletes);
-
-        if (verbose) printf("\nTesting ASSIGNMENT to self"
-                            "\n--------------------------\n");
-        {
-            numDeletes = 0;
-            TObj *p = new TObj(&numDeletes);
-
-            Obj x1(p); const Obj& X1=x1;
-
-            x1 = X1;
-
-            if (veryVerbose) {
-                P_(numDeletes); P_(X1.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X1.get());
-            ASSERT(1 == X1.use_count());
-        }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'swap'
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
-        //   void swap(shared_ptr& src)
+        //   void swap(shared_ptr& src) noexcept
         //   void swap(shared_ptr<ELEM_TYPE>& a, shared_ptr<ELEM_TYPE>& b)
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING 'swap'"
@@ -9040,6 +13058,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == numDeletes1);
 
                 x.swap(y);
+                ASSERT_NOEXCEPT(x.swap(y));
 
                 ASSERT(p2 == X.get());
                 ASSERT(p1 == Y.get());
@@ -9056,7 +13075,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
-        if (verbose) printf("\tWith mix of allocators.\n");;
+        if (verbose) printf("\tWith mix of allocators.\n");
 
         bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultGuard(&da);
@@ -9104,7 +13123,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
-        if (verbose) printf("\tWith mix of deleters.\n");;
+        if (verbose) printf("\tWith mix of deleters.\n");
 
         numDeletes1 = 0;
         numDeletes = 0;
@@ -9146,19 +13165,340 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR
+        // TESTING COPY AND MOVE CONSTRUCTORS
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
-        //   shared_ptr(const shared_ptr& original)
+        //   shared_ptr(const shared_ptr& original) noexcept
+        //   shared_ptr(const shared_ptr<OTHER>& other) noexcept
+        //   shared_ptr(bslmf::MovableRef<shared_ptr> other) noexcept
+        //   shared_ptr(shared_ptr<OTHER>&& other) noexcept
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING COPY AND MOVE CONSTRUCTORS"
+                            "\n==================================\n");
 
-        if (verbose) printf("\nThis test has not yet been implemented.\n");
+        if (verbose) printf("\nTesting COPY-CONSTRUCTION of empty object"
+                            "\n-----------------------------------------\n");
+        {
+            Obj x1;     const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
 
+            numDeletes = 0;
+
+            Obj x2(X1); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(X1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                         "\nTesting COPY-CONSTRUCTION of simply owned object"
+                         "\n----------------------------------------------\n");
+        {
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p);  const Obj& X1 = x1;
+            ASSERT(p == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            Obj x2(X1); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(X1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(p == X2.get());
+            ASSERT(2 == X2.use_count());
+
+            ASSERT(p == X1.get());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                        "\nTesting COPY-CONSTRUCTION of owned null-pointer"
+                        "\n-----------------------------------------------\n");
+        {
+            Obj x1((TObj *)0);  const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            Obj x2(X1); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(X1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(0 == X2.get());
+            ASSERT(2 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                    "\nTesting COPY-CONSTRUCTION from null-pointer literal"
+                    "\n---------------------------------------------------\n");
+        {
+            // Test null-pointer literal specially, to remind ourselves this
+            // behaves as testing the default constructor, not testing an owned
+            // null pointer (the immediately preceding test).
+
+            Obj x1(0);  const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            Obj x2(X1); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(X1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                 "\nTesting \"COPY-CONSTRUCTION\" from compatible shared_ptr"
+                 "\n------------------------------------------------------\n");
+        {
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p);  const Obj& X1 = x1;
+            ASSERT(p == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            ConstObj x2(X1); const ConstObj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(X1));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(p == X2.get());
+            ASSERT(2 == X2.use_count());
+
+            ASSERT(p == X1.get());
+            ASSERT(2 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+        numDeletes = 0;
+
+
+
+        if (verbose) printf("\nTesting MOVE-CONSTRUCTION of empty object"
+                            "\n-----------------------------------------\n");
+        {
+            Obj x1;     const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            numDeletes = 0;
+
+            Obj x2(bslmf::MovableRefUtil::move(x1)); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(bslmf::MovableRefUtil::move(x1)));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(X1.rep() == X2.rep());
+            ASSERT(X1.get() == X2.get());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                         "\nTesting MOVE-CONSTRUCTION of simply owned object"
+                         "\n----------------------------------------------\n");
+        {
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p);  const Obj& X1 = x1;
+            ASSERT(p == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            bslma::SharedPtrRep const*const REP = X1.rep();
+
+            Obj x2(bslmf::MovableRefUtil::move(x1)); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(bslmf::MovableRefUtil::move(x1)));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(REP == X2.rep());
+            ASSERT(  0 == X1.rep());
+
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                 "\nTesting \"MOVE-CONSTRUCTION\" from compatible shared_ptr"
+                 "\n------------------------------------------------------\n");
+        {
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p);  const Obj& X1 = x1;
+            ASSERT(p == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            bslma::SharedPtrRep const*const REP = X1.rep();
+
+            ConstObj x2(bslmf::MovableRefUtil::move(x1));
+            const ConstObj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(bslmf::MovableRefUtil::move(x1)));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(REP == X2.rep());
+            ASSERT(  0 == X1.rep());
+
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                        "\nTesting MOVE-CONSTRUCTION of owned null-pointer"
+                        "\n-----------------------------------------------\n");
+        {
+            Obj x1((TObj *)0);  const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(1 == x1.use_count());
+
+            bslma::SharedPtrRep const*const REP = X1.rep();
+
+            Obj x2(bslmf::MovableRefUtil::move(x1)); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(bslmf::MovableRefUtil::move(x1)));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(REP == X2.rep());
+            ASSERT(  0 == X1.rep());
+
+            ASSERT(0 == X2.get());
+            ASSERT(1 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
+
+        if (verbose) printf(
+                    "\nTesting MOVE-CONSTRUCTION from null-pointer literal"
+                    "\n---------------------------------------------------\n");
+        {
+            // Test null-pointer literal specially, to remind ourselves this
+            // behaves as testing the default constructor, not testing an owned
+            // null pointer (the immediately preceding test).
+
+            Obj x1(0);  const Obj& X1 = x1;
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
+
+            Obj x2(bslmf::MovableRefUtil::move(x1)); const Obj& X2 = x2;
+            ASSERT_NOEXCEPT(Obj(bslmf::MovableRefUtil::move(x1)));
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(0 == numDeletes);
+
+            ASSERT(0 == X2.rep());
+            ASSERT(0 == X1.rep());
+
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X2.use_count());
+
+            ASSERT(0 == X1.get());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(0 == numDeletes);
+        numDeletes = 0;
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -9295,7 +13635,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING PRINTING
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   ostream& operator<<(ostream&, const shared_ptr<TYPE>&)
@@ -9316,7 +13660,11 @@ int main(int argc, char *argv[])
         //   this stage of the test driver, although full support for deleters
         //   and allocators is expected.
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   add_lvalue_reference<ELEM_TYPE>::type operator[](ptrdiff_t) const
@@ -9341,6 +13689,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.use_count());
             ASSERT(false == X.unique());
             ASSERT(false == static_cast<bool>(X));
+            ASSERT(!X);
 
             if (verbose) printf("\nNegative Testing.\n");
             {
@@ -9428,7 +13777,11 @@ int main(int argc, char *argv[])
         //   some 'OTHER' type, nor the copy constructor, despite being listed
         //   here in the component test plan.
         //
-        // Plan: TBD
+        // Concerns:
+        //  TBD
+        //
+        // Plan:
+        //  TBD
         //
         // Testing:
         //   shared_ptr(TYPE *ptr) // synthesized
@@ -9500,6 +13853,12 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
 
+#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
             std::auto_ptr<TObj> apY(0);
             Obj y(apY, &ta); const Obj& Y = y;
             ASSERT(0 == Y.get());
@@ -9511,6 +13870,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == Y.get());
             ASSERT(0 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic pop
+# endif
+#endif
 
             Obj z(static_cast<TObj *>(0), &ta, &ta); const Obj& Z = z;
             ASSERT(0 == Z.get());
@@ -9570,6 +13933,12 @@ int main(int argc, char *argv[])
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
 
+#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
         if (verbose)
             printf("\nTesting auto_ptr constructor (with allocator)"
                    "\n---------------------------------------------\n");
@@ -9631,6 +14000,10 @@ int main(int argc, char *argv[])
         // to, due to the language implying an extra user-defined conversion in
         // the chain compared to using the same technique that 'auto_ptr'
         // itself uses.
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic pop
+# endif
+#endif
 
         if (verbose)
             printf("\nTesting constructor (with factory and allocator)"
@@ -10220,7 +14593,7 @@ int main(int argc, char *argv[])
         //   Note that this test will offer basic but incomplete test coverage
         //   of the boolean conversion operator.
         //
-        // Concerns
+        // Concerns:
         //
         // Plan:
         //   Install a test allocator as the default allocator to track

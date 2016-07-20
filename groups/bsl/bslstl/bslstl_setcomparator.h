@@ -129,6 +129,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -177,7 +181,7 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // 'COMPARATOR'.
 
     explicit SetComparator(const COMPARATOR& keyComparator);
-        // Create a 'SapComparator' object holding a copy of the specified
+        // Create a 'SetComparator' object holding a copy of the specified
         // 'keyComparator'.
 
     // SetComparator(const SetComparator&) = default;

@@ -24,8 +24,8 @@ using namespace BloombergLP;
 // memory address with the allocator it holds.  We achieve this goal by
 // utilizing the 'TestAllocator' allocator, whose 'deallocate' method is
 // instrumented to record the most recent memory address used to invoke the
-// method.  We initialize the 'bslma::DeallocatorProctor' proctor object
-// with this allocator and verify that when the proctor object is destroyed the
+// method.  We initialize the 'bslma::DeallocatorProctor' proctor object with
+// this allocator and verify that when the proctor object is destroyed the
 // expected memory address is recorded in the allocator.  Since 'TestAllocator'
 // is not derived from 'bslma::Allocator' and does not implement an 'allocate'
 // method, we ensure that this proctor works with any 'ALLOCATOR' object that
@@ -131,14 +131,14 @@ class TestAllocator {
         // this method has been called.
 
     // ACCESSORS
+    bool isDeallocateCalled() const;
+        // Return 'true' if 'deallocate' has been called on this object, and
+        // 'false' otherwise.
+
     void *lastDeallocateAddress() const;
         // Return the last memory address that 'deallocate' was invoked on, or
         // return null if 'deallocate' has never been called on this
         // 'TestAllocator'.
-
-    bool isDeallocateCalled() const;
-        // Return 'true' if 'deallocate' has been called on this object, and
-        // 'false' otherwise.
 };
 
 // CREATORS
@@ -160,14 +160,14 @@ void TestAllocator::deallocate(void *address)
 }
 
 // ACCESSORS
-void *TestAllocator::lastDeallocateAddress() const
-{
-    return d_lastDeallocateAddress;
-}
-
 bool TestAllocator::isDeallocateCalled() const
 {
     return d_isDeallocateCalled;
+}
+
+void *TestAllocator::lastDeallocateAddress() const
+{
+    return d_lastDeallocateAddress;
 }
 
 }  // close unnamed namespace
@@ -177,12 +177,12 @@ bool TestAllocator::isDeallocateCalled() const
 //-----------------------------------------------------------------------------
 // The 'bslma::DeallocatorProctor' is normally used to achieve *exception*
 // *safety* in an *exception *neutral* way by managing memory in a sequence of
-// continuous memory allocations.  Since each memory allocation may
-// potentially throw an exception, an instance of this proctor can be used to
-// (temporarily) manage newly allocated memory while attempting to allocate
-// additional memory.  Should an exception occur in subsequent memory
-// allocation, the proctor's destructor deallocates its managed memory,
-// preventing a memory leak.
+// continuous memory allocations.  Since each memory allocation may potentially
+// throw an exception, an instance of this proctor can be used to (temporarily)
+// manage newly allocated memory while attempting to allocate additional
+// memory.  Should an exception occur in subsequent memory allocation, the
+// proctor's destructor deallocates its managed memory, preventing a memory
+// leak.
 //
 // This example illustrate a typical use of 'bslma::DeallocatorProctor'.
 // Suppose we have an array class that stores an "in-place" representation of
@@ -204,7 +204,7 @@ class my_Array {
 
   public:
     // CREATORS
-    my_Array(bslma::Allocator *basicAllocator = 0);
+    explicit my_Array(bslma::Allocator *basicAllocator = 0);
         // Create a 'my_Array' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -394,7 +394,7 @@ class my_AllocatingClass {
 
   public:
     // CREATORS
-    my_AllocatingClass(bslma::Allocator *basicAllocator = 0)
+    explicit my_AllocatingClass(bslma::Allocator *basicAllocator = 0)
         // Create a 'my_AllocatingClass', optionally specified
         // 'basicAllocator'.  If 'basicAllocator' is zero, the global default
         // allocator will be used to supply memory.
@@ -439,7 +439,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must

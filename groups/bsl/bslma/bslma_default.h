@@ -608,7 +608,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
+//  int status = bslma::Default::setDefaultAllocator(
+//                                                  &defaultCountingAllocator);
 //  assert(0 == status);
 //  bslma::Default::lockDefaultAllocator();
 //  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);

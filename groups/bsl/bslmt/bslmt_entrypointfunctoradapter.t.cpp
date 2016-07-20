@@ -1,8 +1,8 @@
 // bslmt_entrypointfunctoradapter.t.cpp
 #include <bslmt_entrypointfunctoradapter.h>
 
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -87,8 +87,7 @@ class WordCountJob {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(WordCountJob,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob, bslma::UsesBslmaAllocator);
 
     // CREATORS
     WordCountJob(const bslstl::StringRef&  message,

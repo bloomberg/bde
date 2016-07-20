@@ -121,7 +121,7 @@ class my_Pool {
 
   public:
     // CREATORS
-    my_Pool(int *counter) : d_counter_p(counter) {}
+    explicit my_Pool(int *counter) : d_counter_p(counter) {}
         // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
@@ -141,7 +141,11 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter, int id = 0) : d_counter_p(counter), d_id(id) {}
+    explicit my_Class(int *counter, int id = 0)
+    : d_counter_p(counter)
+    , d_id(id)
+    {
+    }
         // Create this object using the address of the specified 'counter' to
         // be held.  Optionally specify an 'id' used to distinguish this
         // instance from others.  If 'id' is not specified, it will default to
@@ -184,7 +188,7 @@ class my_Queue {
 
   public:
     // CREATORS
-    my_Queue(bslma::Allocator *basicAllocator = 0);
+    explicit my_Queue(bslma::Allocator *basicAllocator = 0);
         // Create a 'my_Queue' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // 0, the currently installed default allocator is used.
@@ -280,7 +284,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must

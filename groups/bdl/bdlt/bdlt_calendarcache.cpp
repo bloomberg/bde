@@ -19,60 +19,6 @@ BSLS_IDENT_RCSID(bdlt_calendarcache_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-                        // =========================
-                        // class CalendarCache_Entry
-                        // =========================
-
-class CalendarCache_Entry {
-    // This class defines the type of objects that are inserted into the
-    // calendar cache.  Each entry contains a shared pointer to a read-only
-    // calendar and the time at which that calendar was loaded.  Note that an
-    // explicit allocator is *required* to create a entry object.
-
-    // DATA
-    bsl::shared_ptr<const Calendar> d_ptr;       // shared pointer to
-                                                 // out-of-place instance
-
-    Datetime                        d_loadTime;  // time when calendar was
-                                                 // loaded
-
-  public:
-    // CREATORS
-    CalendarCache_Entry();
-        // Create an empty cache entry object.  Note that an empty cache entry
-        // is never actually inserted into the cache.
-
-    CalendarCache_Entry(Calendar         *calendar,
-                        Datetime          loadTime,
-                        bslma::Allocator *allocator);
-        // Create a cache entry object for managing the specified 'calendar'
-        // that was loaded at the specified 'loadTime' using the specified
-        // 'allocator'.  The behavior is undefined unless 'calendar' uses
-        // 'allocator' to obtain memory.
-
-    CalendarCache_Entry(const CalendarCache_Entry& original);
-        // Create a cache entry object having the value of the specified
-        // 'original' object.
-
-    ~CalendarCache_Entry();
-        // Destroy this cache entry object.
-
-    // MANIPULATORS
-    CalendarCache_Entry& operator=(const CalendarCache_Entry&);
-        // Assign to this cache entry object the value of the specified 'rhs'
-        // object, and return a reference providing modifiable access to this
-        // object.
-
-    // ACCESSORS
-    bsl::shared_ptr<const Calendar> get() const;
-        // Return a shared pointer providing non-modifiable access to the
-        // calendar referred to by this cache entry object.
-
-    Datetime loadTime() const;
-        // Return the time at which the calendar referred to by this cache
-        // entry object was loaded.
-};
-
                         // -------------------------
                         // class CalendarCache_Entry
                         // -------------------------

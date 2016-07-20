@@ -122,10 +122,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool         verbose = false;
-bool     veryVerbose = false;
-bool veryVeryVerbose = false;
-
 struct DummyType
 {
     int d_x;
@@ -279,6 +275,11 @@ template <class T> inline bool isConst(const T&) { return true; }
 //                   FUNCTIONS FOR INDIVIDUAL TEST CASES
 //-----------------------------------------------------------------------------
 
+static bool             verbose = false;
+static bool         veryVerbose = false;
+static bool     veryVeryVerbose = false;
+static bool veryVeryVeryVerbose = false;
+
 template <class TYPE, TYPE VAL>
 void fullTest(const char TYPENAME[])
     // Perform the full suite of tests on 'integral_constant' instantiated with
@@ -335,10 +336,17 @@ void fullTest(const char TYPENAME[])
 
 int main(int argc, char *argv[])
 {
-    int        test = argc > 1 ? atoi(argv[1]) : 0;
-            verbose = argc > 2;
-        veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

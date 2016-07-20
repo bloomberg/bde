@@ -39,12 +39,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -229,7 +233,7 @@ template <class TYPE, class ALLOCATOR>
 inline
 TYPE *SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::ptr()
 {
-    return reinterpret_cast<TYPE *>(d_instance.buffer());
+    return d_instance.address();
 }
 
 // ACCESSORS
@@ -239,7 +243,7 @@ void *
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
 {
     return const_cast<void *>(static_cast<const void *>(
-                         reinterpret_cast<const TYPE *>(d_instance.buffer())));
+                              const_cast<const TYPE *>(d_instance.address())));
 }
 
 }  // close package namespace

@@ -5,15 +5,11 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 
-using namespace bsl;
 using namespace BloombergLP;
-
-using std::atoi;
-using std::printf;
-using std::fprintf;
+using namespace bsl;
 
 //=============================================================================
 //                                TEST PLAN
@@ -100,6 +96,21 @@ void aSsErT(bool condition, const char *message, int line)
 # endif
 
 #endif // BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS
+
+//=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consquently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180) // cv-qualifiers meaningless on function types
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

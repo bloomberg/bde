@@ -14,16 +14,17 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorguard, bslma_deallocatorproctor
 //
-//@DESCRIPTION: This component provides a range proctor class template to
-// manage a sequence of blocks of (otherwise-unmanaged) memory of parameterized
-// 'TYPE' supplied at construction.  If not explicitly released, the sequence
-// of managed memory blocks are deallocated automatically when the range
-// proctor goes out of scope by freeing the memory using the parameterized
-// 'ALLOCATOR' (allocator or pool) supplied at construction.  Note that after a
-// range proctor releases its managed sequence of memory, the same proctor can
-// be reused to conditionally manage another sequence of memory (allocated from
-// the same allocator or pool that was supplied at construction) by invoking
-// the 'reset' method.
+//@DESCRIPTION: This component provides a range proctor class template,
+// 'bslma::AutoDeallocator', to manage a sequence of blocks of
+// (otherwise-unmanaged) memory of parameterized 'TYPE' supplied at
+// construction.  If not explicitly released, the sequence of managed memory
+// blocks are deallocated automatically when the range proctor goes out of
+// scope by freeing the memory using the parameterized 'ALLOCATOR' (allocator
+// or pool) supplied at construction.  Note that after a range proctor releases
+// its managed sequence of memory, the same proctor can be reused to
+// conditionally manage another sequence of memory (allocated from the same
+// allocator or pool that was supplied at construction) by invoking the 'reset'
+// method.
 //
 ///Requirement
 ///-----------
@@ -111,7 +112,7 @@ BSLS_IDENT("$Id: $")
 // manage temporarily an "out-of-place" array of character sequences during the
 // array's insertion operation.
 //
-// First we define a 'my_StrArray' class which stores an array of character
+// First we define a 'my_StrArray' class that stores an array of character
 // sequences.
 //..
 //  // my_strarray.h
@@ -123,8 +124,8 @@ BSLS_IDENT("$Id: $")
 //      // sequences.  Memory will be supplied by the parameterized 'ALLOCATOR'
 //      // type provided at construction (which must remain valid throughout
 //      // the lifetime of this guard object).  Note that memory is managed by
-//      // a parameterized 'ALLOCATOR' type, instead of a 'bslma::Allocator', to
-//      // enable clients to pass in a pool (such as a sequential pool)
+//      // a parameterized 'ALLOCATOR' type, instead of a 'bslma::Allocator',
+//      // to enable clients to pass in a pool (such as a sequential pool)
 //      // optimized for allocations of character sequences.
 //
 //      // DATA
@@ -500,7 +501,7 @@ class AutoDeallocator {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------
@@ -598,7 +599,7 @@ void AutoDeallocator<ALLOCATOR>::reset(TYPE **origin)
 {
     BSLS_ASSERT_SAFE(origin);
 
-    d_origin_p = (void **)origin;
+    d_origin_p = static_cast<void **>(origin);
 }
 
 template <class ALLOCATOR>

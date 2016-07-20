@@ -255,6 +255,8 @@ int main(int argc, char *argv[])
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
 
+    setbuf(stdout, NULL);       // Use unbuffered output
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:

@@ -1,4 +1,4 @@
-// bslma_allocatoradaptor.cpp                  -*-C++-*-
+// bslma_allocatoradaptor.cpp                                         -*-C++-*-
 
 #include <bslma_allocatoradaptor.h>
 

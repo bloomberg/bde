@@ -283,7 +283,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Example 2: Aliasing
 ///- - - - - - - - - -
 // Suppose that we wish to give access to an item in a temporary array via a
-// pointer which we'll call the "finger".  The finger is the only pointer to
+// pointer, which we will call the "finger".  The finger is the only pointer to
 // the array or any part of the array, but the entire array must be valid until
 // the finger is destroyed, at which time the entire array must be deleted.  We
 // handle this situation by first creating a managed pointer to the entire
@@ -716,6 +716,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
+#include <bslmf_isnothrowmoveconstructible.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISVOID
 #include <bslmf_isvoid.h>
 #endif
@@ -826,7 +830,7 @@ class ManagedPtr {
     typedef TARGET_TYPE element_type;
         // Alias to the 'TARGET_TYPE' template parameter.
         // Note that 'element_type' refers to the same type as 'ElementType'.
-   
+
     typedef TARGET_TYPE ElementType;
         // Alias to the 'TARGET_TYPE' template parameter.
         // Note that 'ElementType' refers to the same type as 'element_type'.
@@ -1292,7 +1296,7 @@ struct ManagedPtr_ImpUtil {
 };
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                       // ----------------------------
@@ -1752,6 +1756,14 @@ struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type {};
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+namespace bsl {
+template <class TARGET_TYPE>
+struct is_nothrow_move_constructible<
+    BloombergLP::bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type
+{
+};
+}
 
 #endif
 

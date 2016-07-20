@@ -33,6 +33,10 @@
 #  define ZU "%zu"
 #endif
 
+#if defined(DELETE)
+# undef DELETE  // Awkward microsoft macro, that we would rather live without
+#endif
+
 using namespace BloombergLP;
 using namespace BloombergLP::bslalg;
 
@@ -1822,7 +1826,7 @@ int main(int argc, char *argv[])
 
         {
             typedef BidirectionalNode<int> IntNode;
-            typedef TestSetKeyPolicy<int>  TestPolicy;
+//            typedef TestSetKeyPolicy<int>  TestPolicy;
             typedef NodeUtil<int>          IntNodeUtil;
 
             IntNode *nodes[] = { IntNodeUtil::create(0, &oa),
@@ -1964,7 +1968,7 @@ int main(int argc, char *argv[])
 
         {
             typedef BidirectionalNode<int> IntNode;
-            typedef TestSetKeyPolicy<int>  TestPolicy;
+//            typedef TestSetKeyPolicy<int>  TestPolicy;
             typedef NodeUtil<int>          IntNodeUtil;
 
             IntNode *nodes[] = { IntNodeUtil::create(0, &oa),
@@ -2073,7 +2077,7 @@ int main(int argc, char *argv[])
 
         {
             typedef BidirectionalNode<int> IntNode;
-            typedef TestSetKeyPolicy<int>  TestPolicy;
+//            typedef TestSetKeyPolicy<int>  TestPolicy;
             typedef NodeUtil<int>          IntNodeUtil;
 
             IntNode *nodes[] = { IntNodeUtil::create(0, &oa),
@@ -2273,7 +2277,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        typedef BidirectionalNode<int> Node;
+//        typedef BidirectionalNode<int> Node;
         typedef TestSetKeyPolicy<int>  TestPolicy;
         typedef NodeUtil<int>          IntNodeUtil;
 

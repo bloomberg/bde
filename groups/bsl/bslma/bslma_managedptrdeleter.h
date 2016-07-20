@@ -160,7 +160,7 @@ bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // 'object', 'factory' and 'deleter' attributes are not the same.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                        // -----------------------

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::ContainerBase: proxy class for STL-style containers
 //
-//@SEE_ALSO: bslstl_allocator
+//@SEE_ALSO: bslma_stdallocator
 //
 //@DESCRIPTION: This component provides a single, mechanism class,
 // 'bslalg::ContainerBase', that can used as a common base class for all
@@ -198,7 +198,7 @@ class ContainerBase_NonBslmaBase : public ALLOCATOR {
         // does not use the 'bslma::Allocator' mechanism, 'bslmaAllocatorPtr'
         // is simply 'void*'.  This can be used for overloading functions based
         // on whether a container uses a 'bslma'-based allocator or not.  (See
-        // the 'bslalg_scalarprimitives' and 'bslalg_arrayprimitives'
+        // the 'bslma_constructionutil' and 'bslalg_arrayprimitives'
         // components.)
 
     // CREATORS

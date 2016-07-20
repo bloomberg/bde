@@ -1,11 +1,14 @@
 // bslstl_stringbuf.t.cpp                                             -*-C++-*-
 #include <bslstl_stringbuf.h>
+
 #include <bslstl_string.h>
-#include <bslstl_allocator.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bsls_bsltestutil.h>
 
 #include <iostream>
 #include <istream>
@@ -13,9 +16,11 @@
 #include <string>
 #include <algorithm>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+using namespace BloombergLP;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -50,132 +55,48 @@
 // [14] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-
-using std::printf;
-using std::fflush;
-using std::atoi;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
-#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
-#define ASSERT_SAFE_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(expr)
-#define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
-
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                printf("%s", #N ": "); dbg_print(N); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
-
-//=============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val);
-    fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val);
-    fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val);
-    fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val);
-    fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val);
-    fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING

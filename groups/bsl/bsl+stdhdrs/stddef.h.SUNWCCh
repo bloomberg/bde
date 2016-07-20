@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 #   include BSL_NATIVE_OS_RTL_HEADER(stddef.h)
 
 //  On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
-//  forces the following 'using' directive. 
+//  forces the following 'using' directive.
 #   ifdef BSLS_PLATFORM_CMP_SUN
 
 // This C header file might be included within an 'extern "C"' block.  To avoid

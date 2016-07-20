@@ -14,19 +14,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_destructorguard, bslma_destructorproctor
 //
-//@DESCRIPTION: This component provides a range proctor class template to
-// manage an array of (otherwise-unmanaged) objects of parameterized 'TYPE'
-// supplied at construction.  Unless explicitly released, the contiguous
-// managed objects are destroyed automatically when the range proctor goes out
-// of scope by calling each (managed) object's destructor.  Note that after a
-// proctor object releases its managed objects, the same proctor can be reused
-// to conditionally manage another contiguous sequence of objects by invoking
-// the 'reset' method.
+//@DESCRIPTION: This component provides a range proctor class template,
+// 'bslma::AutoDestructor', to manage an array of (otherwise-unmanaged) objects
+// of parameterized 'TYPE' supplied at construction.  Unless explicitly
+// released, the contiguous managed objects are destroyed automatically when
+// the range proctor goes out of scope by calling each (managed) object's
+// destructor.  Note that after a proctor object releases its managed objects,
+// the same proctor can be reused to conditionally manage another contiguous
+// sequence of objects by invoking the 'reset' method.
 //
 ///Usage
 ///-----
-// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety*
-// in an *exception* *neutral* way by automatically destroying
+// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety* in
+// an *exception* *neutral* way by automatically destroying
 // (otherwise-unmanaged) orphaned objects for an "in-place" array should an
 // exception occur.  The following example illustrates the insertion operation
 // for a generic array.  Assume that the array initially contains the following
@@ -271,7 +271,7 @@ class AutoDestructor {
 
   public:
     // CREATORS
-    AutoDestructor(TYPE *origin, int length = 0);
+    explicit AutoDestructor(TYPE *origin, int length = 0);
         // Create a range proctor to manage an array of objects at the
         // specified 'origin'.  Optionally specify 'length' to define its
         // range, which by default is empty (i.e., 'length = 0').  The sequence
@@ -358,7 +358,7 @@ class AutoDestructor {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------

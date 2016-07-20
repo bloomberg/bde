@@ -1,8 +1,6 @@
 // bslstl_mapcomparator.t.cpp                                         -*-C++-*-
 #include <bslstl_mapcomparator.h>
 
-#include <bslstl_allocatortraits.h>
-#include <bslstl_allocator.h>
 #include <bslstl_treenode.h>
 
 #include <bslalg_rbtreeanchor.h>
@@ -14,8 +12,10 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_allocatortraits.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>

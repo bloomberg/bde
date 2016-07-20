@@ -19,11 +19,11 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
+# ifndef INCLUDED_BSLS_COMPILERFEATURES
+#   include <bsls_compilerfeatures.h>
+# endif
 
-#ifndef BSL_OVERRIDES_STD
+# ifndef BSL_OVERRIDES_STD
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #     include <bsl_stdhdrs_incpaths.h>
@@ -35,18 +35,16 @@ BSLS_IDENT("$Id: $")
 #     include BSL_NATIVE_CPP_LIB_HEADER(type_traits)
 #   endif
 
-#else // defined(BSL_OVERRIDES_STD)
+# else // defined(BSL_OVERRIDES_STD)
 
 #   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #     include <bsl_stdhdrs_prologue.h>
 #   endif
 
-# ifndef BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 #   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+#     define BSL_STDHDRS_RUN_EPILOGUE
+#     define BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
 #   endif
-# endif
 #
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #     include <bsl_stdhdrs_incpaths.h>
@@ -58,18 +56,22 @@ BSLS_IDENT("$Id: $")
 #     include BSL_NATIVE_CPP_LIB_HEADER(type_traits)
 #   endif
 
-# ifndef BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
-#   include <bsl_type_traits.h>
+#   ifndef BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+#     include <bsl_type_traits.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
-#     undef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
-#     include <bsl_stdhdrs_epilogue.h>
+#     ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+#       undef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+#       include <bsl_stdhdrs_epilogue.h>
+#     endif
+#   else
+#     undef INCLUDED_NATIVE_TYPE_TRAITS
+#     ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+#       undef BSL_STDHDRS_RUN_EPILOGUE
+#       undef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+#     endif
 #   endif
-# else
-#   undef INCLUDED_NATIVE_TYPE_TRAITS
-# endif
 
-#endif  // BSL_OVERRIDES_STD
+# endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_NATIVE_TYPE_TRAITS
 

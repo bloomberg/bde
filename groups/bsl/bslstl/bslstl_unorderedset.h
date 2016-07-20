@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant 'unordered_set' container.
 //
+//@REVIEW_FOR_MASTER: want to land this on cpp11/baseline before golden review
+//
 //@CLASSES:
 //   bsl::unordered_set : STL-compliant 'unordered_set' container
 //
@@ -36,10 +38,7 @@ BSLS_IDENT("$Id: $")
 // 'unordered_set' implemented here adheres to the C++11 standard, except that
 // it may rehash when setting the 'max_load_factor' in order to preserve the
 // property that the value is always respected (which is a potentially throwing
-// operation) and it does not have interfaces that take rvalue references,
-// 'initializer_list', 'emplace', or operations taking a variadic number of
-// template parameters.  Note that excluded C++11 features are those that
-// require (or are greatly simplified by) C++11 compiler support.
+// operation).
 //
 ///Requirements on 'KEY'
 ///---------------------
@@ -56,15 +55,58 @@ BSLS_IDENT("$Id: $")
 // specifically to the 'unordered_set's element type, 'value_type', which is an
 // alias for 'KEY'.
 //
-//: "default-constructible":
-//:     The type provides an accessible default constructor.
+// Legend
+// ------
+// 'X'    - denotes an allocator-aware container type (e.g., 'unordered_set')
+// 'T'    - 'value_type' associated with 'X'
+// 'A'    - type of the allocator used by 'X'
+// 'm'    - lvalue of type 'A' (allocator)
+// 'p'    - address ('T *') of uninitialized storage for a 'T' within an 'X'
+// 'rv'   - rvalue of type (non-'const') 'T'
+// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+// 'args' - 0 or more arguments
+//
+// The following terms are used to more precisely specify the requirements on
+// template parameter types in function-level documentation.
 //:
-//: "copy-constructible":
-//:     The type provides an accessible copy constructor.
+//: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
+//:     is 'default-insertable' into 'X' means that the following expression is
+//:     well-formed:
 //:
-//: "equality-comparable":
-//:     The type provides an equality-comparison operator that defines an
-//:     equivalence relationship and is both reflexive and transitive.
+//:      'allocator_traits<A>::construct(m, p)'
+//:
+//: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
+//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:     means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, rv)'
+//:
+//: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
+//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:     'copy-insertable' into 'X' means that the following expression is
+//:     well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, v)'
+//:
+//: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
+//:     of type (non-'const') 'T'.
+//:
+//: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
+//:     or rvalue of type (possibly 'const') 'T'.
+//:
+//: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
+//:     'args' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, args)'
+//:
+//: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
+//:     from 'X' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::destroy(m, p)'
+//:
+//: *equality-comparable*: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
@@ -133,6 +175,7 @@ BSLS_IDENT("$Id: $")
 //  ------
 //  'K'             - parameterized 'KEY' type of the unordered set
 //  'a', 'b'        - two distinct objects of type 'unordered_set<K>'
+//  'rv'            - modifiable rvalue of type 'unordered_set<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
 //  'w'             - number of buckets of 'a'
 //  'value_type'    - unordered_set<K>::value_type
@@ -140,6 +183,7 @@ BSLS_IDENT("$Id: $")
 //  'al             - an STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
 //  'k'             - an object of type 'K'
+//  'rk'            - modifiable rvalue of type 'K'
 //  'v'             - an object of type 'value_type'
 //  'p1', 'p2'      - two iterators belonging to 'a'
 //  distance(i1,i2) - the number of elements in the range [i1, i2)
@@ -153,6 +197,13 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | unordered_set<K> a(b); (copy construction)         | Average: O[n]      |
 //  | unordered_set<K> a(b, al);                         | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | set<K> a(rv); (move construction)                  | O[1] if 'a' and    |
+//  | set<K> a(rv, al);                                  | 'rv' use the same  |
+//  |                                                    | allocator;         |
+//  |                                                    | otherwise,         |
+//  |                                                    | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_set<K> a(w);                             | O[n]               |
 //  | unordered_set<K> a(w, hf);                         |                    |
@@ -169,6 +220,13 @@ BSLS_IDENT("$Id: $")
 //  | a.~unordered_set<K>(); (destruction)               | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //  | a = b;          (assignment)                       | Average: O[n]      |
+//  |                                                    | Worst:   O[n^2]    |
+//  +----------------------------------------------------+--------------------+
+//  | a = rv;         (move assignment)                  | O[1] if 'a' and    |
+//  |                                                    | 'rv' use the same  |
+//  |                                                    | allocator;         |
+//  |                                                    | otherwise,         |
+//  |                                                    | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
@@ -193,11 +251,13 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.get_allocator()                                  | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(v))                                       | Average: O[1]      |
-//  |                                                    | Worst:   O[n]      |
+//  | a.insert(v)                                        | Average: O[1]      |
+//  | a.insert(rk)                                       | Worst:   O[n]      |
+//  | a.emplace(Args&&...)                               |                    |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, v))                                   | Average: O[1]      |
-//  |                                                    | Worst:   O[n]      |
+//  | a.insert(p1, v)                                    | Average: O[1]      |
+//  | a.insert(p1, rk)                                   | Worst:   O[n]      |
+//  | a.emplace_hint(p1, Args&&...)                      |                    |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(i1, i2)                                   | Average O[         |
 //  |                                                    |   distance(i1, i2)]|
@@ -520,14 +580,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>  // Can probably escape with a fwd-decl, but not
-#endif                         // very user friendly
-
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_EQUALTO
 #include <bslstl_equalto.h>
 #endif
@@ -568,6 +620,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>  // Can probably escape with a fwd-decl, but
+#endif                           // not very user friendly
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -582,6 +642,21 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifndef INCLUDED_INITIALIZER_LIST
+#include <initializer_list>
+#define INCLUDED_INITIALIZER_LIST
+#endif
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -615,11 +690,11 @@ class unordered_set
   private:
 
     // PRIVATE TYPES
-    typedef bsl::allocator_traits<ALLOCATOR> AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOCATOR>                 AllocatorTraits;
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
-    typedef KEY ValueType;
+    typedef KEY                                              ValueType;
         // This typedef is an alias for the type of values maintained by this
         // set.
 
@@ -632,13 +707,17 @@ class unordered_set
     typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
                                              HASH,
                                              EQUAL,
-                                             ALLOCATOR> HashTable;
+                                             ALLOCATOR>      HashTable;
         // This typedef is an alias for the template instantiation of the
         // underlying 'bslstl::HashTable' used to implement this set.
 
-    typedef ::BloombergLP::bslalg::BidirectionalLink HashTableLink;
+    typedef ::BloombergLP::bslalg::BidirectionalLink         HashTableLink;
         // This typedef is an alias for the type of links maintained by the
         // linked list of elements held by the underlying 'bslstl::HashTable'.
+
+    typedef BloombergLP::bslmf::MovableRefUtil               MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
 
     // FRIEND
     template <class KEY2,
@@ -664,6 +743,14 @@ class unordered_set
     typedef typename AllocatorTraits::difference_type  difference_type;
     typedef typename AllocatorTraits::pointer          pointer;
     typedef typename AllocatorTraits::const_pointer    const_pointer;
+    typedef ::BloombergLP::bslstl::HashTableIterator<
+                    const value_type, difference_type> iterator;
+    typedef ::BloombergLP::bslstl::HashTableBucketIterator<
+                    const value_type, difference_type> local_iterator;
+
+    typedef iterator                                   const_iterator;
+    typedef local_iterator                             const_local_iterator;
+
 
   public:
     // TRAITS
@@ -672,123 +759,233 @@ class unordered_set
                     ::BloombergLP::bslmf::IsBitwiseMoveable,
                     ::BloombergLP::bslmf::IsBitwiseMoveable<HashTable>::value);
 
-    typedef ::BloombergLP::bslstl::HashTableIterator<
-                                   const value_type, difference_type> iterator;
-    typedef ::BloombergLP::bslstl::HashTableBucketIterator<
-                             const value_type, difference_type> local_iterator;
-
-    typedef iterator                                            const_iterator;
-    typedef local_iterator                                const_local_iterator;
-
   private:
     // DATA
     HashTable  d_impl;
 
   public:
     // CREATORS
-    explicit unordered_set(
-                      size_type             initialNumBuckets = 0,
-                      const hasher&         hashFunction = hasher(),
-                      const key_equal&      keyEqual = key_equal(),
-                      const allocator_type& basicAllocator = allocator_type());
-        // Construct an empty unordered set.  Optionally specify an
+    unordered_set();
+    explicit unordered_set(size_type        initialNumBuckets,
+                           const HASH&      hashFunction = HASH(),
+                           const EQUAL&     keyEqual = EQUAL(),
+                           const ALLOCATOR& basicAllocator = ALLOCATOR());
+    unordered_set(size_type        initialNumBuckets,
+                  const HASH&      hashFunction,
+                  const ALLOCATOR& basicAllocator);
+    unordered_set(size_type        initialNumBuckets,
+                  const ALLOCATOR& basicAllocator);
+    explicit unordered_set(const ALLOCATOR& basicAllocator);
+        // Create an empty unordered set.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
-        // an implementation defined value is used.  Optionally specify a
-        // 'hashFunction' used to generate the hash values associated to the
-        // keys extracted from the values contained in this object.  If
-        // 'hashFunction' is not supplied, a default-constructed object of type
-        // 'hasher' is used.  Optionally specify a key-equality functor
-        // 'keyEqual' used to verify that two key values are the same.  If
-        // 'keyEqual' is not supplied, a default-constructed object of type
-        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used to supply memory.
+        // a single bucket is used.  Optionally specify a 'hashFunction' used
+        // to generate the hash values for the keys contained in this set.  If
+        // 'hashFunction' is not supplied, a default-constructed object of the
+        // (template parameter) type 'HASH' is used.  Optionally specify a
+        // key-equality functor 'keyEqual' used to verify that two key are
+        // equivalent.  If 'keyEqual' is not supplied, a default-constructed
+        // object of the (template parameter) type 'EQUAL' is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) type 'ALLOCATOR' is used.  If the type
+        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator is used to
+        // supply memory.  Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
 
-    explicit unordered_set(const allocator_type& basicAllocator);
-        // Construct an empty unordered set that uses the specified
-        // 'basicAllocator' to supply memory.  Use a default-constructed object
-        // of type 'hasher' to generate hash values for the key extracted from
-        // the values contained in this object.  Also, use a
-        // default-constructed object of type 'key_equal' to verify that two
-        // key values are the same.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.
+    unordered_set(const unordered_set& original);
+        // Create an unordered set having the same value as the specified
+        // 'original' object.  Use a copy of 'original.hash_function()' to
+        // generate hash values for the keys contained in this set.  Use a copy
+        // of 'original.key_eq()' to verify that two keys are equivalent.  Use
+        // the allocator returned by 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // allocate memory.  This method requires that the (template parameter)
+        // type 'KEY' be 'copy-insertable' into this set (see {Requirements on
+        // 'KEY'}).
 
-    unordered_set(const unordered_set&  original);
+    unordered_set(BloombergLP::bslmf::MovableRef<unordered_set> original);
+        // Create an unordered set having the same value as the specified
+        // 'original' object by moving (in constant time) the contents of
+        // 'original' to the new set.  Use a copy of 'original.hash_function()'
+        // to generate hash values for the keys contained in this set.  Use a
+        // copy of 'original.key_eq()' to verify that two keys are equivalent.
+        // The allocator associated with 'original' is propagated for use in
+        // the newly-created set.  'original' is left in a valid but
+        // unspecified state.
+
     unordered_set(const unordered_set&  original,
-                  const allocator_type& basicAllocator);
-        // Construct an unordered set having the same value as that of the
-        // specified 'original'.  Use a default-constructed object of type
-        // 'hasher' to generate hash values for the key extracted from the
-        // values contained in this object.  Also, use a default-constructed
-        // object of type 'key_equal' to verify that two key values are the
-        // same.  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not supplied, a default-constructed
-        // object of type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.
+                  const ALLOCATOR&      basicAllocator);
+        // Create an unordered set having the same value as the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  Use a copy of 'original.hash_function()' to generate hash
+        // values for the keys contained in this set.  Use a copy of
+        // 'original.key_eq()' to verify that two keys are equivalent.  This
+        // method requires that the (template parameter) type 'KEY' be
+        // 'copy-insertable' into this set (see {Requirements on 'KEY'}).  Note
+        // that a 'bslma::Allocator *' can be supplied for 'basicAllocator' if
+        // the (template parameter) type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
+
+    unordered_set(
+                 BloombergLP::bslmf::MovableRef<unordered_set> original,
+                 const ALLOCATOR&                              basicAllocator);
+        // Create an unordered set having the same value as the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved (in constant time) to
+        // the new set if 'basicAllocator == original.get_allocator()', and are
+        // move-inserted (in linear time) using 'basicAllocator' otherwise.
+        // 'original' is left in a valid but unspecified state.  Use a copy of
+        // 'original.hash_function()' to generate hash values for the keys
+        // contained in this set.  Use a copy of 'original.key_eq()' to verify
+        // that two keys are equivalent.  This method requires that the
+        // (template parameter) type 'KEY' be 'move-insertable' (see
+        // {Requirements on 'KEY'}).  Note that a 'bslma::Allocator *' can be
+        // supplied for 'basicAllocator' if the (template parameter) type
+        // 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     template <class INPUT_ITERATOR>
-    unordered_set(INPUT_ITERATOR        first,
-                  INPUT_ITERATOR        last,
-                  size_type             initialNumBuckets = 0,
-                  const hasher&         hashFunction = hasher(),
-                  const key_equal&      keyEqual = key_equal(),
-                  const allocator_type& basicAllocator = allocator_type());
-        // Construct an empty unordered set and insert each 'value_type' object
-        // in the sequence starting at the specified 'first' element, and
-        // ending immediately before the specified 'last' element, ignoring
-        // those pairs having a key that appears earlier in the sequence.
-        // Optionally specify an 'initialNumBuckets' indicating the initial
-        // size of the array of buckets of this container.  If
-        // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hashFunction' used to generate hash
-        // values for the keys extracted from the values contained in this
-        // object.  If 'hashFunction' is not supplied, a default-constructed
-        // object of type 'hasher' is used.  Optionally specify a key-equality
-        // functor 'keyEqual' used to verify that two key values are the same.
-        // If 'keyEqual' is not supplied, a default-constructed object of type
-        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is not supplied, a
+    unordered_set(INPUT_ITERATOR   first,
+                  INPUT_ITERATOR   last,
+                  size_type        initialNumBuckets = 0,
+                  const HASH&      hashFunction = HASH(),
+                  const EQUAL&     keyEqual = EQUAL(),
+                  const ALLOCATOR& basicAllocator = ALLOCATOR());
+    template <class INPUT_ITERATOR>
+    unordered_set(INPUT_ITERATOR   first,
+                  INPUT_ITERATOR   last,
+                  size_type        initialNumBuckets,
+                  const HASH&      hashFunction,
+                  const ALLOCATOR& basicAllocator);
+    template <class INPUT_ITERATOR>
+    unordered_set(INPUT_ITERATOR   first,
+                  INPUT_ITERATOR   last,
+                  size_type        initialNumBuckets,
+                  const ALLOCATOR& basicAllocator);
+    template <class INPUT_ITERATOR>
+    unordered_set(INPUT_ITERATOR   first,
+                  INPUT_ITERATOR   last,
+                  const ALLOCATOR& basicAllocator);
+        // Create an unordered set, and insert each 'value_type' object in the
+        // sequence starting at the specified 'first' element, and ending
+        // immediately before the specified 'last' element, ignoring those keys
+        // having a value equivalent to that which appears earlier in the
+        // sequence.  Optionally specify an 'initialNumBuckets' indicating the
+        // initial size of the array of buckets of this container.  If
+        // 'initialNumBuckets' is not supplied, a single bucket is used.
+        // Optionally specify a 'hashFunction' used to generate hash values for
+        // the keys contained in this set.  If 'hashFunction' is not supplied,
+        // a default-constructed object of (template parameter) type 'HASH' is
+        // used.  Optionally specify a key-equality functor 'keyEqual' used to
+        // verify that two key values are the same.  If 'keyEqual' is not
+        // supplied, a default-constructed object of (template parameter) type
+        // 'EQUAL' is used.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
-        // 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used to supply memory.  The (template
+        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
+        // and 'basicAllocator' is not supplied, the currently installed
+        // default allocator is used to supply memory.  The (template
         // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
         // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type'.  The
-        // behavior is undefined unless 'first' and 'last' refer to a sequence
-        // of valid values where 'first' is at a position at or before 'last'.
-        // Note that this method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // access to values of a type convertible to 'value_type', and
+        // 'value_type' must be 'emplace-constructible' from '*i' into this
+        // set, where 'i' is a dereferenceable iterator in the range
+        // '[first .. last)' (see {Requirements on 'KEY'}).  The behavior is
+        // undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.  Note
+        // that a 'bslma::Allocator *' can be supplied for 'basicAllocator' if
+        // the type 'ALLOCATOR' is 'bsl::allocator' (the default).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    unordered_set(std::initializer_list<KEY> values,
+                  size_type                  initialNumBuckets = 0,
+                  const HASH&                hashFunction = HASH(),
+                  const EQUAL&               keyEqual = EQUAL(),
+                  const ALLOCATOR&           basicAllocator = ALLOCATOR());
+    unordered_set(std::initializer_list<KEY> values,
+                  size_type                  initialNumBuckets,
+                  const HASH&                hashFunction,
+                  const ALLOCATOR&           basicAllocator);
+    unordered_set(std::initializer_list<KEY> values,
+                  size_type                  initialNumBuckets,
+                  const ALLOCATOR&           basicAllocator);
+    unordered_set(std::initializer_list<KEY> values,
+                  const ALLOCATOR&           basicAllocator);
+        // Create an unordered set and insert each 'value_type' object in the
+        // specified 'values' initializer list, ignoring those keys having a
+        // value equivalent to that which appears earlier in the list.
+        // Optionally specify an 'initialNumBuckets' indicating the initial
+        // size of the array of buckets of this container.  If
+        // 'initialNumBuckets' is not supplied, a single bucket is used.
+        // Optionally specify a 'hashFunction' used to generate the hash values
+        // for the keys contained in this set.  If 'hashFunction' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'HASH' is used.  Optionally specify a key-equality functor
+        // 'keyEqual' used to verify that two keys are equivalent.  If
+        // 'keyEqual' is not supplied, a default-constructed object of the
+        // (template parameter) type 'EQUAL' is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used to supply memory.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // 'copy-constructible' (see {Requirements on 'KEY'}).  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
+#endif
 
     ~unordered_set();
         // Destroy this object.
 
     // MANIPULATORS
     unordered_set& operator=(const unordered_set& rhs);
-        // Assign to this object the value, hasher, and key-equality functor of
-        // the specified 'rhs' object, propagate to this object the allocator
-        // of 'rhs' if the 'ALLOCATOR' type has trait
+        // Assign to this object the value, hash function, and equality
+        // comparator of the specified 'rhs' object, propagate to this object
+        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  Note that this method
-        // requires that the (template parameter) type 'KEY' be
-        // "copy-constructible" (see {Requirements on 'KEY'}).
+        // providing modifiable access to this object.  If an exception is
+        // thrown, '*this' is left in a valid but unspecified state.  This
+        // method requires that the (template parameter) type 'KEY' be
+        // 'copy-assignable' and 'copy-insertable" into this set (see
+        // {Requirements on 'KEY'}).
 
-    iterator begin();
+    unordered_set&
+    operator=(BloombergLP::bslmf::MovableRef<unordered_set> rhs);
+        // Assign to this object the value, hash function, and equality
+        // comparator of the specified 'rhs' object, propagate to this object
+        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_move_assignment', and return a reference
+        // providing modifiable access to this object.  The contents of 'rhs'
+        // are moved (in constant time) to this set if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait); otherwise, all elements in this set are
+        // either destroyed or move-assigned to and each additional element in
+        // 'rhs' is move-inserted into this set.  'rhs' is left in a valid but
+        // unspecified state, and if an exception is thrown, '*this' is left in
+        // a valid but unspecified state.  This method requires that the
+        // (template parameter) type 'KEY' be both 'move-assignable' and
+        // 'move-insertable' into this set (see {Requirements on 'KEY'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    unordered_set& operator=(std::initializer_list<KEY> values);
+        // Assign to this object the vale resulting from first clearing this
+        // set and then inserting each 'value_type' object in the specified
+        // 'values' initializer list, ignoring those keys having a value
+        // equivalent to that which appears earlier in the list; return a
+        // reference providing modifiable access to this object.  This method
+        // requires that the (template parameter) type 'KEY' type be
+        // 'copy-insertable' into this set (see {Requirements on 'KEY'}).
+#endif
+
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this set, or the 'end' iterator if this set is empty.
 
-    iterator end();
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the sequence of 'value_type' objects maintained by this
         // set.
@@ -805,25 +1002,397 @@ class unordered_set
         // bucket having the specified 'index's, in the array of buckets
         // maintained by this set.
 
-    void clear();
-        // Remove all entries from this set.  Note that the container is empty
-        // after this call, but allocated memory may be retained for future
-        // use.
+    pair<iterator, bool> insert(const value_type& value);
+        // Insert the specified 'value' into this set if a key equivalent to
+        // 'value' does not already exist in this set; otherwise, if a key
+        // equivalent to 'value' already exists in this set, this method has no
+        // effect.  Return a pair whose 'first' member is an iterator referring
+        // to the (possibly newly inserted) 'value_type' object in this set
+        // that is equivalent to 'value', and whose 'second' member is 'true'
+        // if a new value was inserted, and 'false' if the key was already
+        // present.  This method requires that the (template parameter) type
+        // 'KEY' be 'copy-insertable' (see {Requirements on 'KEY'}).
 
-    pair<iterator, iterator> equal_range(const key_type& key);
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this unordered set having the
-        // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence, and the second is positioned one past the end
-        // of the sequence.  If this unordered set contains no 'value_type'
-        // objects having 'key', then the two returned iterators will have the
-        // same value.  Note that since a set maintains unique keys, the range
-        // will contain at most one element.
+    pair<iterator, bool> insert(
+                             BloombergLP::bslmf::MovableRef<value_type> value);
+        // Insert the specified 'value' into this set if a key equivalent to
+        // 'value' does not already exist in this set; otherwise, if a key
+        // equivalent to 'value' already exists in this set, this method has no
+        // effect.  'value' is left in a valid but unspecified state.  Return a
+        // pair whose 'first' member is an iterator referring to the (possibly
+        // newly inserted) 'value_type' object in this set that is equivalent
+        // to 'value', and whose 'second' member is 'true' if a new value was
+        // inserted, and 'false' if the key was already present.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // 'move-insertable' into this set (see {Requirements on 'KEY'}).
 
-    size_type erase(const key_type& key);
-        // Remove from this set the 'value_type' object having the specified
-        // 'key', if it exists, and return 1; otherwise, if there is no
-        // 'value_type' object having 'key', return 0 with no other effect.
+    iterator insert(const_iterator hint, const value_type& value);
+        // Insert the specified 'value' into this set if a key equivalent to
+        // 'value' does not already exist in this set; otherwise, if a key
+        // equivalent to 'value' already exists in this set, this method has no
+        // effect.  Return an iterator referring to the (possibly newly
+        // inserted) 'value_type' object in this set that is equivalent to
+        // 'value'.  The behavior is undefined unless the specified 'hint' is a
+        // valid iterator into this unordered set.  This method requires that
+        // the (template parameter) type 'KEY' be 'copy-constructible' into
+        // this set (see {Requirements on 'KEY'}).  Note that the specification
+        // of 'hint' for an unordered set (of unique values) does not provide a
+        // performance benefit.
+
+    iterator insert(const_iterator                             hint,
+                    BloombergLP::bslmf::MovableRef<value_type> value);
+        // Insert the specified 'value' into this set if a key equivalent to
+        // 'value' does not already exist in this set; otherwise, if a key
+        // equivalent to 'value' already exists in this set, this method has no
+        // effect.  'value' is left in a valid but unspecified state.  Return
+        // an iterator referring to the (possibly newly inserted) 'value_type'
+        // object in this set that is equivalent to 'value'.  The behavior is
+        // undefined unless the specified 'hint' is a valid iterator into this
+        // unordered set.  This method requires that the (template parameter)
+        // type 'KEY' be 'move-insertable' (see {Requirements on 'KEY'}) into
+        // this set.  Note that the specification of 'hint' for an unordered
+        // set (of unique values) does provide a performance benefit.
+
+    template <class INPUT_ITERATOR>
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+        // Insert into this set the value of each 'value_type' object in the
+        // range starting at the specified 'first' iterator and ending
+        // immediately before the specified 'last' iterator, if a  key
+        // equivalent to the object is not already contained in this set.  The
+        // (template parameter) type 'INPUT_ITERATOR' shall meet the
+        // requirements of an input iterator defined in the C++11 standard
+        // [24.2.3] providing access to values of a type convertible to
+        // 'value_type', and 'value_type' must be 'emplace-constructible' from
+        // '*i' into this set, where 'i' is a dereferenceable iterator in the
+        // range '[first .. last)' (see {Requirements on 'KEY'}).  The behavior
+        // is undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void insert(std::initializer_list<KEY> values);
+        // Insert into this set the value of each 'value_type' object in the
+        // specified 'values' initializer list if a key equivalent to the
+        // object is not already contained in this set.  This method requires
+        // that the (template parameter) type 'KEY' be 'copy-insertable' (see
+        // {Requirements on 'KEY'}).
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    pair<iterator, bool> emplace(Args&&... arguments);
+        // Insert into this unordered set a newly created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'arguments' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exist in this set; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return a pair whose 'first' member is an iterator
+        // referring to the (possibly newly created and inserted) object in
+        // this set whose value is equivalent to that of an object constructed
+        // from 'arguments', and whose 'second' member is 'true' if a new value
+        // was inserted, and 'false' if an equivalent key was already present.
+        // This method requires that the (template parameter) type 'KEY' be
+        // 'emplace-constructible' into this set from 'arguments' (see
+        // {Requirements on 'KEY'}).
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint, Args&&... arguments);
+        // Insert into this unordered set a newly created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'arguments' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exists in this set; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return an iterator referring to the (possibly newly
+        // created and inserted) object in this set whose value is equivalent
+        // to that of an object constructed from 'arguments'.  The average and
+        // worst case complexity of this operation is not affected by the the
+        // specified 'hint'.  This method requires that the (template
+        // parameter) type 'KEY' be 'emplace-constructible' into this set from
+        // 'arguments' (see {Requirements on 'KEY'}).
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_unorderedset.h
+    pair<iterator, bool> emplace(
+                         );
+
+    template <class Args_01>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> emplace(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+
+    iterator emplace_hint(const_iterator hint);
+
+    template <class Args_01>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class Args_01,
+              class Args_02>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator emplace_hint(const_iterator hint,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    pair<iterator, bool> emplace(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+// }}} END GENERATED CODE
+#endif
 
     iterator erase(const_iterator position);
         // Remove from this unordered set the 'value_type' object at the
@@ -834,61 +1403,52 @@ class unordered_set
         // undefined unless 'position' refers to a 'value_type' object in this
         // unordered set.
 
+    size_type erase(const key_type& key);
+        // Remove from this set the 'value_type' object that is equivalent to
+        // the specified 'key', if such an entry exists, and return 1;
+        // otherwise, if there is no 'value_type' object that is equivalent to
+        // 'key', return 0 with no other effect.
+
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this set the 'value_type' objects starting at the
         // specified 'first' position up to, but including the specified 'last'
         // position, and return 'last'.  The behavior is undefined unless
         // 'first' and 'last' either refer to elements in this set or are the
         // 'end' iterator, and the 'first' position is at or before the 'last'
-        // position in the ordered sequence provided by this container.
+        // position in the sequence provided by this container.
+
+    void swap(unordered_set& other);
+        // Exchange the value, hash function, and equality comparator of this
+        // object with the value, hash function, and equality comparator of the
+        // specified 'other' object.  Additionally, if
+        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
+        // 'true', then exchange the allocator of this object with that of the
+        // 'other' object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee if and only
+        // if the hash function and equality comparator provide a no-throw
+        // swap.  The behavior is undefined unless either both 'a' and 'b' use
+        // the same allocator or 'propagate_on_container_swap' is 'true'.
+
+    void clear() BSLS_CPP11_NOEXCEPT;
+        // Remove all entries from this unordered set.  Note that the set is
+        // empty after this call, but allocated memory may be retained for
+        // future use.
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
-        // object in this set having the specified 'key', if such an entry
-        // exists, and the past-the-end ('end') iterator otherwise.
+        // object in this set that is equivalent to the specified 'key', if
+        // such an entry exists, and the past-the-end ('end') iterator
+        // otherwise.
 
-    pair<iterator, bool> insert(const value_type& value);
-        // Insert the specified 'value' into this set if the key (the 'first'
-        // element) of the 'value' does not already exist in this set;
-        // otherwise, if a 'value_type' object having the same key (according
-        // to 'key_equal') as 'value' already exists in this set, this method
-        // has no effect.  Return a pair whose 'first' member is an iterator
-        // referring to the (possibly newly inserted) 'value_type' object in
-        // this set whose key is the same as that of 'value', and whose
-        // 'second' member is 'true' if a new value was inserted, and 'false'
-        // if the value was already present.  Note that this method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
-
-    iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this set (in constant time if the
-        // specified 'hint' is a valid element in the bucket to which 'value'
-        // belongs), if the key ('value' itself) of the 'value' does not
-        // already exist in this set; otherwise, if a 'value_type' object
-        // having the same key (according to 'key_equal') as 'value' already
-        // exists in this set, this method has no effect.  Return an iterator
-        // referring to the (possibly newly inserted) 'value_type' object in
-        // this set whose key is the same as that of 'value'.  If 'hint' is not
-        // a valid immediate successor to the key of 'value', this operation
-        // has worst case 'O[N]' and average case constant-time complexity,
-        // where 'N' is the size of this set.  The behavior is undefined unless
-        // 'hint' is a valid iterator into this unordered set.  Note that this
-        // method requires that the (template parameter) type 'KEY' be
-        // "copy-constructible" (see {Requirements on 'KEY'}).
-
-    template <class INPUT_ITERATOR>
-    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this set the value of each 'value_type' object in the
-        // range starting at the specified 'first' iterator and ending
-        // immediately before the specified 'last' iterator, whose key is not
-        // already contained in this set.  The (template parameter) type
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  The behavior is undefined
-        // unless 'first' and 'last' refer to a sequence of valid values where
-        // 'first' is at a position at or before 'last'.  Note that this method
-        // requires that the (template parameter) type 'KEY' be
-        // "copy-constructible" (see {Requirements on 'KEY'}).
+    pair<iterator, iterator> equal_range(const key_type& key);
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered set that are
+        // equivalent to the specified 'key', where the the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered set
+        // contains no 'value_type' objects equivalent to 'key', then the two
+        // returned iterators will have the same value.  Note that since a set
+        // maintains unique keys, the range will contain at most one element.
 
     void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
@@ -912,124 +1472,131 @@ class unordered_set
         // 'size() == numElements'.  Also note that this operation has no
         // effect if 'numElements <= size()'.
 
-    void swap(unordered_set& other);
-        // Exchange the value of this object as well as its hasher and
-        // key-equality functor with those of the specified 'other' object.
-        // Additionally, if
-        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of the
-        // 'other' object, and do not modify either allocator otherwise.  This
-        // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
-
     // ACCESSORS
-    const_iterator begin() const;
-    const_iterator cbegin() const;
+    ALLOCATOR get_allocator() const BSLS_CPP11_NOEXCEPT;
+        // Return (a copy of) the allocator used for memory allocation by this
+        // set.
+
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects)
+        // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this set, or the 'end' iterator if this set is empty.
 
-    const_iterator end() const;
-    const_iterator cend() const;
+    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the sequence of 'value_type' objects
+        // maintained by this set.
+
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
+        // Return an iterator providing non-modifiable access to the first
+        // 'value_type' object in the sequence of 'value_type' objects
+        // maintained by this set, or the 'cend' iterator if this set is empty.
+
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element (in the sequence of 'value_type' objects)
         // maintained by this set.
 
-    const_local_iterator begin(size_type index) const;
-    const_local_iterator cbegin(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the first
-        // 'value_type' object (in the sequence of 'value_type' objects) of the
-        // bucket having the specified 'index' in the array of buckets
-        // maintained by this set, or the 'end(index)' otherwise.
+    bool empty() const BSLS_CPP11_NOEXCEPT;
+        // Return 'true' if this set contains no elements, and 'false'
+        // otherwise.
 
-    const_local_iterator end(size_type index) const;
-    const_local_iterator cend(size_type index) const;
-        // Return a local iterator providing non-modifiable access to the
-        // past-the-end element (in the sequence of 'value_type' objects) of
-        // the bucket having the specified 'index' in the array of buckets
-        // maintained by this set.
+    size_type size() const BSLS_CPP11_NOEXCEPT;
+        // Return the number of elements in this set.
 
-    size_type bucket(const key_type& key) const;
-        // Return the index of the bucket, in the array of buckets of this
-        // container, where values having the specified 'key' would be
-        // inserted.
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
+        // Return a theoretical upper bound on the largest number of elements
+        // that this set could possibly hold.  Note that there is no guarantee
+        // that the set can successfully grow to the returned size, or even
+        // close to that size without running out of resources.
 
-    size_type bucket_count() const;
+    EQUAL key_eq() const;
+        // Return (a copy of) the key-equality binary functor that returns
+        // 'true' if the value of two 'key_type' objects are equivalent, and
+        // 'false' otherwise.
+
+    HASH hash_function() const;
+        // Return (a copy of) the hash unary functor used by this set to
+        // generate a hash value (of type 'size_t') for a 'key_type' object.
+
+    const_iterator find(const key_type& key) const;
+        // Return an iterator providing non-modifiable access to the
+        // 'value_type' object in this set that is equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end ('end')
+        // iterator otherwise.
+
+    size_type count(const key_type& key) const;
+        // Return the number of 'value_type' objects within this set that are
+        // equivalent to the specified 'key'.  Note that since an unordered set
+        // maintains unique keys, the returned value will be either 0 or 1.
+
+    pair<const_iterator, const_iterator> equal_range(
+                                                    const key_type& key) const;
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this set that are equivalent to
+        // the specified 'key', where the the first iterator is positioned at
+        // the start of the sequence and the second iterator is positioned one
+        // past the end of the sequence.  If this set contains no 'value_type'
+        // objects equivalent to 'key', then the two returned iterators will
+        // have the same value.  Note that since a set maintains unique keys,
+        // the range will contain at most one element.
+
+    size_type bucket_count() const BSLS_CPP11_NOEXCEPT;
         // Return the number of buckets in the array of buckets maintained by
         // this set.
+
+    size_type max_bucket_count() const BSLS_CPP11_NOEXCEPT;
+        // Return a theoretical upper bound on the largest number of buckets
+        // that this container could possibly manage.  Note that there is no
+        // guarantee that the set can successfully grow to the returned size,
+        // or even close to that size without running out of resources.
 
     size_type bucket_size(size_type index) const;
         // Return the number of elements contained in the bucket at the
         // specified 'index' in the array of buckets maintained by this
         // container.
 
-    size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this map having the
-        // specified 'key'.  Note that since an unordered set maintains unique
-        // keys, the returned value will be either 0 or 1.
+    size_type bucket(const key_type& key) const;
+        // Return the index of the bucket, in the array of buckets of this
+        // container, where a value equivalent to the specified 'key' would be
+        // inserted.
 
-    bool empty() const;
-        // Return 'true' if this set contains no elements, and 'false'
-        // otherwise.
+    const_local_iterator begin(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the first
+        // 'value_type' object (in the sequence of 'value_type' objects) of the
+        // bucket having the specified 'index' in the array of buckets
+        // maintained by this set, or the 'end(index)' otherwise.
 
-    pair<const_iterator, const_iterator> equal_range(
-                                                    const key_type& key) const;
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this container having the
-        // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence and the second iterator is positioned one past
-        // the end of the sequence.  If this set contains no 'value_type'
-        // objects having 'key', then the two returned iterators will have the
-        // same value.  Note that since a set maintains unique keys, the range
-        // will contain at most one element.
+    const_local_iterator end(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of 'value_type' objects) of
+        // the bucket having the specified 'index' in the array of buckets
+        // maintained by this set.
 
-    const_iterator find(const key_type& key) const;
-        // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this set having the specified 'key', if such
-        // an entry exists, and the past-the-end ('end') iterator otherwise.
+    const_local_iterator cbegin(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the first
+        // 'value_type' object (in the sequence of 'value_type' objects) of the
+        // bucket having the specified 'index' in the array of buckets
+        // maintained by this set, or the 'cend(index)' otherwise.
 
-    allocator_type get_allocator() const;
-        // Return (a copy of) the allocator used for memory allocation by this
-        // set.
+    const_local_iterator cend(size_type index) const;
+        // Return a local iterator providing non-modifiable access to the
+        // past-the-end element (in the sequence of 'value_type' objects) of
+        // the bucket having the specified 'index' in the array of buckets
+        // maintained by this set.
 
-    key_equal key_eq() const;
-        // Return (a copy of) the key-equality binary functor that returns
-        // 'true' if the value of two 'key_type' objects is the same, and
-        // 'false' otherwise.
-
-    hasher hash_function() const;
-        // Return (a copy of) the hash unary functor used by this set to
-        // generate a hash value (of type 'size_t') for a 'key_type' object.
-
-    float load_factor() const;
+    float load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the current ratio between the 'size' of this container and
         // the number of buckets.  The 'load_factor' is a measure of how full
         // the container is, and a higher load factor leads to an increased
         // number of collisions, thus resulting in a loss performance.
 
-    size_type max_bucket_count() const;
-        // Return a theoretical upper bound on the largest number of buckets
-        // that this container could possibly manage.  Note that there is no
-        // guarantee that the set can successfully grow to the returned size,
-        // or even close to that size without running out of resources.
-
-    float max_load_factor() const;
+    float max_load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the maximum load factor allowed for this container.  If an
         // insert operation would cause 'load_factor' to exceed the
         // 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).
-
-    size_type max_size() const;
-        // Return a theoretical upper bound on the largest number of elements
-        // that this set could possibly hold.  Note that there is no guarantee
-        // that the set can successfully grow to the returned size, or even
-        // close to that size without running out of resources.
-
-    size_type size() const;
-        // Return the number of elements in this set.
 };
 
 // FREE FUNCTIONS
@@ -1060,14 +1627,18 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b);
-    // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally, if
-    // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+    // Exchange the value, hash function, and equality comparator of the
+    // specified 'a' object with the value, hash function, and equality
+    // comparator of the specified 'b' object.  Additionally, if
+    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true', then exchange the allocator of 'a' with that of 'b', and do not
-    // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees 'O[1]' complexity.  The
-    // behavior is undefined unless either this object was created with the
-    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // modify either allocator otherwise.  This function provides the no-throw
+    // exception-safety guarantee if and only if the hash function and equality
+    // comparator provide a no-throw swap operation.  Note that 'a' and 'b' are
+    // left in valid but unspecified states if an exception is thrown (in the
+    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
+    // created with different allocators), such as when the comparator objects
+    // are swapped.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1080,44 +1651,46 @@ void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
 // CREATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                       size_type             initialNumBuckets,
-                                       const hasher&         hashFunction,
-                                       const key_equal&      keyEqual,
-                                       const allocator_type& basicAllocator)
-: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set()
+: d_impl(HASH(), EQUAL(), 0, 1.0f, ALLOCATOR())
 {
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class INPUT_ITERATOR>
-inline
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                       INPUT_ITERATOR        first,
-                                       INPUT_ITERATOR        last,
-                                       size_type             initialNumBuckets,
-                                       const hasher&         hashFunction,
-                                       const key_equal&      keyEqual,
-                                       const allocator_type& basicAllocator)
-: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
-{
-    this->insert(first, last);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                          const allocator_type& basicAllocator)
+                                            size_type        initialNumBuckets,
+                                            const HASH&      hashFunction,
+                                            const EQUAL&     keyEqual,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                            size_type        initialNumBuckets,
+                                            const HASH&      hashFunction,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                            size_type        initialNumBuckets,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                               const ALLOCATOR& basicAllocator)
 : d_impl(basicAllocator)
-{
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                          const unordered_set&  original,
-                                          const allocator_type& basicAllocator)
-: d_impl(original.d_impl, basicAllocator)
 {
 }
 
@@ -1130,6 +1703,147 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                      original.get_allocator()))
 {
 }
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                        BloombergLP::bslmf::MovableRef<unordered_set> original)
+: d_impl(MoveUtil::move(MoveUtil::access(original).d_impl))
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                           const unordered_set& original,
+                                           const ALLOCATOR&     basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                  BloombergLP::bslmf::MovableRef<unordered_set> original,
+                  const ALLOCATOR&                              basicAllocator)
+: d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                            INPUT_ITERATOR   first,
+                                            INPUT_ITERATOR   last,
+                                            size_type        initialNumBuckets,
+                                            const HASH&      hashFunction,
+                                            const EQUAL&     keyEqual,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                            INPUT_ITERATOR   first,
+                                            INPUT_ITERATOR   last,
+                                            size_type        initialNumBuckets,
+                                            const HASH&      hashFunction,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                            INPUT_ITERATOR   first,
+                                            INPUT_ITERATOR   last,
+                                            size_type        initialNumBuckets,
+                                            const ALLOCATOR& basicAllocator)
+: d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                               INPUT_ITERATOR   first,
+                                               INPUT_ITERATOR   last,
+                                               const ALLOCATOR& basicAllocator)
+: d_impl(HASH(), EQUAL(), 0, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                  std::initializer_list<KEY> values,
+                                  size_type                  initialNumBuckets,
+                                  const hasher&              hashFunction,
+                                  const key_equal&           keyEqual,
+                                  const ALLOCATOR&           basicAllocator)
+: unordered_set(values.begin(), values.end(), initialNumBuckets,
+                hashFunction, keyEqual, basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                  std::initializer_list<KEY> values,
+                                  size_type                  initialNumBuckets,
+                                  const HASH&                hashFunction,
+                                  const ALLOCATOR&           basicAllocator)
+: unordered_set(values.begin(),
+                values.end(),
+                initialNumBuckets,
+                hashFunction,
+                EQUAL(),
+                basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                 std::initializer_list<KEY> values,
+                                 size_type                  initialNumBuckets,
+                                 const ALLOCATOR&           basicAllocator)
+: unordered_set(values.begin(),
+                values.end(),
+                initialNumBuckets,
+                HASH(),
+                EQUAL(),
+                basicAllocator)
+{
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
+                                 std::initializer_list<KEY> values,
+                                 const ALLOCATOR&           basicAllocator)
+: unordered_set(values.begin(),
+                values.end(),
+                0,
+                HASH(),
+                EQUAL(),
+                basicAllocator)
+{
+}
+
+#endif
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1150,8 +1864,34 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(const unordered_set& rhs)
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
+                             BloombergLP::bslmf::MovableRef<unordered_set> rhs)
+{
+    unordered_set& lvalue = rhs;
+    if (this != &lvalue) {
+        d_impl = MoveUtil::move(lvalue.d_impl);
+    }
+    return *this;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
+                                             std::initializer_list<KEY> values)
+{
+    clear();
+    insert(values.begin(), values.end());
+    return *this;
+}
+#endif
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin()
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_impl.elementListRoot());
 }
@@ -1159,7 +1899,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin()
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end()
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator();
 }
@@ -1186,10 +1926,690 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
-void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::clear()
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     d_impl.removeAll();
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(Args&&... arguments)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                                                         Args&&... arguments)
+{
+    // There is no realistic use-case for the 'hint' in an unordered_set of
+    // unique values.  We could quickly test for a duplicate key, and have a
+    // fast return path for when the method fails, but in the typical use case
+    // where a new element is inserted, we are adding an extra key-check for no
+    // benefit.  In order to insert an element into a bucket, we need to walk
+    // the whole bucket looking for duplicates, and the hint is no help in
+    // finding the start of a bucket.
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...).first;
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_unorderedset.h
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                          )
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator)
+{
+
+    return
+        this->emplace().first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09)
+                      ).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                      BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10)
+                      ).first;
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+           &isInsertedFlag, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+
+    return
+        this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...).first;
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1284,6 +2704,22 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const value_type& value)
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
+bsl::pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+                              BloombergLP::bslmf::MovableRef<value_type> value)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag,
+                                                   MoveUtil::move(value));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
                                                    const value_type& value)
@@ -1297,6 +2733,24 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
     // finding the start of a bucket.
 
     return this->insert(value).first;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+                              const_iterator,
+                              BloombergLP::bslmf::MovableRef<value_type> value)
+{
+    // There is no realistic use-case for the 'hint' in an unordered_set of
+    // unique values.  We could quickly test for a duplicate key, and have a
+    // fast return path for when the method fails, but in the typical use case
+    // where a new element is inserted, we are adding an extra key-check for no
+    // benefit.  In order to insert an element into a bucket, we need to walk
+    // the whole bucket looking for duplicates, and the hint is no help in
+    // finding the start of a bucket.
+
+    return this->insert(MoveUtil::move(value)).first;
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1317,6 +2771,16 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
         ++first;
     }
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(
+                                             std::initializer_list<KEY> values)
+{
+    insert(values.begin(), values.end());
+}
+#endif
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1353,8 +2817,16 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
 // ACCESSORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
+ALLOCATOR unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::get_allocator() const
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    return d_impl.allocator();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin() const
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -1362,9 +2834,139 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::begin() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end() const
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
+{
+    return const_iterator(d_impl.elementListRoot());
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
+{
+    return const_iterator();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bool
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
+{
+    return 0 == d_impl.size();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size() const BSLS_CPP11_NOEXCEPT
+{
+    return d_impl.size();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_size() const
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    return AllocatorTraits::max_size(get_allocator());
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::hasher
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::hash_function() const
+{
+    return d_impl.hasher();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::key_equal
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::key_eq() const
+{
+    return d_impl.comparator();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key) const
+{
+    return const_iterator(d_impl.find(key));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const key_type& key) const
+{
+    return 0 != d_impl.find(key);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+bsl::pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator,
+          typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                     const key_type& key) const
+{
+    typedef bsl::pair<const_iterator, const_iterator> ResultType;
+
+    const_iterator first = this->find(key);
+    if (first == this->end()) {
+        return ResultType(first, first);                              // RETURN
+    }
+    else {
+        const_iterator next = first;
+        return ResultType(first, ++next);                             // RETURN
+    }
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    return d_impl.numBuckets();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    return d_impl.maxNumBuckets();
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return d_impl.countElementsInBucket(index);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket(const key_type& key) const
+{
+    BSLS_ASSERT_SAFE(this->bucket_count() > 0);
+
+    return d_impl.bucketIndexForKey(key);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1389,117 +2991,6 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin() const
-{
-    return const_iterator(d_impl.elementListRoot());
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend() const
-{
-    return const_iterator();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket(const key_type& key) const
-{
-    BSLS_ASSERT_SAFE(this->bucket_count() > 0);
-
-    return d_impl.bucketIndexForKey(key);
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
-{
-    return d_impl.numBuckets();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const key_type& key) const
-{
-    return 0 != d_impl.find(key);
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-bool unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::empty() const
-{
-    return 0 == d_impl.size();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key) const
-{
-    return const_iterator(d_impl.find(key));
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-bsl::pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator,
-          typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                     const key_type& key) const
-{
-    typedef bsl::pair<const_iterator, const_iterator> ResultType;
-
-    const_iterator first = this->find(key);
-    if (first == this->end()) {
-        return ResultType(first, first);                              // RETURN
-    }
-    else {
-        const_iterator next = first;
-        return ResultType(first, ++next);                             // RETURN
-    }
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-ALLOCATOR unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::get_allocator() const
-{
-    return d_impl.allocator();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::hasher
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::hash_function() const
-{
-    return d_impl.hasher();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::key_equal
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::key_eq() const
-{
-    return d_impl.comparator();
-}
-
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return d_impl.countElementsInBucket(index);
-}
-
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_local_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin(size_type index) const
 {
@@ -1521,39 +3012,17 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::load_factor() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.loadFactor();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
-{
-    return d_impl.maxNumBuckets();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
 float unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxLoadFactor();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size() const
-{
-    return d_impl.size();
-}
-
-template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_size() const
-{
-    return AllocatorTraits::max_size(get_allocator());
 }
 
 }  // close namespace bsl

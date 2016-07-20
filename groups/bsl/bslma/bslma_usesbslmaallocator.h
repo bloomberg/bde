@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a metafunction that indicates the use of bslma allocators.
 //
 //@CLASSES:
-//  bslma::UsesBslmaAllocator<TYPE>: trait detection metafunction
+//  bslma::UsesBslmaAllocator: trait detection metafunction
 //
 //@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
@@ -235,16 +235,18 @@ struct UsesBslmaAllocator_Imp
 template <class TYPE>
 struct UsesBslmaAllocator_Imp<TYPE, false>
 {
-private:
+  private:
     struct UniqueType {
-        // A class convertible from this type must have a templated
-        // constructor or a 'void*' which makes it convertible from EVERY
-        // pointer type.
+        // A class convertible from this type must have a constructor template
+        // callable with a single argument of any (pointer) type, or a
+        // constructor with a single 'void *' parameter (or all subsequent
+        // parameters have a default argument), which makes it convertible from
+        // EVERY pointer type.
     };
 
     enum {
         // Detect if 'TYPE' is 'Allocator*' type.
-        IS_BSLMA_POINTER
+        k_IS_BSLMA_POINTER
             = bsl::is_same<
                 Allocator,
                 typename bsl::remove_cv<
@@ -252,18 +254,18 @@ private:
 
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
         // non-explicit constructor taking an allocator.
-        BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
+        k_BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean
         // that ANY POINTER is convertible to 'T'.
-        ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
+        k_ANY_POINTER_CTOR = bsl::is_convertible<UniqueType *, TYPE>::value
     };
 
-public:
+  public:
     typedef bsl::integral_constant<bool,
-                                   !IS_BSLMA_POINTER
-                                   && BSLMA_POINTER_CTOR
-                                   && !ANY_POINTER_CTOR>
+                                   !k_IS_BSLMA_POINTER
+                                   && k_BSLMA_POINTER_CTOR
+                                   && !k_ANY_POINTER_CTOR>
         Type;
 };
 

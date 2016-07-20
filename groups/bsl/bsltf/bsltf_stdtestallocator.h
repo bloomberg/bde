@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a minimal standard compliant allocator.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //      bsltf::StdTestAllocatorConfiguration: namespace to configure allocator
 // bsltf::StdTestAllocatorConfigurationGuard: configuration scoped guard
@@ -134,8 +136,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_UTIL
+#include <bslmf_util.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_NEW
@@ -229,13 +239,13 @@ class StdTestAllocator {
     // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
     // wide enough to support our regular testing, as verified on 32-bit
     // platforms.
-    typedef unsigned int  size_type;
-    typedef int           difference_type;
-    typedef TYPE         *pointer;
-    typedef const TYPE   *const_pointer;
-    typedef TYPE&         reference;
-    typedef const TYPE&   const_reference;
-    typedef TYPE          value_type;
+    typedef bsls::Types::UintPtr  size_type;
+    typedef bsls::Types::IntPtr   difference_type;
+    typedef TYPE                 *pointer;
+    typedef const TYPE           *const_pointer;
+    typedef TYPE&                 reference;
+    typedef const TYPE&           const_reference;
+    typedef TYPE                  value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -285,12 +295,270 @@ class StdTestAllocator {
         // 'address' was allocated using this allocator object and has not
         // already been deallocated.
 
-    void construct(pointer address, const TYPE& value);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
+    template <class ELEMENT_TYPE, class... Args>
+    void construct(ELEMENT_TYPE *address, Args&&... arguments);
+        // TBD: fix comment
         // Copy-construct a 'TYPE' object at the specified 'address'.  Do not
         // directly allocate memory.  The behavior is undefined unless
         // 'address' is properly aligned for 'TYPE'.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bsltf_stdtestallocator.h
+    template <class ELEMENT_TYPE>
+    void construct(ELEMENT_TYPE *address);
 
-    void destroy(pointer address);
+    template <class ELEMENT_TYPE, class Args_01>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09,
+                                  class Args_10>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09,
+                                  class Args_10,
+                                  class Args_11>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09,
+                                  class Args_10,
+                                  class Args_11,
+                                  class Args_12>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09,
+                                  class Args_10,
+                                  class Args_11,
+                                  class Args_12,
+                                  class Args_13>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
+
+    template <class ELEMENT_TYPE, class Args_01,
+                                  class Args_02,
+                                  class Args_03,
+                                  class Args_04,
+                                  class Args_05,
+                                  class Args_06,
+                                  class Args_07,
+                                  class Args_08,
+                                  class Args_09,
+                                  class Args_10,
+                                  class Args_11,
+                                  class Args_12,
+                                  class Args_13,
+                                  class Args_14>
+    void construct(ELEMENT_TYPE *address,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class ELEMENT_TYPE, class... Args>
+    void construct(ELEMENT_TYPE *address,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+// }}} END GENERATED CODE
+#endif
+
+    template <class ELEMENT_TYPE>
+    void destroy(ELEMENT_TYPE *address);
+        // TBD: fix comment
         // Invoke the 'TYPE' destructor for the object at the specified
         // 'address'.
 
@@ -320,15 +588,16 @@ class StdTestAllocator<void> {
 
   public:
     // PUBLIC TYPES
-    // Deliberately use types that will *not* have the same representation as
-    // the default 'size_t/ptrdiff_t' on most 64-bit platforms, yet will be
-    // wide enough to support our regular testing, as verified on 32-bit
-    // platforms.
-    typedef unsigned int  size_type;
-    typedef int           difference_type;
-    typedef void         *pointer;
-    typedef const void   *const_pointer;
-    typedef void          value_type;
+
+    // 'size_type' and 'difference_type' were deliberately changed from fixed
+    // 32 bit types to being the size of a pointer, to avoid a cascade of
+    // warnings on 64-bit builds.
+
+    typedef bsls::Types::UintPtr  size_type;
+    typedef bsls::Types::IntPtr   difference_type;
+    typedef void                 *pointer;
+    typedef const void           *const_pointer;
+    typedef void                  value_type;
 
     template <class OTHER_TYPE>
     struct rebind
@@ -389,7 +658,7 @@ struct StdTestAllocator_CommonUtil {
     // all instantiations of the 'StdTestAllocator' class template.
 
     // CLASS METHODS
-    static unsigned int maxSize(size_t elementSize);
+    static size_t maxSize(size_t elementSize);
         // Return the maximum number of objects, each taking the specified
         // 'elementSize' bytes of storage, that can potentially be allocated by
         // a 'StdTestAllocator'.  Note that this function is mostly about
@@ -461,18 +730,462 @@ void StdTestAllocator<TYPE>::deallocate(pointer address, size_type)
     StdTestAllocatorConfiguration::delegateAllocator()->deallocate(address);
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 template <class TYPE>
-inline
-void StdTestAllocator<TYPE>::construct(pointer address, const TYPE& value)
+template <class ELEMENT_TYPE, class... Args>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address, Args&&... arguments)
 {
-    new(static_cast<void*>(address)) TYPE(value);
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bsltf_stdtestallocator.h
+template <class TYPE>
+template <class ELEMENT_TYPE>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                             );
 }
 
 template <class TYPE>
-inline
-void StdTestAllocator<TYPE>::destroy(pointer address)
+template <class ELEMENT_TYPE, class Args_01>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
-    address->~TYPE();
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09,
+                              class Args_10>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09,
+                              class Args_10,
+                              class Args_11>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09,
+                              class Args_10,
+                              class Args_11,
+                              class Args_12>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09,
+                              class Args_10,
+                              class Args_11,
+                              class Args_12,
+                              class Args_13>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
+}
+
+template <class TYPE>
+template <class ELEMENT_TYPE, class Args_01,
+                              class Args_02,
+                              class Args_03,
+                              class Args_04,
+                              class Args_05,
+                              class Args_06,
+                              class Args_07,
+                              class Args_08,
+                              class Args_09,
+                              class Args_10,
+                              class Args_11,
+                              class Args_12,
+                              class Args_13,
+                              class Args_14>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
+                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class TYPE>
+template <class ELEMENT_TYPE, class... Args>
+inline void
+StdTestAllocator<TYPE>::construct(ELEMENT_TYPE *address,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+{
+    ::new (static_cast<void*>(address)) ELEMENT_TYPE(
+                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+}
+// }}} END GENERATED CODE
+#endif
+
+template <class TYPE>
+template <class ELEMENT_TYPE>
+inline
+void StdTestAllocator<TYPE>::destroy(ELEMENT_TYPE *address)
+{
+    address->~ELEMENT_TYPE();
 }
 
 template <class TYPE>

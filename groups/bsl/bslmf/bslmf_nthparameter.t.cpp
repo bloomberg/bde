@@ -1,13 +1,16 @@
-// bslmf_nthparameter.t.cpp                  -*-C++-*-
+// bslmf_nthparameter.t.cpp                                           -*-C++-*-
 
-#include "bslmf_nthparameter.h"
+#include <bslmf_nthparameter.h>
+
 #include <bslmf_integralconstant.h>
+#include <bslmf_issame.h>
 
-#include <cstdio>
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -17,95 +20,52 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-int verbose = 0;
-int veryVerbose = 0;
-int veryVeryVerbose = 0;
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-// inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
-// inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 template <int V>
 inline
@@ -114,8 +74,6 @@ int integerConstTypeToInt(bsl::integral_constant<int, V>) { return V; }
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -137,7 +95,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Then, we use 'bslmf::NthParameter' to implement 'my_tuple_element':
 //..
-   #include <bslmf_nthparameter.h>
+// #include <bslmf_nthparameter.h>
 
    template <std::size_t I, class TUPLE>
    struct my_tuple_element;  // Not defined
@@ -149,7 +107,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Finally, we test this implementation using 'bsl::is_same':
 //..
-   #include <bslmf_issame.h>
+// #include <bslmf_issame.h>
 
    int usageExample1()
    {
@@ -561,10 +519,17 @@ template <class ELEMS_01,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -573,16 +538,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concerns: Usage example compiles and runs succesfully
+        // Concerns: Usage example compiles and runs successfully
         //
         // Plan: Copy usage example from component header literally into test
         //       driver.
-	//
+        //
         // Testing: Usage example
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n==============\n");
+                            "\n=============\n");
 
         usageExample1();
 

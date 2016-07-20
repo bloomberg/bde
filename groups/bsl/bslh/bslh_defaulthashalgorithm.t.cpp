@@ -169,7 +169,7 @@ void aSsErT(bool condition, const char *message, int line)
                                              // hold
         size_t            d_numValues;       // Length of 'd_values'.
         const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
-        unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+        size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
         HASHER            d_hasher;          // User supplied hashing algorithm
 
       private:
@@ -465,6 +465,7 @@ int main(int argc, char *argv[])
             Obj::result_type (Obj::*expectedSignature) ();
 
             expectedSignature = &Obj::computeHash;
+            (void)expectedSignature;
         }
 
       } break;
@@ -571,8 +572,7 @@ int main(int argc, char *argv[])
         {
             const char data[5] = {'a', 'b', 'c', 'd', 'e'};
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj()(   0, 5));
             ASSERT_PASS(Obj()(data, 5));

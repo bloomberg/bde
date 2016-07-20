@@ -148,7 +148,8 @@ struct remove_volatile<volatile TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
 };
-#elif defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900) \
+    || defined(BSLS_PLATFORM_CMP_SUN)
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing

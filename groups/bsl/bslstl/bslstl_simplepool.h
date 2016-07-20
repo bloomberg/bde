@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient allocation of memory blocks for a specific type.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bslstl::SimplePool: memory manager that allocates memory blocks for a type
 //
@@ -205,12 +207,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
@@ -323,6 +329,7 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
   private:
     // NOT IMPLEMENTED
+    SimplePool& operator=(bslmf::MovableRef<SimplePool>);
     SimplePool& operator=(const SimplePool&);
     SimplePool(const SimplePool&);
 
@@ -347,11 +354,27 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // 'sizeof(VALUE)', doubling in size up to an implementation defined
         // maximum number of blocks per chunk.
 
+    SimplePool(bslmf::MovableRef<SimplePool> original);
+        // Create a memory pool, adopting all outstanding memory allocations
+        // associated with the specified 'original' pool, that returns blocks
+        // of contiguous memory of the sizeof the paramterized 'VALUE' using
+        // the allocator associated with 'original'.  The chunk size is set to
+        // that of 'original' and continues to double in size up to an
+        // implementation defined maximum number of blocks per chunk.  Note
+        // that 'original' is left in a valid but unspecified state.
+
     ~SimplePool();
         // Destroy this pool, releasing all associated memory back to the
         // underlying allocator.
 
     // MANIPULATORS
+    void adopt(bslmf::MovableRef<SimplePool> pool);
+        // Adopt all outstanding memory allocations associated with the
+        // specfied memory 'pool'.  The behavior is undefined unless this pool
+        // uses the same allocator as that associated with 'pool'.  The
+        // behavior is undefined unless this pool is in the default-constructed
+        // state.
+
     AllocatorType& allocator();
         // Return a reference providing modifiable access to the rebound
         // allocator traits for the node-type.  Note that this operation
@@ -457,12 +480,47 @@ SimplePool<VALUE, ALLOCATOR>::SimplePool(const ALLOCATOR& allocator)
 
 template <class VALUE, class ALLOCATOR>
 inline
+SimplePool<VALUE, ALLOCATOR>::SimplePool(
+                                        bslmf::MovableRef<SimplePool> original)
+: AllocatorType(bslmf::MovableRefUtil::access(original).allocator())
+, d_chunkList_p(bslmf::MovableRefUtil::access(original).d_chunkList_p)
+, d_freeList_p(bslmf::MovableRefUtil::access(original).d_freeList_p)
+, d_blocksPerChunk(bslmf::MovableRefUtil::access(original).d_blocksPerChunk)
+{
+    SimplePool& lvalue = original;
+    lvalue.d_chunkList_p = 0;
+    lvalue.d_freeList_p = 0;
+    lvalue.d_blocksPerChunk = 1;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
 SimplePool<VALUE, ALLOCATOR>::~SimplePool()
 {
     release();
 }
 
 // MANIPULATORS
+template <class VALUE, class ALLOCATOR>
+inline
+void
+SimplePool<VALUE, ALLOCATOR>::adopt(bslmf::MovableRef<SimplePool> pool)
+{
+    BSLS_ASSERT_SAFE(0 == d_chunkList_p);
+    BSLS_ASSERT_SAFE(0 == d_freeList_p);
+    BSLS_ASSERT_SAFE(allocator()
+                           == bslmf::MovableRefUtil::access(pool).allocator());
+
+    SimplePool& lvalue = pool;
+    d_chunkList_p = lvalue.d_chunkList_p;
+    d_freeList_p = lvalue.d_freeList_p;
+    d_blocksPerChunk = lvalue.d_blocksPerChunk;
+
+    lvalue.d_chunkList_p = 0;
+    lvalue.d_freeList_p = 0;
+    lvalue.d_blocksPerChunk = 1;
+}
+
 template <class VALUE, class ALLOCATOR>
 inline
 typename SimplePool<VALUE, ALLOCATOR>::AllocatorType&

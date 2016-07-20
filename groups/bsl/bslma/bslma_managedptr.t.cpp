@@ -7,6 +7,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslmf_assert.h>
+#include <bslmf_movableref.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -1554,11 +1555,11 @@ void debugprint(const ManagedPtrDeleter& obj)
 // state assuming that it is passed in with an initial state known to the
 // calling function.  None of the following functions have their own test case,
 // as they are vital implementation details of testing the constructors, and of
-// testing the 'load' functions which, in turn, are later used to test the
-// basic accessors.  However, these functions are very thoroughly exercised in
-// the various 'load' and constructor test cases, in particular by taking an
-// empty 'bslma::ManagedPtr' and taking it to the known state expected of each
-// of these functions.  Similarly, we will test each transition from every
+// testing the 'load' functions that, in turn, are later used to test the basic
+// accessors.  However, these functions are very thoroughly exercised in the
+// various 'load' and constructor test cases, in particular by taking an empty
+// 'bslma::ManagedPtr' and taking it to the known state expected of each of
+// these functions.  Similarly, we will test each transition from every
 // possible initial state through each of these functions to validate all
 // 'load' state transitions.  Essentially, these are implementation details of
 // the 'load' test cases that may be deemed validated by that test case, and so
@@ -3407,7 +3408,6 @@ void testConstructors(
     // other than by the object allocator, or the default allocator only for
     // those test functions that return a state indicating that they used the
     // default allocator.
-    typedef bslma::ManagedPtr<TEST_TARGET> TestPointer;
 
     bslma::TestAllocator* ga = dynamic_cast<bslma::TestAllocator *>
                                            (bslma::Default::globalAllocator());
@@ -4041,8 +4041,8 @@ void testConstructors(int callLine,
 #endif
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-template<class TEST_TARGET,
-         class TEST_FUNCTION_TYPE,
+template<class  TEST_TARGET,
+         class  TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
 void testLoadAliasOps1(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
@@ -4149,8 +4149,8 @@ void testLoadAliasOps1(int                        callLine,
     }
 }
 
-template<class TEST_TARGET,
-         class TEST_FUNCTION_TYPE,
+template<class  TEST_TARGET,
+         class  TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
 void testLoadAliasOps2(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
@@ -4289,8 +4289,8 @@ void testLoadAliasOps2(int                        callLine,
 }
 
 
-template<class TEST_TARGET,
-         class TEST_FUNCTION_TYPE,
+template<class  TEST_TARGET,
+         class  TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
 void testLoadAliasOps3(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
@@ -5229,6 +5229,24 @@ int main(int argc, char *argv[])
     ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
+      case 20: {
+        // --------------------------------------------------------------------
+        // Concerns:
+        // TBD:
+        // This test case recreates an issue discovered in client code when
+        // building a big with the C++11 development branch.  The plan is to
+        // fold this kind of testing into another more relevant test case
+        // rather than having a separate one.
+        //
+        // Plan:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+        bslma::ManagedPtr<int> r;
+        bslma::ManagedPtr<int> s;
+        r = bslmf::MovableRefUtil::move_if_noexcept(s);
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // DRQS 30670366

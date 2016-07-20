@@ -9,20 +9,22 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage a block memory.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bslma::DeallocatorProctor: proctor to conditionally manage a memory
 //
 //@SEE_ALSO: bslma_deallocatorguard, bslma_autodeallocator
 //
-//@DESCRIPTION: This component provides a proctor class template to
-// conditionally manage a block of (otherwise-unmanaged) memory.  If not
-// explicitly released, the managed memory is deallocated automatically when
-// the proctor object goes out of scope by freeing the memory using the
-// parameterized 'ALLOCATOR' (allocator or pool) supplied at construction.
-// Note that after a proctor object releases its managed memory, the same
-// proctor can be reused to conditionally manage another block of memory
-// (allocated from the same allocator or pool that was supplied at
-// construction) by invoking the 'reset' method.
+//@DESCRIPTION: This component provides a proctor class template,
+// 'bslma::DeallocatorProctor', to conditionally manage a block of
+// (otherwise-unmanaged) memory.  If not explicitly released, the managed
+// memory is deallocated automatically when the proctor object goes out of
+// scope by freeing the memory using the parameterized 'ALLOCATOR' (allocator
+// or pool) supplied at construction.  Note that after a proctor object
+// releases its managed memory, the same proctor can be reused to conditionally
+// manage another block of memory (allocated from the same allocator or pool
+// that was supplied at construction) by invoking the 'reset' method.
 //
 ///Requirement
 ///-----------
@@ -315,7 +317,7 @@ class DeallocatorProctor {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------
@@ -325,8 +327,8 @@ class DeallocatorProctor {
 // CREATORS
 template <class ALLOCATOR>
 inline
-DeallocatorProctor<ALLOCATOR>::
-DeallocatorProctor(void *memory, ALLOCATOR *allocator)
+DeallocatorProctor<ALLOCATOR>:: DeallocatorProctor(void *memory,
+                                                   ALLOCATOR *allocator)
 : d_memory_p(memory)
 , d_allocator_p(allocator)
 {

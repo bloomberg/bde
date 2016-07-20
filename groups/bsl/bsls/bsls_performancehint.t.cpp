@@ -295,7 +295,7 @@ void testUsageExample1(int argc, bool assert)
     (void) tolerance;
 
     Stopwatch timer;
-    
+
     timer.reset();
 
     if (veryVerbose) {

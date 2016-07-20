@@ -48,9 +48,11 @@ void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
                         // struct StdTestAllocator
                         // -----------------------
 
-unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
+size_t StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
 {
-    return static_cast<unsigned int>(UINT_MAX  / elementSize);
+    size_t maxSizeT = 0;
+    --maxSizeT;
+    return static_cast<size_t>(maxSizeT / elementSize);
 }
 
                         // ----------------------

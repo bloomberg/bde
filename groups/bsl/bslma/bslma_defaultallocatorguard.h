@@ -170,10 +170,6 @@ class DefaultAllocatorGuard {
 
 }  // close package namespace
 
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
 
 }  // close enterprise namespace
 

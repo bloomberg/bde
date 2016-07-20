@@ -14,12 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_rawdeleterproctor, bslma_autorawdeleter
 //
-//@DESCRIPTION: This component provides a guard class template to
-// unconditionally manage an (otherwise-unmanaged) object of parameterized
-// 'TYPE' supplied at construction.  The managed object is deleted
-// automatically when the guard object goes out of scope by first calling the
-// (managed) object's destructor, and then freeing the memory using the
-// parameterized 'ALLOCATOR' (allocator or pool) also supplied at construction.
+//@DESCRIPTION: This component provides a guard class template,
+// 'bslma::RawDeleterGuard', to unconditionally manage an (otherwise-unmanaged)
+// object of parameterized 'TYPE' supplied at construction.  The managed object
+// is deleted automatically when the guard object goes out of scope by first
+// calling the (managed) object's destructor, and then freeing the memory using
+// the parameterized 'ALLOCATOR' (allocator or pool) also supplied at
+// construction.
 //
 ///"Raw" Warning
 ///-------------
@@ -205,7 +206,7 @@ class RawDeleterGuard {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------

@@ -42,10 +42,10 @@ using namespace BloombergLP;
 // instrumenting them to be sure that these operators are in fact not called.
 //
 // We also need to verify that when bad addresses are supplied that we can
-// detect them and report the problem to 'stdout'.  Since this behavior is
-// not an error during the testing of this component, we will first set the
-// quiet flag to suppress the output part, but will still verify the status
-// to ensure that the problem was in fact detected.
+// detect them and report the problem to 'stdout'.  Since this behavior is not
+// an error during the testing of this component, we will first set the quiet
+// flag to suppress the output part, but will still verify the status to ensure
+// that the problem was in fact detected.
 //
 // We must also verify that when exceptions are enabled, the test allocator
 // throws an exception after the number of requests exceeds the allocator's
@@ -341,10 +341,10 @@ class my_ShortArray {
 
   public:
     // CREATORS
-    my_ShortArray(bslma::Allocator *basicAllocator = 0);
-        // Create an empty array.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, global
-        // operators 'new' and 'delete' are used.
+    explicit my_ShortArray(bslma::Allocator *basicAllocator = 0);
+        // Create an empty array.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, global operators 'new'
+        // and 'delete' are used.
      // ...
 
     ~my_ShortArray();
@@ -406,7 +406,7 @@ void reallocate(short            **array,
     // global operators 'new' and 'delete'.  The specified 'length' number of
     // leading elements are preserved.  Since the class invariant requires
     // that the physical capacity of the container may grow but never shrink;
-    // the behavior is undefined unless length <= newSize.
+    // the behavior is undefined unless 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -498,8 +498,8 @@ void debugprint(const my_ShortArray& array)
 //..
 
 static int verifyPrint(const bslma::TestAllocator& ta,
-                       const char* const          FMT,
-                       int                        verboseFlag)
+                       const char* const           FMT,
+                       int                         verboseFlag)
     // Return 0 if the specified 'ta' prints the same message as 'FMT'.  Note
     // that this function uses 'pipe' and 'fork', therefore it only works with
     // unix.
@@ -521,11 +521,10 @@ static int verifyPrint(const bslma::TestAllocator& ta,
 
     if (veryVerbose) printf("\nEXPECTED FORMAT:\n%s\n", FMT);
 
-    // Because bslma is a low-level utility, bslma::TestAllocator does not
-    // have a function to print to ostream, and thus cannot print to a
-    // stringstream.  The print() member function always prints to stdout.
-    // The code below forks a process and captures stdout to a memory
-    // buffer.
+    // Because bslma is a low-level utility, bslma::TestAllocator does not have
+    // a function to print to ostream, and thus cannot print to a stringstream.
+    // The 'print' member function always prints to 'stdout'.  The code below
+    // forks a process and captures 'stdout' to a memory buffer.
 
     // We must now flush any io buffers to ensure that the stream read from the
     // forked process has exactly the state that we expect.
@@ -545,8 +544,8 @@ static int verifyPrint(const bslma::TestAllocator& ta,
         close(1);
         dup(pipes[1]);
 
-        // This call print() function sends its output to the pipe,
-        // which is in turn read into 'buf' by the parent process.
+        // This call print() function sends its output to the pipe, which is in
+        // turn read into 'buf' by the parent process.
         ta.print();
 
         exit(0);
@@ -1049,7 +1048,7 @@ int main(int argc, char *argv[])
                        " Indices of Outstanding Memory Allocations:\n ");
                 offset = strlen(expBuffer);
 
-                for (int i = 0; i < numRemAllocs; ++i) {
+                for (int i = 0; i != numRemAllocs; ++i) {
                     sprintf(expBuffer + offset, "%d\t", remAllocs[i]);
                     offset = strlen(expBuffer);
                 }
@@ -1216,7 +1215,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TEST ALLOCATOR THROWS std::bad_alloc IF 'malloc' FAILS
+        // TEST ALLOCATOR THROWS 'std::bad_alloc' IF 'malloc' FAILS
         //
         // Testing:
         //   That the test allocator throws std::bad_alloc if it is unable
@@ -1231,23 +1230,23 @@ int main(int argc, char *argv[])
         //   exception occurs.
         // --------------------------------------------------------------------
 
-        // A number of ways of getting malloc to fail were considered, all
-        // had problems.  Asking for huge amounts of memory often took a lot
-        // of time and wasted resources before 'malloc' gave up.  The
-        // best approach turned out to be to set a low limit on the amount
-        // of memory that could be obtained, and exceed that.  It was,
-        // however, not portable, so we decided to implement the test only
-        // on Solaris.
+        // A number of ways of getting 'malloc' to fail were considered, all
+        // had problems.  Asking for huge amounts of memory often took a lot of
+        // time and wasted resources before 'malloc' gave up.  The best
+        // approach turned out to be to set a low limit on the amount of memory
+        // that could be obtained, and exceed that.  It was, however, not
+        // portable, so we decided to implement the test only on Solaris.
         // TBD: Implement this test on more platforms
 
-        if (verbose) printf("\nTEST THROWING STD::BAD_ALLOC"
-                            "\n============================\n");
+        if (verbose) printf(
+               "\nTEST ALLOCATOR THROWS 'std::bad_alloc' IF 'malloc' FAILS"
+               "\n========================================================\n");
 
 #ifdef BDE_BUILD_TARGET_EXC
-// TBD This test is failing under gcc 4.3.2 with an uncaught exception.
-// It does *not* appear to be an issue with EH support, but an issue with the
-// test case proper.  In the debugger, it appeared that the runtime had
-// insufficient resources to handle the exception, so 'abort' was invoked.
+// TBD This test is failing under gcc 4.3.2 with an uncaught exception.  It
+// does *not* appear to be an issue with EH support, but an issue with the test
+// case proper.  In the debugger, it appeared that the runtime had insufficient
+// resources to handle the exception, so 'abort' was invoked.
 #if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
         if (verbose) printf("\nTest throwing std::bad_alloc\n");
 
@@ -1289,11 +1288,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST CROSS MEMORY ALLOCATION/DEALLOCATION DETECTION
         //   Testing the detection of cross allocation/deallocation.  The
-        //   implementation uses the memory allocation list managed within
-        //   the 'bslma::TestAllocator'.  Makes sure that the number of
-        //   mismatches are counted when cross allocation/deallocation occurs.
-        //   Test using two allocators allocating the same amount of memory
-        //   in the same sequence, and deallocating each other's memory block.
+        //   implementation uses the memory allocation list managed within the
+        //   'bslma::TestAllocator'.  Makes sure that the number of mismatches
+        //   are counted when cross allocation/deallocation occurs.  Test using
+        //   two allocators allocating the same amount of memory in the same
+        //   sequence, and deallocating each other's memory block.
         //
         // Testing:
         //   'd_list' inside 'bslma::TestAllocator'
@@ -1708,7 +1707,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TEST ERROR COUNTS
+        // TESTING ERROR COUNTS
         //   Disable the abort mode and ensure that attempting failure modes
         //   is correctly detected and logged in the numMismatches counter.
         //   Also verify that status is correct.  Note that this test case
@@ -1728,8 +1727,8 @@ int main(int argc, char *argv[])
         //   Ensure that memory leaks (byte/block) are detected/reported.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTEST ERROR COUNTS"
-                            "\n=================\n");
+        if (verbose) printf("\nTESTING ERROR COUNTS"
+                            "\n====================\n");
 
         if (verbose) printf(
                      "\nNote:\n"
@@ -1944,69 +1943,68 @@ int main(int argc, char *argv[])
 
             if (verbose) printf("\tVerbose\n");
 
-            a.setVerbose(10);   ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(1 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setVerbose(true);  ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(1 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
-            a.setVerbose(0);    ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setVerbose(false); ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
             if (verbose) printf("\tQuiet\n");
 
-            a.setQuiet(10);     ASSERT(1 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setQuiet(true);    ASSERT(1 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
-            a.setQuiet(0);      ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setQuiet(false);   ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
             if (verbose) printf("\tNoAbort\n");
 
-            a.setNoAbort(10);   ASSERT(0 == a.isQuiet());
-                                ASSERT(1 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setNoAbort(true);  ASSERT(0 == a.isQuiet());
+                                 ASSERT(1 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
-            a.setNoAbort(0);    ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 >  a.allocationLimit());
+            a.setNoAbort(false); ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 >  a.allocationLimit());
 
             if (verbose) printf("\tAllocationLimit\n");
 
             a.setAllocationLimit(5);
-                                ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(5 ==  a.allocationLimit());
+                                 ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(5 ==  a.allocationLimit());
 
             a.setAllocationLimit(0);
-                                ASSERT(0 == a.isQuiet());
-                                ASSERT(0 == a.isNoAbort());
-                                ASSERT(0 == a.isVerbose());
-                                ASSERT(0 == a.allocationLimit());
+                                 ASSERT(0 == a.isQuiet());
+                                 ASSERT(0 == a.isNoAbort());
+                                 ASSERT(0 == a.isVerbose());
+                                 ASSERT(0 == a.allocationLimit());
 
             a.setAllocationLimit(-1);
-                                ASSERT( 0 == a.isQuiet());
-                                ASSERT( 0 == a.isNoAbort());
-                                ASSERT( 0 == a.isVerbose());
-                                ASSERT(-1 == a.allocationLimit());
+                                 ASSERT( 0 == a.isQuiet());
+                                 ASSERT( 0 == a.isNoAbort());
+                                 ASSERT( 0 == a.isVerbose());
+                                 ASSERT(-1 == a.allocationLimit());
 
             if (verbose) printf("\tStatus\n");
-
-                                ASSERT(0 == a.status());
+                                 ASSERT(0 == a.status());
         }
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BASIC TEST:
+        // BASIC TEST
         //   Create a test allocator in as buffer to make sure each field
         //   is properly initialized (with no verbose flag).  Then create a
         //   test allocator on the program stack and verify that all of the

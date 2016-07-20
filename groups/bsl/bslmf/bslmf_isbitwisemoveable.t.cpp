@@ -10,8 +10,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>   // 'printf'
+#include <stdlib.h>  // 'atoi'
 #include <string.h>
 #include <new>
 
@@ -162,14 +164,8 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 //=============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 namespace {
 
@@ -291,6 +287,7 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
                                  bsl::true_type)
     {
         // Bitwise moveable types can be moved using 'memcpy'.
+
         memcpy(to, from, size * sizeof(TYPE));
     }
 
@@ -724,6 +721,8 @@ int main(int argc, char *argv[])
     (void) veryVerbose;          // eliminate unused variable warning
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

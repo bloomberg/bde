@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraithaspointersemantics.h>
 
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -68,6 +70,23 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslalg::TypeTraitHasPointerSemantics  Obj;
 
+struct PointerLike {
+    int *d_data;
+
+    int & operator*() const { return *d_data; }
+};
+
+struct ValueLike {
+    int d_data;
+};
+
+namespace BloombergLP {
+namespace bslmf {
+template <>
+struct HasPointerSemantics<PointerLike> : bsl::true_type {};
+}  // close namespace bslmf
+}  // close enterprise namespace
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -128,6 +147,9 @@ int main(int argc, char *argv[])
         Obj mX;
 
         (void) mX;
+
+        ASSERT(( bslalg::HasTrait<PointerLike, Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<ValueLike,   Obj>::VALUE));
 
       } break;
 

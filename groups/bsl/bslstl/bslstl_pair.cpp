@@ -2,7 +2,7 @@
 //
 // IMPLEMENTATION NOTES: The 'bslstl' package provides an implementation of
 // 'bsl::pair' but not 'bsl::make_pair'.  This is because, if 'bsl::make_pair'
-// is provided, it would cause compilation errors on valid code, as in the
+// were provided, it would cause compilation errors on valid code, as in the
 // example below:
 //..
 //  namespace BloombergLP {

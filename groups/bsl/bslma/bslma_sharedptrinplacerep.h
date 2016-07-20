@@ -77,8 +77,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //          // object refer to the newly created 'bdet_Datetime' object.
 //
 //      bdet_Datetime& operator*() const;
-//          // Return a modifiable reference to the shared 'bdet_Datetime'
-//          // object.
+//          // Return a reference offering modifiable access to the shared
+//          // 'bdet_Datetime' object.
 //
 //      bdet_Datetime *operator->() const;
 //          // Return the address of the modifiable 'bdet_Datetime' to which
@@ -469,7 +469,7 @@ struct SharedPtrInplaceRep_ImpUtil {
 };
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 

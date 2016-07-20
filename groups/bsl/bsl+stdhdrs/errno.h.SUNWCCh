@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
 #   include <../ucrt/errno.h>  // MSVC 2015 or later
-#else 
+#else
 #   include <../include/errno.h>
 #endif
 
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
 #   include <../ucrt/errno.h>  // MSVC 2015 or later
-#else 
+#else
 #   include <../include/errno.h>
 #endif
 

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::DequeImpUtil: deque parameters and primitive data structures
 //
-//@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives, bslalg_typetraits
+//@SEE_ALSO: bslalg_dequeprimitives, bslalg_arrayprimitives
 //
 //@DESCRIPTION: This component provides primitive data structures for
 // implementing a deque knowing only its value type and the number of objects

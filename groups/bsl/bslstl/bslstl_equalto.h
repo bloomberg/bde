@@ -106,9 +106,9 @@ BSLS_IDENT("$Id: $")
 //          }
 //
 //          Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
-//          bslalg::ScalarPrimitives::copyConstruct(&node->d_value,
-//                                                  value,
-//                                                  d_allocator_p);
+//          bslma::ConstructionUtil::construct(&node->d_value,
+//                                             d_allocator_p,
+//                                             value);
 //          node->d_next = d_nodeList;
 //          d_nodeList = node;
 //

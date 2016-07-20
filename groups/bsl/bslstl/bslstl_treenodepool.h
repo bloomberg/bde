@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient creation of nodes used in tree-based container.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //   bslstl::TreeNodePool: memory manager to allocate tree nodes
 //
@@ -136,7 +138,7 @@ BSLS_IDENT("$Id: $")
 // was inserted into the set.
 //..
 //      if (0 != comparisonResult) {
-//          bslalg::RbTreeNode *node = d_nodePool.createNode(value);
+//          bslalg::RbTreeNode *node = d_nodePool.emplaceIntoNewNode(value);
 //          bslalg::RbTreeUtil::insertAt(&d_tree,
 //                                       parent,
 //                                       comparisonResult < 0,
@@ -218,8 +220,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_SIMPLEPOOL
@@ -236,6 +238,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -264,11 +270,16 @@ class TreeNodePool {
     typedef typename Pool::AllocatorTraits         AllocatorTraits;
         // Alias for the allocator traits defined by 'SimplePool'.
 
+    typedef bslmf::MovableRefUtil                  MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+
     // DATA
     Pool d_pool;  // pool for allocating memory
 
   private:
     // NOT IMPLEMENTED
+    TreeNodePool& operator=(bslmf::MovableRef<TreeNodePool>);
     TreeNodePool& operator=(const TreeNodePool&);
     TreeNodePool(const TreeNodePool&);
 
@@ -283,31 +294,214 @@ class TreeNodePool {
   public:
     // CREATORS
     explicit TreeNodePool(const ALLOCATOR& allocator);
-        // Create a node-allocator that will use the specified 'allocator' to
-        // supply memory for allocated node objects.
+        // Create a node-pool that will use the specified 'allocator' to supply
+        // memory for allocated node objects.
+
+    TreeNodePool(bslmf::MovableRef<TreeNodePool> original);
+        // Create a node-pool, adopting all outstanding memory allocations
+        // associated with the specified 'original' node-pool, that will use
+        // the allocator associated with 'original' to supply memory for
+        // allocated node objects.  'original' is left in a valid but
+        // unspecified state.
 
     // MANIPULATORS
+    void adopt(bslmf::MovableRef<TreeNodePool> pool);
+        // Adopt all outstanding memory allocations associated with the
+        // specfied node 'pool'.  The behavior is undefined unless this pool
+        // uses the same allocator as that associated with 'pool'.  The
+        // behavior is also undefined unless this pool is in the
+        // default-constructed state.
+
     AllocatorType& allocator();
         // Return a reference providing modifiable access to the rebound
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('NodeAlloc') reference to this object.
 
-    bslalg::RbTreeNode *createNode();
-        // Allocate a node object having a default constructed 'VALUE'.
-
-    bslalg::RbTreeNode *createNode(const bslalg::RbTreeNode& original);
-        // Allocate a node object having a copy-constructed 'VALUE' of
-        // 'value()' of the specified 'original'.  The behavior is undefined
-        // unless 'original' refers to a 'TreeNode<VALUE>'.
+    bslalg::RbTreeNode *cloneNode(const bslalg::RbTreeNode& original);
+        // Allocate a node object and copy-construct an object of the (template
+        // parameter) type 'VALUE' having the same value as the specified
+        // 'original' at the 'value' attribute of the node.  Return the address
+        // of the newly allocated node.  The behavior is undefined unless
+        // 'original' refers to a 'TreeNode<VALUE>' object holding a valid
+        // (initialized) value.
 
     bslalg::RbTreeNode *createNode(const VALUE& value);
         // Allocate a node object having the specified 'value'.  This operation
         // will copy-construct 'value' into the value of the returned node.
+        // Note that this method is provided only for backward compatibility;
+        // use the 'emplaceIntoNewNode' method instead.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    bslalg::RbTreeNode *emplaceIntoNewNode(Args&&... args);
+        // Allocate a node with a newly created value object of the (template
+        // parameter) type 'VALUE', constructed by forwarding 'allocator()' and
+        // the specified (variable number of) 'arguments' to the corresponding
+        // constructor of 'VALUE'.  Return the address of the newly allocated
+        // node.  This operation requires that 'VALUE' be constructible from
+        // 'arguments'.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_treenodepool.h
+
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                              );
+
+    template <class Args_01>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+    template <class... Args>
+    bslalg::RbTreeNode *emplaceIntoNewNode(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
 
     void deleteNode(bslalg::RbTreeNode *node);
         // Destroy the 'VALUE' value of the specified 'node' and return the
         // memory footprint of 'node' to this pool for potential reuse.  The
         // behavior is undefined unless 'node' refers to a 'TreeNode<VALUE>'.
+
+    bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
+        // Allocate a node of the type 'TreeNode<VALUE>', and move-construct an
+        // object of the (template parameter) type 'VALUE' with the (explicitly
+        // moved) value indicated by the 'value' attribute of the specified
+        // 'original' node.  Return the address of the newly allocated node.
+        // The object referred to by the 'value' attribute of 'original' is
+        // left in a valid but unspecified state.  The behavior is undefined
+        // unless 'original' refers to a 'TreeNode<VALUE>' object holding a
+        // valid (initialized) value.
 
     void reserveNodes(size_type numNodes);
         // Reserve memory from this pool to satisfy memory requests for at
@@ -339,7 +533,24 @@ TreeNodePool<VALUE, ALLOCATOR>::TreeNodePool(const ALLOCATOR& allocator)
 {
 }
 
+template <class VALUE, class ALLOCATOR>
+inline
+TreeNodePool<VALUE, ALLOCATOR>::TreeNodePool(
+                                      bslmf::MovableRef<TreeNodePool> original)
+: d_pool(MoveUtil::move(MoveUtil::access(original).d_pool))
+{
+}
+
 // MANIPULATORS
+template <class VALUE, class ALLOCATOR>
+inline
+void
+TreeNodePool<VALUE, ALLOCATOR>::adopt(bslmf::MovableRef<TreeNodePool> pool)
+{
+    TreeNodePool& lvalue = pool;
+    d_pool.adopt(MoveUtil::move(lvalue.d_pool));
+}
+
 template <class VALUE, class ALLOCATOR>
 inline
 typename SimplePool<TreeNode<VALUE>, ALLOCATOR>::AllocatorType&
@@ -350,16 +561,11 @@ TreeNodePool<VALUE, ALLOCATOR>::allocator()
 
 template <class VALUE, class ALLOCATOR>
 inline
-bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode()
+bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::cloneNode(
+                                            const bslalg::RbTreeNode& original)
 {
-    TreeNode<VALUE> *node = d_pool.allocate();
-    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
-
-    AllocatorTraits::construct(allocator(),
-                               BSLS_UTIL_ADDRESSOF(node->value()));
-
-    proctor.release();
-    return node;
+    return emplaceIntoNewNode(
+                        static_cast<const TreeNode<VALUE>&>(original).value());
 }
 
 template <class VALUE, class ALLOCATOR>
@@ -367,23 +573,370 @@ inline
 bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
                                                             const VALUE& value)
 {
+    return emplaceIntoNewNode(BSLS_COMPILERFEATURES_FORWARD(VALUE, value));
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE, class ALLOCATOR>
+template <class... Args>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(Args&&... args)
+{
     TreeNode<VALUE> *node = d_pool.allocate();
     bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
 
     AllocatorTraits::construct(allocator(),
                                BSLS_UTIL_ADDRESSOF(node->value()),
-                               value);
+                               BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    proctor.release();
+    return node;
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_treenodepool.h
+template <class VALUE, class ALLOCATOR>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                               )
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()));
     proctor.release();
     return node;
 }
 
 template <class VALUE, class ALLOCATOR>
+template <class Args_01>
 inline
-bslalg::RbTreeNode *TreeNodePool<VALUE, ALLOCATOR>::createNode(
-                                            const bslalg::RbTreeNode& original)
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
-    return createNode(static_cast<const TreeNode<VALUE>&>(original).value());
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+    proctor.release();
+    return node;
 }
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+    proctor.release();
+    return node;
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+    proctor.release();
+    return node;
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class VALUE, class ALLOCATOR>
+template <class... Args>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    TreeNode<VALUE> *node = d_pool.allocate();
+    bslma::DeallocatorProctor<Pool> proctor(node, &d_pool);
+
+    AllocatorTraits::construct(allocator(),
+                               BSLS_UTIL_ADDRESSOF(node->value()),
+                               BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    proctor.release();
+    return node;
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class VALUE, class ALLOCATOR>
 inline
@@ -395,6 +948,15 @@ void TreeNodePool<VALUE, ALLOCATOR>::deleteNode(bslalg::RbTreeNode *node)
     AllocatorTraits::destroy(allocator(),
                              BSLS_UTIL_ADDRESSOF(treeNode->value()));
     d_pool.deallocate(treeNode);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+bslalg::RbTreeNode *
+TreeNodePool<VALUE, ALLOCATOR>::moveIntoNewNode(bslalg::RbTreeNode *original)
+{
+    return emplaceIntoNewNode(
+            MoveUtil::move(static_cast<TreeNode<VALUE> *>(original)->value()));
 }
 
 template <class VALUE, class ALLOCATOR>

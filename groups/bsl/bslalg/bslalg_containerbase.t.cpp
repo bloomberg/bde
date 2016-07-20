@@ -100,7 +100,7 @@ template <class T>
 class Allocator {
     // An STL-compatible allocator that forwards allocation calls to an
     // underlying mechanism object of a type derived from 'bslma::Allocator'.
-    // Duplicate of 'bslstl_allocator'.
+    // Duplicate of 'bslma_stdallocator'.
 
     // DATA
     BloombergLP::bslma::Allocator *d_mechanism;

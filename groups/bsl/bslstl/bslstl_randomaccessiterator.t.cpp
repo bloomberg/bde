@@ -794,14 +794,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING RELATIONAL OPERATORS" << endl
                                   << "============================" << endl;
 
-        typedef my_Array<int, 2> TestContainer;
-        typedef TestContainer::iterator iterator;
+        typedef my_Array<int, 2>              TestContainer;
+        typedef TestContainer::iterator       iterator;
         typedef TestContainer::const_iterator const_iterator;
 
         TestContainer testContainer = {{ 13, 42 }};
 
-        const_iterator itBase = testContainer.begin();
-        const_iterator itSecond =testContainer.begin();
+        iterator       itBase   = testContainer.begin();
+        const_iterator itSecond = testContainer.begin();
 
         ASSERT(itBase == itSecond);
         ASSERT(!(itBase < itSecond));
@@ -857,7 +857,7 @@ int main(int argc, char *argv[])
         TestContainer testData = {{ 0, 1, 2, 3 }};
 
         if (verbose) cout << "\nConstruct basic iterator values" << endl;
-        iterator it = testData.begin();
+        iterator       it  = testData.begin();
         const_iterator cit = testData.begin();
 
         for(int i = 0; i != testData.size(); ++i) {
@@ -978,23 +978,40 @@ int main(int argc, char *argv[])
                                   << "==============================" << endl;
 
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl::RandomAccessIterator<int, int*> iterator;
+        typedef bslstl::RandomAccessIterator<int, int*>       iterator;
         typedef bslstl::RandomAccessIterator<const int, int*> const_iterator;
 
-        if (verbose) cout << "\nConstruct basic iterator values" << endl;
-        iterator it1 = testData;
-        iterator it2 = it1;
-        iterator it3 = it1;
-        ++it2;
+        {
+            if (verbose) cout << "\nConstruct basic iterator values" << endl;
+            iterator it1 = testData;
+            iterator it2 = it1;
+            iterator it3 = it1;
+            ++it2;
 
-        if (verbose) cout << "\nvalidate post-increment operator" << endl;
-        ASSERT( it3++ == it1);
-        ASSERT( it3 == it2);
+            if (verbose) cout << "\nvalidate post-increment operator" << endl;
+            ASSERT( it3++ == it1);
+            ASSERT( it3 == it2);
 
-        if (verbose) cout << "\nvalidate post-decrement operator" << endl;
-        ASSERT( it3-- == it2);
-        ASSERT( it3 == it1);
+            if (verbose) cout << "\nvalidate post-decrement operator" << endl;
+            ASSERT( it3-- == it2);
+            ASSERT( it3 == it1);
+        }
 
+        {
+            if (verbose) cout << "\nConstruct basic iterator values" << endl;
+            const_iterator it1 = testData;
+            const_iterator it2 = it1;
+            const_iterator it3 = it1;
+            ++it2;
+
+            if (verbose) cout << "\nvalidate post-increment operator" << endl;
+            ASSERT( it3++ == it1);
+            ASSERT( it3 == it2);
+
+            if (verbose) cout << "\nvalidate post-decrement operator" << endl;
+            ASSERT( it3-- == it2);
+            ASSERT( it3 == it1);
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

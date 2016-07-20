@@ -41,7 +41,7 @@ using namespace BloombergLP;
 // With the test allocator defined, we can then proceed to address the proctor
 // mechanism under test.  We will construct proctors to manage varying
 // sequences (differing in 'origin' and 'length') of memory blocks allocated by
-// the test allcoator.  Rather than using the primary manipulators ('reset' and
+// the test allocator.  Rather than using the primary manipulators ('reset' and
 // 'setLength'), we will use the "state" constructor to bring the
 // 'bslma::AutoDeallocator' directly to any desired state.  After each proctor
 // is destroyed, we will verify that memory supplied by the test allocator are
@@ -256,18 +256,18 @@ int TestAllocator::numOutstandingAllocations() const
 //
 //  Note: "xxxxx" denotes undefined value.
 //..
-// Next, two new memory blocks must be allocated to position 2 and 3.  If,
-// one of the two allocations fails and an exception is thrown, the array will
-// be left in an invalid state because the addresses contained at index
-// positions 2 and 3 may be duplicates of those at index positions 4 and 5, or,
-// if a resize occurred, invalid altogether.  We can restore exception
-// neutrality by setting the array's length to 2 before attempting to create
-// the string objects, but there is still a problem: the character sequences
-// "Bloom", "berg", and "LP" (at index positions 4 - 6) are "orphaned" and will
-// never be deallocated -- a memory leak.  To prevent this potential memory
-// leak, we can additionally create an instance of 'bslma::AutoDeallocator' to
-// manage (temporarily) the memory at index positions 4 - 6 prior to allocating
-// the new memory:
+// Next, two new memory blocks must be allocated to position 2 and 3.  If, one
+// of the two allocations fails and an exception is thrown, the array will be
+// left in an invalid state because the addresses contained at index positions
+// 2 and 3 may be duplicates of those at index positions 4 and 5, or, if a
+// resize occurred, invalid altogether.  We can restore exception neutrality by
+// setting the array's length to 2 before attempting to create the string
+// objects, but there is still a problem: the character sequences "Bloom",
+// "berg", and "LP" (at index positions 4 - 6) are "orphaned" and will never be
+// deallocated -- a memory leak.  To prevent this potential memory leak, we can
+// additionally create an instance of 'bslma::AutoDeallocator' to manage
+// (temporarily) the memory at index positions 4 - 6 prior to allocating the
+// new memory:
 //..
 //      0     1     2     3     4     5     6
 //    _____ _____ _____ _____ _____ _____ _____
@@ -303,8 +303,8 @@ int TestAllocator::numOutstandingAllocations() const
         // sequences.  Memory will be supplied by the parameterized 'ALLOCATOR'
         // type provided at construction (which must remain valid throughout
         // the lifetime of this guard object).  Note that memory is managed by
-        // a parametrized 'ALLCOATOR' type, instead of a 'bslma::Allocator', to
-        // enable clients to pass in a pool (such as a sequential pool)
+        // a parameterized 'ALLCOATOR' type, instead of a 'bslma::Allocator',
+        // to enable clients to pass in a pool (such as a sequential pool)
         // optimized for allocations of character sequences.
 
         // DATA
@@ -319,7 +319,7 @@ int TestAllocator::numOutstandingAllocations() const
 
       public:
         // CREATORS
-        my_StrArray(ALLOCATOR *basicAllocator);
+        explicit my_StrArray(ALLOCATOR *basicAllocator);
             // Create a 'my_StrArray' object using the specified
             // 'basicAllocator' used to supply memory.
 
@@ -496,8 +496,8 @@ int TestAllocator::numOutstandingAllocations() const
 // 1.
 //..
         // Copy the character sequences from the 'srcArray'.  Note that the
-        // 'tailDeallocator' has to be decremented to cover the newly
-        // created object.
+        // 'tailDeallocator' has to be decremented to cover the newly created
+        // object.
 
         for (int i = srcLength - 1; i >= 0; --i, --tailDeallocator) {
             size_t size = strlen(tmpSrc[i]) + 1;
@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -1461,7 +1461,7 @@ int main(int argc, char *argv[])
         //   to the 'bslma::TestAllocator').
         //
         // Testing:
-        //   Breathing Test
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

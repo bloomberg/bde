@@ -80,7 +80,7 @@ enum EnumTestType {
     // This user-defined 'enum' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_enum'.
     ENUM_TEST_VALUE0 = 0,
-    ENUM_TEST_VALUE1,
+    ENUM_TEST_VALUE1
 };
 
 struct StructTestType {
@@ -201,6 +201,8 @@ int main(int argc, char *argv[])
     (void) veryVerbose;          // eliminate unused variable warning
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);        // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

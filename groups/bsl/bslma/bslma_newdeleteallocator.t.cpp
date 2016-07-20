@@ -91,10 +91,10 @@ void aSsErT(bool condition, const char *message, int line)
 // redefining these global operators and instrumenting them to be sure that
 // these operators are in fact called.
 //-----------------------------------------------------------------------------
-// [ 2] static bslma::NewDeleteAllocator& singleton();
-// [ 2] static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
-// [ 1] bslma::NewDeleteAllocator();
-// [ 1] ~bslma::NewDeleteAllocator();
+// [ 2] static NewDeleteAllocator& singleton();
+// [ 2] static Allocator *allocator(Allocator *basicAllocator);
+// [ 1] NewDeleteAllocator();
+// [ 1] ~NewDeleteAllocator();
 // [ 1] void *allocate(int size);
 // [ 1] void deallocate(void *address);
 //-----------------------------------------------------------------------------
@@ -108,10 +108,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 // The most common and proper use of 'bslma::NewDeleteAllocator' is both
-// *indirect* and *by* *default* (see 'bslma_default').  For example,
-// consider (along with its destructor) the default and copy constructors for,
-// say, a simple container, such as 'my_ShortArray', each of which take as
-// its final optional argument the address of a 'bslma_Allocator' protocol:
+// *indirect* and *by* *default* (see 'bslma_default').  For example, consider
+// (along with its destructor) the default and copy constructors for, say, a
+// simple container, such as 'my_ShortArray', each of which take as its final
+// optional argument the address of a 'bslma_Allocator' protocol:
 //..
 //  // my_shortarray.h:
 //  // ...
@@ -124,10 +124,10 @@ void aSsErT(bool condition, const char *message, int line)
         bslma::Allocator *d_allocator_p; // memory allocator (not owned)
 
       public:
-        my_ShortArray(bslma::Allocator *basicAllocator = 0);
+        explicit my_ShortArray(bslma::Allocator *basicAllocator = 0);
             // Create an empty 'my_shortArray'.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator'
-            // is 0, the currently installed default allocator is used.
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
 
         my_ShortArray(const my_ShortArray&  other,
                       bslma::Allocator     *basicAllocator = 0);
@@ -154,26 +154,25 @@ void aSsErT(bool condition, const char *message, int line)
 //  namespace bslma { class Allocator; }
 
     struct my_Default {
-        // This class maintains a process-wide 'bslma_allocator' object
-        // to be used when an allocator is needed, and not suppled explicitly.
-        // By default, the currently installed default allocator is the unique
+        // This class maintains a process-wide 'bslma_allocator' object to be
+        // used when an allocator is needed, and not suppled explicitly.  By
+        // default, the currently installed default allocator is the unique
         // 'bslma::NewDeleteAllocator' object returned by the 'static' method,
         // 'bslma::NewDeleteAllocator::singleton()'.  Note that the default
         // allocator will exist longer than any possibility of its use.
 
         static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
-            // Return the address of the specified modifiable
-            // 'basicAllocator' or, if 'basicAllocator' is 0, an instance of
-            // the currently installed default 'bslma_allocator' object, which
-            // will exist longer than any possibility of its use.  Note
-            // that this function can safely be called concurrently (from
-            // multiple threads).
+            // Return the address of the specified modifiable 'basicAllocator'
+            // or, if 'basicAllocator' is 0, an instance of the currently
+            // installed default 'bslma_allocator' object, which will exist
+            // longer than any possibility of its use.  Note that this function
+            // can safely be called concurrently (from multiple threads).
 
         static bslma::Allocator *replace(bslma::Allocator *basicAllocator);
             // Replace the address of the currently installed allocator with
-            // that of the specified modifiable 'basicAllocator' (or if 0,
-            // with the "factory" default, 'bslma::NewDeleteAllocator'), and
-            // return the address of the previous allocator.  The behavior is
+            // that of the specified modifiable 'basicAllocator' (or if 0, with
+            // the "factory" default, 'bslma::NewDeleteAllocator'), and return
+            // the address of the previous allocator.  The behavior is
             // undefined unless 'basicAllocator' will exist longer than any
             // possibility of its use.  Note that this function is *not* *at*
             // *all* thread safe, and should *never* be called when multiple
@@ -210,8 +209,8 @@ void aSsErT(bool condition, const char *message, int line)
 // what is actually used in practice).
 //
 // Turning back to our 'my_shortarray' example, let's now implement the two
-// constructors using the 'bslma_newdeleteallocator' component indirectly
-// via the 'my_default' component:
+// constructors using the 'bslma_newdeleteallocator' component indirectly via
+// the 'my_default' component:
 //..
 //  // my_shortarray.cpp:
 //  #include <my_shortarray.h>
@@ -304,8 +303,8 @@ void *operator new(size_t size) throw(std::bad_alloc)
 #else
 void *operator new(size_t size)
 #endif
-    // Trace use of global operator new.  Note that we must use printf
-    // to avoid recursion.
+    // Trace use of global operator new.  Note that we must use 'printf' to
+    // avoid recursion.
 {
     void *addr = malloc(size);
 
@@ -403,15 +402,15 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // -----------------------------------------------------------------
-        // SINGLETON TEST:
+        // SINGLETON TEST
         //   We need to make sure that we get a valid singleton and that
         //   it remains valid as long as we need it.  The way we'll try do
         //   this is to allocate memory in the destructor of a static object
         //   that is defined prior the first use of the allocator.
         //
         // Testing:
-        //   static bslma::NewDeleteAllocator& singleton();
-        //   static bslma::Allocator *allocator(bslma::Allocator *basicAlloc);
+        //   static NewDeleteAllocator& singleton();
+        //   static Allocator *allocator(Allocator *basicAlloc);
         //
         //   Make sure that the lifetime of the singleton is sufficient.
         //   Make sure that memory is not leaked.
@@ -477,14 +476,14 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // -----------------------------------------------------------------
-        // BASIC TEST:
+        // BASIC TEST
         //   Create a new-delete allocator on the program stack and verify that
         //   'new' and 'delete' are each called exactly once per method
         //   invocation, and with the appropriate arguments.
         //
         // Testing:
-        //    bslma::NewDeleteAllocator();
-        //    ~bslma::NewDeleteAllocator();
+        //    NewDeleteAllocator();
+        //    ~NewDeleteAllocator();
         //    void *allocate(int size);
         //    void deallocate(void *address);
         //

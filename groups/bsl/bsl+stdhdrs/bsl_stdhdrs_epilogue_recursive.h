@@ -252,12 +252,8 @@
 // If '<memory>' was included, then include our implementation of allocators,
 // 'allocator_traits', and 'shared_ptr'
 #ifdef INCLUDED_NATIVE_MEMORY
-# ifndef INCLUDED_BSLSTL_ALLOCATOR
-#   include <bslstl_allocator.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-# ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#   include <bslstl_allocatortraits.h>
+# ifndef INCLUDED_BSLMA_STDALLOCATOR
+#   include <bslma_stdallocator.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 # ifndef INCLUDED_BSLSTL_BADWEAKPTR
@@ -278,6 +274,10 @@
 # endif
 # ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
 #   include <bslstl_sharedptrallocateoutofplacerep.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#   include <bslma_allocatortraits.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -410,6 +410,12 @@
 #   include <bslmf_isenum.h>
 # endif
 // level 14
+# ifndef INCLUDED_BSLMF_ISCOPYCONSTRUCTIBLE
+#   include <bslmf_iscopyconstructible.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
+#   include <bslmf_isnothrowmoveconstructible.h>
+# endif
 # ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #   include <bslmf_istriviallycopyable.h>
 # endif

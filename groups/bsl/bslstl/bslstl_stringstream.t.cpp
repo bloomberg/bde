@@ -1,12 +1,12 @@
 // bslstl_stringstream.t.cpp                                          -*-C++-*-
 #include <bslstl_stringstream.h>
 
-#include <bslstl_allocator.h>
 #include <bslstl_string.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 

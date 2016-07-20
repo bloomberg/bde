@@ -283,7 +283,7 @@ class CountedStackDeleter
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
-    // Increment the global delete counterer 'g_deleteCount'.
+    // Increment the global delete counter, 'g_deleteCount'.
 {
 //    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
@@ -321,13 +321,13 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static intialization locekd the global allocator
+    // Confirm no static initialization locked the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
 
-    // Confirm no static intialization locked the default allocator
+    // Confirm no static initialization locked the default allocator
     ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
@@ -368,10 +368,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING 'ManagedPtr_Members'"
                             "\n============================\n");
-
-
-        typedef bslma::ManagedPtr_FactoryDeleter<MyTestObject,
-                                             CountedStackDeleter > TestFactory;
 
         bslma::TestAllocatorMonitor gam(&globalAllocator);
         bslma::TestAllocatorMonitor dam(&da);
@@ -418,7 +414,7 @@ int main(int argc, char *argv[])
                     const bslma::ManagedPtr_Members empty(0, 0, 0);
                     ASSERT_SAFE_FAIL(empty.deleter());
 
-                    int x;
+                    int x;  (void)x;    // not used unless a SAFE build
                     ASSERT_SAFE_FAIL(bslma::ManagedPtr_Members b(&x, &del, 0));
                     ASSERT_SAFE_PASS(bslma::ManagedPtr_Members g( 0, &del, 0));
                 }
@@ -467,7 +463,8 @@ int main(int argc, char *argv[])
 
                 {
                     bsls::AssertTestHandlerGuard guard;
-                    int x;
+
+                    int x;  (void)x;    // not used unless a SAFE build
                     ASSERT_SAFE_FAIL(members.set(&x, &del, 0));
                     ASSERT_SAFE_PASS(members.set( 0, &del, 0));
                 }
@@ -642,7 +639,7 @@ int main(int argc, char *argv[])
                 int d_x;
                 static void deleter(void *a, void *b)
                     // 'ASSERT' that the 'd_x' data member of the 'Local'
-                    // object pointed to by the specified 'a' has the specieid
+                    // object pointed to by the specified 'a' has the specified
                     // 'b' address, and currently has the value '13', then
                     // assign to that 'd_x' the value 42,  Note that this
                     // function provides a verifiable test condition that the

@@ -43,7 +43,6 @@ template class bsl::basic_string<char>;
 template class bsl::basic_string<wchar_t>;
 #endif
 
-
 #if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_CLANG)
 # define BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS 1
 #endif
@@ -51,8 +50,8 @@ template class bsl::basic_string<wchar_t>;
 namespace {
 // "0x" should return '0' for bases 0 and 16, but some C runtime libraries
 // disagree.  Intercept a possible error, and check for this special condition,
-// including leading whitespace and (optionaly) an immediately preceding '+' or
-// '-'.
+// including leading whitespace and (optionally) an immediately preceding '+'
+// or '-'.
 #if defined(BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS)
 static
 bool isAwkwardZero(const bsl::string& str, int base)
@@ -717,11 +716,11 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
     return value;
 }
 #else
-// Proir to C++17, the C++ standard specified this function using the C90
+// Prior to C++17, the C++ standard specified this function using the C90
 // library, which did not have 'strtof'.  That is the implementation we
 // continue to support on older Microsoft compilers, lacking the necessary C99
 // conversion functions.  Note that 'errno' and invalid strings are detected
-// and thrown by the 'stod' function that is forwarded to, so only need to
+// and thrown by the 'stod' function that is forwarded to, so need only to
 // worry about performing a safe floating-point conversion.
 
 namespace {

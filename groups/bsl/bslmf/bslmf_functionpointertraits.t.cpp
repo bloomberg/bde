@@ -7,8 +7,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>           // atoi()
+#include <stdio.h>      // print, fprintf
+#include <stdlib.h>     // atoi
 
 using namespace BloombergLP;
 
@@ -197,6 +197,8 @@ int main(int argc, char *argv[])
     (void) veryVerbose;          // eliminate unused variable warning
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -845,6 +847,7 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

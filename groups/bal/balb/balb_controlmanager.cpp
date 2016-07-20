@@ -167,17 +167,18 @@ void ControlManager::printUsage(bsl::ostream&      stream,
 
 // CREATORS
 
-ControlManager_Entry::ControlManager_Entry(bslma::Allocator *basicAllocator)
+ControlManager::ControlManager_Entry::ControlManager_Entry(
+                                              bslma::Allocator *basicAllocator)
 : d_callback(bsl::allocator_arg_t(),
              bsl::allocator<ControlManager::ControlHandler>(basicAllocator))
 , d_arguments(basicAllocator)
 , d_description(basicAllocator)
 {}
 
-ControlManager_Entry::~ControlManager_Entry()
+ControlManager::ControlManager_Entry::~ControlManager_Entry()
 {}
 
-ControlManager_Entry::ControlManager_Entry(
+ControlManager::ControlManager_Entry::ControlManager_Entry(
                          const ControlManager::ControlHandler&  callback,
                          const bsl::string&                     arguments,
                          const bsl::string&                     description,
@@ -189,7 +190,7 @@ ControlManager_Entry::ControlManager_Entry(
 , d_description(description, basicAllocator)
 {}
 
-ControlManager_Entry::ControlManager_Entry(
+ControlManager::ControlManager_Entry::ControlManager_Entry(
                                    const ControlManager_Entry&  original,
                                    bslma::Allocator            *basicAllocator)
 : d_callback(bsl::allocator_arg_t(),
@@ -201,8 +202,9 @@ ControlManager_Entry::ControlManager_Entry(
 
 // MANIPULATORS
 
-ControlManager_Entry&
-ControlManager_Entry::operator=(const ControlManager_Entry& rhs)
+ControlManager::ControlManager_Entry&
+ControlManager::ControlManager_Entry::operator=(
+                                               const ControlManager_Entry& rhs)
 {
    if (&rhs != this) {
       d_callback    = rhs.d_callback;

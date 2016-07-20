@@ -205,7 +205,7 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
                                              // hold
         size_t            d_numValues;       // Length of 'd_values'.
         const TYPE      **d_bucketArray;     // Contains ptrs into d_values'
-        unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+        size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
         HASHER            d_hasher;          // User supplied hashing algorithm
 
 
@@ -781,8 +781,7 @@ int main(int argc, char *argv[])
         {
             const char data[5] = {'a', 'b', 'c', 'd', 'e'};
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj(genericSeed).operator()(   0, 5));
             ASSERT_PASS(Obj(genericSeed).operator()(data, 5));
@@ -842,8 +841,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Call the parameterized constructor with a null"
                             " pointer. (C-4)\n");
         {
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj dummy(0));
             ASSERT_PASS(Obj dummy(genericSeed));

@@ -616,8 +616,7 @@ int main(int argc, char *argv[])
         {
             char data[5] = { };
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj().generateSeed(   0, 5));
             ASSERT_PASS(Obj().generateSeed(   0, 0));
@@ -679,6 +678,7 @@ int main(int argc, char *argv[])
                             " (C-1,6)\n");
         {
             Obj generator = Obj();
+            (void)generator;
         }
 
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
@@ -696,6 +696,7 @@ int main(int argc, char *argv[])
             Obj generator1(rng);
             Obj generator2(generator1);
             Obj generator3 = generator1;
+            (void)generator3;
         }
 
         if (verbose) printf("Copy the value of the one (const) instance of"
@@ -706,6 +707,7 @@ int main(int argc, char *argv[])
             const Obj generator1 = Obj(rng);
             Obj generator2(generator1);
             Obj generator3 = generator1;
+            (void)generator3;
         }
 
       } break;

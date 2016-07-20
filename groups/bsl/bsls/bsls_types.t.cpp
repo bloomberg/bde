@@ -174,6 +174,8 @@ int main(int argc, char *argv[])
         typedef bsls::Types::size_type size_type;
 
         // ...
+
+        size_type size() const;
     };
 //..
 // Since 'bsls::Types' are integers, the Standard Library facilities that work

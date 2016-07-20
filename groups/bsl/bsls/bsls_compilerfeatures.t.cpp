@@ -2,33 +2,89 @@
 
 #include <bsls_compilerfeatures.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <iostream>
 
-using namespace BloombergLP;
-using namespace std;
-
 //=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
+//                             TEST PLAN
 //-----------------------------------------------------------------------------
+//                            * Overview *
+// Testing available C++11 language features by trying to compile code that
+// uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
+// defined, then we try to compile code that uses 'static_assert'.  This is a
+// purely compile-time test.  If the code compiles than the test succeeds, if
+// the code fails to compile than the test fails.  Due to the limitations of
+// the testing framework there is no way to turn compile-time failures into
+// runtime failures.  Note that we don't intend to test the correctness of the
+// implementation of C++ features, but just the fact that features are
+// supported.
+//-----------------------------------------------------------------------------
+// [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+// [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+// [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_FINAL
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [10] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [11] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [12] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [13] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [14] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [15] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [16] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [17] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+//=============================================================================
+
+using namespace BloombergLP;
+
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //              SUPPORTING FUNCTIONS AND TYPES USED FOR TESTING
@@ -38,13 +94,13 @@ void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-template <typename T, typename U>
+template <class T, class U>
 struct alias_base {};
 
 using my_own_int = int;
 using alias_nontemplate = alias_base<int, char>;
-template <typename T> using alias_template1 = alias_base<T, int>;
-template <typename T> using alias_template2 = alias_base<char, T>;
+template <class T> using alias_template1 = alias_base<T, int>;
+template <class T> using alias_template2 = alias_base<char, T>;
 
 }  // close unnamed namespace
 
@@ -71,7 +127,7 @@ namespace {
 
 char testFuncForDecltype(int);
 
-template <typename T, typename U>
+template <class T, class U>
 auto my_max(T t, U u) -> decltype(t > u ? t : u)
 {
     return t > u ? t : u;
@@ -170,40 +226,40 @@ void OverloadForNullptr(void *) {}
 
 namespace {
 
-template <typename T>
+template <class T>
 struct my_remove_reference {
     typedef T type;
 };
 
-template <typename T>
+template <class T>
 struct my_remove_reference<T&> {
     typedef T type;
 };
 
-template <typename T>
+template <class T>
 struct my_remove_reference<T&&> {
     typedef T type;
 };
 
-template <typename T>
+template <class T>
 T&& my_forward(typename my_remove_reference<T>::type& t)
 {
     return static_cast<T&&>(t);
 }
 
-template <typename T>
+template <class T>
 T&& my_forward(typename my_remove_reference<T>::type&& t)
 {
     return static_cast<T&&>(t);
 }
 
-template <typename T>
+template <class T>
 typename my_remove_reference<T>::type&& my_move(T&& t)
 {
     return static_cast<typename my_remove_reference<T>::type&&>(t);
 }
 
-template <typename T, typename Arg>
+template <class T, class Arg>
 T my_factory(Arg&& arg)
 {
     return my_move(T(my_forward<Arg>(arg)));
@@ -223,15 +279,15 @@ struct RvalueTest {
 
 namespace {
 
-template <typename... Types>
+template <class... Types>
 struct PackSize;
 
-template <typename Head, typename... Tail>
+template <class Head, class... Tail>
 struct PackSize<Head, Tail...> {
     enum { VALUE = 1 + PackSize<Tail...>::VALUE };
 };
 
-template <typename T>
+template <class T>
 struct PackSize<T> {
     enum { VALUE = 1 };
 };
@@ -241,46 +297,24 @@ struct PackSize<T> {
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 //=============================================================================
-//                             TEST PLAN
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-//                            * Overview *
-// Testing available C++11 language features by trying to compile code that
-// uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
-// defined, then we try to compile code that uses 'static_assert'.  This is a
-// purely compile-time test.  If the code compiles than the test succeeds, if
-// the code fails to compile than the test fails.  Due to the limitations of
-// the testing framework there is no way to turn compile-time failures into
-// runtime failures.  Note that we don't intend to test the correctness of the
-// implementation of C++ features, but just the fact that features are
-// supported.
-//-----------------------------------------------------------------------------
-// [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-// [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_FINAL
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [10] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [11] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [12] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-// [13] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [14] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [15] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [16] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-// [17] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-//=============================================================================
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    (void)        veryVerbose;  // unused variable warning
+    (void)    veryVeryVerbose;  // unused variable warning
+    (void)veryVeryVeryVerbose;  // unused variable warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 17: {
@@ -505,20 +539,20 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         // --------------------------------------------------------------------
 #if !defined (BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-          if (verbose) printf("Testing noexcept skipped\n"
+        if (verbose) printf("Testing noexcept skipped\n"
                               "========================\n");
 #else
-          if (verbose) printf("Testing noexcept\n"
+        if (verbose) printf("Testing noexcept\n"
                               "================\n");
-          noexceptTest1();
-          noexceptTest2();
-          notNoexceptTest1();
-          notNoexceptTest2();
-          ASSERT(noexcept(noexceptTest1()));
-          ASSERT(noexcept(noexceptTest2()));
-          ASSERT(noexcept(noexceptTest3()));
-          ASSERT(false == noexcept(notNoexceptTest1()));
-          ASSERT(false == noexcept(notNoexceptTest2()));
+        noexceptTest1();
+        noexceptTest2();
+        notNoexceptTest1();
+        notNoexceptTest2();
+        ASSERT(noexcept(noexceptTest1()));
+        ASSERT(noexcept(noexceptTest2()));
+        ASSERT(noexcept(noexceptTest3()));
+        ASSERT(false == noexcept(notNoexceptTest1()));
+        ASSERT(false == noexcept(notNoexceptTest2()));
 #endif
       } break;
       case 9: {
@@ -804,13 +838,13 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }

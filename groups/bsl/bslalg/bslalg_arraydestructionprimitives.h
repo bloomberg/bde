@@ -9,10 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that destroy arrays.
 //
+//@REVIEW_FOR_MASTER: doc, test driver, usage example
+//
 //@CLASSES:
 //  bslalg::ArrayDestructionPrimitives: namespace for array algorithms
 //
-//@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
+//@SEE_ALSO: bslma_destructionutil, bslma_constructionutil
 //
 //@DESCRIPTION: This component provides utilities to destroy arrays with a
 // uniform interface, but selecting a different implementation according to the
@@ -33,6 +35,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// TBD: maybe fix up usage example to show with allocator
 // In this section we show intended use of this component.  Note that this
 // component is for use by the 'bslstl' package.  Other clients should use the
 // STL algorithms (in header '<algorithm>' and '<memory>').
@@ -102,6 +105,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -131,35 +138,58 @@ struct ArrayDestructionPrimitives {
     // or not (optimized away by no-op).
 
     // PRIVATE CLASS METHODS
-    template <class TARGET_TYPE>
-    static void destroy(TARGET_TYPE        *begin,
-                        TARGET_TYPE        *end,
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destroy(TARGET_TYPE *begin,
+                        TARGET_TYPE *end,
+                        ALLOCATOR    allocator,
                         bsl::true_type);
-    template <class TARGET_TYPE>
-    static void destroy(TARGET_TYPE        *begin,
-                        TARGET_TYPE        *end,
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destroy(TARGET_TYPE *begin,
+                        TARGET_TYPE *end,
+                        ALLOCATOR    allocator,
                         bsl::false_type);
         // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
         // specified 'begin' address and ending immediately before the
-        // specified 'end' address.  Use the destructor of the parameterized
-        // 'TARGET_TYPE', or do nothing if the 'TARGET_TYPE' is bit-wise
-        // copyable (i.e., if the last argument is of type
-        // 'bsl::true_type').  Note that the last argument is for
-        // overloading resolution only and its value is ignored.
+        // specified 'end' address, using the specified 'allocator'.  Elide the
+        // use of the destructor entirely if (template parameter) 'TARGET_TYPE'
+        // is trivially copyable, i.e., in the overload where the last argument
+        // (used only for overload resolution) is of type 'bsl::true_type'.
+
+    template <class TARGET_TYPE>
+    static void destroy(TARGET_TYPE *begin, TARGET_TYPE *end, bsl::true_type);
+    template <class TARGET_TYPE>
+    static void destroy(TARGET_TYPE *begin, TARGET_TYPE *end, bsl::false_type);
+        // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
+        // specified 'begin' address and ending immediately before the
+        // specified 'end' address.  Elide the use of the destructor entirely
+        // if (template parameter) 'TARGET_TYPE' is trivially copyable, i.e.
+        // in the overload where the last argument (used only for overload
+        // resolution) if of type 'bsl::true_type'.
 
   public:
     // CLASS METHODS
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void
+    destroy(TARGET_TYPE *begin, TARGET_TYPE *end, ALLOCATOR allocator);
+        // Destroy the elements in the segment of an array of parameterized
+        // 'TARGET_TYPE' beginning at the specified 'begin' address and ending
+        // immediately before the specified 'end' address, using the specified
+        // 'allocator'.  If 'begin == 0' and 'end == 0' this function has no
+        // effect.  The behavior is undefined unless either (1) 'begin <= end',
+        // 'begin != 0', and 'end != 0', or (2) 'begin == 0 && end == 0'.  Note
+        // that this method does not deallocate any memory (except memory
+        // deallocated by the element destructor calls).
+
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *begin, TARGET_TYPE *end);
         // Destroy of the elements in the segment of an array of parameterized
         // 'TARGET_TYPE' beginning at the specified 'begin' address and ending
-        // immediately before the specified 'end' address, as if by calling the
-        // destructor on each object.  If 'begin == 0' and 'end == 0' this
-        // function has no effect.  The behavior is undefined unless either (1)
-        // 'begin <= end', 'begin != 0', and 'end != 0', or (2)
-        // 'begin == 0 && end == 0'.  Note that this method does not deallocate
-        // any memory (except memory deallocated by the element destructor
-        // calls).
+        // immediately before the specified 'end' address.  If 'begin == 0' and
+        // 'end == 0' this function has no effect.  The behavior is undefined
+        // unless either (1) 'begin <= end', 'begin != 0', and 'end != 0', or
+        // (2) 'begin == 0 && end == 0'.  Note that this method does not
+        // deallocate any memory (except memory deallocated by the element
+        // destructor calls).
 };
 
 // ============================================================================
@@ -171,13 +201,44 @@ struct ArrayDestructionPrimitives {
                   // ---------------------------------
 
 // PRIVATE CLASS METHODS
-template <class TARGET_TYPE>
+template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
                                          TARGET_TYPE       *end,
+                                         ALLOCATOR,
                                          bsl::true_type)
 {
-    // 'BitwiseCopyable' is a valid surrogate for 'HasTrivialDestructor'.
+    // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
+    // destructor.
+
+#ifdef BDE_BUILD_TARGET_SAFE
+    bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
+    std::memset(begin, 0xa5, numBytes);
+#else
+    (void) begin;
+    (void) end;
+#endif
+}
+
+template <class TARGET_TYPE, class ALLOCATOR>
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end,
+                                         ALLOCATOR    allocator,
+                                         bsl::false_type)
+{
+    for (; begin != end; ++begin) {
+        bsl::allocator_traits<ALLOCATOR>::destroy(allocator, begin);
+    }
+}
+
+template <class TARGET_TYPE>
+inline
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end,
+                                         bsl::true_type)
+{
+    // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
+    // destructor.
 
 #ifdef BDE_BUILD_TARGET_SAFE
     bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
@@ -189,8 +250,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 }
 
 template <class TARGET_TYPE>
-void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
-                                         TARGET_TYPE       *end,
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end,
                                          bsl::false_type)
 {
     for (; begin != end; ++begin) {
@@ -199,6 +260,22 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 }
 
 // CLASS METHODS
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end,
+                                         ALLOCATOR    allocator)
+{
+    BSLS_ASSERT_SAFE(begin || !end);
+    BSLS_ASSERT_SAFE(end   || !begin);
+    BSLS_ASSERT_SAFE(begin <= end);
+
+    destroy(begin,
+            end,
+            allocator,
+            typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
+}
+
 template <class TARGET_TYPE>
 inline
 void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,

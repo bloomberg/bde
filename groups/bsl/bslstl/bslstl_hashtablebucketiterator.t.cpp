@@ -1,7 +1,6 @@
 // bslstl_hashtablebucketiterator.t.cpp                               -*-C++-*-
 #include <bslstl_hashtablebucketiterator.h>
 
-#include <bslstl_allocator.h>
 #include <bslstl_bidirectionalnodepool.h>
 
 #include <bslalg_bidirectionallinklistutil.h>
@@ -9,6 +8,7 @@
 #include <bslalg_hashtablebucket.h>
 #include <bslalg_hashtableimputil.h>
 
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -196,8 +196,8 @@ class NodePool {
     // MANIPULATORS
     Node *createNode(int value)
     {
-        return static_cast<Node *>(d_pool.createNode(
-                                                   Ttf::create<VALUE>(value)));
+        return static_cast<Node *>(
+                         d_pool.emplaceIntoNewNode(Ttf::create<VALUE>(value)));
     }
 
     void deleteNode(Node *node)
@@ -308,7 +308,7 @@ class BucketsWrapper {
     {
         Bucket& bucket = d_buckets[bucketIndex];
         Link *link = bucket.d_first_p;
-        for(int p = 0; p < position; ++p) {
+        for(int p = 0; p != position; ++p) {
             link = link->nextLink();
         }
         return static_cast<Node *>(link);
@@ -961,23 +961,23 @@ void TestDriver<VALUE>::testCase6()
                                              bsls::AssertTest::failTestDriver);
                 // Note that the 'ASSERT_XXX_FAIL' macros are testing whether
                 // an assertion is raised, not the result of the expression.
-                ASSERT_SAFE_FAIL(X1 == Y1);
-                ASSERT_SAFE_FAIL(Y1 == X1);
-                ASSERT_SAFE_FAIL(X1 == Y2);
-                ASSERT_SAFE_FAIL(Y2 == X1);
-                ASSERT_SAFE_FAIL(X2 == Y1);
-                ASSERT_SAFE_FAIL(Y1 == X2);
-                ASSERT_SAFE_FAIL(X2 == Y2);
-                ASSERT_SAFE_FAIL(Y2 == X2);
+                ASSERT_SAFE_FAIL(if(X1 == Y1){});
+                ASSERT_SAFE_FAIL(if(Y1 == X1){});
+                ASSERT_SAFE_FAIL(if(X1 == Y2){});
+                ASSERT_SAFE_FAIL(if(Y2 == X1){});
+                ASSERT_SAFE_FAIL(if(X2 == Y1){});
+                ASSERT_SAFE_FAIL(if(Y1 == X2){});
+                ASSERT_SAFE_FAIL(if(X2 == Y2){});
+                ASSERT_SAFE_FAIL(if(Y2 == X2){});
 
-                ASSERT_SAFE_FAIL(X1 != Y1);
-                ASSERT_SAFE_FAIL(Y1 != X1);
-                ASSERT_SAFE_FAIL(X1 != Y2);
-                ASSERT_SAFE_FAIL(Y2 != X1);
-                ASSERT_SAFE_FAIL(X2 != Y1);
-                ASSERT_SAFE_FAIL(Y1 != X2);
-                ASSERT_SAFE_FAIL(X2 != Y2);
-                ASSERT_SAFE_FAIL(Y2 != X2);
+                ASSERT_SAFE_FAIL(if(X1 != Y1){});
+                ASSERT_SAFE_FAIL(if(Y1 != X1){});
+                ASSERT_SAFE_FAIL(if(X1 != Y2){});
+                ASSERT_SAFE_FAIL(if(Y2 != X1){});
+                ASSERT_SAFE_FAIL(if(X2 != Y1){});
+                ASSERT_SAFE_FAIL(if(Y1 != X2){});
+                ASSERT_SAFE_FAIL(if(X2 != Y2){});
+                ASSERT_SAFE_FAIL(if(Y2 != X2){});
             }
             else {
             // Verify value, commutativity

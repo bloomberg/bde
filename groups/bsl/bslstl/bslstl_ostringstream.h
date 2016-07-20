@@ -123,7 +123,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_OSTREAM
 #endif
 
-
 namespace bsl {
 
                           // =========================

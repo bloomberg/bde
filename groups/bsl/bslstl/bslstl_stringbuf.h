@@ -147,16 +147,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_IOSFWD
 #include <bslstl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -871,7 +871,7 @@ native_std::streamsize
 
     native_std::streamsize spaceLeft   =
                                     d_str.data() + d_str.size() - this->pptr();
-    native_std::ptrdiff_t toOverwrite = 
+    native_std::ptrdiff_t toOverwrite =
               native_std::ptrdiff_t(native_std::min(spaceLeft, numCharacters));
 
     // Append the portion of 'inputString' that can be written without

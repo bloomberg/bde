@@ -97,8 +97,6 @@ class TestType;
 typedef TestType                      T;    // uses 'bslma' allocators
 
 // STATIC DATA
-static int verbose, veryVerbose, veryVeryVerbose;
-
 const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;

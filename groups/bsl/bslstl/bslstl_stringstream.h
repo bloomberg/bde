@@ -132,7 +132,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_IOSTREAM
 #endif
 
-
 namespace bsl {
 
                           // ========================

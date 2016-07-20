@@ -176,7 +176,7 @@ typedef bslma::Default Obj;
         int numBlocksTotal() const;
             // Return the cumulative number of blocks ever allocated using this
             // counting allocator.  Note that
-            // numBlocksTotal() >= numBlocksInUse().
+            // 'numBlocksTotal() >= numBlocksInUse()'.
     };
 
     // CREATORS
@@ -248,8 +248,8 @@ typedef bslma::Default Obj;
 //  #include <bslma_default.h>
 
     class my_Id {
-        // This is a trivial class solely intended to illustrate proper use
-        // of the default allocator.
+        // This is a trivial class solely intended to illustrate proper use of
+        // the default allocator.
 
         // PRIVATE DATA
         char             *d_buffer_p;     // allocated (*owned*)
@@ -350,11 +350,11 @@ typedef bslma::Default Obj;
             // Destroy this Id pair.
 
         // ACCESSORS
-        const char *id() const;
-            // Return the primary id of this Id pair.
-
         const char *alias() const;
             // Return the alias of this Id pair.
+
+        const char *id() const;
+            // Return the primary id of this Id pair.
     };
 
     // CREATORS
@@ -374,15 +374,15 @@ typedef bslma::Default Obj;
 
     // ACCESSORS
     inline
-    const char *my_IdPair::id() const
-    {
-        return d_id.id();
-    }
-
-    inline
     const char *my_IdPair::alias() const
     {
         return d_alias.id();
+    }
+
+    inline
+    const char *my_IdPair::id() const
+    {
+        return d_id.id();
     }
 //..
 // The definition of the 'my_IdPair' constructor above intentionally includes a
@@ -544,7 +544,8 @@ int main(int argc, char *argv[])
 //..
     static my_CountingAllocator defaultCountingAllocator;
 
-    int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
+    int status = bslma::Default::setDefaultAllocator(
+                                                    &defaultCountingAllocator);
     ASSERT(0 == status);
     bslma::Default::lockDefaultAllocator();
     ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
@@ -836,7 +837,7 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocator' Side-Effects"
+        if (verbose) printf("\nTESTING 'allocator' SIDE-EFFECTS"
                             "\n================================\n");
 
         ASSERT(V == Obj::allocator(V));
@@ -868,7 +869,7 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocator' Side-Effects"
+        if (verbose) printf("\nTESTING 'allocator' SIDE-EFFECTS"
                             "\n================================\n");
 
         ASSERT(NDA == Obj::allocator());
@@ -897,7 +898,7 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'defaultAllocator' Side-Effects"
+        if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
                             "\n=======================================\n");
 
         ASSERT(0 == Obj::setDefaultAllocator(U));
@@ -927,7 +928,7 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'defaultAllocator' Side-Effects"
+        if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
                             "\n=======================================\n");
 
         ASSERT(NDA == Obj::defaultAllocator());
