@@ -2346,10 +2346,13 @@ unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator[](
     AllocatorTraits::construct(alloc, defaultMapped.address());
     BloombergLP::bslma::DestructorGuard<mapped_type> mappedGuard(
                                                       defaultMapped.address());
-
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     pair<iterator, bool> pr = this->emplace(
                                        MoveUtil::move(lkey),
                                        MoveUtil::move(defaultMapped.object()));
+#else
+    pair<iterator, bool> pr = this->emplace(lkey, defaultMapped.object());
+#endif
     BSLS_ASSERT_SAFE(pr.second);
 
     return pr.first->second;

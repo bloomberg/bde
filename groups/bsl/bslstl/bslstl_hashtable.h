@@ -6744,9 +6744,15 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
         bslma::DestructorGuard<MappedType> mappedGuard(
                                                       defaultMapped.address());
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         position = d_parameters.nodeFactory().emplaceIntoNewNode(
                                        key,
                                        MoveUtil::move(defaultMapped.object()));
+#else
+        position = d_parameters.nodeFactory().emplaceIntoNewNode(
+                                                       key,
+                                                       defaultMapped.object());
+#endif
 
         bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
                                                         position,
