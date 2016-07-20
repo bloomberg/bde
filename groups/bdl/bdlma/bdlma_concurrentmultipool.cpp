@@ -27,6 +27,7 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_log.h>
 
 #include <bsl_cstdio.h>  // 'fprintf'
 #include <bsl_cstdint.h>
