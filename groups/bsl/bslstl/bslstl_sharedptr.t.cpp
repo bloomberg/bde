@@ -6649,7 +6649,7 @@ int main(int argc, char *argv[])
 
 #if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
 
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -6679,7 +6679,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -12927,7 +12927,7 @@ int main(int argc, char *argv[])
 
 #if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
 
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -12979,7 +12979,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
         }
         ASSERT(1 == numDeletes);
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -13855,7 +13855,7 @@ int main(int argc, char *argv[])
 
 #if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
 
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -13870,7 +13870,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Y.get());
             ASSERT(0 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic pop
 # endif
 #endif
@@ -13935,7 +13935,7 @@ int main(int argc, char *argv[])
 
 #if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
 
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 # endif
@@ -14000,7 +14000,7 @@ int main(int argc, char *argv[])
         // to, due to the language implying an extra user-defined conversion in
         // the chain compared to using the same technique that 'auto_ptr'
         // itself uses.
-# ifdef BSLS_PLATFORM_CMP_GNU
+# if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic pop
 # endif
 #endif
