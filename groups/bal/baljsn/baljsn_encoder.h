@@ -792,7 +792,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
                                   bdlat_TypeCategory::Simple)
 {
     d_formatter.indent();
-    return PrintUtil::printValue(d_outputStream, value);
+    return PrintUtil::printValue(d_outputStream, value, d_encoderOptions_p);
 }
 
 template <class TYPE>

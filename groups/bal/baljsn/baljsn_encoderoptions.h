@@ -28,6 +28,8 @@ BSLS_IDENT("$Id: $")
 //  spacesPerLevel      int            0               >= 0
 //  encodeEmptyArrays   bool           false           none
 //  encodeNullElements  bool           false           none
+//  datetimeFractionalSecondPrecision
+//                      int            3               >= 0 and <= 6
 //..
 //: o 'encodingStyle': encoding style used to encode the JSON data.
 //:
@@ -39,6 +41,11 @@ BSLS_IDENT("$Id: $")
 //:
 //: o 'encodeNullElements': option specifying if null elements should be
 //:                         encoded.
+//:
+//: o 'datetimeFractionalSecondPrecision': option specifying the number of
+//:                                        decimal places used for seconds when
+//:                                        encoding 'Datetime' and
+//:                                        'DatetimeTz'.
 //
 ///Usage
 ///-----
@@ -141,6 +148,11 @@ class EncoderOptions {
     bool          d_encodeNullElements;  // flag specifying if null elements
                                          // should be encoded
 
+    int           d_datetimeFractionalSecondPrecision;
+                                         // number of decimal places used for
+                                         // second in 'Datetime' and
+                                         // 'DatetimeTz'
+
   public:
     // CREATORS
     EncoderOptions();
@@ -187,6 +199,11 @@ class EncoderOptions {
         // Set the 'encodeNullElements' attribute of this object to the
         // specified 'value'.
 
+    void setDatetimeFractionalSecondPrecision(int value);
+        // Set the 'datetimeFractionalSecondPrecision' attribute of this object
+        // to the specified 'value'.  The behavior is undefined unless
+        // '0 <= value' and 'value <= 6'.
+
     // ACCESSORS
     int initialIndentLevel() const;
         // Return the value of the 'initialIndentLevel' attribute of this
@@ -205,6 +222,10 @@ class EncoderOptions {
     bool encodeNullElements() const;
         // Return the value of the 'encodeNullElements' attribute of this
         // object.
+
+    int datetimeFractionalSecondPrecision() const;
+        // Return the value of the 'datetimeFractionalSecondPrecision'
+        // attribute of this object.
 
                                   // Aspects
 
@@ -267,6 +288,7 @@ EncoderOptions::EncoderOptions()
 , d_encodingStyle(e_COMPACT)
 , d_encodeEmptyArrays(false)
 , d_encodeNullElements(false)
+, d_datetimeFractionalSecondPrecision(3)
 {
 }
 
@@ -312,6 +334,14 @@ void EncoderOptions::setEncodeNullElements(bool value)
     d_encodeNullElements = value;
 }
 
+inline
+void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
+{
+    BSLS_ASSERT_SAFE(0 <= value     );
+    BSLS_ASSERT_SAFE(     value <= 6);
+    d_datetimeFractionalSecondPrecision = value;
+}
+
 // ACCESSORS
 inline
 int EncoderOptions::initialIndentLevel() const
@@ -342,6 +372,12 @@ inline
 bool EncoderOptions::encodeNullElements() const
 {
     return d_encodeNullElements;
+}
+
+inline
+int EncoderOptions::datetimeFractionalSecondPrecision() const
+{
+    return d_datetimeFractionalSecondPrecision;
 }
 }  // close package namespace
 

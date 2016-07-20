@@ -407,11 +407,13 @@ int main(int argc, char *argv[])
             bdlt::TimeTz     theTimeTz(theTime, OFFSET);
             bdlt::DatetimeTz theDatetimeTz(theDatetime, OFFSET);
 
+            baljsn::EncoderOptions opt;
+            opt.setDatetimeFractionalSecondPrecision(6);
             if (verbose) cout << "Encode Date" << endl;
             {
                 const char *EXP = expectedDate[ti];
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theDate));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theDate, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -422,7 +424,7 @@ int main(int argc, char *argv[])
                 const char *EXP = expectedDateTz[ti];
 
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theDateTz));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theDateTz, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -433,7 +435,7 @@ int main(int argc, char *argv[])
                 const char *EXP = expectedTime[ti];
 
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theTime));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theTime, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -444,7 +446,7 @@ int main(int argc, char *argv[])
                 const char *EXP = expectedTimeTz[ti];
 
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theTimeTz));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theTimeTz, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -455,7 +457,7 @@ int main(int argc, char *argv[])
                 const char *EXP = expectedDatetime[ti];
 
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theDatetime));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theDatetime, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -466,7 +468,7 @@ int main(int argc, char *argv[])
                 const char *EXP = expectedDatetimeTz[ti];
 
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, theDatetimeTz));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, theDatetimeTz, &opt));
 
                 bsl::string result = oss.str();
                 ASSERTV(LINE, result, EXP, result == EXP);
@@ -1013,19 +1015,32 @@ int main(int argc, char *argv[])
             ASSERTV(oss.str(),"\"23:59:59.999-12:00\"" == oss.str());
             oss.str("");
 
-            Obj::printValue(oss, theDatetime);
-            ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999999\"" == oss.str());
-            oss.str("");
-
-            Obj::printValue(oss, theDatetimeTz);
-            ASSERTV(oss.str(),
-                    "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
-            oss.str("");
-
-            Obj::printValue(oss, theDatetimeTz);
-            ASSERTV(oss.str(),
-                    "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
-            oss.str("");
+            {
+                Obj::printValue(oss, theDatetime);
+                ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999\"" == oss.str());
+                oss.str("");
+            }
+            {
+                baljsn::EncoderOptions opt;
+                opt.setDatetimeFractionalSecondPrecision(6);
+                Obj::printValue(oss, theDatetime, &opt);
+                ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999999\"" ==
+                        oss.str());
+                oss.str("");
+            }
+            {
+                baljsn::EncoderOptions opt;
+                opt.setDatetimeFractionalSecondPrecision(6);
+                Obj::printValue(oss, theDatetimeTz, &opt);
+                ASSERTV(oss.str(),
+                        "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
+                oss.str("");
+            }
+            {
+                Obj::printValue(oss, theDatetimeTz);
+                ASSERTV(oss.str(),
+                        "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
+            }
         }
       } break;
       default: {
