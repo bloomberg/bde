@@ -807,8 +807,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          U2&& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value
-                              && !(bsl::is_pointer<U2>::value
-                                   && bsl::is_convertible<U2,
+                              && !(bsl::is_pointer<typename
+                                        bsl::remove_reference<U2>::type>::value
+                                && bsl::is_convertible<U2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
     : FirstBase(BSLS_COMPILERFEATURES_FORWARD(U1, a))
@@ -827,8 +828,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          const U2& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value
-                              && !(bsl::is_pointer<U2>::value
-                                   && bsl::is_convertible<U2,
+                              && !(bsl::is_pointer<typename
+                                        bsl::remove_reference<U2>::type>::value
+                                && bsl::is_convertible<U2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
     : FirstBase(a)
@@ -847,8 +849,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          const U2& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value
-                              && !(bsl::is_pointer<U2>::value
-                                   && bsl::is_convertible<U2,
+                              && !(bsl::is_pointer<typename
+                                        bsl::remove_reference<U2>::type>::value
+                                && bsl::is_convertible<U2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
     : FirstBase(a)
@@ -867,8 +870,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          U2&       b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value
-                              && !(bsl::is_pointer<U2>::value
-                                   && bsl::is_convertible<U2,
+                              && !(bsl::is_pointer<typename
+                                        bsl::remove_reference<U2>::type>::value
+                                && bsl::is_convertible<U2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
     : FirstBase(a)
@@ -887,8 +891,9 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
          U2& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value
-                              && !(bsl::is_pointer<U2>::value
-                                   && bsl::is_convertible<U2,
+                              && !(bsl::is_pointer<typename
+                                        bsl::remove_reference<U2>::type>::value
+                                && bsl::is_convertible<U2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
     : FirstBase(a)
