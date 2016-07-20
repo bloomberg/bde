@@ -67,9 +67,9 @@ BSLS_IDENT("$Id: $")
 // non-end-of-month convention does not perform this adjustment.
 //
 // For example, if we add 3 months to February 28, 2013 using the
-// non-end-of-month convention, then the resulting date will be May 28,
-// 2013.  If we do the same operation except using the end-of-month convention,
-// then the resulting date will be May 31, 2013.
+// non-end-of-month convention, then the resulting date will be May 28, 2013.
+// If we do the same operation except using the end-of-month convention, then
+// the resulting date will be May 31, 2013.
 //
 // More formal definitions of the two conventions are provided below:
 //
@@ -103,10 +103,10 @@ BSLS_IDENT("$Id: $")
 //  int rc = bdlt::DateUtil::convertFromYYYYMMDD(&date, startingDateYYYYMMDD);
 //  assert(0 == rc);
 //..
-// Now, we use the 'addMonthsEom' function to generate the schedule.  Note
-// that 'addMonthsEom' adjusts the resulting date to be the last day of the
-// month if the original date is the last day of the month, while
-// 'addMonthsNoEom' does not make this adjustment.
+// Now, we use the 'addMonthsEom' function to generate the schedule.  Note that
+// 'addMonthsEom' adjusts the resulting date to be the last day of the month if
+// the original date is the last day of the month, while 'addMonthsNoEom' does
+// not make this adjustment.
 //..
 //  bsl::vector<bdlt::Date> schedule;
 //  schedule.push_back(date);
@@ -164,9 +164,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                         // ===============
-                         // struct DateUtil
-                         // ===============
+                             // ===============
+                             // struct DateUtil
+                             // ===============
 
 struct DateUtil {
     // This 'struct' provides a namespace for utility functions that provide
@@ -267,6 +267,13 @@ struct DateUtil {
         // Return the integer value in the "YYYYMMDD" format that represents
         // the specified 'date'.
 
+    static Date earliestDayOfWeekInMonth(int             year,
+                                         int             month,
+                                         DayOfWeek::Enum dayOfWeek);
+        // Return the earliest date in the specified 'month' of the specified
+        // 'year' that falls on the specified 'dayOfWeek'.  The behavior is
+        // undefined unless '1 <= year <= 9999' and '1 <= month <= 12'.
+
     static bool isValidYYYYMMDD(int yyyymmddValue);
         // Return 'true' if the specified 'yyyymmddValue' represents a valid
         // 'Date' value in the "YYYYMMDD" format, and 'false' otherwise.
@@ -295,11 +302,16 @@ struct DateUtil {
                                     int             n);
         // Return the date in the specified 'month' of the specified 'year'
         // corresponding to the specified 'n'th occurrence of the specified
-        // 'dayOfWeek'.  If 'n == 5', and a result can not be found in 'month',
-        // then return the date of the first 'dayOfWeek' in the following
-        // month.  The behavior is undefined unless '1 <= year <= 9999',
-        // '1 <= month <= 12', '1 <= n <= 5', and the resulting date is no
-        // later than 9999/12/31.
+        // 'dayOfWeek'.  If 'n < 0', return the date corresponding to the
+        // '-n'th occurence of the 'dayOfWeek' counting from the end of the
+        // 'month' towards the first of the 'month'.  If 'n == 5', and a result
+        // can not be found in 'month', then return the date of the first
+        // 'dayOfWeek' in the following month.  If 'n == -5', and a result can
+        // not be found in 'month', then return the date of the last
+        // 'dayOfWeek' in the previous month.  The behavior is undefined unless
+        // '1 <= year <= 9999', '1 <= month <= 12', 'n != 0', and
+        // '-5 <= n <= 5', the resulting date is no earlier than 0001/01/01,
+        // and the resulting date is no later than 9999/12/31.
         //
         // For example:
         //..
@@ -320,12 +332,12 @@ struct DateUtil {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // ---------------
-                              // struct DateUtil
-                              // ---------------
+                             // ---------------
+                             // struct DateUtil
+                             // ---------------
 
 // CLASS METHODS
 inline
@@ -421,7 +433,7 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
