@@ -1017,7 +1017,15 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
-                                 void *>::type = 0);
+                                 void *>::type = 0)
+    : FirstBase(MovUtil::move(MovUtil::access(other).first))
+    , SecondBase(MovUtil::move(MovUtil::access(other).second))
+    {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
+    }
     template <class U1, class U2>
     pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
          AllocatorPtr basicAllocator);
@@ -1871,16 +1879,6 @@ pair<T1, T2>::pair(pair<U1, U2>&& other, AllocatorPtr basicAllocator)
 {
 }
 #else
-template <class T1, class T2>
-template <class U1, class U2>
-pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
-                   typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
-                                        && bsl::is_convertible<U2, T2>::value,
-                                           void *>::type)
-: FirstBase(MovUtil::move(MovUtil::access(other).first))
-, SecondBase(MovUtil::move(MovUtil::access(other).second))
-{
-}
 template <class T1, class T2>
 template <class U1, class U2>
 pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
