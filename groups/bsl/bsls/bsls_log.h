@@ -288,7 +288,7 @@ void Log::logMessage(const char *file, int line, const char *message)
 inline
 Log::LogMessageHandler Log::logMessageHandler()
 {
-    return reinterpret_cast<LogMessageHandler>(
+    return PointerCastUtil::cast<LogMessageHandler>(
         bsls::AtomicOperations::getPtrAcquire(&s_logMessageHandler));
 }
 
