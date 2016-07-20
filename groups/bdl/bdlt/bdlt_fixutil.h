@@ -189,17 +189,18 @@ BSLS_IDENT("$Id: $")
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (in divergence with the referenced
-// FIX protocol document which indicates the fractional second may be
-// unspecified or have three or more digits).  Although FIX has provision for
-// picosecond (or finer) time resolution, be aware that 'bdlt' is limited to
-// either microsecond resolution ('Datetime' and 'DatetimeTz') or millisecond
-// resolution ('Time' and 'TimeTz').  For 'Time' and 'TimeTz', if more than
-// three digits are included in the fractional second, values are rounded to a
-// full millisecond; i.e., values greater than or equal to .5 milliseconds are
-// rounded up.  For 'Datetime' and 'DatetimeTz', if more than six digits are
-// included in the fractional second, values are rounded to a full microsecond;
-// i.e., values greater than or equal to .5 microseconds are rounded up.  These
-// roundings may incur a carry of one second into the 'second' attribute:
+// FIX protocol document, which indicates the fractional second may be
+// unspecified or have a positive multiple of three digits).  Although FIX has
+// provision for picosecond (or finer) time resolution, be aware that 'bdlt' is
+// limited to either microsecond resolution ('Datetime' and 'DatetimeTz') or
+// millisecond resolution ('Time' and 'TimeTz').  For 'Time' and 'TimeTz', if
+// more than three digits are included in the fractional second, values are
+// rounded to a full millisecond; i.e., values greater than or equal to .5
+// milliseconds are rounded up.  For 'Datetime' and 'DatetimeTz', if more than
+// six digits are included in the fractional second, values are rounded to a
+// full microsecond; i.e., values greater than or equal to .5 microseconds are
+// rounded up.  These roundings may incur a carry of one second into the
+// 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |          Parsed FIX String           |      Result Object Value        |
@@ -733,7 +734,7 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  YYYYMMDD-hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -768,7 +769,7 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -787,7 +788,7 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  YYYYMMDD-hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -820,7 +821,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -841,7 +842,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  YYYYMMDD-hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -876,7 +877,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -896,7 +897,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
+        //  YYYYMMDD-hh:mm{:ss{.s+}}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
