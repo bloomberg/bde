@@ -90,7 +90,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_STRING_H
 #include <string.h>
+#endif
 
 namespace BloombergLP {
 namespace bsls {
@@ -272,9 +274,7 @@ Stopwatch::Stopwatch()
 , d_collectCpuTimesFlag(false)
 {
     TimeUtil::initialize();
-    union { TimeUtil::OpaqueNativeTime t; char c[sizeof(d_startWallTime)]; };
-    memset(c, 0, sizeof(c));
-    d_startWallTime = t;
+    memset(&d_startWallTime, 0, sizeof(d_startWallTime));
 }
 
 // MANIPULATORS
