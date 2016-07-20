@@ -572,14 +572,7 @@ extern "C" void *testTimersThread(void *arg) {
     bsls::TimeInterval timeValues[NUM_TIMERS];
     bsls::TimeInterval now = bdlt::CurrentTime::now();
 
-    // TBD: This assertion currently fails because of a bug where storing
-    // bsl::function objects in containers results in the use of the default
-    // allocator instead of the allocator provided to the container.  That bug
-    // fix is expected to land at some point when this assert can be
-    // re-enabled.  Till then we will provide a compiler warning at the
-    // beginning of main.
-
-//     ASSERT(0 == defaultAllocator.numBytesInUse());
+    ASSERT(0 == defaultAllocator.numBytesInUse());
 
     bslma::TestAllocator scratchAllocator("scratch", veryVeryVeryVerbose);
     for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -605,14 +598,7 @@ extern "C" void *testTimersThread(void *arg) {
 
     globalBarrier->wait();
 
-    // TBD: This assertion currently fails because of a bug where storing
-    // bsl::function objects in containers results in the use of the default
-    // allocator instead of the allocator provided to the container.  That bug
-    // fix is expected to land at some point when this assert can be
-    // re-enabled.  Till then we will provide a compiler warning at the
-    // beginning of main.
-
-//     ASSERT(0 == defaultAllocator.numBytesInUse());
+    ASSERT(0 == defaultAllocator.numBytesInUse());
 
     if (X.isEnabled()) {
         bsls::TimeInterval delta(0.5);  // 500ms
@@ -790,13 +776,6 @@ void writeData(WriteDataType *writeDataArgs)
 
 int main(int argc, char *argv[])
 {
-    // TBD: Some asserts in this test driver have been disabled because they
-    // currently fail due to a bug where storing bsl::function objects in
-    // containers results in the use of the default allocator instead of the
-    // allocator provided to the container.  That bug fix is expected to land
-    // at some point when these asserts can be re-enabled.  Till then we will
-    // provide a compiler warning at the beginning of main.
-
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
 # warning "default allocator assert is disabled"
 #else
@@ -1857,15 +1836,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 0 == mX.enable());
                     LOOP_ASSERT(i, 1 == X.isEnabled());
 
-                    // TBD: This assertion currently fails because of a bug
-                    // where storing bsl::function objects in containers
-                    // results in the use of the default allocator instead of
-                    // the allocator provided to the container.  That bug fix
-                    // is expected to land at some point when this assert can
-                    // be re-enabled.  Till then we will provide a compiler
-                    // warning.
-
-//                     LOOP_ASSERT(i, 0 == da.numBytesInUse());
+                    LOOP_ASSERT(i, 0 == da.numBytesInUse());
                 }
                 bslmt::ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdlt::CurrentTime::now() + delta);
@@ -1983,15 +1954,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 0 == rc);
             }
 
-            // TBD: This assertion currently fails because of a bug where
-            // storing bsl::function objects in containers results in the use
-            // of the default allocator instead of the allocator provided to
-            // the container.  That bug fix is expected to land at some point
-            // when this assert can be re-enabled.  Till then we will provide a
-            // compiler warning at the beginning of main.
-
-//             LOOP_ASSERT(defaultAllocator.numBytesInUse(),
-//                         0 == defaultAllocator.numBytesInUse());
+            LOOP_ASSERT(defaultAllocator.numBytesInUse(),
+                        0 == defaultAllocator.numBytesInUse());
 
             if (veryVerbose) {
                 P(X.numTimers());
