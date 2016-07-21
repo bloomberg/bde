@@ -79,7 +79,7 @@ namespace bsls {
 
 struct LogSeverity {
     // This 'struct' provides a namespace for enumerating the set of logging
-    // severity levels used in the 'bsls' logging framework (see {'bsls_log'}).
+    // severity levels used in the 'bsls' logging framework (see 'bsls_log').
     // See 'Enum' in the TYPES sub-section for details.
 
   public:
