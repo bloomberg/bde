@@ -284,7 +284,7 @@ class Log {
                                     ...);
         // If the specified 'severity' is at least as severe as
         // 'severityThrehold', invoke the currently installed log message
-        // handler with 'severity' and the specified 'file', and 'line', as
+        // handler with 'severity' and the specified 'file' and 'line', as
         // well as a message string created by calling 'sprintf' on the
         // specified 'format' with the specified variadic arguments; otherwise
         // (if 'severity' is less severe), this operation has no effect.  The
@@ -295,7 +295,7 @@ class Log {
                            const char              *file,
                            int                      line,
                            const char              *message);
-        // If the specified 'severity' is as-or-more severe than
+        // If the specified 'severity' is at least as severe as
         // 'severityThreshold', invoke the currently installed log message
         // handler with 'severity', as well as the specified 'file', 'line',
         // and 'message'; otherwise (if 'severity' is less severe), this
