@@ -199,7 +199,7 @@ void Assert::failThrow(const char *text, const char *file, int line)
     }
     else {
         bsls::Log::logMessage(bsls::LogSeverity::e_ERROR, file, line,
-                "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
+                "BSLS_ASSERT: An uncaught exception is pending;"
                 " cannot throw 'AssertTestException'.");
     }
 #endif

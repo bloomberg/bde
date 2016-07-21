@@ -159,7 +159,8 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
 
 inline static 
 ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
-    // Return the bsls log severity equivalent to the specified 'severity'.
+    // Return the 'ball' log severity equivalent to the specified 'bsls' log
+    // 'severity'.
 {
     switch (severity) {
         case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
@@ -184,8 +185,8 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                     const char              *message)
     // Write a 'ball' record having the specified 'severity', 'fileName',
     // 'lineNumber', and 'message'.  Note that this function signature matches
-    // 'bsls_Log::LogMessageHandler' and is intended to be installed a
-    // 'bsls_Log' message handler.
+    // 'bsls::Log::LogMessageHandler' and is intended to be installed as a
+    // 'bsls::Log' message handler.
 {
     static ball::Category *category               = 0;
     static const char    *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";

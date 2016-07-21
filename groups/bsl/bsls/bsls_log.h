@@ -104,19 +104,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Log Severity and the Severity Threshold
 /// - - - - - - - - - - - - - - - - - - -
-// Clients submitting a message to 'bsls_log' (either through a function or
-// one of the macros) must also provide a severity level describing
-// the relative importance of that message to clients.  The possible severity
-// levels are FATAL, ERROR, WARNING, INFO,  DEBUG, and TRACE (these are
-// enumerated in 'bsls_logseverity'). 
+// Clients submitting a message to 'bsls::Log' (either through a function or
+// one of the macros) either implicity or explicitly provide a severity level
+// describing the relative importance of that message to clients.  The possible
+// severity levels are FATAL, ERROR, WARNING, INFO, DEBUG, and TRACE (these are
+// enumerated in 'bsls_logseverity').
 //
 // The severity of a logged message is used to determine whether the message
 // is published to the log using the currently installed 'LogMessageHandler'
-// callback.  Also, typically, a 'LogMessageHandler' callback implementation
+// callback.  Also, typically a 'LogMessageHandler' callback implementation
 // will report a message's severity along side that message in the log.
 //
-// Clients can configure the threshold, at-or-above which a log message will be
-// published using 'setSeverityThreshold'.  For example:
+// Clients can configure the severity threshold, at or above which a log
+// message will be published, using 'setSeverityThreshold'.  For example:
 //..
 //  // Messages having 'e_WARN' or higher severity will be output to the log.
 //
@@ -178,12 +178,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
-#ifndef INCLUDED_BSLS_POINTERCASTUTIL
-#include <bsls_pointercastutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_LOGSEVERITY
 #include <bsls_logseverity.h>
+#endif
+
+#ifndef INCLUDED_BSLS_POINTERCASTUTIL
+#include <bsls_pointercastutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -200,7 +200,7 @@ BSLS_IDENT("$Id: $")
                                              __FILE__,                        \
                                              __LINE__,                        \
                                              __VA_ARGS__))                    \
-    // If the specified 'severity' is as-or-more severe than
+    // If the specified 'severity' is at least as severe as
     // 'Log::severityThreshold', write a message having 'severity' to the
     // currently installed log message handler, which contains a formatted
     // string that would result from applying the 'printf'-style formatting
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_LOG_SIMPLE(severity, msg)                                        \
     (BloombergLP::bsls::Log::logMessage((severity), __FILE__, __LINE__, (msg)))
-    // If the specified 'severity' is as-or-more severe than
+    // If the specified 'severity' is at least as severe as
     // 'Log::severityThreshold', write a message having 'severity' and the
     // specified 'msg' to the currently installed log message handler, with the
     // file name and line number of the point of expansion of the macro
@@ -282,12 +282,12 @@ class Log {
                                     int                      line,
                                     const char              *format,
                                     ...);
-        // If the specified 'severity' is as-or-more severe than
+        // If the specified 'severity' is at least as severe as
         // 'severityThrehold', invoke the currently installed log message
-        // handler with 'severity', the specified 'file', and 'line', as well
-        // as a message string created by calling 'sprintf' on the specified
-        // 'format' with the specified variadic arguments; otherwise (if
-        // 'severity' is less severe), this operation has no effect.  The
+        // handler with 'severity' and the specified 'file', and 'line', as
+        // well as a message string created by calling 'sprintf' on the
+        // specified 'format' with the specified variadic arguments; otherwise
+        // (if 'severity' is less severe), this operation has no effect.  The
         // behavior is undefined unless '0 <= line', and 'format' is a valid
         // 'sprintf' format specification for the supplied variadic arguments.
 
@@ -318,7 +318,7 @@ class Log {
         // stream.  If the current process is running in *non-console* *mode*,
         // write the log record to the Windows process debugger.  The behavior
         // is undefined unless '0 <= line'.  Note that this function is used as
-        // the default log message handler.  Note also that this function will
+        // the default log message handler.  Also note that this function will
         // write the message irrespective of the current 'severityThreshold'.
 
     static void setLogMessageHandler(Log::LogMessageHandler handler);
@@ -349,12 +349,10 @@ class Log {
                                      const char              *message);
         // Write, to the 'stdout' output stream, a string composed of the
         // specified 'severity', 'file' name, 'line' number, and the 'message'.
-        // The behavior is undefined unless '0 <= line'.  Note also that this
-        // function will write the message irrespective of the current
-        // 'severityThreshold'.  Note that this function provides an
-        // implementation of the 'LogMessageHandler' function prototype, and
-        // will write the message irrespective of the current
-        // 'severityThreshold'.
+        // The behavior is undefined unless '0 <= line'.  Note that this
+        // function provides an implementation of the 'LogMessageHandler'
+        // function prototype, and will write the message irrespective of the
+        // current 'severityThreshold'.
 };
 
 // ============================================================================

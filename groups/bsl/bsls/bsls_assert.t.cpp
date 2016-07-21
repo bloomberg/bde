@@ -1920,7 +1920,7 @@ int main(int argc, char *argv[])
         cout << "\nEXCEPTION BUILD" << endl;
 
         cerr << "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
-                "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
+                "BSLS_ASSERT: An uncaught exception is pending;"
                 " cannot throw 'bsls_asserttestexception'." << endl;
         cerr <<
   "assertion failed: 'failThrow' handler called from ~BadBoy, file f.c, line 9"

@@ -368,7 +368,7 @@ void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // First, we will check if we have a valid handle to 'stderr'.
     const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
-    if (   stderrHandle == NULL
+    if (  stderrHandle == NULL
        || stderrHandle == INVALID_HANDLE_VALUE
        || GetConsoleWindow() == NULL) {
         // Even if the handle is neither null nor 'INVALID_HANDLE_VALUE', it
