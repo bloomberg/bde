@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
         //: 1 Use the value constructor to create two 'const' objects 'X' and
         //:   'Y', both having the same value.
         //:
-        //: 2 Use the copy constructor to create an object 'X' from 'Z'.  (C-2)
+        //: 2 Use the copy constructor to create an object 'Z' from 'X'.  (C-2)
         //:
         //: 3 Use the equality-comparison operator to verify that:
         //:
