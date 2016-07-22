@@ -58,7 +58,8 @@
 #include <initializer_list>
 #endif
 
-#include <limits.h>  // CHAR_MAX
+#include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
+#include <limits.h>  // 'INT_MIN', 'INT_MAX'
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -356,55 +357,77 @@ const DefaultDataRow DEFAULT_DATA[] = {
     //line idx  spec                 results
     //---- ---  ------------------   -------------------
     { L_,    0, "",                  ""                   },
+
     { L_,    1, "A",                 "A"                  },
     { L_,    1, "AA",                "A"                  },
+    { L_,    1, "Aa",                "A"                  },
     { L_,    1, "AAA",               "A"                  },
-    { L_,   15, "B",                 "B"                  },
+
     { L_,    2, "AB",                "AB"                 },
     { L_,    2, "BA",                "AB"                 },
-    { L_,   14, "AC",                "AC"                 },
-    { L_,   18, "CD",                "CD"                 },
+
     { L_,    3, "ABC",               "ABC"                },
     { L_,    3, "ACB",               "ABC"                },
     { L_,    3, "BAC",               "ABC"                },
     { L_,    3, "BCA",               "ABC"                },
     { L_,    3, "CAB",               "ABC"                },
     { L_,    3, "CBA",               "ABC"                },
-    { L_,   12, "BAD",               "ABD"                },
     { L_,    3, "ABCA",              "ABC"                },
     { L_,    3, "ABCB",              "ABC"                },
     { L_,    3, "ABCC",              "ABC"                },
     { L_,    3, "ABAC",              "ABC"                },
     { L_,    3, "ABCABC",            "ABC"                },
     { L_,    3, "AABBCC",            "ABC"                },
+
     { L_,    4, "ABCD",              "ABCD"               },
     { L_,    4, "ACBD",              "ABCD"               },
     { L_,    4, "BDCA",              "ABCD"               },
     { L_,    4, "DCBA",              "ABCD"               },
-    { L_,   13, "BEAD",              "ABDE"               },
-    { L_,   16, "BCDE",              "BCDE"               },
+
     { L_,    5, "ABCDE",             "ABCDE"              },
     { L_,    5, "ACBDE",             "ABCDE"              },
     { L_,    5, "CEBDA",             "ABCDE"              },
     { L_,    5, "EDCBA",             "ABCDE"              },
-    { L_,   17, "FEDCB",             "BCDEF"              },
+
     { L_,    6, "FEDCBA",            "ABCDEF"             },
+
     { L_,    7, "ABCDEFG",           "ABCDEFG"            },
+
     { L_,    8, "ABCDEFGH",          "ABCDEFGH"           },
+
     { L_,    9, "ABCDEFGHI",         "ABCDEFGHI"          },
+
     { L_,   10, "ABCDEFGHIJKLMNOP",  "ABCDEFGHIJKLMNOP"   },
     { L_,   10, "PONMLKJIGHFEDCBA",  "ABCDEFGHIJKLMNOP"   },
+
     { L_,   11, "ABCDEFGHIJKLMNOPQ", "ABCDEFGHIJKLMNOPQ"  },
-    { L_,   11, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ"  }
+    { L_,   11, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ"  },
+
+    { L_,   12, "BAD",               "ABD"                },
+
+    { L_,   13, "BEAD",              "ABDE"               },
+
+    { L_,   14, "AC",                "AC"                 },
+    { L_,   14, "ACc",               "AC"                 },
+
+    { L_,   15, "Ac",                "Ac"                 },
+    { L_,   15, "AcC",               "Ac"                 },
+
+    { L_,   16, "a",                 "a"                  },
+    { L_,   16, "aA",                "a"                  },
+
+    { L_,   17, "ac",                "ac"                 },
+    { L_,   17, "ca",                "ac"                 },
+
+    { L_,   18, "B",                 "B"                  },
+
+    { L_,   19, "BCDE",              "BCDE"               },
+
+    { L_,   20, "FEDCB",             "BCDEF"              },
+
+    { L_,   21, "CD",                "CD"                 }
 };
 static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
-
-// TBD There is a fundamental flaw when testing operations involving two maps,
-// such as operator== and operator<, that the 'DEFAULT_DATA' table does not
-// produce maps that have the same keys, but different values.  It is possible
-// that we are not comparing 'value' (as opposed to 'key') in the tests and we
-// would never know.  This is a pretty serious omission.  In fact, it extends
-// to 'ggg', 'primaryManipulator', 'createInplace', etc.
 
 typedef bsltf::NonDefaultConstructibleTestType TestKeyType;
 typedef bsltf::NonTypicalOverloadsTestType     TestValueType;
@@ -900,22 +923,22 @@ class DummyAllocator {
 
 template <class KEY, class VALUE, class ALLOC>
 struct IntToPairConverter {
-    // Convert an 'int' value to a 'bsl::pair' of the template parameter 'KEY'
-    // and 'VALUE' types.
+    // Convert an 'int' identifier to a 'bsl::pair' of the template parameter
+    // 'KEY' and 'VALUE' types.
 
     // CLASS METHODS
     static void
-    createInplace(pair<KEY, VALUE> *address, int value, ALLOC allocator)
+    createInplace(pair<KEY, VALUE> *address, int id, ALLOC allocator)
         // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
-        // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
-        // and using the specified 'allocator' to supply memory.  The behavior
-        // is undefined unless '0 < value < 128'.
+        // passing values derived from the specified 'id' to the 'KEY' and
+        // 'VALUE' constructors and using the specified 'allocator' to supply
+        // memory.  The behavior is undefined unless '0 < id < 128'.
     {
         BSLS_ASSERT(address);
-        BSLS_ASSERT(    0 < value);
-        BSLS_ASSERT(value < 128);
+        BSLS_ASSERT( 0 < id);
+        BSLS_ASSERT(id < 128);
 
-        // If creating the 'key' and 'value' temporary objects requires an
+        // If creating the 'KEY' and 'VALUE' temporary objects requires an
         // allocator, it should not be the default allocator as that will
         // confuse the arithmetic of our test machinery.  Therefore, we will
         // use the 'bslma::MallocFreeAllocator', as being the simplest, least
@@ -925,14 +948,28 @@ struct IntToPairConverter {
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
 
+        // Support generation of pairs '(K, V1)', '(K, V2)' where 'V1 != V2'.
+        // E.g., 'A' and 'a' map to the same 'KEY' but distinct 'VALUE's.
+
+        int key, value;
+
+        if ('a' <= id && id <= 'z') {
+            key   = toupper(id);
+            value = key + 1;
+        }
+        else {
+            key   = id;
+            value = key - 'A' + '0';
+        }
+
         bsls::ObjectBuffer<typename bsl::remove_const<KEY>::type> tempKey;
         bsltf::TemplateTestFacility::emplace(tempKey.address(),
-                                             value,
+                                             key,
                                              privateAllocator);
 
         bsls::ObjectBuffer<VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(tempValue.address(),
-                                             value - 'A' + '0',
+                                             value,
                                              privateAllocator);
 
         bsl::allocator_traits<ALLOC>::construct(
@@ -1154,10 +1191,10 @@ class TestDriver {
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
-    // The generating functions interpret the given 'spec' in order from left
-    // to right to configure the object according to a custom language.
-    // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
-    // values to be appended to the 'map<KEY, VALUE, COMP, ALLOC>' object.
+    // The generating functions interpret a given 'spec' in order from left to
+    // right to configure a given object according to a custom language.  ASCII
+    // letters [A..Za..z] correspond to arbitrary (but unique) 'pair' values to
+    // be appended to the 'map<KEY, VALUE, COMP, ALLOC>' object.
     //
     // LANGUAGE SPECIFICATION
     // ----------------------
@@ -1168,14 +1205,14 @@ class TestDriver {
     //
     // <LIST>       ::= <ELEMENT> | <ELEMENT> <LIST>
     //
-    // <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'Z'
+    // <ELEMENT>    ::= 'A' | 'B' | ... | 'Z' | 'a' | 'b' | ... | 'z'
     //                                      // unique but otherwise arbitrary
     // Spec String  Description
     // -----------  -----------------------------------------------------------
     // ""           Has no effect; leaves the object in its original state.
     // "A"          Insert the value corresponding to A.
-    // "AA"         Insert two values both corresponding to A.
-    // "ABC"        Insert three values corresponding to A, B and C.
+    // "AA"         Insert two values, both corresponding to A.
+    // "ABC"        Insert three values corresponding to A, B, and C.
     //-------------------------------------------------------------------------
 
     static int ggg(Obj *object, const char *spec, bool verbose = true);
@@ -1213,7 +1250,7 @@ class TestDriver {
     static pair<Iter, bool> primaryManipulator(Obj              *container,
                                                int               identifier,
                                                bslma::Allocator *allocator);
-        // Insert into the specified 'container' the value object indicated by
+        // Insert into the specified 'container' the 'pair' object indicated by
         // the specified 'identifier', ensuring that the overload of the
         // primary manipulator taking a modifiable rvalue is invoked (rather
         // than the one taking an lvalue).  Return the result of invoking the
@@ -1455,14 +1492,12 @@ int TestDriver<KEY, VALUE, COMP, ALLOC>::ggg(Obj        *object,
                                              const char *spec,
                                              bool        verbose)
 {
-    const TestValues VALUES;
-
     enum { SUCCESS = -1 };
 
     bslma::TestAllocator scratch;
 
     for (int i = 0; spec[i]; ++i) {
-        if ('A' <= spec[i] && spec[i] <= 'Z') {
+        if (isalpha(spec[i])) {
             primaryManipulator(object, spec[i], &scratch);
         }
         else {
@@ -4342,10 +4377,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase30()
                             TValueType *valptr = buffer.address();
 
                             IntToPairConverter<KEY, VALUE, ALLOC>::
-                                createInplace(valptr,
-                                              TstFacility::getIdentifier(
-                                                             VALUES[tj].first),
-                                              &sa);
+                                createInplace(
+                                  valptr,
+                                  TstFacility::getIdentifier(VALUES[tj].first),
+                                  &sa);
 
                             bslma::DestructorGuard<TValueType> valueGuard(
                                                                        valptr);
@@ -6312,7 +6347,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
             for (size_t tj = 0; tj < CONT.size(); ++tj) {
                 pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
 
-                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+                if (RESULT.second) {
+                    ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+                }
             }
             ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
@@ -7041,18 +7078,19 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
     {
         bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
 
-        if (veryVerbose) printf("'erase\n");
+        if (veryVerbose) printf("'erase'\n");
         {
-            const TestValues VALUES;
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mX;  const Obj& X = mX;
 
-            (void)X;
+            pair<Iter, bool> RESULT = primaryManipulator(&mX, 'A', &scratch);
+            ASSERTV(RESULT.second);
 
-            Iter it = mX.insert(mX.end(), VALUES[0]);
+            (void)X;  // 'X' is not used in some build modes
 
             ASSERT_SAFE_FAIL(mX.erase(X.end()));
-            ASSERT_SAFE_PASS(mX.erase(it));
+            ASSERT_SAFE_PASS(mX.erase(RESULT.first));
         }
     }
 }
@@ -7866,9 +7904,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase13()
     //   pair<const_iter, const_iter> equal_range(const key_type&) const;
     // ------------------------------------------------------------------------
 
-    const TestValues VALUES;  // contains 52 distinct increasing values
+    const TestValues VALUES;    // contains 52 distinct increasing values
 
-    const int MAX_LENGTH = 17;
+    const int MAX_LENGTH = 13;  // effectively use only 25 elements in 'VALUES'
 
     if (verbose) printf("\nTesting various search methods.\n");
     {
@@ -9580,8 +9618,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
 // TBD lacks interesting test data, such as:
 //  o equivalent keys (per 'COMP') that do not compare equal (per '==')
 //  o equal values with unequal keys
-//  o equal keys with unequal values
-// (as noted elsewhere, the primary manipulator and 'ggg' are deficient)
 
     if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
                         "\n=============================\n");
@@ -9886,11 +9922,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
             { L_,   "",       ""      },
             { L_,   "A",      "A"     },
             { L_,   "B",      "B"     },
+            { L_,   "Z",      "Z"     },
+            { L_,   "a",      "a"     },
+            { L_,   "z",      "z"     },
             { L_,   "AB",     "AB"    },
             { L_,   "CD",     "CD"    },
             { L_,   "ABC",    "ABC"   },
             { L_,   "ABCD",   "ABCD"  },
-            { L_,   "ABCDE",  "ABCDE" },
+            { L_,   "AbCdE",  "AbCdE" },
 
         };
         const int NUM_DATA =
@@ -9943,13 +9982,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
             { L_,   "A",      -1,     }, // control
             { L_,   " ",       0,     },
             { L_,   ".",       0,     },
-            { L_,   "E",       -1,    }, // control
-            { L_,   "a",       0,     },
-            { L_,   "z",       0,     },
 
             { L_,   "AE",     -1,     }, // control
-            { L_,   "aE",      0,     },
-            { L_,   "Ae",      1,     },
             { L_,   ".~",      0,     },
             { L_,   "~!",      0,     },
             { L_,   "  ",      0,     },
@@ -9962,10 +9996,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
             { L_,   "   ",     0,     },
 
             { L_,   "ABCDE",  -1,     }, // control
-            { L_,   "aBCDE",   0,     },
-            { L_,   "ABcDE",   2,     },
-            { L_,   "ABCDe",   4,     },
-            { L_,   "AbCdE",   1,     }
+            { L_,   "2BCDE",   0,     },
+            { L_,   "AB@DE",   2,     },
+            { L_,   "ABCD$",   4,     },
+            { L_,   "A*C=E",   1,     }
         };
         const int NUM_DATA =
                             static_cast<const int>(sizeof DATA / sizeof *DATA);
@@ -10204,33 +10238,24 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
                     P(X);
                 }
 
-                // Verify behavior when element already exists in the object.
+                // Verify behavior when the key already exists in the object.
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int id = TstFacility::getIdentifier(VALUES[tj].first);
+                    ASSERTV(isupper(id));
 
-                    pair<Iter, bool> RESULT =
-                                         primaryManipulator(&mX, id, &scratch);
+                    // Attempt to insert the same key paired with a different
+                    // mapped value than was initially inserted into the map.
+
+                    pair<Iter, bool> RESULT = primaryManipulator(&mX,
+                                                                 tolower(id),
+                                                                 &scratch);
 
                     ASSERTV(LENGTH, tj, CONFIG, false      == RESULT.second);
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == *(RESULT.first));
                 }
                 ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
             }
-
-// TBD Significant concern not tested here, and demonstrates problem with the
-// primary manipulator.  We are trying to insert the same /values/ again, but
-// we should be trying to insert the same /keys/ with different values, to
-// ensure that the value is not accidentally overwriting the same data before
-// returning false.  This needs to be tested as a primary manipulator, not
-// simply deferred to full testing of 'insert', as we will need to create such
-// container values to test 'operator==', etc.
-//
-// We could add a second overload for the primary manipulator that takes two
-// IDs.  Alternatively, we could make the primary manipulator case-sensitive,
-// to it always generates the uppercase key, but the specified value - as I
-// think having only one alternative value should be sufficient for testing
-// concerns.  (Also see the TBD regarding 'DEFAULT_DATA' above.)
 
             // ----------------------------------------------------------------
 
@@ -10241,7 +10266,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 
                 mX.clear();
 
-                ASSERTV(LENGTH, CONFIG, 0 == X.size());
+                ASSERTV(LENGTH, CONFIG,          0 == X.size());
                 ASSERTV(LENGTH, CONFIG, X.cbegin() == X.cend());
 
                 const bsls::Types::Int64 AA = oa.numBlocksTotal();
@@ -11320,7 +11345,7 @@ int main(int argc, char *argv[])
         TestDriver<TestKeyType, TestValueType>::testCase18();
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase13,
+                      testCase18,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
