@@ -1,5 +1,16 @@
-bsl-internal (3.0.0.0) unstable; urgency=low
+bsl-internal (3.0.0.1) unstable; urgency=low
 
+  * a01bca7 Merge pull request #570 from hversche/pr/568-rebased-releases/3.0.x
+  * 09c5f19 Merge pull request #557 from hversche/pr/539-rebased-releases/3.0.x
+  * 645b222 Merge pull request #554 from jmendelsohn4/correct_release_components
+  * 23c4782 corrected included components for 3.0 release
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 21 Jul 2016 10:05:34 -0400
+
+bsl-internal (3.0.0.0) git; urgency=low
+
+  * 3a50a27 Merge pull request #550 from mgiroux/review/bump-debian-changelog-version-to-3.0.0.0
+  * cee4625 Changelog for version 3.0.0.0
   * 4089a12 Merge pull request #424 from hrosen4/seven-digits-drqs-82889541
   * 4acb8d8 Merge pull request #540 from abeels/explicit-bsl-namespace-in-test-macros-drqs-85361728
   * 19b4238 Merge pull request #544 from mgiroux/review/remove-bdef_function-constructors-drqs-85444392
@@ -529,7 +540,7 @@ bsl-internal (3.0.0.0) unstable; urgency=low
   * 1cb924f Initial version of bdlb_bigendian component.
   * 5928dbb Fix bdlat/bdeat reversions.
 
- -- Henry Verschell <hverschell@bloomberg.net>  Wed, 13 Jul 2016 12:25:14 -0400
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 13 Jul 2016 13:38:54 -0400
 
 bsl-internal (2.24.0.3) git; urgency=low
 
