@@ -1,12 +1,13 @@
 bsl-internal (3.0.0.1) unstable; urgency=low
 
+  * 65ac0e9 Changelog for version 3.0.0.1
   * 7d60df6 Changelog for version 3.0.0.1
   * a01bca7 Merge pull request #570 from hversche/pr/568-rebased-releases/3.0.x
   * 09c5f19 Merge pull request #557 from hversche/pr/539-rebased-releases/3.0.x
   * 645b222 Merge pull request #554 from jmendelsohn4/correct_release_components
   * 23c4782 corrected included components for 3.0 release
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Jul 2016 10:55:29 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Jul 2016 10:58:26 -0400
 
 bsl-internal (3.0.0.0) git; urgency=low
 
