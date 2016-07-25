@@ -13,6 +13,8 @@
 
 #include <bslalg_constructorproxy.h>
 
+#include <bslh_hash.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
@@ -95,10 +97,11 @@ using namespace bsl;
 // [17] operator!=(const bdlb::NullableValue<TYPE>&,const TYPE&);
 // [17] operator!=(const TYPE&,const bdlb::NullableValue<TYPE>&,);
 // [ 4] operator<<(bsl::ostream&,const bdlb::NullableValue<TYPE>&);
+// [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [19] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1113,6 +1116,25 @@ void swap(Swappable& a, Swappable& b)
     bsl::swap(a.d_value, b.d_value);
 }
 
+// ASPECTS
+namespace BloombergLP {
+namespace bslh {
+
+template <class HASHALG, class RETURN, class CLASS>
+void hashAppend(HASHALG& hashAlg, RETURN (CLASS::*member)())
+{
+    hashAlg(&member, sizeof(member));
+}
+
+template <class HASHALG, class RETURN, class CLASS>
+void hashAppend(HASHALG& hashAlg, RETURN (CLASS::*member)() const)
+{
+    hashAlg(&member, sizeof(member));
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
 #define TEST_TYPES_NOT_ALLOCATOR_ENABLED                                      \
@@ -1175,7 +1197,94 @@ class TestDriver {
     static void testCase19_withAllocator();
         // Test 'makeValueInplace' methods using the contained 'TYPE' which
         // has the 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase20();
+        // Test 'hashAppend' on 'nullableValue' objects.
 };
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase20()
+{
+    // ------------------------------------------------------------------------
+    // TESTING: Hashing
+    //
+    // Concerns:
+    //: 1 Hashing a value with a null value does nothing.
+    //:
+    //: 2 Hashing a value with a nullable value having the same value produces
+    //:   the same hash value.
+    //
+    // Plan:
+    //: 1 Create a null nullable value and verify that hashing it does not
+    //:   change the result of the hashing function.
+    //:
+    //: 2 Create a non-null nullable value for a series of test values and
+    //:   verify that hashing it produces teh same result as hashing the test
+    //:   values themseleves.
+    //
+    // Testing:
+    //   void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = static_cast<int>(VALUES.size());
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tVerify hashing null nullable values does nothing\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        const size_t hashValue_1 = bslh::Hash<>()(X);
+        const size_t hashValue_2 = bslh::DefaultHashAlgorithm().computeHash();
+        LOOP2_ASSERT(hashValue_1, hashValue_2, hashValue_1 == hashValue_2);
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify hashing non-null nullable values compares equal "
+             << "to hashing a value of the contained type\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj& x = object.object(); const Obj& X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
+
+                ASSERT(0 == oa.numBlocksInUse());
+                ASSERT(0 == da.numBlocksInUse());
+
+                x = VALUES[i];
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                bool areSame = i == j;
+
+                const size_t hashValue_1 = bslh::Hash<>()(X);
+                const size_t hashValue_2 = bslh::Hash<>()(VALUES[j]);
+
+                LOOP3_ASSERT(areSame, hashValue_1, hashValue_2,
+                             areSame == (hashValue_2 == hashValue_1));
+
+                ASSERT(oam.isInUseSame());
+                ASSERT(0 == da.numBlocksInUse());
+
+                x.reset();
+            }
+        }
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+    }
+}
 
 template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase19_withoutAllocator()
@@ -1928,7 +2037,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1971,6 +2080,18 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING: Hashing
+        // --------------------------------------------------------------------
+
+          if (verbose) cout << "\nTesting: Hashing"
+                            << "\n================\n";
+
+          RUN_EACH_TYPE(TestDriver,
+                        testCase20,
+                        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
       case 19: {
         // --------------------------------------------------------------------
