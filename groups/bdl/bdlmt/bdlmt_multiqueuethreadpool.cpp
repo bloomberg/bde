@@ -151,8 +151,8 @@ void MultiQueueThreadPool_Queue::disable()
 inline
 bool MultiQueueThreadPool_Queue::isEnabled() const
 {
-    return (e_DELETING != d_state.loadRelaxed() &&
-                                 e_ENQUEUING_ENABLED == d_state.loadRelaxed());
+    int state = d_state.loadRelaxed();
+    return (e_DELETING != state && e_ENQUEUING_ENABLED == state);
 }
 
 inline
