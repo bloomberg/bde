@@ -1286,6 +1286,7 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&              stream,
     return object.print(stream, 0, -1);
 }
 
+// FREE FUNCTIONS
 template <class HASHALG, class TYPE>
 void bdlb::hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input)
 {
@@ -1294,7 +1295,6 @@ void bdlb::hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input)
     }
 }
 
-// FREE FUNCTIONS
 template <class TYPE>
 inline
 void bdlb::swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b)
