@@ -258,6 +258,94 @@ doPutCommon(ITER_TYPE       out,
     return out;
 }
 
+template <class CHAR_TYPE, class ITER_TYPE>
+ITER_TYPE
+doGetCommon(ITER_TYPE  begin, ITER_TYPE  end,
+            bsl::ctype<CHAR_TYPE> const& ctype,
+            char*      to, char* const toEnd,
+            CHAR_TYPE   separator,
+            bool      *hasDigit)
+{
+    char* buffer = to;
+    // optional sign
+    if (begin != end
+        && (ctype.narrow(*begin, ' ') == '-'
+            || ctype.narrow(*begin, ' ') == '+')) {
+        *to = ctype.narrow(*begin, ' ');
+        ++to;
+        ++begin;
+    }
+    // spaces between sign and value
+    begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(ctype));
+    // non-fractional part
+    for (; begin != end && to != toEnd
+             && (ctype.is(bsl::ctype_base::digit, *begin)
+             || *begin == separator);
+         ++begin, ++to) {
+        if (*begin != separator) {
+            //-dk:TODO TBD store separators for later check
+            *hasDigit = true;
+            *to = ctype.narrow(*begin, ' ');
+        }
+    }
+    // fractional part
+    if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
+        *to = '.';
+        ++begin;
+        ++to;
+        for (; begin != end && to != toEnd
+                 && ctype.is(bsl::ctype_base::digit, *begin);
+             ++begin, ++to) {
+            *hasDigit = true;
+            *to = ctype.narrow(*begin, ' ');
+        }
+    }
+    // exponent (but not a stand-alone exponent
+    if (*hasDigit && begin != end && to != toEnd
+        && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
+        *to = 'e';
+        ++begin;
+        ++to;
+        // optional exponent sign
+        if (begin != end
+            && (ctype.narrow(*begin, ' ') == '-'
+                || ctype.narrow(*begin, ' ') == '+')) {
+            *to = ctype.narrow(*begin, ' ');
+            ++to;
+            ++begin;
+        }
+        char* start(to);
+        for (; begin != end && to != toEnd
+                 && ctype.is(bsl::ctype_base::digit, *begin);
+             ++begin, ++to) {
+            *to = ctype.narrow(*begin, ' ');
+        }
+        if (start == to) { // exponent needs to have at least one digit
+            to = buffer;
+        }
+    }
+    // inf, -inf, +inf, -nan, +nan, or nan
+    int infNanPos = 0;
+    const char pats[] = "0infinity\0nan";
+    if (!*hasDigit && begin != end) {
+        char c = ctype.narrow(ctype.tolower(*begin), ' ');
+        infNanPos = (c == pats[1]) ? 1 : (c == pats[10]) ? 10 : 0;
+        if (infNanPos != 0) {
+            do {
+                *to++ = pats[infNanPos++];
+            } while (++begin != end &&
+                ctype.narrow(ctype.tolower(*begin), ' ') == pats[infNanPos]);
+        }
+        if ((pats[infNanPos] == '\0' || infNanPos == 4) &&
+                (begin == end || !ctype.is(bsl::ctype_base::alpha, *begin))) {
+            *hasDigit = true;
+        }
+    }
+    if (*hasDigit)
+        *to++ = '\0';
+    return begin;
+}
+
 }  // close unnamed namespace
 
 
@@ -371,67 +459,10 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    // optional sign
-    if (begin != end
-        && (ctype.narrow(*begin, ' ') == '-'
-            || ctype.narrow(*begin, ' ') == '+')) {
-        *to = ctype.narrow(*begin, ' ');
-        ++to;
-        ++begin;
-    }
-    // spaces between sign and value
-    begin = bsl::find_if(begin, end, NotIsSpace<CHARTYPE>(ctype));
-    // non-fractional part
-    for (; begin != end && to != toEnd
-          && (ctype.is(bsl::ctype_base::digit, *begin) || *begin == separator);
-         ++begin, ++to) {
-        if (*begin != separator) {
-            //-dk:TODO TBD store separators for later check
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // fractional part
-    if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
-        *to = '.';
-        ++begin;
-        ++to;
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // exponent (but not a stand-alone exponent
-    if (hasDigit && begin != end && to != toEnd
-        && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
-        *to = 'e';
-        ++begin;
-        ++to;
-        // optional exponent sign
-        if (begin != end
-            && (ctype.narrow(*begin, ' ') == '-'
-                || ctype.narrow(*begin, ' ') == '+')) {
-            *to = ctype.narrow(*begin, ' ');
-            ++to;
-            ++begin;
-        }
-        char* start(to);
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            *to = ctype.narrow(*begin, ' ');
-        }
-        if (start == to) { // exponent needs to have at least one digit
-            to = buffer;
-        }
-    }
+    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
-        *to = '\0';
         value = DecimalImpUtil::parse32(buffer);
-    }
-    else {
+    } else {
         err = bsl::ios_base::failbit;
     }
     return begin;
@@ -455,68 +486,10 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    // optional sign
-    if (begin != end
-        && (ctype.narrow(*begin, ' ') == '-'
-            || ctype.narrow(*begin, ' ') == '+')) {
-        *to = ctype.narrow(*begin, ' ');
-        ++to;
-        ++begin;
-    }
-    // spaces between sign and value
-    begin = bsl::find_if(begin, end, NotIsSpace<CHARTYPE>(ctype));
-    // non-fractional part
-    for (; begin != end && to != toEnd
-             && (ctype.is(bsl::ctype_base::digit, *begin)
-             || *begin == separator);
-         ++begin, ++to) {
-        if (*begin != separator) {
-            //-dk:TODO TBD store separators for later check
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // fractional part
-    if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
-        *to = '.';
-        ++begin;
-        ++to;
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // exponent (but not a stand-alone exponent
-    if (hasDigit && begin != end && to != toEnd
-        && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
-        *to = 'e';
-        ++begin;
-        ++to;
-        // optional exponent sign
-        if (begin != end
-            && (ctype.narrow(*begin, ' ') == '-'
-                || ctype.narrow(*begin, ' ') == '+')) {
-            *to = ctype.narrow(*begin, ' ');
-            ++to;
-            ++begin;
-        }
-        char* start(to);
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            *to = ctype.narrow(*begin, ' ');
-        }
-        if (start == to) { // exponent needs to have at least one digit
-            to = buffer;
-        }
-    }
+    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
-        *to = '\0';
         value = DecimalImpUtil::parse64(buffer);
-    }
-    else {
+    } else {
         err = bsl::ios_base::failbit;
     }
     return begin;
@@ -540,68 +513,10 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
                                                 str.getloc()).thousands_sep());
     bool        hasDigit(false);
 
-    // optional sign
-    if (begin != end
-        && (ctype.narrow(*begin, ' ') == '-'
-            || ctype.narrow(*begin, ' ') == '+')) {
-        *to = ctype.narrow(*begin, ' ');
-        ++to;
-        ++begin;
-    }
-    // spaces between sign and value
-    begin = bsl::find_if(begin, end, NotIsSpace<CHARTYPE>(ctype));
-    // non-fractional part
-    for (; begin != end && to != toEnd
-             && (ctype.is(bsl::ctype_base::digit, *begin)
-             || *begin == separator);
-         ++begin, ++to) {
-        if (*begin != separator) {
-            //-dk:TODO TBD store separators for later check
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // fractional part
-    if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
-        *to = '.';
-        ++begin;
-        ++to;
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            hasDigit = true;
-            *to = ctype.narrow(*begin, ' ');
-        }
-    }
-    // exponent (but not a stand-alone exponent)
-    if (hasDigit && begin != end && to != toEnd
-        && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
-        *to = 'e';
-        ++begin;
-        ++to;
-        // optional exponent sign
-        if (begin != end
-            && (ctype.narrow(*begin, ' ') == '-'
-                || ctype.narrow(*begin, ' ') == '+')) {
-            *to = ctype.narrow(*begin, ' ');
-            ++to;
-            ++begin;
-        }
-        char* start(to);
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
-            *to = ctype.narrow(*begin, ' ');
-        }
-        if (start == to) { // exponent needs to have at least one digit
-            to = buffer;
-        }
-    }
+    begin = doGetCommon(begin, end, ctype, to, toEnd, separator, &hasDigit);
     if (hasDigit) {
-        *to = '\0';
         value = DecimalImpUtil::parse128(buffer);
-    }
-    else {
+    } else {
         err = bsl::ios_base::failbit;
     }
     return begin;
