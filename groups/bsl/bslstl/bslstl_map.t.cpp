@@ -9218,6 +9218,9 @@ template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::
                      testCase7_select_on_container_copy_construction_dispatch()
 {
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value +
+                           bslma::UsesBslmaAllocator<VALUE>::value;
+
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test to 'false'.
 
@@ -9282,7 +9285,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
             ASSERTV(SPEC, PROPAGATE, PROPAGATE == (a == Y.get_allocator()));
 
             if (PROPAGATE) {
-                // ASSERTV(SPEC, dam.isInUseSame());  // TBD why not?
+                ASSERTV(SPEC, 0 != TYPE_ALLOC || dam.isInUseSame());
                 ASSERTV(SPEC, 0 == LENGTH || oam.isInUseUp());
             }
             else {
