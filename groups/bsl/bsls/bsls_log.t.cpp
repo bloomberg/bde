@@ -286,12 +286,7 @@ static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
 // The Windows implementation of 'platformDefaultMessageHandler' has to format
 // data to a stack-local buffer, and if it does not fit, it has to allocate a
 // new buffer.  We need to test data that has a length around the size of the
-// buffer.  The following buffer will be dynamically initialized by the test
-// using 'fillBuffer', and a large enough sub-string of it will be used to
-// ensure a formatted string of a specific size.
-static const size_t WINDOWS_LARGE_DATA_BUFFER_SIZE =
-                                           WINDOWS_DEBUG_STACK_BUFFER_SIZE + 5;
-static char WINDOWS_LARGE_DATA_BUFFER[WINDOWS_LARGE_DATA_BUFFER_SIZE];
+// buffer. 
 
 // What kind of final string lengths do we want to test for the Windows buffer?
 // This describes the length of the *final* string, i.e. ":3 <message>\n".
@@ -336,63 +331,63 @@ static void fillBuffer(char * const buffer, const size_t size)
 
 
 class LargeTestData {
-    // This class provides a mechanism for generating a test message that 
+    // This class provides a mechanism for generating a test message that
     // will result in output of an expected size when published from
     // from 'Log::stdoutMessageHandler', 'Log::stderrMessageHandler', or
     // 'Log::platformDefaultMessageHandler'.  Such large test data is important
     // for white-box testing the output-mechanisms in 'bsls_log' (which
     // sometimes uses stack buffers whose size is determined at compile time).
-  
+
   public:
     // PUBLIC CONSTANTS
-    static const char *k_LOG_FORMAT_STRING;  // Format string for which the
-                                             // 'LargeTeestData' is sized.
-                                             // Note that it is used by 
-                                             // 'stdoutMessageHandler'
-                                             // 'stderrMessageHandler' and                                         
-                                             // 'platformDefaultMessageHandler'
-  
+    static const char *k_LOG_FORMAT_STRING; // Format string for which the
+                                            // 'LargeTeestData' is sized.
+                                            // Note that it is used by
+                                            // 'stdoutMessageHandler'
+                                            // 'stderrMessageHandler' and
+                                            // 'platformDefaultMessageHandler'
+
   private:
     // DATA
     char       *d_expectedOutput;        // the expected logged output
                                          // for 'message'
-                                                
-    char       *d_message;               // the 'message' that, when 
+
+    char       *d_message;               // the 'message' that, when
                                          // logged, will generate
                                          // the expected output length
-    
+
   public:
-     explicit LargeTestData(size_t                   expectedOutputLength,
+     explicit LargeTestData(int                      expectedOutputLength,
                             bsls::LogSeverity::Enum  severity,
                             const char              *file,
                             int                      line);
         // Create a large test data object that will provide a test message
         // having expected output of the specified 'expectedOutputLength',
         // when used with the 'stdoutMessageHandler', 'stderrMessageHandler',
-        // and 'platformDefaultMessageHandler' and suppling the specified 
+        // and 'platformDefaultMessageHandler' and suppling the specified
         // 'severity', 'file', and 'line'.
-    
+
     ~LargeTestData();
         // Destroy this 'LargeTestData' object.
-        
+
     const char *message() const;
-        // Return a message which, when supplied to 'bsls::Log::logMessage'        
+        // Return a message which, when supplied to 'bsls::Log::logMessage'
         // will result in an log record having the expected length supplied
         // at construction.
-        
+
     const char *expectedOutput() const;
-        // Return the expected results of calling 'bsls::Log::LogMessage' and 
+        // Return the expected results of calling 'bsls::Log::LogMessage' and
         // passing 'message' with the 'severity', 'file', and 'line' supplied
         // at construction.
 };
 
 const char *LargeTestData::k_LOG_FORMAT_STRING = "%s %s:%d %s\n";
-    // This must be the same format string used by the 
-    // 'stdoutMessageHandler', 'stderrMessageHandler', and 
+    // This must be the same format string used by the
+    // 'stdoutMessageHandler', 'stderrMessageHandler', and
     // 'platformDefaultMessageHandler' to result in 'LargeTestData'
     // that generates appropriate size messages.
 
-LargeTestData::LargeTestData(size_t                   expectedOutputLength,
+LargeTestData::LargeTestData(int                      expectedOutputLength,
                              bsls::LogSeverity::Enum  severity,
                              const char              *file,
                              int                      line)
@@ -404,23 +399,23 @@ LargeTestData::LargeTestData(size_t                   expectedOutputLength,
         printf("Test driver error at %d. Allocation failed.", __LINE__);
         abort();
     }
-    
-    int rc = snprintf(d_message, 
-                      expectedOutputLength, 
-                      k_LOG_FORMAT_STRING, 
+
+    int rc = snprintf(d_message,
+                      expectedOutputLength,
+                      k_LOG_FORMAT_STRING,
                       bsls::LogSeverity::toAscii(severity),
                       file,
                       line,
                       "");
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-    if (rc == -1) {    
+    if (rc == -1) {
 #else
     if (rc >= expectedOutputLength) {
 #endif
         printf("Test driver error at %d.  rc = %d\n", __LINE__, rc);
         abort();
     }
-    
+
     fillBuffer(d_message, expectedOutputLength - rc + 1);
     rc = snprintf(d_expectedOutput,
                   expectedOutputLength+2,
@@ -430,7 +425,7 @@ LargeTestData::LargeTestData(size_t                   expectedOutputLength,
                   line,
                   d_message);
 
-     
+
     if (rc != expectedOutputLength) {
         printf("Test driver error at %d.  rc = %d\n", __LINE__, rc);
         abort();
@@ -448,7 +443,7 @@ const char *LargeTestData::message() const
 {
     return d_message;
 }
-        
+
 const char *LargeTestData::expectedOutput() const
 {
     return d_expectedOutput;
@@ -1920,11 +1915,11 @@ int main(int argc, char *argv[]) {
         //:   followed by a null byte.  This will be used to ensure a formatted
         //:   string of a specific length.
         //:
-        //: 4 Pass into 'logFormattedMessage' the sets of arguments resulting
+        //: 5 Pass into 'logFormattedMessage' the sets of arguments resulting
         //:   in expected formatted strings with the following formatted
         //:   lengths: 0, 1.  (C-4)
         //:
-        //: 5 Pass into 'logFormattedMessage' the sets of arguments resulting
+        //: 6 Pass into 'logFormattedMessage' the sets of arguments resulting
         //:   in expected formatted strings with the following formatted
         //:   lengths:
         //:              ===================================
@@ -1937,13 +1932,13 @@ int main(int argc, char *argv[]) {
         //:              ===================================
         //:   (C-5)
         //:
-        //: 6 Call 'BSLS_LOG' with a simple format string and confirm that the
+        //: 7 Call 'BSLS_LOG' with a simple format string and confirm that the
         //:   log message sink has received the correct results.  Ensure that
         //:   the line number is determined from the line of invocation.  Also
         //:   confirm that the file name is the current file name and the
         //:   expected formatted string has been received.  (C-6)
         //:
-        //: 7 Call 'BSLS_LOG' with no variadic arguments.  (C-7)
+        //: 8 Call 'BSLS_LOG' with no variadic arguments.  (C-7)
         //
         // Testing:
         //   static void logFormattedMessage(file, line, format, ...);
@@ -2056,7 +2051,7 @@ int main(int argc, char *argv[]) {
                 char buffer[10];
                 fillBuffer(buffer, 9);
                 buffer[EXPECTED_LENGTHS[i]] = 0;
-                
+
                 LogMessageSink::reset();
 
                 bsls::Log::logFormattedMessage(testSeverity,
@@ -2075,22 +2070,22 @@ int main(int argc, char *argv[]) {
 
                 ASSERTV(i, LogMessageSink::s_line,
                         testLine == LogMessageSink::s_line);
-                        
-                ASSERTV(i, 
-                        LogMessageSink::s_message, 
+
+                ASSERTV(i,
+                        LogMessageSink::s_message,
                         buffer,
-                        strcmp(buffer, 
-                               LogMessageSink::s_message) == 0);                
+                        strcmp(buffer,
+                               LogMessageSink::s_message) == 0);
             }
 
         }
-        
+
         {
             if (verbose) {
                 puts("\nCall 'logFormattedMessage' with various lengths.\n");
             }
 
-            const size_t EXPECTED_LENGTHS[] = {
+            const int EXPECTED_LENGTHS[] = {
                 LOG_FORMATTED_STACK_BUFFER_SIZE - 2,
                 LOG_FORMATTED_STACK_BUFFER_SIZE - 1,
                 LOG_FORMATTED_STACK_BUFFER_SIZE    ,
@@ -2102,7 +2097,7 @@ int main(int argc, char *argv[]) {
             const size_t NUM_EXPECTED_LENGTHS = sizeof(EXPECTED_LENGTHS)/
                                                 sizeof(EXPECTED_LENGTHS[0]);
 
-            
+
             const Severity::Enum testSeverity = Severity::e_ERROR;
             const char * const   testFile     = "myTestFile.cpp";
             const int            testLine     = 900123;
@@ -2112,21 +2107,31 @@ int main(int argc, char *argv[]) {
                                        testSeverity,
                                        testFile,
                                        testLine);
-                
+
                 if(veryVeryVerbose) {
                     P(testData.message());
                 }
 
                 LogMessageSink::reset();
 
-                bsls::Log::logFormattedMessage(testSeverity,
-                                               testFile,
-                                               testLine,
-                                               LargeTestData::k_LOG_FORMAT_STRING,
-                                               bsls::LogSeverity::toAscii(testSeverity),
-                                               testFile,
-                                               testLine,
-                                               testData.message());
+                // We use 'k_LOG_FORMAT_STRING' below to allow us to re-use
+                // 'LargeTestData' (which sizes its expected output according
+                // to the format string 'k_LOG_FORMAT_STRING').  However,
+                // where 'LargeTestData' is written to match the formatting
+                // performed by (for example) 'stdoutMessageHandler', we
+                // actually provide that format string explicitly to
+                // 'logFormatedMessage' (note that 'LogMessageSink' provides no
+                // formatting of its own).
+                
+                bsls::Log::logFormattedMessage(
+                    testSeverity,
+                    testFile,
+                    testLine,
+                    LargeTestData::k_LOG_FORMAT_STRING,
+                    bsls::LogSeverity::toAscii(testSeverity),
+                    testFile,
+                    testLine,
+                    testData.message());
 
                 ASSERT(LogMessageSink::s_hasBeenCalled);
 
@@ -2138,12 +2143,12 @@ int main(int argc, char *argv[]) {
 
                 ASSERTV(i, LogMessageSink::s_line,
                         testLine == LogMessageSink::s_line);
-                        
-                ASSERTV(i, 
-                        LogMessageSink::s_message, 
+
+                ASSERTV(i,
+                        LogMessageSink::s_message,
                         testData.expectedOutput(),
-                        strcmp(testData.expectedOutput(), 
-                               LogMessageSink::s_message) ==0);                
+                        strcmp(testData.expectedOutput(),
+                               LogMessageSink::s_message) ==0);
             }
 
         }
@@ -2253,7 +2258,7 @@ int main(int argc, char *argv[]) {
         //:   parameters. (C-1)
         //:
         //: 4 Perform a table based test to confirm that 'logMessage' writes
-        //:   a message only if it meets or exceeds the current threshold. 
+        //:   a message only if it meets or exceeds the current threshold.
         //:   (C-4)
         //:
         //: 5 Reset the sink.  Call 'BSLS_LOG_SIMPLE' with a simple message
@@ -2699,15 +2704,10 @@ int main(int argc, char *argv[]) {
 
             if(verbose) puts("\nFinished with default data.\n");
             if(verbose) puts("\nTesting long data.\n");
-            if(verbose) puts("\nFilling buffer.\n");
-            fillBuffer(WINDOWS_LARGE_DATA_BUFFER,
-                       WINDOWS_LARGE_DATA_BUFFER_SIZE);
-            if(veryVeryVerbose)
-                printf("\nFilled buffer: %s\n", WINDOWS_LARGE_DATA_BUFFER);
 
             for(size_t i = 0; i < NUM_WINDOWS_LARGE_DATA_LENGTHS; i++) {
                 const size_t expectedLength = WINDOWS_LARGE_DATA_LENGTHS[i];
- 
+
                 LargeTestData testData(expectedLength,
                                        bsls::LogSeverity::e_ERROR,
                                        "",
@@ -2732,7 +2732,7 @@ int main(int argc, char *argv[]) {
 
                 if(veryVeryVerbose)
                     printf("\tReceived message: %s\n", sink.message());
-                    
+
                 ASSERTV(i, sink.message(), testData.expectedOutput(),
                         0 == strcmp(testData.expectedOutput(),
                                     sink.message()));
@@ -2772,7 +2772,7 @@ int main(int argc, char *argv[]) {
         //:   less than its true size so that memory overflow sentinel values
         //:   can be examined.
         //:
-        //: 2 Use the output of 'LargeTestData' with 'snprintf' using the 
+        //: 2 Use the output of 'LargeTestData' with 'snprintf' using the
         //:   constant 'LOG_STRING_FORMAT', and verify the expected output.
         //:
         //: 3 Use the output of 'LargeTestData' with 'stderrMessageHandler'.
@@ -2824,7 +2824,7 @@ int main(int argc, char *argv[]) {
             if (verbose) {
                 fputs("\nTesting 'LargeTestData' with snprintf.\n", stdout);
             }
-        
+
             char buffer[102];
             LargeTestData testData(100, bsls::LogSeverity::e_ERROR, "test.cpp", 4);
             int rc = snprintf(buffer,
@@ -2834,23 +2834,23 @@ int main(int argc, char *argv[]) {
                               "test.cpp",
                               4,
                               testData.message());
-                              
+
             ASSERTV(rc, rc == 100);
             ASSERTV(testData.expectedOutput(),
                     buffer,
                     0 == strcmp(buffer, testData.expectedOutput()));
-            
+
         }
-        {        
+        {
             if (verbose) {
                 fputs("\nTesting 'LargeTestData' with stderrMessageHandler."
                       "\n", stdout);
             }
-        
+
             const Severity::Enum testSeverity = Severity::e_FATAL;
             const char * const   testFile     = "helloworld.cpp";
             const int            testLine     = 18437;
-            
+
             OutputRedirector redirector(OutputRedirector::STDERR_STREAM);
             LargeTestData testData(100, testSeverity, testFile, testLine);
 
@@ -2868,9 +2868,9 @@ int main(int argc, char *argv[]) {
 
             LOOP2_ASSERT(redirector.outputSize(),
                          100,
-                         100 == redirector.outputSize());            
+                         100 == redirector.outputSize());
         }
-        
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3776,10 +3776,10 @@ int main(int argc, char *argv[]) {
                    "\n============================================\n");
         }
 
-        typedef bsls::LogSeverity LogSeverity;
         if(verbose) puts("\nWARNING: Case '-2' should not be run manually.\n");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+        typedef bsls::LogSeverity LogSeverity;
         {
             if(verbose) puts("\nDeleting 'stderr' handle.\n");
             const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
@@ -3836,10 +3836,6 @@ int main(int argc, char *argv[]) {
 
             if(verbose) puts("\nFinished with default data.\n");
             if(verbose) puts("\nWriting long data.\n");
-            if(verbose) puts("\nFilling buffer.\n");
-            
-            if(veryVeryVerbose)
-                printf("\nFilled buffer: %s\n", WINDOWS_LARGE_DATA_BUFFER);
 
             for(size_t i = 0; i < NUM_WINDOWS_LARGE_DATA_LENGTHS; i++) {
                 const size_t expectedLength = WINDOWS_LARGE_DATA_LENGTHS[i];
@@ -3847,12 +3843,12 @@ int main(int argc, char *argv[]) {
                 if(veryVerbose) { T_ P_(i) P(expectedLength) }
 
                 if(veryVerbose) puts("\tCalculating index.\n");
-                
+
                 LargeTestData testData(expectedLength,
                                        LogSeverity::e_ERROR,
                                        "",
                                        0);
-                                       
+
                 if(veryVerbose) puts("\tWaiting on event, 10s timeout.\n");
                 ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(event, 10000));
 
