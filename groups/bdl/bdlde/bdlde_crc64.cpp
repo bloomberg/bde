@@ -4,8 +4,8 @@
 ///IMPLEMENTATION NOTES
 ///--------------------
 // This implements the CRC-64 defined in ECMA 182 (with reversed polynomial 
-// 0xC96C5795D7870F42), in the usual manner.  See 'bdlde_crc32.cpp' for
-// more details.
+// 0xC96C5795D7870F42), in the usual manner:
+//   http://en.wikipedia.org/wiki/Cyclic_redundancy_check
 
 #include <bsl_ostream.h>
 #include <bsls_types.h>

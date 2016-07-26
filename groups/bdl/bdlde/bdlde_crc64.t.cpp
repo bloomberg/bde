@@ -262,10 +262,9 @@ void printHex(const char *str)
                     // CRC-64 ECMA-182 IMPLEMENTATION
                     // ------------------------------
 
-// The following functions are adapted from bdlde_crc32.t.cpp and are used as
-// an oracle to verify the CRC value computed by 'bdlde::Crc64'. The hex
-// constant used to update 'c' is the "reversed polynomial' value defined
-// for CRC-64-ECMA as found in
+// The following functions are used as an oracle to verify the CRC value
+// computed by 'bdlde::Crc64'.  The hex constant used to update 'c' is the
+// "reversed polynomial' value defined for CRC-64-ECMA as found in
 //   http://www.ecma-international.org/publications/standards/Ecma-182.htm
 
 // Table of CRCs of all 8-bit messages.
@@ -324,21 +323,11 @@ bsls::Types::Uint64 crc(const char *buf, int len)
 {
     return update_crc(0, buf, len);
 }
-                        // --------------------------------
-                        // crc64 Implementation from dbutil
-                        // --------------------------------
+                     // -----------------------------------
+                     // crc64 minimal implementation oracle
+                     // -----------------------------------
 
-// 'crc64trm' (below) was taken from crc32.c in dbutil and the following
-// modifications were made to it:
-//..
-//  1) 'crctab' was replaced with 'crc_table' (defined above).
-//  2) 'u_int32_t' was replaced with 'bsls::Types::Uint64'.
-//  3) '~0' changed to '~bsls::Types::Uint64()' to quell a compiler warning.
-//..
 // 'crc64trm' is used in the PERFORMANCE TEST (case -1).
-//
-// Note that the formatting style (indentation, etc.) was deliberately
-// preserved.
 
 extern "C"
 bsls::Types::Uint64 crc64trm(const char *buf, int bufsize, char trm)
