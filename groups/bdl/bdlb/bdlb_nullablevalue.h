@@ -524,8 +524,9 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 // FREE FUNCTIONS
 template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input);
-    // If the specified 'input' contains a value, pass it to the specified
-    // 'hashAlg' hashing algorithm of (template parameter) type 'HASHALG'.
+    // Pass whether the specified 'input' contains a value and then the value
+    // if present to the specified 'hashAlg' hashing algorithm of (template
+    // parameter) type 'HASHALG'.
 
 template <class TYPE>
 void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
