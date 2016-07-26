@@ -790,7 +790,7 @@ class MultiQueueThreadPool {
         // currently paused, or 'false' otherwise.  The effect of this function
         // is undefined if no queue 'id' exists.
 
-    bool isEnabledQueue(int id) const;
+    bool isEnabled(int id) const;
         // Report whether the queue identified by the specified 'id' is
         // enabled.  A queue's initial state is enabled.  The effect of this
         // function is undefined if no queue 'id' exists.

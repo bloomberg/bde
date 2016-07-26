@@ -490,7 +490,7 @@ int MultiQueueThreadPool::disableQueue(int id)
     return rc;
 }
 
-bool MultiQueueThreadPool::isEnabledQueue(int id) const
+bool MultiQueueThreadPool::isEnabled(int id) const
 {
     MultiQueueThreadPool_QueueContext *context = 0;
     bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
