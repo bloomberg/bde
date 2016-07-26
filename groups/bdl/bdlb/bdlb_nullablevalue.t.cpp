@@ -1209,8 +1209,9 @@ void TestDriver<TEST_TYPE>::testCase20()
     // TESTING: Hashing
     //
     // Concerns:
-    //: 1 Hashing a value with a null value hashes 'false'.
-    //: 2 Hashing a value with a nullable value hashes 'true' then the value.
+    //: 1 Hashing a value with a null value is equivalent to appending 'false'      //:   to the hash.
+    //:
+    //: 2 Hashing a value with a nullable value is equivalent to appending          //:   'true' to the hash followed by the value.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it yields the
@@ -1233,7 +1234,7 @@ void TestDriver<TEST_TYPE>::testCase20()
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (veryVerbose) {
-        cout << "\tVerify hashing null nullable values hashes 'false'\n";
+        cout << "\tVerify hashing null nullable values is equivalent to\n"                      "\tappending 'false' to the hash\n";
     }
     {
         ObjWithAllocator object(&oa);
@@ -1248,8 +1249,7 @@ void TestDriver<TEST_TYPE>::testCase20()
     }
 
     if (veryVerbose) {
-        cout << "\tVerify hashing non-null nullable values hashes 'true' "
-             << "and then the value\n";
+        cout << "\tVerify hashing non-null nullable values is equivalent to\n"                  "\tappending 'true' to the hash followed by the value\n";
     }
     {
         ObjWithAllocator object(&oa);
