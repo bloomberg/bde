@@ -802,8 +802,7 @@ class MultiQueueThreadPool {
     int numElements(int id) const;
         // Return an instantaneous snapshot of the number of elements enqueued
         // in the queue associated with the specified 'id' as a non-negative
-        // integer, or -1 if 'id' does not specify a valid queue.  The effect
-        // of this function is undefined if no queue 'id' exists.
+        // integer, or -1 if 'id' does not specify a valid queue.
 
     void numProcessed(int *numDequeued, int *numEnqueued) const;
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
