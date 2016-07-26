@@ -1291,7 +1291,11 @@ template <class HASHALG, class TYPE>
 void bdlb::hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input)
 {
     if (!input.isNull()) {
+        hashAppend(hashAlg, true);
         hashAppend(hashAlg, input.value());
+    }
+    else {
+        hashAppend(hashAlg, false);
     }
 }
 

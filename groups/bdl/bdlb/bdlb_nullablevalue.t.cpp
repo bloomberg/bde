@@ -1209,10 +1209,8 @@ void TestDriver<TEST_TYPE>::testCase20()
     // TESTING: Hashing
     //
     // Concerns:
-    //: 1 Hashing a value with a null value does nothing.
-    //:
-    //: 2 Hashing a value with a nullable value having the same value produces
-    //:   the same hash value.
+    //: 1 Hashing a value with a null value hashes 'false'.
+    //: 2 Hashing a value with a nullable value hashes 'true' then the value.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it does not
@@ -1235,7 +1233,7 @@ void TestDriver<TEST_TYPE>::testCase20()
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (veryVerbose) {
-        cout << "\tVerify hashing null nullable values does nothing\n";
+        cout << "\tVerify hashing null nullable values hashes 'false'\n";
     }
     {
         ObjWithAllocator object(&oa);
@@ -1245,13 +1243,13 @@ void TestDriver<TEST_TYPE>::testCase20()
         ASSERT(0 == da.numBlocksInUse());
 
         const size_t hashValue_1 = bslh::Hash<>()(X);
-        const size_t hashValue_2 = bslh::DefaultHashAlgorithm().computeHash();
+        const size_t hashValue_2 = bslh::Hash<>()(false);
         LOOP2_ASSERT(hashValue_1, hashValue_2, hashValue_1 == hashValue_2);
     }
 
     if (veryVerbose) {
-        cout << "\tVerify hashing non-null nullable values compares equal "
-             << "to hashing a value of the contained type\n";
+        cout << "\tVerify hashing non-null nullable values hashes 'true' "
+             << "and then the value\n";
     }
     {
         ObjWithAllocator object(&oa);
@@ -1269,8 +1267,12 @@ void TestDriver<TEST_TYPE>::testCase20()
 
                 bool areSame = i == j;
 
+                bslh::DefaultHashAlgorithm hasher;
+
                 const size_t hashValue_1 = bslh::Hash<>()(X);
-                const size_t hashValue_2 = bslh::Hash<>()(VALUES[j]);
+                hashAppend(hasher, true);
+                hashAppend(hasher, VALUES[j]);
+                const size_t hashValue_2 = hasher.computeHash();
 
                 LOOP3_ASSERT(areSame, hashValue_1, hashValue_2,
                              areSame == (hashValue_2 == hashValue_1));
@@ -2572,7 +2574,6 @@ int main(int argc, char *argv[])
                  << endl;
 
             typedef TmvipSa_WithThrowingCtor<int>       ThrowingHelper;
-            typedef bdlb::NullableValue<ThrowingHelper> Obj;
 
             ThrowingHelper::resetDtorCount();
             ASSERT(0 == ThrowingHelper::dtorCount());
