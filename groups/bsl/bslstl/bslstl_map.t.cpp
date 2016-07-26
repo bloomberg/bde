@@ -1449,10 +1449,7 @@ class TestDriver {
     template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG>
     static void testCase7_select_on_container_copy_construction_dispatch();
     static void testCase7_select_on_container_copy_construction();
-        // Test C++11 'select_on_container_copy_construction'.
-
-    static void testCase7_1();
-        // Test C++03 copy constructor allocator propagation.
+        // Test 'select_on_container_copy_construction'.
 
     static void testCase7();
         // Test copy constructor.
@@ -9309,6 +9306,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 1 The allocator of a source object using a standard allocator is
     //:   propagated to the newly constructed object according to the
     //:   'select_on_container_copy_construction' method of the allocator.
+    //:
+    //: 2 In the absence of a 'select_on_container_copy_construction' method,
+    //:   the allocator of a source object using a standard allocator is always
+    //:   propagated to the newly constructed object (C++03 semantics).
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
@@ -9331,9 +9332,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 6 Repeat P-2..5 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocator of 'X' *is*
     //:   propagated to 'Y'.  (C-1)
+    //:
+    //: 7 Repeat P-2..5 except that this time use a 'StatefulStlAllocator',
+    //:   which does not define a 'select_on_container_copy_construction'
+    //:   method, and verify that the allocator of 'X' is *always* propagated
+    //:   to 'Y'.  (C-2)
     //
     // Testing:
-    //   C++11 select_on_container_copy_construction
+    //   select_on_container_copy_construction
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTESTING 'select_on_container_copy_construction'"
@@ -9348,33 +9354,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
                         "propagates allocator of source object.\n");
 
     testCase7_select_on_container_copy_construction_dispatch<true>();
-}
 
-template <class KEY, class VALUE, class COMP, class ALLOC>
-void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7_1()
-{
-    // ------------------------------------------------------------------------
-    // COPY CONSTRUCTOR
-    //
-    // Concerns:
-    //: 1 The allocator of a source object using a standard allocator is
-    //:   propagated to the newly constructed object (C++03 behavior).
-    //
-    // Plan:
-    //: 1 Specify a set S of object values with varied differences, ordered by
-    //:   increasing length, to be used in the following tests.
-    //:
-    //: 2 For each value in S, initialize objects 'W' (a control) and 'X' using
-    //:   a stateful standard allocator.  Copy construct 'Y' from 'X' and use
-    //:   'operator==' to verify that both 'X' and 'Y' subsequently have the
-    //:   same value as 'W'.
-    //:
-    //: 3 Use the 'get_allocator' method to verify the allocator of 'Y' has the
-    //:   same value as the allocator of 'X'.  (C-1)
-    //
-    // Testing:
-    //   C++03 allocator propagation
-    // ------------------------------------------------------------------------
+    if (verbose) printf("\nVerify C++03 semantics (allocator has no "
+                        "'select_on_container_copy_construction' method).\n");
 
     typedef StatefulStlAllocator<KEY>             Allocator;
     typedef bsl::map<KEY, VALUE, COMP, Allocator> StlObj;
@@ -11650,11 +11632,7 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase7();
 
-        // C++03 allocator propagation
-
-        RUN_EACH_TYPE(TestDriver, testCase7_1, int);
-
-        // C++11 allocator propagation
+        // 'select_on_container_copy_construction' testing
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
@@ -11664,6 +11642,9 @@ int main(int argc, char *argv[])
                       testCase7_select_on_container_copy_construction,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
+        TestDriver<TestKeyType, TestValueType>::
+                             testCase7_select_on_container_copy_construction();
       } break;
       case 6: {
         // --------------------------------------------------------------------
