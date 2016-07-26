@@ -330,7 +330,7 @@ BSLS_IDENT("$Id: $")
 //
 // This example shows how the clock may be altered:
 //
-// ..
+//..
 // void myCallbackFunction() {
 //     puts("Event triggered!");
 // }
@@ -367,7 +367,7 @@ BSLS_IDENT("$Id: $")
 //
 //     scheduler.stop();
 // }
-// ..
+//..
 //
 // Note that this feature should be used only for testing purposes, never in
 // production code.
