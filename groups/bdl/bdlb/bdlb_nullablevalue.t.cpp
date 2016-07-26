@@ -1213,12 +1213,12 @@ void TestDriver<TEST_TYPE>::testCase20()
     //: 2 Hashing a value with a nullable value hashes 'true' then the value.
     //
     // Plan:
-    //: 1 Create a null nullable value and verify that hashing it does not
-    //:   change the result of the hashing function.
+    //: 1 Create a null nullable value and verify that hashing it yields the
+    //:   same value as hashing 'false'.
     //:
     //: 2 Create a non-null nullable value for a series of test values and
-    //:   verify that hashing it produces teh same result as hashing the test
-    //:   values themseleves.
+    //:   verify that hashing it produces the same result as hashing 'true' and
+    //:   then the test values themseleves.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
