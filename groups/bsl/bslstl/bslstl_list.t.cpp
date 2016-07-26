@@ -160,11 +160,8 @@ using bsl::list;
 // [17] void emplace_back(Args&&... args);
 // [17] void emplace_front(Args&&... args);
 // [29] iterator insert(const_iterator pos, T&& value);
-// [29] iterator emplace(const_iterator pos, T&& value);
 // [29] void push_back(T&& value);
-// [29] void emplace_back(T&& value);
 // [29] void push_front(T&& value);
-// [29] void emplace_front(T&& value);
 // [18] iterator erase(const_iterator pos);
 // [18] iterator erase(const_iterator first, const_iterator last);
 // [19] void swap(list& rhs);
@@ -221,6 +218,7 @@ using bsl::list;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [34] USAGE EXAMPLE
+// [29] Concern: All emplace methods accept rvalues.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -524,8 +522,6 @@ class TestType {
     // This test type contains a 'char' in some allocated storage.  It counts
     // the number of default and copy constructions, assignments, and
     // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise movable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     int              *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -845,7 +841,7 @@ class TestTypeNoAlloc {
     }
 
     void print() const
-        // Print this object to 'stdoout'.
+        // Print this object to 'stdout'.
     {
         ASSERT(isalpha(d_u.d_int));
         printf("%c (int: %d)\n", d_u.d_int, d_u.d_int);
@@ -862,7 +858,7 @@ bool operator==(const TestTypeNoAlloc& lhs,
     return lhs.value() == rhs.value();
 }
 
-// TestTypeTypeNoAlloc-specific value_of function.
+// TestTypeNoAlloc-specific value_of function.
 template <>
 inline
 int value_of<TestTypeNoAlloc>(const TestTypeNoAlloc& x)
@@ -954,8 +950,6 @@ class TestTypeOtherAlloc {
     // This test type contains a 'char' in some allocated storage.  It counts
     // the number of default and copy constructions, assignments, and
     // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise movable traits but we defer that trait to
-    // the 'MoveableTestTypeOtherAlloc'.
 
     char                 *d_data_p;
     OtherAllocator<char>  d_allocator;
@@ -2317,14 +2311,6 @@ struct TestDriver {
     static void test07_copyCtor();
         // Test copy constructor.
 
-#if 0
-    // The 'g' generator has been removed as it offends bde verify and is not
-    // really all that useful.
-
-    static void test08_generatorG();
-        // Test generator function 'g'.
-#endif
-
     static void test09_copyAssignmentOp();
         // Test assignment operator ('operator=').
 
@@ -2390,8 +2376,8 @@ struct TestDriver {
         // has some template logic to determine if 'TYPE' is such a type, and
         // in that case the dispatch function calls 'test16_iterators' with
         // 'false_type' and no tests are performed for that type.  For all
-        // other types and/or all other platorms, 'true_type' is passed and the
-        // tests are performed.
+        // other types and/or all other platforms, 'true_type' is passed and
+        // the tests are performed.
 
     static void test17_emplace();
         // Test 'emplace', 'emplace_front', and 'emplace_back' members.  The
@@ -2474,7 +2460,7 @@ struct TestDriver {
 
     static void test29_moveInsert();
         // Test move-based inserters, 'insert', 'push_back', 'push_front',
-        // 'emplace'.
+        // 'emplace', 'emplace_front', 'emplace_back' with moved arguments.
 
     static void test30_moveCtor();
         // Test move c'tors, both with and without an allocator passed.
@@ -3972,11 +3958,8 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     //
     // Testing:
     //   iterator insert(const_iterator pos, T&& value);
-    //   iterator emplace(const_iterator pos, T&& value);
     //   void push_back(T&& value);
-    //   void emplace_back(T&& value);
     //   void push_front(T&& value);
-    //   void emplace_front(T&& value);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING MOVE INSERTION: TYPE: %s\n",
@@ -14370,9 +14353,9 @@ int main(int argc, char *argv[])
                             "===============================\n");
 
         if (verbose) printf("The 'g' generator function has been removed as\n"
-                            "bde verify gives warnings whenever an object\n"
-                            "that allocates memory is returned by value.\n"
-                            "Also, it is not an essential function.\n");
+                            "'bsltf' contains a test type that lacks a copy\n"
+                            "c'tor.  Also, it is not an essential\n"
+                            "function.\n");
       } break;
       case 7: {
         // --------------------------------------------------------------------
