@@ -262,7 +262,7 @@ static void make_crc_table()
             if (c & 1) {
                 c = 0xC96C5795D7870F42ULL ^ (c >> 1);
             } else {
-                c = c >> 1;
+                c >>= 1;
             }
         }
         crc_table[n] = c;
@@ -271,11 +271,13 @@ static void make_crc_table()
 }
 
 static bsls::Types::Uint64
-update_crc(bsls::Types::Uint64 crc, const char *buf, int len)
-    // Update the specified running 'crc' with the bytes in the specified 'buf'
-    // having the specified 'len' and return the updated CRC.  The CRC should
-    // be initialized to 0.  Pre- and post-conditioning (one's complement) is
-    // performed within this function, so it should not be done by the caller.
+update_crc(bsls::Types::Uint64 crc, const char *buffer, int length)
+    // Update the specified running 'crc' with the bytes in the specified
+    // 'buffer' having the specified 'length' and return the updated CRC.  The
+    // CRC should be initialized to 0.  Pre- and post-conditioning (one's
+    // complement) is performed within this function, so it should not be done
+    // by the caller.
+    //
     // Usage example:
     //..
     //      bsls::Types::Uint64 crc = 0L;
@@ -291,17 +293,17 @@ update_crc(bsls::Types::Uint64 crc, const char *buf, int len)
     if (!crc_table_computed) {
         make_crc_table();
     }
-    for (n = 0; n < len; n++) {
-        c = crc_table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+    for (n = 0; n < length; n++) {
+        c = crc_table[(c ^ buffer[n]) & 0xff] ^ (c >> 8);
     }
     return ~c;
 }
 
-bsls::Types::Uint64 crc(const char *buf, int len)
-    // Return the CRC of the bytes in the specified 'buf' having the specified
-    // 'len'.
+bsls::Types::Uint64 crc(const char *buffer, int length)
+    // Return the CRC of the bytes in the specified 'buffer' having the
+    // specified 'length'.
 {
-    return update_crc(0, buf, len);
+    return update_crc(0, buffer, length);
 }
                      // -----------------------------------
                      // crc64 minimal implementation oracle
@@ -310,14 +312,13 @@ bsls::Types::Uint64 crc(const char *buf, int len)
 // 'crc64trm' is used in the PERFORMANCE TEST (case -1).
 
 extern "C"
-bsls::Types::Uint64 crc64trm(const char *buf, int bufSize, char trm)
+bsls::Types::Uint64 crc64trm(const char *buffer, int bufSize, char trm)
 {
-    bsls::Types::Uint64 crc=~bsls::Types::Uint64();
-        for (; (*buf)!=trm && bufSize--; ++buf)
-        {
-                crc=(crc>>8) ^ crc_table[(crc^(*buf)) & 0xff];
-        }
-        return ~crc;
+    bsls::Types::Uint64 crc = ~bsls::Types::Uint64();
+    for (; *buffer != trm && bufSize-- != 0; ++buffer) {
+        crc = (crc >> 8) ^ crc_table[(crc ^ *buffer) & 0xff];
+    }
+    return ~crc;
 }
 
 // ============================================================================
@@ -522,7 +523,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The CRC algorithm depends on a static constant array of values
         //:   defined in bdlde_crc64.cpp as 'CRC_TABLE[256]'.  We want to
-        //:   ensure that the values in the table are correct.  (C-1)
+        //:   ensure that the values in the table are correct.
         //
         // Plan:
         //: 1 We cannot access the array directly from this test driver because
@@ -539,6 +540,7 @@ int main(int argc, char *argv[])
         //:       unsigned integer 'result'.
         //:     - Flip the eight most significant bits of 'result'.
         //:     - Verify that 'result' is exactly the same as 'crc_table[i]'.
+        //:   (C-1)
         //
         // Testing:
         //   CRC_TABLE TEST
@@ -1219,16 +1221,16 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 PRELIMINARY MEMBER FUNCTION TEST: Perform a trivial direct test
         //:   of the 'bdexStreamOut' and 'bdexStreamIn' methods.  (The
-        //:   remaining tests will use the bdex stream functions.)  (C-1)
+        //:   remaining tests will use the bdex stream functions.)
         //:
         //: 2 VALID STREAMS: For the set S of globally-defined test values, use
         //:   all combinations (u, v) in the cross product S X S, stream the
-        //:   value of v into (a temporary copy of) u and assert u == v.  (C-1)
+        //:   value of v into (a temporary copy of) u and assert u == v.
         //:
         //: 3 EMPTY AND INVALID STREAMS: For each u in S, create a copy and
         //:   attempt to stream into it from an empty stream, and then an
         //:   invalid stream.  Verify after each attempt that the object is
-        //:   unchanged and that the stream is invalid.  (C-1)
+        //:   unchanged and that the stream is invalid.
         //:
         //: 4 INCOMPLETE (BUT OTHERWISE VALID) DATA: Write 3 distinct objects
         //:   to an output stream buffer of total length N.  For each partial
@@ -1238,7 +1240,7 @@ int main(int argc, char *argv[])
         //:   left entirely unmodified, and that the stream became invalid
         //:   immediately after the first incomplete read.  Finally ensure that
         //:   each object streamed into is in some valid state by assigning it
-        //:   a distinct new value and testing for equality.  (C-1)
+        //:   a distinct new value and testing for equality.
         //:
         //: 5 CORRUPTED DATA: Use the underlying stream package to simulate an
         //:   instance of a typical valid (control) stream and verify that it
@@ -1856,7 +1858,6 @@ int main(int argc, char *argv[])
         //:   This test is broken into two parts:
         //:     1 Testing of 'print'
         //:     2 Testing of 'operator<<'
-        //:   (C-1)
         //:
         //: 2 Each test vector in DATA contains STR, its LEN, the expected CRC
         //:   value and also an expected output FMT.  For each datum, construct
@@ -1864,14 +1865,14 @@ int main(int argc, char *argv[])
         //:   Assert that the object contains the expected CRC value.  Create
         //:   an 'ostringstream' object and use the 'print' function to stream
         //:   'mX'.  Compare the contents of the stream object with the
-        //:   expected FMT value.  (C-1)
+        //:   expected FMT value.
         //:
         //: 3 To test the 'print' operator, for each datum, construct an
         //:   independent object 'mX' and call 'update' with STR and LEN.
         //:   Assert that the object contains the expected CRC value.  Create
         //:   an 'ostringstream' object and use the 'print' function to stream
         //:   'mX'.  Compare the contents of the stream object with the
-        //:   expected FMT value.  (C-1)
+        //:   expected FMT value.
         //:
         //: 4 To test the '<<' operator, construct an independent object 'obj'
         //:   for each test vector in DATA and then call 'update' with STR and
@@ -1971,7 +1972,7 @@ int main(int argc, char *argv[])
         //: 1 For each test vector in DATA, construct an object 'mX' using the
         //:   default constructor.  Then call 'mX.update' using the current STR
         //:   and LENGTH.  Ensure that the CRC value returned by 'checksum' is
-        //:   the same as the expected CRC value.  (C-1)
+        //:   the same as the expected CRC value.
         //:
         //: 2 For each test vector in DATA, construct an object 'mX' using
         //:   the default constructor.  Then call 'mX.update' using the current
@@ -2075,7 +2076,7 @@ int main(int argc, char *argv[])
         //:   'gg' returns a valid reference to the modified object and, using
         //:   basic accessors, that the value of the object is as expected.
         //:   Note that  we are testing the parser only; the primary
-        //:   manipulators are already assumed to work.  (C-1)
+        //:   manipulators are already assumed to work.
         //:
         //: 2 This test case also tests the 'ggg' function using invalid 'spec'
         //:   values, to ensure that error messages are caught and reported
@@ -2211,13 +2212,12 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify the default constructor by testing the value of the
-        //:  resulting object.  (C-1)
+        //:  resulting object.
         //:
         //: 2 Verify that the 'update' member function works by
         //:   constructing a series of independent objects using the default
         //:   constructor and running 'update' using increasing string lengths.
         //:   Verify the CRC value in the object using the basic accessor.
-        //:   (C-1)
         //:
         //: 3 Note that the destructor is exercised on each configuration as
         //:   the object being tested leaves scope.  (C-1)
@@ -2642,7 +2642,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsl::cout << "Legacy CRC64 run" << bsl::endl;
+            bsl::cout << "Oracle CRC64 run" << bsl::endl;
 
             bsls::Stopwatch timer;
             timer.start();
