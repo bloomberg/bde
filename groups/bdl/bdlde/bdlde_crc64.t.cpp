@@ -2557,12 +2557,9 @@ int main(int argc, char *argv[])
         //:   at least as efficient as the naive implementation.
         //
         // Plan:
-        //: 1 Incorporate, verbatim, the source code of the 'crc32trm' function
-        //:   from dbutil and make the minimal modifications required to
-        //:   compile and run it in the context of this test driver.  Compare
-        //:   the performance of our 'crc64trm' against 'update' when applied
-        //:   to a small set of test strings within a loop of at least 1M
-        //:   iterations.  (C-1)
+        //: 1 Compare performance our 'update()' to a minimal, canonical
+        //:   implementation 'crc64trm()' applied to a small set of test
+        //:   strings within a loop of at least a million iterations.  (C-1)
         //
         // Testing:
         //   PERFORMANCE TEST
