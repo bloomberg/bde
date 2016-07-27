@@ -201,6 +201,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDLIB_H
 #endif
 
+
 namespace bsl {
 
 // Forward declarations
@@ -1013,6 +1014,7 @@ class function<RET(ARGS...)> :
     }
 #endif
 
+
 };
 
 // FREE FUNCTIONS
@@ -1225,6 +1227,7 @@ class function<RET()> :
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -1628,6 +1631,7 @@ class function<RET(ARGS_01,
     }
 #endif
 
+
 };
 
 template <class RET, class ARGS_01,
@@ -1841,6 +1845,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -2064,6 +2069,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -2296,6 +2302,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -2537,6 +2544,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -2787,6 +2795,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -3046,6 +3055,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -3314,6 +3324,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -3591,6 +3602,7 @@ class function<RET(ARGS_01,
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -4456,6 +4468,7 @@ class function<RET(ARGS...)> :
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
 #endif
+
 
 };
 
@@ -7551,6 +7564,7 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     return invoker();
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>
@@ -13530,6 +13544,7 @@ bsl::function<RET(ARGS_01,
 }
 
 #endif
+
 
 template <class RET>
 inline

@@ -305,6 +305,7 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
+
 // Size type used by test allocator.
 typedef bsls::Types::Int64 AllocSizeType;
 
@@ -1400,6 +1401,7 @@ const Obj& movedFromMarker = movedFromMarkerBuf.object();
 //=============================================================================
 //                  TEST FUNCTIONS
 //-----------------------------------------------------------------------------
+
 
 template <class T, class RET, class ARG>
 void testPtrToMemFunc(const char *prototypeStr)
@@ -2954,6 +2956,8 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
+      case 18: {
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TRAITS
