@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide the most awkward type that is convertible to 'bool'.
 //
 //@CLASSES:
-//  bsltf::EnumeratedTestType: most awkward type that is convertible to 'bool'
+//  bsltf::EvilBooleanType: most awkward type that is convertible to 'bool'
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
@@ -26,8 +26,28 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// 'bsltf::EvilBooleanType'.
+//
+// First, we create an object 'trueValue' and initialize it with the 'true'
+// value:
+//..
+//  bsltf::EvilBooleanType trueValue(true);
+//..
+// Now, we can use it for if-else conditions or another constructions, that
+// require boolen value:
+//..
+//  if (trueValue) {
+//      assert(trueValue);
+//  }
+//..
+// Finally we create another object, having the opposite value, and verify it:
+//..
+//  bsltf::EvilBooleanType falseValue = !trueValue;
+//  assert(false == (bool)falseValue);
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -54,45 +74,66 @@ struct EvilBooleanType {
 
   private:
     // PRIVATE TYPES
-    struct ImpDetail { int d_member; };
+    struct ImpDetail
+        // Struct, containing value to be pointed to.
+    {
+        int d_member;
+    };
+
 
     typedef int ImpDetail::* BoolResult;
+        // Typedef for pointer to the nested class field, that can be converted
+        // to boolean.
 
     // DATA
-    BoolResult d_value;
+    BoolResult d_value;  // pointer being converted to boolean value
 
   private:
     // NOT IMPLEMENTED
     void operator=(const EvilBooleanType&);  // = delete;
         // not implemented
 
-    void operator&();  // = delete;
+    void operator&() const;  // = delete;
         // not implemented
 
     template<class T>
-    void operator,(const T&); // = delete;
-        // not implemented
-
-    template<class T>
-    void operator,(T&); // = delete;
+    void operator,(T&) const;  // = delete;
         // not implemented
 
   public:
     // CREATORS
     EvilBooleanType(bool value);                                    // IMPLICIT
+        // Create a 'EvilBooleanType' object having the attribute value defined
+        // by the specified 'value'.
+
+    //! EvilBooleanType(const EvilBooleanType& original) = default;
+        // Create a 'EvilBooleanType' object having the same value as the
+        // specified 'original' object.
 
     // ACCESSORS
     operator BoolResult() const;
+        // Return the value of this object.
 
     EvilBooleanType operator!() const;
+        // Return the newly created object having the logically negated value
+        // of this object.
 };
 
 EvilBooleanType operator==(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
+    // Return an 'EvilBoolanType' value that converts to 'true' if the
+    // specified 'lhs' and 'rhs' have the same value, and a value that converts
+    // to 'false' otherwise. Two 'EvilBooleanType' objects have the same value
+    // if the values resulting from converting each to 'bool' have the same
+    // value.
 
 EvilBooleanType operator!=(const EvilBooleanType& lhs,
                            const EvilBooleanType& rhs);
-
+    // Return an 'EvilBoolanType' value that converts to 'true' if the
+    // specified 'lhs' and 'rhs' do not have the same value, and a value that
+    // converts to 'false' otherwise. Two 'EvilBooleanType' objects do not have
+    // the same value if the values resulting from converting each to 'bool' do
+    // not have the same value.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
