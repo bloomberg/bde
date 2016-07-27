@@ -1378,7 +1378,7 @@ class ConstructTestTypeAllocArgT {
         , d_a13(a13), d_a14(a14) {}
 
     ConstructTestTypeAllocArgT(bsl::allocator_arg_t       ,
-                               bslma_Allocator      *alloc,
+                               bslma::Allocator     *alloc,
                                Arg1  a1  = N1, Arg2  a2 = N1,  Arg3  a3  = N1,
                                Arg4  a4  = N1, Arg5  a5 = N1,  Arg6  a6  = N1,
                                Arg7  a7  = N1, Arg8  a8 = N1,  Arg9  a9  = N1,
