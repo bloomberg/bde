@@ -8,6 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_bsltestutil.h>   // for testing purposes only
 #include <bsls_platform.h>
 #include <bsls_log.h>
+#include <bsls_logseverity.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +59,11 @@ void printError(const char *text, const char *file, int line)
     }
 
     BloombergLP::bsls::Log::logFormattedMessage(
-        file, line, "Assertion failed: %s", text);
+        BloombergLP::bsls::LogSeverity::e_ERROR,
+        file,
+        line,
+        "Assertion failed: %s",
+        text);
 }
 
 static

@@ -2059,10 +2059,11 @@ int main(int argc, char *argv[])
             ASSERT(bsls::Log::logMessageHandler() != oldBslsHandler);
 
             if (verbose) cout << "\tWrite a low-level log message." << endl;
-            const char * const file    = "TestFile.cpp";
-            const int          line    = 507;
-            const char * const message = "Some test message.";
-            bsls::Log::logMessage(file, line, message);
+            bsls::LogSeverity::Enum severity = bsls::LogSeverity::e_ERROR;
+            const char *const       file     = "TestFile.cpp";
+            const int               line     = 507;
+            const char *const       message  = "Some test message.";
+            bsls::Log::logMessage(severity, file, line, message);
 
             if (verbose) cout << "\tConfirm a new category created." << endl;
             LOOP2_ASSERT(oldNumCategories + 1,

@@ -923,7 +923,7 @@ bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_SIMPLE(
+        BSLS_LOG_ERROR(
                       "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
     }
 
@@ -956,7 +956,7 @@ bsls::Types::Uint64 Datetime::updatedRepresentation() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_SIMPLE(
+        BSLS_LOG_ERROR(
                       "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
     }
 
