@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component implements a mechanism for computing, updating,
+//@DESCRIPTION: 'bdlde::Crc64' implements a mechanism for computing, updating,
 // and streaming a CRC-64 checksum (a cyclic redundancy check comprising 64
 // bits).  This checksum is a strong and fast technique for determining whether
 // a message was received without errors.  Note that a CRC-64 checksum does not
@@ -109,12 +109,12 @@ class Crc64 {
     // equality comparison, 'ostream' printing, and 'bdex' serialization.
     // (A precise operational definition of when two objects have the same
     // value can be found in the description of 'operator==' for the class.)
-    // This class is *exception* *neutral* with no guarantee of rollback:
-    // if an exception is thrown during the invocation of a method on a
-    // pre-existing object, the class is left in a valid state, but its value
-    // is undefined.  In no event is memory leaked.  Finally, *aliasing* (e.g.,
-    // using all or part of an object as both source and destination) is
-    // supported in all cases.
+    // This class is *exception* *neutral* with no guarantee of rollback: if an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // object, the class is left in a valid state, but its value is undefined.
+    // In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
+    // part of an object as both source and destination) is supported in all
+    // cases.
 
     // DATA
     bsls::Types::Uint64 d_crc;  // bitwise inverse of the current checksum
@@ -193,13 +193,12 @@ class Crc64 {
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to 'stream'.
-        // If 'stream' is initially invalid, this operation has no effect.
-        // If 'version' is not supported, 'stream' is invalidated but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // specified 'version' format, and return a reference to 'stream'.  If
+        // 'stream' is initially invalid, this operation has no effect.  If
+        // 'version' is not supported, 'stream' is invalidated but otherwise
+        // unmodified.  Note that 'version' is not written to 'stream'.  See
+        // the 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     bsls::Types::Uint64 checksum() const;
         // Return the current value of this checksum.
@@ -232,7 +231,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Crc64& checksum);
     // and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                        INLINE DEFINITIONS
 // ============================================================================
 
                                 // -----------
