@@ -90,7 +90,7 @@ struct LogSeverity {
         e_WARN  = 2,  // a *potentially* problematic condition
         e_INFO  = 3,  // data about the running process
         e_DEBUG = 4,  // information useful while debugging
-        e_TRACE = 5,  // execution trace data
+        e_TRACE = 5   // execution trace data
     };
 
   public:
