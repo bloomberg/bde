@@ -165,11 +165,12 @@ class EncoderOptions {
         // Create a 'EncoderOptions' object having the (default) attribute
         // values:
         //..
-        //  encodingStyle      == BAEJSN_COMPACT
-        //  initialIndentLevel == 0
-        //  spacesPerLevel     == 0
-        //  encodeEmptyArrays  == false
-        //  encodeNullElements == false
+        //  encodingStyle                     == BAEJSN_COMPACT
+        //  initialIndentLevel                == 0
+        //  spacesPerLevel                    == 0
+        //  encodeEmptyArrays                 == false
+        //  datetimeFractionalSecondPrecision == 3
+        //  encodeNullElements                == false
         //..
 
     //! EncoderOptions(const EncoderOptions& original) = default;
