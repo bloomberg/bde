@@ -290,11 +290,17 @@ class Decoder {
     int decode(bsl::streambuf        *streamBuf,
                TYPE                  *value,
                const DecoderOptions&  options);
+    template <class TYPE>
+    int decode(bsl::streambuf        *streamBuf,
+               TYPE                  *value,
+               const DecoderOptions  *options_p);
         // Decode into the specified 'value', of a (template parameter) 'TYPE',
         // the JSON data read from the specified 'streamBuf' and using the
-        // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
-        // choice, or array type, or a 'bdeat'-compatible dynamic type
-        // referring to one of those types.  Return 0 on success, and a
+        // specified 'options' or 'options_p'.  Specifying a nullptr
+        // 'options_p' is equivalent to passing a default-constructed
+        // DecoderOptions in 'options'.  'TYPE' shall be a 'bdeat'-compatible
+        // sequence, choice, or array type, or a 'bdeat'-compatible dynamic
+        // type referring to one of those types.  Return 0 on success, and a
         // non-zero value otherwise.  Note that this operation internally
         // buffers input from 'streambuf', and if decoding is successful, will
         // attempt to update the input position of 'streambuf' to the last
@@ -304,15 +310,21 @@ class Decoder {
     int decode(bsl::istream&          stream,
                TYPE                  *value,
                const DecoderOptions&  options);
+    template <class TYPE>
+    int decode(bsl::istream&          stream,
+               TYPE                  *value,
+               const DecoderOptions  *options_p);
         // Decode into the specified 'value', of a (template parameter) 'TYPE',
         // the JSON data read from the specified 'stream' and using the
-        // specified 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence,
-        // choice, or array type, or a 'bdeat'-compatible dynamic type
-        // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that this operation internally
-        // buffers input from 'stream', and if decoding is successful, will
-        // attempt to update the input position of 'stream' to the last
-        // unprocessed byte.
+        // specified 'options' or 'options_p'.  'TYPE' shall be a
+        // 'bdeat'-compatible sequence, choice, or array type, or a
+        // 'bdeat'-compatible dynamic type referring to one of those types.
+        // Specifying a nullptr 'options_p' is equivalent to passing a
+        // default-constructed DecoderOptions in 'options'.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that this operation
+        // internally buffers input from 'stream', and if decoding is
+        // successful, will attempt to update the input position of 'stream' to
+        // the last unprocessed byte.
 
     template <class TYPE>
     int decode(bsl::streambuf *streamBuf, TYPE *value);
@@ -957,6 +969,15 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
 }
 
 template <class TYPE>
+int Decoder::decode(bsl::streambuf        *streamBuf,
+                    TYPE                  *value,
+                    const DecoderOptions  *options_p)
+{
+    DecoderOptions opts{};
+    return decode(streamBuf, value, options_p ? *options_p : opts);
+}
+
+template <class TYPE>
 int Decoder::decode(bsl::istream&          stream,
                     TYPE                  *value,
                     const DecoderOptions&  options)
@@ -971,6 +992,15 @@ int Decoder::decode(bsl::istream&          stream,
     }
 
     return 0;
+}
+
+template <class TYPE>
+int Decoder::decode(bsl::istream&          stream,
+                    TYPE                  *value,
+                    const DecoderOptions  *options_p)
+{
+    DecoderOptions opts{};
+    return decode(stream, value, options_p ? *options_p : opts);
 }
 
 template <class TYPE>
