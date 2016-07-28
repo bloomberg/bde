@@ -333,18 +333,18 @@ static void fillBuffer(char * const buffer, const size_t size)
 class LargeTestData {
     // This class provides a mechanism for generating a test message that
     // will result in output of an expected size when published from
-    // from 'Log::stdoutMessageHandler', 'Log::stderrMessageHandler', or
+    // 'Log::stdoutMessageHandler', 'Log::stderrMessageHandler', or
     // 'Log::platformDefaultMessageHandler'.  Such large test data is important
-    // for white-box testing the output-mechanisms in 'bsls_log' (which
-    // sometimes uses stack buffers whose size is determined at compile time).
+    // for white-box testing the output mechanisms in 'bsls_log' (which
+    // sometimes use stack buffers whose sizes are determined at compile time).
 
   public:
     // PUBLIC CONSTANTS
     static const char *k_LOG_FORMAT_STRING; // Format string for which the
                                             // 'LargeTeestData' is sized.
                                             // Note that it is used by
-                                            // 'stdoutMessageHandler'
-                                            // 'stderrMessageHandler' and
+                                            // 'stdoutMessageHandler',
+                                            // 'stderrMessageHandler', and
                                             // 'platformDefaultMessageHandler'
 
   private:
@@ -385,7 +385,7 @@ const char *LargeTestData::k_LOG_FORMAT_STRING = "%s %s:%d %s\n";
     // This must be the same format string used by the
     // 'stdoutMessageHandler', 'stderrMessageHandler', and
     // 'platformDefaultMessageHandler' to result in 'LargeTestData'
-    // that generates appropriate size messages.
+    // that generates appropriately sized messages.
 
 LargeTestData::LargeTestData(int                      expectedOutputLength,
                              bsls::LogSeverity::Enum  severity,
@@ -408,7 +408,7 @@ LargeTestData::LargeTestData(int                      expectedOutputLength,
                       line,
                       "");
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-    if (rc == -1) {
+    if (-1 == rc) {
 #else
     if (rc >= expectedOutputLength) {
 #endif
@@ -2826,7 +2826,8 @@ int main(int argc, char *argv[]) {
             }
 
             char buffer[102];
-            LargeTestData testData(100, bsls::LogSeverity::e_ERROR, "test.cpp", 4);
+            LargeTestData testData(
+                               100, bsls::LogSeverity::e_ERROR, "test.cpp", 4);
             int rc = snprintf(buffer,
                               102,
                               LargeTestData::k_LOG_FORMAT_STRING,
