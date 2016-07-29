@@ -524,10 +524,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
 #endif
@@ -807,7 +803,14 @@ class map {
         // Return a reference providing modifiable access to the comparator for
         // this map.
 
-    void quickSwap(map& other);
+    void quickSwapExchangeAllocators(map& other);
+        // Efficiently exchange the value, comparator, and allocator of this
+        // object with the value, comparator, and allocator of the specified
+        // 'other' object.  This method provides the no-throw exception-safety
+        // guarantee, *unless* swapping the (user-supplied) comparator or
+        // allocator objects can throw.
+
+    void quickSwapRetainAllocators(map& other);
         // Efficiently exchange the value and comparator of this object with
         // the value and comparator of the specified 'other' object.  This
         // method provides the no-throw exception-safety guarantee, *unless*
@@ -1951,10 +1954,27 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator()
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwap(map& other)
+void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapExchangeAllocators(
+                                                                    map& other)
 {
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
-    nodeFactory().swap(other.nodeFactory());
+    nodeFactory().swapExchangeAllocators(other.nodeFactory());
+
+    // Workaround to avoid the 1-byte swap problem on AIX for an empty class
+    // under empty-base optimization.
+
+    if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
+        comparator().swap(other.comparator());
+    }
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapRetainAllocators(
+                                                                    map& other)
+{
+    BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
+    nodeFactory().swapRetainAllocators(other.nodeFactory());
 
     // Workaround to avoid the 1-byte swap problem on AIX for an empty class
     // under empty-base optimization.
@@ -2115,7 +2135,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR   first,
 , d_tree()
 {
     map other(first, last, COMPARATOR(), nodeFactory().allocator());
-    quickSwap(other);
+    quickSwapRetainAllocators(other);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2153,17 +2173,13 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(const map& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-
         if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             map other(rhs, rhs.nodeFactory().allocator());
-            BloombergLP::bslalg::SwapUtil::swap(
-                                             &nodeFactory().allocator(),
-                                             &other.nodeFactory().allocator());
-            quickSwap(other);
+            quickSwapExchangeAllocators(other);
         }
         else {
             map other(rhs, nodeFactory().allocator());
-            quickSwap(other);
+            quickSwapRetainAllocators(other);
         }
     }
     return *this;
@@ -2181,19 +2197,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
         if (nodeFactory().allocator() == lvalue.nodeFactory().allocator()) {
             map other(MoveUtil::move(lvalue));
-            quickSwap(other);
+            quickSwapRetainAllocators(other);
         }
         else if (
               AllocatorTraits::propagate_on_container_move_assignment::value) {
             map other(MoveUtil::move(lvalue));
-            BloombergLP::bslalg::SwapUtil::swap(
-                                             &nodeFactory().allocator(),
-                                             &other.nodeFactory().allocator());
-            quickSwap(other);
+            quickSwapExchangeAllocators(other);
         }
         else {
             map other(MoveUtil::move(lvalue), nodeFactory().allocator());
-            quickSwap(other);
+            quickSwapRetainAllocators(other);
         }
     }
     return *this;
@@ -3537,9 +3550,7 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
-        BloombergLP::bslalg::SwapUtil::swap(&nodeFactory().allocator(),
-                                            &other.nodeFactory().allocator());
-        quickSwap(other);
+        quickSwapExchangeAllocators(other);
     }
     else {
         // C++11 behavior for member 'swap': undefined for unequal allocators.
@@ -3549,18 +3560,18 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
         // a Bloomberg proposal to that effect is accepted).  Note that free
         // 'swap' currently forwards to this implementation.
 
-        // backward compatible behavior: swap with copies
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                nodeFactory().allocator() == other.nodeFactory().allocator())) {
-            quickSwap(other);
+            quickSwapRetainAllocators(other);
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
             map thisCopy(*this, other.nodeFactory().allocator());
             map otherCopy(other, nodeFactory().allocator());
 
-            quickSwap(otherCopy);
-            other.quickSwap(thisCopy);
+            quickSwapRetainAllocators(otherCopy);
+            other.quickSwapRetainAllocators(thisCopy);
         }
     }
 }

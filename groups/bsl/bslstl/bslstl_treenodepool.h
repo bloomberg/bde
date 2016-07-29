@@ -281,9 +281,9 @@ class TreeNodePool {
 
   private:
     // NOT IMPLEMENTED
-    TreeNodePool& operator=(bslmf::MovableRef<TreeNodePool>);
-    TreeNodePool& operator=(const TreeNodePool&);
     TreeNodePool(const TreeNodePool&);
+    TreeNodePool& operator=(const TreeNodePool&);
+    TreeNodePool& operator=(bslmf::MovableRef<TreeNodePool>);
 
   public:
     // PUBLIC TYPE
@@ -510,22 +510,38 @@ class TreeNodePool {
         // least the specified 'numNodes' before the pool replenishes.  The
         // behavior is undefined unless '0 < numNodes'.
 
-    void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
-        // Efficiently exchange the management of nodes of this object and
-        // the specified 'other' object.  The behavior is undefined unless the
-        // underlying mechanisms of 'allocator()' refers to the same allocator.
+    void swap(TreeNodePool& other);
+        // Efficiently exchange the nodes of this object with those of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
+
+    void swapExchangeAllocators(TreeNodePool& other);
+        // Efficiently exchange the nodes and allocator of this object with
+        // those of the specified 'other' object.  This method provides the
+        // no-throw exception-safety guarantee, *unless* swapping the
+        // (user-supplied) allocator objects can throw.
+
+    void swapRetainAllocators(TreeNodePool& other);
+        // Efficiently exchange the nodes of this object with those of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // 'allocator() == other.allocator()'.
 
     // ACCESSORS
     const AllocatorType& allocator() const;
         // Return a reference providing non-modifiable access to the rebound
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('NodeAlloc') reference to this object.
-
 };
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                       // ------------------
+                       // class TreeNodePool
+                       // ------------------
 
 // CREATORS
 template <class VALUE, class ALLOCATOR>
@@ -978,6 +994,24 @@ void TreeNodePool<VALUE, ALLOCATOR>::swap(
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
     d_pool.swap(other.d_pool);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void TreeNodePool<VALUE, ALLOCATOR>::swapExchangeAllocators(
+                                         TreeNodePool<VALUE, ALLOCATOR>& other)
+{
+    d_pool.quickSwapExchangeAllocators(other.d_pool);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+void TreeNodePool<VALUE, ALLOCATOR>::swapRetainAllocators(
+                                         TreeNodePool<VALUE, ALLOCATOR>& other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_pool.quickSwapRetainAllocators(other.d_pool);
 }
 
 // ACCESSORS

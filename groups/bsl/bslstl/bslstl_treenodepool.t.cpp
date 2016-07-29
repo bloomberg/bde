@@ -60,7 +60,9 @@ using namespace bslstl;
 // [ 5] void deleteNode(bslalg::RbTreeNode *node);
 // [  ] bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
 // [ 6] void reserveNodes(std::size_t numNodes);
-// [ 8] void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
+// [ 8] void swap(TreeNodePool& other);
+// [  ] void swapExchangeAllocators(TreeNodePool& other);  // TBD test
+// [  ] void swapRetainAllocators(TreeNodePool& other);    // TBD test
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
@@ -570,7 +572,7 @@ void TestDriver<VALUE>::testCase8()
     //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
     //
     // Testing:
-    //   void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
+    //   void swap(TreeNodePool& other);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
