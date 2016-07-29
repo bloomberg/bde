@@ -21,26 +21,9 @@ BSLS_IDENT("$Id: $")
 // The primary method is 'printValue', which encodes a specified object and is
 // overloaded for all 'bdeat' Simple types.  The following table describes the
 // format in which various Simple types are encoded.
-//..
-//  Simple Type          JSON Type  Notes
-//  -----------          ---------  -----
-//  char                 number
-//  unsigned char        number
-//  int                  number
-//  unsigned int         number
-//  bsls::Types::Int64   number
-//  bsls::Types::Uint64  number
-//  float                number
-//  double               number
-//  bdldfp::Decimal64    number
-//  char *               string
-//  bsl::string          string
-//  bdlt::Date           string     ISO 8601 format
-//  bdlt::DateTz         string     ISO 8601 format
-//  bdlt::Time           string     ISO 8601 format
-//  bdlt::TimeTz         string     ISO 8601 format
-//  bdlt::Datetime       string     ISO 8601 format
-//  bdlt::DatetimeTz     string     ISO 8601 format
+//
+// Refer to the details of the JSON encoding format supported by this utility
+// in the package documentation file (doc/baljsn.txt).
 //..
 //
 ///Usage
@@ -103,7 +86,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BAEJSN_ENCODEROPTIONS
+#ifndef INCLUDED_BALJSN_ENCODEROPTIONS
 #include <baljsn_encoderoptions.h>
 #endif
 
@@ -117,6 +100,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
+#include <bdldfp_decimalconvertutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -158,7 +145,16 @@ struct PrintUtil {
     // This 'struct' provides functions for printing objects to output streams
     // in JSON format.
 
+  private:
     // PRIVATE CLASS METHODS
+    template <class TYPE>
+    static int maxStreamPrecision(const baljsn::EncoderOptions *options);
+        // Return the maximum precision for streaming values of the specified
+        // template parameter 'TYPE' using the specified 'options' to decide.
+        // The behavior is undefined unless 'TYPE' is 'float' or 'double'.
+
+  public:
+    // CLASS METHODS
     template <class TYPE>
     static int printDateAndTime(bsl::ostream&         stream,
                                 const TYPE&           value,
@@ -168,9 +164,12 @@ struct PrintUtil {
         // 'options'.
 
     template <class TYPE>
-    static int printFloatingPoint(bsl::ostream& stream, TYPE value);
+    static int printFloatingPoint(bsl::ostream&         stream,
+                                  TYPE                  value,
+                                  const EncoderOptions *options);
         // Encode the specified floating point 'value' into JSON and output the
-        // result to the specified 'stream'.
+        // result to the specified 'stream'.  Use the optionally-specified
+        // 'options' to decide how 'value' is encoded.
 
     static int printString(bsl::ostream&             stream,
                            const bslstl::StringRef&  value);
@@ -255,7 +254,28 @@ struct PrintUtil {
                               // struct PrintUtil
                               // ----------------
 
-// PRIVATE MANIPULATORS
+// PRIVATE CLASS METHODS
+template <>
+inline
+int PrintUtil::maxStreamPrecision<float>(const baljsn::EncoderOptions *options)
+{
+    return options
+           ? options->maxFloatPrecision()
+           : bsl::numeric_limits<float>::digits10;
+}
+
+template <>
+inline
+int PrintUtil::maxStreamPrecision<double>(
+                                         const baljsn::EncoderOptions *options)
+{
+
+    return options
+           ? options->maxDoublePrecision()
+           : bsl::numeric_limits<double>::digits10;
+}
+
+// CLASS METHODS
 template <class TYPE>
 inline
 int PrintUtil::printDateAndTime(bsl::ostream&         stream,
@@ -278,23 +298,47 @@ int PrintUtil::printDateAndTime(bsl::ostream&         stream,
 }
 
 template <class TYPE>
-int PrintUtil::printFloatingPoint(bsl::ostream& stream, TYPE value)
+int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
+                                  TYPE                          value,
+                                  const baljsn::EncoderOptions *options)
 {
-    if (bdlb::Float::isNan(value)
-     || value == bsl::numeric_limits<TYPE>::infinity()
-     || value == -bsl::numeric_limits<TYPE>::infinity()) {
-        return -1;                                                    // RETURN
+    switch (bdlb::Float::classifyFine(value)) {
+      case bdlb::Float::k_POSITIVE_INFINITY: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream << "\"+inf\"";
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      case bdlb::Float::k_NEGATIVE_INFINITY: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream << "\"-inf\"";
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      case bdlb::Float::k_QNAN:                                 // FALL-THROUGH
+      case bdlb::Float::k_SNAN: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream << (bdlb::Float::signBit(value) ? "\"-nan\"" : "\"nan\"");
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      default: {
+        const int LEN = 32;
+        char      buffer[LEN];
+        const int len = snprintf(buffer,
+                                 LEN,
+                                 "%-1.*g",
+                                 maxStreamPrecision<TYPE>(options),
+                                 value);
+        stream.write(buffer, len);
+      }
     }
-
-    bsl::streamsize         prec  = stream.precision();
-    bsl::ios_base::fmtflags flags = stream.flags();
-
-    stream.precision(bsl::numeric_limits<TYPE>::digits10);
-
-    stream << value;
-
-    stream.precision(prec);
-    stream.flags(flags);
     return 0;
 }
 
@@ -371,33 +415,55 @@ int PrintUtil::printValue(bsl::ostream&       stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          float         value,
-                          const EncoderOptions *)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          float                 value,
+                          const EncoderOptions *options)
 {
-    return printFloatingPoint(stream, value);
+    return printFloatingPoint(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          double        value,
-                          const EncoderOptions *)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          double                value,
+                          const EncoderOptions *options)
 {
-    return printFloatingPoint(stream, value);
+    return printFloatingPoint(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&     stream,
-                          bdldfp::Decimal64 value,
-                          const EncoderOptions *)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          bdldfp::Decimal64     value,
+                          const EncoderOptions *options)
 {
-    if (!bdldfp::DecimalUtil::isFinite(value)) {
-        return -1;                                                    // RETURN
-    }
-
-    stream << value;
-    if (stream.bad()) {
-        return 1;                                                     // RETURN
+    switch (bdldfp::DecimalUtil::classify(value)) {
+      case FP_INFINITE: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream <<
+                  (value == bsl::numeric_limits<bdldfp::Decimal64>::infinity()
+                  ? "\"+inf\""
+                  : "\"-inf\"");
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      case FP_NAN: {
+        if (options && options->encodeInfAndNaNAsStrings()) {
+            stream << (bdlb::Float::signBit(
+                            bdldfp::DecimalConvertUtil::decimalToDouble(value))
+                      ? "\"-nan\""
+                      : "\"nan\"");
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+      } break;
+      default: {
+        stream << value;
+        if (stream.bad()) {
+            return -1;                                                // RETURN
+        }
+      }
     }
     return 0;
 }
