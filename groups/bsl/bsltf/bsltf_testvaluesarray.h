@@ -175,11 +175,9 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STRING_H
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
-namespace bsltf
-{
+namespace bsltf {
 
 template <class VALUE, class ALLOCATOR>
 struct TestValuesArray_DefaultConverter;
@@ -577,8 +575,7 @@ bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
     return !(lhs == rhs);
 }
 
-namespace bsltf
-{
+namespace bsltf {
 
                        // --------------------------------------
                        // class TestValuesArray_DefaultConverter
