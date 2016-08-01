@@ -112,6 +112,7 @@ using namespace std;    // still using iostream
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
+// [13] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -433,6 +434,32 @@ void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 
 }
 
+void testCase13()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -570,6 +597,17 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        testCase13();
+
+      } break;
     case 12: {
       // --------------------------------------------------------------------
       // USAGE EXAMPLE TEST
