@@ -185,11 +185,9 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
-namespace bslalg
-{
+namespace bslalg {
 
 class BidirectionalLink;
 

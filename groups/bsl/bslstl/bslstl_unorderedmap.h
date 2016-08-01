@@ -1885,8 +1885,7 @@ void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-namespace bsl
-{
+namespace bsl {
                         //--------------------
                         // class unordered_map
                         //--------------------

@@ -264,8 +264,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
-namespace bsl
-{
+namespace bsl {
 
                        // ===============
                        // struct equal_to

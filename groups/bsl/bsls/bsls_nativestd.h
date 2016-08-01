@@ -61,7 +61,8 @@ BSLS_IDENT("$Id: $")
 #   error "Cannot include bsls_nativestd.h when 'std' is a macro."
 # endif
 
-namespace std { }
+namespace std {
+}
 namespace native_std = ::std;
 
 #endif  // ! defined(BSL_DEFINED_NATIVE_STD)

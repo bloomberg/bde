@@ -152,8 +152,7 @@ in BSL_OVERRIDES_STD mode"
 #endif
 
 namespace BloombergLP {
-namespace bslstl
-{
+namespace bslstl {
 
                           // =============================
                           // class HashTableBucketIterator

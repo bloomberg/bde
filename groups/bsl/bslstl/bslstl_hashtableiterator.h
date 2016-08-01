@@ -147,10 +147,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
-namespace BloombergLP
-{
-namespace bslstl
-{
+namespace BloombergLP {
+namespace bslstl {
 
                           // =======================
                           // class HashTableIterator

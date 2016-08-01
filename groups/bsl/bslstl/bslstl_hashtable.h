@@ -7415,8 +7415,7 @@ void bslstl::swap(bslstl::HashTable_ComparatorWrapper<FUNCTOR> &a,
 //: o A HashTable uses 'bslma' allocators if the parameterized 'ALLOCATOR' is
 //:     convertible from 'bslma::Allocator*'.
 
-namespace bslma
-{
+namespace bslma {
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
@@ -7436,8 +7435,7 @@ struct UsesBslmaAllocator<bslstl::HashTable_ImplParameters<KEY_CONFIG,
 
 }  // close namespace bslma
 
-namespace bslmf
-{
+namespace bslmf {
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,

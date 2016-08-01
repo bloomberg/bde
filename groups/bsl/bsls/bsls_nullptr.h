@@ -201,8 +201,7 @@ BSLS_IDENT("$Id: $")
 #  error No support for 'std::nullptr_t' unless 'decltype' is also available.
 #  else
 #  define BSLS_NULLPTR_USING_NATIVE_NULLPTR_T  // feature detection macro
-namespace bsl
-{
+namespace bsl {
     // We must define this 'typedef' appropriately for platforms that support
     // 'nullptr' to avoid accidental clashes in 'BSL_OVERRIDES_STD' mode.
 
@@ -220,8 +219,7 @@ namespace bsl
 #else
 namespace BloombergLP {
 
-namespace bsls
-{
+namespace bsls {
                        // ===================
                        // class bsls::Nullptr
                        // ===================
@@ -243,12 +241,12 @@ struct Nullptr_Impl {
 }  // close package namespace
 }  // close enterprise namespace
 
-namespace bsl
-{
-typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
-    // Alias for a type that can match a null pointer literal, but is not a
-    // pointer type itself.
-}  // close namespace bsl
+namespace bsl {
+
+    typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
+        // Alias for a type that can match a null pointer literal, but is not a
+        // pointer type itself.
+}
 #endif
 
 #endif

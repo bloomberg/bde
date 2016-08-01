@@ -300,9 +300,8 @@ BSLS_IDENT("$Id: $")
 
 #endif // BDE_BUILD_TARGET_EXC
 
-namespace BloombergLP
-{
-}  // close enterprise namespace
+namespace BloombergLP {
+}  // close namespace BloombergLP
 
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 
