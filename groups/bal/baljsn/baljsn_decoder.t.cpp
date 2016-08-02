@@ -38932,12 +38932,12 @@ int main(int argc, char *argv[])
             {
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, options));
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
             }
             {
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, &options));
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, &mO));
             }
 
             // With skipping option
@@ -38945,7 +38945,7 @@ int main(int argc, char *argv[])
             {
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, options));
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, mO));
                 ASSERTV(bob.name(), "Bob" == bob.name());
                 ASSERT("Some Street" == bob.homeAddress().street());
                 ASSERT("Some City"   == bob.homeAddress().city());
@@ -38955,7 +38955,7 @@ int main(int argc, char *argv[])
             {
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, &options));
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, &mO));
                 ASSERTV(bob.name(), "Bob" == bob.name());
                 ASSERT("Some Street" == bob.homeAddress().street());
                 ASSERT("Some City"   == bob.homeAddress().city());
