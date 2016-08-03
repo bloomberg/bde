@@ -971,8 +971,8 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
                     TYPE                  *value,
                     const DecoderOptions  *options)
 {
-    DecoderOptions opts;
-    return decode(streamBuf, value, options ? *options : opts);
+    DecoderOptions localOpts;
+    return decode(streamBuf, value, options ? *options : localOpts);
 }
 
 template <class TYPE>
@@ -997,8 +997,8 @@ int Decoder::decode(bsl::istream&          stream,
                     TYPE                  *value,
                     const DecoderOptions  *options)
 {
-    DecoderOptions opts;
-    return decode(stream, value, options ? *options : opts);
+    DecoderOptions localOpts;
+    return decode(stream, value, options ? *options : localOpts);
 }
 
 template <class TYPE>
