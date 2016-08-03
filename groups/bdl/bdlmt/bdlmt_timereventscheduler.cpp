@@ -611,7 +611,7 @@ int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
     // The rest of this code is guaranteed not to execute in the dispatcher
     // thread.
 
-    if (wait) {
+    if (handle != e_INVALID_HANDLE && wait) {
         yieldToDispatcher();
     }
 
