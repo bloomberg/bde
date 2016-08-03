@@ -787,15 +787,14 @@ class MultiQueueThreadPool {
     // ACCESSORS
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
-        // currently paused, or 'false' otherwise.  The effect of this function
-        // is undefined unless id is a valid queue identifier returned by this
-        // object.
+        // currently paused, or 'false' otherwise.  The behavior is undefined
+        // unless 'id' is a valid queue identifier returned by this object.
 
     bool isEnabled(int id) const;
         // Report whether the queue identified by the specified 'id' is
-        // enabled.  A queue's initial state is enabled.  The effect of this
-        // function is undefined unless id is a valid queue identifier returned
-        // by this object.
+        // enabled.  A queue's initial state is enabled.  The behavior is
+        // undefined unless 'id' is a valid queue identifier returned by this
+        // object.
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
