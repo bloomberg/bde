@@ -572,35 +572,34 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
-                    Obj mZ(DATA1, &scratch); const Obj& Z = mZ;
-
                     Obj mX(DATA2, &oa);  const Obj& X = mX;
 
                     if (veryVerbose) { T_ P_(LINE2) P(X.data()) }
 
-                    ASSERTV(LINE1, LINE2, Z.data(), X.data(),
-                            (Z == X) == (LINE1 == LINE2));
-
-                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        Obj mZ(DATA1, &scratch); const Obj& Z = mZ;
+
+                        ASSERTV(LINE1, LINE2, Z.data(), X.data(),
+                                                 (Z == X) == (LINE1 == LINE2));
+                        ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
+                                                    &scratch == Z.allocator());
+
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         Obj *mR = &(mX = bslmf::MovableRefUtil::move(mZ));
-                        ASSERTV(LINE1, LINE2, Z.data(), X.data(), Z == X);
+                        ASSERTV(LINE1, LINE2, Z.data(), X.data(), ZZ == X);
+                        ASSERTV(LINE1, LINE2, X.data(), 0 == Z.data());
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-                    ASSERTV(LINE1, LINE2, ZZ.data(), Z.data(), ZZ == Z);
+                    ASSERTV(LINE1, LINE2, ZZ.data(), X.data(), ZZ == X);
 
                     ASSERTV(LINE1, LINE2, &oa, X.allocator(),
                                  &oa == X.allocator());
-                    ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
 
                     ASSERTV(LINE1, LINE2, oam.isInUseSame());
-
-                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
                 }
@@ -842,8 +841,7 @@ int main(int argc, char *argv[])
                     ASSERTV(Z.data(), X.data(), Z != ZZ || 0 == DATA);
                 }
                 else {
-                    ASSERTV(Z.data(), X.data(), Z == X);
-                    ASSERTV(Z.data(), X.data(), Z == ZZ);
+                    ASSERTV(Z.data(), X.data(), X == ZZ);
                 }
 
                 // Verify any attribute allocators are installed properly.

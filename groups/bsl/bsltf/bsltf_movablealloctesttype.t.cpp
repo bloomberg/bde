@@ -164,7 +164,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     { L_,         1 },
     { L_,   INT_MAX },
 };
-const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
+enum { DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES };
 
 // ============================================================================
 //                     GLOBAL FUNCTIONS USED FOR TESTING
@@ -1559,7 +1559,8 @@ int main(int argc, char *argv[])
             ASSERT(oam2.isInUseUp());
 
             ASSERT( 1 == Y.data());
-            ASSERT( 1 == X.data());
+            ASSERT( 0 == X.data());
+
             ASSERT(&oa1 == X.allocator());
             ASSERT(&oa2 == Y.allocator());
 
@@ -1611,7 +1612,8 @@ int main(int argc, char *argv[])
             ASSERT(oam2.isInUseSame());
 
             ASSERT( 1 == Y.data());
-            ASSERT( 1 == X.data());
+            ASSERT( 0 == X.data());
+
             ASSERT(&oa1 == X.allocator());
             ASSERT(&oa2 == Y.allocator());
 

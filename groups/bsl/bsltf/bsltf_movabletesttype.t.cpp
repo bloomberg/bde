@@ -152,7 +152,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     { L_,   INT_MAX },
 };
 
-const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
+enum { DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES };
 
 //=============================================================================
 //                                USAGE EXAMPLE

@@ -6266,6 +6266,7 @@ class TestDriver {
 
     static const bsltf::MoveState::Enum e_MOVED;
     static const bsltf::MoveState::Enum e_NOT_MOVED;
+    static const bsltf::MoveState::Enum e_UNKNOWN;
 
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
                           bslma::UsesBslmaAllocator<VALUE>::value,
@@ -6553,6 +6554,11 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 const bsltf::MoveState::Enum
 TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::e_NOT_MOVED =
                                                  bsltf::MoveState::e_NOT_MOVED;
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+const bsltf::MoveState::Enum
+TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::e_UNKNOWN =
+                                                   bsltf::MoveState::e_UNKNOWN;
 
 template <class KEY>
 class StdAllocTestDriver :
@@ -9597,10 +9603,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
 
                 bslma::Allocator& ba = e_MOVE_MATCH      == mode ||
                                        e_MOVE_MATCH_HINT == mode ? oa : sa;
-                bsls::ObjectBuffer<TValueType> buffer;
-                u::CharToPairConverter<TValueType, ALLOC>::createInplace(
-                                        buffer.address(), char(SPEC[tj]), &ba);
-                bslma::DestructorGuard<TValueType> guard(buffer.address());
 
                 // Note that 'bslstl::HashTable::emplaceIfMissing' actually
                 // allocates a new node BEFORE it searches to see if the key
@@ -9612,7 +9614,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 int numThrows = -1;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ++numThrows;
-                    ASSERTV(numThrows, Y == X);
+
+                    bsls::ObjectBuffer<TValueType> buffer;
+                    u::CharToPairConverter<TValueType, ALLOC>::createInplace(
+                                        buffer.address(), char(SPEC[tj]), &ba);
+                    bslma::DestructorGuard<TValueType> guard(buffer.address());
 
                     switch (mode) {
                       case e_MOVE_MATCH:
@@ -9632,27 +9638,28 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                         ASSERTV(rawMode, 0 && "invalid mode");
                       }
                     }
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                               bsltf::MoveState::e_NOT_MOVED !=
+                    ASSERTV(NameOf<VALUE>(), !IS_UNIQ || e_NOT_MOVED !=
                                   bsltf::getMovedFrom(buffer.object().second));
 
-                if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
-                    // 'KEY' is a const type, so cannot be moved.
+                    if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
+                        ASSERTV(NameOf<KEY>(),
+                                   bsltf::getMovedFrom(buffer.object().first),
+                                e_MOVED ==
+                                   bsltf::getMovedFrom(buffer.object().first));
+                        ASSERTV(NameOf<KEY>(),
+                                     bsltf::getMovedInto(RESULT.first->first),
+                                e_MOVED ==
+                                     bsltf::getMovedInto(RESULT.first->first));
+                    }
 
-                    ASSERTV(NameOf<KEY>(), e_MOVED ==
-                                  bsltf::getMovedFrom(buffer.object().first));
-                    ASSERTV(NameOf<KEY>(), e_MOVED ==
-                                  bsltf::getMovedInto(RESULT.first->first));
-                }
-
-                if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                    if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
+                        ASSERTV(NameOf<VALUE>(), e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                        ASSERTV(NameOf<VALUE>(), e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->second));
-                }
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 ASSERTV(SPEC, tj, SIZE, !IS_UNIQ         == (X == Y));
                 ASSERTV(LINE, tj, SIZE, IS_UNIQ          == RESULT.second);

@@ -2278,6 +2278,10 @@ struct TestDriver {
         // Return the number of elements in the specified 'x' that have been
         // moved from.
 
+    static Int64 numMovedInto(const Obj& x);
+        // Return the number of elements in the specified 'x' that have been
+        // moved into.
+
     static void primaryCopier(Obj              *container,
                               const TYPE&       element);
         // Append an element to the specified '*container' whose value matches
@@ -2704,6 +2708,18 @@ Int64 TestDriver<TYPE,ALLOC>::numMovedFrom(const Obj& x)
 }
 
 template <class TYPE, class ALLOC>
+Int64 TestDriver<TYPE,ALLOC>::numMovedInto(const Obj& x)
+{
+    Int64                              ret = 0;
+    const typename Obj::const_iterator itEnd = x.end();
+    for  (typename Obj::const_iterator it    = x.begin(); itEnd != it; ++it) {
+        ret += bsltf::MoveState::e_MOVED == bsltf::getMovedInto(*it);
+    }
+
+    return ret;
+}
+
+template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::primaryCopier(Obj         *container,
                                            const TYPE&  element)
 {
@@ -2721,7 +2737,9 @@ void TestDriver<TYPE,ALLOC>::primaryManipulator(Obj *container,
                          globalAllocator_p);
     bslma::DestructorProctor<TYPE> proctor(
                                    bsls::Util::addressOf(buffer.object()));
-    return container->push_back(MoveUtil::move(buffer.object()));
+
+    container->push_back(MoveUtil::move(buffer.object()));
+    bsltf::setMovedInto(&container->back(), bsltf::MoveState::e_NOT_MOVED);
 }
 
                                  // ----------
@@ -3400,9 +3418,12 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
                                                   0));
                 ASSERT(A  == B  + deltaBlocks(wSize - vSize));
 
-                ASSERT(Y == X);
                 ASSERT(Y == W);
-                ASSERT(X == W);
+
+                ASSERTV((int) Y.size(), numMovedInto(Y),
+                     !IsMoveAware::value || (int) Y.size() == numMovedInto(Y));
+                ASSERTV((int) X.size(), numMovedFrom(X),
+                     !IsMoveAware::value || (int) X.size() == numMovedFrom(X));
 
                 LOOP_ASSERT(XSPEC, checkIntegrity(X, XLENGTH));
                 mX.clear();
@@ -3477,9 +3498,13 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
                     ASSERT(A  == B + deltaBlocks(wSize - vSize));
                     ASSERT(k_NO_EXCEPT || numThrows == AA - BB);
 
-                    ASSERT(Y == X);
                     ASSERT(Y == W);
-                    ASSERT(X == W);
+
+                    ASSERTV((int) Y.size(), numMovedInto(Y),
+                     !IsMoveAware::value || (int) Y.size() == numMovedInto(Y));
+                    ASSERTV((int) X.size(), numMovedFrom(X),
+                     !IsMoveAware::value || (int) X.size() == numMovedFrom(X));
+
 
                     LOOP_ASSERT(XSPEC, checkIntegrity(X, XLENGTH));
                     LOOP_ASSERT(YSPEC, checkIntegrity(Y, XLENGTH));
@@ -3722,11 +3747,14 @@ void TestDriver<TYPE,ALLOC>::test30_moveCtor()
                 LOOP_ASSERT(SPEC, checkIntegrity(Y, LENGTH));
                 LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
                 LOOP_ASSERT(SPEC, W == Y);
-                LOOP_ASSERT(SPEC, W == X);
-                LOOP_ASSERT(SPEC, Y == X);
                 ASSERT(0 == LENGTH || D != X);
                 LOOP_ASSERT(SPEC, X.get_allocator() == Z);
                 LOOP_ASSERT(SPEC, Y.get_allocator() == ZB);
+
+                ASSERTV((int) Y.size(), numMovedInto(Y),
+                     !IsMoveAware::value || (int) Y.size() == numMovedInto(Y));
+                ASSERTV((int) X.size(), numMovedFrom(X),
+                     !IsMoveAware::value || (int) X.size() == numMovedFrom(X));
 
                 primaryManipulator(&mX, VG);
 
@@ -3852,7 +3880,6 @@ void TestDriver<TYPE,ALLOC>::test30_moveCtor()
                     // valid state after throw and Y must be in a valid state
                     // upon construction.
 
-                    ASSERT(X == W);
                     LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
 
                     // Note that some nodes in X might be marked 'moved from',
@@ -3873,7 +3900,6 @@ void TestDriver<TYPE,ALLOC>::test30_moveCtor()
                     LOOP_ASSERT(SPEC, checkIntegrity(X, LENGTH));
                     LOOP_ASSERT(SPEC, checkIntegrity(Y, LENGTH));
 
-                    ASSERT(Y == X);
                     ASSERT(Y == W);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -6541,19 +6567,39 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         const size_t  XLENGTH = std::strlen(XSPEC);
         LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
 
+        Obj mXX;    const Obj& XX = gg(&mXX, XSPEC);
+
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec_p;
             const size_t  YLENGTH = std::strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
-            // Create two objects to be swapped.
-            Obj mX(Z);  const Obj& X = gg(&mX, XSPEC);
-            Obj mY(Z2); const Obj& Y = gg(&mY, YSPEC);
+            // Create objects equal to objects to be swapped.
 
+            Obj mYY;    const Obj& YY = gg(&mYY, YSPEC);
+
+            int numThrows = -1;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                ExceptionGuard gx(&mX, XLINE);
-                ExceptionGuard gy(&mY, YLINE);
+                ++numThrows;
+
+                // Create two objects to be swapped.
+
+                Obj mX(Z);  const Obj& X = gg(&mX, XSPEC);
+                Obj mY(Z2); const Obj& Y = gg(&mY, YSPEC);
+
+                ASSERT(XX == X);
+                ASSERT(YY == Y);
+
+                ASSERTV(NameOf<TYPE>(), XSPEC, YSPEC, numThrows,
+                                                         0 == numMovedInto(X));
+                ASSERTV(NameOf<TYPE>(), XSPEC, YSPEC, numThrows,
+                                                         0 == numMovedInto(Y));
+
+                ASSERTV(NameOf<TYPE>(), XSPEC, YSPEC, numThrows,
+                                        numMovedFrom(X), 0 == numMovedFrom(X));
+                ASSERTV(NameOf<TYPE>(), XSPEC, YSPEC, numThrows,
+                                        numMovedFrom(Y), 0 == numMovedFrom(Y));
 
                 const Int64 BB = testAllocator.numBlocksTotal();
                 const Int64 B  = testAllocator.numBlocksInUse();
@@ -6561,9 +6607,6 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
                 const Int64 B2  = testAllocator2.numBlocksInUse();
 
                 mX.swap(mY);  // Test here
-
-                gx.release();
-                gy.release();
 
                 const Int64 AA = testAllocator.numBlocksTotal();
                 const Int64 A  = testAllocator.numBlocksInUse();
@@ -9956,6 +9999,9 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
                         const Int64 BB2 = testAllocator2.numBlocksTotal();
                         const Int64 B2  = testAllocator2.numBlocksInUse();
 
+                        LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
+                        LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
+
                         mU = MoveUtil::move(mV); // test assignment here
 
                         const Int64 AA1 = testAllocator1.numBlocksTotal();
@@ -9977,10 +10023,8 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
 
                         LOOP2_ASSERT(U_SPEC, V_SPEC, checkIntegrity(U, vLen));
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC, BB1 == AA1);
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, B1  == A1 );
+                        LOOP4_ASSERT(U_SPEC, V_SPEC, B1, A1, B1 >= A1 );
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
                                      BB2 + deltaBlocks(vLen) >= AA2);
                         ptrdiff_t difference =
@@ -10184,6 +10228,9 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
                     const Int64 BB2 = testAllocator2.numBlocksTotal();
                     const Int64 B2  = testAllocator2.numBlocksInUse();
 
+                    LOOP2_ASSERT(U_SPEC, V_SPEC, UU == U);
+                    LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
+
                     testAllocator2.setAllocationLimit(AL);
                     mU = MoveUtil::move(mV);       // test move assignment here
 
@@ -10195,8 +10242,6 @@ void TestDriver<TYPE,ALLOC>::test09_copyAssignmentOp()
 
                     LOOP2_ASSERT(U_SPEC, V_SPEC, checkIntegrity(U, vLen));
                     LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
-                    LOOP2_ASSERT(U_SPEC, V_SPEC, VV == V);
-                    LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                     LOOP2_ASSERT(U_SPEC, V_SPEC,
                                                BB2 + deltaBlocks(vLen) >= AA2);
                     ptrdiff_t difference = static_cast<ptrdiff_t>(vLen-uLen);
@@ -10648,7 +10693,6 @@ void TestDriver<TYPE,ALLOC>::test07_copyCtor()
                 LOOP_ASSERT(SPEC, checkIntegrity(Y7, LENGTH));
                 LOOP_ASSERT(SPEC, checkIntegrity(RV, LENGTH));
                 LOOP_ASSERT(SPEC, W == Y7);
-                LOOP_ASSERT(SPEC, W == RV);                     // unchanged
                 LOOP_ASSERT(SPEC, Y7.get_allocator() == ZB);    // no propagate
                 LOOP_ASSERT(SPEC, RV.get_allocator() == Z);     // persists
 
@@ -10774,6 +10818,10 @@ void TestDriver<TYPE,ALLOC>::test07_copyCtor()
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     allocations += bslmaExceptionCounter;
                     Obj       RV(X, Z);
+
+                    LOOP_ASSERT(SPEC, W == X);
+                    LOOP_ASSERT(SPEC, W == RV);
+
                     const Obj Y2(MoveUtil::move(RV), ZB);
                     if (veryVerbose) {
                         printf("\t\t\tException Case  :\n");
@@ -10783,7 +10831,6 @@ void TestDriver<TYPE,ALLOC>::test07_copyCtor()
                     LOOP_ASSERT(SPEC, checkIntegrity(RV, LENGTH));
                     LOOP_ASSERT(SPEC, W == Y2);
                     LOOP_ASSERT(SPEC, W == X);
-                    LOOP_ASSERT(SPEC, W == RV);    // not changed
                     LOOP_ASSERT(SPEC, ZB == Y2.get_allocator());
                     LOOP_ASSERT(SPEC, Z  == RV.get_allocator());  // not prop.
 
