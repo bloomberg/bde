@@ -286,10 +286,10 @@ class Encoder {
     template <class TYPE>
     int encode(bsl::streambuf        *streamBuf,
                const TYPE&            value,
-               const EncoderOptions  *options_p);
+               const EncoderOptions  *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' or 'options_p' and output
-        // it onto the specified 'streamBuf'.  Specifying a nullptr 'options_p'
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'streamBuf'.  Specifying a nullptr 'options'
         // is equivalent to passing a default-constructed DecoderOptions in
         // 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence, choice,
         // or array type, or a 'bdeat'-compatible dynamic type referring to one
@@ -305,8 +305,8 @@ class Encoder {
                const TYPE&           value,
                const EncoderOptions *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' or 'options_p' and output
-        // it onto the specified 'stream'.  Specifying a nullptr 'options_p' is
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'stream'.  Specifying a nullptr 'options' is
         // equivalent to passing a default-constructed DecoderOptions in
         // 'options'.  'TYPE' shall be a 'bdeat'-compatible choice, or array
         // type, or a 'bdeat'-compatible dynamic type referring to one of those
@@ -716,10 +716,10 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
 template <class TYPE>
 int Encoder::encode(bsl::streambuf        *streamBuf,
                     const TYPE&            value,
-                    const EncoderOptions  *options_p)
+                    const EncoderOptions  *options)
 {
-    EncoderOptions opts{};
-    return encode(streamBuf, value, options_p ? *options_p : opts);
+    EncoderOptions localOpts;
+    return encode(streamBuf, value, options ? *options : localOpts);
 }
 
 template <class TYPE>
@@ -744,10 +744,10 @@ int Encoder::encode(bsl::ostream&         stream,
 template <class TYPE>
 int Encoder::encode(bsl::ostream&         stream,
                     const TYPE&           value,
-                    const EncoderOptions *options_p)
+                    const EncoderOptions *options)
 {
-    EncoderOptions opts{};
-    return encode(stream, value, options_p ? *options_p : opts);
+    EncoderOptions localOpts;
+    return encode(stream, value, options ? *options : localOpts);
 }
 
 // ACCESSORS
