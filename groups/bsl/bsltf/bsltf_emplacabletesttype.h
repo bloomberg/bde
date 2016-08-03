@@ -26,22 +26,22 @@ BSLS_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name       Type                      Default
-//  -------    ------------------------  -------
-//  d_arg01    bsltf::ArgumentType< 1>   -1
-//  d_arg02    bsltf::ArgumentType< 2>   -1
-//  d_arg03    bsltf::ArgumentType< 3>   -1
-//  d_arg04    bsltf::ArgumentType< 4>   -1
-//  d_arg05    bsltf::ArgumentType< 5>   -1
-//  d_arg06    bsltf::ArgumentType< 6>   -1
-//  d_arg07    bsltf::ArgumentType< 7>   -1
-//  d_arg08    bsltf::ArgumentType< 8>   -1
-//  d_arg09    bsltf::ArgumentType< 9>   -1
-//  d_arg10    bsltf::ArgumentType<10>   -1
-//  d_arg11    bsltf::ArgumentType<11>   -1
-//  d_arg12    bsltf::ArgumentType<12>   -1
-//  d_arg13    bsltf::ArgumentType<13>   -1
-//  d_arg14    bsltf::ArgumentType<14>   -1
+//  Name     Type                      Default
+//  -------  ------------------------  -------
+//  arg01    bsltf::ArgumentType< 1>   -1
+//  arg02    bsltf::ArgumentType< 2>   -1
+//  arg03    bsltf::ArgumentType< 3>   -1
+//  arg04    bsltf::ArgumentType< 4>   -1
+//  arg05    bsltf::ArgumentType< 5>   -1
+//  arg06    bsltf::ArgumentType< 6>   -1
+//  arg07    bsltf::ArgumentType< 7>   -1
+//  arg08    bsltf::ArgumentType< 8>   -1
+//  arg09    bsltf::ArgumentType< 9>   -1
+//  arg10    bsltf::ArgumentType<10>   -1
+//  arg11    bsltf::ArgumentType<11>   -1
+//  arg12    bsltf::ArgumentType<12>   -1
+//  arg13    bsltf::ArgumentType<13>   -1
+//  arg14    bsltf::ArgumentType<14>   -1
 //..
 //
 ///Usage
@@ -220,7 +220,7 @@ class EmplacableTestType {
                        ArgType12 arg12,
                        ArgType13 arg13,
                        ArgType14 arg14);
-        // Create an 'EmplacableTestType' by initializing corresponding
+        // Create an 'EmplacableTestType' object by initializing corresponding
         // attributes with the specified 'arg01'..'arg14', and initializing any
         // remaining attributes with their default value (-1).
 
@@ -233,7 +233,7 @@ class EmplacableTestType {
         // object.
 
     // MANIPULATORS
-    // EmplacableTestType& operator=(const EmplacableTestType& rhs) = default;
+    //! EmplacableTestType& operator=(const EmplacableTestType& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -266,7 +266,8 @@ class EmplacableTestType {
 bool operator==(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'EmplacableTestType' objects have the
-    // same value if each of their corresponding atributes have the same value.
+    // same value if each of their corresponding attributes have the same
+    // value.
 
 bool operator!=(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -368,22 +369,22 @@ const EmplacableTestType::ArgType14& EmplacableTestType::arg14() const
 }
 
 inline
-bool EmplacableTestType::isEqual(const EmplacableTestType& rhs) const
+bool EmplacableTestType::isEqual(const EmplacableTestType& other) const
 {
-    return d_arg01 == rhs.d_arg01
-        && d_arg02 == rhs.d_arg02
-        && d_arg03 == rhs.d_arg03
-        && d_arg04 == rhs.d_arg04
-        && d_arg05 == rhs.d_arg05
-        && d_arg06 == rhs.d_arg06
-        && d_arg07 == rhs.d_arg07
-        && d_arg08 == rhs.d_arg08
-        && d_arg09 == rhs.d_arg09
-        && d_arg10 == rhs.d_arg10
-        && d_arg11 == rhs.d_arg11
-        && d_arg12 == rhs.d_arg12
-        && d_arg13 == rhs.d_arg13
-        && d_arg14 == rhs.d_arg14;
+    return d_arg01 == other.d_arg01
+        && d_arg02 == other.d_arg02
+        && d_arg03 == other.d_arg03
+        && d_arg04 == other.d_arg04
+        && d_arg05 == other.d_arg05
+        && d_arg06 == other.d_arg06
+        && d_arg07 == other.d_arg07
+        && d_arg08 == other.d_arg08
+        && d_arg09 == other.d_arg09
+        && d_arg10 == other.d_arg10
+        && d_arg11 == other.d_arg11
+        && d_arg12 == other.d_arg12
+        && d_arg13 == other.d_arg13
+        && d_arg14 == other.d_arg14;
 }
 
 // FREE OPERATORS

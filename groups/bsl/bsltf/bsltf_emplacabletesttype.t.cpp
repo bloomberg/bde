@@ -29,7 +29,7 @@ using namespace BloombergLP::bsltf;
 || (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__)) \
 || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+#define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
@@ -42,7 +42,23 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD:
+// The component under test implements a type that is used to ensure that
+// arguments are forwarded correctly to functions and methods taking an
+// arbitrary number of arguments.
+//
+// Logically, this single test type represents 15 different test type (each
+// having a single value constructor with 0..14 arguments respectively).  For
+// this reason, all constructors (except the copy constructor) are tested in
+// 'case 2' (Primary Manipulators).
+
+// In a possible (alternative) implementation, the attributes should have
+// "nullable" behaviour ( i.e. if the argument is not passed to a constructor,
+// the corresponding attribute should behaive as it does not exist ) and, for
+// example, the object constructed with 2 arguments should never compare equal
+// with any other object constructed with different number of arguments.
+// Existing implementation lacks this functionality, but is sufficient to test
+// upper level components.
+//
 // Global Concerns:
 //: o No memory is ever allocated.
 //-----------------------------------------------------------------------------
@@ -342,7 +358,7 @@ class TestDriver {
         // Test 'isEqual' method.
 
     static void testCase9();
-        // Test copy assignment operator.
+        // Test copy-assignment operator.
 
     static void testCase7();
         // Test copy constructor.
@@ -492,15 +508,15 @@ Obj& TestDriver::gg(Obj *object, const char *spec)
 
 void TestDriver::testCase12()
 {
-    // ---------------------------------------------------------------------
+    // -----------------------------------------------------------------------
     // TESTING 'getNumDeletes' CLASS METHOD.
     //
     // Concerns:
     //: 1 The class correctly counts the number of destructor calls.
     //
     // Plan:
-    //: 1 Create and destroy a set of test objects. Verify that after every
-    //:   destructor call 'getNumDeletes' returns correct value.  (C-1)
+    //: 1 Create and destroy a set of test objects.  Verify that after every
+    //:   destructor call 'getNumDeletes' returns the correct value.  (C-1)
     //
     // Testing:
     //   static in getNumDeletes();
@@ -510,7 +526,8 @@ void TestDriver::testCase12()
 
     ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
 
-    for (size_t ti = 0; ti <=14; ++ti) {
+    // Testing destruction of objects created by value constructors
+    for (size_t ti = 0; ti <= 14; ++ti) {
         ArgType01 A01(V01);
         ArgType02 A02(V02);
         ArgType03 A03(V03);
@@ -526,92 +543,110 @@ void TestDriver::testCase12()
         ArgType13 A13(V13);
         ArgType14 A14(V14);
 
-        bsls::ObjectBuffer<Obj> buffer;
-        const Obj& X = buffer.object();
-        (void)X;
-
         switch (ti) {
           case 0: {
-            new(buffer.address()) Obj();
+            Obj X;
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 1: {
-            new (buffer.address()) Obj(A01);
+            Obj X(A01);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 2: {
-            new (buffer.address()) Obj(A01, A02);
+            Obj X(A01, A02);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 3: {
-            new (buffer.address()) Obj(A01, A02, A03);
+            Obj X(A01, A02, A03);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 4: {
-            new (buffer.address()) Obj(A01, A02, A03, A04);
+            Obj X(A01, A02, A03, A04);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 5: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05);
+            Obj X(A01, A02, A03, A04, A05);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 6: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06);
+            Obj X(A01, A02, A03, A04, A05, A06);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 7: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07);
+            Obj X(A01, A02, A03, A04, A05, A06, A07);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 8: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 9: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 10: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09, A10);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 11: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09, A10, A11);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10, A11);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 12: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09, A10, A11, A12);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10, A11, A12);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 13: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09, A10, A11, A12,
-                                       A13);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10, A11, A12,
+                  A13);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           case 14: {
-            new (buffer.address()) Obj(A01, A02, A03, A04, A05, A06,
-                                       A07, A08, A09, A10, A11, A12,
-                                       A13, A14);
+            Obj X(A01, A02, A03, A04, A05, A06, A07, A08, A09, A10, A11, A12,
+                  A13, A14);
+            (void)X;
             ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
           } break;
           default: {
             ASSERTV(0);
           } break;
         }
-        {
-            // Use destruction guard to destroy the object
-            bslma::DestructorGuard<Obj> guard(&buffer.object());
-        }
         ++count;
         ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
     }
+
+    // Testing destruction of objects created by the copy constructor
+    {
+        {
+            Obj X;
+            ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
+
+            {
+                Obj Y(X);
+                (void)Y;
+                ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
+            }
+            ++count;  // Y is destroyed
+            ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
+        }
+        ++count;  // X is destroyed
+        ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
+    }
+
 }
 
 void TestDriver::testCase11()
@@ -798,7 +833,7 @@ void TestDriver::testCase9()
     }
 
     if (verbose)
-        printf("\nTesting copy assignment operator.\n");
+        printf("\nTesting copy-assignment operator.\n");
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1073,10 +1108,10 @@ void TestDriver::testCase4()
     //: 1 Use the value constructors to create objects having different
     //:   attribute values.  Verify that the accessors for the corresponding
     //:   attributes invoked on a reference providing non-modifiable access
-    //:   to the object return the expected value.  (C-1,2)
+    //:   to the object return the expected value.  (C-2)
     //:
-    //: 2 Verify that the accessors for the arrtibutes not supplied to the
-    //:   value constructor return default attribute value.  (C-1)
+    //: 2 Verify that the accessors for the attributes not supplied to the
+    //:   value constructor return the default attribute value.  (C-1)
     //
     // Testing:
     //   ArgType01 arg01() const;
@@ -1109,12 +1144,6 @@ void TestDriver::testCase4()
     };
 
     const size_t NUM_DATA = sizeof DATA / sizeof DATA[0];
-
-    bslma::TestAllocator *da =
-             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
-    BSLS_ASSERT(da);
-
-    bslma::TestAllocatorMonitor dam(da);
 
     for (size_t td = 0; td < NUM_DATA; ++td) {          // argument value
         const int LINE  = DATA[td].d_line;
@@ -1237,9 +1266,6 @@ void TestDriver::testCase4()
             }
         }
     }
-
-    ASSERT(dam.isMaxSame());
-    ASSERT(dam.isInUseSame());
 }
 
 void TestDriver::testCase3()
@@ -1247,9 +1273,9 @@ void TestDriver::testCase3()
     // ------------------------------------------------------------------------
     // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
     //   Having demonstrated that our primary manipulators work as expected
-    //   under normal conditionss, we want to verify that valid generator
-    //   syntax produces expected results and that invalid syntax is detected
-    //   and reported.
+    //   under normal conditions, we want to verify that valid generator syntax
+    //   produces expected results and that invalid syntax is detected and
+    //   reported.
     //
     // Concerns:
     //: 1 Valid generator syntax produces expected results.
@@ -1390,8 +1416,8 @@ void TestDriver::testCase2()
     // Plan:
     //: 1 Create 14 argument values.
     //:
-    //: 2 Based on (first) template parameter indicating the number of
-    //:   arguments to pass in, call value constructor with the
+    //: 2 Based on the (first) template parameter indicating the number of
+    //:   arguments to pass in, call the value constructor with the
     //:   corresponding number of arguments, performing an explicit move
     //:   of the argument if so indicated by the template parameter
     //:   corresponding to the argument.
@@ -1400,12 +1426,6 @@ void TestDriver::testCase2()
     //:
     //: 4 Verify that the move-state for each argument is as expected.
     // ------------------------------------------------------------------------
-
-    bslma::TestAllocator *da =
-             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
-    BSLS_ASSERT(da);
-
-    bslma::TestAllocatorMonitor dam(da);
 
     // In C++17 these become the simpler to name 'bool_constant'
     static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
@@ -1613,9 +1633,6 @@ void TestDriver::testCase2()
     ASSERTV(V12, EXP.arg12(), V12 == EXP.arg12() || 2 == N12);
     ASSERTV(V13, EXP.arg13(), V13 == EXP.arg13() || 2 == N13);
     ASSERTV(V14, EXP.arg14(), V14 == EXP.arg14() || 2 == N14);
-
-    ASSERT(dam.isMaxSame());
-    ASSERT(dam.isInUseSame());
 }
 
 //=============================================================================
@@ -1678,7 +1695,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BDEX STREAMING
         //   N/A
         // --------------------------------------------------------------------
       } break;
@@ -1687,8 +1704,8 @@ int main(int argc, char *argv[])
         // COPY-ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Copy Assignement"
-                            "\n========================\n");
+        if (verbose) printf("\nTesting Copy Assignment"
+                            "\n=======================\n");
 
         TestDriver::testCase9();
       } break;
@@ -1750,18 +1767,18 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
+        //: 1 The value constructors can create an object having any value that
         //:   does not violate the documented constraints.
         //
         // Plan:
         //: 1 This test makes material use of template method 'testCase2'
-        //:   with first integer template parameter indicating the number of
-        //:   arguments to use, the next 14 integer template parameters
+        //:   with the first integer template parameter indicating the number
+        //:   of arguments to use, the next 14 integer template parameters
         //:   indicating '0' for copy, '1' for move, and '2' for not-applicable
         //:   (i.e., beyond the number of arguments).
         //
-        //:   1 Based on (first) template parameter indicating the number of
-        //:     arguments to pass in, call value constructor with the
+        //:   1 Based on the (first) template parameter indicating the number
+        //:     of arguments to pass in, call the value constructor with the
         //:     corresponding number of arguments, performing an explicit move
         //:     of the argument if so indicated by the template parameter
         //:     corresponding to the argument.
@@ -1771,8 +1788,8 @@ int main(int argc, char *argv[])
         //:     then with the move flag set to '1' for every positional
         //:     argument.
         //:
-        //:   2 For 0..14 arguments, call with move flags set to '0', '1' for
-        //:     all positional arguments.
+        //:   2 For 0..14 arguments, call with move flags set to '0' and '1'
+        //:     for all positional arguments.
         //
         // Testing:
         //   EmplacableTestType();
@@ -1797,23 +1814,23 @@ int main(int argc, char *argv[])
 
 #ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
         if (verbose) printf("\nTesting constructor with no arguments"
-                            "\n------------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 1 argument"
-                            "\n----------------------------------\n");
+                            "\n-----------------------------------\n");
         TestDriver::testCase2<1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<1,1,2,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 2 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<2,0,1,2,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<2,1,0,2,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<2,1,1,2,2,2,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 3 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<3,0,0,0,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<3,1,0,0,2,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<3,0,1,0,2,2,2,2,2,2,2,2,2,2,2>();
@@ -1821,7 +1838,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<3,1,1,1,2,2,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 4 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<4,0,0,0,0,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<4,1,0,0,0,2,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<4,0,1,0,0,2,2,2,2,2,2,2,2,2,2>();
@@ -1830,7 +1847,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<4,1,1,1,1,2,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 5 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<5,0,0,0,0,0,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<5,1,0,0,0,0,2,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<5,0,1,0,0,0,2,2,2,2,2,2,2,2,2>();
@@ -1840,7 +1857,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<5,1,1,1,1,1,2,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 6 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<6,0,0,0,0,0,0,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<6,1,0,0,0,0,0,2,2,2,2,2,2,2,2>();
         TestDriver::testCase2<6,0,1,0,0,0,0,2,2,2,2,2,2,2,2>();
@@ -1851,7 +1868,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<6,1,1,1,1,1,1,2,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 7 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<7,0,0,0,0,0,0,0,2,2,2,2,2,2,2>();
         TestDriver::testCase2<7,1,0,0,0,0,0,0,2,2,2,2,2,2,2>();
         TestDriver::testCase2<7,0,1,0,0,0,0,0,2,2,2,2,2,2,2>();
@@ -1863,7 +1880,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<7,1,1,1,1,1,1,1,2,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 8 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<8,0,0,0,0,0,0,0,0,2,2,2,2,2,2>();
         TestDriver::testCase2<8,1,0,0,0,0,0,0,0,2,2,2,2,2,2>();
         TestDriver::testCase2<8,0,1,0,0,0,0,0,0,2,2,2,2,2,2>();
@@ -1876,7 +1893,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<8,1,1,1,1,1,1,1,1,2,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 9 arguments"
-                            "\n----------------------------------\n");
+                            "\n------------------------------------\n");
         TestDriver::testCase2<9,0,0,0,0,0,0,0,0,0,2,2,2,2,2>();
         TestDriver::testCase2<9,1,0,0,0,0,0,0,0,0,2,2,2,2,2>();
         TestDriver::testCase2<9,0,1,0,0,0,0,0,0,0,2,2,2,2,2>();
@@ -1890,7 +1907,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<9,1,1,1,1,1,1,1,1,1,2,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 10 arguments"
-                            "\n----------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<10,0,0,0,0,0,0,0,0,0,0,2,2,2,2>();
         TestDriver::testCase2<10,1,0,0,0,0,0,0,0,0,0,2,2,2,2>();
         TestDriver::testCase2<10,0,1,0,0,0,0,0,0,0,0,2,2,2,2>();
@@ -1905,7 +1922,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<10,1,1,1,1,1,1,1,1,1,1,2,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 11 arguments"
-                            "\n----------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<11,0,0,0,0,0,0,0,0,0,0,0,2,2,2>();
         TestDriver::testCase2<11,1,0,0,0,0,0,0,0,0,0,0,2,2,2>();
         TestDriver::testCase2<11,0,1,0,0,0,0,0,0,0,0,0,2,2,2>();
@@ -1921,7 +1938,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<11,1,1,1,1,1,1,1,1,1,1,1,2,2,2>();
 
         if (verbose) printf("\nTesting constructor with 12 arguments"
-                            "\n----------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         TestDriver::testCase2<12,1,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         TestDriver::testCase2<12,0,1,0,0,0,0,0,0,0,0,0,0,2,2>();
@@ -1938,7 +1955,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<12,1,1,1,1,1,1,1,1,1,1,1,1,2,2>();
 
         if (verbose) printf("\nTesting constructor with 13 arguments"
-                            "\n----------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         TestDriver::testCase2<13,1,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         TestDriver::testCase2<13,0,1,0,0,0,0,0,0,0,0,0,0,0,2>();
@@ -1956,7 +1973,7 @@ int main(int argc, char *argv[])
         TestDriver::testCase2<13,1,1,1,1,1,1,1,1,1,1,1,1,1,2>();
 
         if (verbose) printf("\nTesting constructor with 14 arguments"
-                            "\n----------------------------------\n");
+                            "\n-------------------------------------\n");
         TestDriver::testCase2<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
         TestDriver::testCase2<14,1,0,0,0,0,0,0,0,0,0,0,0,0,0>();
         TestDriver::testCase2<14,0,1,0,0,0,0,0,0,0,0,0,0,0,0>();
