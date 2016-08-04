@@ -435,7 +435,7 @@ class MultiQueueThreadPool_Queue {
     // MANIPULATORS
     Job popFront();
         // Dequeue and return the element at the front of this queue.  The
-        // behavior is undefined if the queue is empty.
+        // behavior is undefined unless the queue is not empty.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
