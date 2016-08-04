@@ -23,7 +23,6 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ilougino Rocha (irocha), John Lakos (jlakos),
 //         Steven Breitstein (sbreitstein)
 //
-//
 //@SEE_ALSO: bdlb_nullableallocatedvalue
 //
 //@DESCRIPTION: This component provides a template class,
@@ -33,7 +32,8 @@ BSLS_IDENT("$Id: $")
 // representable by the template parameter 'TYPE' is extended to include null.
 // If the underlying 'TYPE' is fully value-semantic, then so will the augmented
 // type 'bdlb::NullableValue<TYPE>'.  Two homogeneous nullable objects have the
-// same value if their underlying 'TYPE' values are the same, or both are null.
+// same value if their underlying (non-null) 'TYPE' values are the same, or
+// both are null.
 //
 // Note that the object of template parameter 'TYPE' that is managed by a
 // 'bdlb::NullableValue<TYPE>' object is created *in*-*place*.  Consequently,
@@ -51,6 +51,10 @@ BSLS_IDENT("$Id: $")
 // and 'double'); attempts at conversion between incompatible types, such as
 // 'int' and 'bsl::string', will fail to compile.  Note that these operational
 // semantics are similar to those found in 'bsl::shared_ptr'.
+//
+// Furthermore, a move constructor (taking an optional allocator) and a
+// move-assignment operator are also provided.  Note that move semantics are
+// emulated with C++03 compilers.
 //
 ///Usage
 ///-----
