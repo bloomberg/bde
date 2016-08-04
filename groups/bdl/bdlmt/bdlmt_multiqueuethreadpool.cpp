@@ -149,6 +149,13 @@ void MultiQueueThreadPool_Queue::disable()
 }
 
 inline
+bool MultiQueueThreadPool_Queue::isEnabled() const
+{
+    int state = d_state.loadRelaxed();
+    return (e_DELETING != state && e_ENQUEUING_ENABLED == state);
+}
+
+inline
 void MultiQueueThreadPool_Queue::numProcessedReset(int *numDequeued,
                                                    int *numEnqueued)
 {
@@ -481,6 +488,15 @@ int MultiQueueThreadPool::disableQueue(int id)
         rc = 0;
     }
     return rc;
+}
+
+bool MultiQueueThreadPool::isEnabled(int id) const
+{
+    MultiQueueThreadPool_QueueContext *context = 0;
+    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    return (STATE_RUNNING == d_state.loadRelaxed() &&
+                                    0 == d_queueRegistry.find(id, &context) &&
+                                                context->d_queue.isEnabled());
 }
 
 int MultiQueueThreadPool::drainQueue(int id)

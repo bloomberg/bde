@@ -433,7 +433,7 @@ class MultiQueueThreadPool_Queue {
     // MANIPULATORS
     Job popFront();
         // Dequeue and return the element at the front of this queue.  The
-        // behavior is undefined if the queue is empty.
+        // behavior is undefined unless the queue is not empty.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -476,6 +476,10 @@ class MultiQueueThreadPool_Queue {
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset.
+
+    bool isEnabled() const;
+        // Report whether enqueuing to this object is enabled.  This object is
+        // constructed with enqueuing enabled.
 };
 
                   // =======================================
@@ -781,7 +785,14 @@ class MultiQueueThreadPool {
     // ACCESSORS
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
-        // currently paused, or 'false' otherwise.
+        // currently paused, or 'false' otherwise.  The behavior is undefined
+        // unless 'id' is a valid queue identifier returned by this object.
+
+    bool isEnabled(int id) const;
+        // Report whether the queue identified by the specified 'id' is
+        // enabled.  A queue's initial state is enabled.  The behavior is
+        // undefined unless 'id' is a valid queue identifier returned by this
+        // object.
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
