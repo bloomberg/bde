@@ -715,10 +715,16 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
+    bsl::string tmp;
+    rc = baljsn::ParserUtil::getValue(&tmp, dataValue);
+    if (rc) {
+        d_logStream << "Error reading enumeration value\n";
+        return -1;                                                    // RETURN
+    }
+    
     rc = bdlat_EnumFunctions::fromString(value,
-                                         dataValue.data(),
-                                         static_cast<int>(dataValue.length()));
+                                         tmp.data(),
+                                         static_cast<int>(tmp.size()));
 
     if (rc) {
         d_logStream << "Could not decode Enum String, value not allowed \""
