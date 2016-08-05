@@ -72,8 +72,20 @@ BSLS_IDENT("$Id: $")
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
+// If the (template parameter) type 'ALLOCATOR' of a 'list' instantiation is
+// 'bsl::allocator', then objects of that list type will conform to the
+// standard behavior of a 'bslma'-allocator-enabled type.  Such a list accepts
+// an optional 'bslma::Allocator' argument at construction.  If the address of
+// a 'bslma::Allocator' object is explicitly supplied at construction, the list
+// uses it to supply memory for the list throughout its lifetime; otherwise,
+// the list will use the default allocator installed at the time of the list's
+// construction (see 'bslma_default').  In addition to directly allocating
+// memory from the indicated 'bslma::Allocator', a list supplies that
+// allocator's address to the constructors of contained objects of the
+// (template parameter) 'VALUE' type if it defines the
+// 'bslma::UsesBslmaAllocator' trait.
 //
-///Comparators and strict weak ordering
+///Comparators and Strict Weak Ordering
 /// - - - - - - - - - - - - - - - - - -
 // A comparator function 'comp(a, b)' defines a *strict* *weak* *ordering* if
 //: o 'comp(a, b)' && 'comp(b, c)' implies 'comp(a, c)'
@@ -656,6 +668,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -682,17 +698,24 @@ namespace bsl {
                         // =====================
 
 template <class VALUE>
-struct List_Node {
+class List_Node {
     // PRIVATE STRUCT TEMPLATE.  For use only by 'bsl::list' implementation.
     // An instance of 'List_Node<T>' is a single node in a doubly-linked list
     // used to implement 'bsl::list<T,A>', for a given element type 'T' and
-    // allocator type 'A'.  Note that an instantiation of this 'struct' for
-    // a given 'bsl::list' is independent of the allocator type.
+    // allocator type 'A'.  Note that an instantiation of this 'struct' for a
+    // given 'bsl::list' is independent of the allocator type.
 
     // DATA
     List_Node *d_prev_p;   // pointer to the previous node in the list
     List_Node *d_next_p;   // pointer to the next node in the list
     VALUE      d_value;    // list element
+
+    // FRIENDS
+    template <class LIST_VALUE, class LIST_ALLOCATOR>
+    friend class list;
+
+    template <class ITER_VALUE>
+    friend class List_Iterator;
 
   private:
     // NOT IMPLEMENTED
@@ -735,20 +758,17 @@ class List_Iterator {
     template <class LIST_VALUE, class LIST_ALLOCATOR>
     friend class list;
 
-    template <class ITER_VALUE>
-    friend class List_Iterator;
+    template <class ITER_VALUE>    // This 'friend' statement is needed for the
+    friend class List_Iterator;    // case where 'VALUE' != 'ITER_VALUE'.
 
     template <class T1, class T2>
     friend bool operator==(List_Iterator<T1>, List_Iterator<T2>);
 
   private:
     // PRIVATE ACCESSORS
-    NcIter unconst() const
+    NcIter unconst() const;
         // Return an iterator providing modifiable access to the list element
         // that this list iterator refers to.
-    {
-        return NcIter(d_node_p);
-    }
 
   public:
     // PUBLIC TYPES
@@ -765,7 +785,8 @@ class List_Iterator {
 
     explicit List_Iterator(Node *nodePtr);
         // Create an iterator that references the value pointed to by the
-        // specified 'nodePtr'.
+        // specified 'nodePtr'.  If '0 == nodePtr' the iterator will be
+        // singular.
 
     List_Iterator(const NcIter& other);                             // IMPLICIT
         // Create an iterator that has the same value as the specified 'other'
@@ -967,7 +988,7 @@ class List_NodeProctor {
     // CREATORS
     List_NodeProctor(list<VALUE, ALLOCATOR> *listPtr, NodePtr nodePtr);
         // Create a node proctor object that will use the specified list
-        // 'listPtr' to free the specified node 'nodePtr'.  The behavior is
+        // 'listPtr' to free the specified 'nodePtr'.  The behavior is
         // undefined unless 'nodePtr' was allocated by the allocator of
         // '*listPtr'.
 
@@ -994,8 +1015,6 @@ class list {
 
     // PRIVATE TYPES
 
-    // Forward declarations of private nested classes and struct.
-
     typedef List_DefaultLessThan<VALUE>           DefaultLessThan;
         // Default comparator.
 
@@ -1018,7 +1037,7 @@ class list {
         // and number of elements stored in this container.
 
     typedef typename AllocTraits::allocator_type  NodeAlloc;
-        // Base class of 'AllocAndSizeWrapper' containing the allcoator.
+        // Base class of 'List_AllocAndSizeWrapper' containing the allocator.
 
     // In C++11 'NodePtr' would be generalized as follows:
     // 'typedef pointer_traits<VoidPtr>::template rebind<List_Node> NodePtr;'
@@ -1070,8 +1089,7 @@ class list {
         // Destroy the value part of the specified 'node' and free the node's
         // memory.  Do not do any pointer fix-up of the node or its neighbors,
         // and do not update 'sizeRef'.  The behavior is undefined unless
-        // '0 != node' and unless 'node' was allocated using the allocator of
-        // this list.
+        // 'node' was allocated using the allocator of this list.
 
     void destroyAll();
         // Erase all elements and deallocate the sentinel node, leaving this
@@ -1079,10 +1097,10 @@ class list {
 
     void freeNode(NodePtr node);
         // Zero out the pointers and deallocate the node pointed to by the
-        // specified 'node'.  The behavior is undefined unless '0 != node' and
-        // unless 'node' was allocated using the allocator of this list.  Note
-        // that 'node's destructor is not called, and, importantly, the value
-        // field of 'node' is not destroyed.
+        // specified 'node'.  The behavior is undefined unless 'node' was
+        // allocated using the allocator of this list.  Note that 'node's
+        // destructor is not called, and, importantly, the value field of
+        // 'node' is not destroyed.
 
     iterator insertNode(const_iterator position, NodePtr node);
         // Insert the specified 'node' prior to the specified 'position' in
@@ -1106,13 +1124,13 @@ class list {
         // somewhere in the middle of the sequence, merge sequence
         // '[node2 .. finish)' into '[node1 .. node2)', and return a pointer to
         // the beginning of the merged sequence, using the specified
-        // 'less-than' comparator 'comparator' to determine order.  If an
-        // exception is thrown, all nodes remain in this list, but their order
-        // is unspecified.  If any nodes in the range '[node1, node2)' compare
-        // equivalent to any nodes in the range '[node2, finish)' the nodes
-        // from '[node1, node2)' will be merged first.  The behavior is
-        // undefined unless '[node1 .. node2)' and '[node2 .. finish)' each
-        // describe a contiguous sequence of nodes.
+        // 'comparator' to determine order.  If an exception is thrown, all
+        // nodes remain in this list, but their order is unspecified.  If any
+        // nodes in the range '[node1 .. node2)' compare equivalent to any
+        // nodes in the range '[node2 .. finish)' the nodes from
+        // '[node1 .. node2)' will be merged first.  The behavior is undefined
+        // unless '[node1 .. node2)' and '[node2 .. finish)' each describe a
+        // contiguous sequence of nodes.
 
     void quickSwap(list *other);
         // Efficiently exchange the value of this object with that of the
@@ -1132,11 +1150,11 @@ class list {
         // specified '*nodePtrPtr', and modify '*nodePtrPtr' to refer to the
         // first node of the sorted sequence.  Return the pointer to the node
         // following the sequence of nodes to be sorted.  Use the specified
-        // ordering comparator 'comparator' to compare 'VALUE' type objects.
-        // If an exception is thrown, all nodes remain properly linked, but
-        // their order is unspecified.  The behavior is undefined unless
-        // '*nodePtrPtr' begins a sequence of at least 'size' nodes, none of
-        // which is the sentinel node, and '0 < size'.
+        // 'comparator' to compare 'VALUE' type objects.  If an exception is
+        // thrown, all nodes remain properly linked, but their order is
+        // unspecified.  The behavior is undefined unless '*nodePtrPtr' begins
+        // a sequence of at least 'size' nodes, none of which is the sentinel
+        // node, and '0 < size'.
 
     // PRIVATE ACCESSORS
     const NodeAlloc& allocatorImp() const;
@@ -1286,6 +1304,7 @@ class list {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     list(std::initializer_list<value_type> values,
          const ALLOCATOR&                  basicAllocator = ALLOCATOR());
+                                                                    // IMPLICIT
         // Create a list and append each 'value_type' object in the specified
         // 'values' initializer list.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not supplied, a
@@ -1355,7 +1374,7 @@ class list {
                     !is_enum<INPUT_ITERATOR>::value
                 >::type * = 0)
         // Assign to this list the sequence of values, in order, of the
-        // elements of the specified range '[first, last)'.  The (template
+        // elements of the specified range '[first .. last)'.  The (template
         // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
         // input iterator defined in the C++11 standard [24.2.3] providing
         // access to values of a type convertible to 'value_type', and
@@ -2032,8 +2051,8 @@ class list {
             return dstPosition.unconst();                             // RETURN
         }
 
-        // Remember the dstPosition of the first insertion.  We can't assume
-        // 'INPUT_ITERATOR' has a post increment available.
+        // The return value should indicte the first node inserted.  We can't
+        // assume 'INPUT_ITERATOR' has a post-increment available.
 
         iterator ret = insert(dstPosition, *first);
         for (++first; first != last; ++first) {
@@ -2102,20 +2121,20 @@ class list {
     template <class COMPARE>
     void sort(COMPARE comparator);
         // Sort this list in non-decreasing order according to the order
-        // provided by the specified predicate comparator 'comparator'.
-        // 'comparator' must define a strict weak ordering over 'value_type'
-        // (see {Comparators and Strict Weak Ordering}).  The sort is stable,
-        // meaning that if '!comparator(a, b) && !comparator(b, a)', then the
-        // ordering of elements 'a' and 'b' in the sequence is preserved.
+        // provided by the specified 'comparator' predicate.  'comparator' must
+        // define a strict weak ordering over 'value_type' (see {Comparators
+        // and Strict Weak Ordering}).  The sort is stable, meaning that if
+        // '!comparator(a, b) && !comparator(b, a)', then the ordering of
+        // elements 'a' and 'b' in the sequence is preserved.
 
     void splice(const_iterator                       dstPosition,
                 list&                                src);
     void splice(const_iterator                       dstPosition,
                 BloombergLP::bslmf::MovableRef<list> src);
         // Remove all elements of the specified 'src' list and insert them, in
-        // the same order, in this list at the specified 'dstPostition'.  The
+        // the same order, in this list at the specified 'dstPosition'.  The
         // behavior is undefined unless 'src' is not this list, this list and
-        // 'src' share the same allocator, and 'dstPosition' is in the range
+        // 'src' use the same allocator, and 'dstPosition' is in the range
         // '[begin() .. end()]' (note both endpoints included).
 
     void splice(const_iterator                       dstPosition,
@@ -2125,13 +2144,13 @@ class list {
                 BloombergLP::bslmf::MovableRef<list> src,
                 const_iterator                       srcNode);
         // Remove the single element at the specified 'srcNode' from the
-        // specified 'src' list, and insert it before the specified
-        // 'dstPosition' in this list.  The behavior is undefined unless
-        // 'srcNode' refers to a valid element in 'src', this list and 'src'
-        // use the same allocator, and 'dstPosition' is in the range
-        // '[begin() .. end()]' (note both endpoints included).  Note that
-        // 'src' and '*this' may be the same list, in which case the element is
-        // moved to a (possibly) new position in the list.
+        // specified 'src' list, and insert it at the specified 'dstPosition'
+        // in this list.  The behavior is undefined unless 'srcNode' refers to
+        // a valid element in 'src', this list and 'src' use the same
+        // allocator, and 'dstPosition' is in the range '[begin() .. end()]'
+        // (note both endpoints included).  Note that 'src' and '*this' may be
+        // the same list, in which case the element is moved to a (possibly)
+        // new position in the list.
 
     void splice(const_iterator                       dstPosition,
                 list&                                src,
@@ -2141,8 +2160,8 @@ class list {
                 BloombergLP::bslmf::MovableRef<list> src,
                 const_iterator                       first,
                 const_iterator                       last);
-        // Remove the elements in the specified range '[first, last)' from the
-        // specified 'src' list, and insert them, in the same order, before the
+        // Remove the elements in the specified range '[first .. last)' from
+        // the specified 'src' list, and insert them, in the same order, at the
         // specified 'dstPosition' in this list.  The behavior is undefined
         // unless '[first .. last)' represents a range of valid elements in
         // 'src', 'dstPosition' is not in the range '[first .. last)', this
@@ -2336,6 +2355,14 @@ void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
                            // ------------------------
                            // class bsl::List_Iterator
                            // ------------------------
+
+// PRIVATE ACCESSORS
+template <class VALUE>
+inline
+typename List_Iterator<VALUE>::NcIter List_Iterator<VALUE>::unconst() const
+{
+    return NcIter(d_node_p);
+}
 
 // CREATORS
 template <class VALUE>
@@ -4302,10 +4329,10 @@ void list<VALUE, ALLOCATOR>::splice(const_iterator position, list& src)
         return;                                                       // RETURN
     }
 
-    NodePtr pos   = position.d_node_p;
-    NodePtr first = src.headNode();
-    NodePtr last  = src.d_sentinel->d_prev_p;
-    size_type n = src.sizeRef();
+    NodePtr   pPos   = position.d_node_p;
+    NodePtr   pFirst = src.headNode();
+    NodePtr   pLast  = src.d_sentinel->d_prev_p;
+    size_type n    = src.sizeRef();
 
     // Splice contents out of 'src'.
 
@@ -4314,8 +4341,8 @@ void list<VALUE, ALLOCATOR>::splice(const_iterator position, list& src)
 
     // Splice contents into '*this'.
 
-    linkNodes(pos->d_prev_p, first);
-    linkNodes(last, pos);
+    linkNodes(pPos->d_prev_p, pFirst);
+    linkNodes(pLast,          pPos);
     sizeRef() += n;
 }
 
@@ -4335,23 +4362,23 @@ void list<VALUE, ALLOCATOR>::splice(const_iterator dstPosition,
 {
     BSLS_ASSERT(allocatorImp() == src.allocatorImp());
 
-    NodePtr pos_p          = dstPosition.d_node_p;
-    NodePtr srcNode_p      = srcNode.d_node_p;
-    NodePtr afterSrcNode_p = srcNode_p->d_next_p;
+    NodePtr pPos          = dstPosition.d_node_p;
+    NodePtr pSrcNode      = srcNode.d_node_p;
+    NodePtr pAfterSrcNode = pSrcNode->d_next_p;
 
-    if (pos_p == srcNode_p || pos_p == afterSrcNode_p) {
+    if (pPos == pSrcNode || pPos == pAfterSrcNode) {
         return;                                                       // RETURN
     }
 
     // Splice contents out of 'src'.
 
-    linkNodes(srcNode_p->d_prev_p, afterSrcNode_p);
+    linkNodes(pSrcNode->d_prev_p, pAfterSrcNode);
     --src.sizeRef();
 
     // Splice contents into '*this'.
 
-    linkNodes(pos_p->d_prev_p, srcNode_p);
-    linkNodes(srcNode_p,       pos_p);
+    linkNodes(pPos->d_prev_p, pSrcNode);
+    linkNodes(pSrcNode,       pPos);
     ++sizeRef();
 }
 
@@ -4379,20 +4406,20 @@ void list<VALUE, ALLOCATOR>::splice(const_iterator dstPosition,
         return;                                                       // RETURN
     }
 
-    NodePtr pos_p     = dstPosition.d_node_p;
-    NodePtr first_p   = first.d_node_p;
-    NodePtr last_p    = last.d_node_p;
-    NodePtr srcLast_p = last_p->d_prev_p;
+    NodePtr pPos     = dstPosition.d_node_p;
+    NodePtr pFirst   = first.d_node_p;
+    NodePtr pLast    = last.d_node_p;
+    NodePtr pSrcLast = pLast->d_prev_p;
 
     // Splice contents out of 'src'.
 
-    linkNodes(first_p->d_prev_p, last_p);
+    linkNodes(pFirst->d_prev_p, pLast);
     src.sizeRef() -= n;
 
     // Splice contents into '*this'.
 
-    linkNodes(pos_p->d_prev_p, first_p);
-    linkNodes(srcLast_p,       pos_p);
+    linkNodes(pPos->d_prev_p, pFirst);
+    linkNodes(pSrcLast,       pPos);
     sizeRef() += n;
 }
 
@@ -4455,8 +4482,6 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
     // Bloomberg proposal to that effect is accepted).  Note that free 'swap'
     // currently forwards to this implementation.
 
-    // backward compatible behavior: swap with copies
-
     if (AllocTraits::propagate_on_container_swap::value) {
         using std::swap;
 
@@ -4471,20 +4496,19 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-        // Swap copies.
+        // Create copies using the move constructor, then swap both containers
+        // with them.  Note that if no move constructor exists, but a copy
+        // constructor does, the copy constructor will be used.
 
-        // We considered making this moves rather than copies, but if they
-        // throw, that could leave parts of '*this' and 'other' in a moved-from
-        // state, and it seems desirable that 'swap' should either succeed
-        // completely or leave its arguments completely unchanged.  Also, it is
-        // unclear how a move with unequal allocators would be any more
-        // efficient than an copy.
+        // Note that if either of these copies throws, it could leave the two
+        // containers in a changed state.  They are, however, guaranteed to be
+        // left in valid state.
 
-        list toOtherCopy(*this, other.allocatorImp());    // might throw
-        list toThisCopy( other,       allocatorImp());    // might throw
+        list toOtherCopy(MoveUtil::move(*this), other.allocatorImp());
+        list toThisCopy( MoveUtil::move(other), this->allocatorImp());
 
         toOtherCopy.quickSwap(&other);
-        toThisCopy. quickSwap(&*this);
+        toThisCopy .quickSwap(this);
     }
 }
 
