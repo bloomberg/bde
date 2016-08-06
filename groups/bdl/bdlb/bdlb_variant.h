@@ -621,6 +621,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
+#include <bslma_constructionutil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -659,6 +663,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
@@ -1149,23 +1157,29 @@ class Variant_RawVisitorHelper {
     VISITOR *d_visitor;  // visitor to which this helper delegates
 
   public:
+    // CREATORS
     explicit Variant_RawVisitorHelper(VISITOR *visitor);
         // Create a 'RawVisitorHelper' functor that delegates to the specified
         // 'visitor'.
 
-    RESULT_TYPE operator()(bslmf::Nil) const;
-        // Do not call.  The behavior of this method is undefined.
-
+    // MANIPULATORS
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(ARGUMENT_TYPE& argument);
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(const ARGUMENT_TYPE& argument);
+        // Invoke the functor supplied at construction with the specified
+        // 'argument' and return the result.
+
+    // ACCESSORS
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(ARGUMENT_TYPE& argument) const;
     template <class ARGUMENT_TYPE>
     RESULT_TYPE operator()(const ARGUMENT_TYPE& argument) const;
         // Invoke the functor supplied at construction with the specified
         // 'argument' and return the result.
+
+    RESULT_TYPE operator()(bslmf::Nil) const;
+        // Do not call.  The behavior of this method is undefined.
 };
 
                        // =======================
@@ -1197,6 +1211,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     // PRIVATE TYPES
     typedef VariantImp_Traits<TYPES>  Traits;
     typedef typename Traits::BaseType Base;
+    typedef bslmf::MovableRefUtil     MoveUtil;
 
   private:
     // PRIVATE MANIPULATORS
@@ -1331,7 +1346,21 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // Create a variant object having the type and value of the specified
         // 'original' variant.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        /// default allocator is used.
+        // default allocator is used.
+
+    VariantImp(bslmf::MovableRef<VariantImp> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    VariantImp(bslmf::MovableRef<VariantImp>  original,
+               bslma::Allocator              *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
 
     ~VariantImp();
         // Destroy this variant object, invoking the destructor of the type of
@@ -1352,6 +1381,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    VariantImp& operator=(bslmf::MovableRef<VariantImp> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 
     template <class VISITOR>
     typename bsl::enable_if<Variant_ReturnValueHelper<VISITOR>::value == 1,
@@ -2170,6 +2206,7 @@ class Variant : public VariantImp<typename bslmf::TypeList<
 #endif
 
     typedef VariantImp_Traits<typename Imp::TypeList>                Traits;
+    typedef bslmf::MovableRefUtil                                    MoveUtil;
 
   public:
     // TRAITS
@@ -2216,6 +2253,20 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant(bslmf::MovableRef<Variant> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant(bslmf::MovableRef<Variant>  original,
+            bslma::Allocator           *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant& operator=(const TYPE& value);
@@ -2230,17 +2281,28 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant& operator=(bslmf::MovableRef<Variant> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
 template <class ...TYPES>
+inline
 Variant<TYPES...>::Variant()
 {
 }
 
 template <class ...TYPES>
 template <class TYPE_OR_ALLOCATOR>
+inline
 Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& typeOrAlloc)
 : Imp(typeOrAlloc)
 {
@@ -2248,21 +2310,39 @@ Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& typeOrAlloc)
 
 template <class ...TYPES>
 template <class TYPE>
-Variant<TYPES...>::Variant(const TYPE&       value,
-                           bslma::Allocator *basicAllocator)
+inline
+Variant<TYPES...>::Variant(const TYPE& value, bslma::Allocator *basicAllocator)
 : Imp(value, basicAllocator)
 {
 }
 
 template <class ...TYPES>
+inline
 Variant<TYPES...>::Variant(const Variant&    original,
                            bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp &>(original), basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
     // Up-cast needed since template matching has higher overloading precedence
     // than derived-to-base matching.
 {
 }
 
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant(bslmf::MovableRef<Variant> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant(bslmf::MovableRef<Variant>  original,
+                           bslma::Allocator           *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
 template <class ...TYPES>
 template <class TYPE>
 inline
@@ -2282,11 +2362,25 @@ Variant<TYPES...>& Variant<TYPES...>::operator=(const Variant& rhs)
     Imp::operator=(static_cast<const Imp&>(rhs));
     return *this;
 }
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<Variant> rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
 #else
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19, class A20>
+inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant()
 {
@@ -2297,6 +2391,7 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19, class A20>
 template <class TYPE_OR_ALLOCATOR>
+inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
                                           const TYPE_OR_ALLOCATOR& typeOrAlloc)
@@ -2309,6 +2404,7 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19, class A20>
 template <class TYPE>
+inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
                                               const TYPE&       value,
@@ -2321,16 +2417,44 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19, class A20>
+inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
                                               const Variant&    original,
                                               bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp &>(original), basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
     // Up-cast needed since template matching has higher overloading precedence
     // than derived-to-base matching.
 {
 }
 
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                           bslmf::MovableRef<Variant> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                    bslmf::MovableRef<Variant>  original,
+                                    bslma::Allocator           *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
@@ -2362,6 +2486,26 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
     Imp::operator=(static_cast<const Imp&>(rhs));
     return *this;
 }
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::
+operator=(bslmf::MovableRef<Variant> rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
 #endif
 
 #ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
@@ -2383,6 +2527,7 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     // TYPES
     typedef VariantImp<typename bslmf::TypeList2<A1, A2>::ListType> Imp;
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
+    typedef bslmf::MovableRefUtil                                   MoveUtil;
 
   public:
     // TRAITS
@@ -2429,6 +2574,20 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant2(bslmf::MovableRef<Variant2> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant2(bslmf::MovableRef<Variant2>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant2& operator=(const TYPE& value);
@@ -2443,6 +2602,15 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant2& operator=(bslmf::MovableRef<Variant2> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -2478,6 +2646,23 @@ Variant2<A1, A2>::Variant2(const Variant2&   original,
 }
 
 template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2>  original,
+                           bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2>
 template <class TYPE>
 inline
 Variant2<A1, A2>&
@@ -2496,6 +2681,16 @@ Variant2<A1, A2>::operator=(const Variant2& rhs)
     return *this;
 }
 
+template <class A1, class A2>
+inline
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(bslmf::MovableRef<Variant2> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
                        // ===================
                        // class Variant3<...>
                        // ===================
@@ -2509,8 +2704,10 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     // 'Variant<A1, A2, A3>'.
 
     // TYPES
-    typedef VariantImp<typename bslmf::TypeList3<A1, A2, A3>::ListType> Imp;
-    typedef VariantImp_Traits<typename Imp::TypeList>                   Traits;
+    typedef VariantImp<typename bslmf::TypeList3<A1, A2,
+                                                 A3>::ListType> Imp;
+    typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -2557,6 +2754,20 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant3(bslmf::MovableRef<Variant3> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant3(bslmf::MovableRef<Variant3>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant3& operator=(const TYPE& value);
@@ -2571,6 +2782,15 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant3& operator=(bslmf::MovableRef<Variant3> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -2607,6 +2827,25 @@ Variant3(const Variant3& original, bslma::Allocator *basicAllocator)
 }
 
 template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::
+Variant3(bslmf::MovableRef<Variant3> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::
+Variant3(bslmf::MovableRef<Variant3>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3>
 template <class TYPE>
 inline
 Variant3<A1, A2, A3>&
@@ -2622,6 +2861,16 @@ Variant3<A1, A2, A3>&
 Variant3<A1, A2, A3>::operator=(const Variant3& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<Variant3> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -2642,6 +2891,7 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
                                                  A4>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -2688,6 +2938,20 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant4(bslmf::MovableRef<Variant4> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant4(bslmf::MovableRef<Variant4>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant4& operator=(const TYPE& value);
@@ -2702,6 +2966,15 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant4& operator=(bslmf::MovableRef<Variant4> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -2738,6 +3011,25 @@ Variant4(const Variant4& original, bslma::Allocator *basicAllocator)
 }
 
 template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(bslmf::MovableRef<Variant4> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(bslmf::MovableRef<Variant4>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4>
 template <class TYPE>
 inline
 Variant4<A1, A2, A3, A4>&
@@ -2753,6 +3045,16 @@ Variant4<A1, A2, A3, A4>&
 Variant4<A1, A2, A3, A4>::operator=(const Variant4& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<Variant4> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -2773,6 +3075,7 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
                                                  A5>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -2819,6 +3122,20 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant5(bslmf::MovableRef<Variant5> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant5(bslmf::MovableRef<Variant5>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant5& operator=(const TYPE& value);
@@ -2833,6 +3150,15 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant5& operator=(bslmf::MovableRef<Variant5> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -2869,6 +3195,25 @@ Variant5(const Variant5& original, bslma::Allocator *basicAllocator)
 }
 
 template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(bslmf::MovableRef<Variant5> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(bslmf::MovableRef<Variant5>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE>
 inline
 Variant5<A1, A2, A3, A4, A5>&
@@ -2884,6 +3229,16 @@ Variant5<A1, A2, A3, A4, A5>&
 Variant5<A1, A2, A3, A4, A5>::operator=(const Variant5& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<Variant5> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -2904,6 +3259,7 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
                                                  A6>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -2950,6 +3306,20 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant6(bslmf::MovableRef<Variant6> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant6(bslmf::MovableRef<Variant6>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant6& operator=(const TYPE& value);
@@ -2964,6 +3334,15 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant6& operator=(bslmf::MovableRef<Variant6> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3000,6 +3379,25 @@ Variant6(const Variant6& original, bslma::Allocator *basicAllocator)
 }
 
 template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(bslmf::MovableRef<Variant6> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(bslmf::MovableRef<Variant6>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE>
 inline
 Variant6<A1, A2, A3, A4, A5, A6>&
@@ -3015,6 +3413,16 @@ Variant6<A1, A2, A3, A4, A5, A6>&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(const Variant6& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<Variant6> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3036,6 +3444,7 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
                                                  A7>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -3082,6 +3491,20 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant7(bslmf::MovableRef<Variant7> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant7(bslmf::MovableRef<Variant7>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant7& operator=(const TYPE& value);
@@ -3096,6 +3519,15 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant7& operator=(bslmf::MovableRef<Variant7> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3132,6 +3564,25 @@ Variant7(const Variant7& original, bslma::Allocator *basicAllocator)
 }
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(bslmf::MovableRef<Variant7> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(bslmf::MovableRef<Variant7>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE>
 inline
 Variant7<A1, A2, A3, A4, A5, A6, A7>&
@@ -3148,6 +3599,17 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 operator=(const Variant7& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+operator=(bslmf::MovableRef<Variant7> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3169,6 +3631,7 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
                                                  A8>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
+    typedef bslmf::MovableRefUtil                               MoveUtil;
 
   public:
     // TRAITS
@@ -3215,6 +3678,20 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant8(bslmf::MovableRef<Variant8> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant8(bslmf::MovableRef<Variant8>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant8& operator=(const TYPE& value);
@@ -3229,6 +3706,15 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant8& operator=(bslmf::MovableRef<Variant8> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3270,6 +3756,27 @@ Variant8(const Variant8& original, bslma::Allocator *basicAllocator)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(bslmf::MovableRef<Variant8> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(bslmf::MovableRef<Variant8>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
 template <class TYPE>
 inline
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
@@ -3287,6 +3794,18 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 operator=(const Variant8& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(bslmf::MovableRef<Variant8> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3308,6 +3827,7 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
                                                  A8, A9>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
+    typedef bslmf::MovableRefUtil                                   MoveUtil;
 
   public:
     // TRAITS
@@ -3354,6 +3874,20 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant9(bslmf::MovableRef<Variant9> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant9(bslmf::MovableRef<Variant9>  original,
+             bslma::Allocator            *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant9& operator=(const TYPE& value);
@@ -3368,6 +3902,15 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant9& operator=(bslmf::MovableRef<Variant9> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3409,11 +3952,32 @@ Variant9(const Variant9& original, bslma::Allocator *basicAllocator)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(bslmf::MovableRef<Variant9> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(bslmf::MovableRef<Variant9>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
 template <class TYPE>
 inline
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>
-::operator=(const TYPE& value)
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -3427,6 +3991,18 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 operator=(const Variant9& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(bslmf::MovableRef<Variant9> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3449,6 +4025,7 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
                                                   A10>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -3495,6 +4072,20 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant10(bslmf::MovableRef<Variant10> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant10(bslmf::MovableRef<Variant10>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant10& operator=(const TYPE& value);
@@ -3509,6 +4100,15 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant10& operator=(bslmf::MovableRef<Variant10> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3550,11 +4150,32 @@ Variant10(const Variant10& original, bslma::Allocator *basicAllocator)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(bslmf::MovableRef<Variant10> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(bslmf::MovableRef<Variant10>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
 template <class TYPE>
 inline
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>
-::operator=(const TYPE& value)
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -3568,6 +4189,18 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 operator=(const Variant10& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(bslmf::MovableRef<Variant10> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3590,6 +4223,7 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
                                                   A11>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -3636,6 +4270,20 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant11(bslmf::MovableRef<Variant11> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant11(bslmf::MovableRef<Variant11>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant11& operator=(const TYPE& value);
@@ -3650,6 +4298,15 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant11& operator=(bslmf::MovableRef<Variant11> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3692,11 +4349,32 @@ Variant11(const Variant11& original, bslma::Allocator *basicAllocator)
 
 template <class A1, class A2, class A3, class A4,  class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(bslmf::MovableRef<Variant11> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(bslmf::MovableRef<Variant11>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
 template <class TYPE>
 inline
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>
-::operator=(const TYPE& value)
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -3710,6 +4388,18 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 operator=(const Variant11& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(bslmf::MovableRef<Variant11> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3732,6 +4422,7 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
                                                   A12>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -3778,6 +4469,20 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant12(bslmf::MovableRef<Variant12> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant12(bslmf::MovableRef<Variant12>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant12& operator=(const TYPE& value);
@@ -3792,6 +4497,15 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant12& operator=(bslmf::MovableRef<Variant12> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3834,11 +4548,32 @@ Variant12(const Variant12& original, bslma::Allocator *basicAllocator)
 
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(bslmf::MovableRef<Variant12> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(bslmf::MovableRef<Variant12>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
 template <class TYPE>
 inline
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>
-::operator=(const TYPE& value)
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -3852,6 +4587,18 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 operator=(const Variant12& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(bslmf::MovableRef<Variant12> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -3875,6 +4622,7 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
                                                   A13>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -3921,6 +4669,20 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant13(bslmf::MovableRef<Variant13> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant13(bslmf::MovableRef<Variant13>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant13& operator=(const TYPE& value);
@@ -3935,6 +4697,15 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant13& operator=(bslmf::MovableRef<Variant13> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -3982,11 +4753,34 @@ Variant13(const Variant13& original, bslma::Allocator *basicAllocator)
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(bslmf::MovableRef<Variant13> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(bslmf::MovableRef<Variant13>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
 template <class TYPE>
 inline
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>
-::operator=(const TYPE& value)
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4001,6 +4795,19 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 operator=(const Variant13& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(bslmf::MovableRef<Variant13> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -4023,9 +4830,11 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     // TYPES
     typedef VariantImp<typename bslmf::TypeList14<A1,  A2,  A3,  A4,  A5,  A6,
                                                   A7,  A8,  A9,  A10, A11, A12,
-                                                  A13, A14>::ListType> Imp;
+                                                  A13,
+                                                  A14>::ListType> Imp;
 
-    typedef VariantImp_Traits<typename Imp::TypeList>                  Traits;
+    typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4072,6 +4881,20 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant14(bslmf::MovableRef<Variant14> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant14(bslmf::MovableRef<Variant14>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant14& operator=(const TYPE& value);
@@ -4086,6 +4909,15 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant14& operator=(bslmf::MovableRef<Variant14> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4133,11 +4965,34 @@ Variant14(const Variant14& original, bslma::Allocator *basicAllocator)
 template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
           class A7,  class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(bslmf::MovableRef<Variant14> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(bslmf::MovableRef<Variant14>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
 template <class TYPE>
 inline
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>
-::operator=(const TYPE& value)
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4152,6 +5007,19 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 operator=(const Variant14& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(bslmf::MovableRef<Variant14> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -4178,6 +5046,7 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
                                                   A15>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4224,6 +5093,20 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant15(bslmf::MovableRef<Variant15> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant15(bslmf::MovableRef<Variant15>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant15& operator=(const TYPE& value);
@@ -4238,6 +5121,15 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant15& operator=(bslmf::MovableRef<Variant15> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4285,11 +5177,34 @@ Variant15(const Variant15& original, bslma::Allocator *basicAllocator)
 template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
           class A7,  class A8,  class A9, class A10, class A11, class A12,
           class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(bslmf::MovableRef<Variant15> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(bslmf::MovableRef<Variant15>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
 template <class TYPE>
 inline
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>
-::operator=(const TYPE& value)
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4304,6 +5219,19 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 operator=(const Variant15& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(bslmf::MovableRef<Variant15> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -4331,6 +5259,7 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
                                                   A16>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4377,6 +5306,20 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant16(bslmf::MovableRef<Variant16> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant16(bslmf::MovableRef<Variant16>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant16& operator=(const TYPE& value);
@@ -4391,6 +5334,15 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant16& operator=(bslmf::MovableRef<Variant16> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4442,13 +5394,38 @@ Variant16(const Variant16& original, bslma::Allocator *basicAllocator)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(bslmf::MovableRef<Variant16> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(bslmf::MovableRef<Variant16>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
 template <class TYPE>
 inline
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>&
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>
-::operator=(const TYPE& value)
+          A15, A16>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4465,6 +5442,21 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(const Variant16& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(bslmf::MovableRef<Variant16> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -4492,6 +5484,7 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
                                                   A17>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4538,6 +5531,20 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant17(bslmf::MovableRef<Variant17> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant17(bslmf::MovableRef<Variant17>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant17& operator=(const TYPE& value);
@@ -4552,6 +5559,15 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant17& operator=(bslmf::MovableRef<Variant17> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4595,11 +5611,36 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
 inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
-Variant17(const Variant17&  original, bslma::Allocator *basicAllocator)
+Variant17(const Variant17& original, bslma::Allocator *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
 
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(bslmf::MovableRef<Variant17> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(bslmf::MovableRef<Variant17>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17>
@@ -4608,8 +5649,8 @@ inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>&
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>
-::operator=(const TYPE& value)
+          A15, A16, A17>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4626,6 +5667,21 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(const Variant17& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(bslmf::MovableRef<Variant17> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
                        // ====================
@@ -4652,6 +5708,7 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
                                                   A18>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4698,6 +5755,20 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant18(bslmf::MovableRef<Variant18> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant18(bslmf::MovableRef<Variant18>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant18& operator=(const TYPE& value);
@@ -4712,6 +5783,15 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant18& operator=(bslmf::MovableRef<Variant18> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4763,13 +5843,38 @@ Variant18(const Variant18& original, bslma::Allocator *basicAllocator)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(bslmf::MovableRef<Variant18> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(bslmf::MovableRef<Variant18>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
 template <class TYPE>
 inline
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>&
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>
-::operator=(const TYPE& value)
+          A15, A16, A17, A18>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4786,6 +5891,21 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(const Variant18& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(bslmf::MovableRef<Variant18> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -4814,6 +5934,7 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
                                                   A19>::ListType> Imp;
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
+    typedef bslmf::MovableRefUtil                                 MoveUtil;
 
   public:
     // TRAITS
@@ -4860,6 +5981,20 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+    Variant19(bslmf::MovableRef<Variant19> original);
+        // Create a variant object having the type and value of the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Variant19(bslmf::MovableRef<Variant19>  original,
+              bslma::Allocator             *basicAllocator);
+        // Create a variant object having the type and value of the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  The contents of 'original' are moved to the newly-created
+        // object.  'original' is left in a valid but unspecified state.
+
     // MANIPULATORS
     template <class TYPE>
     Variant19& operator=(const TYPE& value);
@@ -4874,6 +6009,15 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // access to this object.  The value previously held by this variant
         // (if any) will be destroyed if the value's type is different from the
         // type held by the 'rhs' object.
+
+    Variant19& operator=(bslmf::MovableRef<Variant19> rhs);
+        // Assign to this object the type and value currently held by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.  The value previously held by this variant
+        // (if any) will be destroyed if the value's type is different from the
+        // type held by the 'rhs' object.  The contents of 'rhs' are either
+        // move-inserted into or move-assigned to this object.  'rhs' is left
+        // in a valid but unspecified state.
 };
 
 // CREATORS
@@ -4921,11 +6065,38 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
 inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
-Variant19(const Variant19&  original, bslma::Allocator *basicAllocator)
+Variant19(const Variant19& original, bslma::Allocator *basicAllocator)
 : Imp(static_cast<const Imp&>(original), basicAllocator)
 {
 }
 
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(bslmf::MovableRef<Variant19> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(bslmf::MovableRef<Variant19>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
@@ -4935,8 +6106,8 @@ inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>&
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>
-::operator=(const TYPE& value)
+          A15, A16, A17, A18, A19>::
+operator=(const TYPE& value)
 {
     Imp::operator=(value);
     return *this;
@@ -4954,6 +6125,22 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(const Variant19& rhs)
 {
     Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(bslmf::MovableRef<Variant19> rhs)
+{
+    Imp& lvalue = static_cast<Imp&>(rhs);
+    Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
 
@@ -5412,6 +6599,7 @@ VariantImp_NonAllocatorBase<TYPES>::getAllocator() const
                        // class Variant_ReturnAnyTypeUtil
                        // -------------------------------
 
+// CLASS METHODS
 inline
 void Variant_ReturnAnyTypeUtil::doNotCall(void *)
 {
@@ -5439,6 +6627,7 @@ TYPE Variant_ReturnAnyTypeUtil::doNotCall()
                        // class Variant_RawVisitorHelper
                        // ------------------------------
 
+// CREATORS
 template <class RESULT_TYPE, class VISITOR>
 inline
 Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::
@@ -5448,15 +6637,7 @@ Variant_RawVisitorHelper(VISITOR *visitor)
     BSLS_ASSERT_SAFE(0 != visitor);
 }
 
-template <class RESULT_TYPE, class VISITOR>
-RESULT_TYPE
-Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(bslmf::Nil) const
-{
-    BSLS_ASSERT_OPT(false);
-
-    return Variant_ReturnAnyTypeUtil::doNotCall<RESULT_TYPE>();
-}
-
+// MANIPULATORS
 template <class RESULT_TYPE, class VISITOR>
 template <class ARGUMENT_TYPE>
 inline
@@ -5477,6 +6658,7 @@ Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(
     return static_cast<RESULT_TYPE>((*d_visitor)(argument));
 }
 
+// ACCESSORS
 template <class RESULT_TYPE, class VISITOR>
 template <class ARGUMENT_TYPE>
 inline
@@ -5495,6 +6677,15 @@ Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(
                                            const ARGUMENT_TYPE& argument) const
 {
     return static_cast<RESULT_TYPE>((*d_visitor)(argument));
+}
+
+template <class RESULT_TYPE, class VISITOR>
+RESULT_TYPE
+Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(bslmf::Nil) const
+{
+    BSLS_ASSERT_OPT(false);
+
+    return Variant_ReturnAnyTypeUtil::doNotCall<RESULT_TYPE>();
 }
 
                         // -----------------------
@@ -6078,6 +7269,25 @@ VariantImp<TYPES>::VariantImp(const VariantImp&  original,
 }
 
 template <class TYPES>
+VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp> original)
+: Base(MoveUtil::access(original).d_type, 0)
+{
+    if (this->d_type) {
+        // TBD move constructor imp
+    }
+}
+
+template <class TYPES>
+VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp>  original,
+                              bslma::Allocator              *basicAllocator)
+: Base(MoveUtil::access(original).d_type, basicAllocator)
+{
+    if (this->d_type) {
+        // TBD move constructor imp
+    }
+}
+
+template <class TYPES>
 inline
 VariantImp<TYPES>::~VariantImp()
 {
@@ -6121,6 +7331,15 @@ VariantImp<TYPES>::operator=(const VariantImp& rhs)
 }
 
 template <class TYPES>
+VariantImp<TYPES>&
+VariantImp<TYPES>::operator=(bslmf::MovableRef<VariantImp> rhs)
+{
+    // TBD move-assignment operator imp
+
+    return *this;
+}
+
+template <class TYPES>
 template <class RET_TYPE, class VISITOR>
 inline
 RET_TYPE VariantImp<TYPES>::apply(VISITOR& visitor)
@@ -6150,8 +7369,7 @@ RET_TYPE VariantImp<TYPES>::apply(const VISITOR& visitor)
 template <class TYPES>
 template <class RET_TYPE, class VISITOR, class TYPE>
 inline
-RET_TYPE VariantImp<TYPES>::apply(VISITOR&    visitor,
-                                  const TYPE& defaultValue)
+RET_TYPE VariantImp<TYPES>::apply(VISITOR& visitor, const TYPE& defaultValue)
 {
     if (this->d_type) {
         return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);   // RETURN
@@ -6710,8 +7928,7 @@ int VariantImp<TYPES>::maxSupportedBdexVersion() const
 
 template <class TYPES>
 template <class STREAM>
-STREAM& VariantImp<TYPES>::bdexStreamOut(STREAM& stream,
-                                         int     version) const
+STREAM& VariantImp<TYPES>::bdexStreamOut(STREAM& stream, int version) const
 {
     bslx::OutStreamFunctions::bdexStreamOut(stream, this->d_type, 0);
 
