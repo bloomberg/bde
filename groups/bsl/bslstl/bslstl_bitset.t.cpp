@@ -456,8 +456,131 @@ void testCase13()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: 20.8 Class template bitset
 
+    // page 556: 20.8.4 bitset operators
+    //..
+    //  template <size_t N>
+    //          bitset<N> operator&(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //  template <size_t N>
+    //          bitset<N> operator|(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //  template <size_t N>
+    //          bitset<N> operator^(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //..
+    {
+        bsl::bitset<32> lhs;
+        bsl::bitset<32> rhs;
+
+        ASSERT(true == noexcept(lhs & rhs));
+        ASSERT(true == noexcept(lhs | rhs));
+        ASSERT(true == noexcept(lhs ^ rhs));
+    }
+
+    // page 557
+    //..
+    //  class reference {
+    //    friend class bitset;
+    //    reference() noexcept;
+    //  public:
+    //    ~reference() noexcept;
+    //    reference& operator=(bool x) noexcept;           // for b[i] = x;
+    //    reference& operator=(const reference&) noexcept; // for b[i] = b[j];
+    //    bool operator~() const noexcept;                 // flips the bit
+    //    operator bool() const noexcept;                  // for x = b[i];
+    //    reference& flip() noexcept;                      // for b[i].flip();
+    //  }
+    //..
+    {
+        bsl::bitset<32> b;
+        size_t          i = 0;
+        size_t          j = 0;
+        bool            x = true;
+
+        ASSERT(true == noexcept(b[i]));        // 'reference()' (private)
+        ASSERT(true == noexcept(~b[i]));       // '~reference()'
+        ASSERT(true == noexcept(b[i] = x   )); // 'operator=(bool)'
+        ASSERT(true == noexcept(b[i] = b[j])); // 'operator=(const reference&)'
+        ASSERT(true == noexcept(~b));          // 'operator~'
+        ASSERT(true == noexcept(x = b[i]));    // 'operator()'
+        ASSERT(true == noexcept(b[i].flip())); // 'flip()'
+    }
+
+    // page 557: 20.8.1 constructors:
+    //..
+    //  constexpr bitset() noexcept;
+    //  constexpr bitset(unsigned long long val) noexcept;
+    //..
+    {
+        unsigned long long val = 1;
+
+        ASSERT(true == noexcept(bsl::bitset<32>()));
+        ASSERT(true == noexcept(bsl::bitset<32>(val)));
+    }
+
+    // page 557: 20.8.2 bitset operations:
+    //..
+    //  bitset<N>& operator&=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator|=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator^=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator<<=(size_t pos) noexcept;
+    //  bitset<N>& operator>>=(size_t pos) noexcept;
+    //  bitset<N>& set() noexcept;
+    //  bitset<N>& reset() noexcept;
+    //  bitset<N> operator~() const noexcept;
+    //  bitset<N>& flip() noexcept;
+    //..
+    {
+        bsl::bitset<32> b;
+        bsl::bitset<32> rhs;
+        size_t          pos;
+
+        ASSERT(true == noexcept(b.operator&=(rhs)));
+        ASSERT(true == noexcept(b.operator|=(rhs)));
+        ASSERT(true == noexcept(b.operator^=(rhs)));
+
+        ASSERT(true == noexcept(b.operator<<=(pos)));
+        ASSERT(true == noexcept(b.operator>>=(pos)));
+
+        ASSERT(true == noexcept(b.set()));
+        ASSERT(true == noexcept(b.reset()));
+        ASSERT(true == noexcept(b.operator~()));
+        ASSERT(true == noexcept(b.flip()));
+    }
+   
+    // page 557-558: element access:
+    //..
+    // size_t count() const noexcept;
+    // constexpr size_t size() const noexcept;
+    //
+    // bool operator==(const bitset<N>& rhs) const noexcept;
+    // bool operator!=(const bitset<N>& rhs) const noexcept;
+    // bool all() const noexcept;
+    // bool any() const noexcept;
+    // bool none() const noexcept;
+    // bitset<N> operator<<(size_t pos) const noexcept;
+    // bitset<N> operator>>(size_t pos) const noexcept;
+    //..
+    {
+        bsl::bitset<32> b;
+        bsl::bitset<32> rhs;
+        size_t          pos;
+
+        ASSERT(true == noexcept(b.count()));
+        ASSERT(true == noexcept(b.size()));
+
+        ASSERT(true == noexcept(b.operator==(rhs)));
+        ASSERT(true == noexcept(b.operator!=(rhs)));
+
+        ASSERT(true == noexcept(b.all()));
+        ASSERT(true == noexcept(b.any()));
+        ASSERT(true == noexcept(b.none()));
+
+        ASSERT(true == noexcept(b.operator<<(pos)));
+        ASSERT(true == noexcept(b.operator>>(pos)));
+    }
 }
 
 }  // close unnamed namespace
