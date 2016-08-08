@@ -35,8 +35,14 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
+
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movestate.h>
+#include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <stddef.h>
 #include <stdio.h>      // 'printf'
@@ -651,8 +657,23 @@ void testCase16()
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: 20.4: Pairs
+ 
+    // pages 526-527: Class template pair
+    //..
+    //  pair& operator=(pair&& p) noexcept (see below);
+    //  void swap(pair& p) noexcept (see below);
+    //..
+    {
+        bsl::pair<int, long> x;
+        bsl::pair<int, long> p;
 
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(x = bsl::pair<int, long>()));
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(x.swap(p)));
+    }
 }
 
                 // ===========================================
