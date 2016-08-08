@@ -980,6 +980,12 @@ struct NilTraits
 {
     // DATA
     int d_x;  // take up space
+
+    // CREATORS
+    ~NilTraits();
+        // Note that this destructor declaration thwarts a C++11 compiler from
+        // deducing that 'NilTraits<N>' is either bitwise copyable or bitwise
+        // movable.
 };
 
 //=============================================================================
@@ -2188,17 +2194,29 @@ struct TestUtil {
        if (verbose) cout << "\nSanity check for test driver defined types."
                          << endl;
 
-       ASSERT(true == bslma::UsesBslmaAllocator<UA1>::value);
-       ASSERT(true == bslma::UsesBslmaAllocator<UA10>::value);
-       ASSERT(true == bslma::UsesBslmaAllocator<UA20>::value);
+       ASSERT(false == bslma::UsesBslmaAllocator<NT1>::value);
+       ASSERT(false == bslma::UsesBslmaAllocator<NT10>::value);
+       ASSERT(false == bslma::UsesBslmaAllocator<NT20>::value);
 
-       ASSERT(true == bsl::is_trivially_copyable<BC1>::value);
-       ASSERT(true == bsl::is_trivially_copyable<BC10>::value);
-       ASSERT(true == bsl::is_trivially_copyable<BC20>::value);
+       ASSERT(false == bsl::is_trivially_copyable<NT1>::value);
+       ASSERT(false == bsl::is_trivially_copyable<NT10>::value);
+       ASSERT(false == bsl::is_trivially_copyable<NT20>::value);
 
-       ASSERT(true == bslmf::IsBitwiseMoveable<BM1>::value);
-       ASSERT(true == bslmf::IsBitwiseMoveable<BM10>::value);
-       ASSERT(true == bslmf::IsBitwiseMoveable<BM20>::value);
+       ASSERT(false == bslmf::IsBitwiseMoveable<NT1>::value);
+       ASSERT(false == bslmf::IsBitwiseMoveable<NT10>::value);
+       ASSERT(false == bslmf::IsBitwiseMoveable<NT20>::value);
+
+       ASSERT(true  == bslma::UsesBslmaAllocator<UA1>::value);
+       ASSERT(true  == bslma::UsesBslmaAllocator<UA10>::value);
+       ASSERT(true  == bslma::UsesBslmaAllocator<UA20>::value);
+
+       ASSERT(true  == bsl::is_trivially_copyable<BC1>::value);
+       ASSERT(true  == bsl::is_trivially_copyable<BC10>::value);
+       ASSERT(true  == bsl::is_trivially_copyable<BC20>::value);
+
+       ASSERT(true  == bslmf::IsBitwiseMoveable<BM1>::value);
+       ASSERT(true  == bslmf::IsBitwiseMoveable<BM10>::value);
+       ASSERT(true  == bslmf::IsBitwiseMoveable<BM20>::value);
 
        if (verbose) cout << "\nTesting size of the variant." << endl;
        {
@@ -2253,14 +2271,14 @@ struct TestUtil {
 
        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-       if (verbose) cout << "\tNone uses bslma::Allocator" << endl;
+       if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
        {
            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
        }
 
-       if (verbose) cout << "\tAll uses bslma::Allocator" << endl;
+       if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
        {
            typedef bdlb::Variant<UA1, UA2,  UA3,  UA4,  UA5,  UA6,  UA7,  UA8,
                                  UA9, UA10, UA11, UA12, UA13, UA14, UA15,
@@ -2269,7 +2287,7 @@ struct TestUtil {
            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
        }
 
-       if (verbose) cout << "\tSome uses bslma::Allocator" << endl;
+       if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
        {
            typedef bdlb::Variant<UA1, NT2, NT3> Obj1;
            typedef bdlb::Variant<NT1, UA2, NT3> Obj2;
@@ -7773,7 +7791,7 @@ struct TestUtil {
             // Return 'true' when addition is performed successfully, and
             // 'false' otherwise.
         {
-            if (bslmf::IsConvertible<TYPE, double>::VALUE) {
+            if (bsl::is_convertible<TYPE, double>::value) {
 
                 // Add certain values to the variant.  The details are elided
                 // as it is the return value that is the focus of this example.
@@ -7859,7 +7877,7 @@ int main(int argc, char *argv[])
     ASSERT(3 == List::TypeList::LENGTH);
     ASSERT(3 == List3::TypeList::LENGTH);
 //..
-// We can check whether the variant defaults to the unset state by using the
+// We can check that the variant defaults to the unset state by using the
 // 'is<TYPE>' and 'typeIndex' methods:
 //..
     List x;
@@ -7935,7 +7953,7 @@ int main(int argc, char *argv[])
 /// -  -  -  -
 // The following example illustrates how to use 'operator=':
 //..
-    typedef bdlb::Variant <int, double, bsl::string> List;
+    typedef bdlb::Variant<int, double, bsl::string> List;
 
     List x;
 
@@ -7961,8 +7979,8 @@ int main(int argc, char *argv[])
     ASSERT( x.is<bsl::string>());
     ASSERT(v3 == x.the<bsl::string>());
 //..
-// Note that the type of the object can be deduced automatically during
-// assignment, as in:
+// Note that the type of the object is deduced automatically during assignment,
+// as in:
 //..
 //  x = v1;
 //..
@@ -8024,19 +8042,14 @@ int main(int argc, char *argv[])
 // 'apply' method.  The first two examples below illustrate the different ways
 // to invoke 'apply' (with no return value) to control the behavior of visiting
 // an unset variant:
-//..
 //: o 'bslmf::Nil' is passed to the visitor.
-//:
 //: o A user-specified default value is passed to the visitor.
-//..
+//
 // A third example illustrates use of 'applyRaw', the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
 // ways to specify the return value from 'apply:
-//..
 //: o The return value is specified in the visitor.
-//:
 //: o The return value is specified with the function call.
-//..
 //
 ///'bslmf::Nil' Passed to Visitor
 ///-  -  -  -  -  -  -  -  -  - -
@@ -8057,7 +8070,7 @@ int main(int argc, char *argv[])
 //      }
 //  };
 //
-    typedef bdlb::Variant <int, double, bsl::string> List;
+    typedef bdlb::Variant<int, double, bsl::string> List;
 
     List x[4];
 
@@ -8090,7 +8103,7 @@ int main(int argc, char *argv[])
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Instead of using 'bslmf::Nil', users can also specify a default value to
 // pass to the visitor when the variant is currently unset.  Using the same
-// 'my_PrintVisitor' class from previous example:
+// 'my_PrintVisitor' class from the previous example:
 //..
     for (int i = 0; i < 4; ++i) {
         x[i].apply(printVisitor, "Print this when unset");
@@ -8144,7 +8157,7 @@ int main(int argc, char *argv[])
 //          // Return 'true' when addition is performed successfully, and
 //          // 'false' otherwise.
 //      {
-//          if (bslmf::IsConvertible<TYPE, double>::VALUE) {
+//          if (bsl::is_convertible<TYPE, double>::value) {
 //
 //              // Add certain values to the variant.  The details are elided
 //              // as it is the return value that is the focus of this example.
@@ -8155,7 +8168,7 @@ int main(int argc, char *argv[])
 //      }
 //  };
 //
-    typedef bdlb::Variant <int, double, bsl::string> List;
+    typedef bdlb::Variant<int, double, bsl::string> List;
 
     List x[3];
 
@@ -8203,7 +8216,7 @@ int main(int argc, char *argv[])
 //          // shown since this class belongs to a third-party library.
 //  };
 //
-    typedef bdlb::Variant <int, double, bsl::string> List;
+    typedef bdlb::Variant<int, double, bsl::string> List;
 
     List x[3];
 

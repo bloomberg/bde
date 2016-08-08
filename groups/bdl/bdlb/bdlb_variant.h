@@ -18,25 +18,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a variant (discriminated 'union'-like) type.
 //
 //@CLASSES:
-//  bdlb::Variant:    variant of up to 20 types
-//  bdlb::Variant2:   variant of exactly 2 types
-//  bdlb::Variant3:   variant of exactly 3 types
-//  bdlb::Variant4:   variant of exactly 4 types
-//  bdlb::Variant5:   variant of exactly 5 types
-//  bdlb::Variant6:   variant of exactly 6 types
-//  bdlb::Variant7:   variant of exactly 7 types
-//  bdlb::Variant8:   variant of exactly 8 types
-//  bdlb::Variant9:   variant of exactly 9 types
-//  bdlb::Variant10:  variant of exactly 10 types
-//  bdlb::Variant11:  variant of exactly 11 types
-//  bdlb::Variant12:  variant of exactly 12 types
-//  bdlb::Variant13:  variant of exactly 13 types
-//  bdlb::Variant14:  variant of exactly 14 types
-//  bdlb::Variant15:  variant of exactly 15 types
-//  bdlb::Variant16:  variant of exactly 16 types
-//  bdlb::Variant17:  variant of exactly 17 types
-//  bdlb::Variant18:  variant of exactly 18 types
-//  bdlb::Variant19:  variant of exactly 19 types
+//  bdlb::Variant:    variant of up to   20 types
+//  bdlb::Variant2:   variant of exactly  2 types
+//  bdlb::Variant3:      "    "     "     3   "
+//  bdlb::Variant4:      "    "     "     4   "
+//  bdlb::Variant5:      "    "     "     5   "
+//  bdlb::Variant6:      "    "     "     6   "
+//  bdlb::Variant7:      "    "     "     7   "
+//  bdlb::Variant8:      "    "     "     8   "
+//  bdlb::Variant9:      "    "     "     9   "
+//  bdlb::Variant10:     "    "     "    10   "
+//  bdlb::Variant11:     "    "     "    11   "
+//  bdlb::Variant12:     "    "     "    12   "
+//  bdlb::Variant13:     "    "     "    13   "
+//  bdlb::Variant14:     "    "     "    14   "
+//  bdlb::Variant15:     "    "     "    15   "
+//  bdlb::Variant16:     "    "     "    16   "
+//  bdlb::Variant17:     "    "     "    17   "
+//  bdlb::Variant18:     "    "     "    18   "
+//  bdlb::Variant19:     "    "     "    19   "
 //  bdlb::VariantImp: variant from a type list
 //
 //@SEE_ALSO:
@@ -61,12 +61,12 @@ BSLS_IDENT("$Id: $")
 // holds.  Assigning a value of a new type destroys the object of the old type
 // and constructs the new value by copy constructing the supplied value.
 //
-// When the number ('N') of types that need to be supported is known, it is
+// When the number ('N') of types that needs to be supported is known, it is
 // better to use the 'bdlb::VariantN' templates that use an identical
 // implementation, but generate shorter symbols and debugging information due
 // to the lack of defaulted template argument types.  Note that
-// 'bdlb::VariantN<T1, ..., TN>' and 'bdlb::Variant<T1, ..., TN>',
-// nevertheless, are distinct types.
+// 'bdlb::VariantN<T1, ..., TN>' and 'bdlb::Variant<T1, ..., TN>' are,
+// nevertheless, distinct types.
 //
 // When the variant types are (directly) supplied as a type list (of type
 // 'bslmf::TypeList'), the type 'bdlb::VariantImp<TYPELIST>' can be used in
@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 /// - - - -
 //..
 //  bdlb::Variant()
-//  bdlb::Variant(const TYPE_OR_ALLOCATOR& typeOrAllocator);
+//  bdlb::Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator);
 //  bdlb::Variant(const TYPE& value, bslma::Allocator *basicAllocator);
 //..
 // Create a variant.  Users can choose to initialize a variant with a specified
@@ -168,13 +168,13 @@ BSLS_IDENT("$Id: $")
 // 'bslmf::Nil' is passed to the visitor's 'operator()' if the variant is
 // unset.
 //..
-//  void                apply(VISITOR& visitor, const TYPE& dV);
-//  VISITOR::ResultType apply(VISITOR& visitor, const TYPE& dV);
-//  RET_TYPE            apply(VISITOR& visitor, const TYPE& dV);
+//  void                apply(VISITOR& visitor, const TYPE& defaultValue);
+//  VISITOR::ResultType apply(VISITOR& visitor, const TYPE& defaultValue);
+//  RET_TYPE            apply(VISITOR& visitor, const TYPE& defaultValue);
 //..
 // Access a variant's value using a specified visitor functor whereby a
-// user-specified default value ('dV') is passed to the visitor's 'operator()'
-// if the variant is unset.
+// user-specified default value is passed to the visitor's 'operator()' if the
+// variant is unset.
 //..
 //  void                applyRaw(VISITOR& visitor);
 //  VISITOR::ResultType applyRaw(VISITOR& visitor);
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == List::TypeList::LENGTH);
 //  assert(3 == List3::TypeList::LENGTH);
 //..
-// We can check whether the variant defaults to the unset state by using the
+// We can check that the variant defaults to the unset state by using the
 // 'is<TYPE>' and 'typeIndex' methods:
 //..
 //  List x;
@@ -317,7 +317,7 @@ BSLS_IDENT("$Id: $")
 /// -  -  -  -
 // The following example illustrates how to use 'operator=':
 //..
-//  typedef bdlb::Variant <int, double, bsl::string> List;
+//  typedef bdlb::Variant<int, double, bsl::string> List;
 //
 //  List x;
 //
@@ -343,8 +343,8 @@ BSLS_IDENT("$Id: $")
 //  assert( x.is<bsl::string>());
 //  assert(v3 == x.the<bsl::string>());
 //..
-// Note that the type of the object can be deduced automatically during
-// assignment, as in:
+// Note that the type of the object is deduced automatically during assignment,
+// as in:
 //..
 //  x = v1;
 //..
@@ -404,14 +404,12 @@ BSLS_IDENT("$Id: $")
 // 'apply' method.  The first two examples below illustrate the different ways
 // to invoke 'apply' (with no return value) to control the behavior of visiting
 // an unset variant:
-//
 //: o 'bslmf::Nil' is passed to the visitor.
 //: o A user-specified default value is passed to the visitor.
 //
 // A third example illustrates use of 'applyRaw', the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
 // ways to specify the return value from 'apply:
-//
 //: o The return value is specified in the visitor.
 //: o The return value is specified with the function call.
 //
@@ -434,7 +432,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //
-//  typedef bdlb::Variant <int, double, bsl::string> List;
+//  typedef bdlb::Variant<int, double, bsl::string> List;
 //
 //  List x[4];
 //
@@ -467,7 +465,7 @@ BSLS_IDENT("$Id: $")
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Instead of using 'bslmf::Nil', users can also specify a default value to
 // pass to the visitor when the variant is currently unset.  Using the same
-// 'my_PrintVisitor' class from previous example:
+// 'my_PrintVisitor' class from the previous example:
 //..
 //  for (int i = 0; i < 4; ++i) {
 //      x[i].apply(printVisitor, "Print this when unset");
@@ -519,7 +517,7 @@ BSLS_IDENT("$Id: $")
 //          // Return 'true' when addition is performed successfully, and
 //          // 'false' otherwise.
 //      {
-//          if (bslmf::IsConvertible<TYPE, double>::VALUE) {
+//          if (bsl::is_convertible<TYPE, double>::value) {
 //
 //              // Add certain values to the variant.  The details are elided
 //              // as it is the return value that is the focus of this example.
@@ -530,7 +528,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //
-//  typedef bdlb::Variant <int, double, bsl::string> List;
+//  typedef bdlb::Variant<int, double, bsl::string> List;
 //
 //  List x[3];
 //
@@ -576,7 +574,7 @@ BSLS_IDENT("$Id: $")
 //          // shown since this class belongs to a third-party library.
 //  };
 //
-//  typedef bdlb::Variant <int, double, bsl::string> List;
+//  typedef bdlb::Variant<int, double, bsl::string> List;
 //
 //  List x[3];
 //
@@ -729,12 +727,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-struct Variant_DefaultConstructVisitor;
+struct Variant_CopyAssignVisitor;
 struct Variant_CopyConstructVisitor;
+struct Variant_DefaultConstructVisitor;
 struct Variant_DestructorVisitor;
-struct Variant_AssignVisitor;
-struct Variant_PrintVisitor;
 struct Variant_EqualityTestVisitor;
+struct Variant_MoveAssignVisitor;
+struct Variant_MoveConstructVisitor;
+struct Variant_PrintVisitor;
 
 template <class TYPES>
 class VariantImp;
@@ -1321,18 +1321,19 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit VariantImp(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     VariantImp(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -2227,18 +2228,19 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -2303,8 +2305,8 @@ Variant<TYPES...>::Variant()
 template <class ...TYPES>
 template <class TYPE_OR_ALLOCATOR>
 inline
-Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -2394,8 +2396,8 @@ template <class TYPE_OR_ALLOCATOR>
 inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                          const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+                                     const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -2548,18 +2550,19 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant2(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant2(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant2(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -2623,8 +2626,8 @@ Variant2<A1, A2>::Variant2()
 template <class A1, class A2>
 template <class TYPE_OR_ALLOCATOR>
 inline
-Variant2<A1, A2>::Variant2(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant2<A1, A2>::Variant2(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -2728,18 +2731,19 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant3(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant3(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant3(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -2804,8 +2808,8 @@ template <class A1, class A2, class A3>
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant3<A1, A2, A3>::
-Variant3(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant3(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -2912,18 +2916,19 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant4(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant4(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant4(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -2988,8 +2993,8 @@ template <class A1, class A2, class A3, class A4>
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant4<A1, A2, A3, A4>::
-Variant4(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant4(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -3096,18 +3101,19 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant5(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant5(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant5(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -3172,8 +3178,8 @@ template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant5<A1, A2, A3, A4, A5>::
-Variant5(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant5(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -3280,18 +3286,19 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant6(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant6(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant6(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -3356,8 +3363,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant6(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -3465,18 +3472,19 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant7(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant7(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant7(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -3541,8 +3549,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant7(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -3652,18 +3660,19 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant8(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant8(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant8(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -3730,8 +3739,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant8(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -3848,18 +3857,19 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant9(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant9(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant9(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -3926,8 +3936,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant9(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -4046,18 +4056,19 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant10(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant10(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant10(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -4124,8 +4135,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant10(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -4244,18 +4255,19 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant11(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant11(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant11(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -4323,8 +4335,8 @@ template <class A1, class A2, class A3, class A4,  class A5, class A6,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant11(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -4443,18 +4455,19 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant12(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant12(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant12(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -4522,8 +4535,8 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant12(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -4643,18 +4656,19 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant13(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant13(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant13(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -4724,8 +4738,8 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant13(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -4855,18 +4869,19 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant14(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant14(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant14(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -4936,8 +4951,8 @@ template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant14(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -5067,18 +5082,19 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant15(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant15(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant15(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -5148,8 +5164,8 @@ template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
 template <class TYPE_OR_ALLOCATOR>
 inline
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant15(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -5280,18 +5296,19 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant16(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant16(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant16(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -5363,8 +5380,8 @@ template <class TYPE_OR_ALLOCATOR>
 inline
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>::
-Variant16(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant16(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -5505,18 +5522,19 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant17(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant17(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant17(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -5588,8 +5606,8 @@ template <class TYPE_OR_ALLOCATOR>
 inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
-Variant17(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant17(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -5729,18 +5747,19 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant18(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant18(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant18(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -5812,8 +5831,8 @@ template <class TYPE_OR_ALLOCATOR>
 inline
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>::
-Variant18(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant18(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -5955,18 +5974,19 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // installed default allocator to supply memory.
 
     template <class TYPE_OR_ALLOCATOR>
-    explicit Variant19(const TYPE_OR_ALLOCATOR& typeOrAllocator);
-        // Create a variant object with the specified 'typeOrAlloc' that can be
-        // either a value of a type that the variant can hold or an allocator
-        // to supply memory.  If 'typeOrAlloc' is not a 'bslma::Allocator *',
-        // then the variant will hold the value and type of 'typeOrAlloc', and
-        // use the currently installed default allocator to supply memory.
-        // Otherwise, the variant will be unset and use 'typeOrAlloc' to supply
-        // memory.  Note that this parameterized constructor is defined instead
-        // of two constructors (one taking a 'bslma::Allocator *' and the other
-        // not) because template parameter arguments are always a better match
-        // than derived-to-base conversion (a concrete allocator pointer
-        // converted to 'bslma::Allocator *').
+    explicit Variant19(const TYPE_OR_ALLOCATOR& valueOrAllocator);
+        // Create a variant object with the specified 'valueOrAllocator' that
+        // can be either a value of a type that the variant can hold or an
+        // allocator to supply memory.  If 'valueOrAllocator' is not a
+        // 'bslma::Allocator *', then the variant will hold the value and type
+        // of 'valueOrAllocator', and use the currently installed default
+        // allocator to supply memory.  Otherwise, the variant will be unset
+        // and use 'valueOrAllocator' to supply memory.  Note that this
+        // parameterized constructor is defined instead of two constructors
+        // (one taking a 'bslma::Allocator *' and the other not) because
+        // template parameter arguments are always a better match than
+        // derived-to-base conversion (a concrete allocator pointer converted
+        // to 'bslma::Allocator *').
 
     template <class TYPE>
     Variant19(const TYPE& value, bslma::Allocator *basicAllocator);
@@ -6040,8 +6060,8 @@ template <class TYPE_OR_ALLOCATOR>
 inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
-Variant19(const TYPE_OR_ALLOCATOR& typeOrAlloc)
-: Imp(typeOrAlloc)
+Variant19(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
 {
 }
 
@@ -6217,7 +6237,7 @@ struct Variant_TypeIndex {
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault,
                       TYPE>::VALUE ? 20
-              : bslmf::IsConvertible<TYPE, bslma::Allocator *>::VALUE
+              : bsl::is_convertible<TYPE, bslma::Allocator *>::value
                                    ? 21
               : 0
     };
@@ -6257,9 +6277,9 @@ struct Variant_DefaultConstructVisitor {
 
 struct Variant_CopyConstructVisitor {
     // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will copy that instance to
-    // create an instance of the same 'TYPE' in an uninitialized buffer
-    // specified at construction of this visitor.
+    // instance of some template parameter 'TYPE', will copy-insert that
+    // instance to create an instance of the same 'TYPE' in an uninitialized
+    // buffer specified at construction of this visitor.
 
     // PUBLIC DATA
     void             *d_buffer_p;
@@ -6284,6 +6304,40 @@ struct Variant_CopyConstructVisitor {
     }
 };
 
+                // ===================================
+                // struct Variant_MoveConstructVisitor
+                // ===================================
+
+struct Variant_MoveConstructVisitor {
+    // This visitor, when invoked as a non-modifiable function object on an
+    // instance of some template parameter 'TYPE', will move-insert that
+    // instance to create an instance of the same 'TYPE' in an uninitialized
+    // buffer specified at construction of this visitor.
+
+    // PUBLIC DATA
+    void             *d_buffer_p;
+    bslma::Allocator *d_allocator_p;
+
+    // CREATORS
+    Variant_MoveConstructVisitor(void *buffer, bslma::Allocator *allocator)
+    : d_buffer_p(buffer)
+    , d_allocator_p(allocator)
+    {
+        BSLS_ASSERT_SAFE(d_buffer_p);
+    }
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(const TYPE& value) const  // TBD signature
+    {
+// TBD
+        bslalg::ScalarPrimitives::copyConstruct(
+                                          reinterpret_cast<TYPE *>(d_buffer_p),
+                                          value,
+                                          d_allocator_p);
+    }
+};
+
                   // ================================
                   // struct Variant_DestructorVisitor
                   // ================================
@@ -6300,21 +6354,21 @@ struct Variant_DestructorVisitor {
     }
 };
 
-                    // ============================
-                    // struct Variant_AssignVisitor
-                    // ============================
+                    // ================================
+                    // struct Variant_CopyAssignVisitor
+                    // ================================
 
-struct Variant_AssignVisitor {
+struct Variant_CopyAssignVisitor {
     // This visitor, when invoked as a non-modifiable function object on an
-    // instance of some template parameter 'TYPE', will assign that instance to
-    // the instance of the same 'TYPE' held in a buffer specified at
-    // construction of this visitor.
+    // instance of some template parameter 'TYPE', will copy-assign that
+    // instance to the instance of the same 'TYPE' held in a buffer specified
+    // at construction of this visitor.
 
     // PUBLIC DATA
     void *d_buffer_p;
 
     // CREATORS
-    explicit Variant_AssignVisitor(void *buffer)
+    explicit Variant_CopyAssignVisitor(void *buffer)
     : d_buffer_p(buffer)
     {
         BSLS_ASSERT_SAFE(d_buffer_p);
@@ -6324,6 +6378,35 @@ struct Variant_AssignVisitor {
     template <class TYPE>
     void operator()(const TYPE& value)
     {
+        *reinterpret_cast<TYPE *>(d_buffer_p) = value;
+    }
+};
+
+                    // ================================
+                    // struct Variant_MoveAssignVisitor
+                    // ================================
+
+struct Variant_MoveAssignVisitor {
+    // This visitor, when invoked as a non-modifiable function object on an
+    // instance of some template parameter 'TYPE', will move-assign that
+    // instance to the instance of the same 'TYPE' held in a buffer specified
+    // at construction of this visitor.
+
+    // PUBLIC DATA
+    void *d_buffer_p;
+
+    // CREATORS
+    explicit Variant_MoveAssignVisitor(void *buffer)
+    : d_buffer_p(buffer)
+    {
+        BSLS_ASSERT_SAFE(d_buffer_p);
+    }
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(const TYPE& value) // TBD signature
+    {
+// TBD
         *reinterpret_cast<TYPE *>(d_buffer_p) = value;
     }
 };
@@ -7229,18 +7312,18 @@ VariantImp<TYPES>::VariantImp()
 template <class TYPES>
 template <class TYPE_OR_ALLOCATOR>
 inline
-VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
+VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& valueOrAllocator)
 : Base(Variant_TypeIndex<TYPES, TYPE_OR_ALLOCATOR>::value,
-       typeOrAlloc,
-       bsl::integral_constant<bool, bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
-                                                 bslma::Allocator *>::VALUE>())
+       valueOrAllocator,
+       bsl::integral_constant<bool, bsl::is_convertible<TYPE_OR_ALLOCATOR,
+                                                 bslma::Allocator *>::value>())
 {
     enum {
-        k_IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
-                                              bslma::Allocator *>::VALUE
+        k_IS_ALLOCATOR = bsl::is_convertible<TYPE_OR_ALLOCATOR,
+                                             bslma::Allocator *>::value
     };
 
-    create(typeOrAlloc, bsl::integral_constant<bool, k_IS_ALLOCATOR>());
+    create(valueOrAllocator, bsl::integral_constant<bool, k_IS_ALLOCATOR>());
 }
 
 template <class TYPES>
@@ -7273,7 +7356,9 @@ VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp> original)
 : Base(MoveUtil::access(original).d_type, 0)
 {
     if (this->d_type) {
-        // TBD move constructor imp
+        Variant_MoveConstructVisitor moveConstructor(&this->d_value,
+                                                     this->getAllocator());
+        original.apply(moveConstructor);
     }
 }
 
@@ -7283,7 +7368,9 @@ VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp>  original,
 : Base(MoveUtil::access(original).d_type, basicAllocator)
 {
     if (this->d_type) {
-        // TBD move constructor imp
+        Variant_MoveConstructVisitor moveConstructor(&this->d_value,
+                                                     this->getAllocator());
+        original.apply(moveConstructor);
     }
 }
 
@@ -7311,7 +7398,7 @@ VariantImp<TYPES>::operator=(const VariantImp& rhs)
     if (&rhs != this) {
         if (this->d_type == rhs.d_type) {
             if (this->d_type) {
-                Variant_AssignVisitor assigner(&this->d_value);
+                Variant_CopyAssignVisitor assigner(&this->d_value);
                 rhs.apply(assigner);
             }
         }
@@ -7334,7 +7421,24 @@ template <class TYPES>
 VariantImp<TYPES>&
 VariantImp<TYPES>::operator=(bslmf::MovableRef<VariantImp> rhs)
 {
-    // TBD move-assignment operator imp
+    if (&rhs != this) {
+        if (this->d_type == rhs.d_type) {
+            if (this->d_type) {
+                Variant_MoveAssignVisitor assigner(&this->d_value);
+                rhs.apply(assigner);
+            }
+        }
+        else {
+            reset();
+            if (rhs.d_type) {
+                Variant_MoveConstructVisitor moveConstructor(
+                                                         &this->d_value,
+                                                         this->getAllocator());
+                rhs.apply(moveConstructor);
+                this->d_type = rhs.d_type;
+            }
+        }
+    }
 
     return *this;
 }
