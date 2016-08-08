@@ -474,9 +474,9 @@ void testCase13()
         bsl::bitset<32> lhs;
         bsl::bitset<32> rhs;
 
-        ASSERT(true == noexcept(lhs & rhs));
-        ASSERT(true == noexcept(lhs | rhs));
-        ASSERT(true == noexcept(lhs ^ rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
     }
 
     // page 557
@@ -499,13 +499,21 @@ void testCase13()
         size_t          j = 0;
         bool            x = true;
 
-        ASSERT(true == noexcept(b[i]));        // 'reference()' (private)
-        ASSERT(true == noexcept(~b[i]));       // '~reference()'
-        ASSERT(true == noexcept(b[i] = x   )); // 'operator=(bool)'
-        ASSERT(true == noexcept(b[i] = b[j])); // 'operator=(const reference&)'
-        ASSERT(true == noexcept(~b));          // 'operator~'
-        ASSERT(true == noexcept(x = b[i]));    // 'operator()'
-        ASSERT(true == noexcept(b[i].flip())); // 'flip()'
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
+                                                     // 'reference()' (private)
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
+                                                              // '~reference()'
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
+                                                           // 'operator=(bool)'
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
+                                               // 'operator=(const reference&)'
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
     }
 
     // page 557: 20.8.1 constructors:
@@ -516,8 +524,8 @@ void testCase13()
     {
         unsigned long long val = 1;
 
-        ASSERT(true == noexcept(bsl::bitset<32>()));
-        ASSERT(true == noexcept(bsl::bitset<32>(val)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
     }
 
     // page 557: 20.8.2 bitset operations:
@@ -537,17 +545,17 @@ void testCase13()
         bsl::bitset<32> rhs;
         size_t          pos;
 
-        ASSERT(true == noexcept(b.operator&=(rhs)));
-        ASSERT(true == noexcept(b.operator|=(rhs)));
-        ASSERT(true == noexcept(b.operator^=(rhs)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
 
-        ASSERT(true == noexcept(b.operator<<=(pos)));
-        ASSERT(true == noexcept(b.operator>>=(pos)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
 
-        ASSERT(true == noexcept(b.set()));
-        ASSERT(true == noexcept(b.reset()));
-        ASSERT(true == noexcept(b.operator~()));
-        ASSERT(true == noexcept(b.flip()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
     }
    
     // page 557-558: element access:
@@ -568,18 +576,18 @@ void testCase13()
         bsl::bitset<32> rhs;
         size_t          pos;
 
-        ASSERT(true == noexcept(b.count()));
-        ASSERT(true == noexcept(b.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
 
-        ASSERT(true == noexcept(b.operator==(rhs)));
-        ASSERT(true == noexcept(b.operator!=(rhs)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
 
-        ASSERT(true == noexcept(b.all()));
-        ASSERT(true == noexcept(b.any()));
-        ASSERT(true == noexcept(b.none()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
 
-        ASSERT(true == noexcept(b.operator<<(pos)));
-        ASSERT(true == noexcept(b.operator>>(pos)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
     }
 }
 
