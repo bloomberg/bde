@@ -53,7 +53,7 @@ using namespace BloombergLP::bsltf;
 
 // In a possible (alternative) implementation, the attributes should have
 // "nullable" behavior (i.e., if an argument is not passed to a constructor,
-// the corresponding attribute should behave as it does not exist) and, for
+// the corresponding attribute should behave as if it does not exist) and, for
 // example, an object constructed with 2 arguments should never compare equal
 // with any other object constructed with a different number of arguments.
 // The existing implementation lacks this functionality, but is sufficient to
