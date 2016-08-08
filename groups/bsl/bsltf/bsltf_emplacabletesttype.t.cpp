@@ -46,18 +46,18 @@ using namespace BloombergLP::bsltf;
 // arguments are forwarded correctly to functions and methods taking an
 // arbitrary number of arguments.
 //
-// Logically, this single test type represents 15 different test type (each
-// having a single value constructor with 0..14 arguments respectively).  For
+// Logically, this single test type represents 15 different test types (each
+// having a single value constructor with 0..14 arguments, respectively).  For
 // this reason, all constructors (except the copy constructor) are tested in
 // 'case 2' (Primary Manipulators).
 
 // In a possible (alternative) implementation, the attributes should have
-// "nullable" behaviour ( i.e. if the argument is not passed to a constructor,
-// the corresponding attribute should behaive as it does not exist ) and, for
-// example, the object constructed with 2 arguments should never compare equal
-// with any other object constructed with different number of arguments.
-// Existing implementation lacks this functionality, but is sufficient to test
-// upper level components.
+// "nullable" behavior (i.e., if an argument is not passed to a constructor,
+// the corresponding attribute should behave as it does not exist) and, for
+// example, an object constructed with 2 arguments should never compare equal
+// with any other object constructed with a different number of arguments.
+// The existing implementation lacks this functionality, but is sufficient to
+// test upper-level components.
 //
 // Global Concerns:
 //: o No memory is ever allocated.
@@ -526,7 +526,7 @@ void TestDriver::testCase12()
 
     ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
 
-    // Testing destruction of objects created by value constructors
+    // Testing destruction of objects created by value constructors.
     for (size_t ti = 0; ti <= 14; ++ti) {
         ArgType01 A01(V01);
         ArgType02 A02(V02);
@@ -629,7 +629,7 @@ void TestDriver::testCase12()
         ASSERTV(Obj::getNumDeletes(), count == Obj::getNumDeletes());
     }
 
-    // Testing destruction of objects created by the copy constructor
+    // Testing destruction of objects created by the copy constructor.
     {
         {
             Obj X;
