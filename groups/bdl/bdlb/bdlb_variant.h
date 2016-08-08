@@ -607,10 +607,6 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalardestructionprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
 #endif
@@ -6267,7 +6263,7 @@ struct Variant_DefaultConstructVisitor {
     template <class TYPE>
     void operator()(TYPE& value) const
     {
-        bslalg::ScalarPrimitives::defaultConstruct(&value, d_allocator_p);
+        bslma::ConstructionUtil::construct(&value, d_allocator_p);
     }
 };
 
@@ -6297,10 +6293,10 @@ struct Variant_CopyConstructVisitor {
     template <class TYPE>
     void operator()(const TYPE& value) const
     {
-        bslalg::ScalarPrimitives::copyConstruct(
+        bslma::ConstructionUtil::construct(
                                           reinterpret_cast<TYPE *>(d_buffer_p),
-                                          value,
-                                          d_allocator_p);
+                                          d_allocator_p,
+                                          value);
     }
 };
 
@@ -6328,13 +6324,14 @@ struct Variant_MoveConstructVisitor {
 
     // ACCESSORS
     template <class TYPE>
-    void operator()(const TYPE& value) const  // TBD signature
+    void operator()(const TYPE& value) const
     {
-// TBD
-        bslalg::ScalarPrimitives::copyConstruct(
+        TYPE& lvalue = const_cast<TYPE&>(value);
+
+        bslma::ConstructionUtil::construct(
                                           reinterpret_cast<TYPE *>(d_buffer_p),
-                                          value,
-                                          d_allocator_p);
+                                          d_allocator_p,
+                                          bslmf::MovableRefUtil::move(lvalue));
     }
 };
 
@@ -6404,10 +6401,12 @@ struct Variant_MoveAssignVisitor {
 
     // ACCESSORS
     template <class TYPE>
-    void operator()(const TYPE& value) // TBD signature
+    void operator()(const TYPE& value)
     {
-// TBD
-        *reinterpret_cast<TYPE *>(d_buffer_p) = value;
+        TYPE& lvalue = const_cast<TYPE&>(value);
+
+        *reinterpret_cast<TYPE *>(d_buffer_p) =
+                                           bslmf::MovableRefUtil::move(lvalue);
     }
 };
 
@@ -6835,10 +6834,10 @@ template <class TYPE, class SOURCE_TYPE>
 void VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
 {
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
      &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     value,
-     this->getAllocator());
+     this->getAllocator(),
+     value);
 
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
@@ -6922,10 +6921,10 @@ template <class TYPE>
 inline
 void VariantImp<TYPES>::create(const TYPE& value, bsl::false_type)
 {
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
      &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     value,
-     this->getAllocator());
+     this->getAllocator(),
+     value);
 }
 
 template <class TYPES>
@@ -7333,10 +7332,10 @@ VariantImp<TYPES>::VariantImp(const TYPE&       value,
                               bslma::Allocator *basicAllocator)
 : Base(Variant_TypeIndex<TYPES, TYPE>::value, basicAllocator)
 {
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
      &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     value,
-     this->getAllocator());
+     this->getAllocator(),
+     value);
 }
 
 template <class TYPES>
@@ -7555,7 +7554,7 @@ void VariantImp<TYPES>::createInPlace()
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::defaultConstruct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
                    this->getAllocator());
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
@@ -7569,9 +7568,10 @@ void VariantImp<TYPES>::createInPlace(const A1& a1)
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, this->getAllocator());
+                   this->getAllocator(),
+                   a1);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7583,9 +7583,10 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7597,9 +7598,10 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2, const A3& a3)
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7612,9 +7614,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7628,9 +7631,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7645,9 +7649,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7662,9 +7667,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7679,9 +7685,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7697,10 +7704,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9,
-                   this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7716,10 +7723,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-                   this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7736,10 +7743,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                   this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7757,10 +7764,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
-                   this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7778,10 +7785,10 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
-                   a13, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7799,10 +7806,11 @@ void VariantImp<TYPES>::createInPlace(
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
     reset();
-    bslalg::ScalarPrimitives::construct(
+    bslma::ConstructionUtil::construct(
                    &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12,
-                   a13, a14, this->getAllocator());
+                   this->getAllocator(),
+                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
+                   a14);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
