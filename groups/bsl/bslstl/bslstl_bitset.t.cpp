@@ -3,7 +3,10 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
+
+#include <bsls_cpp11.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
