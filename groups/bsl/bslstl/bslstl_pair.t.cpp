@@ -30,6 +30,7 @@
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_movableref.h>                                                   
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocatorargt.h>
 
@@ -664,12 +665,14 @@ void testCase16()
     //  pair& operator=(pair&& p) noexcept (see below);
     //  void swap(pair& p) noexcept (see below);
     //..
+
     {
         bsl::pair<int, long> x;
         bsl::pair<int, long> p;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(x = bsl::pair<int, long>()));
+            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                                          x = bslmf::MovableRefUtil::move(p)));
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_SPECIFICATION(x.swap(p)));
