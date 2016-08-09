@@ -2200,7 +2200,132 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
         P(bsls::NameOf<ALLOC>())
     }
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: page 895: Class template unordered_multiset
+
+    // page 895: 23.5.7.2, construct/copy/destroy:
+    //..
+    //  unordered_multiset& operator=(unordered_multiset&&)
+    //          noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //                          is_nothrow_move_assignable<Hash>::value &&
+    //                          is_nothrow_move_assignable<Pred>::value);
+    //  allocator_type get_allocator() const noexcept;
+    //..
+ 
+    {
+        Obj mX;  const Obj& X = mX;
+        Obj mY;  const Obj& Y = mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+                                             bslmf::MovableRefUtil::move(mY)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+    }
+
+    // page 896
+    //..
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //..
+    
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+    }
+    
+    // page 896
+    //..
+    //  // capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
+    //..
+   
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+    }
+
+    // page 897
+    //..
+    // // modifiers:
+    //  void swap(unordered_multiset&)
+    //          noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //          is_nothrow_swappable_v<Hash> &&
+    //          is_nothrow_swappable_v<Pred>);
+    //  void clear() noexcept;
+    //..
+   
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+    }
+
+    // page 897
+    //..
+    // // bucket interface
+    // size_type bucket_count() const noexcept;
+    // size_type max_bucket_count() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
+    }
+    
+    // page 897
+    //..
+    // // hash policy:
+    // float load_factor() const noexcept;
+    // float max_load_factor() const noexcept;
+    //..
+    
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
+    }
+ 
+    // page 897
+    //..
+    //  // 23.5.7.3, swap:
+    //  template <class Key, class Hash, class Pred, class Alloc>
+    //  void swap(unordered_multiset<Key, Hash, Pred, Alloc>& x,
+    //  unordered_multiset<Key, Hash, Pred, Alloc>& y)
+    //      noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj mX;
+        Obj mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));   
+    }
 
 }
 
