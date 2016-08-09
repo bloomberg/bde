@@ -390,7 +390,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
     if (verbose) printf("\tTesting 'begin' and 'end'.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -414,14 +414,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
     if (verbose) printf("\tTesting 'index'.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
 
             if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
-
-            // Construct object.
 
             Obj        mX(SPEC);
             const Obj& X = mX;
@@ -440,14 +438,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
     if (verbose) printf("\tTesting 'resetIterators'.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
 
             if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
-
-            // Construct object.
 
             Obj        mX(SPEC);
             const Obj& X = mX;
@@ -560,7 +556,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
         // We need to exclude empty specification, since 'VALUE' array is not
         // created in this case.
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -686,7 +682,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
         // We need to exclude empty specification, since 'VALUE' array is not
         // created in this case.
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1182,7 +1178,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
         // We need to exclude empty specification, since 'VALUE' array is not
         // created in this case.
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1335,7 +1331,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
         // We need to exclude empty specification, since 'VALUE' array is not
         // created in this case.
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1468,7 +1464,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
         // We need to exclude empty specification, since 'VALUE' array is not
         // created in this case.
 
-        for (int ti = 1; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 1; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1610,7 +1606,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase7()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1680,7 +1676,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase6()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -1907,7 +1903,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase4()
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -2018,7 +2014,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
@@ -2162,7 +2158,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     const VALUE&               X = mX;
     VALUE                     *address = bsls::Util::addressOf(mX);
 
-    for (int ti = 0; ti <= 127; ++ti) {
+    for (size_t ti = 0; ti <= 127; ++ti) {
         Converter::createInplace(address,
                                  static_cast<char>(ti),
                                  &objectAllocator);

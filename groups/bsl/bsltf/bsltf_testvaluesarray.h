@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsltf::TestValuesArray: container for values used for testing
-//  bsltf::TestValuesArrayIterator: iterators for the container
+//  bsltf::TestValuesArrayIterator: iterator for the container
 //
 //@SEE_ALSO: bsltf_testfacility
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a class 'bsltf::TestValuesArray'
 // providing a uniform interface for creating and accessing a sequence of test
-// values of type that has a copy constructor, and may or may not have a
+// values of a type that has a copy constructor, and may or may not have a
 // default constructor.
 //
 // This component also defines an iterator class
@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 // The sequence described by this container is an input-range, that may be
 // traversed exactly once.  Once an iterator is incremented, any other iterator
 // at the same position in the sequence is invalidated.  The 'TestValuesArray'
-// object provides a 'resetIterators' method that restores the ability to be
-// traversed for all values in the container.
+// object provides a 'resetIterators' method that restores the ability to
+// iterate the container.
 //
 ///Iterator
 ///--------
@@ -363,13 +363,13 @@ class TestValuesArray
         // indicate the values this object should contain, where the values are
         // created by invoking the 'bsltf::TemplateTestFacility::create' method
         // on each character of 'spec'.  If no 'spec' is supplied, the object
-        // will contain 52 distinct values of (template parameter) type
+        // will contain 52 distinct values of the (template parameter) type
         // 'VALUE'.  Optionally, specify 'basicAllocator' used to supply
         // memory.  If no allocator is supplied, a 'bslma::MallocFree'
         // allocator is used to supply memory.
 
     ~TestValuesArray();
-        // Destroy this container and all contained objects.
+        // Destroy this container and all contained elements.
 
     // MANIPULATORS
     iterator begin();
@@ -379,8 +379,7 @@ class TestValuesArray
 
     iterator end();
         // Return an iterator providing access to the past-the-end position in
-        // the sequence of 'VALUE' objects maintained by this container, or the
-        // 'end' iterator if this container is empty.
+        // the sequence of 'VALUE' objects maintained by this container.
 
     iterator index(size_t position);
         // Return an iterator to the element at the specified 'position'.  The
@@ -579,7 +578,6 @@ bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
 
     return !(lhs == rhs);
 }
-
 
 namespace bsltf
 {
