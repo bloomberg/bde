@@ -156,6 +156,29 @@ struct BlobUtil {
         // 'dstBuffer' has room for 'length' bytes.  Note that this function
         // does *not* set 'dstBuffer[length]' to zero.
 
+    static void copy(Blob       *dst,
+                     int         dstOffset,
+                     const char *srcBuffer,
+                     int         length);
+        // Copy into the specified 'dst' starting at the specified 'dstOffset'
+        // the specified 'length' bytes from the specified 'srcBuffer'.  The
+        // behavior is undefined unless '0 <= dstOffset', '0 <= length',
+        // 'dst || 0 == length', 'srcBuffer || 0 == length',
+        // '!dst || dstOffset <= dst->length() - length', and 'srcBuffer'
+        // refers to a buffer with at least 'length' bytes.
+
+    static void copy(Blob        *dst,
+                     int          dstOffset,
+                     const Blob&  src,
+                     int          srcOffset,
+                     int          length);
+        // Copy into the specified 'dst' starting at the specified 'dstOffset'
+        // the specified 'length' bytes starting at the specified 'srcOffset'
+        // in the specified 'src'.  The behavior is undefined unless
+        // '0 <= dstOffset', '0 <= srcOffset', '0 <= length',
+        // 'dst || 0 == length', '!dst || dstOffset <= dst->length() - length',
+        // and 'srcOffset <= src->length() - length'.
+
     static char *getContiguousRangeOrCopy(char        *dstBuffer,
                                           const Blob&  srcBlob,
                                           int          position,
