@@ -1950,7 +1950,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
 
     // page 887 - 888
     //..
-    //  23.5.5.2, construct/copy/destroy:
+    //  // 23.5.5.2, construct/copy/destroy:
     //  unordered_multimap& operator=(unordered_multimap&&)
     //   noexcept(allocator_traits<Allocator>::is_always_equal::value &&
     //            is_nothrow_move_assignable<Hash>::value &&
