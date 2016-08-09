@@ -603,10 +603,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
 #endif
@@ -621,6 +617,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -1238,6 +1238,12 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // Assign the specified 'value' of template parameter 'SOURCE_TYPE_REF'
         // to this variant.
 
+    template <class TYPE, class SOURCE_TYPE_REF>
+    void assignImp(bslmf::MovableRef<SOURCE_TYPE_REF> value);
+        // Assign the specified 'value' of template parameter 'SOURCE_TYPE_REF'
+        // to this variant.  The contents of 'value' are moved to this object.
+        // 'value' is left in a valid but unspecified state.
+
     template <class TYPE>
     void create(const TYPE& value, bsl::false_type);
         // Construct this variant object with the specified 'value'.  Note that
@@ -1679,6 +1685,15 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    VariantImp& assign(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state.  The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from 'TYPE'.
+
     template <class TYPE, class SOURCE_TYPE>
     VariantImp& assignTo(const SOURCE_TYPE& value);
         // Assign to this object the specified 'value' of template parameter
@@ -1686,6 +1701,15 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // this object.  The value previously held by this variant (if any)
         // will be destroyed if the value's type is different from the template
         // parameter 'TYPE'.
+
+    template <class TYPE, class SOURCE_TYPE>
+    VariantImp& assignTo(bslmf::MovableRef<SOURCE_TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'SOURCE_TYPE', and return a reference providing modifiable access to
+        // this object.  The contents of 'value' are moved to this object.
+        // 'value' is left in a valid but unspecified state.  The value
+        // previously held by this variant (if any) will be destroyed if the
+        // value's type is different from the template parameter 'TYPE'.
 
     template <class TYPE>
     void createInPlace();
@@ -6175,64 +6199,64 @@ struct Variant_TypeIndex {
     enum {
         value = bsl::is_same<
                       typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  1
+                      TYPE>::value ?  1
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  2
+                      TYPE>::value ?  2
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  3
+                      TYPE>::value ?  3
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 4, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  4
+                      TYPE>::value ?  4
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 5, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  5
+                      TYPE>::value ?  5
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 6, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  6
+                      TYPE>::value ?  6
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 7, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  7
+                      TYPE>::value ?  7
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 8, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  8
+                      TYPE>::value ?  8
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf< 9, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ?  9
+                      TYPE>::value ?  9
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<10, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 10
+                      TYPE>::value ? 10
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<11, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 11
+                      TYPE>::value ? 11
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<12, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 12
+                      TYPE>::value ? 12
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<13, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 13
+                      TYPE>::value ? 13
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<14, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 14
+                      TYPE>::value ? 14
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<15, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 15
+                      TYPE>::value ? 15
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<16, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 16
+                      TYPE>::value ? 16
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<17, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 17
+                      TYPE>::value ? 17
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<18, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 18
+                      TYPE>::value ? 18
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 19
+                      TYPE>::value ? 19
               : bsl::is_same<
                       typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault,
-                      TYPE>::VALUE ? 20
+                      TYPE>::value ? 20
               : bsl::is_convertible<TYPE, bslma::Allocator *>::value
                                    ? 21
               : 0
@@ -6347,7 +6371,7 @@ struct Variant_DestructorVisitor {
     template <class TYPE>
     void operator()(TYPE& object) const
     {
-        bslalg::ScalarDestructionPrimitives::destroy(&object);
+        bslma::DestructionUtil::destroy(&object);
     }
 };
 
@@ -6780,8 +6804,9 @@ template <class TYPE, class VISITOR_REF>
 inline
 void VariantImp<TYPES>::applyImp(VISITOR_REF visitor, bsl::false_type)
 {
-    visitor(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
-                                                    &this->d_value)->object());
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    visitor(reinterpret_cast<BufferType *>(&this->d_value)->object());
 }
 
 template <class TYPES>
@@ -6798,7 +6823,7 @@ template <class TYPE, class VISITOR_REF>
 inline
 void VariantImp<TYPES>::applyImp(VISITOR_REF visitor)
 {
-    typedef typename bsl::is_same<TYPE, bslmf::Nil>::Type IsUnset;
+    typedef typename bsl::is_same<TYPE, bslmf::Nil>::type IsUnset;
     applyImp<TYPE, VISITOR_REF>(visitor, IsUnset());
 }
 
@@ -6807,8 +6832,9 @@ template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
 RET_TYPE VariantImp<TYPES>::applyImpR(VISITOR_REF visitor, bsl::false_type)
 {
-    return visitor(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
-                                                    &this->d_value)->object());
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    return visitor(reinterpret_cast<BufferType *>(&this->d_value)->object());
 }
 
 template <class TYPES>
@@ -6825,7 +6851,7 @@ template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
 RET_TYPE VariantImp<TYPES>::applyImpR(VISITOR_REF visitor)
 {
-    typedef typename bsl::is_same<TYPE, bslmf::Nil>::Type IsUnset;
+    typedef typename bsl::is_same<TYPE, bslmf::Nil>::type IsUnset;
     return applyImpR<TYPE, VISITOR_REF, RET_TYPE>(visitor, IsUnset());
 }
 
@@ -6833,12 +6859,29 @@ template <class TYPES>
 template <class TYPE, class SOURCE_TYPE>
 void VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
 {
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
     reset();
     bslma::ConstructionUtil::construct(
-     &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     this->getAllocator(),
-     value);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     value);
+    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+}
 
+template <class TYPES>
+template <class TYPE, class SOURCE_TYPE>
+void VariantImp<TYPES>::assignImp(bslmf::MovableRef<SOURCE_TYPE> value)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    SOURCE_TYPE& lvalue = value;
+
+    reset();
+    bslma::ConstructionUtil::construct(
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     bslmf::MovableRefUtil::move(lvalue));
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -6921,10 +6964,12 @@ template <class TYPE>
 inline
 void VariantImp<TYPES>::create(const TYPE& value, bsl::false_type)
 {
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
     bslma::ConstructionUtil::construct(
-     &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     this->getAllocator(),
-     value);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     value);
 }
 
 template <class TYPES>
@@ -7057,8 +7102,9 @@ template <class TYPE, class VISITOR_REF>
 inline
 void VariantImp<TYPES>::applyImp(VISITOR_REF visitor, bsl::false_type) const
 {
-    visitor(reinterpret_cast<const bsls::ObjectBuffer<TYPE> *>(
-                                                    &this->d_value)->object());
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    visitor(reinterpret_cast<const BufferType *>(&this->d_value)->object());
 }
 
 template <class TYPES>
@@ -7075,7 +7121,7 @@ template <class TYPE, class VISITOR_REF>
 inline
 void VariantImp<TYPES>::applyImp(VISITOR_REF visitor) const
 {
-    typedef typename bsl::is_same<TYPE, bslmf::Nil>::Type IsUnset;
+    typedef typename bsl::is_same<TYPE, bslmf::Nil>::type IsUnset;
     applyImp<TYPE, VISITOR_REF>(visitor, IsUnset());
 }
 
@@ -7085,7 +7131,9 @@ inline
 RET_TYPE VariantImp<TYPES>::applyImpR(VISITOR_REF     visitor,
                                       bsl::false_type) const
 {
-    return visitor(reinterpret_cast<const bsls::ObjectBuffer<TYPE> *>(
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    return visitor(reinterpret_cast<const BufferType *>(
                                                     &this->d_value)->object());
 }
 
@@ -7104,7 +7152,7 @@ template <class TYPE, class VISITOR_REF, class RET_TYPE>
 inline
 RET_TYPE VariantImp<TYPES>::applyImpR(VISITOR_REF visitor) const
 {
-    typedef typename bsl::is_same<TYPE, bslmf::Nil>::Type IsUnset;
+    typedef typename bsl::is_same<TYPE, bslmf::Nil>::type IsUnset;
     return applyImpR<TYPE, VISITOR_REF, RET_TYPE>(visitor, IsUnset());
 }
 
@@ -7332,10 +7380,12 @@ VariantImp<TYPES>::VariantImp(const TYPE&       value,
                               bslma::Allocator *basicAllocator)
 : Base(Variant_TypeIndex<TYPES, TYPE>::value, basicAllocator)
 {
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
     bslma::ConstructionUtil::construct(
-     &(reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(&this->d_value)->object()),
-     this->getAllocator(),
-     value);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     value);
 }
 
 template <class TYPES>
@@ -7519,9 +7569,10 @@ template <class TYPES>
 template <class TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assign(const TYPE& value)
 {
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
     if (Variant_TypeIndex<TYPES, TYPE>::value == this->d_type) {
-        reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
-                                             &this->d_value)->object() = value;
+        reinterpret_cast<BufferType *>(&this->d_value)->object() = value;
     }
     else {
         assignImp<TYPE, TYPE>(value);
@@ -7531,16 +7582,57 @@ VariantImp<TYPES>& VariantImp<TYPES>::assign(const TYPE& value)
 }
 
 template <class TYPES>
+template <class TYPE>
+VariantImp<TYPES>& VariantImp<TYPES>::assign(bslmf::MovableRef<TYPE> value)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    TYPE& lvalue = value;
+
+    if (Variant_TypeIndex<TYPES, TYPE>::value == this->d_type) {
+        reinterpret_cast<BufferType *>(&this->d_value)->object() =
+                                                        MoveUtil::move(lvalue);
+    }
+    else {
+        assignImp<TYPE, TYPE>(MoveUtil::move(lvalue));
+    }
+
+    return *this;
+}
+
+template <class TYPES>
 template <class TYPE, class SOURCE_TYPE>
 VariantImp<TYPES>& VariantImp<TYPES>::assignTo(const SOURCE_TYPE& value)
 {
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
     if (Variant_TypeIndex<TYPES, TYPE>::value == this->d_type
-     && bsl::is_same<TYPE, SOURCE_TYPE>::VALUE) {
-        reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
-                                             &this->d_value)->object() = value;
+     && bsl::is_same<TYPE, SOURCE_TYPE>::value) {
+        reinterpret_cast<BufferType *>(&this->d_value)->object() = value;
     }
     else {
         assignImp<TYPE, SOURCE_TYPE>(value);
+    }
+
+    return *this;
+}
+
+template <class TYPES>
+template <class TYPE, class SOURCE_TYPE>
+VariantImp<TYPES>&
+VariantImp<TYPES>::assignTo(bslmf::MovableRef<SOURCE_TYPE> value)
+{
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    SOURCE_TYPE& lvalue = value;
+
+    if (Variant_TypeIndex<TYPES, TYPE>::value == this->d_type
+     && bsl::is_same<TYPE, SOURCE_TYPE>::value) {
+        reinterpret_cast<BufferType *>(&this->d_value)->object() =
+                                                        MoveUtil::move(lvalue);
+    }
+    else {
+        assignImp<TYPE, SOURCE_TYPE>(MoveUtil::move(lvalue));
     }
 
     return *this;
@@ -7555,8 +7647,8 @@ void VariantImp<TYPES>::createInPlace()
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator());
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator());
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7569,9 +7661,9 @@ void VariantImp<TYPES>::createInPlace(const A1& a1)
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7584,9 +7676,9 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7599,9 +7691,9 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2, const A3& a3)
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7615,9 +7707,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7632,9 +7724,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7650,9 +7742,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7668,9 +7760,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7686,9 +7778,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7705,9 +7797,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7724,9 +7816,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7744,9 +7836,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7765,9 +7857,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7786,9 +7878,9 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7807,10 +7899,10 @@ void VariantImp<TYPES>::createInPlace(
 
     reset();
     bslma::ConstructionUtil::construct(
-                   &(reinterpret_cast<BufferType *>(&this->d_value)->object()),
-                   this->getAllocator(),
-                   a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
-                   a14);
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
+                     a14);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 }
 
@@ -7865,8 +7957,9 @@ TYPE& VariantImp<TYPES>::the()
     BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
-    return reinterpret_cast<bsls::ObjectBuffer<TYPE> *>(
-                                                     &this->d_value)->object();
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 // ACCESSORS
@@ -7981,8 +8074,9 @@ const TYPE& VariantImp<TYPES>::the() const
     BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
-    return reinterpret_cast<const bsls::ObjectBuffer<TYPE> *>(
-                                                     &this->d_value)->object();
+    typedef bsls::ObjectBuffer<TYPE> BufferType;
+
+    return reinterpret_cast<const BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
