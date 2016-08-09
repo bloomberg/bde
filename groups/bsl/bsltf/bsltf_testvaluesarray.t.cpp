@@ -11,13 +11,14 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <typeinfo>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
+using bsls::NameOf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -200,7 +201,7 @@ static const struct {
     { L_,  "DHBIMACOPELGFKNJQ" },
 };
 
-const size_t NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -211,11 +212,11 @@ const size_t NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
                             // ===================
 template <class VALUE, class ALLOCATOR>
 struct TestConverter
-    // This 'struct' provides a namespace that contain two class method
+    // This 'struct' provides a namespace that contains two class method
     // templates, 'createInplace' and 'getIdentifier', that respectively
     // provide a consistent interface to (1) create a specified object of the
-    // (template parameter) type from a char identifier and (2) get the
-    // identifier value of a specified object.
+    // (template parameter) type 'VALUE' from a char identifier and (2) get
+    // the identifier value of a specified object.
 {
     // CLASS METHODS
     static void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
@@ -337,7 +338,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     //: 3 The 'index()' returns iterator, referring to the value with index,
     //:   passed as a parameter.
     //:
-    //: 4 The 'resetIterators()' makes all values accessable through iterators
+    //: 4 The 'resetIterators()' makes all values accessible through iterators
     //:   again.
     //:
     //: 5 QoI: Asserted precondition violations are detected when enabled.
@@ -357,6 +358,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     //:
     //:   3 Iterate through the whole TestValuesArray and verify iterator
     //:     values.  (C-2)
+    //:
     //: 3 For each row (representing a distinct object value, 'V') in the table
     //:   described in P-1:
     //:
@@ -384,7 +386,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting 'begin' and 'end'.\n");
     {
@@ -394,8 +396,6 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
             const size_t  SIZE = strlen(SPEC);
 
             if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
-
-            // Construct object.
 
             Obj        mX(SPEC);
             const Obj& X = mX;
@@ -409,8 +409,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
                 ++it;
             }
             ASSERTV(SPEC, it == mX.end());
-
-        }  // end foreach row
+        }
     }
 
     if (verbose) printf("\tTesting 'index'.\n");
@@ -436,8 +435,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
             Iterator it = mX.index(SIZE);
             ASSERTV(SPEC, mX.end() == it);
-
-        }  // end foreach row
+        }
     }
 
     if (verbose) printf("\tTesting 'resetIterators'.\n");
@@ -456,29 +454,25 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
             Iterator shuttle = mX.begin();
             for (size_t i = 0; i < SIZE; ++i) {
-                // Make value with index i dereferenced, so any attempts to
+                // Dereference the iterator 'shuttle', so any attempts to
                 // dereference it again will lead to undefined behavior (and
-                // trigger defensive checks in appropriate build modes).
+                // trigger defensive checks in the appropriate build modes).
 
-                ASSERTV(SPEC, i,
-                        CONVERTER::getIdentifier(X[i]) ==
-                                           CONVERTER::getIdentifier(*shuttle));
+                *shuttle;
 
                 // Reset all dereferenceable flags.
                 mX.resetIterators();
 
                 // Verify, that iterator can be dereferenced again.
 
-                Iterator temp = mX.index(i);
-                ASSERTV(SPEC, i,
-                        CONVERTER::getIdentifier(X[i]) ==
-                                              CONVERTER::getIdentifier(*temp));
+                *shuttle;
+
                 ++shuttle;
                 mX.resetIterators();
             }
 
-            // Now all values in array are dereferenceable. Dereference all of
-            // them.
+            // Now all values in array are dereferenceable. Traverse each of
+            // them to change their properties.
 
             shuttle = mX.begin();
             for (size_t i = 0; i < SIZE; ++i) {
@@ -506,10 +500,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
         const char   *SPEC = "A";
         const size_t  SIZE = strlen(SPEC);
 
-        Obj        mX(SPEC);
+        Obj mX(SPEC);
 
-        ASSERT_OPT_FAIL(mX.index(SIZE + 1));
-        ASSERT_OPT_PASS(mX.index(SIZE    ));
+        ASSERT_SAFE_FAIL(mX.index(SIZE + 1));
+        ASSERT_SAFE_PASS(mX.index(SIZE    ));
     }
 }
 
@@ -517,14 +511,14 @@ template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
 {
     // ------------------------------------------------------------------------
-    // ITERATOR STRUCTURE DEREFERENCE OPERATOR
+    // ITERATOR DEREFERENCE OPERATOR
     //
     // Concerns:
-    //: 1 The 'operator->' returns the address to the value of the element
-    //:   to which this object refers.
+    //: 1 The 'operator->' returns the address of the element referred by this
+    //:   object.
     //:
-    //: 2 The 'operator->' modifies 'dereferenceable' flag of the expected
-    //:   element.
+    //: 2 The 'operator->' modifies 'dereferenceable' flag of the element
+    //:   referred by this object.
     //:
     //: 3 QoI: Asserted precondition violations are detected when enabled.
     //
@@ -540,10 +534,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
     //:     specification.
     //:
     //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object has, to emulate TestValuesArray's
+    //:     TestValuesArray object, to emulate TestValuesArray's
     //:     'dereferenceable' and 'validIterator' arrays.
     //:
-    //:   3 Create an iterator, referring to the first value in the
+    //:   3 Create an iterator, referring to the first element in the
     //:     TestValuesArray and two arrays, specified in P-2.2.
     //:
     //:   4 Iterate through the whole TestValuesArray and verify that
@@ -554,15 +548,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
     //:
     //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
     //
-    // Plan:
-    //: 1
-    //
     // Testing:
     //  const VALUE *TestValuesArrayIterator::operator->() const;
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -577,13 +568,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
             if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
 
             const Obj  VALUES_ARRAY(SPEC);
-            bool      *isDerefArray = new bool[SIZE];
-            bool      *isValidArray = new bool[SIZE];
+            bool      *isDerefArray = new bool[SIZE + 1];
+            bool      *isValidArray = new bool[SIZE + 1];
 
             for (size_t i = 0; i < SIZE; ++i) {
                 isDerefArray[i] = true;
                 isValidArray[i] = true;
             }
+
+            isDerefArray[SIZE] = false;
+            isValidArray[SIZE] = false;
 
             // Test object creation.
 
@@ -669,7 +663,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
     //:     specification.
     //:
     //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object has, to emulate TestValuesArray's
+    //:     TestValuesArray object, to emulate TestValuesArray's
     //:     'dereferenceable' and 'validIterator' arrays.
     //:
     //:   3 Create an iterator, referring to the first value in the
@@ -685,7 +679,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -700,15 +694,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
             if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
 
             const Obj  VALUES_ARRAY(SPEC);
-            bool      *isDerefArray = new bool[SIZE];
-            bool      *isValidArray = new bool[SIZE];
+            bool      *isDerefArray = new bool[SIZE + 1];
+            bool      *isValidArray = new bool[SIZE + 1];
 
             for (size_t i = 0; i < SIZE; ++i) {
                 isDerefArray[i] = true;
                 isValidArray[i] = true;
             }
 
-            // Test object creation.
+            isDerefArray[SIZE] = false;
+            isValidArray[SIZE] = false;
 
             Iterator mX(VALUES_ARRAY.data(),
                         VALUES_ARRAY.data() + SIZE,
@@ -716,7 +711,6 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
                         isValidArray);
 
             for (size_t i = 0; i < SIZE; ++i) {
-
                 ASSERTV(LINE, SPEC[i], true == isDerefArray[i]);
                 ASSERTV(LINE, SPEC[i], true == isValidArray[i]);
 
@@ -792,9 +786,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
     //:   specifications.
     //:
     //: 3 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object has, to emulate TestValuesArray's
-    //:   'dereferenceable' and 'validIterator' arrays for two different
-    //:   iterators.
+    //:   TestValuesArray object, to emulate TestValuesArray's
+    //:   'dereferenceable' and 'validIterator' arrays.
     //:
     //: 4 Create source iterator, 'mX', and target iterator, 'mY', referring to
     //:   the first values of the different TestValuesArrays and four arrays,
@@ -814,9 +807,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
     //: 9 Create a constant TestValuesArray object.
     //:
     //:10 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object has, to emulate TestValuesArray's
-    //:   'dereferenceable' and 'validIterator' arrays for two different
-    //:   iterators.
+    //:   TestValuesArray object, to emulate TestValuesArray's
+    //:   'dereferenceable' and 'validIterator' arrays.
     //:
     //:11 Create an iterator, 'mX', referring to the first value in
     //:   the TestValuesArray, specified in P-9 and two arrays, specified in
@@ -833,10 +825,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose)
-        printf("\nTesting signature and return type.\n");
+        printf("\tTesting signature and return type.\n");
     {
         typedef Iterator& (Iterator::*operatorPtr)(const Iterator&);
 
@@ -1002,7 +994,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
     //:   specification.
     //:
     //: 2 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object has, to emulate TestValuesArray's
+    //:   TestValuesArray object, to emulate TestValuesArray's
     //:   'dereferenceable' and 'validIterator' arrays for two different
     //:   iterators.
     //:
@@ -1024,7 +1016,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -1149,7 +1141,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
     //:     specification.
     //:
     //:   2 Create four boolean arrays, having the same size as the
-    //:     TestValuesArray object has, to emulate TestValuesArray's
+    //:     TestValuesArray object, to emulate TestValuesArray's
     //:     'dereferenceable' and 'validIterator' arrays for two different
     //:     iterators.
     //:
@@ -1168,11 +1160,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
     //   bool operator!=(lhs, rhs);
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nITERATOR EQUALITY-COMPARISON OPERATORS"
-                        "\n======================================\n");
-
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose)
         printf("\nTesting signatures and return types.\n");
@@ -1320,7 +1309,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
     //:     specification.
     //:
     //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object has, to emulate TestValuesArray's
+    //:     TestValuesArray object, to emulate TestValuesArray's
     //:     'dereferenceable' and 'validIterator' arrays.
     //:
     //:   3 Create an iterator, referring to the first value in the
@@ -1339,7 +1328,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -1448,7 +1437,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
     //:     specification.
     //:
     //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object has, to emulate TestValuesArray's
+    //:     TestValuesArray object, to emulate TestValuesArray's
     //:     'dereferenceable' and 'validIterator' arrays.
     //:
     //:   3 Create an iterator, referring to the first value in the
@@ -1472,7 +1461,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -1615,7 +1604,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase7()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     typedef TestValuesArray_PostIncrementPtr<VALUE> PostIncrementPtr;
 
@@ -1651,8 +1640,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase7()
 
         (void) VALUES;
 
-        ASSERT_OPT_FAIL(PostIncrementPtr(0));
-        ASSERT_OPT_PASS(PostIncrementPtr(VALUES.data()));
+        ASSERT_SAFE_FAIL(PostIncrementPtr(0));
+        ASSERT_SAFE_PASS(PostIncrementPtr(VALUES.data()));
     }
 }
 
@@ -1687,7 +1676,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase6()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -1721,10 +1710,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase6()
         const Obj NotEmpty(SPEC);
         const Obj Empty("");
 
-        ASSERT_OPT_FAIL(Empty[0]);
-        ASSERT_OPT_FAIL(NotEmpty[SIZE]);
-        ASSERT_OPT_PASS(NotEmpty[SIZE-1]);
-        ASSERT_OPT_PASS(NotEmpty[0]);
+        ASSERT_SAFE_FAIL(Empty[0]);
+        ASSERT_SAFE_FAIL(NotEmpty[SIZE]);
+        ASSERT_SAFE_PASS(NotEmpty[SIZE-1]);
+        ASSERT_SAFE_PASS(NotEmpty[0]);
     }
 }
 
@@ -1788,7 +1777,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     const char   DEFAULT_SPEC[] =
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -1915,7 +1904,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase4()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -2025,7 +2014,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -2122,10 +2111,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
         const char           *SPEC = "A";
         bslma::TestAllocator  ta("test", veryVeryVeryVerbose);
 
-        ASSERT_OPT_FAIL(Obj(0));
-        ASSERT_OPT_FAIL(Obj(0, &ta));
-        ASSERT_OPT_PASS(Obj(SPEC));
-        ASSERT_OPT_PASS(Obj(SPEC, &ta));
+        ASSERT_SAFE_FAIL(Obj(0));
+        ASSERT_SAFE_FAIL(Obj(0, &ta));
+        ASSERT_SAFE_PASS(Obj(SPEC));
+        ASSERT_SAFE_PASS(Obj(SPEC, &ta));
     }
 }
 
@@ -2158,7 +2147,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", typeid(VALUE).name());
+        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     typedef TestValuesArray_DefaultConverter<VALUE, ALLOCATOR> Converter;
 
@@ -2351,11 +2340,11 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // ITERATOR STRUCTURE DEREFERENCE OPERATOR
+        // ITERATOR DEREFERENCE OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nITERATOR STRUCTURE DEREFERENCE OPERATOR"
-                            "\n=======================================\n");
+        if (verbose) printf("\nITERATOR DEREFERENCE OPERATOR"
+                            "\n=============================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
