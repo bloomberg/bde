@@ -196,22 +196,21 @@ int main(int argc, char *argv[])
         //     in a buffer (i.e., when it crosses a buffer boundary).
         //
         // Plan:
-        //   Iterate over a set of test vectors varying in buffer size and
-        //   length of data to write.  For each test vector, instantiate a
-        //   'btlb::PooledBufferChainFactory', 'mF', allocate a
-        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
-        //   'bcema::PooledBufferChainStreamBuf', 'mX'.  Write the specified
-        //   number of bytes to 'mX' using 'sputn', and verify the length of
-        //   'mC'.  Read the specified number of buffers from 'mX', and verify
-        //   the result, and the get area offset of 'mX'.
+        //  Iterate over a set of test vectors varying in buffer size and
+        //  length of data to write.  For each test vector, instantiate a
+        //  'btlb::PooledBlobBufferFactory', 'mF', allocate a 'btlb::Blob',
+        //  'mC', and use 'mC' to instantiate a 'btlb::BlobStreamBuf', 'mX'.
+        //  Write the specified number of bytes to 'mX' using 'sputn', and
+        //  verify the length of 'mC'.  Read the specified number of buffers
+        //  from 'mX', and verify the result, and the get area offset of 'mX'.
         //
-        //   Instantiate a 'btlb::PooledBufferChainFactory', 'mF', allocate a
-        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
-        //   'bcema::PooledBufferChainStreamBuf, 'mX'.  Iterate over an input
-        //   buffer whose length is more than the size of 'mC', but less
-        //   than twice the size of 'mC'.  On each iteration, write the input
-        //   buffer into 'mX', substituting the i'th character for EOF.  Read
-        //   back the data form 'mX', and verify the result.
+        //  Instantiate a 'btlb::PooledBlobBufferFactory', 'mF', allocate a
+        //  'btlb::Blob', 'mC', and use 'mC' to instantiate a
+        //  'btlb::BlobStreamBuf, 'mX'.  Iterate over an input  buffer whose
+        //  length is more than the size of 'mC', but less than twice the size
+        //  of 'mC'.  On each iteration, write the input buffer into 'mX',
+        //  substituting the i'th character for EOF.  Read back the data form
+        //  'mX', and verify the result.
         //
         // Testing:
         //   Concern: EOF is streamed correctly
@@ -346,9 +345,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size and
         //   length of data to write.  For each test vector, instantiate a
-        //   'btlb::PooledBufferChainFactory', 'mF', allocate a
-        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
-        //   'bcema::PooledBufferChainStreamBuf', 'mX'.  Write the specified
+        //   'btlb::PooledBlobBufferFactory', 'mF', allocate a
+        //   'btlb::Blob', 'mC', and use 'mC' to instantiate a
+        //   'btlb::BlobStreamBuf', 'mX'.  Write the specified
         //   number of bytes to 'mX' using 'sputn', and verify the length of
         //   'mC'.  Read the specified number of buffers from 'mX', and verify
         //   the result, and the get area offset of 'mX'.
@@ -445,8 +444,8 @@ int main(int argc, char *argv[])
         //     resets the get and put areas.
         //
         // Plan:
-        //   Create two modifiable 'btlb::PooledBufferChain' objects, 'mCa'
-        //   and 'mCb'.  Create a modifiable 'btlb::PooledBufferChainStreamBuf'
+        //   Create two modifiable 'btlb::Blob' objects, 'mCa'
+        //   and 'mCb'.  Create a modifiable 'btlb::BlobStreamBuf'
         //   'mX', instantiated with 'mCa', and a non-modifiable reference to
         //   'mX' named 'X'.  Using 'X', verify that 'mX' is supported by
         //   'mCa'.  Adjust the get and put areas by calling 'pubseekpos' on
@@ -457,7 +456,7 @@ int main(int argc, char *argv[])
         //   reset.  Additionally verify that 'mX' is not supported by 'mCb'.
         //
         // Testing:
-        //   void reset(btlb::PooledBufferChain *pooledBufferChain);
+        //   void reset(btlb::Blob *blob);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -618,28 +617,27 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   * That it is possible to instantiate a
-        //     'btlb::PooledBufferChainStreamBuf' object with a variety of
-        //     'btlb::PooledBufferChain' parameters.
+        //     'btlb::BlobStreamBuf' object with a variety of
+        //     'btlb::Blob' parameters.
         //
         //   * That 'sync' and 'overflow' update the chain length.
         //
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size.  For
         //   each test vector, instantiate a modifiable
-        //   'btlb::PooledBufferChainStreamBuf', 'mX', and a non-modifiable
+        //   'btlb::BlobStreamBuf', 'mX', and a non-modifiable
         //   reference to 'mX' named 'X'.  Write data of length 3 times the
         //   specified buffer size to 'mX' in chunks of buffer size, 'sync'ing
         //   'mX' after each write, and verifying the chain length and number
         //   of buffers using 'X'.
         //
         // Testing:
-        //   btlb::PooledBufferChainStreamBuf(
-        //                         btlb::PooledBufferChain *pooledBufferChain);
-        //   ~btlb::PooledBufferChainStreamBuf();
+        //   btlb::BlobStreamBuf(btlb::Blob *blob);
+        //   ~btlb::BlobStreamBuf();
         //   int_type overflow(int_type c =
         //                                 bsl::streambuf::traits_type::eof());
         //   int sync();
-        //   const btlb::PooledBufferChain *data() const;
+        //   const btlb::Blob *data() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
