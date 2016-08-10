@@ -10,7 +10,7 @@
 #include <bdls_filesystemutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
@@ -36,30 +36,35 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#include <io.h>
-#include <direct.h>
-#include <bdlde_charconvertutf16.h>
-#undef MIN
-#define snprintf _snprintf
+# include <windows.h>
+# include <io.h>
+# include <direct.h>
+# include <bdlde_charconvertutf16.h>
+# include <tchar.h>
+# ifdef MIN
+#   undef MIN
+# endif
+# ifndef snprintf
+#   define snprintf _snprintf
+# endif
 
 #else // !BSLS_PLATFORM_OS_WINDOWS
-#ifndef _POSIX_PTHREAD_SEMANTICS
-#define _POSIX_PTHREAD_SEMANTICS
-#endif
-#include <bsl_c_errno.h>
-#include <bsl_c_limits.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <glob.h>
-#include <dirent.h>
-#include <utime.h> // for testing only ... for now
-#include <sys/mman.h>
-#include <sys/resource.h>
-#include <sys/statvfs.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/uio.h>
+# ifndef _POSIX_PTHREAD_SEMANTICS
+#   define _POSIX_PTHREAD_SEMANTICS
+# endif
+# include <bsl_c_errno.h>
+# include <bsl_c_limits.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <glob.h>
+# include <dirent.h>
+# include <utime.h> // for testing only ... for now
+# include <sys/mman.h>
+# include <sys/resource.h>
+# include <sys/statvfs.h>
+# include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/uio.h>
 #endif
 
 // PRIVATE CONSTANTS
@@ -1157,7 +1162,7 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
                                         ULONG            Length,
                                         INT              FileInformationClass);
 
-    static HMODULE hNtDll = LoadLibrary("ntdll.dll");
+    static HMODULE hNtDll = LoadLibrary(_T("ntdll.dll"));
     static NTQUERYVOLUMEINFORMATIONFILE *pNQVIF =
         hNtDll ? (NTQUERYVOLUMEINFORMATIONFILE*)
                          GetProcAddress(hNtDll, "NtQueryVolumeInformationFile")
