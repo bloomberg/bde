@@ -61,7 +61,7 @@ class NotIsSpace {
     explicit NotIsSpace(const bsl::ctype<CHARTYPE>& ctype);
         // Construct a 'NotIsSpace' object, using the specified 'ctype'.
     bool operator()(CHARTYPE character) const;
-        // Return true if the specified 'character' is a space (according to
+        // Return 'true' if the specified 'character' is a space (according to
         // the 'ctype' provided at construction), and false otherwise.
 };
 
@@ -278,79 +278,77 @@ doGetCommon(ITER_TYPE                    begin,
     // last character examined, or equal to 'end' if parsing terminated there.
 {
     *hasDigit = false;
-    char* buffer = to;
     // optional sign
     char sign;
-    if (begin != end &&
-              (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
-        if (to == toEnd) {
-            return begin;                                             // RETURN
-        }
+    if (begin != end && to != toEnd
+           && (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
         *to = sign;
-        ++to;
-        ++begin;
+        ++to, ++begin;
     }
     // spaces between sign and value
     begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(ctype));
     // non-fractional part
-    for (; begin != end && to != toEnd
+    while (begin != end && to != toEnd
              && (ctype.is(bsl::ctype_base::digit, *begin)
-             || *begin == separator);
-         ++begin, ++to) {
+                 || *begin == separator)) {
         if (*begin != separator) {
                 //-dk:TODO TBD store separators for later check
             *hasDigit = true;
             *to = ctype.narrow(*begin, ' ');
+            ++to;
         }
+        ++begin;
     }
     // fractional part
     if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
             // -nm:TODO TBD use numpunct notion of decimal separator
         *to = '.';
-        ++begin;
-        ++to;
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
+        ++to, ++begin;
+        char* start = to;
+        while (begin != end && to != toEnd
+                 && ctype.is(bsl::ctype_base::digit, *begin)) {
             *hasDigit = true;
             *to = ctype.narrow(*begin, ' ');
+            ++begin, ++to;
+        }
+        if (start == to && !*hasDigit) {
+                 // A fractional-part needs at least one digit, somewhere.
+            return begin;                                             // RETURN
         }
     }
     // exponent (but not a stand-alone exponent
     if (*hasDigit && begin != end && to != toEnd
-        && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
+            && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
         *to = 'e';
-        ++begin;
-        ++to;
+        ++to, ++begin;
         // optional exponent sign
-        if (begin != end
-            && (ctype.narrow(*begin, ' ') == '-'
-                || ctype.narrow(*begin, ' ') == '+')) {
+        if (begin != end && to != toEnd
+           && (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
             *to = ctype.narrow(*begin, ' ');
-            ++to;
-            ++begin;
+            ++to, ++begin;
         }
-        char* start(to);
-        for (; begin != end && to != toEnd
-                 && ctype.is(bsl::ctype_base::digit, *begin);
-             ++begin, ++to) {
+        char* start = to;
+        while (begin != end && to != toEnd
+                && ctype.is(bsl::ctype_base::digit, *begin)) {
             *to = ctype.narrow(*begin, ' ');
+            ++to, ++begin;
         }
         if (start == to) { // exponent needs to have at least one digit
-            to = buffer;
+            *hasDigit = false;
+            return begin;                                             // RETURN
         }
     }
 
     // inf, -inf, +inf, -nan, +nan, or nan
 
-    if (!*hasDigit && begin != end && to != toEnd) {
+    if (!*hasDigit && begin != end && to != toEnd && *to != '.') {
         const char pats[] = "0infinity\0nan";
         char c = ctype.narrow(ctype.tolower(*begin), ' ');
         int infNanPos = (c == pats[1]) ? 1 : (c == pats[10]) ? 10 : 0;
         if (infNanPos != 0) {
             do {
-                *to++ = pats[infNanPos++];
-            } while (++begin != end &&
+                *to++ = pats[infNanPos++], ++begin;
+            } while (begin != end && to != toEnd &&
                 ctype.narrow(ctype.tolower(*begin), ' ') == pats[infNanPos]);
         }
         if ((pats[infNanPos] == '\0' || infNanPos == 4) &&
