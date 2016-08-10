@@ -341,7 +341,7 @@ doGetCommon(ITER_TYPE                    begin,
 
     // inf, -inf, +inf, -nan, +nan, or nan
 
-    if (!*hasDigit && begin != end && to != toEnd && *to != '.') {
+    if (!*hasDigit && begin != end && to != toEnd) {
         const char pats[] = "0infinity\0nan";
         char c = ctype.narrow(ctype.tolower(*begin), ' ');
         int infNanPos = (c == pats[1]) ? 1 : (c == pats[10]) ? 10 : 0;
