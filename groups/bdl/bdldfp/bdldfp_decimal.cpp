@@ -62,7 +62,7 @@ class NotIsSpace {
         // Construct a 'NotIsSpace' object, using the specified 'ctype'.
     bool operator()(CHARTYPE character) const;
         // Return 'true' if the specified 'character' is a space (according to
-        // the 'ctype' provided at construction), and false otherwise.
+        // the 'ctype' provided at construction), and 'false' otherwise.
 };
 
                     // ----------------
@@ -274,7 +274,7 @@ doGetCommon(ITER_TYPE                    begin,
     // converting) input characters using the specified 'ctype', accepting
     // instances of the specified digit group separator 'separator'.  On
     // success, sets the referent of the specified 'hasDigit' to 'true';
-    // otherwise, false.  Returns an iterator prior to 'end' indicating the
+    // otherwise, 'false'.  Returns an iterator prior to 'end' indicating the
     // last character examined, or equal to 'end' if parsing terminated there.
 {
     *hasDigit = false;
