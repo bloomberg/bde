@@ -260,18 +260,33 @@ doPutCommon(ITER_TYPE       out,
 
 template <class CHAR_TYPE, class ITER_TYPE>
 ITER_TYPE
-doGetCommon(ITER_TYPE  begin, ITER_TYPE  end,
+doGetCommon(ITER_TYPE                    begin,
+            ITER_TYPE                    end,
             bsl::ctype<CHAR_TYPE> const& ctype,
-            char*      to, char* const toEnd,
-            CHAR_TYPE   separator,
-            bool      *hasDigit)
+            char*                        to,
+            const char*                  toEnd,
+            CHAR_TYPE                    separator,
+            bool                        *hasDigit)
+    // Gather (narrowed versions of) characters in the specified range
+    // ['begin'..'end') that syntactically form a floating-point number
+    // (including 'NaN', 'Inf', and 'Infinity') into the buffer defined by the
+    // specified range ['to'..'toEnd'), qualifying (and, where needed,
+    // converting) input characters using the specified 'ctype', accepting
+    // instances of the specified digit group separator 'separator'.  On
+    // success, sets the referent of the specified 'hasDigit' to 'true';
+    // otherwise, false.  Returns an iterator prior to 'end' indicating the
+    // last character examined, or equal to 'end' if parsing terminated there.
 {
+    *hasDigit = false;
     char* buffer = to;
     // optional sign
-    if (begin != end
-        && (ctype.narrow(*begin, ' ') == '-'
-            || ctype.narrow(*begin, ' ') == '+')) {
-        *to = ctype.narrow(*begin, ' ');
+    char sign;
+    if (begin != end &&
+              (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
+        if (to == toEnd) {
+            return begin;                                             // RETURN
+        }
+        *to = sign;
         ++to;
         ++begin;
     }
@@ -283,13 +298,14 @@ doGetCommon(ITER_TYPE  begin, ITER_TYPE  end,
              || *begin == separator);
          ++begin, ++to) {
         if (*begin != separator) {
-            //-dk:TODO TBD store separators for later check
+                //-dk:TODO TBD store separators for later check
             *hasDigit = true;
             *to = ctype.narrow(*begin, ' ');
         }
     }
     // fractional part
     if (begin != end && to != toEnd && ctype.narrow(*begin, ' ') == '.') {
+            // -nm:TODO TBD use numpunct notion of decimal separator
         *to = '.';
         ++begin;
         ++to;
@@ -324,12 +340,13 @@ doGetCommon(ITER_TYPE  begin, ITER_TYPE  end,
             to = buffer;
         }
     }
+
     // inf, -inf, +inf, -nan, +nan, or nan
-    int infNanPos = 0;
-    const char pats[] = "0infinity\0nan";
-    if (!*hasDigit && begin != end) {
+
+    if (!*hasDigit && begin != end && to != toEnd) {
+        const char pats[] = "0infinity\0nan";
         char c = ctype.narrow(ctype.tolower(*begin), ' ');
-        infNanPos = (c == pats[1]) ? 1 : (c == pats[10]) ? 10 : 0;
+        int infNanPos = (c == pats[1]) ? 1 : (c == pats[10]) ? 10 : 0;
         if (infNanPos != 0) {
             do {
                 *to++ = pats[infNanPos++];
@@ -341,8 +358,13 @@ doGetCommon(ITER_TYPE  begin, ITER_TYPE  end,
             *hasDigit = true;
         }
     }
-    if (*hasDigit)
-        *to++ = '\0';
+    if (*hasDigit) {
+        if (to != toEnd) {
+            *to++ = '\0';
+        } else {
+            *hasDigit = false;
+        }
+    }
     return begin;
 }
 
