@@ -61,7 +61,7 @@ using namespace BloombergLP::bsltf;
 // [ 2] ~MoveOnlyAllocTestType();
 //
 // MANIPULATORS
-// [ 9] Obj& operator=(bslmf::MovableRef<MoveOnlyAllocTestType> rhs);
+// [ 9] MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
 // [ 2] void setData(int value);
 //
 // ACCESSORS
@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   MoveOnlyAllocTestType& operator=(const MoveOnlyAllocTestType& r);
+        //   MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVE-ASSIGNMENT OPERATOR"
@@ -837,11 +837,11 @@ int main(int argc, char *argv[])
                 ASSERT(ZZ == X);
 
                 if (&sa == &oa) {
-                    ASSERTV(Z.data(), X.data(), Z !=  X || 0 == DATA);
-                    ASSERTV(Z.data(), X.data(), Z != ZZ || 0 == DATA);
+                    ASSERTV(Z.data(),  X.data(), Z !=  X || 0 == DATA);
+                    ASSERTV(Z.data(), ZZ.data(), Z != ZZ || 0 == DATA);
                 }
                 else {
-                    ASSERTV(Z.data(), X.data(), X == ZZ);
+                    ASSERTV(X.data(), ZZ.data(), X == ZZ);
                 }
 
                 // Verify any attribute allocators are installed properly.
