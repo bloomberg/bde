@@ -1378,6 +1378,15 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // destroyed if the value's type is different from the template
         // parameter 'TYPE'.
 
+    template <class TYPE>
+    VariantImp& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     VariantImp& operator=(const VariantImp& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -2297,6 +2306,15 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant& operator=(const Variant& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -2375,6 +2393,17 @@ Variant<TYPES...>& Variant<TYPES...>::operator=(const TYPE& value)
 }
 
 template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class ...TYPES>
 inline
 Variant<TYPES...>& Variant<TYPES...>::operator=(const Variant& rhs)
 {
@@ -2393,6 +2422,7 @@ Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<Variant> rhs)
     // than derived-to-base matching.
 
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -2496,6 +2526,23 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19, class A20>
+template <class TYPE>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12, A13, A14,
+        A15, A16, A17, A18, A19, A20>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
 inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>&
@@ -2524,6 +2571,7 @@ operator=(bslmf::MovableRef<Variant> rhs)
     // than derived-to-base matching.
 
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -2619,6 +2667,15 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant2& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant2& operator=(const Variant2& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -2696,6 +2753,18 @@ Variant2<A1, A2>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2>
+template <class TYPE>
+inline
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2>
 inline
 Variant2<A1, A2>&
 Variant2<A1, A2>::operator=(const Variant2& rhs)
@@ -2710,6 +2779,7 @@ Variant2<A1, A2>&
 Variant2<A1, A2>::operator=(bslmf::MovableRef<Variant2> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -2800,6 +2870,15 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant3& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant3& operator=(const Variant3& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -2880,6 +2959,18 @@ Variant3<A1, A2, A3>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3>
 inline
 Variant3<A1, A2, A3>&
 Variant3<A1, A2, A3>::operator=(const Variant3& rhs)
@@ -2894,6 +2985,7 @@ Variant3<A1, A2, A3>&
 Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<Variant3> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -2985,6 +3077,15 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant4& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant4& operator=(const Variant4& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -3065,6 +3166,18 @@ Variant4<A1, A2, A3, A4>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4>
 inline
 Variant4<A1, A2, A3, A4>&
 Variant4<A1, A2, A3, A4>::operator=(const Variant4& rhs)
@@ -3079,6 +3192,7 @@ Variant4<A1, A2, A3, A4>&
 Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<Variant4> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -3170,6 +3284,15 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant5& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant5& operator=(const Variant5& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -3250,6 +3373,18 @@ Variant5<A1, A2, A3, A4, A5>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
 inline
 Variant5<A1, A2, A3, A4, A5>&
 Variant5<A1, A2, A3, A4, A5>::operator=(const Variant5& rhs)
@@ -3264,6 +3399,7 @@ Variant5<A1, A2, A3, A4, A5>&
 Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<Variant5> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -3355,6 +3491,15 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant6& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant6& operator=(const Variant6& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -3435,6 +3580,18 @@ Variant6<A1, A2, A3, A4, A5, A6>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
 inline
 Variant6<A1, A2, A3, A4, A5, A6>&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(const Variant6& rhs)
@@ -3449,6 +3606,7 @@ Variant6<A1, A2, A3, A4, A5, A6>&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<Variant6> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -3541,6 +3699,15 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant7& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant7& operator=(const Variant7& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -3621,6 +3788,18 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(const TYPE& value)
 }
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 inline
 Variant7<A1, A2, A3, A4, A5, A6, A7>&
 Variant7<A1, A2, A3, A4, A5, A6, A7>::
@@ -3637,6 +3816,7 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 operator=(bslmf::MovableRef<Variant7> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -3729,6 +3909,15 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant8& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant8& operator=(const Variant8& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -3817,6 +4006,20 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::operator=(const TYPE& value)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8>
+template <class TYPE>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
 inline
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
@@ -3834,6 +4037,7 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 operator=(bslmf::MovableRef<Variant8> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -3926,6 +4130,15 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant9& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant9& operator=(const Variant9& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -4015,6 +4228,20 @@ operator=(const TYPE& value)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
+template <class TYPE>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
 inline
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
@@ -4032,6 +4259,7 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 operator=(bslmf::MovableRef<Variant9> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -4125,6 +4353,15 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant10& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant10& operator=(const Variant10& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -4214,6 +4451,20 @@ operator=(const TYPE& value)
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
+template <class TYPE>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
 inline
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
@@ -4231,6 +4482,7 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 operator=(bslmf::MovableRef<Variant10> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -4324,6 +4576,15 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant11& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant11& operator=(const Variant11& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -4414,6 +4675,20 @@ operator=(const TYPE& value)
 
 template <class A1, class A2, class A3, class A4,  class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
 inline
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
@@ -4431,6 +4706,7 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 operator=(bslmf::MovableRef<Variant11> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -4524,6 +4800,15 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
 
+    template <class TYPE>
+    Variant12& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
+
     Variant12& operator=(const Variant12& rhs);
         // Assign to this object the type and value currently held by the
         // specified 'rhs' object, and return a reference providing modifiable
@@ -4614,6 +4899,20 @@ operator=(const TYPE& value)
 
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
 inline
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
@@ -4631,6 +4930,7 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 operator=(bslmf::MovableRef<Variant12> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -4724,6 +5024,15 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant13& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant13& operator=(const Variant13& rhs);
         // Assign to this object the type and value currently held by the
@@ -4823,6 +5132,21 @@ operator=(const TYPE& value)
 template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12,
           class A13>
+template <class TYPE>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
 inline
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
@@ -4841,6 +5165,7 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 operator=(bslmf::MovableRef<Variant13> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -4937,6 +5262,15 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant14& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant14& operator=(const Variant14& rhs);
         // Assign to this object the type and value currently held by the
@@ -5036,6 +5370,21 @@ operator=(const TYPE& value)
 template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
           class A7,  class A8, class A9, class A10, class A11, class A12,
           class A13, class A14>
+template <class TYPE>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
 inline
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
@@ -5054,6 +5403,7 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 operator=(bslmf::MovableRef<Variant14> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -5150,6 +5500,15 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant15& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant15& operator=(const Variant15& rhs);
         // Assign to this object the type and value currently held by the
@@ -5249,6 +5608,21 @@ operator=(const TYPE& value)
 template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
           class A7,  class A8,  class A9, class A10, class A11, class A12,
           class A13, class A14, class A15>
+template <class TYPE>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
 inline
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
@@ -5267,6 +5641,7 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 operator=(bslmf::MovableRef<Variant15> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -5364,6 +5739,15 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant16& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant16& operator=(const Variant16& rhs);
         // Assign to this object the type and value currently held by the
@@ -5471,6 +5855,23 @@ operator=(const TYPE& value)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
 inline
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>&
@@ -5493,6 +5894,7 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(bslmf::MovableRef<Variant16> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -5590,6 +5992,15 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant17& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant17& operator=(const Variant17& rhs);
         // Assign to this object the type and value currently held by the
@@ -5697,6 +6108,23 @@ operator=(const TYPE& value)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
 inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>&
@@ -5719,6 +6147,7 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(bslmf::MovableRef<Variant17> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -5815,6 +6244,15 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant18& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant18& operator=(const Variant18& rhs);
         // Assign to this object the type and value currently held by the
@@ -5922,6 +6360,23 @@ operator=(const TYPE& value)
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
 inline
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>&
@@ -5944,6 +6399,7 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(bslmf::MovableRef<Variant18> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -6042,6 +6498,15 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The value previously held by this variant (if any) will be
         // destroyed if the value's type is different from 'TYPE'.
+
+    template <class TYPE>
+    Variant19& operator=(bslmf::MovableRef<TYPE> value);
+        // Assign to this object the specified 'value' of template parameter
+        // 'TYPE', and return a reference providing modifiable access to this
+        // object.  The contents of 'value' are moved to this object.  'value'
+        // is left in a valid but unspecified state. The value previously held
+        // by this variant (if any) will be destroyed if the value's type is
+        // different from the template parameter 'TYPE'.
 
     Variant19& operator=(const Variant19& rhs);
         // Assign to this object the type and value currently held by the
@@ -6157,6 +6622,24 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
           class A19>
+template <class TYPE>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    Imp::operator=(MoveUtil::move(lvalue));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
 inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>&
@@ -6180,6 +6663,7 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 operator=(bslmf::MovableRef<Variant19> rhs)
 {
     Imp& lvalue = static_cast<Imp&>(rhs);
+
     Imp::operator=(MoveUtil::move(lvalue));
     return *this;
 }
@@ -7438,6 +7922,17 @@ VariantImp<TYPES>&
 VariantImp<TYPES>::operator=(const TYPE& value)
 {
     return assign(value);
+}
+
+template <class TYPES>
+template <class TYPE>
+inline
+VariantImp<TYPES>&
+VariantImp<TYPES>::operator=(bslmf::MovableRef<TYPE> value)
+{
+    TYPE& lvalue = value;
+
+    return assign(MoveUtil::move(lvalue));
 }
 
 template <class TYPES>
