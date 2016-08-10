@@ -279,11 +279,12 @@ doGetCommon(ITER_TYPE                    begin,
 {
     *hasDigit = false;
     // optional sign
-    char sign;
-    if (begin != end && to != toEnd
-           && (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
-        *to = sign;
-        ++to, ++begin;
+    if (begin != end) {
+        char sign = ctype.narrow(*begin, ' ');
+        if ((sign == '-' || sign == '+') && to != toEnd) {
+            *to = sign;
+            ++to, ++begin;
+        }
     }
     // spaces between sign and value
     begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(ctype));
@@ -316,16 +317,18 @@ doGetCommon(ITER_TYPE                    begin,
             return begin;                                             // RETURN
         }
     }
-    // exponent (but not a stand-alone exponent
+    // exponent (but not a stand-alone exponent)
     if (*hasDigit && begin != end && to != toEnd
             && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
         *to = 'e';
         ++to, ++begin;
         // optional exponent sign
-        if (begin != end && to != toEnd
-           && (sign = ctype.narrow(*begin, ' '), sign == '-' || sign == '+')) {
-            *to = ctype.narrow(*begin, ' ');
-            ++to, ++begin;
+        if (begin != end) {
+            char sign = ctype.narrow(*begin, ' ');
+            if ((sign == '-' || sign == '+') && to != toEnd) {
+                *to = sign;
+                ++to, ++begin;
+            }
         }
         char* start = to;
         while (begin != end && to != toEnd
