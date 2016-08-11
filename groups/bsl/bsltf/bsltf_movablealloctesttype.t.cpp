@@ -1539,8 +1539,25 @@ int main(int argc, char *argv[])
             ASSERT(&oa == X.allocator());
             ASSERT(&oa == Y.allocator());
 
-            ASSERT(bsltf::MoveState::e_MOVED == X.movedFrom());
-            ASSERT(bsltf::MoveState::e_MOVED == Y.movedInto());
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Y.movedInto());
+
+            Obj mZ(bslmf::MovableRefUtil::move(mX)); const Obj& Z = mZ;
+
+            ASSERT(oam.isTotalUp());
+
+            ASSERT(0 == Z.data());
+            ASSERT(0 == X.data());
+            ASSERT(Z == X);
+            ASSERT(&oa == X.allocator());
+            ASSERT(&oa == Z.allocator());
+
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
         }
         {
             bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
@@ -1564,8 +1581,27 @@ int main(int argc, char *argv[])
             ASSERT(&oa1 == X.allocator());
             ASSERT(&oa2 == Y.allocator());
 
-            ASSERT(bsltf::MoveState::e_MOVED == X.movedFrom());
-            ASSERT(bsltf::MoveState::e_MOVED == Y.movedInto());
+            ASSERT(bsltf::MoveState::e_MOVED ==     X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED ==     Y.movedInto());
+
+            Obj mZ(bslmf::MovableRefUtil::move(mX), &oa2); const Obj& Z = mZ;
+
+            ASSERT(oam1.isTotalSame());
+            ASSERT(oam2.isInUseUp());
+
+            ASSERT( 0 == Z.data());
+            ASSERT( 0 == X.data());
+            ASSERT(X == Z);
+
+            ASSERT(&oa1 == X.allocator());
+            ASSERT(&oa2 == Z.allocator());
+
+            ASSERT(bsltf::MoveState::e_MOVED ==     X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED ==     Z.movedInto());
         }
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -1589,8 +1625,30 @@ int main(int argc, char *argv[])
             ASSERT(&oa == X.allocator());
             ASSERT(&oa == Y.allocator());
 
-            ASSERT(bsltf::MoveState::e_MOVED == X.movedFrom());
-            ASSERT(bsltf::MoveState::e_MOVED == Y.movedInto());
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Y.movedInto());
+
+            Obj mZ(3, &oa); const Obj& Z = mZ;
+            ASSERT( 3  == Z.data());
+            ASSERT(&oa == Z.allocator());
+
+            bslma::TestAllocatorMonitor oam2(&oa);
+
+            mZ = bslmf::MovableRefUtil::move(mX);
+
+            ASSERT(oam2.isTotalUp());
+
+            ASSERT(0 == Z.data());
+            ASSERT(0 == X.data());
+            ASSERT(&oa == X.allocator());
+            ASSERT(&oa == Z.allocator());
+
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
         }
         {
             bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
@@ -1617,8 +1675,34 @@ int main(int argc, char *argv[])
             ASSERT(&oa1 == X.allocator());
             ASSERT(&oa2 == Y.allocator());
 
-            ASSERT(bsltf::MoveState::e_MOVED == X.movedFrom());
-            ASSERT(bsltf::MoveState::e_MOVED == Y.movedInto());
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Y.movedInto());
+
+            Obj mZ(3, &oa2); const Obj& Z = mZ;
+            ASSERT(3 == Z.data());
+
+            bslma::TestAllocatorMonitor oam1b(&oa1);
+            bslma::TestAllocatorMonitor oam2b(&oa2);
+
+            mZ = bslmf::MovableRefUtil::move(mX);
+
+            ASSERT(oam1b.isTotalSame());
+            ASSERT(oam2b.isTotalUp());
+            ASSERT(oam2b.isInUseSame());
+
+            ASSERT( 0 == Z.data());
+            ASSERT( 0 == X.data());
+            ASSERT(X == Z);
+
+            ASSERT(&oa1 == X.allocator());
+            ASSERT(&oa2 == Z.allocator());
+
+            ASSERT(bsltf::MoveState::e_MOVED     == X.movedFrom());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+            ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+            ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
         }
       } break;
       default: {

@@ -1,4 +1,4 @@
-// bsltf_movabletesttype.t.cpp                                         -*-C++-*-
+// bsltf_movabletesttype.t.cpp                                        -*-C++-*-
 #include <bsltf_movabletesttype.h>
 
 #include <bslma_default.h>
@@ -7,6 +7,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -60,8 +61,8 @@ using namespace BloombergLP::bsltf;
 // [ 4] int data() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const MovableTestType& lhs, const MovableTestType& rhs);
-// [ 6] bool operator!=(const MovableTestType& lhs, const MovableTestType& rhs);
+// [ 6] bool operator==(lhs, rhs);
+// [ 6] bool operator!=(lhs, rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
@@ -126,6 +127,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bsltf::MovableTestType Obj;
+typedef bslmf::MovableRefUtil  MoveUtil;
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -222,12 +224,12 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
-          if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 // Now, we invoke the 'printTypeTraits' function template using
 // 'MovableTestType' as the parameterized 'TYPE':
 //..
-          printTypeTraits<MovableTestType>();
+        printTypeTraits<MovableTestType>();
 //..
 // Finally, we observe the console output:
 //..
@@ -712,6 +714,8 @@ int main(int argc, char *argv[])
 
         Obj X;
         ASSERT(X.data() == 0);
+        ASSERT(MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED == X.movedInto());
 
         X.setData(1);
         ASSERT(X.data() == 1);
@@ -722,11 +726,45 @@ int main(int argc, char *argv[])
         Obj Z(Y);
         ASSERT(Z == Y);
         ASSERT(X != Y);
+        ASSERT(MoveState::e_NOT_MOVED == Y.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED == Y.movedInto());
+        ASSERT(MoveState::e_NOT_MOVED == Z.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED == Z.movedInto());
 
         X = Z;
         ASSERT(Z == Y);
         ASSERT(X == Y);
 
+        Obj XX(MoveUtil::move(X));
+        ASSERT(XX.data() == 2);
+        ASSERT(XX != X);
+        ASSERT(X.data() == 0);
+        ASSERT(MoveState::e_MOVED     ==  X.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED ==  X.movedInto());
+        ASSERT(MoveState::e_NOT_MOVED == XX.movedFrom());
+        ASSERT(MoveState::e_MOVED     == XX.movedInto());
+
+        // double move-construct from
+
+        Obj YY(MoveUtil::move(X));
+        ASSERT(YY.data() == 0);
+        ASSERT(YY == X);
+        ASSERT(X.data() == 0);
+        ASSERT(MoveState::e_MOVED     ==  X.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED ==  X.movedInto());
+        ASSERT(MoveState::e_NOT_MOVED == YY.movedFrom());
+        ASSERT(MoveState::e_MOVED     == YY.movedInto());
+
+        // double move-assign from
+
+        Z = MoveUtil::move(X);
+        ASSERT(Z.data() == 0);
+        ASSERT(Z == X);
+        ASSERT(X.data() == 0);
+        ASSERT(MoveState::e_MOVED     == X.movedFrom());
+        ASSERT(MoveState::e_NOT_MOVED == X.movedInto());
+        ASSERT(MoveState::e_NOT_MOVED == Z.movedFrom());
+        ASSERT(MoveState::e_MOVED     == Z.movedInto());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

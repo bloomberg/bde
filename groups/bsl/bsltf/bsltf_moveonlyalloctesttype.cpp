@@ -126,6 +126,16 @@ MoveOnlyAllocTestType::operator=(bslmf::MovableRef<MoveOnlyAllocTestType> rhs)
                 d_data_p = lvalue.d_data_p;
                 lvalue.d_data_p = 0;
             }
+            else {
+                int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+                if (d_data_p) {
+                    d_allocator_p->deallocate(d_data_p);
+                }
+
+                d_data_p = newData;
+                *d_data_p = 0;
+            }
         }
         else {
             int *newData = reinterpret_cast<int *>(
@@ -156,6 +166,9 @@ void MoveOnlyAllocTestType::setData(int value)
         d_data_p = newData;
     }
     *d_data_p = value;
+
+    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
 }
 
 }  // close package namespace

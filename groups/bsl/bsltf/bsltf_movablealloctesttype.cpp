@@ -150,11 +150,6 @@ MovableAllocTestType::operator=(bslmf::MovableRef<MovableAllocTestType> rhs)
     MovableAllocTestType& lvalue = rhs;
     if (&lvalue != this)
     {
-        BSLS_ASSERT_SAFE(bsltf::MoveState::e_MOVED != lvalue.d_movedFrom);
-        BSLS_ASSERT_SAFE(lvalue.d_data_p);
-
-        int *newData = 0;
-
         if (d_allocator_p == lvalue.d_allocator_p) {
             if (lvalue.d_data_p) {
                 if (d_data_p) {
@@ -202,6 +197,9 @@ void MovableAllocTestType::setData(int value)
         d_data_p = newData;
     }
     *d_data_p = value;
+
+    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
 }
 
 }  // close package namespace

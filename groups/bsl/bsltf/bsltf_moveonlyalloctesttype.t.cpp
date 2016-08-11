@@ -1517,14 +1517,48 @@ int main(int argc, char *argv[])
 
         Obj Z(bslmf::MovableRefUtil::move(Y));
         ASSERT(Z != Y);
+        ASSERT(Z.data() == 2);
         ASSERT(Y.data() == 0);
         ASSERT(X != Y);
+
+        ASSERT(bsltf::MoveState::e_MOVED     == Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
+
+        Obj ZZ(bslmf::MovableRefUtil::move(Y));
+        ASSERT(Z != Y);
+        ASSERT(Z.data() == 2);
+        ASSERT(Y.data() == 0);
+        ASSERT(X != Y);
+
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED ==  Y.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == ZZ.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedInto());
 
         X = bslmf::MovableRefUtil::move(Z);
         ASSERT(Z != X);
         ASSERT(Z == Y);
+        ASSERT(X.data() == 2);
         ASSERT(Z.data() == 0);
 
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == X.movedInto());
+
+        ZZ.setData(3);
+
+        ZZ = bslmf::MovableRefUtil::move(Z);
+        ASSERTV(ZZ.data(), X.data(), ZZ != X);
+        ASSERT(ZZ == Z);
+        ASSERT(ZZ.data() == 0);
+
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Z.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == ZZ.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedInto());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
