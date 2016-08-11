@@ -255,7 +255,7 @@ using bsls::NameOf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [35] USAGE EXAMPLE
+// [36] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -264,7 +264,8 @@ using bsls::NameOf;
 //
 // [22] CONCERN: 'map' is compatible with standard allocators.
 // [23] CONCERN: 'map' has the necessary type traits.
-// [26] CONCERN: 'map' provides the full interface defined by the standard.
+// [26] CONCERN: The type provides the full interface defined by the standard.
+// [35] CONCERN: 'map' supports incomplete types.
 // [TBD] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
 
 // ============================================================================
@@ -1061,11 +1062,27 @@ class TestAllocatorUtil {
     }
 };
 
-                       // ===============
-                       // class Recursive
-                       // ===============
+namespace {
 
-struct Recursive {
+                       // =========================
+                       // struct TestIncompleteType
+                       // =========================
+
+struct IncompleteType;
+struct TestIncompleteType
+{
+    // This 'struct' provides a simple compile-time test to verify that the
+    // incomplete type can be used in the container definition.  Currently,
+    // definition of the 'bsl::map' can contain incomplete types on all
+    // supported platforms.
+    //
+    // The text below captures the original (now obsolete) rationale for
+    // creating this test:
+    //..
+    //  struct Recursive {
+    //      bsl::map<int, Recursive> d_data;
+    //  };
+    //..
     // This 'struct' provides a simple compile-time test that exposes a bug in
     // the Sun compiler when parsing member-function templates that make use of
     // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
@@ -1083,16 +1100,28 @@ struct Recursive {
     // incomplete type within its own definition.  Note that there are no test
     // cases exercising 'Recursive', it is sufficient just to define the class.
     //
-    // TBD: We decided to note the above, but allow the use of the
-    // 'is_convertible' meta-function on Sun since it is so important to the
-    // new features added as part of the C++11 project.  Now the check is done
-    // on every platform *except* for Sun, where we know that a problem exists.
+    // We decided to note the above, but allow the use of the 'is_convertible'
+    // meta-function on Sun since it is so important to the new features added
+    // as part of the C++11 project.  Now the check is done on every platform
+    // *except* for Sun, where we know that a problem exists.
+
+    // PUBLIC TYPES
+    typedef bsl::map<int, IncompleteType>::iterator            Iter1;
+    typedef bsl::map<IncompleteType, int>::iterator            Iter2;
+    typedef bsl::map<IncompleteType, IncompleteType>::iterator Iter3;
 
     // PUBLIC DATA
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-    bsl::map<int, Recursive> d_data;
-#endif
+    bsl::map<int, IncompleteType>            d_data1;
+    bsl::map<IncompleteType, int>            d_data2;
+    bsl::map<IncompleteType, IncompleteType> d_data3;
 };
+
+struct IncompleteType
+{
+    int d_data;
+};
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -5574,7 +5603,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
     //:   according to the standard.  (C-1)
     //
     // Testing:
-    //   CONCERN: 'map' provides the full interface defined by the standard.
+    //   CONCERN: The type provides the full interface defined by the standard.
     // ------------------------------------------------------------------------
 
     // 23.4.4.2, construct/copy/destroy
@@ -11051,7 +11080,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -11096,6 +11125,23 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 <  objectAllocator.numBytesInUse());
         }
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING SUPPORT FOR INCOMPLETE TYPES
+        //
+        // Concerns:
+        //: 1 The type can be declared with incomplete types.
+        //
+        // Plan:
+        //: 1 Instantiate a test object that uses incomplete types in the class
+        //:   declaration.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'map' supports incomplete types.
+        // --------------------------------------------------------------------
+        TestIncompleteType x;
+        (void) x;
       } break;
       case 34: {
         // --------------------------------------------------------------------

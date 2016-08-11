@@ -197,15 +197,16 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [33] USAGE EXAMPLE
+// [34] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multimap *object, const char *spec, int verbose = 1);
 // [ 3] multimap& gg(multimap *object, const char *spec);
 //
-// [22] CONCERN: The object is compatible with STL allocators.
-// [23] CONCERN: The object has the necessary type traits
+// [22] CONCERN: 'multimap' is compatible with standard allocators.
+// [23] CONCERN: 'multimap' has the necessary type traits.
 // [24] CONCERN: The type provides the full interface defined by the standard.
+// [33] CONCERN: 'multimap' supports incomplete types.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -949,20 +950,84 @@ class TestAllocatorUtil
     }
 };
 
-template <class T> class TDebug;
-// This class is used to do template type deduction debug.
+namespace {
+
+                       // =========================
+                       // struct TestIncompleteType
+                       // =========================
+
+struct IncompleteType;
+struct TestIncompleteType
+{
+    // This 'struct' provides a simple compile-time test to verify that the
+    // incomplete type can be used in the container definition.  Currently,
+    // definition of the 'bsl::multimap' can contain incomplete types on all
+    // supported platforms.
+    //
+    // The text below captures the original (now obsolete) rationale for
+    // creating this test:
+    //..
+    //  struct Recursive {
+    //      bsl::map<int, Recursive> d_data;
+    //  };
+    //..
+    // This 'struct' provides a simple compile-time test that exposes a bug in
+    // the Sun compiler when parsing member-function templates that make use of
+    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
+    // should not be instantiated until parsing client code calling that
+    // function, by which time any incomplete types must have become complete,
+    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
+    // soon as it sees it, while instantiating any use of the 'map'.  This
+    // causes a request to instantiate 'is_convertible' with incomplete types,
+    // which is undefined behavior.  A recent update to the 'is_convertible'
+    // trait added a static assertion precisely to catch such misuse.
+    //
+    // To provide a simple example that will fail to compile (thanks to the
+    // static assertion above) unless the problem is worked around, we create a
+    // recursive data structure using a map, as the struct 'Recursive' is an
+    // incomplete type within its own definition.  Note that there are no test
+    // cases exercising 'Recursive', it is sufficient just to define the class.
+    //
+    // We decided to note the above, but allow the use of the 'is_convertible'
+    // meta-function on Sun since it is so important to the new features added
+    // as part of the C++11 project.  Now the check is done on every platform
+    // *except* for Sun, where we know that a problem exists.
+
+    // PUBLIC TYPES
+    typedef bsl::multimap<int, IncompleteType>::iterator            Iter1;
+    typedef bsl::multimap<IncompleteType, int>::iterator            Iter2;
+    typedef bsl::multimap<IncompleteType, IncompleteType>::iterator Iter3;
+
+    // PUBLIC DATA
+    bsl::multimap<int, IncompleteType>            d_data1;
+    bsl::multimap<IncompleteType, int>            d_data2;
+    bsl::multimap<IncompleteType, IncompleteType> d_data3;
+};
+
+struct IncompleteType
+{
+    int d_data;
+};
+
+}  // close unnamed namespace
+
+// ============================================================================
+//                          TEST DRIVER TEMPLATE
+// ----------------------------------------------------------------------------
 
 template <class KEY,
           class VALUE = KEY,
           class COMP  = TestComparator<KEY>,
           class ALLOC = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class TestDriver {
-    // This templatized struct provide a namespace for testing the 'multimap'
-    // container.  The parameterized 'KEY', 'COMP' and 'ALLOC' specifies the
-    // value type, comparator type and allocator type respectively.  Each
-    // "testCase*" method test a specific aspect of 'multimap<KEY, VALUE, COMP,
-    // ALLOC>'.  Every test cases should be invoked with various parameterized
-    // type to fully test the container.
+    // This class template provides a namespace for testing the 'multimap'
+    // container.  The template parameter types 'KEY'/'VALUE', 'COMP', and
+    // 'ALLOC' specify the value type, comparator type, and allocator type,
+    // respectively.  Each "testCase*" method tests a specific aspect of
+    // 'multimap<KEY, VALUE, COMP, ALLOC>'.  Every test cases should be invoked
+    // with various type arguments to fully test the container.  Note that the
+    // (template parameter) 'VALUE' type must be defaulted (to 'KEY') for the
+    // benefit of 'RUN_EACH_TYPE'-style testing.
 
   private:
     // TYPES
@@ -3588,7 +3653,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE-ASSIGNMENT OPERATOR:
+    // TESTING MOVE-ASSIGNMENT OPERATOR
     //
     // Concerns:
     //  TBD: the test does not yet cover the case where allocator propagation
@@ -4044,7 +4109,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE CONSTRUCTOR:
+    // TESTING MOVE CONSTRUCTOR
     //
     // Concerns:
     //: 1 The newly created object has the same value (using the equality
@@ -4728,7 +4793,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     //: 1 Invoke each constructor of a class that inherits from the container.
     //
     // Testing:
-    //   CONCERN: Constructor of a template wrapper class compiles
+    //   CONCERN: Constructor of a template wrapper class compiles.
     // ------------------------------------------------------------------------
 
     // The following may fail to compile on AIX
@@ -4773,7 +4838,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase23()
     //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
     //
     // Testing:
-    //   CONCERN: The object has the necessary type traits
+    //   CONCERN: 'multimap' has the necessary type traits.
     // ------------------------------------------------------------------------
 
     // Verify multimap defines the expected traits.
@@ -4831,7 +4896,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase22()
     //:     comes from the default allocator.
     //
     // Testing:
-    //  CONCERN: 'multimap' is compatible with a standard allocator.
+    //  CONCERN: 'multimap' is compatible with standard allocators.
     // ------------------------------------------------------------------------
 
     const int TYPE_ALLOC = (bslma::UsesBslmaAllocator<KEY>::value +
@@ -6222,6 +6287,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase14()
 {
     // ------------------------------------------------------------------------
     // TESTING ITERATORS
+    //
     // Concerns:
     //: 1 'begin' and 'end' return non-mutable iterators.
     //:
@@ -6522,7 +6588,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // RANGE (TEMPLATE) CONSTRUCTORS:
+    // RANGE (TEMPLATE) CONSTRUCTORS
     //
     // Concern:
     //: 1 All values within the range [first, last) are inserted.
@@ -6969,7 +7035,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // COPY-ASSIGNMENT OPERATOR:
+    // COPY-ASSIGNMENT OPERATOR
     //   Ensure that we can assign the value of any object of the class to any
     //   object of the class, such that the two objects subsequently have the
     //   same value.
@@ -7735,7 +7801,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7_1()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
+    // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
     //: 1 The allocator of an object using a standard allocator is copied to
@@ -7818,7 +7884,9 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
+    // TESTING COPY CONSTRUCTOR
+    //
+    // Concerns:
     //: 1 The new object's value is the same as that of the original object
     //:   (relying on the equality operator) and created with the correct
     //:   capacity.
@@ -8056,7 +8124,8 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
 {
     // ---------------------------------------------------------------------
-    // TESTING EQUALITY OPERATORS:
+    // TESTING EQUALITY OPERATORS
+    //
     // Concerns:
     //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
     //:   the same values.
@@ -8403,7 +8472,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg
     //   Having demonstrated that our primary manipulators work as expected
     //   under normal conditions
     //
@@ -8563,7 +8632,7 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
+    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
     //   The basic concern is that the default constructor, the destructor,
     //   and, under normal conditions (i.e., no aliasing), the primary
     //   manipulators
@@ -9751,7 +9820,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9825,6 +9894,23 @@ int main(int argc, char *argv[])
             ASSERT(0 < objectAllocator.numBytesInUse());
         }
 
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING SUPPORT FOR INCOMPLETE TYPES
+        //
+        // Concerns:
+        //: 1 The type can be declared with incomplete types.
+        //
+        // Plan:
+        //: 1 Instantiate a test object that uses incomplete types in the class
+        //:   declaration.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'multimap' supports incomplete types.
+        // --------------------------------------------------------------------
+        TestIncompleteType x;
+        (void) x;
       } break;
       case 32: {
         // --------------------------------------------------------------------

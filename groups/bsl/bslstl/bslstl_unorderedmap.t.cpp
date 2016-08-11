@@ -229,10 +229,10 @@ using bsl::pair;
 // [11] Obj  g(const char *);
 // [ 3] bool verifySpec(const Obj&, const char *, bool = false);
 //
-// [22] CONCERN: 'Obj' is compatible with standard allocators.
-// [23] CONCERN: 'Obj' has the necessary type traits.
-// [26] CONCERN: 'map' provides the full interface defined by the standard.
-// [36] CONCERN: 'unordered_map' supports incomplete types
+// [22] CONCERN: 'unordered_map' is compatible with standard allocators.
+// [23] CONCERN: 'unordered_map' has the necessary type traits.
+// [26] CONCERN: The type provides the full interface defined by the standard.
+// [36] CONCERN: 'unordered_map' supports incomplete types.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -6217,6 +6217,67 @@ bool verifySpec(const OBJECT&     object,
 
 }  // close unnamed namespace
 
+namespace {
+
+                       // =========================
+                       // struct TestIncompleteType
+                       // =========================
+
+struct IncompleteType;
+struct TestIncompleteType
+{
+    // This 'struct' provides a simple compile-time test to verify that the
+    // incomplete type can be used in the container definition.  Currently,
+    // definition of the 'bsl::unordered_map' can contain incomplete types on
+    // all supported platforms.
+    //
+    // The text below captures the original (now obsolete) rationale for
+    // creating this test:
+    //..
+    //  struct Recursive {
+    //      bsl::map<int, Recursive> d_data;
+    //  };
+    //..
+    // This 'struct' provides a simple compile-time test that exposes a bug in
+    // the Sun compiler when parsing member-function templates that make use of
+    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
+    // should not be instantiated until parsing client code calling that
+    // function, by which time any incomplete types must have become complete,
+    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
+    // soon as it sees it, while instantiating any use of the 'map'.  This
+    // causes a request to instantiate 'is_convertible' with incomplete types,
+    // which is undefined behavior.  A recent update to the 'is_convertible'
+    // trait added a static assertion precisely to catch such misuse.
+    //
+    // To provide a simple example that will fail to compile (thanks to the
+    // static assertion above) unless the problem is worked around, we create a
+    // recursive data structure using a map, as the struct 'Recursive' is an
+    // incomplete type within its own definition.  Note that there are no test
+    // cases exercising 'Recursive', it is sufficient just to define the class.
+    //
+    // We decided to note the above, but allow the use of the 'is_convertible'
+    // meta-function on Sun since it is so important to the new features added
+    // as part of the C++11 project.  Now the check is done on every platform
+    // *except* for Sun, where we know that a problem exists.
+
+    // PUBLIC TYPES
+    typedef bsl::unordered_map<int, IncompleteType>::iterator            Iter1;
+    typedef bsl::unordered_map<IncompleteType, int>::iterator            Iter2;
+    typedef bsl::unordered_map<IncompleteType, IncompleteType>::iterator Iter3;
+
+    // PUBLIC DATA
+    bsl::unordered_map<int, IncompleteType>            d_data1;
+    bsl::unordered_map<IncompleteType, int>            d_data2;
+    bsl::unordered_map<IncompleteType, IncompleteType> d_data3;
+};
+
+struct IncompleteType
+{
+    int d_data;
+};
+
+}  // close unnamed namespace
+
 //=============================================================================
 //                              TestDriver
 //-----------------------------------------------------------------------------
@@ -10530,7 +10591,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
     //:   according to the standard.  (C-1)
     //
     // Testing:
-    //   CONCERN: 'Obj' provides the full interface defined by the standard.
+    //   CONCERN: The type provides the full interface defined by the standard.
     // ------------------------------------------------------------------------
 
     typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, StlAlloc> SUMap;
@@ -11025,7 +11086,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
     //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exist.  (C-1)
     //
     // Testing:
-    //   CONCERN: The object has the necessary type traits
+    //   CONCERN: 'unordered_map' has the necessary type traits.
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING TYPE TRAITS: %s\n"
@@ -11121,7 +11182,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase22()
     //:     comes from the default allocator.
     //
     // Testing:
-    //  CONCERN: 'Obj' is compatible with a standard allocator.
+    //  CONCERN: 'unordered_map' is compatible with standard allocators.
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING STL ALLOCATOR: %s\n"
@@ -11215,7 +11276,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase20()
 {
     // ------------------------------------------------------------------------
-    // TESTING MAX_SIZE AND EMPTY:
+    // TESTING MAX_SIZE AND EMPTY
     //
     // Concerns:
     //: 1 'max_size' returns the 'max_size' of the supplied allocator.
@@ -11683,7 +11744,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'insert' SINGLE VALUE WITH & WITHOUT HINT:
+    // TESTING 'insert' SINGLE VALUE WITH & WITHOUT HINT
     //
     // Concerns:
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
@@ -12222,7 +12283,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING SEARCH FUNCTIONS:
+    // TESTING SEARCH FUNCTIONS
     //
     // Concerns:
     //: 1 If the key being searched exists in the container, 'find' returns the
@@ -12529,7 +12590,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // TESTING GENERATOR FUNCTION, g:
+    // TESTING GENERATOR FUNCTION, g
     //
     // Concern:
     //: 1 Since 'g' is implemented almost entirely using 'gg', we need to
@@ -12615,7 +12676,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9_1()
 {
     // ------------------------------------------------------------------------
-    // TESTING OPERATOR= WITH ALLOCATOR PROPAGATION:
+    // TESTING OPERATOR= WITH ALLOCATOR PROPAGATION
     //
     // TBD: THIS TEST IS NOT CALLED!!!!!!!!!!  This test can be enabled and
     // finished once allocator traits supports 'propagate_on_container_swap'.
@@ -12778,7 +12839,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // COPY-ASSIGNMENT OPERATOR:
+    // COPY-ASSIGNMENT OPERATOR
     //   Ensure that we can assign the value of any object of the class to any
     //   object of the class, such that the two objects subsequently have the
     //   same value.
@@ -13032,7 +13093,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8_1()
 {
     // ------------------------------------------------------------------------
-    // TESTING SWAP WITH ALLOCATOR PROPAGATION:
+    // TESTING SWAP WITH ALLOCATOR PROPAGATION
     //
     // Concerns:
     //: 1 Test that the allocator, if it is the appropriate type, is propagated
@@ -13549,7 +13610,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7_1()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR WITH ALLOCATOR PROPAGATION:
+    // TESTING COPY CONSTRUCTOR WITH ALLOCATOR PROPAGATION
     //
     // CONCERNS:
     //: 1 Test that the allocator, if it is the appropriate type, is propagated
@@ -13671,7 +13732,9 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
+    // TESTING COPY CONSTRUCTOR
+    //
+    // Concerns:
     //: 1 The new object's value is the same as that of the original object
     //:   (relying on the equality operator) and created with the correct
     //:   capacity.
@@ -13874,7 +13937,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // TESTING EQUALITY OPERATORS:
+    // TESTING EQUALITY OPERATORS
     //
     // Concerns:
     //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
@@ -15069,7 +15132,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
+    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
     //   The basic concern is that the default constructor, the destructor,
     //   and, under normal conditions (i.e., no aliasing), the primary
     //   manipulators
@@ -16128,40 +16191,6 @@ void testImplicitInsert(CONTAINER& mX)
 
 }  // close namespace BREATHING_TEST
 
-class IncompleteType;
-
-class TestIncompleteType
-{
-    bsl::unordered_map<int, IncompleteType> d_cache;
-
-    // NOT IMPLEMENTED
-    TestIncompleteType(const TestIncompleteType&);
-    TestIncompleteType& operator=(const TestIncompleteType&);
-
-    typedef bsl::unordered_map<int, IncompleteType>::iterator Iter;
-
-  public:
-
-    TestIncompleteType();
-    ~TestIncompleteType();
-
-    const IncompleteType *add(const char *name, int value);
-
-    int getValue(const IncompleteType *entry) const;
-};
-
-class IncompleteType
-{
-};
-
-TestIncompleteType::TestIncompleteType()
-{
-}
-
-TestIncompleteType::~TestIncompleteType()
-{
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -16202,11 +16231,20 @@ int main(int argc, char *argv[])
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // INCOMPLETE TYPES
+        // TESTING SUPPORT FOR INCOMPLETE TYPES
+        //
+        // Concerns:
+        //: 1 The type can be declared with incomplete types.
+        //
+        // Plan:
+        //: 1 Instantiate a test object that uses incomplete types in the class
+        //:   declaration.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'unordered_map' supports incomplete types.
         // --------------------------------------------------------------------
-
-        TestIncompleteType obj;
-
+        TestIncompleteType x;
+        (void) x;
       } break;
       case 35: {
         // --------------------------------------------------------------------

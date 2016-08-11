@@ -206,11 +206,11 @@ using bsls::NameOf;
 // [ 3] int ggg(unordered_multimap *object, const char *s, int verbose);
 // [ 3] unordered_multimap& gg(unordered_multimap *object, const char *s);
 //
-// [22] CONCERN: The object is compatible with STL allocators.
-// [23] CONCERN: The object has the necessary type traits
+// [22] CONCERN: 'unordered_multimap' is compatible with standard allocators.
+// [23] CONCERN: 'unordered_multimap' has the necessary type traits.
 // [  ] CONCERN: The type provides the full interface defined by the standard.
 // [36] CONCERN: The values are spread into different buckets.
-// [35] CONCERN: 'unordered_multimap' supports incomplete types
+// [35] CONCERN: 'unordered_multimap' supports incomplete types.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -879,6 +879,68 @@ class TestAllocatorUtil
         ASSERTV(&oa == value.arg10().getAllocator());
     }
 };
+
+namespace {
+
+                       // =========================
+                       // struct TestIncompleteType
+                       // =========================
+
+struct IncompleteType;
+struct TestIncompleteType
+{
+    // This 'struct' provides a simple compile-time test to verify that the
+    // incomplete type can be used in the container definition.  Currently,
+    // definition of the 'bsl::unordered_multimap' can contain incomplete types
+    // on all supported platforms.
+    //
+    // The text below captures the original (now obsolete) rationale for
+    // creating this test:
+    //..
+    //  struct Recursive {
+    //      bsl::map<int, Recursive> d_data;
+    //  };
+    //..
+    // This 'struct' provides a simple compile-time test that exposes a bug in
+    // the Sun compiler when parsing member-function templates that make use of
+    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
+    // should not be instantiated until parsing client code calling that
+    // function, by which time any incomplete types must have become complete,
+    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
+    // soon as it sees it, while instantiating any use of the 'map'.  This
+    // causes a request to instantiate 'is_convertible' with incomplete types,
+    // which is undefined behavior.  A recent update to the 'is_convertible'
+    // trait added a static assertion precisely to catch such misuse.
+    //
+    // To provide a simple example that will fail to compile (thanks to the
+    // static assertion above) unless the problem is worked around, we create a
+    // recursive data structure using a map, as the struct 'Recursive' is an
+    // incomplete type within its own definition.  Note that there are no test
+    // cases exercising 'Recursive', it is sufficient just to define the class.
+    //
+    // We decided to note the above, but allow the use of the 'is_convertible'
+    // meta-function on Sun since it is so important to the new features added
+    // as part of the C++11 project.  Now the check is done on every platform
+    // *except* for Sun, where we know that a problem exists.
+
+    // PUBLIC TYPES
+    typedef bsl::unordered_multimap<int, IncompleteType>::iterator       Iter1;
+    typedef bsl::unordered_multimap<IncompleteType, int>::iterator       Iter2;
+    typedef bsl::unordered_multimap<IncompleteType, IncompleteType>::iterator
+                                                                         Iter3;
+
+    // PUBLIC DATA
+    bsl::unordered_multimap<int, IncompleteType>            d_data1;
+    bsl::unordered_multimap<IncompleteType, int>            d_data2;
+    bsl::unordered_multimap<IncompleteType, IncompleteType> d_data3;
+};
+
+struct IncompleteType
+{
+    int d_data;
+};
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                              TestDriver
@@ -2314,7 +2376,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
 {
     // ------------------------------------------------------------------------
-    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT:
+    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT
     //
     // Concerns:
     //: 1 'emplace_hint' correctly forwards arguments to the constructor of the
@@ -2771,7 +2833,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a()
 {
     // ------------------------------------------------------------------------
-    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE:
+    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE
     //
     // Concerns:
     //: 1 'emplace' correctly forwards arguments to the piecewise constructor
@@ -3695,7 +3757,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE-ASSIGNMENT OPERATOR:
+    // TESTING MOVE-ASSIGNMENT OPERATOR
     //
     // Concerns:
     //  TBD: the test does not yet cover the case where allocator propagation
@@ -4514,7 +4576,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
     //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
     //
     // Testing:
-    //   CONCERN: The object has the necessary type traits
+    //   CONCERN: 'unordered_multimap' has the necessary type traits.
     // ------------------------------------------------------------------------
 
     // Verify unordered_multimap defines the expected traits.
@@ -4578,7 +4640,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase22()
     //:     comes from the default allocator.
     //
     // Testing:
-    //  CONCERN: 'unordered_multimap' is compatible with a standard allocator.
+    //  CONCERN: 'unordered_multimap' is compatible with standard allocators.
     // ------------------------------------------------------------------------
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
@@ -5884,8 +5946,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     // TESTING RANGE CONSTRUCTORS
     //
     // Concern:
-    //   That all c'tors taking a range of objects of type 'KEY' function
-    //   correctly.
+    //: 1 That all c'tors taking a range of objects of type 'KEY' function
+    //:   correctly.
+    //
+    // Plan:
+    //:  TBD
+    //
+    // Testing:
+    //   unordered_multimap(ITER, ITER, allocator);
+    //   unordered_multimap(ITER, ITER, size_t, allocator);
+    //   unordered_multimap(ITER, ITER, size_t, hash, allocator);
+    //   unordered_multimap(ITER, ITER, size_t, hash, equal, allocator);
     // ------------------------------------------------------------------------
 
     HASH  tstHash(7);
@@ -6016,7 +6087,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // COPY-ASSIGNMENT OPERATOR:
+    // COPY-ASSIGNMENT OPERATOR
     //   Ensure that we can assign the value of any object of the class to any
     //   object of the class, such that the two objects subsequently have the
     //   same value.
@@ -6623,7 +6694,9 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
+    // TESTING COPY CONSTRUCTOR
+    //
+    // Concerns:
     //: 1 The new object's value is the same as that of the original object
     //:   (relying on the equality operator) and created with the correct
     //:   capacity.
@@ -6852,7 +6925,8 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // TESTING EQUALITY OPERATORS:
+    // TESTING EQUALITY OPERATORS
+    //
     // Concerns:
     //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
     //:   the same values.
@@ -7303,7 +7377,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg
     //   Demonstrated that our primary manipulators work as expected under
     //   normal conditions.
     //
@@ -7444,7 +7518,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
+    // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
     //   The basic concern is that the default constructor, the destructor,
     //   and, under normal conditions (i.e., no aliasing), the primary
     //   manipulators
@@ -9642,40 +9716,6 @@ void testErase(CONTAINER& mX)
 
 }  // close namespace BREATHING_TEST
 
-class IncompleteType;
-
-class TestIncompleteType
-{
-    bsl::unordered_multimap<int, IncompleteType> d_cache;
-
-    // NOT IMPLEMENTED
-    TestIncompleteType(const TestIncompleteType&);
-    TestIncompleteType& operator=(const TestIncompleteType&);
-
-    typedef bsl::unordered_multimap<int, IncompleteType>::iterator Iter;
-
-  public:
-
-    TestIncompleteType();
-    ~TestIncompleteType();
-
-    const IncompleteType *add(const char *name, int value);
-
-    int getValue(const IncompleteType *entry) const;
-};
-
-class IncompleteType
-{
-};
-
-TestIncompleteType::TestIncompleteType()
-{
-}
-
-TestIncompleteType::~TestIncompleteType()
-{
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -9722,11 +9762,21 @@ int main(int argc, char *argv[])
       } break;
       case 35: {
         // --------------------------------------------------------------------
-        // INCOMPLETE TYPES
+        // TESTING SUPPORT FOR INCOMPLETE TYPES
+        //
+        // Concerns:
+        //: 1 The type can be declared with incomplete types.
+        //
+        // Plan:
+        //: 1 Instantiate a test object that uses incomplete types in the class
+        //:   declaration.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: 'unordered_multimap' supports incomplete types.
         // --------------------------------------------------------------------
 
-        TestIncompleteType obj;
-
+        TestIncompleteType x;
+        (void) x;
       } break;
       case 34: {
         // --------------------------------------------------------------------
