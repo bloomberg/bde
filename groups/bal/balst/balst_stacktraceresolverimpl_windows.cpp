@@ -76,7 +76,7 @@ void reportError(const char *string)
     if (reportTimes > 0) {
         --reportTimes;
 
-        BSLS_LOG("%s: %d", string, static_cast<int>(lastError));
+        BSLS_LOG_ERROR("%s: %d", string, static_cast<int>(lastError));
     }
 }
 
