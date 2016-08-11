@@ -1439,11 +1439,208 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         P(bsls::NameOf<ALLOC>())
     }
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: page 699: String classes
 
+    // page 704
+    //..
+    //  // 21.3.1.2, construct/copy/destroy:
+    //  basic_string() noexcept(noexcept(Allocator())) :
+    //                      basic_string(Allocator()) { }
+    //  explicit basic_string(const Allocator& a) noexcept;
+    //  basic_string(basic_string&& str) noexcept;
+    //  basic_string& operator=(basic_string&& str) noexcept(
+    //      allocator_traits<Allocator>::
+    //                         propagate_on_container_move_assignment::value ||
+    //      allocator_traits<Allocator>::is_always_equal::value);
+    //..
+   
+    {
+        // Not implemented: 'basic_string()'
+
+        ALLOC a;
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
+
+        Obj str;
+        ASSERT(true == 
+               BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                       Obj(bslmf::MovableRefUtil::move(str))));
+        Obj s;
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        s = bslmf::MovableRefUtil::move(str)));
+    }
+
+    // page 704
+    //..
+    //  // 21.3.1.3, iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
+    //..
+
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.begin()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.end()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.rend()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rend()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crend()));
+    }
+
+    // page 704 - 705
+    //..
+    //  // 21.3.1.4, capacity:
+    //  size_type size() const noexcept;
+    //  size_type length() const noexcept;
+    //  size_type max_size() const noexcept;
+    //  size_type capacity() const noexcept;
+    //  void clear() noexcept;
+    //  bool empty() const noexcept;
+    //..
+    
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.length()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.max_size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.capacity()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.empty()));
+    }
+
+    // page 705 - 706
+    //..
+    //  // 21.3.1.6, modifiers:
+    //  basic_string& assign(basic_string&& str) noexcept(
+    //      allocator_traits<Allocator>::
+    //                         propagate_on_container_move_assignment::value ||
+    //      allocator_traits<Allocator>::is_always_equal::value);
+    //  void swap(basic_string& str) noexcept(
+    //       allocator_traits<Allocator>::propagate_on_container_swap::value ||
+    //       allocator_traits<Allocator>::is_always_equal::value);
+    //..
+
+    // page 706 - 707
+    //..
+    //  // 21.3.1.7, string operations:
+    //  const charT* c_str() const noexcept;
+    //  const charT* data() const noexcept;
+    //  charT* data() noexcept;
+    //  allocator_type get_allocator() const noexcept;
+    //
+    //  size_type find (const basic_string& str,
+    //                  size_type pos = 0) const noexcept;
+    //  size_type rfind(const basic_string& str,
+    //                  size_type pos = npos) const noexcept;
+    //  size_type find_first_of    (const basic_string& str,
+    //                              size_type pos = 0) const noexcept;
+    //  size_type find_last_of     (const basic_string& str,
+    //                              size_type pos = npos) const noexcept;
+    //  size_type find_first_not_of(const basic_string& str,
+    //                              size_type pos = 0) const noexcept;
+    //  size_type find_last_not_of (const basic_string& str,
+    //                              size_type pos = npos) const noexcept;
+    //  int compare(const basic_string& str) const noexcept;
+    //..
+
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.c_str()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.data()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.data()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.get_allocator()));
+
+        Obj    str;
+        size_t pos;
+
+   //---^
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find             (str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rfind            (str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_of    (str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_of     (str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_not_of(str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_not_of (str, pos)));
+   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.compare(str)));
+   //---V
+    }
+
+    // page 725
+    //..
+    //  21.3.2.2 operator== [string::operator==]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator==(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.3 operator!= [string::op!=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator!=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.4 operator< [string::op<]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator< (const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.5 operator> [string::op>]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator> (const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.6 operator<= [string::op<=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator<=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.7 operator>= [string::op>=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator>=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.8 swap [string.special]
+    //  template<class charT, class traits, class Allocator>
+    //  void swap(basic_string<charT,traits,Allocator>& lhs,
+    //            basic_string<charT,traits,Allocator>& rhs)
+    //      noexcept(noexcept(lhs.swap(rhs)));
+
+    {
+        const Obj lhs;
+        const Obj rhs;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs == rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs != rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <  rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >  rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <= rhs));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
+    }
 }
-
-
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
@@ -17244,7 +17441,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        TestDriver<int>::testCase35();
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase35();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase35();
 
       } break;
       case 34: {
