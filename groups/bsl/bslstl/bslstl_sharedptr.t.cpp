@@ -22,6 +22,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -3174,6 +3175,7 @@ struct Harness {
         // 'ALLOCATOR'.  See the test case function for documented concerns and
         // test plan.
 
+    template <class T, class Y>
     static void testCase40(int value);
         // Test 'noexcept' specifications
 
@@ -5847,6 +5849,7 @@ void Harness::testCase34_AllocatorAware()
     ASSERT(dam.isInUseSame());
 }
 
+template <class T, class Y>
 void Harness::testCase40(int value)
 {
     // ------------------------------------------------------------------------
@@ -5870,10 +5873,150 @@ void Harness::testCase40(int value)
     // ------------------------------------------------------------------------
 
     if (verbose) {
+        P(bsls::NameOf<T>())
+        P(bsls::NameOf<Y>())
         P(value)
     }
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: page 590: 20.10.2.2 Class template shared_ptr
+
+    // page 590
+    //..
+    //  // 20.10.2.2.1, constructors:
+    //  constexpr shared_ptr() noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r, T* p) noexcept;
+    //  shared_ptr(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r) noexcept;
+    //  shared_ptr(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr(shared_ptr<Y>&& r) noexcept;
+    //  constexpr shared_ptr(nullptr_t) noexcept : shared_ptr() { }
+    //..
+
+    {
+        bsl::shared_ptr<Y> r;
+        T                  p;
+        bsl::nullptr_t     n;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
+
+        ASSERT(true
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r, &p)));
+
+        ASSERT(true
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r)));
+
+        ASSERT(true
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+        ASSERT(true
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+        ASSERT(true
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
+    }
+
+
+    // page 590
+    //..
+    //  // 20.10.2.2.3, assignment:
+    //  shared_ptr& operator=(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r)
+    //                                                                noexcept;
+    //  shared_ptr& operator=(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(shared_ptr<Y>&& r) noexcept;
+    //..
+
+    // page 591
+    //..
+    //  // 20.10.2.2.4, modifiers:
+    //  void swap(shared_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    // page 591
+    //..
+    //  // 20.10.2.2.5, observers:
+    //  T* get() const noexcept;
+    //  T& operator*() const noexcept;
+    //  T* operator->() const noexcept;
+    //  long use_count() const noexcept;
+    //  bool unique() const noexcept;
+    //  explicit operator bool() const noexcept;
+    //..
+
+    // page 591 - 592
+    //..
+    //  // 20.10.2.2.7, shared_ptr comparisons:
+    //  template<class T, class U>
+    //  bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator!=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template <class T>
+    //  bool operator==(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator==(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator!=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator!=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //..
+
+    // page 592
+    //..
+    //  // 20.10.2.2.8, shared_ptr specialized algorithms:
+    //  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b)
+    //                                                                noexcept;
+    //..
+
+    // page 592
+    //..
+    //  // 20.10.2.2.9, shared_ptr casts:
+    //  template<class T, class U>
+    //  shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //..
+
+    // page 592
+    //..
+    //  // 20.10.2.2.10, shared_ptr get_deleter:
+    //  template<class D, class T> D* get_deleter(const shared_ptr<T>& p)
+    //                                                                noexcept;
+    //..
 
 }
 
@@ -6121,7 +6264,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        Harness::testCase40(40);
+        Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
 
       } break;
       case 39: {
