@@ -7916,8 +7916,8 @@ int main(int argc, char *argv[])
 // Up to 14 constructor arguments are supported for in-place construction of
 // an object.  Users can also safely create another object of the same or
 // different type in a variant that already holds a value using the
-// 'createInPlace' method.  No memory will be leaked in all cases and the
-// destructor for the currently held object will be invoked:
+// 'createInPlace' method.  No memory is leaked in all cases and the destructor
+// for the currently held object is invoked:
 //..
     z.createInPlace<bsl::string>("Hello", 5);
     ASSERT(z.is<bsl::string>());
@@ -8671,7 +8671,7 @@ int main(int argc, char *argv[])
         //
         //   For concern 3, construct a variant using the two-argument
         //   constructor and verify both concerns 1 and 2 at the same time.
-        //   The same table will be used to test this.
+        //   The same table is used to test this.
         //
         // Testing:
         //   bdlb::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);
