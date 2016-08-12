@@ -1501,6 +1501,12 @@ class basic_string
         // allocation is performed if
         // 'this->get_allocator() == rhs.get_allocator()'.
 
+    basic_string& operator=(
+                     const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs);
+        // Assign to this string the value of the specified 'rhs' string
+        // reference, and return a reference providing modifiable access to
+        // this object.
+
     basic_string& operator=(const CHAR_TYPE *rhs);
         // Assign to this string the value of the specified 'rhs' string, and
         // return a reference providing modifiable access to this object.
@@ -3850,6 +3856,15 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     return assign(BloombergLP::bslmf::MovableRefUtil::move(rhs));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
+                      const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs)
+{
+    return privateAssign(rhs.begin(), rhs.end() - rhs.begin());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
