@@ -736,6 +736,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isvoid.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -858,6 +862,10 @@ class ManagedPtr {
         // comparable (either of which would also enable undesirable implicit
         // comparisons of managed pointers to 'int' and less-than comparisons).
 
+    typedef bslmf::MovableRefUtil                                MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+ 
     // DATA
     ManagedPtr_Members d_members;  // state managed by this object
 
@@ -959,10 +967,31 @@ class ManagedPtr {
         // destructor for 'TARGET_TYPE' is not declared as 'virtual'.
 
     ManagedPtr(ManagedPtr& original);
+    ManagedPtr(bslmf::MovableRef<ManagedPtr> original);
         // Create a managed pointer having the same target object as the
         // specified 'original', and transfer the ownership of the object
         // managed by the 'original' (if any) to this managed pointer, then
         // reset 'original' as empty.
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class OTHER_TYPE>
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original);
+#else
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original,
+               typename bsl::enable_if<
+                   bsl::is_convertible<OTHER_TYPE, TARGET_TYPE>::value,
+                   void>::type * = 0);
+#endif 
+        // Create a managed pointer having the same target object as the
+        // specified 'original', transfer the ownership of the object managed
+        // by 'original' (if any) to this managed pointer, and reset 'original'
+        // to empty.  Note that this constructor is provided only on C++03
+        // platforms because 'bslmf::MovableRef' is implemented as a class
+        // storing a pointer to the referenced object (as opposed to an rvalue
+        // reference to the object in C++11) and requires a user-defined
+        // conversion to convert to a reference to the contained object.
+#endif
 
     ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);                    // IMPLICIT
         // Create a managed pointer having the same target object as the
@@ -1104,6 +1133,7 @@ class ManagedPtr {
 
     // MANIPULATORS
     ManagedPtr& operator=(ManagedPtr& rhs);
+    ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs);
         // If this object and the specified 'rhs' manage the same object,
         // return a reference to this managed pointer; otherwise destroy the
         // manged object owned by this managed pointer, then transfer ownership
@@ -1111,6 +1141,29 @@ class ManagedPtr {
         // to point to the target object currently referenced by 'rhs', then
         // reset 'rhs' as empty, and return a reference to this managed
         // pointer.
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class OTHER_TYPE>
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    ManagedPtr<TARGET_TYPE>&
+#else
+    typename bsl::enable_if<
+        bsl::is_convertible<OTHER_TYPE, TARGET_TYPE>::value,
+        ManagedPtr<TARGET_TYPE> >::type&
+#endif
+    operator=(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > rhs);
+        // If this object and the specified 'rhs' manage the same object,
+        // return a reference to this managed pointer; otherwise destroy the
+        // manged object owned by this managed pointer, then transfer ownership
+        // of the managed object owned by 'rhs', and set this managed pointer
+        // to point to the target object currently referenced by 'rhs', then
+        // reset 'rhs' as empty, and return a reference to this managed
+        // pointer.  Note that this constructor is provided only on C++03
+        // platforms because 'bslmf::MovableRef' is implemented as a class
+        // storing a pointer to the referenced object (as opposed to an rvalue
+        // reference to the object in C++11) and requires a user-defined
+        // conversion to convert to a reference to the contained object.
+#endif
 
     ManagedPtr& operator=(ManagedPtr_Ref<TARGET_TYPE> ref);
         // If this object and the managed pointer reference by the specified
@@ -1517,6 +1570,32 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original)
 }
 
 template <class TARGET_TYPE>
+inline
+ManagedPtr<TARGET_TYPE>::ManagedPtr(bslmf::MovableRef<ManagedPtr> original)
+: d_members(MoveUtil::access(original).d_members)
+{
+}
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TARGET_TYPE>
+template <class OTHER_TYPE>
+inline
+#if defined(BSLS_PLATFORM_CMP_SUN)
+ManagedPtr<TARGET_TYPE>::ManagedPtr(
+    bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original)
+#else
+ManagedPtr<TARGET_TYPE>::ManagedPtr(
+    bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original,
+    typename bsl::enable_if<
+        bsl::is_convertible<OTHER_TYPE, TARGET_TYPE>::value,
+        void>::type *)
+#endif
+: d_members(MoveUtil::access(original).d_members)
+{
+}
+#endif
+
+template <class TARGET_TYPE>
 template <class ALIASED_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr<ALIASED_TYPE>&  alias,
@@ -1827,6 +1906,35 @@ ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr& rhs)
     d_members.moveAssign(&rhs.d_members);
     return *this;
 }
+
+template <class TARGET_TYPE>
+inline
+ManagedPtr<TARGET_TYPE>&
+ManagedPtr<TARGET_TYPE>::operator=(bslmf::MovableRef<ManagedPtr> rhs)
+{
+    ManagedPtr& lvalue = rhs;
+    d_members.moveAssign(&lvalue.d_members);
+    return *this;
+}
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TARGET_TYPE>
+template <class OTHER_TYPE>
+inline
+#if defined(BSLS_PLATFORM_CMP_SUN)
+ManagedPtr<TARGET_TYPE>&
+#else
+typename bsl::enable_if<bsl::is_convertible<OTHER_TYPE, TARGET_TYPE>::value,
+                        ManagedPtr<TARGET_TYPE> >::type&
+#endif
+ManagedPtr<TARGET_TYPE>::
+operator=(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > rhs)
+{
+    ManagedPtr<OTHER_TYPE>& lvalue = rhs;
+    d_members.moveAssign(&lvalue.d_members);
+    return *this;
+}
+#endif
 
 template <class TARGET_TYPE>
 inline

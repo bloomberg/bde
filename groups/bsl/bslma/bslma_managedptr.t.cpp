@@ -83,6 +83,8 @@ using namespace BloombergLP;
 // [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
 // [ 8] ManagedPtr(OTHER *ptr);
 // [ 9] ManagedPtr(ManagedPtr& original);
+// [ 9] ManagedPtr(ManagedPtr&& original);
+// [ 9] ManagedPtr(MovableRef<ManagedPtr<OTHER>> original);
 // [ 9] ManagedPtr(ManagedPtr_Ref<TYPE> ref);
 // [ 6] ManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr);
 // [ 8] ManagedPtr(OTHER *ptr, FACTORY *factory);
@@ -103,6 +105,8 @@ using namespace BloombergLP;
 // [13] void reset();
 // [11] void swap(ManagedPtr& rhs);
 // [12] ManagedPtr& operator=(ManagedPtr& rhs);
+// [12] ManagedPtr& operator=(ManagedPtr&& rhs);
+// [12] ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
 // [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
 // [13] void clear();
 // [13] bsl::pair<TYPE*, ManagedPtrDeleter> release();
@@ -7201,6 +7205,21 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             Obj o;
+            Obj o2;
+            ASSERT(!o);
+            ASSERT(!o2);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o);
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            Obj o;
             ASSERT(!o);
 
             o = 0;
@@ -7218,6 +7237,21 @@ int main(int argc, char *argv[])
             Obj o2;
 
             o = o2;
+
+            ASSERT(!o);
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2;
+
+            o = bslmf::MovableRefUtil::move(o2);
 
             ASSERT(!o);
             ASSERT(!o2);
@@ -7257,12 +7291,45 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             TObj *p =  new MyTestObject(&numDeletes);
+
+            Obj o;
+            Obj o2(p);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+
+            ASSERT(o.get() == p);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new MyTestObject(&numDeletes);
             TObj *p2 = new MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2(p2);
 
             o = o2;
+
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+            ASSERT(o.get() == p2);
+        }
+        ASSERT(2 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new MyTestObject(&numDeletes);
+            TObj *p2 = new MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2(p2);
+
+            o = bslmf::MovableRefUtil::move(o2);
 
             ASSERT(!o2);
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -7287,6 +7354,41 @@ int main(int argc, char *argv[])
             ASSERT(o.get() == p2);
         }
         ASSERT(101 == numDeletes);
+
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        numDeletes = 0;
+        {
+            TObj *p =   new MyTestObject(&numDeletes);
+            TDObj *p2 = new MyDerivedObject(&numDeletes);
+
+            Obj o(p);
+            DObj o2(p2);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+            ASSERT(o.get() == p2);
+        }
+        ASSERT(101 == numDeletes);
+// #endif
+
+        numDeletes = 0;
+        {
+            // this test tests explicit move assignment from the same
+            // 'ManagedPtr'.
+
+            {
+                TObj *p = new MyTestObject(&numDeletes);
+                Obj o(p);
+
+                o = bslmf::MovableRefUtil::move(o);
+
+                ASSERT(o.get() == p);
+            }
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        }
 
         numDeletes = 0;
         {
@@ -7741,7 +7843,7 @@ int main(int argc, char *argv[])
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
 
-//#define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
+// #define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST)
             {
                 TObj x(&numDeletes);
@@ -7752,6 +7854,76 @@ int main(int argc, char *argv[])
                 ASSERT(!"The preceding line should not have compiled");
             }
 #endif
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) printf("\tManagedPtr(MovableRef<ManagedPtr> donor)\n");
+
+        {
+            bslma::TestAllocatorMonitor gam(&globalAllocator);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            g_deleteCount = 0;
+            int numDeletes = 0;
+            {
+                TObj x(&numDeletes);
+                Obj  o(&x, 0, countedNilDelete);
+                ASSERT(&x == o.get());
+
+                Obj o2(o);
+                ASSERT( 0 ==  o.get());
+                ASSERT(&x == o2.get());
+                ASSERT(&x == o2.deleter().object());
+                ASSERT( 0 == o2.deleter().factory());
+                ASSERT(&countedNilDelete == o2.deleter().deleter());
+            }
+
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+            g_deleteCount = 0;
+            numDeletes = 0;
+            {
+                TObj x(&numDeletes);
+                Obj  o = Obj(&x, 0, countedNilDelete);
+                ASSERT(&x == o.get());
+
+                Obj o2(bslmf::MovableRefUtil::move(o));
+                ASSERT( 0 ==  o.get());
+                ASSERT(&x == o2.get());
+                ASSERT(&x == o2.deleter().object());
+                ASSERT( 0 == o2.deleter().factory());
+                ASSERT(&countedNilDelete == o2.deleter().deleter());
+            }
+
+            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+            g_deleteCount = 0;
+            numDeletes = 0;
+            {
+                Obj o;
+                ASSERT(0 == o.get());
+
+                Obj o2(bslmf::MovableRefUtil::move(o));
+                ASSERT(0 == o.get());
+                ASSERT(0 == o2.get());
+            }
+            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -7792,6 +7964,20 @@ int main(int argc, char *argv[])
             ASSERT(0 == d.get());
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
+
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        numDeletes = 0;
+        {
+            TDObj *p = new MyDerivedObject(&numDeletes);
+            DObj d(p);
+            ASSERT(d.get() == p);
+
+            Obj o(bslmf::MovableRefUtil::move(d));
+            ASSERT(o.get() == p);
+            ASSERT(0 == d.get());
+        }
+        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+// #endif
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
