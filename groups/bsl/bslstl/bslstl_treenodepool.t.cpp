@@ -663,14 +663,14 @@ void TestDriver<VALUE>::testCase8()
 
                         // Verify the free lists are swapped
 
-                        while(!freeX.empty()) {
+                        while (!freeX.empty()) {
                             RbNode *ptr = mY.emplaceIntoNewNode();
                             ASSERTV(LINE1, LINE2, freeX.back() == ptr);
                             freeX.pop();
                             usedX.push(ptr);
                         }
 
-                        while(!freeY.empty()) {
+                        while (!freeY.empty()) {
                             RbNode *ptr = mX.emplaceIntoNewNode();
                             ASSERTV(LINE1, LINE2, freeY.back() == ptr);
                             freeY.pop();
@@ -679,7 +679,7 @@ void TestDriver<VALUE>::testCase8()
 
                         // Cleanup up memory used by the object in the node.
 
-                        while(!usedX.empty()) {
+                        while (!usedX.empty()) {
                             mX.deleteNode(usedX.back());
                             usedX.pop();
                         }
@@ -735,14 +735,14 @@ void TestDriver<VALUE>::testCase8()
 
                         // Verify the free lists are swapped
 
-                        while(!freeX.empty()) {
+                        while (!freeX.empty()) {
                             RbNode *ptr = mY.emplaceIntoNewNode();
                             ASSERTV(LINE1, LINE2, freeX.back() == ptr);
                             freeX.pop();
                             usedX.push(ptr);
                         }
 
-                        while(!freeY.empty()) {
+                        while (!freeY.empty()) {
                             RbNode *ptr = mX.emplaceIntoNewNode();
                             ASSERTV(LINE1, LINE2, freeY.back() == ptr);
                             freeY.pop();
@@ -751,7 +751,7 @@ void TestDriver<VALUE>::testCase8()
 
                         // Cleanup up memory used by the object in the node.
 
-                        while(!usedX.empty()) {
+                        while (!usedX.empty()) {
                             mX.deleteNode(usedX.back());
                             usedX.pop();
                         }

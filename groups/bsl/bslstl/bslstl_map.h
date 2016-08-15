@@ -1965,8 +1965,11 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapExchangeAllocators(
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swapExchangeAllocators(other.nodeFactory());
 
-    // Workaround to avoid the 1-byte swap problem on AIX for an empty class
-    // under empty-base optimization.
+    // 'DataWrapper' contains a 'NodeFactory' object and inherits from
+    // 'Comparator'.  If the empty-base-class optimization has been applied to
+    // 'Comparator', then we must not call 'swap' on it because
+    // 'sizeof(Comparator) > 0' and, therefore, we will incorrectly swap bytes
+    // of the 'NodeFactory' members!
 
     if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());
@@ -1981,8 +1984,7 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapRetainAllocators(
     BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &other.d_tree);
     nodeFactory().swapRetainAllocators(other.nodeFactory());
 
-    // Workaround to avoid the 1-byte swap problem on AIX for an empty class
-    // under empty-base optimization.
+    // See 'quickSwapExchangeAllocators' (above).
 
     if (sizeof(NodeFactory) != sizeof(DataWrapper)) {
         comparator().swap(other.comparator());

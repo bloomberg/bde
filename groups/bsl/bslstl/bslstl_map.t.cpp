@@ -954,7 +954,7 @@ struct IntToPairConverter {
 
         int key, value;
 
-        if ('a' <= id && id <= 'z') {
+        if (islower(id)) {
             key   = toupper(id);
             value = key + 1;
         }
@@ -9561,6 +9561,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
             ASSERTV(SPEC, W == Y);
             ASSERTV(SPEC, W == X);
             ASSERTV(SPEC, PROPAGATE, PROPAGATE == (ma == Y.get_allocator()));
+            ASSERTV(SPEC, PROPAGATE,               ma == X.get_allocator());
 
             if (PROPAGATE) {
                 ASSERTV(SPEC, 0 != TYPE_ALLOC || dam.isInUseSame());
