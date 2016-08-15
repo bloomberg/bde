@@ -75,7 +75,7 @@ using bsls::NameOf;
 //
 // MANIPULATORS
 // [15] iterator begin();
-// [15] iterator index(size_t value);
+// [15] iterator index(size_t position);
 // [15] iterator end();
 // [15] void resetIterators();
 //
@@ -222,7 +222,9 @@ struct TestConverter
     static void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
         // Create an object of the (template parameter) type 'VALUE' at the
         // specified 'objPtr' address whose state is unique for the specified
-        // 'value'.  Use the specified 'allocator' to supply memory.
+        // 'value'.  Use the specified 'allocator' to supply memory.  The
+        // behavior is undefined unless '0 <= value' and 'VALUE' is contained
+        // in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
     static int getIdentifier(const VALUE& obj);
         // Return the integer identifier that uniquely identifies the specified
@@ -266,42 +268,42 @@ class TestDriver
   private:
     // TYPES
     typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER> Obj;
-        // type under testing
+        // The type under testing.
 
     typedef TestValuesArrayIterator<VALUE> Iterator;
-        // iterator for type under testing
+        // The iterator for type under testing.
 
   public:
     // TEST CASES
     static void testCase15();
-        // TESTING MANIPULATORS
+        // TESTING MANIPULATORS.
 
     static void testCase14();
-        // ITERATOR STRUCTURE DEREFERENCE OPERATOR
+        // ITERATOR STRUCTURE DEREFERENCE OPERATOR.
 
     static void testCase13();
-        // ITERATOR POST-INCREMENT OPERATOR
+        // ITERATOR POST-INCREMENT OPERATOR.
 
     static void testCase12();
-        // ITERATOR COPY-ASSIGNMENT OPERATOR
+        // ITERATOR COPY-ASSIGNMENT OPERATOR.
 
     static void testCase11();
-        // ITERATOR COPY CONSTRUCTOR
+        // ITERATOR COPY CONSTRUCTOR.
 
     static void testCase10();
-        // ITERATOR EQUALITY-COMPARISON OPERATORS
+        // ITERATOR EQUALITY-COMPARISON OPERATORS.
 
     static void testCase9();
-        // ITERATOR BASIC ACCESSORS
+        // ITERATOR BASIC ACCESSORS.
 
     static void testCase8();
-        // ITERATOR PRIMARY MANIPULATORS
+        // ITERATOR PRIMARY MANIPULATORS.
 
     static void testCase7();
-        // TESTING POST-INCREMENT POINTER
+        // TESTING POST-INCREMENT POINTER.
 
     static void testCase6();
-        // TESTING SUBSCRIPT OPERATOR
+        // TESTING SUBSCRIPT OPERATOR.
 
     static void testCase5();
         // CONSTRUCTORS.
@@ -329,13 +331,13 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     // TESTING MANIPULATORS
     //
     // Concerns:
-    //: 1 The 'begin()' returns iterator, referring to the first value in the
-    //:   array.
+    //: 1 The 'begin()' returns an iterator, referring to the first value in
+    //:   the array.
     //:
-    //: 2 The 'end()' returns iterator, referring to the address, following the
-    //:    last value in the array.
+    //: 2 The 'end()' returns an  iterator, referring to the address, following
+    //:   the last value in the array.
     //:
-    //: 3 The 'index()' returns iterator, referring to the value with index,
+    //: 3 The 'index()' returns an iterator, referring to the value with index,
     //:   passed as a parameter.
     //:
     //: 4 The 'resetIterators()' makes all values accessible through iterators
@@ -381,7 +383,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     // Testing:
     //  iterator begin();
     //  iterator end();
-    //  iterator index(size_t value);
+    //  iterator index(size_t position);
     //  void resetIterators();
     // ------------------------------------------------------------------------
 
@@ -1244,6 +1246,11 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 
                 ++mX2;
             }
+
+            delete [] isDerefArray1;
+            delete [] isDerefArray2;
+            delete [] isValidArray1;
+            delete [] isValidArray2;
         } // foreach raw
     }
 
@@ -1442,14 +1449,13 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
     //:   4 Use 'operator++'  to iterate through the all TestValuesArray values
     //:      and (untested) 'operator *' to verify that object's value pointers
     //:      are installed properly and 'operator++' behavior is correct.
-    //:      (C-1..3)
+    //:      (C-3)
     //:
     //:   5 Having direct access to boolean arrays, specified in P-2.2, verify
     //:     that 'dereferenceable' and 'isValid' object's pointers are
     //:     installed properly and 'operator++' behavior is correct.  (C-1..2)
     //:
     //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
-    //
     //
     // Testing:
     //  TestValuesArrayIterator(const VALUE *, const VALUE *, bool *, bool *);
@@ -2156,7 +2162,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     bsls::ObjectBuffer<VALUE>  buffer;
     VALUE&                     mX = buffer.object();
     const VALUE&               X = mX;
-    VALUE                     *address = bsls::Util::addressOf(mX);
+    VALUE                     *address = buffer.address();
 
     for (size_t ti = 0; ti <= 127; ++ti) {
         Converter::createInplace(address,

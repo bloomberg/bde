@@ -120,12 +120,12 @@ BSLS_IDENT("$Id: $")
 //          { "ADCB",  'D' },
 //          { "EDCBA", 'E' }
 //      };
-//      const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//      const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 //..
 //  Now, for each set of test values, verify that the function return the
 //  expected result.
 //..
-//      for (int i = 0; i < NUM_DATA; ++i) {
+//      for (size_t i = 0; i < NUM_DATA; ++i) {
 //          const char *const SPEC = DATA[i].d_spec;
 //          const VALUE       EXP  =
 //                bsltf::TemplateTestFacility::create<VALUE>(DATA[i].d_result);
@@ -346,7 +346,7 @@ class TestValuesArray
     // PRIVATE MANIPULATOR
     void initialize(const char *spec);
         // Initialize this container, using the specified 'spec' to populate
-        // container with a test values.
+        // container with test values.
 
   public:
     // TYPES
@@ -399,7 +399,7 @@ class TestValuesArray
         // '0 < size() && index < size()'.
 
     size_t size() const;
-        // Return number of elements in this object.
+        // Return number of elements in this container.
 };
 
                        // ======================================
