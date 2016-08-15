@@ -352,7 +352,7 @@ class NonAllocContainer
 {
   private:
     // DATA
-    bsl::vector<VALUE> d_vector;  // container for it's behaviour simulation
+    bsl::vector<VALUE> d_vector;  // container for it's behavior simulation
 
   public:
     // PUBLIC TYPES
@@ -597,7 +597,7 @@ class NonMovableContainer
 {
   private:
     // DATA
-    bsl::vector<VALUE> d_vector;  // container for it's behaviour simulation
+    bsl::vector<VALUE> d_vector;  // container for it's behavior simulation
 
   public:
     // PUBLIC TYPES
@@ -733,7 +733,7 @@ class MovableContainer {
 
   private:
     // DATA
-    bsl::vector<VALUE> d_vector;  // container for it's behaviour simulation
+    bsl::vector<VALUE> d_vector;  // container for it's behavior simulation
 
   public:
     // PUBLIC TYPES
@@ -1984,7 +1984,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase18()
     //:     (representing a distinct object value, 'W') in the table described
     //:     in P-2. For each of the iterations:
     //:
-    //:     1 Use the value constructor with'sa' allocator and 'sc' comparator
+    //:     1 Use the value constructor with 'sa' allocator and 'sc' comparator
     //:       to create dynamic source object 'mX' and control object 'mZ',
     //:       each having the value 'V'.
     //:
@@ -2012,7 +2012,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase18()
     //:
     //:     9 Use the helper function 'use_same_comparator' to verify that the
     //:       target object, 'mY', has the same comparator as that of 'mZ', to
-    //:       ensure that new object comprator is properly installed.  (C-3)
+    //:       ensure that the new object's comparator is properly installed.
+    //:       (C-3)
     //:
     //:    10 Use the helper function 'use_same_allocator' to verify that the
     //:       respective allocator addresses held by 'mX' and 'mY' are
@@ -2173,8 +2174,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase17()
     //   'NonMovableContainer' and 'MovableContainer', which register called
     //   methods, to verify it.  As 'push' with movable parameter has the same
     //   effect for test object as 'push' with const reference parameter (which
-    //   has been tested already), we will use last one to verify behaviour of
-    //   the first one.
+    //   has been tested already), we will use the last one to verify behavior
+    //   of the first one.
     //
     // Concern:
     //: 1 The 'push_back' method of the underlying container with appropriate
@@ -2581,7 +2582,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase15()
     // MOVE CONSTRUCTOR:
     //   Ensure that we can construct any object of the class, having other
     //   object of the class as the source.  To provide backward compatibility,
-    //   copy copnstructor should be used in the absence of move constructor.
+    //   copy constructor should be used in the absence of move constructor.
     //   We are going to use two special containers 'NonMovableContainer' and
     //   'MovableContainer', which register called methods, to verify it.
     //
@@ -2662,7 +2663,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase15()
     //:
     //:     7 Use the helper function 'use_same_comparator' to verify that the
     //:       target object, 'mY', has the same comparator as that of 'mZ', to
-    //:       ensure that new object comprator is properly installed.  (C-2..3)
+    //:       ensure that the new object's comparator is properly installed.
+    //:       (C-2..3)
     //:
     //:     8 Add some values to the source and target object separately.
     //:       Verify that they change independently. Destroy source object.

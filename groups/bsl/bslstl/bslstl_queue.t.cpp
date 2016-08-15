@@ -659,7 +659,7 @@ class NonMovableVector {
     // used to verify that 'stack' invokes expected container methods.
 
     // DATA
-    bsl::vector<VALUE> d_vector;  // container for it's behaviour simulation
+    bsl::vector<VALUE> d_vector;  // container for it's behavior simulation
 
     // FRIENDS
     friend bool operator==<VALUE, ALLOCATOR>(const NonMovableVector& lhs,
@@ -2469,7 +2469,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
     //:
     //: 3 For each test create a "control" object that has the expected value
     //:   of the object under test.  Create the control object using the
-    //:   previously tested (non-moveable) 'push' method.
+    //:   previously tested (non-movable) 'push' method.
     //:
     //: 4 Invoke the method under test on the object under test.  Confirm that
     //:   the expected enumerated value was set in the global variable.
@@ -2629,7 +2629,7 @@ void TestDriver<VALUE, CONTAINER>::testCase18(bool isMovableContainer)
     // MOVE CONSTRUCTORS:
     //   Ensure that we can construct any object of the class, having other
     //   object of the class as the source.  To provide backward compatibility,
-    //   copy copnstructor should be used in the absence of move constructor.
+    //   copy constructor should be used in the absence of move constructor.
     //   We are going to use two special containers 'NonMovableVector' and
     //   'MovableVector', that register called method, to verify it.
     //
@@ -2720,7 +2720,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18(bool isMovableContainer)
     //:
     //:     7 Use the helper function 'use_same_comparator' to verify that the
     //:       target object, 'mY', has the same comparator as that of 'mZ', to
-    //:       ensure that new object comprator is properly installed.  (C-2..3)
+    //:       ensure that the new object's comparator is properly installed.
+    //:       (C-2..3)
     //:
     //:     8 Add some values to the source and target object separately.
     //:       Verify that they change independently.  Destroy source object.
