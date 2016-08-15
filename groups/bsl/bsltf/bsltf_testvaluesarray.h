@@ -417,8 +417,9 @@ struct TestValuesArray_DefaultConverter
         // Create an object of the (template parameter) type 'VALUE' at the
         // specified 'objPtr' address whose state is unique for the specified
         // 'value'.  Use the specified 'allocator' to supply memory.  The
-        // behavior is undefined unless '0 <= value < 128' and 'VALUE' is
-        // contained in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
+        // behavior is undefined unless '0 <= value && value < 128' and 'VALUE'
+        // is contained in the macro
+        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 };
 
                        // ======================================

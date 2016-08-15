@@ -263,7 +263,7 @@ template <class VALUE,
           class ALLOCATOR = bsl::allocator<VALUE>,
           class CONVERTER = TestConverter<VALUE, ALLOCATOR> >
 class TestDriver
-    // Test driver class for 'TestValuesArray'
+    // Test driver class for 'TestValuesArray'.
 {
   private:
     // TYPES
@@ -271,7 +271,7 @@ class TestDriver
         // The type under testing.
 
     typedef TestValuesArrayIterator<VALUE> Iterator;
-        // The iterator for type under testing.
+        // The iterator for the type under testing.
 
   public:
     // TEST CASES
