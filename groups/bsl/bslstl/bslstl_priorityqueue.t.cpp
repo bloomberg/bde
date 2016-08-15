@@ -1,34 +1,32 @@
 // bslstl_priorityqueue.t.cpp                                         -*-C++-*-
-
 #include <bslstl_priorityqueue.h>
 
 #include <bslstl_vector.h>
-#include <bslstl_iterator.h>
-#include <bslstl_forwarditerator.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_stdallocator.h>
-#include <bslma_testallocator.h>           // for testing only
-#include <bslma_testallocatormonitor.h>    // for testing only
-#include <bslma_testallocatorexception.h>  // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
+#include <bslma_testallocatorexception.h>
+
+#include <bslmf_haspointersemantics.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
-#include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
-
-#include <algorithm>
 
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
+
+#include <algorithm>
 
 #include <stdlib.h>      // atoi
 
@@ -127,13 +125,13 @@ using namespace bsl;
 // [ 8] void swap(priority_queue& lhs, priority_queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [12] TRAITS
 // [20] TESTING NON ALLOCATOR SUPPORTING TYPE
 // [21] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(priority_queue *object, const char *spec, int verbose = 1);
 // [ 3] priority_queue& gg(priority_queue *object, const char *spec);
-// [12] priority_queue g(const char *spec);
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
@@ -348,9 +346,9 @@ class NonAllocContainer
     // This class is a value-semantic class template, acting as a transparent
     // proxy for the underlying 'bsl::vector' container, that holds elements of
     // the (template parameter) 'VALUE', using 'bslma::MallocFreeAllocator' to
-    // supply memory (an allocator, that implements the 'bslma::Allocator'
+    // supply memory (an allocator that implements the 'bslma::Allocator'
     // protocol and supplies memory using the system-supplied (native)
-    // 'std::malloc' and 'std::free' operators.).
+    // 'std::malloc' and 'std::free' operators).
 {
   private:
     // DATA
@@ -579,10 +577,10 @@ inline CalledMethod operator|=(CalledMethod& lhs, CalledMethod rhs)
     return lhs;
 }
 
-CalledMethod g_calledMethodFlag;  // global variable, that stores information
+CalledMethod g_calledMethodFlag;  // global variable that stores information
                                   // about called methods for special
                                   // containers 'NonMovableContainer' and
-                                  // 'MovableContainer'.
+                                  // 'MovableContainer'
 
                         // =========================
                         // class NonMovableContainer
@@ -723,15 +721,16 @@ class NonMovableContainer
                        // ======================
                        // class MovableContainer
                        // ======================
+
 template <class VALUE, class ALLOCATOR = bsl::allocator<VALUE> >
-class MovableContainer
+class MovableContainer {
     // This class is a value-semantic class template, acting as a transparent
     // proxy for the underlying 'bsl::vector' container, that holds elements of
     // the (template parameter) 'VALUE', and recording in the global variable
     // 'g_calledMethodFlag' methods being invoked.  The information recorded
     // is used to verify that 'bsl::priority_queue' invokes expected container
     // methods.
-{
+
   private:
     // DATA
     bsl::vector<VALUE> d_vector;  // container for it's behaviour simulation
@@ -1423,10 +1422,9 @@ template <class VALUE,
           class CONTAINER  = vector<VALUE>,
           class COMPARATOR = TestComparator<VALUE> >
 class TestDriver {
-    // Test driver class for 'priority_queue'
+    // Test driver class for 'priority_queue'.
 
   private:
-
     // TYPES
     typedef bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>  Obj;
         // type under testing
@@ -1482,10 +1480,6 @@ class TestDriver {
         // Return, by reference, the specified object with its value adjusted
         // according to the specified 'spec'.
 
-    static Obj g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
-
     template <class VALUES>
     static size_t verify_object(Obj&          object,
                                 const VALUES& expectedValues,
@@ -1520,7 +1514,6 @@ class TestDriver {
         // 'false' otherwise.
 
   public:
-
     // TEST CASES
     static void testCase19a();
         // Test 'emplace' forwarding parameters.
@@ -1547,13 +1540,13 @@ class TestDriver {
         // Test 'empty' accessor.
 
     static void testCase12();
-        // Test generator functions 'g'.
+        // Test type traits.
 
     static void testCase11();
         // Test copy-assignment operator ('operator=').
 
     // static void testCase10();
-        // Reserved for BSLX.
+        // Reserved for BDEX.
 
     static void testCase9();
         // Test 'swap' member.
@@ -1631,14 +1624,6 @@ TestDriver<VALUE, CONTAINER, COMPARATOR>::gg(Obj *object, const char *spec)
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
-}
-
-template <class VALUE, class CONTAINER, class COMPARATOR>
-priority_queue<VALUE, CONTAINER, COMPARATOR>
-TestDriver<VALUE, CONTAINER, COMPARATOR>::g(const char *spec)
-{
-    Obj object((bslma::Allocator *)0);
-    return gg(&object, spec);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -1779,8 +1764,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase19a()
     //:   for C++03 compatibility.  Note that only the forwarding of arguments
     //:   is tested in this function; all other functionality is tested in
     //:   'testCase19'.  Also note that this test case is run only for special
-    //:   container class, 'MovableContainer', having 'emplace' method(s), that
-    //:   register number of passed parameters in the global variable.
+    //:   container class 'MovableContainer' having 'emplace' method(s) that
+    //:   register the number of passed parameters in a global variable.
     //
     // Plan:
     //: 1 Execute an inner loop. On each iteration:
@@ -1956,7 +1941,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase18()
     //   same value.  To provide backward compatibility, copy-assignment should
     //   be performed in the absence of move-assignment operator.  We are going
     //   to use two special containers 'NonMovableContainer' and
-    //   'MovableContainer', that register called method, to verify it.
+    //   'MovableContainer', which register called methods, to verify it.
     //
     // Concerns:
     //: 1 Appropriate method of the underlying container (move assignment or
@@ -2104,12 +2089,12 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase18()
                            LINE2,
                            true == isCalledMethodCheckPassed<CONTAINER>(flag));
 
-                    // Verify, that no new memory has been obtained from source
+                    // Verify that no new memory has been obtained from source
                     // allocator.
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
-                    // Verify, that no memory has been obtained from default
+                    // Verify that no memory has been obtained from default
                     // allocator.
 
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
@@ -2127,7 +2112,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase18()
 
                     ASSERTV(LINE1, LINE2, use_same_comparator(mZ, mY));
 
-                    // Verify, that allocators of the underlying containers
+                    // Verify that allocators of the underlying containers
                     // haven't been affected.
 
                     ASSERTV(LINE1, LINE2,
@@ -2185,8 +2170,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase17()
     //   To provide backward compatibility, 'push_back' with const reference as
     //   a parameter should be invoked in the absence of method with movable
     //   reference.  We are going to use two special containers
-    //   'NonMovableContainer' and 'MovableContainer', that register called
-    //   method, to verify it.  As 'push' with movable parameter has the same
+    //   'NonMovableContainer' and 'MovableContainer', which register called
+    //   methods, to verify it.  As 'push' with movable parameter has the same
     //   effect for test object as 'push' with const reference parameter (which
     //   has been tested already), we will use last one to verify behaviour of
     //   the first one.
@@ -2285,8 +2270,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase16()
     //   To provide backward compatibility, constructors with const reference
     //   as a parameter should be invoked in the absence of constructor with
     //   movable reference.  We are going to use two special containers
-    //   'NonMovableContainer' and 'MovableContainer', that register called
-    //   method, to verify it.
+    //   'NonMovableContainer' and 'MovableContainer', which register called
+    //   methods, to verify it.
     //
     // Concern:
     //: 1 The constructor of the underlying container with appropriate
@@ -2381,7 +2366,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase16()
     //:       source container.  Verify that target object is unaffected.
     //:       (C-9)
     //:
-    //:     8 Destroy target object and verify, that all memory has been
+    //:     8 Destroy target object and verify that all memory has been
     //:       released.  (C-10)
     //
     // Testing:
@@ -2598,7 +2583,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase15()
     //   object of the class as the source.  To provide backward compatibility,
     //   copy copnstructor should be used in the absence of move constructor.
     //   We are going to use two special containers 'NonMovableContainer' and
-    //   'MovableContainer', that register called method, to verify it.
+    //   'MovableContainer', which register called methods, to verify it.
     //
     // Concerns:
     //: 1 Appropriate constructor of the underlying container (move or copy) is
@@ -2684,7 +2669,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase15()
     //:       Verify that target object is unaffected.  (C-4, 10)
     //:
     //:     9 Delete the target object and let the control object go out of
-    //:       scope to verify, that all memory has been released.  (C-11)
+    //:       scope to verify that all memory has been released.  (C-11)
     //
     // Testing:
     //  priority_queue(MovableRef<priority_queue> original);
@@ -2906,81 +2891,39 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // TESTING GENERATOR FUNCTION, g:
+    // TESTING TYPE TRAITS
     //
     // Concern:
-    //: 1 Since 'g' is implemented almost entirely using 'gg', we need to
-    //:   verify only that the arguments are properly forwarded.
-    //:
-    //: 2 'g' does not affect the test allocator, and that 'g' returns an
-    //:   object by value.
+    //: 1 The object has the necessary type traits.
     //
     // Plan:
-    //: 1 For each SPEC in a short list of specifications:  (C-1)
-    //:
-    //:   1 Compare the object returned (by value) from the generator function,
-    //:     'g(SPEC)' with the value of newly constructed OBJECT configured
-    //:     using 'gg(&OBJECT,  SPEC)'.
-    //:
-    //:   2 Compare the results of calling the allocator's 'numBlocksTotal' and
-    //:     'numBytesInUse' methods before and after calling 'g' in order to
-    //:     demonstrate that 'g' has no effect on the test allocator.  (C-1)
-    //:
-    //: 2 Use a specific SPEC, verify that 'g' returns by value by checking the
-    //:   two objects returned by calling 'g' twice are different objects.
-    //:   (C-2)
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exist.  (C-1)
     //
     // Testing:
-    //   priority_queue g(const char *spec);
+    //   CONCERN: The object has the necessary type traits.
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa(veryVeryVerbose);
+    // Verify 'priority_queue' defines the expected traits.
 
-    const int NUM_DATA                     = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+    enum { CONTAINER_USES_ALLOC =
+                                 bslma::UsesBslmaAllocator<CONTAINER>::value };
 
-    if (verbose)
-        printf("\nCompare values produced by 'g' and 'gg' "
-               "for various inputs.\n");
+    BSLMF_ASSERT(
+         ((int)CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const char *SPEC = DATA[ti].d_spec;
-        if (veryVerbose) { P_(ti);  P(SPEC); }
+    // Verify 'priority_queue' does not define other common traits.
 
-        Obj mX(&oa);
-        gg(&mX, SPEC);  const Obj& X = mX;
+    BSLMF_ASSERT((0 == bslalg::HasStlIterators<Obj>::value));
 
-        if (veryVerbose) {
-            printf("\t g = "); P(g(SPEC)); printf("\n");
-            printf("\tgg = "); P(X); printf("\n");
-        }
-        const bsls::Types::Int64 TOTAL_BLOCKS_BEFORE = oa.numBlocksTotal();
-        const bsls::Types::Int64 IN_USE_BYTES_BEFORE = oa.numBytesInUse();
-        Obj temp = g(SPEC);
-        const bsls::Types::Int64 TOTAL_BLOCKS_AFTER = oa.numBlocksTotal();
-        const bsls::Types::Int64 IN_USE_BYTES_AFTER = oa.numBytesInUse();
-        ASSERTV(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
-        ASSERTV(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
-        ASSERTV(ti, is_equal(mX, temp));
-    }
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
-    if (verbose) printf("\nConfirm return-by-value.\n");
-    {
-        const char *SPEC = "ABCDE";
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
 
-        // compile-time fact
-        ASSERT(sizeof(Obj) == sizeof g(SPEC));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 
-        Obj x(&oa);                      // runtime tests
-        Obj& r1 = gg(&x, SPEC);
-        Obj& r2 = gg(&x, SPEC);
-        const Obj& r3 = g(SPEC);
-        const Obj& r4 = g(SPEC);
-        ASSERT(&r2 == &r1);
-        ASSERT(&x  == &r1);
-        ASSERT(&r4 != &r3);
-        ASSERT(&x  != &r3);
-    }
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<Obj>::value));
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -3137,12 +3080,12 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase11()
 
                     Obj *mR = &(mY = X);
 
-                    // Verify, that no new memory has been obtained from source
+                    // Verify that no new memory has been obtained from source
                     // allocator.
 
                     ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
-                    // Verify, that no memory has been obtained from default
+                    // Verify that no memory has been obtained from default
                     // allocator.
 
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
@@ -3163,7 +3106,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase11()
 
                     ASSERTV(LINE1, LINE2, use_same_comparator(mZ1, mY));
 
-                    // Verify, that allocators of the underlying containers
+                    // Verify that allocators of the underlying containers
                     // haven't been affected.
 
                     ASSERTV(LINE1, LINE2,
@@ -5270,14 +5213,39 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'g'
+        // TESTING TYPE TRAITS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING GENERATOR FUNCTION 'G'"
-                            "\n==============================\n");
+        if (verbose) printf("\nTesting Type Traits\n"
+                            "\n===================\n");
 
+        // Verify the 'UsesBslmaAllocator' trait is not defined for non-'bslma'
+        // allocators.
+
+        typedef bsltf::StdTestAllocator<bsltf::AllocTestType> StlAlloc;
+
+        typedef bsltf::AllocTestType ATT;
+
+        typedef vector<ATT, StlAlloc> WeirdAllocVector;
+
+        typedef bsl::priority_queue<ATT, WeirdAllocVector>
+                                                 WeirdAllocVectorPriorityQueue;
+        typedef bsl::priority_queue<int, NonAllocContainer<int> >
+                                                 NonAllocPriorityQueue;
+
+        if (verbose) printf("NonAllocContainer ---------------------------\n");
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                             NonAllocContainer<int> >::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                             NonAllocPriorityQueue>::value));
+        TestDriver<NonAllocContainer<int> >::testCase12();
+
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                       WeirdAllocVector>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                       WeirdAllocVectorPriorityQueue>::value));
         RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES_REGULAR);
-        TestDriver<TestValueType, vector<TestValueType> >::testCase12();
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -5413,8 +5381,6 @@ int main(int argc, char *argv[])
                                                        std::less<int>(),
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);
-        //TBD: uncomment when 'bsl::list' is available
-        //QTestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
 
         TestDriver<int,
                    NonAllocContainer<int>,

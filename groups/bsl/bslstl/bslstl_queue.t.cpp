@@ -1,41 +1,37 @@
 // bslstl_queue.t.cpp                                                 -*-C++-*-
-
 #include <bslstl_queue.h>
 
 #include <bslstl_deque.h>
-#include <bslstl_iterator.h>
-#include <bslstl_forwarditerator.h>
+#include <bslstl_list.h>
 #include <bslstl_vector.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_stdallocator.h>
-#include <bslma_testallocator.h>           // for testing only
-#include <bslma_testallocatormonitor.h>    // for testing only
-#include <bslma_testallocatorexception.h>  // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
+#include <bslma_testallocatorexception.h>
 
+#include <bslmf_haspointersemantics.h>
 #include <bslmf_movableref.h>
-
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
-#include <bsls_bsltestutil.h>
 #include <bsls_types.h>
-#include <bsls_stopwatch.h>                // for testing only
 #include <bsls_util.h>
-
-#include <algorithm>
 
 #include <bsltf_moveonlyalloctesttype.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
+
+#include <algorithm>
 
 #include <stdlib.h>      // atoi
 
@@ -72,8 +68,8 @@ using namespace bsl;
 // The primary manipulators for 'bsl::queue' are the default constructor,
 // 'push', and 'pop'.  The basic accessors are 'size' , 'front', and 'back'.
 //
-// The primary manipulators for 'bsl::priority_queue' are the default
-// constructor, 'push', and 'pop'.  The basic accessors are 'size' and 'top'.
+// The primary manipulators for 'bsl::queue' are the default constructor,
+// 'push', and 'pop'.  The basic accessors are 'size' and 'top'.
 // ----------------------------------------------------------------------------
 // CLASS 'bsl::queue'
 //
@@ -118,16 +114,13 @@ using namespace bsl;
 // [ 8] void swap(queue& lhs,queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [11] TRAITS
 // [16] TESTING NON ALLOCATOR SUPPORTING TYPE
 // [17] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] ggg(queue<V,C> *object, const char *spec, int verbose = 1);
 // [ 3] gg(queue<V,C> *object, const char *spec);
-// [ 3] ggg(priority_queue<V,C,P> *object, const char *spec, int verbose = 1);
-// [ 3] gg(priority_queue<V,C,P> *object, const char *spec);
-// [11] queue<V,C> g(const char *spec);
-// [11] priority_queue<V,C,P> g(const char *spec);
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
@@ -401,12 +394,12 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     fflush(stdout);
 }
 
-                            // ==================
-                            // class NonAllocCont
-                            // ==================
+                            // =======================
+                            // class NonAllocContainer
+                            // =======================
 
 template <class VALUE>
-class NonAllocCont {
+class NonAllocContainer {
   private:
     // DATA
     bsl::deque<VALUE> d_deque;
@@ -419,12 +412,12 @@ class NonAllocCont {
     typedef std::size_t  size_type;
 
     // CREATORS
-    NonAllocCont() : d_deque(&bslma::MallocFreeAllocator::singleton()) {}
+    NonAllocContainer() : d_deque(&bslma::MallocFreeAllocator::singleton()) {}
 
-    ~NonAllocCont() {}
+    ~NonAllocContainer() {}
 
     // MANIPULATORS
-    NonAllocCont& operator=(const NonAllocCont& other)
+    NonAllocContainer& operator=(const NonAllocContainer& other)
     {
         d_deque = other.d_deque;
         return *this;
@@ -441,32 +434,32 @@ class NonAllocCont {
     bsl::deque<value_type>& contents() { return d_deque; }
 
     // ACCESSORS
-    bool operator==(const NonAllocCont& rhs) const
+    bool operator==(const NonAllocContainer& rhs) const
     {
         return d_deque == rhs.d_deque;
     }
 
-    bool operator!=(const NonAllocCont& rhs) const
+    bool operator!=(const NonAllocContainer& rhs) const
     {
         return !operator==(rhs);
     }
 
-    bool operator<(const NonAllocCont& rhs) const
+    bool operator<(const NonAllocContainer& rhs) const
     {
         return d_deque < rhs.d_deque;
     }
 
-    bool operator>=(const NonAllocCont& rhs) const
+    bool operator>=(const NonAllocContainer& rhs) const
     {
         return !operator<(rhs);
     }
 
-    bool operator>(const NonAllocCont& rhs) const
+    bool operator>(const NonAllocContainer& rhs) const
     {
         return d_deque > rhs.d_deque;
     }
 
-    bool operator<=(const NonAllocCont& rhs) const
+    bool operator<=(const NonAllocContainer& rhs) const
     {
         return !operator>(rhs);
     }
@@ -482,7 +475,7 @@ class NonAllocCont {
 
 namespace std {
     template <class VALUE>
-    void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
+    void swap(NonAllocContainer<VALUE>& lhs, NonAllocContainer<VALUE>& rhs)
     {
         lhs.contents().swap(rhs.contents());
     }
@@ -1236,15 +1229,14 @@ bool operator==(const MovableVector<VALUE, ALLOCATOR>& lhs,
                 const MovableVector<VALUE, ALLOCATOR>& rhs);
 
 template <class VALUE, class ALLOCATOR = bsl::allocator<VALUE> >
-class MovableVector
-{
+class MovableVector {
     // TBD
     //
     // This class is a value-semantic class template, acting as a transparent
     // proxy for the underlying 'bsl::vector' container, that holds elements of
     // the (template parameter) 'VALUE', and recording in the global variable
     // 'g_calledMethodFlag' methods being invoked.  The information recorded is
-    // used to verify that 'stack' invokes expected container methods.
+    // used to verify that 'queue' invokes expected container methods.
 
   private:
     // DATA
@@ -1949,10 +1941,6 @@ class TestDriver {
         // Return, by reference, the specified object with its value adjusted
         // according to the specified 'spec'.
 
-    static Obj g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
-
     template <class VALUES>
     static size_t verify_object(Obj&          object,
                                 const VALUES& expectedValues,
@@ -1996,10 +1984,10 @@ class TestDriver {
         // Test user-supplied constructors.
 
     static void testCase11();
-        // Test generator functions 'g'.
+        // Test type traits.
 
     // static void testCase10();
-        // Reserved for BSLX.
+        // Reserved for BDEX.
 
     static void testCase9();
         // Test assignment operator ('operator=').
@@ -2144,14 +2132,6 @@ TestDriver<VALUE, CONTAINER>::gg(Obj *object, const char *spec)
 {
     ASSERTV(ggg(object, spec) < 0);
     return *object;
-}
-
-template <class VALUE, class CONTAINER>
-queue<VALUE, CONTAINER>
-TestDriver<VALUE, CONTAINER>::g(const char *spec)
-{
-    Obj object((bslma::Allocator *)0);
-    return gg(&object, spec);
 }
 
                                 // ----------
@@ -3391,80 +3371,39 @@ template <class VALUE, class CONTAINER>
 void TestDriver<VALUE, CONTAINER>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // TESTING GENERATOR FUNCTION, g:
+    // TESTING TYPE TRAITS
     //
     // Concern:
-    //: 1 Since 'g' is implemented almost entirely using 'gg', we need to
-    //:   verify only that the arguments are properly forwarded.
-    //:
-    //: 2 'g' does not affect the test allocator, and that 'g' returns an
-    //:   object by value.
+    //: 1 The object has the necessary type traits.
     //
     // Plan:
-    //: 1 For each SPEC in a short list of specifications:  (C-1)
-    //:
-    //:   1 Compare the object returned (by value) from the generator function,
-    //:     'g(SPEC)' with the value of a newly constructed OBJECT configured
-    //:     using 'gg(&OBJECT,  SPEC)'.
-    //:
-    //:   2 Compare the results of calling the allocator's 'numBlocksTotal' and
-    //:     'numBytesInUse' methods before and after calling 'g' in order to
-    //:     demonstrate that 'g' has no effect on the test allocator.  (C-1)
-    //:
-    //: 2 Use a specific SPEC, verify that 'g' returns by value by checking the
-    //:   two objects returned by calling 'g' twice are different objects.
-    //:   (C-2)
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exist.  (C-1)
     //
     // Testing:
-    //   queue g(const char *spec);
+    //   CONCERN: The object has the necessary type traits.
     // ------------------------------------------------------------------------
 
-    bslma::TestAllocator oa(veryVeryVerbose);
+    // Verify 'queue' defines the expected traits.
 
-    const int NUM_DATA                     = DEFAULT_NUM_DATA;
-    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+    enum { CONTAINER_USES_ALLOC =
+                                 bslma::UsesBslmaAllocator<CONTAINER>::value };
 
-    if (verbose)
-        printf("\nCompare values produced by 'g' and 'gg' "
-               "for various inputs.\n");
+    BSLMF_ASSERT(
+         ((int)CONTAINER_USES_ALLOC == bslma::UsesBslmaAllocator<Obj>::value));
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const char *SPEC = DATA[ti].d_spec;
-        if (veryVerbose) { P_(ti);  P(SPEC); }
+    // Verify 'queue' does not define other common traits.
 
-        Obj mX(&oa);
-        gg(&mX, SPEC);  const Obj& X = mX;
+    BSLMF_ASSERT((0 == bslalg::HasStlIterators<Obj>::value));
 
-        if (veryVerbose) {
-            printf("\t g = "); dbg_print(g(SPEC)); printf("\n");
-            printf("\tgg = "); dbg_print(X); printf("\n");
-        }
-        const bsls::Types::Int64 TOTAL_BLOCKS_BEFORE = oa.numBlocksTotal();
-        const bsls::Types::Int64 IN_USE_BYTES_BEFORE = oa.numBytesInUse();
-        ASSERTV(ti, X == g(SPEC));
-        const bsls::Types::Int64 TOTAL_BLOCKS_AFTER = oa.numBlocksTotal();
-        const bsls::Types::Int64 IN_USE_BYTES_AFTER = oa.numBytesInUse();
-        ASSERTV(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
-        ASSERTV(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
-    }
+    BSLMF_ASSERT((0 == bsl::is_trivially_copyable<Obj>::value));
 
-    if (verbose) printf("\nConfirm return-by-value.\n");
-    {
-        const char *SPEC = "ABCDE";
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseEqualityComparable<Obj>::value));
 
-        // compile-time fact
-        ASSERT(sizeof(Obj) == sizeof g(SPEC));
+    BSLMF_ASSERT((0 == bslmf::IsBitwiseMoveable<Obj>::value));
 
-        Obj x(&oa);                      // runtime tests
-        Obj& r1 = gg(&x, SPEC);
-        Obj& r2 = gg(&x, SPEC);
-        const Obj& r3 = g(SPEC);
-        const Obj& r4 = g(SPEC);
-        ASSERT(&r2 == &r1);
-        ASSERT(&x  == &r1);
-        ASSERT(&r4 != &r3);
-        ASSERT(&x  != &r3);
-    }
+    BSLMF_ASSERT((0 == bslmf::HasPointerSemantics<Obj>::value));
+
+    BSLMF_ASSERT((0 == bsl::is_trivially_default_constructible<Obj>::value));
 }
 
 template <class VALUE, class CONTAINER>
@@ -5531,7 +5470,7 @@ int main(int argc, char *argv[])
         // TESTING NON ALLOCATOR SUPPORTING TYPE
         // --------------------------------------------------------------------
 
-        typedef queue<int, NonAllocCont<int> > NonAllocQueue;
+        typedef queue<int, NonAllocContainer<int> > NonAllocQueue;
 
         NonAllocQueue mX;    const NonAllocQueue& X = mX;
 
@@ -5601,13 +5540,45 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'g'
+        // TESTING TYPE TRAITS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'g'"
-                            "\n===========\n");
+        if (verbose) printf("\nTesting Type Traits\n"
+                            "\n===================\n");
 
+        // Verify the 'UsesBslmaAllocator' trait is not defined for non-'bslma'
+        // allocators.
+
+        typedef bsltf::StdTestAllocator<bsltf::AllocTestType> StlAlloc;
+
+        typedef bsltf::AllocTestType ATT;
+
+        typedef deque< ATT, StlAlloc> WeirdAllocDeque;
+        typedef vector<ATT, StlAlloc> WeirdAllocVector;
+
+        typedef bsl::queue<ATT, WeirdAllocDeque >        WeirdAllocDequeQueue;
+        typedef bsl::queue<ATT, WeirdAllocVector>        WeirdAllocVectorQueue;
+        typedef bsl::queue<int, NonAllocContainer<int> > NonAllocQueue;
+
+        if (verbose) printf("NonAllocContainer ---------------------------\n");
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                             NonAllocContainer<int> >::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                             NonAllocQueue>::value));
+        TestDriver<NonAllocContainer<int> >::testCase11();
+
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                                WeirdAllocDeque>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                                WeirdAllocDequeQueue>::value));
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR);
+
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                               WeirdAllocVector>::value));
+        BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<
+                                               WeirdAllocVectorQueue>::value));
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -5713,12 +5684,12 @@ int main(int argc, char *argv[])
         TestDriver<int, deque<int> >::testCase1(SPECIAL_INT_VALUES,
                                                 NUM_SPECIAL_INT_VALUES);
 
-        //TBD: uncomment when 'bsl::list' is available in bslstl
-        //if (verbose) printf("list:\n");
-        //TestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
+        if (verbose) printf("list:\n");
+        TestDriver<int, list<int> >::testCase1(SPECIAL_INT_VALUES,
+                                               NUM_SPECIAL_INT_VALUES);
 
-        if (verbose) printf("NonAllocCont<int>:\n");
-        TestDriver<int, NonAllocCont<int> >::testCase1_NoAlloc(
+        if (verbose) printf("NonAllocContainer<int>:\n");
+        TestDriver<int, NonAllocContainer<int> >::testCase1_NoAlloc(
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);
       } break;
