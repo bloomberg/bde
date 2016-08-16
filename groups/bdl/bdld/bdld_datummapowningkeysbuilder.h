@@ -247,6 +247,9 @@ class DatumMapOwningKeysBuilder {
         // invocation.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator associated with this object.
+
     SizeType capacity() const;
         // Return the capacity of the held 'Datum' map (owning keys).  The
         // behavior is undefined if 'commit' or 'sortAndCommit' has already
@@ -269,9 +272,6 @@ class DatumMapOwningKeysBuilder {
         // Return the size of the held 'Datum' map (owning keys).  The behavior
         // is undefined if 'commit' or 'sortAndCommit' has already been called
         // on this object.
-
-    bslma::Allocator *allocator() const;
-        // Return the allocator associated with this object.
 };
 
 // ============================================================================
@@ -283,6 +283,12 @@ class DatumMapOwningKeysBuilder {
                       // -------------------------------
 
 // ACCESSORS
+inline
+bslma::Allocator *DatumMapOwningKeysBuilder::allocator() const
+{
+    return d_allocator_p;
+}
+
 inline
 DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::capacity() const
 {
@@ -303,12 +309,6 @@ DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::size() const
         return *d_mapping.size();                                     // RETURN
     }
     return 0;
-}
-
-inline
-bslma::Allocator *DatumMapOwningKeysBuilder::allocator() const
-{
-    return d_allocator_p;
 }
 
 }  // close package namespace
