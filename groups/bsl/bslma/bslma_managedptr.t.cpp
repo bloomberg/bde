@@ -431,17 +431,15 @@ namespace USAGE_EXAMPLES {
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-          case Shapes::SHAPE_CIRCLE : {
+          case Shapes::SHAPE_CIRCLE: {
             Circle *circ = new(*alloc)Circle(dimension);
             result.load(circ);
-            break;
-          }
-          case Shapes::SHAPE_SQUARE : {
+          } break;
+          case Shapes::SHAPE_SQUARE: {
             Square *sqr = new(*alloc)Square(dimension);
             result.load(sqr);
-            break;
-          }
-        };
+          } break;
+        }
         return result;
     }
 //..
@@ -477,17 +475,15 @@ namespace USAGE_EXAMPLES {
         bslma::Allocator *alloc = bslma::Default::allocator(allocator);
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-          case Shapes::SHAPE_CIRCLE : {
+          case Shapes::SHAPE_CIRCLE: {
             Circle *circ = new(*alloc)Circle(dimension);
             result.load(circ, alloc);
-            break;
-          }
-          case Shapes::SHAPE_SQUARE : {
+          } break;
+          case Shapes::SHAPE_SQUARE: {
             Square *sqr = new(*alloc)Square(dimension);
             result.load(sqr, alloc);
-            break;
-          }
-        };
+          } break;
+        }
         return result;
     }
 //..
@@ -820,31 +816,31 @@ typedef MyDerivedObject B;
             bslma::ManagedPtr<B> b_mp2(b_p2);    // default allocator
             ASSERT(!a_mp1 && b_mp2);
 
-            a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+            a_mp1 = b_mp2;      // conversion assignment of non-nil ptr to nil
             ASSERT(a_mp1 && !b_mp2);
 
             B *b_p3 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp3(b_p3, &localTa);
             ASSERT(a_mp1 && b_mp3);
 
-            a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+            a_mp1 = b_mp3;      // conversion assignment of non-nil to non-nil
             ASSERT(a_mp1 && !b_mp3);
 
-            a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
+            a_mp1 = b_mp3;      // conversion assignment of nil to non-nil
             ASSERT(!a_mp1 && !b_mp3);
 
             // constructor conversion init with nil
             bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.get());
             ASSERT(!a_mp4 && !b_mp3);
 
-            // constructor conversion init with nonnil
+            // constructor conversion init with non-nil
             B *p_b5 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp5(p_b5, &localTa);
             bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.get());
             ASSERT(a_mp5 && !b_mp5);
             ASSERT(a_mp5.get() == p_b5);
 
-            // constructor conversion init with nonnil
+            // constructor conversion init with non-nil
             B *p_b6 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp6(p_b6, &localTa);
             bslma::ManagedPtr<A> a_mp6(b_mp6);
@@ -7179,6 +7175,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr& operator=(ManagedPtr& rhs);
+        //   ManagedPtr& operator=(ManagedPtr&& rhs);
+        //   ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
         //   ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
         // --------------------------------------------------------------------
 
@@ -7306,7 +7304,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            TObj *p  = new MyTestObject(&numDeletes);
             TObj *p2 = new MyTestObject(&numDeletes);
 
             Obj o(p);
@@ -7323,7 +7321,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            TObj *p  = new MyTestObject(&numDeletes);
             TObj *p2 = new MyTestObject(&numDeletes);
 
             Obj o(p);
@@ -7340,7 +7338,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            TObj *p =   new MyTestObject(&numDeletes);
+            TObj  *p  = new MyTestObject(&numDeletes);
             TDObj *p2 = new MyDerivedObject(&numDeletes);
 
             Obj o(p);
@@ -7358,7 +7356,7 @@ int main(int argc, char *argv[])
 // #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         numDeletes = 0;
         {
-            TObj *p =   new MyTestObject(&numDeletes);
+            TObj  *p  = new MyTestObject(&numDeletes);
             TDObj *p2 = new MyDerivedObject(&numDeletes);
 
             Obj o(p);
@@ -7376,8 +7374,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            // this test tests explicit move assignment from the same
-            // 'ManagedPtr'.
+            // Explicitly test move assignment from the same 'ManagedPtr'.
 
             {
                 TObj *p = new MyTestObject(&numDeletes);
@@ -7392,8 +7389,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            // this test tests creation of a ref from the same type of
-            // 'ManagedPtr', then assignment to a 'ManagedPtr'.
+            // Test creation of a ref from the same type of 'ManagedPtr', then
+            // assignment to another 'ManagedPtr'.
 
             Obj o2;
             {
@@ -7519,7 +7516,7 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            TObj *p  = new MyTestObject(&numDeletes);
             TObj *p2 = new MyTestObject(&numDeletes);
 
             Obj o(p);
@@ -7561,7 +7558,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta1("object1", veryVeryVeryVerbose);
             bslma::TestAllocator ta2("object2", veryVeryVeryVerbose);
 
-            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            TObj *p  = new (ta1) MyTestObject(&numDeletes);
             TObj *p2 = new (ta2) MyTestObject(&numDeletes);
 
             Obj o(p, &ta1);
@@ -7690,6 +7687,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr(ManagedPtr& original);
+        //   ManagedPtr(ManagedPtr&& original);
+        //   ManagedPtr(MovableRef<ManagedPtr<OTHER>> original);
         //   ManagedPtr(ManagedPtr_Ref<TYPE> ref);
         //   operator ManagedPtr_Ref<OTHER_TYPE>();
         // --------------------------------------------------------------------
@@ -7843,7 +7842,7 @@ int main(int argc, char *argv[])
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
 
-// #define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
+//#define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST)
             {
                 TObj x(&numDeletes);

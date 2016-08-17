@@ -11,7 +11,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@CLASSES:
 //     bslma::ManagedPtr: proctor for automatic memory management
-// bslma::ManagedPtrUtil: Namespace for deleter for stack-allocated objects
+// bslma::ManagedPtrUtil: namespace for deleter for stack-allocated objects
 //
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
@@ -215,17 +215,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //      bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 //      bslma::ManagedPtr<Shape> result;
 //      switch (kind) {
-//          case Shapes::SHAPE_CIRCLE : {
-//              Circle *circ = new(*alloc)Circle(dimension);
-//              result.load(circ);
-//              break;
-//          }
-//          case Shapes::SHAPE_SQUARE : {
-//              Square *sqr = new(*alloc)Square(dimension);
-//              result.load(sqr);
-//              break;
-//          }
-//      };
+//        case Shapes::SHAPE_CIRCLE: {
+//          Circle *circ = new(*alloc)Circle(dimension);
+//          result.load(circ);
+//        } break;
+//        case Shapes::SHAPE_SQUARE: {
+//          Square *sqr = new(*alloc)Square(dimension);
+//          result.load(sqr);
+//        } break;
+//      }
 //      return result;
 //  }
 //..
@@ -255,23 +253,21 @@ BSLS_IDENT("$Id$ $CSID$")
 // allocator to the 'ManagedPtr' object as the "factory".
 //..
 //  bslma::ManagedPtr<Shape> makeShape(Shapes::VALUES    kind,
-//                                    double            dimension,
-//                                    bslma::Allocator *allocator)
+//                                     double            dimension,
+//                                     bslma::Allocator *allocator)
 //  {
 //      bslma::Allocator *alloc = bslma::Default::allocator(allocator);
 //      bslma::ManagedPtr<Shape> result;
 //      switch (kind) {
-//      case Shapes::SHAPE_CIRCLE : {
-//              Circle *circ = new(*alloc)Circle(dimension);
-//              result.load(circ, alloc);
-//              break;
-//          }
-//      case Shapes::SHAPE_SQUARE : {
-//              Square *sqr = new(*alloc)Square(dimension);
-//              result.load(sqr, alloc);
-//              break;
-//          }
-//      };
+//        case Shapes::SHAPE_CIRCLE: {
+//          Circle *circ = new(*alloc)Circle(dimension);
+//          result.load(circ, alloc);
+//        } break;
+//        case Shapes::SHAPE_SQUARE: {
+//          Square *sqr = new(*alloc)Square(dimension);
+//          result.load(sqr, alloc);
+//        } break;
+//      }
 //      return result;
 //  }
 //..
@@ -592,31 +588,31 @@ BSLS_IDENT("$Id$ $CSID$")
 //          bslma::ManagedPtr<B> b_mp2(b_p2);    // default allocator
 //          assert(!a_mp1 && b_mp2);
 //
-//          a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+//          a_mp1 = b_mp2;      // conversion assignment of non-nil ptr to nil
 //          assert(a_mp1 && !b_mp2);
 //
 //          B *b_p3 = new (localTa) B(&numdels);
 //          bslma::ManagedPtr<B> b_mp3(b_p3, &localTa);
 //          assert(a_mp1 && b_mp3);
 //
-//          a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+//          a_mp1 = b_mp3;      // conversion assignment of non-nil to non-nil
 //          assert(a_mp1 && !b_mp3);
 //
-//          a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
+//          a_mp1 = b_mp3;      // conversion assignment of nil to non-nil
 //          assert(!a_mp1 && !b_mp3);
 //
 //          // constructor conversion init with nil
 //          bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.get());
 //          assert(!a_mp4 && !b_mp3);
 //
-//          // constructor conversion init with nonnil
+//          // constructor conversion init with non-nil
 //          B *p_b5 = new (localTa) B(&numdels);
 //          bslma::ManagedPtr<B> b_mp5(p_b5, &localTa);
 //          bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.get());
 //          assert(a_mp5 && !b_mp5);
 //          assert(a_mp5.get() == p_b5);
 //
-//          // constructor conversion init with nonnil
+//          // constructor conversion init with non-nil
 //          B *p_b6 = new (localTa) B(&numdels);
 //          bslma::ManagedPtr<B> b_mp6(p_b6, &localTa);
 //          bslma::ManagedPtr<A> a_mp6(b_mp6);
@@ -672,7 +668,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 // If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
-// transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
+// transferred to 'bPtr'; otherwise, 'aPtr' is to be modified.  As previously
 // stated, the managed object will be destroyed correctly regardless of how it
 // is cast.
 
@@ -712,6 +708,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
 #endif
@@ -744,8 +744,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
@@ -825,7 +833,7 @@ class ManagedPtr {
     // re-assigned), using the "deleter" supplied along with the managed
     // object.  The target object referenced by a managed pointer may be
     // accessed using either the '->' operator, or the dereference operator
-    // (operator '*').  The specified 'TARGET_TYPE' may be 'const'-qualified,
+    // ('operator *').  The specified 'TARGET_TYPE' may be 'const'-qualified,
     // but may not be 'volatile'-qualified, nor may it be a reference type.
     //
     // A managed pointer may be *empty*, in which case it neither refers to a
@@ -863,9 +871,9 @@ class ManagedPtr {
         // comparisons of managed pointers to 'int' and less-than comparisons).
 
     typedef bslmf::MovableRefUtil                                MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
+        // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
- 
+
     // DATA
     ManagedPtr_Members d_members;  // state managed by this object
 
@@ -969,9 +977,9 @@ class ManagedPtr {
     ManagedPtr(ManagedPtr& original);
     ManagedPtr(bslmf::MovableRef<ManagedPtr> original);
         // Create a managed pointer having the same target object as the
-        // specified 'original', and transfer the ownership of the object
-        // managed by the 'original' (if any) to this managed pointer, then
-        // reset 'original' as empty.
+        // specified 'original', transfer ownership of the object managed by
+        // 'original' (if any) to this managed pointer, and reset 'original' to
+        // empty.
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class OTHER_TYPE>
@@ -982,11 +990,11 @@ class ManagedPtr {
                typename bsl::enable_if<
                    bsl::is_convertible<OTHER_TYPE, TARGET_TYPE>::value,
                    void>::type * = 0);
-#endif 
+#endif
         // Create a managed pointer having the same target object as the
-        // specified 'original', transfer the ownership of the object managed
-        // by 'original' (if any) to this managed pointer, and reset 'original'
-        // to empty.  Note that this constructor is provided only on C++03
+        // specified 'original', transfer ownership of the object managed by
+        // 'original' (if any) to this managed pointer, and reset 'original' to
+        // empty.  Note that this constructor is provided only on C++03
         // platforms because 'bslmf::MovableRef' is implemented as a class
         // storing a pointer to the referenced object (as opposed to an rvalue
         // reference to the object in C++11) and requires a user-defined
@@ -1135,11 +1143,11 @@ class ManagedPtr {
     ManagedPtr& operator=(ManagedPtr& rhs);
     ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs);
         // If this object and the specified 'rhs' manage the same object,
-        // return a reference to this managed pointer; otherwise destroy the
-        // manged object owned by this managed pointer, then transfer ownership
-        // of the managed object owned by 'rhs', and set this managed pointer
-        // to point to the target object currently referenced by 'rhs', then
-        // reset 'rhs' as empty, and return a reference to this managed
+        // return a reference to this managed pointer; otherwise, destroy the
+        // managed object owned by this managed pointer, transfer ownership of
+        // the managed object owned by 'rhs' to this managed pointer, set this
+        // managed pointer to point to the target object referenced by 'rhs',
+        // reset 'rhs' to empty, and return a reference to this managed
         // pointer.
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -1153,12 +1161,12 @@ class ManagedPtr {
 #endif
     operator=(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > rhs);
         // If this object and the specified 'rhs' manage the same object,
-        // return a reference to this managed pointer; otherwise destroy the
-        // manged object owned by this managed pointer, then transfer ownership
-        // of the managed object owned by 'rhs', and set this managed pointer
-        // to point to the target object currently referenced by 'rhs', then
-        // reset 'rhs' as empty, and return a reference to this managed
-        // pointer.  Note that this constructor is provided only on C++03
+        // return a reference to this managed pointer; otherwise, destroy the
+        // managed object owned by this managed pointer, transfer ownership of
+        // the managed object owned by 'rhs' to this managed pointer, set this
+        // managed pointer to point to the target object referenced by 'rhs',
+        // reset 'rhs' to empty, and return a reference to this managed
+        // pointer.  Note that this operator is provided only on C++03
         // platforms because 'bslmf::MovableRef' is implemented as a class
         // storing a pointer to the referenced object (as opposed to an rvalue
         // reference to the object in C++11) and requires a user-defined
@@ -1168,7 +1176,7 @@ class ManagedPtr {
     ManagedPtr& operator=(ManagedPtr_Ref<TARGET_TYPE> ref);
         // If this object and the managed pointer reference by the specified
         // 'ref' manage the same object, return a reference to this managed
-        // pointer; otherwise destroy the manged object owned by this managed
+        // pointer; otherwise, destroy the managed object owned by this managed
         // pointer, then transfer ownership of the managed object owned by the
         // managed pointer referenced by 'ref', and set this managed pointer to
         // point to the target object currently referenced the managed pointer
@@ -1298,7 +1306,7 @@ class ManagedPtr {
         // pointer, set the target object of this managed pointer to be that
         // referenced by the specified 'ptr'; otherwise, destroy the currently
         // managed object (if any), and if 'alias' is empty, reset this managed
-        // pointer as empty, otherwise transfer ownership (and the deleter) of
+        // pointer as empty; otherwise, transfer ownership (and the deleter) of
         // the object managed by 'alias', and set the target object of this
         // managed pointer to be that referenced by 'ptr'.  The behavior is
         // undefined if '0 == ptr' and 'alias' is not empty, or if '0 != ptr'
@@ -1363,7 +1371,6 @@ class ManagedPtr {
         //
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
-
 };
 
 template <class TARGET_TYPE>
@@ -1492,6 +1499,7 @@ TARGET_TYPE *ManagedPtr_Ref<TARGET_TYPE>::target() const
 {
     return d_cast_p;
 }
+
                            // ----------------
                            // class ManagedPtr
                            // ----------------
@@ -1510,6 +1518,7 @@ class ManagedPtr<TARGET_TYPE &>;
     // types, which is explicitly called out as not supported in the primary
     // class template contract.
 
+// PRIVATE CLASS METHODS
 template <class TARGET_TYPE>
 inline
 void *ManagedPtr<TARGET_TYPE>::stripBasePointerType(TARGET_TYPE *ptr)
@@ -2022,7 +2031,6 @@ TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
     return get();
 }
 
-
 template <class TARGET_TYPE>
 inline
 void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
@@ -2061,22 +2069,27 @@ void ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter(void *ptr, void *)
 namespace bslmf {
 
 template <class TARGET_TYPE>
-struct HasPointerSemantics<bslma::ManagedPtr<TARGET_TYPE> >
-    : bsl::true_type {};
+struct HasPointerSemantics<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type
+{
+};
 
 template <class TARGET_TYPE>
-struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type {};
+struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type
+{
+};
 
 }  // close namespace bslmf
 }  // close enterprise namespace
 
 namespace bsl {
+
 template <class TARGET_TYPE>
 struct is_nothrow_move_constructible<
     BloombergLP::bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type
 {
 };
-}
+
+}  // close namespace bsl
 
 #endif
 
