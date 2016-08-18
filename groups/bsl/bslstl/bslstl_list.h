@@ -699,10 +699,10 @@ namespace bsl {
 
 template <class VALUE>
 class List_Node {
-    // PRIVATE STRUCT TEMPLATE.  For use only by 'bsl::list' implementation.
+    // PRIVATE CLASS TEMPLATE.  For use only by 'bsl::list' implementation.
     // An instance of 'List_Node<T>' is a single node in a doubly-linked list
     // used to implement 'bsl::list<T,A>', for a given element type 'T' and
-    // allocator type 'A'.  Note that an instantiation of this 'struct' for a
+    // allocator type 'A'.  Note that an instantiation of this 'class' for a
     // given 'bsl::list' is independent of the allocator type.
 
     // DATA
@@ -800,7 +800,7 @@ class List_Iterator {
         // constructed or assigned to from a 'List_Iterator<VALUE>', but not
         // vice-versa.
 
-    // Compiler-generated copy constructor, destructor, and assignment
+    // Compiler-generated copy constructor, destructor, and copy-assignment
     // operator:
     //: o List_Iterator(const List_Iterator&); // Maybe defaulted (see above).
     //: o ~List_Iterator() = default;
@@ -1014,7 +1014,6 @@ class list {
     // sequence of elements of the (template parameter) 'VALUE' type.
 
     // PRIVATE TYPES
-
     typedef List_DefaultLessThan<VALUE>           DefaultLessThan;
         // Default comparator.
 
@@ -1127,7 +1126,7 @@ class list {
         // 'comparator' to determine order.  If an exception is thrown, all
         // nodes remain in this list, but their order is unspecified.  If any
         // nodes in the range '[node1 .. node2)' compare equivalent to any
-        // nodes in the range '[node2 .. finish)' the nodes from
+        // nodes in the range '[node2 .. finish)', the nodes from
         // '[node1 .. node2)' will be merged first.  The behavior is undefined
         // unless '[node1 .. node2)' and '[node2 .. finish)' each describe a
         // contiguous sequence of nodes.
@@ -2051,7 +2050,7 @@ class list {
             return dstPosition.unconst();                             // RETURN
         }
 
-        // The return value should indicte the first node inserted.  We can't
+        // The return value should indicate the first node inserted.  We can't
         // assume 'INPUT_ITERATOR' has a post-increment available.
 
         iterator ret = insert(dstPosition, *first);
@@ -4500,9 +4499,9 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
         // with them.  Note that if no move constructor exists, but a copy
         // constructor does, the copy constructor will be used.
 
-        // Note that if either of these copies throws, it could leave the two
-        // containers in a changed state.  They are, however, guaranteed to be
-        // left in valid state.
+        // Also note that if either of these copies throws, it could leave the
+        // two containers in a changed state.  They are, however, guaranteed to
+        // be left in valid state.
 
         list toOtherCopy(MoveUtil::move(*this), other.allocatorImp());
         list toThisCopy( MoveUtil::move(other), this->allocatorImp());
