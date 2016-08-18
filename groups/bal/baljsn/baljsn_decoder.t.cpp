@@ -66,6 +66,8 @@ using bsl::endl;
 // MANIPULATORS
 // [ 4] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
 // [ 4] int decode(bsl::istream& stream, TYPE *v, options);
+// [ 4] int decode(bsl::streambuf *streamBuf, TYPE *v, &options);
+// [ 4] int decode(bsl::istream& stream, TYPE *v, &options);
 //
 // ACCESSORS
 // [ 4] bsl::string loggedMessages() const;
@@ -37237,12 +37239,13 @@ int main(int argc, char *argv[])
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
         //   int decode(bsl::istream& stream, TYPE *v, options);
+        //   int decode(bsl::streambuf *streamBuf, TYPE *v, &options);
+        //   int decode(bsl::istream& stream, TYPE *v, &options);
         //   bsl::string loggedMessages() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING INVALID JSON RETURNS AN ERROR" << endl
-                          << "=====================================" << endl;
+        if (verbose) cout << "\n" "TESTING INVALID JSON RETURNS AN ERROR"
+                             "\n" "=====================================" "\n";
 
         // Testing first character
         {
@@ -37272,7 +37275,9 @@ int main(int argc, char *argv[])
 
                 baljsn::DecoderOptions options;
                 baljsn::Decoder        decoder;
-                const int RC = decoder.decode(iss, &value, options);
+
+                const baljsn::DecoderOptions& mO = options;
+                const int RC = decoder.decode(iss, &value, mO);
                 ASSERTV(LINE, RC, 0 != RC);
                 if (veryVerbose) {
                     P(decoder.loggedMessages())
@@ -38919,33 +38924,43 @@ int main(int argc, char *argv[])
             const bsl::string& jsonText = DATA[ti].d_text_p;
 
             // Without skipping option
+            baljsn::Decoder        decoder;
+            baljsn::DecoderOptions options;
+            const baljsn::DecoderOptions& mO = options;
+
+            options.setSkipUnknownElements(false);
             {
-                test::Employee bob;
-
+                test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-
-                baljsn::DecoderOptions options;
-                options.setSkipUnknownElements(false);
-                baljsn::Decoder        decoder;
-                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, options));
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
+            }
+            {
+                test::Employee     bob;
+                bsl::istringstream iss(jsonText);
+                ASSERTV(LINE, 0 != decoder.decode(iss, &bob, &mO));
             }
 
             // With skipping option
+            options.setSkipUnknownElements(true);
             {
-                test::Employee bob;
-
+                test::Employee     bob;
                 bsl::istringstream iss(jsonText);
-
-                baljsn::DecoderOptions options;
-                options.setSkipUnknownElements(true);
-                baljsn::Decoder decoder;
-                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, options));
-
-                ASSERTV(bob.name(), "Bob"         == bob.name());
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, mO));
+                ASSERTV(bob.name(), "Bob" == bob.name());
                 ASSERT("Some Street" == bob.homeAddress().street());
                 ASSERT("Some City"   == bob.homeAddress().city());
                 ASSERT("Some State"  == bob.homeAddress().state());
-                ASSERTV(LINE, 21            == bob.age());
+                ASSERTV(LINE, 21     == bob.age());
+            }
+            {
+                test::Employee     bob;
+                bsl::istringstream iss(jsonText);
+                ASSERTV(LINE, 0 == decoder.decode(iss, &bob, &mO));
+                ASSERTV(bob.name(), "Bob" == bob.name());
+                ASSERT("Some Street" == bob.homeAddress().street());
+                ASSERT("Some City"   == bob.homeAddress().city());
+                ASSERT("Some State"  == bob.homeAddress().state());
+                ASSERTV(LINE, 21     == bob.age());
             }
         }
       } break;

@@ -281,23 +281,34 @@ class Encoder {
     int encode(bsl::streambuf        *streamBuf,
                const TYPE&            value,
                const EncoderOptions&  options);
+    template <class TYPE>
+    int encode(bsl::streambuf        *streamBuf,
+               const TYPE&            value,
+               const EncoderOptions  *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' and output it onto the
-        // specified 'streamBuf'.  'TYPE' shall be a 'bdeat'-compatible
-        // sequence, choice, or array type, or a 'bdeat'-compatible dynamic
-        // type referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'streamBuf'.  Specifying a nullptr 'options'
+        // is equivalent to passing a default-constructed DecoderOptions in
+        // 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence, choice,
+        // or array type, or a 'bdeat'-compatible dynamic type referring to one
+        // of those types.  Return 0 on success, and a non-zero value
+        // otherwise.
 
     template <class TYPE>
     int encode(bsl::ostream&         stream,
                const TYPE&           value,
                const EncoderOptions& options);
+    template <class TYPE>
+    int encode(bsl::ostream&         stream,
+               const TYPE&           value,
+               const EncoderOptions *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' and output it onto the
-        // specified 'stream'.  'TYPE' shall be a 'bdeat'-compatible sequence,
-        // choice, or array type, or a 'bdeat'-compatible dynamic type
-        // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'stream'.  Specifying a nullptr 'options' is
+        // equivalent to passing a default-constructed DecoderOptions in
+        // 'options'.  'TYPE' shall be a 'bdeat'-compatible choice, or array
+        // type, or a 'bdeat'-compatible dynamic type referring to one of those
+        // types.  Return 0 on success, and a non-zero value otherwise.
 
     template <class TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
@@ -701,6 +712,15 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
 }
 
 template <class TYPE>
+int Encoder::encode(bsl::streambuf        *streamBuf,
+                    const TYPE&            value,
+                    const EncoderOptions  *options)
+{
+    EncoderOptions localOpts;
+    return encode(streamBuf, value, options ? *options : localOpts);
+}
+
+template <class TYPE>
 int Encoder::encode(bsl::ostream&         stream,
                     const TYPE&           value,
                     const EncoderOptions& options)
@@ -717,6 +737,15 @@ int Encoder::encode(bsl::ostream&         stream,
     }
 
     return 0;
+}
+
+template <class TYPE>
+int Encoder::encode(bsl::ostream&         stream,
+                    const TYPE&           value,
+                    const EncoderOptions *options)
+{
+    EncoderOptions localOpts;
+    return encode(stream, value, options ? *options : localOpts);
 }
 
 // ACCESSORS
