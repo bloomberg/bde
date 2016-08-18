@@ -855,10 +855,10 @@ bool operator==(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
     // value, and 'false' otherwise.  Two iterators have the same value if both
     // refer to the same element of the same list or both are the 'end()'
     // iterator of the same list.  The behavior is undefined unless both 'lhs'
-    // and 'rhs' are non-singular.  Note that the different types 'T1' and 'T2'
-    // are to facilitate comparisons between 'const' and non-'const' iterators
-    // and there will be a compilation error if 'T1' and 'T2' differ in any way
-    // other than 'const'-ness.
+    // and 'rhs' refer to the same list.  Note that the different types 'T1'
+    // and 'T2' are to facilitate comparisons between 'const' and non-'const'
+    // iterators and there will be a compilation error if 'T1' and 'T2' differ
+    // in any way other than 'const'-ness.
 
 template <class T1, class T2>
 bool operator!=(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
@@ -866,8 +866,8 @@ bool operator!=(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
     // same value, and 'false' otherwise.  Two iterators do not have the same
     // value unless both refer to the same element of the same list or unless
     // both are the 'end()' iterator of the same list.  The behavior is
-    // undefined unless both 'lhs' and 'rhs' are non-singular.  Note that the
-    // different types 'T1' and 'T2' are to facilitate comparisons between
+    // undefined unless both 'lhs' and 'rhs' refer to the same list.  Note that
+    // the different types 'T1' and 'T2' are to facilitate comparisons between
     // 'const' and non-'const' iterators and there will be a compilation error
     // if 'T1' and 'T2' differ in any way other than 'const'-ness.
 

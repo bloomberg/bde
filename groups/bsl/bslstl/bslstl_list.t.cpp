@@ -6779,8 +6779,8 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
                              : X != Y && XX != YY && *pExpX != *pExpY);
 
             if (ti & 1) {
-                // To avoid taking too much CPU time, skip odd-numbered
-                // specs for 'mA'.
+                // To avoid taking too much CPU time, skip odd-numbered specs
+                // for 'mA'.
 
                 continue;
             }
@@ -12984,11 +12984,9 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   iterator insert(const_iterator pos, T&& value);
-        //   iterator emplace(const_iterator pos, T&& value);
         //   void push_back(T&& value);
-        //   void emplace_back(T&& value);
         //   void push_front(T&& value);
-        //   void emplace_front(T&& value);
+        //   All emplace methods handle rvalues.
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING MOVE INSERTION:\n"
