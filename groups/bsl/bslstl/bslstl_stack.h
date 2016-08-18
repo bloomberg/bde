@@ -11,12 +11,12 @@ BSLS_IDENT("$Id: $")
 //@REVIEW_FOR_MASTER:
 //
 //@CLASSES:
-//   bslstl::stack: STL-compliant stack template
+//   bsl::stack: STL-compliant stack template
 //
 //@SEE_ALSO: bslstl_deque, bslstl_vector, bslstl_list, bslstl_queue,
 //           bslstl_priorityqueue
 //
-//@DESCRIPTION: This component defines a single class template 'bslstl::stack',
+//@DESCRIPTION: This component defines a single class template, 'bsl::stack',
 // a container adapter that takes an underlying container and provides a stack
 // interface which the user accesses primarily through 'push', 'pop', and 'top'
 // operations.  A 'deque' (the default), 'vector', or 'list' may be used, but
@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // we emulate move semantics, but limit forwarding (in 'emplace') to 'const'
 // lvalues, and make no effort to emulate 'noexcept' or initializer-lists.
 //
-///Requirements of Parametrized 'CONTAINER' Type
-///---------------------------------------------
+///Requirements of Parameterized 'CONTAINER' Type
+///----------------------------------------------
 // This class can accept 'bsl::deque', 'bsl::vector', or 'bsl::list' as the
 // template parameter 'CONTAINER'.  In addition, other container classes could
 // be supplied for the 'CONTAINER' argument, but the supplied 'CONTAINER'
@@ -291,6 +291,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_movableref.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_USESALLOCATOR
 #include <bslmf_usesallocator.h>
 #endif
@@ -305,6 +309,10 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
+                             // ===========
+                             // class stack
+                             // ===========
+
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class stack {
     // This 'class' defines a container adapter which supports access primarily
@@ -318,14 +326,14 @@ class stack {
     // everything, which means that if 'CONTAINER' is specified, then 'VALUE'
     // is ignored.
 
+  private:
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
+        // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
 
   public:
     // PUBLIC TYPES
-
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;
@@ -336,13 +344,6 @@ class stack {
     // PROTECTED DATA
     container_type  c;    // We are required by the standard to have the
                           // container be a protected variable named 'c'.
-
-  public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-        stack,
-        BloombergLP::bslma::UsesBslmaAllocator,
-        BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
   private:
     // FRIENDS
@@ -360,8 +361,14 @@ class stack {
     friend bool operator>=(const stack<VAL, CONT>&, const stack<VAL, CONT>&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        stack,
+        BloombergLP::bslma::UsesBslmaAllocator,
+        BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
+
     // CREATORS
-    explicit stack();
+    stack();
         // Create an empty stack.  No allocator will be provided to the
         // underlying container.  That container's memory allocation will be
         // provided by the default allocator of its type.
@@ -415,7 +422,7 @@ class stack {
 
     template <class ALLOCATOR>
     stack(BloombergLP::bslmf::MovableRef<CONTAINER> container,
-          const ALLOCATOR& basicAllocator,
+          const ALLOCATOR&                          basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
         // Create a stack whose underlying container has the value of the
@@ -437,7 +444,7 @@ class stack {
 
     template <class ALLOCATOR>
     stack(BloombergLP::bslmf::MovableRef<stack> original,
-          const ALLOCATOR& basicAllocator,
+          const ALLOCATOR&                      basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
         // Create a stack having the value of the specified 'original' (on
@@ -642,10 +649,7 @@ class stack {
         // empty.
 };
 
-//=============================================================================
-//                              FREE OPERATORS
-//=============================================================================
-
+// FREE OPERATORS
 template <class VALUE, class CONTAINER>
 bool operator==(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
@@ -690,6 +694,7 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
     // if its underlying container is greater than or equal to the other's
     // underlying container.
 
+// FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 void swap(stack<VALUE, CONTAINER>& lhs,
           stack<VALUE, CONTAINER>& rhs)
@@ -698,8 +703,12 @@ void swap(stack<VALUE, CONTAINER>& lhs,
     // specified 'rhs' stack.
 
 //=============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 //=============================================================================
+
+                             // -----------
+                             // class stack
+                             // -----------
 
 // CREATORS
 template <class VALUE, class CONTAINER>
@@ -714,7 +723,7 @@ template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(const ALLOCATOR& basicAllocator,
            typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
-                               ALLOCATOR>::type *)
+                              ALLOCATOR>::type *)
 : c(basicAllocator)
 {
 }
@@ -1187,6 +1196,7 @@ bool operator>=(const stack<VALUE, CONTAINER>& lhs,
     return lhs.c >= rhs.c;
 }
 
+// FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 inline
 void swap(stack<VALUE, CONTAINER>& lhs,
@@ -1201,7 +1211,7 @@ void swap(stack<VALUE, CONTAINER>& lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
