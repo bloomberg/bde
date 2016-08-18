@@ -349,7 +349,9 @@ class bitset :
         k_BITSETSIZE    = N ? (N - 1) / k_BITS_PER_INT + 1 : 1
     };
 
-    typedef Bitset_ImpBase<k_BITSETSIZE> Base;
+    // 'static_cast' is needed here to avoid warning with '-Wextra' and 'gcc'.
+    typedef Bitset_ImpBase<static_cast<std::size_t>(k_BITSETSIZE)> Base;
+
     using Base::d_data;
 
     // FRIENDS
