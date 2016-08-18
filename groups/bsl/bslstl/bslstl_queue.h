@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide container adapter class template 'queue'.
 //
 //@CLASSES:
-//   bslstl::queue: class template of a first-in-first-out data structure
+//   bsl::queue: class template of a first-in-first-out data structure
 //
 //@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
 //
@@ -185,12 +185,20 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_USESALLOCATOR
@@ -245,11 +253,11 @@ class queue {
                            const queue<VALUE2, CONTAINER2>&);
     // PRIVATE TYPES
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
+        // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
 
   public:
-    // TYPES
+    // PUBLIC TYPES
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;
@@ -257,13 +265,19 @@ class queue {
     typedef          CONTAINER                  container_type;
 
   protected:
-    // DATA
+    // PROTECTED DATA
     CONTAINER c;  // Contains the elements of this queue.
                   // 'protected' and named ('c') per the C++11 standard.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        queue,
+        BloombergLP::bslma::UsesBslmaAllocator,
+        BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
+
     // CREATORS
-    explicit queue();
+    queue();
         // Create an empty queue having a container of the parameterized
         // 'CONTAINER' type.
 
@@ -355,7 +369,7 @@ class queue {
 
     // MANIPULATORS
     queue& operator=(const queue& rhs);
-        // Assign to this queue the value of the specified 'rhs' and return a
+        // Assign to this queue the value of the specified 'rhs', and return a
         // reference providing modifiable access to this queue.
 
     queue& operator=(BloombergLP::bslmf::MovableRef<queue> rhs);
@@ -554,7 +568,7 @@ class queue {
         // 'queue' object.  In effect, performs 'c.back()'.
 };
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class VALUE, class CONTAINER>
 bool operator==(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
@@ -601,6 +615,7 @@ bool operator<=(const queue<VALUE, CONTAINER>& lhs,
     // lexicographically less-than or equal-to queue 'rhs' if the container
     // adapted by 'lhs' is less-than or equal-to that adapted by 'rhs'.
 
+// FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 void swap(queue<VALUE, CONTAINER>& lhs,
           queue<VALUE, CONTAINER>& rhs)
@@ -1115,6 +1130,7 @@ bool operator<=(const queue<VALUE, CONTAINER>& lhs,
     return lhs.c <= rhs.c;
 }
 
+// FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
 inline
 void swap(queue<VALUE, CONTAINER>& lhs,
@@ -1129,7 +1145,7 @@ void swap(queue<VALUE, CONTAINER>& lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
