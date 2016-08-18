@@ -8,7 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_vector.h>  // for testing only
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
