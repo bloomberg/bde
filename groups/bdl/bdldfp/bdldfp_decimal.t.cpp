@@ -1316,6 +1316,15 @@ void TestDriver::testCase3()
         in >> d1;
         ASSERT(d1 != d1);
     }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("nan", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
 
     if (veryVerbose) bsl::cout << "Test stream in Inf" << bsl::endl;
     {
@@ -1327,11 +1336,29 @@ void TestDriver::testCase3()
         in >> d1;
         ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
     }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
 
     if (veryVerbose) bsl::cout << "Test stream in -Inf" << bsl::endl;
     {
         bsl::istringstream  in(pa);
         bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-inf", pa);
         in.str(ins);
 
         BDEC::Decimal128 d1;
