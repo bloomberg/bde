@@ -182,8 +182,8 @@ BSLS_IDENT("$Id$")
 //
 //: 1 Express the value as its nearest decimal value.
 //:
-//:   For this conversion, use the conversion constructors:
-//:       Decimal{32,64,128}(value)
+//:   o For this conversion, use the conversion constructors:
+//:   o 'Decimal{32,64,128}(value)'
 //:
 //: 2 Express the value rounded to a given number of significant digits.  (The
 //:   significant digits of a decimal number are the digits with all leading
@@ -194,17 +194,17 @@ BSLS_IDENT("$Id$")
 //:   knows that the binary value was originally converted from a decimal value
 //:   with that many significant digits.
 //:
-//:   For this conversion, use
-//:       Decimal{32,64,128}From{Float,Double}(value, digits)
+//:   o For this conversion, use:
+//:   o 'Decimal{32,64,128}From{Float,Double}(value, digits)'
 //:
 //: 3 Express the value using the minimum number of significant digits for the
 //:   type of the binary such that converting the decimal value back to binary
 //:   will yield the same value.  (Note that 17 digits are needed for 'double'
 //:   and 9 for 'float', so not all decimal types can hold such a result.)
 //:
-//:   For this conversion, use
-//:       Decimal{64,128}FromFloat(value, 9)
-//:       Decimal128FromDouble(value, 17)
+//:   o For this conversion, use:
+//:   o 'Decimal{64,128}FromFloat(value, 9)' or
+//:   o 'Decimal128FromDouble(value, 17)'
 //:
 //: 4 Express the value using a number of decimal places that restores the
 //:   original decimal value from which the binary value was converted,
@@ -213,8 +213,8 @@ BSLS_IDENT("$Id$")
 //:   the same binary value.  (That number is 15 for 'double' and 6 for 'float'
 //:   in general but 7 over a limited range that spans '[1e-3 .. 8.5e9]').
 //:
-//:   For this conversion, use
-//:       Decimal{32,64,128}From{Float,Double}(value)
+//:   o For this conversion, use:
+//:   o 'Decimal{32,64,128}From{Float,Double}(value)'
 //:
 //: 5 Express the value as the shortest decimal number that converts back
 //:   exactly to the binary value.  For example. given the binary value
@@ -224,16 +224,16 @@ BSLS_IDENT("$Id$")
 //:   shortest decimal .010000001.  This is the most visually appealing result,
 //:   but can be expensive and slow to compute.
 //:
-//:   For this conversion, use
-//:       Decimal{32,64,128}From{Float,Double}(value, -1)
+//:   o For this conversion, use:
+//:   o 'Decimal{32,64,128}From{Float,Double}(value, -1)'
 //:
 //: 6 Express the value using a number of decimal places that restores the
 //:   original decimal value assuming that it is a 'float' which originated as
 //:   an IBM/Perkin-Elmer/Interdata 'float' value itself originally converted
 //:   from a decimal value.
 //:
-//:   For this conversion, use
-//:       Decimal{32,64,128}FromFloat(value, 6)
+//:   o For this conversion, use:
+//:   o 'Decimal{32,64,128}FromFloat(value, 6)'
 //:
 //: 7 Express the value exactly as a decimal.  For example, the decimal
 //:   value .1 converts to the 32-bit IEEE float value 0x3DCCCCCD, which has
@@ -242,11 +242,9 @@ BSLS_IDENT("$Id$")
 //:   1000 digits, and as well cannot be represented as a decimal
 //:   floating-point type since those types do not have enough digits.
 //:
-//:   For this conversion, use sprintf into a large-enough buffer:
-//:       char buf[2000];
-//:       double value;
-//:       sprintf(buf, "%.1100f", value);
-//:   The result will have trailing 0s, which may be trimmed.
+//:   o For this conversion, use 'sprintf' into a large-enough buffer:
+//:   o 'char buf[2000]; double value; sprintf(buf, "%.1100f", value);'
+//:   o The result will have trailing 0s, which may be trimmed.
 //:
 //: 8 Express the value rounded to a given number of decimal places.  (The
 //:   decimal places of a decimal number are the number of digits after the
@@ -257,10 +255,8 @@ BSLS_IDENT("$Id$")
 //:   seen above, for example, for numbers near one trillion, there is not
 //:   enough precision in a 'double' for 4 decimal places.
 //:
-//:   For this conversion, use sprintf into a large-enough buffer:
-//:       char buf[2000];
-//:       double value;
-//:       sprintf(buf, "%.*f", places, value);
+//:   o For this conversion, use 'sprintf' into a large-enough buffer:
+//:   o 'char buf[2000]; double value; sprintf(buf, "%.*f", places, value);'
 //
 ///Usage
 ///-----
@@ -292,7 +288,7 @@ BSLS_IDENT("$Id$")
 //  unsigned char  msgbuffer[] ={
 //                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
 //  unsigned char *next = msgbuffer;
-
+//
 //  BDEC::Decimal64 number;
 //  BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 //
