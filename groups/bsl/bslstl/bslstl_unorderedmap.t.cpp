@@ -335,7 +335,6 @@ bool veryVeryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 typedef bslma::ConstructionUtil     ConstrUtil;
-typedef bslmf::MovableRefUtil       MoveUtil;
 typedef bsltf::TemplateTestFacility TTF;
 typedef bsls::Types::IntPtr         IntPtr;
 typedef bsls::Types::Int64          Int64;
@@ -403,6 +402,15 @@ static const size_t DEFAULT_NUM_MAX_LENGTH = 2;     // # of specs that length
 static const char TV_SPEC[] = {
                       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
 
+// Define values used to initialize positional arguments. Note, that you cannot
+// change those values as they are used to map the argument types identifiers.
+static const int K01 = 1;
+static const int K02 = 20;
+static const int K03 = 23;
+static const int V01 = 44;
+static const int V02 = 68;
+static const int V03 = 912;
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -467,16 +475,16 @@ class TestAllocatorUtil {
         // all of the fields of 'value' were created with the specified
         // 'allocator'.
     {
-        ASSERTV(&allocator == value.arg01().getAllocator());
-        ASSERTV(&allocator == value.arg02().getAllocator());
-        ASSERTV(&allocator == value.arg03().getAllocator());
-        ASSERTV(&allocator == value.arg04().getAllocator());
-        ASSERTV(&allocator == value.arg05().getAllocator());
-        ASSERTV(&allocator == value.arg06().getAllocator());
-        ASSERTV(&allocator == value.arg07().getAllocator());
-        ASSERTV(&allocator == value.arg08().getAllocator());
-        ASSERTV(&allocator == value.arg09().getAllocator());
-        ASSERTV(&allocator == value.arg10().getAllocator());
+        ASSERTV(&allocator == value.arg01().allocator());
+        ASSERTV(&allocator == value.arg02().allocator());
+        ASSERTV(&allocator == value.arg03().allocator());
+        ASSERTV(&allocator == value.arg04().allocator());
+        ASSERTV(&allocator == value.arg05().allocator());
+        ASSERTV(&allocator == value.arg06().allocator());
+        ASSERTV(&allocator == value.arg07().allocator());
+        ASSERTV(&allocator == value.arg08().allocator());
+        ASSERTV(&allocator == value.arg09().allocator());
+        ASSERTV(&allocator == value.arg10().allocator());
     }
 };
 
@@ -6252,21 +6260,21 @@ class TestDriver {
     typedef typename Obj::size_type               SizeType;
     typedef typename Obj::value_type              Pair;
 
+    // Shorthands
+    typedef bslmf::MovableRefUtil                 MoveUtil;
+    typedef bsltf::MoveState                      MoveState;
+
     typedef typename bsl::remove_const<KEY>::type NoConstKey;
     typedef pair<NoConstKey, VALUE>               TValueType;
-
-    BSLMF_ASSERT((!bslmf::IsSame<Iter,  CIter>::value));
-    BSLMF_ASSERT((!bslmf::IsSame<LIter, CLIter>::value));
-    BSLMF_ASSERT((!bslmf::IsSame<Pair,  TValueType>::value));
 
     typedef bsltf::TestValuesArray<
                         TValueType,
                         ALLOC,
                         u::CharToPairConverter<TValueType, ALLOC> > TestValues;
 
-    static const bsltf::MoveState::Enum e_MOVED;
-    static const bsltf::MoveState::Enum e_NOT_MOVED;
-    static const bsltf::MoveState::Enum e_UNKNOWN;
+    BSLMF_ASSERT((!bslmf::IsSame<Iter,  CIter>::value));
+    BSLMF_ASSERT((!bslmf::IsSame<LIter, CLIter>::value));
+    BSLMF_ASSERT((!bslmf::IsSame<Pair,  TValueType>::value));
 
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
                           bslma::UsesBslmaAllocator<VALUE>::value,
@@ -6545,21 +6553,6 @@ class TestDriver {
         // Basic manipulator test.
 };
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-const bsltf::MoveState::Enum
-TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::e_MOVED =
-                                                     bsltf::MoveState::e_MOVED;
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-const bsltf::MoveState::Enum
-TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::e_NOT_MOVED =
-                                                 bsltf::MoveState::e_NOT_MOVED;
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-const bsltf::MoveState::Enum
-TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::e_UNKNOWN =
-                                                   bsltf::MoveState::e_UNKNOWN;
-
 template <class KEY>
 class StdAllocTestDriver :
     public TestDriver<KEY,
@@ -6588,9 +6581,9 @@ int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::ggg(Obj        *object,
 
                 Key *keyPtr =
                            const_cast<Key *>(bsls::Util::addressOf(it->first));
-                bsltf::setMovedInto(keyPtr,    e_NOT_MOVED);
+                bsltf::setMovedInto(keyPtr,    MoveState::e_NOT_MOVED);
                 VALUE *mappedPtr =           bsls::Util::addressOf(it->second);
-                bsltf::setMovedInto(mappedPtr, e_NOT_MOVED);
+                bsltf::setMovedInto(mappedPtr, MoveState::e_NOT_MOVED);
             }
         }
         else {
@@ -6660,9 +6653,9 @@ template <int NUM_KEY_ARGS,
           int NK2,
           int NK3,
           int NUM_VALUE_ARGS,
-          int NM1,
-          int NM2,
-          int NM3>
+          int NV1,
+          int NV2,
+          int NV3>
 typename TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::Iter
 TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                                                                Obj   *target,
@@ -6671,16 +6664,16 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
 {
     if (veryVeryVerbose) printf("32a_Runtest<%d,%d,%d,%d,%d,%d,%d,%d>\n",
                                 NUM_KEY_ARGS, NK1, NK2, NK3,
-                                NUM_VALUE_ARGS, NM1, NM2, NM3);
+                                NUM_VALUE_ARGS, NV1, NV2, NV3);
 
     // In C++17, these become the simpler-to-name 'bool_constant'.
 
     static const bsl::integral_constant<bool, NK1 == 1> MOVE_K1 = {};
     static const bsl::integral_constant<bool, NK2 == 1> MOVE_K2 = {};
     static const bsl::integral_constant<bool, NK3 == 1> MOVE_K3 = {};
-    static const bsl::integral_constant<bool, NM1 == 1> MOVE_M1 = {};
-    static const bsl::integral_constant<bool, NM2 == 1> MOVE_M2 = {};
-    static const bsl::integral_constant<bool, NM3 == 1> MOVE_M3 = {};
+    static const bsl::integral_constant<bool, NV1 == 1> MOVE_V1 = {};
+    static const bsl::integral_constant<bool, NV2 == 1> MOVE_V2 = {};
+    static const bsl::integral_constant<bool, NV3 == 1> MOVE_V3 = {};
 
     bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
@@ -6696,39 +6689,43 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
 
     bslma::TestAllocator aa("args", veryVeryVeryVerbose);
 
-    bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK1.object()), &aa,   1);
-    typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorProctor<typename KEY::ArgType01> PK1(&AK1);
-
-    bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK2.object()), &aa,  20);
-    typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorProctor<typename KEY::ArgType02> PK2(&AK2);
-
-    bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK3.object()), &aa,  23);
-    typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorProctor<typename KEY::ArgType03> PK3(&AK3);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType01> BUFM1;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM1.object()), &aa,   2);
-    typename VALUE::ArgType01& AM1 = BUFM1.object();
-    bslma::DestructorProctor<typename VALUE::ArgType01> PM1(&AM1);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType02> BUFM2;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM2.object()), &aa,  18);
-    typename VALUE::ArgType02& AM2 = BUFM2.object();
-    bslma::DestructorProctor<typename VALUE::ArgType02> PM2(&AM2);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType03> BUFM3;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM3.object()), &aa,  31);
-    typename VALUE::ArgType03& AM3 = BUFM3.object();
-    bslma::DestructorProctor<typename VALUE::ArgType03> PM3(&AM3);
-
     Iter result;
 
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+
+        // Construct all arguments inside the exception test loop as the
+        // exception thrown after moving only a portion of arguments leave the
+        // moved arguments in a valid, but unspecified state.
+        bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
+        ConstrUtil::construct(BUFK1.address(), &aa, K01);
+        typename KEY::ArgType01& AK1 = BUFK1.object();
+        bslma::DestructorGuard<typename KEY::ArgType01> GK1(&AK1);
+
+        bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
+        ConstrUtil::construct(BUFK2.address(), &aa, K02);
+        typename KEY::ArgType02& AK2 = BUFK2.object();
+        bslma::DestructorGuard<typename KEY::ArgType02> GK2(&AK2);
+
+        bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
+        ConstrUtil::construct(BUFK3.address(), &aa, K03);
+        typename KEY::ArgType03& AK3 = BUFK3.object();
+        bslma::DestructorGuard<typename KEY::ArgType03> GK3(&AK3);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
+        ConstrUtil::construct(BUFV1.address(), &aa, V01);
+        typename VALUE::ArgType01& AV1 = BUFV1.object();
+        bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
+        ConstrUtil::construct(BUFV2.address(), &aa, V02);
+        typename VALUE::ArgType02& AV2 = BUFV2.object();
+        bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
+        ConstrUtil::construct(BUFV3.address(), &aa, V03);
+        typename VALUE::ArgType03& AV3 = BUFV3.object();
+        bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+
         u::CompareProctor<Obj> proctor(Y, X);
 
         switch (NUM_KEY_ARGS) {
@@ -6745,24 +6742,24 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace_hint(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace_hint(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -6783,24 +6780,24 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace_hint(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace_hint(
                          hint,
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -6823,7 +6820,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace_hint(
@@ -6831,8 +6828,8 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace_hint(
@@ -6840,9 +6837,9 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -6867,7 +6864,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace_hint(
@@ -6876,8 +6873,8 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace_hint(
@@ -6886,9 +6883,9 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -6901,32 +6898,38 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a_RunTest(
         }
 
         proctor.release();
-    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-    ASSERTV(inserted, mX.end() == hint ||
+        ASSERTV(inserted, mX.end() == hint ||
                                          inserted == (&(*result) != &(*hint)));
 
-    ASSERTV(MOVE_K1 == AK1.movedFrom() || 2 == NK1);
-    ASSERTV(MOVE_K2 == AK2.movedFrom() || 2 == NK2);
-    ASSERTV(MOVE_K3 == AK3.movedFrom() || 2 == NK3);
+        ASSERTV(MOVE_K1, AK1.movedFrom(),
+               MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);
+        ASSERTV(MOVE_K2, AK2.movedFrom(),
+               MOVE_K2 == (MoveState::e_MOVED == AK2.movedFrom()) || 2 == NK2);
+        ASSERTV(MOVE_K3, AK3.movedFrom(),
+               MOVE_K3 == (MoveState::e_MOVED == AK3.movedFrom()) || 2 == NK3);
 
-    ASSERTV(MOVE_M1 == AM1.movedFrom() || 2 == NM1);
-    ASSERTV(MOVE_M2 == AM2.movedFrom() || 2 == NM2);
-    ASSERTV(MOVE_M3 == AM3.movedFrom() || 2 == NM3);
+        ASSERTV(MOVE_V1, AV1.movedFrom(),
+               MOVE_V1 == (MoveState::e_MOVED == AV1.movedFrom()) || 2 == NV1);
+        ASSERTV(MOVE_V2, AV2.movedFrom(),
+               MOVE_V2 == (MoveState::e_MOVED == AV2.movedFrom()) || 2 == NV2);
+        ASSERTV(MOVE_V3, AV3.movedFrom(),
+               MOVE_V3 == (MoveState::e_MOVED == AV3.movedFrom()) || 2 == NV3);
 
-    const KEY&   K = result->first;
-    const VALUE& M = result->second;
+        const KEY&   K = result->first;
+        const VALUE& V = result->second;
 
-    ASSERTV(AK1 == K.arg01() || 2 == NK1);
-    ASSERTV(AK2 == K.arg02() || 2 == NK2);
-    ASSERTV(AK3 == K.arg03() || 2 == NK3);
+        ASSERTV(K01, K.arg01(), K01 == K.arg01() || 2 == NK1);
+        ASSERTV(K02, K.arg02(), K02 == K.arg02() || 2 == NK2);
+        ASSERTV(K03, K.arg03(), K03 == K.arg03() || 2 == NK3);
 
-    ASSERTV(AM1 == M.arg01() || 2 == NM1);
-    ASSERTV(AM2 == M.arg02() || 2 == NM2);
-    ASSERTV(AM3 == M.arg03() || 2 == NM3);
+        ASSERTV(V01, V.arg01(), V01 == V.arg01() || 2 == NV1);
+        ASSERTV(V02, V.arg02(), V02 == V.arg02() || 2 == NV2);
+        ASSERTV(V03, V.arg03(), V03 == V.arg03() || 2 == NV3);
 
-    u::TestAllocatorUtil::test(K, oa);
-    u::TestAllocatorUtil::test(M, oa);
+        u::TestAllocatorUtil::test(K, oa);
+        u::TestAllocatorUtil::test(V, oa);
+    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
     return result;
 }
@@ -6937,25 +6940,25 @@ template <int NUM_KEY_ARGS,
           int NK2,
           int NK3,
           int NUM_VALUE_ARGS,
-          int NM1,
-          int NM2,
-          int NM3>
+          int NV1,
+          int NV2,
+          int NV3>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                                                                 Obj  *target,
                                                                 bool  inserted)
 {
     if (veryVeryVerbose) printf("31a_Runtest<%d,%d,%d,%d,%d,%d,%d,%d>\n",
                                 NUM_KEY_ARGS, NK1, NK2, NK3,
-                                NUM_VALUE_ARGS, NM1, NM2, NM3);
+                                NUM_VALUE_ARGS, NV1, NV2, NV3);
 
     // In C++17, these become the simpler-to-name 'bool_constant'.
 
     static const bsl::integral_constant<bool, NK1 == 1> MOVE_K1 = {};
     static const bsl::integral_constant<bool, NK2 == 1> MOVE_K2 = {};
     static const bsl::integral_constant<bool, NK3 == 1> MOVE_K3 = {};
-    static const bsl::integral_constant<bool, NM1 == 1> MOVE_M1 = {};
-    static const bsl::integral_constant<bool, NM2 == 1> MOVE_M2 = {};
-    static const bsl::integral_constant<bool, NM3 == 1> MOVE_M3 = {};
+    static const bsl::integral_constant<bool, NV1 == 1> MOVE_V1 = {};
+    static const bsl::integral_constant<bool, NV2 == 1> MOVE_V2 = {};
+    static const bsl::integral_constant<bool, NV3 == 1> MOVE_V3 = {};
 
     bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
@@ -6971,39 +6974,43 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
 
     bslma::TestAllocator aa("args", veryVeryVeryVerbose);
 
-    bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK1.object()), &aa,   1);
-    typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorProctor<typename KEY::ArgType01> PK1(&AK1);
-
-    bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK2.object()), &aa,  20);
-    typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorProctor<typename KEY::ArgType02> PK2(&AK2);
-
-    bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFK3.object()), &aa,  23);
-    typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorProctor<typename KEY::ArgType03> PK3(&AK3);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType01> BUFM1;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM1.object()), &aa,   2);
-    typename VALUE::ArgType01& AM1 = BUFM1.object();
-    bslma::DestructorProctor<typename VALUE::ArgType01> PM1(&AM1);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType02> BUFM2;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM2.object()), &aa,  18);
-    typename VALUE::ArgType02& AM2 = BUFM2.object();
-    bslma::DestructorProctor<typename VALUE::ArgType02> PM2(&AM2);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType03> BUFM3;
-    ConstrUtil::construct(bsls::Util::addressOf(BUFM3.object()), &aa,  31);
-    typename VALUE::ArgType03& AM3 = BUFM3.object();
-    bslma::DestructorProctor<typename VALUE::ArgType03> PM3(&AM3);
-
     pair<Iter, bool> result;
 
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+
+        // Construct all arguments inside the exception test loop as the
+        // exception thrown after moving only a portion of arguments leave the
+        // moved arguments in a valid, but unspecified state.
+        bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
+        ConstrUtil::construct(BUFK1.address(), &aa, K01);
+        typename KEY::ArgType01& AK1 = BUFK1.object();
+        bslma::DestructorGuard<typename KEY::ArgType01> GK1(&AK1);
+
+        bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
+        ConstrUtil::construct(BUFK2.address(), &aa, K02);
+        typename KEY::ArgType02& AK2 = BUFK2.object();
+        bslma::DestructorGuard<typename KEY::ArgType02> GK2(&AK2);
+
+        bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
+        ConstrUtil::construct(BUFK3.address(), &aa, K03);
+        typename KEY::ArgType03& AK3 = BUFK3.object();
+        bslma::DestructorGuard<typename KEY::ArgType03> GK3(&AK3);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
+        ConstrUtil::construct(BUFV1.address(), &aa, V01);
+        typename VALUE::ArgType01& AV1 = BUFV1.object();
+        bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
+        ConstrUtil::construct(BUFV2.address(), &aa, V02);
+        typename VALUE::ArgType02& AV2 = BUFV2.object();
+        bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
+        ConstrUtil::construct(BUFV3.address(), &aa, V03);
+        typename VALUE::ArgType03& AV3 = BUFV3.object();
+        bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+
         u::CompareProctor<Obj> proctor(Y, X);
 
         switch (NUM_KEY_ARGS) {
@@ -7018,22 +7025,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -7052,22 +7059,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                 result = mX.emplace(
                           native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -7088,24 +7095,24 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                 result = mX.emplace(
                          native_std::piecewise_construct,
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -7128,7 +7135,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1)));
               } break;
               case 2: {
                 result = mX.emplace(
@@ -7136,8 +7143,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2)));
               } break;
               case 3: {
                result = mX.emplace(
@@ -7145,9 +7152,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
                          native_std::forward_as_tuple(testArg(&AK1, MOVE_K1),
                                                       testArg(&AK2, MOVE_K2),
                                                       testArg(&AK3, MOVE_K3)),
-                         native_std::forward_as_tuple(testArg(&AM1, MOVE_M1),
-                                                      testArg(&AM2, MOVE_M2),
-                                                      testArg(&AM3, MOVE_M3)));
+                         native_std::forward_as_tuple(testArg(&AV1, MOVE_V1),
+                                                      testArg(&AV2, MOVE_V2),
+                                                      testArg(&AV3, MOVE_V3)));
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -7160,34 +7167,40 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
         }
 
         proctor.release();
+
+        ASSERTV(inserted, inserted == result.second);
+
+        ASSERTV(MOVE_K1, AK1.movedFrom(),
+               MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);
+        ASSERTV(MOVE_K2, AK2.movedFrom(),
+               MOVE_K2 == (MoveState::e_MOVED == AK2.movedFrom()) || 2 == NK2);
+        ASSERTV(MOVE_K3, AK3.movedFrom(),
+               MOVE_K3 == (MoveState::e_MOVED == AK3.movedFrom()) || 2 == NK3);
+
+        ASSERTV(MOVE_V1, AV1.movedFrom(),
+               MOVE_V1 == (MoveState::e_MOVED == AV1.movedFrom()) || 2 == NV1);
+        ASSERTV(MOVE_V2, AV2.movedFrom(),
+               MOVE_V2 == (MoveState::e_MOVED == AV2.movedFrom()) || 2 == NV2);
+        ASSERTV(MOVE_V3, AV3.movedFrom(),
+               MOVE_V3 == (MoveState::e_MOVED == AV3.movedFrom()) || 2 == NV3);
+
+        const KEY& K = result.first->first;
+
+        ASSERTV(K01, K.arg01(), K01 == K.arg01() || 2 == NK1);
+        ASSERTV(K02, K.arg02(), K02 == K.arg02() || 2 == NK2);
+        ASSERTV(K03, K.arg03(), K03 == K.arg03() || 2 == NK3);
+
+        const VALUE& V = result.first->second;
+
+        if (inserted) {
+            ASSERTV(V01, V.arg01(), V01 == V.arg01() || 2 == NV1);
+            ASSERTV(V02, V.arg02(), V02 == V.arg02() || 2 == NV2);
+            ASSERTV(V03, V.arg03(), V03 == V.arg03() || 2 == NV3);
+        }
+
+        u::TestAllocatorUtil::test(K, oa);
+        u::TestAllocatorUtil::test(V, oa);
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-    ASSERTV(inserted, inserted == result.second);
-
-    ASSERTV(MOVE_K1 == AK1.movedFrom() || 2 == NK1);
-    ASSERTV(MOVE_K2 == AK2.movedFrom() || 2 == NK2);
-    ASSERTV(MOVE_K3 == AK3.movedFrom() || 2 == NK3);
-
-    ASSERTV(MOVE_M1 == AM1.movedFrom() || 2 == NM1);
-    ASSERTV(MOVE_M2 == AM2.movedFrom() || 2 == NM2);
-    ASSERTV(MOVE_M3 == AM3.movedFrom() || 2 == NM3);
-
-    const KEY& K = result.first->first;
-
-    ASSERTV(AK1 == K.arg01() || 2 == NK1);
-    ASSERTV(AK2 == K.arg02() || 2 == NK2);
-    ASSERTV(AK3 == K.arg03() || 2 == NK3);
-
-    const VALUE& M = result.first->second;
-
-    if (inserted) {
-        ASSERTV(AM1 == M.arg01() || 2 == NM1);
-        ASSERTV(AM2 == M.arg02() || 2 == NM2);
-        ASSERTV(AM3 == M.arg03() || 2 == NM3);
-    }
-
-    u::TestAllocatorUtil::test(K, oa);
-    u::TestAllocatorUtil::test(M, oa);
 }
 #endif
 
@@ -7533,7 +7546,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
                 mFromState = TTF::getMovedFromState(*keyPtr);
 
-                ASSERTV(!k_IS_KEY_MOVE_AWARE || e_NOT_MOVED == mFromState);
+                ASSERTV(!k_IS_KEY_MOVE_AWARE
+                                      || MoveState::e_NOT_MOVED == mFromState);
                 ASSERTV(LINE, tj, oam.isTotalSame());
                 ASSERTV(LINE, tj, oam.isInUseSame());
 
@@ -7546,7 +7560,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
                 mFromState = TTF::getMovedFromState(K);
                 ASSERTV(NameOf<KEY>(),
-                            !k_IS_KEY_MOVE_AWARE || e_NOT_MOVED == mFromState);
+                 !k_IS_KEY_MOVE_AWARE || MoveState::e_NOT_MOVED == mFromState);
+
 
                 ASSERTV(ZM == X.find(K)->second);
 
@@ -7556,10 +7571,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
                 ASSERTV(M == X.find(K)->second);
                 ASSERTV(NameOf<KEY>(),
-                            !k_IS_KEY_MOVE_AWARE || e_NOT_MOVED == mFromState);
+                 !k_IS_KEY_MOVE_AWARE || MoveState::e_NOT_MOVED == mFromState);
 
                 mIntoState = TTF::getMovedIntoState(mX.find(K)->first);
-                ASSERTV(!k_IS_KEY_MOVE_AWARE || e_NOT_MOVED == mIntoState);
+                ASSERTV(!k_IS_KEY_MOVE_AWARE
+                                      || MoveState::e_NOT_MOVED == mIntoState);
 
                 ASSERTV(NameOf<Pair>(), k_TYPE_ALLOC || oam.isTotalSame());
                 ASSERTV(NameOf<Pair>(),                 oam.isInUseSame());
@@ -7586,7 +7602,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
                     bsls::ObjectBuffer<KEY> buffer;
                     KEY *keyPtr = buffer.address();
                     TTF::emplace(keyPtr, TTF::getIdentifier(ZK), &sa);
-                    bslma::DestructorProctor<KEY> proctor(keyPtr);
+                    bslma::DestructorGuard<KEY> guard(keyPtr);
 
                     ret = bsls::Util::addressOf(mX[MoveUtil::move(*keyPtr)]);
                     mFromState = TTF::getMovedFromState(*keyPtr);
@@ -7599,7 +7615,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                 (void) iterations;    // suppress 'unused'
                 ASSERTV(NameOf<KEY>(), SPEC, mFromState,
-                                !k_IS_KEY_MOVE_AWARE || e_MOVED == mFromState);
+                     !k_IS_KEY_MOVE_AWARE || MoveState::e_MOVED == mFromState);
 #else
                 // TBD: See the TBD in the .h file in 'operator[key&&]' where
                 // it has been temporarily hobbled in C++03 (and this test
@@ -7621,7 +7637,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
                 mIntoState = TTF::getMovedIntoState(mX.find(ZK)->first);
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                 ASSERTV(NameOf<KEY>(), SPEC, mIntoState,
-                                !k_IS_KEY_MOVE_AWARE || e_MOVED == mIntoState);
+                     !k_IS_KEY_MOVE_AWARE || MoveState::e_MOVED == mIntoState);
 #else
                 (void) mIntoState;    // suppress 'unused'
                 if (1 == iterations++) {
@@ -9341,22 +9357,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                               bsltf::MoveState::e_NOT_MOVED !=
+                                                      MoveState::e_NOT_MOVED !=
                                   bsltf::getMovedFrom(buffer.object().second));
 
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' is a const type, so cannot be moved.
 
-                    ASSERTV(NameOf<KEY>(), bsltf::MoveState::e_NOT_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_NOT_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().first));
-                    ASSERTV(NameOf<KEY>(), bsltf::MoveState::e_NOT_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_NOT_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->first));
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->second));
                 }
 
@@ -9430,23 +9446,23 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                               bsltf::MoveState::e_NOT_MOVED !=
+                                                      MoveState::e_NOT_MOVED !=
                                   bsltf::getMovedFrom(buffer.object().second));
 
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' of 'TValueType' is a non-const type, so can be
                     // moved.
 
-                    ASSERTV(NameOf<KEY>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().first));
-                    ASSERTV(NameOf<KEY>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->first));
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), bsltf::MoveState::e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->second));
                 }
 
@@ -9536,22 +9552,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 ASSERTV(NameOf<VALUE>(), !IS_UNIQ ||
-                                               bsltf::MoveState::e_NOT_MOVED !=
+                                                      MoveState::e_NOT_MOVED !=
                                   bsltf::getMovedFrom(buffer.object().second));
 
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                     // 'KEY' is a const type, so cannot be moved.
 
-                    ASSERTV(NameOf<KEY>(), e_NOT_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_NOT_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().first));
-                    ASSERTV(NameOf<KEY>(), e_NOT_MOVED ==
+                    ASSERTV(NameOf<KEY>(), MoveState::e_NOT_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->first));
                 }
 
                 if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                    ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().second));
-                    ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                    ASSERTV(NameOf<VALUE>(), MoveState::e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->second));
                 }
 
@@ -9639,24 +9655,29 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                       }
                     }
 
-                    ASSERTV(NameOf<VALUE>(), !IS_UNIQ || e_NOT_MOVED !=
+                    ASSERTV(NameOf<VALUE>(),
+                            !IS_UNIQ || MoveState::e_NOT_MOVED !=
                                   bsltf::getMovedFrom(buffer.object().second));
 
                     if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
                         ASSERTV(NameOf<KEY>(),
-                                   bsltf::getMovedFrom(buffer.object().first),
-                                e_MOVED ==
+                                bsltf::getMovedFrom(buffer.object().first),
+                                MoveState::e_MOVED ==
                                    bsltf::getMovedFrom(buffer.object().first));
                         ASSERTV(NameOf<KEY>(),
-                                     bsltf::getMovedInto(RESULT.first->first),
-                                e_MOVED ==
+                                bsltf::getMovedInto(RESULT.first->first),
+                                MoveState::e_MOVED ==
                                      bsltf::getMovedInto(RESULT.first->first));
                     }
 
                     if (IS_UNIQ && k_IS_VALUE_MOVE_AWARE) {
-                        ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                        ASSERTV(NameOf<VALUE>(),
+                                bsltf::getMovedFrom(buffer.object().second),
+                                MoveState::e_MOVED ==
                                   bsltf::getMovedFrom(buffer.object().second));
-                        ASSERTV(NameOf<VALUE>(), e_MOVED ==
+                        ASSERTV(NameOf<VALUE>(),
+                                bsltf::getMovedInto(RESULT.first->second),
+                                MoveState::e_MOVED ==
                                   bsltf::getMovedInto(RESULT.first->second));
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -9925,7 +9946,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         // moved.
 
                         for (CIter it = Z.cbegin(); Z.cend() != it; ++it) {
-                            ASSERTV(NameOf<KEY>(), e_NOT_MOVED ==
+                            ASSERTV(NameOf<KEY>(), MoveState::e_NOT_MOVED ==
                                                bsltf::getMovedFrom(it->first));
                         }
 
@@ -9934,17 +9955,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                                                 bsltf::getMovedInto(it->first);
 
                             ASSERTV(NameOf<KEY>(), CONFIG, movedInto,
-                                                     e_NOT_MOVED == movedInto);
+                                    MoveState::e_NOT_MOVED == movedInto);
                         }
                     }
 
                     if (k_IS_VALUE_MOVE_AWARE) {
-                        const bsltf::MoveState::Enum exp = &oa == &sa
-                                                         ? e_NOT_MOVED
-                                                         : e_MOVED;
+                        const MoveState::Enum exp = &oa == &sa
+                                                    ? MoveState::e_NOT_MOVED
+                                                    : MoveState::e_MOVED;
 
                         for (CIter it = Z.cbegin(); Z.cend() != it; ++it) {
-                            const bsltf::MoveState::Enum movedFrom =
+                            const MoveState::Enum movedFrom =
                                                bsltf::getMovedFrom(it->second);
 
                             ASSERTV(NameOf<VALUE>(), movedFrom, CONFIG, exp,
@@ -9952,7 +9973,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         }
 
                         for (Iter it = mX.begin(); mX.end() != it; ++it) {
-                            const bsltf::MoveState::Enum movedInto =
+                            const MoveState::Enum movedInto =
                                                bsltf::getMovedInto(it->second);
 
                             ASSERTV(NameOf<VALUE>(), movedInto, CONFIG, exp,
@@ -10403,17 +10424,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
                                             bsltf::getMovedInto(it->first);
 
                         ASSERTV(NameOf<KEY>(), CONFIG, movedInto,
-                                                 e_NOT_MOVED == movedInto);
+                                MoveState::e_NOT_MOVED == movedInto);
                     }
                 }
 
                 if (k_IS_VALUE_MOVE_AWARE) {
-                    const bsltf::MoveState::Enum exp = &oa == &sa
-                                                     ? e_NOT_MOVED
-                                                     : e_MOVED;
+                    const MoveState::Enum exp = &oa == &sa
+                                                ? MoveState::e_NOT_MOVED
+                                                : MoveState::e_MOVED;
 
                     for (Iter it = mX.begin(); mX.end() != it; ++it) {
-                        const bsltf::MoveState::Enum movedInto =
+                        const MoveState::Enum movedInto =
                                                bsltf::getMovedInto(it->second);
 
                         ASSERTV(NameOf<VALUE>(), movedInto, CONFIG, exp,

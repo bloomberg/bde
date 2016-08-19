@@ -860,19 +860,20 @@ class TestAllocatorUtil
     static void test(const TYPE&, const bslma::Allocator&)
     {
     }
+
     static void test(const bsltf::AllocEmplacableTestType& value,
-                     const bslma::Allocator& oa)
+                     const bslma::Allocator&               oa)
     {
-        ASSERTV(&oa == value.arg01().getAllocator());
-        ASSERTV(&oa == value.arg02().getAllocator());
-        ASSERTV(&oa == value.arg03().getAllocator());
-        ASSERTV(&oa == value.arg04().getAllocator());
-        ASSERTV(&oa == value.arg05().getAllocator());
-        ASSERTV(&oa == value.arg06().getAllocator());
-        ASSERTV(&oa == value.arg07().getAllocator());
-        ASSERTV(&oa == value.arg08().getAllocator());
-        ASSERTV(&oa == value.arg09().getAllocator());
-        ASSERTV(&oa == value.arg10().getAllocator());
+        ASSERTV(&oa == value.arg01().allocator());
+        ASSERTV(&oa == value.arg02().allocator());
+        ASSERTV(&oa == value.arg03().allocator());
+        ASSERTV(&oa == value.arg04().allocator());
+        ASSERTV(&oa == value.arg05().allocator());
+        ASSERTV(&oa == value.arg06().allocator());
+        ASSERTV(&oa == value.arg07().allocator());
+        ASSERTV(&oa == value.arg08().allocator());
+        ASSERTV(&oa == value.arg09().allocator());
+        ASSERTV(&oa == value.arg10().allocator());
     }
 };
 
@@ -2447,10 +2448,10 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     // TESTING 'emplace(const_iterator position, Args&&...)'
     //
     // Concerns:
-    //: 1 A newly created element is inserted at the correct position in the 
+    //: 1 A newly created element is inserted at the correct position in the
     //:   container and the order of elements in the container, before and
     //:   after the insertion point, remain correct.
-    //: 
+    //:
     //: 2 The capacity is increased as expected.
     //:
     //: 3 The internal memory management system is hooked up properly so that
@@ -3796,7 +3797,7 @@ void TestDriver<TYPE,ALLOC>::testCase24()
     //:
     //:10 Assigning a source object having the default-constructed value
     //:   allocates no memory; assigning a value to a target object in the
-    //:   default state does not allocate or deallocate any memory if the 
+    //:   default state does not allocate or deallocate any memory if the
     //:   allocators of the source and target object are the same.
     //:
     //:11 Every object releases any allocated memory at destruction.

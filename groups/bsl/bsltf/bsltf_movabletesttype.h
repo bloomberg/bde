@@ -195,11 +195,15 @@ bool operator!=(const MovableTestType& lhs,
     // do not have the same value if their 'data' attributes are not the same.
 
 // FREE FUNCTIONS
-inline
-bsltf::MoveState::Enum getMovedFromState(const MovableTestType& object);
+MoveState::Enum getMovedFrom(const MovableTestType& object);
+    // Return the move-from state of the sepcified 'object'.
 
-inline
-bsltf::MoveState::Enum getMovedIntoState(const MovableTestType& object);
+MoveState::Enum getMovedInto(const MovableTestType& object);
+    // Return the move-into state of the sepcified 'object'.
+
+void setMovedInto(MovableTestType *object, MoveState::Enum value);
+    // Set the moved-into state of the specified 'object' to the specified
+    // 'value'.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -224,17 +228,18 @@ int MovableTestType::data() const
 }
 
 inline
-bsltf::MoveState::Enum MovableTestType::movedFrom() const
+MoveState::Enum MovableTestType::movedFrom() const
 {
     return d_movedFrom;
 }
 
 inline
-bsltf::MoveState::Enum MovableTestType::movedInto() const
+MoveState::Enum MovableTestType::movedInto() const
 {
     return d_movedInto;
 }
 
+// FREE FUNCTIONS
 inline
 MoveState::Enum getMovedFrom(const MovableTestType& object)
 {

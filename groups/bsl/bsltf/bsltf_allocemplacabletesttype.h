@@ -246,7 +246,7 @@ class AllocEmplacableTestType {
         // object.
 
     // ACCESSORS
-    bslma::Allocator *getAllocator() const;
+    bslma::Allocator *allocator() const;
         // Return the allocator used to supply memory for this object.
 
     bool isEqual(const AllocEmplacableTestType& rhs) const;
@@ -401,9 +401,9 @@ AllocEmplacableTestType::arg14() const
 }
 
 inline
-bslma::Allocator *AllocEmplacableTestType::getAllocator() const
+bslma::Allocator *AllocEmplacableTestType::allocator() const
 {
-    return d_a01.getAllocator();
+    return d_a01.allocator();
 }
 
 inline

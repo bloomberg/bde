@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::AllocArgumentType<N>: simple wrapper around an allocated 'int'
 //
-//@SEE_ALSO: bsltf_templatetestfacility
+//@SEE_ALSO: bsltf_argumenttype, bsltf_templatetestfacility
 //
 //@AUTHOR:
 //
@@ -22,17 +22,17 @@ BSLS_IDENT("$Id: $")
 //argument type template class, 'bsltf::AllocArgumentType<N>', used for testing
 //functions that take a variable number of template arguments.  The integer
 //template parameter enables specification of a number of types without
-//requiring a separate component for each.  Note that there are no
-//manipulators, not even an assignment operator, for the class and the value
-//constructor is the only way to assign an object a value.  Copy and move
-//constructors are defined.
+//requiring a separate component for each.  Note that default-constructed
+//object of this type does not allocate any memory. Also note, that copy or
+//move of the default-constructed object also does not allocate any memory.
+//Copy and move constructors are defined.
 //
 ///Attributes
 ///----------
 //..
 //  Name                Type         Default
 //  ------------------  -----------  -------
-//  d_data_p            int          0
+//  data                int          -1
 //
 //..
 //: o 'data': representation of the class value
@@ -98,9 +98,6 @@ class AllocArgumentType {
 
     int              *d_data_p;             // pointer to the data value
 
-    int               d_originalValue;      // original data value supplied at
-                                            // construction
-
     MoveState::Enum   d_movedFrom;          // moved-from state
 
     MoveState::Enum   d_movedInto;          // moved-from state
@@ -111,26 +108,35 @@ class AllocArgumentType {
         // Create a 'AllocArgumentType' object having the (default) attribute
         // value '-1'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // allocator is used. Note, that default constructor does not allocate
+        // memory.
 
     explicit AllocArgumentType(int               value,
                                bslma::Allocator *basicAllocator =  0);
+        // Create a 'AllocArgumentType' object having the specified 'value'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    AllocArgumentType(const AllocArgumentType&  other,
+    AllocArgumentType(const AllocArgumentType&  original,
                       bslma::Allocator         *basicAllocator = 0);
         // Create a test argument object having the same value as the specified
-        // 'other'.  The optionally specified 'basicAllocator' is used to
-        // supply memory, and the currently installed default allocator is used
-        // if no such allocator is supplied.
+        // 'original'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used. Note, that no memory is allocated if 'original'
+        // refers to a default-constructed object.
 
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType> original);
         // Create a test argument object having the same value as the specified
-        // 'original', and reset 'original' to have that value negated.
+        // 'original'. Note, that no memory is allocated if 'original' refers
+        // to a default-constructed object.
 
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType>  original,
                       bslma::Allocator                     *basicAllocator);
         // Create a test argument object having the same value as the specified
-        // 'original', and reset 'original' to have that value negated.
+        // 'original' using the specified 'basicAllocator' to supply memory.
+        // Note, that no memory is allocated if 'original' refers to a
+        // default-constructed object.
 
     ~AllocArgumentType();
         // Destroy this object.
@@ -148,11 +154,11 @@ class AllocArgumentType {
         // object.  Note that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
     operator int() const;
         // Return the value of this test argument object.
-
-    bslma::Allocator *getAllocator() const;
-        // Return the allocator used by this object to supply memory.
 
     MoveState::Enum movedInto() const;
         // Return the move state of this object as target of a move operation.
@@ -164,10 +170,12 @@ class AllocArgumentType {
 
 // FREE FUNCTIONS
 template <int N>
-MoveState::Enum getMovedFromState(const AllocArgumentType<N>& object);
+MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object);
+    // Return the move-from state of the specified 'object'.
 
 template <int N>
-MoveState::Enum getMovedIntoState(const AllocArgumentType<N>& object);
+MoveState::Enum getMovedInto(const AllocArgumentType<N>& object);
+    // Return the move-into state of the specified 'object'.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -183,13 +191,12 @@ inline
 AllocArgumentType<N>::AllocArgumentType(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_data_p(0)
-, d_originalValue(-1)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
     // Note that the default constructor does not allocate.  This is done to
-    // correctly count allocation when not the whole set of arguments is passed
-    // to emplacable test types.
+    // correctly count allocations when not the whole set of arguments is
+    // passed to emplacable test types.
 }
 
 template <int N>
@@ -198,70 +205,73 @@ AllocArgumentType<N>::AllocArgumentType(int               value,
                                         bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_data_p(0)
-, d_originalValue(value)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
     d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = d_originalValue;
+    *d_data_p = value;
 }
 
 template <int N>
 inline
 AllocArgumentType<N>::AllocArgumentType(
-                                      const AllocArgumentType&  other,
+                                      const AllocArgumentType&  original,
                                       bslma::Allocator         *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_data_p(0)
-, d_originalValue(int(other))
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = d_originalValue;
+    if (original.d_data_p) {
+        d_data_p = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        *d_data_p = int(original);
+    }
 }
 
 template <int N>
 inline
 AllocArgumentType<N>::AllocArgumentType(
-                    BloombergLP::bslmf::MovableRef<AllocArgumentType> original)
+                                 bslmf::MovableRef<AllocArgumentType> original)
 : d_allocator_p(MoveUtil::access(original).d_allocator_p)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_MOVED)
 {
     AllocArgumentType& lvalue = original;
 
-    d_originalValue = int(lvalue);
-
     d_data_p = lvalue.d_data_p;
-    lvalue.d_data_p = 0;
 
+    lvalue.d_data_p = 0;
+    lvalue.d_movedInto = bsltf::MoveState::e_NOT_MOVED;
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
 
 template <int N>
 inline
 AllocArgumentType<N>::AllocArgumentType(
-              BloombergLP::bslmf::MovableRef<AllocArgumentType> original,
-              bslma::Allocator                                 *basicAllocator)
+                          bslmf::MovableRef<AllocArgumentType>  original,
+                          bslma::Allocator                     *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_MOVED)
 {
     AllocArgumentType& lvalue = original;
 
-    d_originalValue = int(lvalue);
-
     if (d_allocator_p == lvalue.d_allocator_p) {
         d_data_p = lvalue.d_data_p;
         lvalue.d_data_p = 0;
-    }
-    else {
-        d_data_p = reinterpret_cast<int *>(
+    } else {
+        if (lvalue.d_data_p) {
+            d_data_p  = reinterpret_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
-        *d_data_p = d_originalValue;
+            *d_data_p = int(lvalue);
+            *lvalue.d_data_p = -1;
+        } else {
+            d_data_p = 0;
+        }
     }
 
+    lvalue.d_movedInto = bsltf::MoveState::e_NOT_MOVED;
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
 
@@ -269,21 +279,31 @@ template <int N>
 inline
 AllocArgumentType<N>::~AllocArgumentType()
 {
-    d_allocator_p->deallocate(d_data_p);
+    if (d_data_p) {
+        d_allocator_p->deallocate(d_data_p);
+    }
 }
 
 // MANIPULATORS
 template <int N>
+inline
 AllocArgumentType<N>&
 AllocArgumentType<N>::operator=(const AllocArgumentType& rhs)
 {
     if (this != &rhs) {
-        int *newValue = reinterpret_cast<int *>(
+        int *newValue = 0;
+        if (rhs.d_data_p) {
+            newValue = reinterpret_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
-        d_allocator_p->deallocate(d_data_p);
+        }
+        if (d_data_p) {
+            d_allocator_p->deallocate(d_data_p);
+        }
         d_data_p = newValue;
-        d_originalValue  = int(rhs);
-        *d_data_p = d_originalValue;
+
+        if (d_data_p) {
+            *d_data_p = int(rhs);
+        }
 
         d_movedInto = bsltf::MoveState::e_NOT_MOVED;
         d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
@@ -292,6 +312,7 @@ AllocArgumentType<N>::operator=(const AllocArgumentType& rhs)
 }
 
 template <int N>
+inline
 AllocArgumentType<N>& AllocArgumentType<N>::operator=(
                          BloombergLP::bslmf::MovableRef<AllocArgumentType> rhs)
 {
@@ -299,21 +320,34 @@ AllocArgumentType<N>& AllocArgumentType<N>::operator=(
 
     if (this != &lvalue) {
         if (d_allocator_p == lvalue.d_allocator_p) {
-            d_allocator_p->deallocate(d_data_p);
-            d_originalValue = int(lvalue);
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
             d_data_p = lvalue.d_data_p;
             lvalue.d_data_p = 0;
         }
         else {
-            int *newValue = reinterpret_cast<int *>(
+            int *newValue = 0;
+            if (lvalue.d_data_p) {
+                newValue = reinterpret_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
-            d_allocator_p->deallocate(d_data_p);
+            }
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
             d_data_p = newValue;
-            d_originalValue = int(lvalue);
-            *d_data_p = d_originalValue;
+            if (d_data_p) {
+                *d_data_p = int(lvalue);
+            }
+            if (lvalue.d_data_p) {
+                *lvalue.d_data_p = -1;
+            }
         }
 
-        d_movedInto        = bsltf::MoveState::e_MOVED;
+        d_movedInto = bsltf::MoveState::e_MOVED;
+        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+
+        lvalue.d_movedInto = bsltf::MoveState::e_NOT_MOVED;
         lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
     }
     return *this;
@@ -324,12 +358,12 @@ template <int N>
 inline
 AllocArgumentType<N>::operator int() const
 {
-    return d_data_p ? *d_data_p : d_originalValue;
+    return d_data_p ? *d_data_p : -1;
 }
 
 template <int N>
 inline
-bslma::Allocator * AllocArgumentType<N>::getAllocator() const
+bslma::Allocator * AllocArgumentType<N>::allocator() const
 {
     return d_allocator_p;
 }
@@ -350,6 +384,7 @@ MoveState::Enum AllocArgumentType<N>::movedInto() const
 
                                   // Aspects
 
+// FREE FUNCTIONS
 template <int N>
 inline
 MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object)
@@ -373,6 +408,7 @@ template <int N>
 struct UsesBslmaAllocator<bsltf::AllocArgumentType<N> > : bsl::true_type {};
 
 }  // close namespace bslma
+
 }  // close enterprise namespace
 
 #endif

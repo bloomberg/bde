@@ -434,19 +434,19 @@ AllocEmplacableTestType::~AllocEmplacableTestType()
 {
     ++s_numDeletes;
 
-    BSLS_ASSERT(d_a01.getAllocator() == d_a02.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a03.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a04.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a05.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a06.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a07.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a08.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a09.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a10.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a11.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a12.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a13.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a14.getAllocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a02.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a03.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a04.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a05.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a06.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a07.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a08.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a09.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a10.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a11.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a12.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a13.allocator());
+    BSLS_ASSERT(d_a01.allocator() == d_a14.allocator());
 }
 
 int AllocEmplacableTestType::getNumDeletes()
