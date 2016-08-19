@@ -1060,8 +1060,8 @@ class list {
         // 'ALLOCATOR' is 'bsl::allocator' the currently installed default
         // allocator is used.  Throw 'bsl::length_error' if
         // 'numElements > max_size()'.  This method requires that the (template
-        // parameter) 'VALUE_TYPE' be 'default-insertable' into this list (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // parameter) 'VALUE' be 'default-insertable' into this list (see
+        // {Requirements on 'VALUE'}).
 
     list(size_type        numElements,
          const ALLOCATOR& basicAllocator);
@@ -1071,8 +1071,8 @@ class list {
         // default), then 'basicAllocator' shall be convertible to
         // 'bslma::Allocator *'.  Throw 'bsl::length_error' if
         // 'numElements > max_size()'.  This method requires that the (template
-        // parameter) 'VALUE_TYPE' be 'default-insertable' into this list (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // parameter) 'VALUE' be 'default-insertable' into this list (see
+        // {Requirements on 'VALUE'}).
 
     list(size_type         numElements,
          const value_type& value,
@@ -1087,9 +1087,8 @@ class list {
         // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
         // supplied, the currently installed default allocator is used.  Throw
         // 'bsl::length_error' if 'numElements > max_size()'.  This method
-        // requires that the (template parameter) 'VALUE_TYPE' be
-        // 'copy-insertable' into this list (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // requires that the (template parameter) 'VALUE' be 'copy-insertable'
+        // into this list (see {Requirements on 'VALUE'}).
 
     template <class INPUT_ITERATOR>
     list(INPUT_ITERATOR   srcBegin,
@@ -1117,7 +1116,7 @@ class list {
         // values of a type convertible to 'value_type', and 'value_type' must
         // be 'emplace-constructible' from '*i' into this list, where 'i' is a
         // dereferenceable iterator in the range '[srcBegin .. srcEnd)' (see
-        // {Requirements on 'VALUE_TYPE'}).  The behavior is undefined unless
+        // {Requirements on 'VALUE'}).  The behavior is undefined unless
         // 'srcBegin' and 'srcEnd' refer to a sequence of valid values where
         // 'srcBegin' is at a position at or before 'srcEnd'.
     : d_alloc_and_size(basicAllocator, size_type(-1))
@@ -1148,9 +1147,8 @@ class list {
     list(const list& original, const ALLOCATOR& basicAllocator);
         // Create a list that has the same value as the specified 'original'
         // deque.  Use the specified 'basicAllocator' to supply memory.  This
-        // method requires that the (template parameter) 'VALUE_TYPE' be
-        // 'copy-insertable' into this deque (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // method requires that the (template parameter) 'VALUE' be
+        // 'copy-insertable' into this deque (see {Requirements on 'VALUE'}).
 
     list(BloombergLP::bslmf::MovableRef<list> original);            // IMPLICIT
         // Create a list having the same value as the specified 'original'
