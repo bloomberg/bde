@@ -1305,6 +1305,111 @@ void TestDriver::testCase3()
               BDLDFP_DECIMAL_DL(-1.234567890123456789012345678901234e-24));
     }
 
+    // bdldfp does not know how to parse128("NaN") etc.
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("nan", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Inf" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Inf" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in NaNa (bad)" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaNa", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(in.fail() == true);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Infinity", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Infinity", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infin (bad)" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Infin", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(in.fail() == true);
+    }
+
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;
     {
         bsl::wostringstream  out(pa);
@@ -2111,6 +2216,39 @@ void TestDriver::testCase2()
         ASSERT(d1 == BDLDFP_DECIMAL_DD(-1.234567890123456e-24));
     }
 
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal64>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal64>::max());
+    }
+
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;
     {
         bsl::wostringstream  out(pa);
@@ -2845,6 +2983,39 @@ void TestDriver::testCase1()
         BDEC::Decimal32 d1;
         in >> d1;
         ASSERT(d1 == BDLDFP_DECIMAL_DF(-8.327457e-24));
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal32>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal32>::max());
     }
 
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;
