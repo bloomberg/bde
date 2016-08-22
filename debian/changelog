@@ -1,6 +1,23 @@
-bsl-internal (3.0.0.2) unstable; urgency=low
+bsl-internal (3.0.1.0) unstable; urgency=low
 
+  * d25c16c Merge pull request #634 from mgiroux/review/bump-version-to-3.0.1
+  * 14196d3 bump patchversion to 3.0.1
+  * bd01023 Merge pull request #633 from che2/bdldfp-nan-inf-for-3.0-drqs-74546219
+  * 9c5e865 Merge pull request #630 from afeher/compiler-internal-error-fix-for-release-3.0.x-vs-2013
+  * f8ea970 Merge pull request #626 from mgiroux/review/fix-bitset-warning-drqs-87662186
+  * cb8ce46 Merge pull request #621 from afeher/readd-bdld__datummapowningkeysbuilder__allocator
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 22 Aug 2016 11:57:05 -0400
+
+bsl-internal (3.0.0.2) git; urgency=low
+
+  * 91cf3bb Changelog for version 3.0.0.2
   * f6e2668 Changelog for version 3.0.0.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Jul 2016 11:39:47 -0400
+
+bsl-internal (3.0.0.1) git; urgency=low
+
   * 65ac0e9 Changelog for version 3.0.0.1
   * 7d60df6 Changelog for version 3.0.0.1
   * a01bca7 Merge pull request #570 from hversche/pr/568-rebased-releases/3.0.x
@@ -8,7 +25,7 @@ bsl-internal (3.0.0.2) unstable; urgency=low
   * 645b222 Merge pull request #554 from jmendelsohn4/correct_release_components
   * 23c4782 corrected included components for 3.0 release
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Jul 2016 11:39:05 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Jul 2016 10:58:26 -0400
 
 bsl-internal (3.0.0.0) git; urgency=low
 
