@@ -13,6 +13,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorproctor.h>
 #include <bslma_newdeleteallocator.h>
+#include <bslma_rawdeleterproctor.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
@@ -6371,38 +6372,53 @@ void TestDriver<TYPE,ALLOC>::testCase25()
                 Obj *srcPtr = 0;
                 bslma::TestAllocator *srcAllocatorPtr;
 
-                switch (CONFIG) {
-                  case 'a': {
-                    srcPtr = new (fa) Obj(&za);  gg(srcPtr, SPEC1);
-                    srcAllocatorPtr = &za;
-                  } break;
-                  case 'b': {
-                    srcPtr = new (fa) Obj(&oa);  gg(srcPtr, SPEC1);
-                    srcAllocatorPtr = &oa;
-                  } break;
-                  default: {
-                    ASSERTV(CONFIG, !"Bad allocator config.");
-                  } return;                                           // RETURN
-                }
-
-                Obj& mZ = *srcPtr;  const Obj& Z = mZ;
-                bslma::TestAllocator& sa = *srcAllocatorPtr;
-
-                if (veryVerbose) { T_ P_(LINE2) P(Z) }
-                if (veryVerbose) { T_ P_(LINE2) P(X) }
-
-                ASSERTV(SPEC1, SPEC2, Z, X, (Z == X) == (ti == tj));
-
-                bool empty = 0 == ZZ.size();
+                const bool empty = 0 == ZZ.size();
 
                 typename Obj::const_pointer pointers[2];
-                storeFirstNElemAddr(pointers, Z,
-                                    sizeof pointers / sizeof *pointers);
 
-                bslma::TestAllocatorMonitor oam(&oa), zam(&za);
+//              bslma::TestAllocatorMonitor oam(&oa), zam(&za);
 
+                Int64 oaBase;
+                Int64 zaBase;
+
+                int numThrows = -1;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    switch (CONFIG) {
+                      case 'a': {
+                        srcPtr = new (fa) Obj(&za);
+                        srcAllocatorPtr = &za;
+                      } break;
+                      case 'b': {
+                        srcPtr = new (fa) Obj(&oa);
+                        srcAllocatorPtr = &oa;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad allocator config.");
+                      } return;                                       // RETURN
+                    }
+                    bslma::RawDeleterProctor<Obj, bslma::Allocator>
+                                                          proctor(srcPtr, &fa);
+
+                    gg(srcPtr, SPEC1);
+
+                    Obj& mZ = *srcPtr;  const Obj& Z = mZ;
+                    ASSERT(ZZ == Z);
+
+                    if (0 == ++numThrows && veryVerbose) {
+                        if (veryVerbose) { T_ P_(LINE2) P(Z) }
+                        if (veryVerbose) { T_ P_(LINE2) P(X) }
+                    }
+
+                    ASSERTV(SPEC1, SPEC2, Z, X, (Z == X) == (ti == tj));
+
+                    storeFirstNElemAddr(pointers, Z,
+                                        sizeof pointers / sizeof *pointers);
+
+
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    oaBase = oa.numAllocations();
+                    zaBase = za.numAllocations();
 
                     Obj *mR = &(mX = MoveUtil::move(mZ));
                     ASSERTV(SPEC1, SPEC2, mR, &mX, mR == &mX);
@@ -6410,7 +6426,11 @@ void TestDriver<TYPE,ALLOC>::testCase25()
                     // Verify the value of the object.
                     ASSERTV(SPEC1, SPEC2,  X,  ZZ,  X ==  ZZ);
 
+                    proctor.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                bslma::TestAllocator& sa = *srcAllocatorPtr;
+                Obj& mZ = *srcPtr;  const Obj& Z = mZ;
 
                 // CONTAINER-SPECIFIC NOTE: For 'deque', if the allocators
                 // differ, the source object is left with the same number of
@@ -6423,7 +6443,7 @@ void TestDriver<TYPE,ALLOC>::testCase25()
                     // same allocator
 
                     // 1. no allocations from the (common) object allocator
-                    ASSERTV(SPEC1, SPEC2, oam.isTotalSame());
+                    ASSERTV(SPEC1, SPEC2, oa.numAllocations() == oaBase);
 
                     // 2. unchanged address(es) of contained element(s)
                     ASSERT(0 == checkFirstNElemAddr(pointers, X,
@@ -6446,9 +6466,8 @@ void TestDriver<TYPE,ALLOC>::testCase25()
 
                     // 3. additional memory checks
                     ASSERTV(SPEC1, SPEC2, &sa == &oa,
-                            empty || oam.isTotalUp());
-                    ASSERTV(SPEC1, SPEC2, 0 == zam.isInUseUp());
-
+                            empty || oaBase < oa.numAllocations());
+                    ASSERTV(SPEC1, SPEC2, za.numAllocations() == zaBase);
                 }
                 // Verify that 'X', 'Z', and 'ZZ' have correct allocator.
                 ASSERTV(SPEC1, SPEC2, &scratch == ZZ.get_allocator());
@@ -6856,9 +6875,9 @@ void TestDriver<TYPE,ALLOC>::testCase24()
                 printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
             }
 
-            Obj mWW(&za);  const Obj& WW = gg(&mWW, SPEC);
-
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                Obj mWW(&za);  const Obj& WW = gg(&mWW, SPEC);
+
                 const Obj X(MoveUtil::move(mWW), &oa);
                 if (veryVerbose) {
                     printf("\t\t\tException Case  :\n");

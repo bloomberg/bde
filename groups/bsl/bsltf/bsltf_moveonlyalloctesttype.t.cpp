@@ -61,7 +61,7 @@ using namespace BloombergLP::bsltf;
 // [ 2] ~MoveOnlyAllocTestType();
 //
 // MANIPULATORS
-// [ 9] Obj& operator=(bslmf::MovableRef<MoveOnlyAllocTestType> rhs);
+// [ 9] MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
 // [ 2] void setData(int value);
 //
 // ACCESSORS
@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   MoveOnlyAllocTestType& operator=(const MoveOnlyAllocTestType& r);
+        //   MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVE-ASSIGNMENT OPERATOR"
@@ -572,35 +572,34 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 {
-                    Obj mZ(DATA1, &scratch); const Obj& Z = mZ;
-
                     Obj mX(DATA2, &oa);  const Obj& X = mX;
 
                     if (veryVerbose) { T_ P_(LINE2) P(X.data()) }
 
-                    ASSERTV(LINE1, LINE2, Z.data(), X.data(),
-                            (Z == X) == (LINE1 == LINE2));
-
-                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        Obj mZ(DATA1, &scratch); const Obj& Z = mZ;
+
+                        ASSERTV(LINE1, LINE2, Z.data(), X.data(),
+                                                 (Z == X) == (LINE1 == LINE2));
+                        ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
+                                                    &scratch == Z.allocator());
+
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         Obj *mR = &(mX = bslmf::MovableRefUtil::move(mZ));
-                        ASSERTV(LINE1, LINE2, Z.data(), X.data(), Z == X);
+                        ASSERTV(LINE1, LINE2, Z.data(), X.data(), ZZ == X);
+                        ASSERTV(LINE1, LINE2, X.data(), 0 == Z.data());
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-                    ASSERTV(LINE1, LINE2, ZZ.data(), Z.data(), ZZ == Z);
+                    ASSERTV(LINE1, LINE2, ZZ.data(), X.data(), ZZ == X);
 
                     ASSERTV(LINE1, LINE2, &oa, X.allocator(),
                                  &oa == X.allocator());
-                    ASSERTV(LINE1, LINE2, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
 
                     ASSERTV(LINE1, LINE2, oam.isInUseSame());
-
-                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
                     ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
                 }
@@ -838,12 +837,11 @@ int main(int argc, char *argv[])
                 ASSERT(ZZ == X);
 
                 if (&sa == &oa) {
-                    ASSERTV(Z.data(), X.data(), Z !=  X || 0 == DATA);
-                    ASSERTV(Z.data(), X.data(), Z != ZZ || 0 == DATA);
+                    ASSERTV(Z.data(),  X.data(), Z !=  X || 0 == DATA);
+                    ASSERTV(Z.data(), ZZ.data(), Z != ZZ || 0 == DATA);
                 }
                 else {
-                    ASSERTV(Z.data(), X.data(), Z == X);
-                    ASSERTV(Z.data(), X.data(), Z == ZZ);
+                    ASSERTV(X.data(), ZZ.data(), X == ZZ);
                 }
 
                 // Verify any attribute allocators are installed properly.
@@ -1519,14 +1517,48 @@ int main(int argc, char *argv[])
 
         Obj Z(bslmf::MovableRefUtil::move(Y));
         ASSERT(Z != Y);
+        ASSERT(Z.data() == 2);
         ASSERT(Y.data() == 0);
         ASSERT(X != Y);
+
+        ASSERT(bsltf::MoveState::e_MOVED     == Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
+
+        Obj ZZ(bslmf::MovableRefUtil::move(Y));
+        ASSERT(Z != Y);
+        ASSERT(Z.data() == 2);
+        ASSERT(Y.data() == 0);
+        ASSERT(X != Y);
+
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED ==  Y.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == ZZ.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedInto());
 
         X = bslmf::MovableRefUtil::move(Z);
         ASSERT(Z != X);
         ASSERT(Z == Y);
+        ASSERT(X.data() == 2);
         ASSERT(Z.data() == 0);
 
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == Z.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == X.movedInto());
+
+        ZZ.setData(3);
+
+        ZZ = bslmf::MovableRefUtil::move(Z);
+        ASSERTV(ZZ.data(), X.data(), ZZ != X);
+        ASSERT(ZZ == Z);
+        ASSERT(ZZ.data() == 0);
+
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Z.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     ==  Z.movedInto());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == ZZ.movedFrom());
+        ASSERT(bsltf::MoveState::e_MOVED     == ZZ.movedInto());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
