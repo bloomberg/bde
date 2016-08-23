@@ -277,7 +277,7 @@ namespace bsl {
 template <>
 struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableTestType>
         : bsl::true_type {};
-}
+}  // close namespace bsl
 
 #endif
 
