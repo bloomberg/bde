@@ -2739,7 +2739,8 @@ void TestDriver<TYPE,ALLOC>::primaryManipulator(Obj *container,
                                    bsls::Util::addressOf(buffer.object()));
 
     container->push_back(MoveUtil::move(buffer.object()));
-    bsltf::setMovedInto(&container->back(), bsltf::MoveState::e_NOT_MOVED);
+    bsltf::setMovedInto(bsls::Util::addressOf(container->back()),
+                        bsltf::MoveState::e_NOT_MOVED);
 }
 
                                  // ----------
