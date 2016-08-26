@@ -114,19 +114,6 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif // ifndef BSLS_IDENT_OFF
 #endif // ifndef BSLS_IDENT_ON
 
-
-#ifdef BSLS_IDENT_OFF
-
-
-#undef BSLS_IDENT
-#undef BSLS_IDENT_RCSID
-#define BSLS_IDENT(str)
-#define BSLS_IDENT_RCSID(tag,str)
-
-
-#else /* !BSLS_IDENT_OFF */
-
-
 /* BSLS_IDENT() - insert string into .comment binary segment (if supported)*/
 
 #if defined(__GNUC__)
@@ -246,6 +233,13 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   #undef _BSLS_IDENT_BUILDID_IMP2
 #endif
 
+
+#ifdef BSLS_IDENT_OFF
+
+#undef BSLS_IDENT
+#undef BSLS_IDENT_RCSID
+#define BSLS_IDENT(str)
+#define BSLS_IDENT_RCSID(tag,str)
 
 #endif /* !BSLS_IDENT_OFF */
 
