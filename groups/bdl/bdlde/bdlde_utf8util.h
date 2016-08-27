@@ -218,7 +218,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, doctor the string to replace the invalid code point with a valid one,
 // so the string is entirely correct UTF-8:
-//.
+//..
 //  string[3 + 2 + 1 + 4 + 4 + 2] = static_cast<char>(0x8a);
 //..
 // Finally, advance using both functions by more code points than are in the

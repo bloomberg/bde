@@ -21,7 +21,6 @@ BSLS_IDENT("$Id: $")
 // These routines are useful in implementing 'allocator_trait' classes which,
 // in turn, are used in implementing generic components such as containers.
 //
-//..
 // The traits under consideration by this component are:
 //..
 //  Trait                                         Description

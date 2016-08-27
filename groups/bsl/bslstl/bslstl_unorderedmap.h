@@ -1614,7 +1614,7 @@ class unordered_map {
         // already present.  Note that the specified 'hint' is ignored.  Also
         // note that this method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be "move-constructible" (see {Requirements on
-        // 'KEY' and 'VALUE'}).  Also note that this one template stands in for
+        // 'value_type'}).  Also note that this one template stands in for
         // three 'insert' functions in the C++11 standard.
     {
         // Note that some compilers require functions declared with 'eanble_if'

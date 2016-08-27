@@ -1,3 +1,4 @@
+// bslstl_stack.h                                                     -*-C++-*-
 #ifndef INCLUDED_BSLSTL_STACK
 #define INCLUDED_BSLSTL_STACK
 
