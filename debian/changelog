@@ -1,12 +1,13 @@
 bsl-internal (3.0.2.0) unstable; urgency=low
 
+  * b234adb Changelog for version 3.0.2.0
   * 5381d8b Changelog for version 3.0.1.0
   * c821f78 Update patch version to 3.0.1
   * a5fd6f5 Merge pull request #649 from hversche/pr/648-rebased-releases/3.0.x
   * a9b3671 Merge pull request #646 from mgiroux/review/enable-BUILD_ID-in-bsls_ident-drqs-77787475
   * 69ec8b7 Merge pull request #643 from ameredit/windows_patch_for_3_0_0
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 22:58:04 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 22:58:54 -0400
 
 bsl-internal (3.0.1.0) git; urgency=low
 
