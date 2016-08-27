@@ -1,5 +1,15 @@
 bsl-internal (3.0.1.0) unstable; urgency=low
 
+  * c821f78 Update patch version to 3.0.1
+  * a5fd6f5 Merge pull request #649 from hversche/pr/648-rebased-releases/3.0.x
+  * a9b3671 Merge pull request #646 from mgiroux/review/enable-BUILD_ID-in-bsls_ident-drqs-77787475
+  * 69ec8b7 Merge pull request #643 from ameredit/windows_patch_for_3_0_0
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 22:57:43 -0400
+
+bsl-internal (3.0.1.0) git; urgency=low
+
+  * 0008fe9 Changelog for version 3.0.1.0
   * d25c16c Merge pull request #634 from mgiroux/review/bump-version-to-3.0.1
   * 14196d3 bump patchversion to 3.0.1
   * bd01023 Merge pull request #633 from che2/bdldfp-nan-inf-for-3.0-drqs-74546219
@@ -7,7 +17,7 @@ bsl-internal (3.0.1.0) unstable; urgency=low
   * f8ea970 Merge pull request #626 from mgiroux/review/fix-bitset-warning-drqs-87662186
   * cb8ce46 Merge pull request #621 from afeher/readd-bdld__datummapowningkeysbuilder__allocator
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 22 Aug 2016 11:57:05 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Aug 2016 12:41:50 -0400
 
 bsl-internal (3.0.0.2) git; urgency=low
 
@@ -629,7 +639,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * efe82c0 [APPROVAL] pending/master/gets-14_drqs-64932703 to master
   * 9c2c49f [APPROVAL] INTERNAL pending/master/stdexcept-exception_drqs-66864749 to master
   * 0df81d8 [APPROVAL] pending/master/stdexcept-exception_drqs-66864749 to master
-  * 525a41aa [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
+  * 525a41a [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * 8d90399 [APPROVAL] pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * bfec9c2 [APPROVAL] INTERNAL fix-bad-git-merge-bslmf_typelist.h to master
   * 34d4b32 [APPROVAL] fix-bad-git-merge-bslmf_typelist.h to master
