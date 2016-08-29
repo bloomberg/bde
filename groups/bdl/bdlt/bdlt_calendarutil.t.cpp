@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;        // source line
-            const char *d_input;       // input values
+            const char *d_input_p;     // input values
             int         d_numBusDays;  // number of business days
             int         d_original;    // original date
             int         d_ret;         // expected return value
@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE     = DATA[i].d_line;
-            const char       *INPUT    = DATA[i].d_input;
+            const char       *INPUT    = DATA[i].d_input_p;
             const bdlt::Date  START    = ORIGIN + getStartDate(INPUT);
             const bdlt::Date  ORIGINAL = ORIGIN + DATA[i].d_original;
             const int         RET      = DATA[i].d_ret;
@@ -544,12 +544,12 @@ int main(int argc, char *argv[])
         }
 
         static const struct {
-            int         d_line;    // source line
-            const char *d_input;   // input values
-            int         d_month;   // month
-            int         d_leap;    // is it a leap year
-            int         d_n;       // 'n'
-            int         d_result;  // expected result
+            int         d_line;     // source line
+            const char *d_input_p;  // input values
+            int         d_month;    // month
+            int         d_leap;     // is it a leap year
+            int         d_n;        // 'n'
+            int         d_result;   // expected result
         } DATA[] = {
             // Different length months and full range with no holidays
 
@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
-            const char       *INPUT  = DATA[i].d_input;
+            const char       *INPUT  = DATA[i].d_input_p;
             const int         YEAR   = (  DATA[i].d_leap
                                         ? LEAP_YEAR
                                         : NON_LEAP_YEAR);
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line
-            const char *d_input;     // input values
+            const char *d_input_p;   // input values
             int         d_original;  // original date
             int         d_status;    // expected status
             int         d_result;    // expected result
@@ -2142,7 +2142,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE     = DATA[i].d_line;
-            const char       *INPUT    = DATA[i].d_input;
+            const char       *INPUT    = DATA[i].d_input_p;
             const bdlt::Date  START    = ORIGIN + getStartDate(INPUT);
             const bdlt::Date  ORIGINAL = ORIGIN + DATA[i].d_original;
             bdlt::Date        LOADED   = ORIGIN - 5;
@@ -2219,7 +2219,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line
-            const char *d_input;     // input values
+            const char *d_input_p;   // input values
             int         d_original;  // original date
             int         d_status;    // expected status
             int         d_result;    // expected result
@@ -3305,7 +3305,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE     = DATA[i].d_line;
-            const char       *INPUT    = DATA[i].d_input;
+            const char       *INPUT    = DATA[i].d_input_p;
             const bdlt::Date  START    = ORIGIN + getStartDate(INPUT);
             const bdlt::Date  ORIGINAL = ORIGIN + DATA[i].d_original;
             bdlt::Date        LOADED   = ORIGIN - 5;
@@ -3392,7 +3392,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line
-            const char *d_input;     // input values
+            const char *d_input_p;   // input values
             int         d_original;  // original date
             int         d_status;    // expected status
             int         d_result;    // expected result
@@ -4478,7 +4478,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE     = DATA[i].d_line;
-            const char       *INPUT    = DATA[i].d_input;
+            const char       *INPUT    = DATA[i].d_input_p;
             const bdlt::Date  START    = ORIGIN + getStartDate(INPUT);
             const bdlt::Date  ORIGINAL = ORIGIN + DATA[i].d_original;
             bdlt::Date        LOADED   = ORIGIN - 5;
@@ -4565,7 +4565,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line
-            const char *d_input;     // input values
+            const char *d_input_p;   // input values
             int         d_original;  // original date
             int         d_status;    // expected status
             int         d_result;    // expected result
@@ -5651,7 +5651,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE     = DATA[i].d_line;
-            const char       *INPUT    = DATA[i].d_input;
+            const char       *INPUT    = DATA[i].d_input_p;
             const bdlt::Date  START    = ORIGIN + getStartDate(INPUT);
             const bdlt::Date  ORIGINAL = ORIGIN + DATA[i].d_original;
             bdlt::Date        LOADED   = ORIGIN - 5;
@@ -5719,9 +5719,9 @@ int main(int argc, char *argv[])
                           << "=============================" << endl;
 
         static const struct {
-            int         d_line;    // source line
-            const char *d_input;   // input values
-            int         d_result;  // expected result
+            int         d_line;     // source line
+            const char *d_input_p;  // input values
+            int         d_result;   // expected result
         } DATA[] = {
             // All days represented as an offset from December 31, 1999.
 
@@ -5754,7 +5754,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE   = DATA[i].d_line;
-            const char *INPUT  = DATA[i].d_input;
+            const char *INPUT  = DATA[i].d_input_p;
             const int   RESULT = DATA[i].d_result;
 
             const int rDate = getStartDate(INPUT);
@@ -5795,7 +5795,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;          // source line
-            const char *d_input;         // input values
+            const char *d_input_p;       // input values
             int         d_lenght;        // length of calendar
             bdlt::Date  d_start;         // start date
             bdlt::Date  d_end;           // end date
@@ -5828,7 +5828,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int       LINE   = DATA[i].d_line;
-            const char     *INPUT  = DATA[i].d_input;
+            const char     *INPUT  = DATA[i].d_input_p;
             const int       LENGTH = DATA[i].d_lenght;
             bdlt::Date      START  = DATA[i].d_start;
             bdlt::Date      END    = DATA[i].d_end;

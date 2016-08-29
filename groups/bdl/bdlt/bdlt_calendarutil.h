@@ -182,10 +182,10 @@ struct CalendarUtil {
     };
 
     // CLASS METHODS
-    static int addBusinessDaysIfValid(bdlt::Date           *result,
-                                      const bdlt::Date&     original,
+    static int addBusinessDaysIfValid(bdlt::Date            *result,
+                                      const bdlt::Date&      original,
                                       const bdlt::Calendar&  calendar,
-                                      int                   numBusinessDays);
+                                      int                    numBusinessDays);
         // Load, into the specified 'result', the date that is the specified
         // 'numBusinessDays' chronologically after the specified 'original'
         // date according to the specified 'calendar'.  The resulting date is
