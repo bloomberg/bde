@@ -7,21 +7,18 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functions to perform date manipulation using calendars.
+//@PURPOSE: Provide common date manipulations requiring a calendar.
 //
 //@CLASSES:
-//  bdlt::CalendarUtil: namespace for manipulation functions using calendars
+//  bdlt::CalendarUtil: common date manipulations requiring a calendar
 //
-//@SEE_ALSO:
-//
-//@AUTHOR: Zokir Tiliaev (ztiliaev)
+//@SEE_ALSO: bdlt_date, bdlt_calendar
 //
 //@DESCRIPTION: This component provides a 'struct', 'bdlt::CalendarUtil', that
 // serves as a namespace for date-manipulation functions that require the use
 // of a calendar.
 //
-// The following section provides a synopsis of the main functions provided in
-// this component:
+// This utility component provides the following (static) methods:
 //..
 //  'addBusinessDaysIfValid'   Add an integral number of business days to the
 //                             specified original date within the valid range
@@ -43,14 +40,14 @@ BSLS_IDENT("$Id: $")
 //  'shiftModifiedFollowingIfValid'
 //                             If original date is not a business day, move
 //                             the date forward until it is a business day,
-//                             unless it goes into the next month, in which
-//                             case the date is moved to the previous business
-//                             day.
+//                             unless the date goes into the next month, in
+//                             which case the date is moved to the previous
+//                             business day.
 //
 //  'shiftModifiedPrecedingIfValid'
 //                             If original date is not a business day, move
 //                             the date backward until it is a business day
-//                             unless it goes into the previous month, in
+//                             unless the date goes into the previous month, in
 //                             which case the date is moved to the next
 //                             business day.
 //
@@ -88,13 +85,13 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the actual interest payment date in
 // January 2014 from a US bond that pays on the 20th of each month and uses the
-// modified following date shifting convention.
+// modified-following date-shifting convention.
 //
-// We will create a calendar, 'calUS', that has the calendar information
-// populated for the US in 2014.  We can then use the 'shiftIfValid' function
-// provided by 'CalendarUtil' to help us in computing the payment date.
+// We create a calendar, 'calUS', that has the calendar information
+// populated for the US in 2014.  We then use the 'shiftIfValid' function,
+// provided by 'CalendarUtil', to compute the payment date.
 //
-// First, we create a date for January 1 2014 that corresponds to the nominal
+// First, we create a date for January 1, 2014 that corresponds to the nominal
 // payment date (which happens to be holiday) and a calendar with valid range
 // from April 20, 2012 through April 20, 2014, typical weekend days, and the
 // holiday:
@@ -329,8 +326,14 @@ int CalendarUtil::shiftFollowingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {
+        e_SUCCESS      = 0,
+        e_BAD_INPUT    = 1,
+        e_OUT_OF_RANGE = 2,
+        e_NOT_FOUND    = 3
+    };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
@@ -354,8 +357,14 @@ int CalendarUtil::shiftPrecedingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {
+        e_SUCCESS      = 0,
+        e_BAD_INPUT    = 1,
+        e_OUT_OF_RANGE = 2,
+        e_NOT_FOUND    = 3
+    };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
