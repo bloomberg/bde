@@ -262,13 +262,13 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the actual interest payment date in
 // January 2014 from a US bond that pays on the 20th of each month and uses the
-// modified following date shifting convention.
+// modified-following date-shifting convention.
 //
-// We will create a calendar, 'calUS', that has the calendar information
-// populated for the US in 2014.  We can then use the 'shiftIfValid' function
-// provided by 'CalendarUtil' to help us in computing the payment date.
+// We create a calendar, 'calUS', that has the calendar information populated
+// for the US in 2014.  We then use the 'shiftIfValid' function, provided by
+// 'CalendarUtil', to compute the payment date.
 //
-// First, we create a date for January 1 2014 that corresponds to the nominal
+// First, we create a date for January 1, 2014 that corresponds to the nominal
 // payment date (which happens to be holiday) and a calendar with valid range
 // from April 20, 2012 through April 20, 2014, typical weekend days, and the
 // holiday:

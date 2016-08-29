@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 // January 2014 from a US bond that pays on the 20th of each month and uses the
 // modified-following date-shifting convention.
 //
-// We create a calendar, 'calUS', that has the calendar information
-// populated for the US in 2014.  We then use the 'shiftIfValid' function,
-// provided by 'CalendarUtil', to compute the payment date.
+// We create a calendar, 'calUS', that has the calendar information populated
+// for the US in 2014.  We then use the 'shiftIfValid' function, provided by
+// 'CalendarUtil', to compute the payment date.
 //
 // First, we create a date for January 1, 2014 that corresponds to the nominal
 // payment date (which happens to be holiday) and a calendar with valid range
