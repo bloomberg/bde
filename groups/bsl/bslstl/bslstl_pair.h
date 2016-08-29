@@ -361,8 +361,9 @@ BSL_OVERRIDES_STD mode"
 #   error This header should not be #included with 'std' being a macro
 #endif
 namespace std {
-template <class TYPE> void swap(TYPE& a, TYPE& b);
-}
+template <class TYPE>
+void swap(TYPE& a, TYPE& b);
+}  // close namespace std
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
@@ -382,7 +383,7 @@ struct make_index_sequence<0, I...>
 };
 #endif
 
-}
+}  // close namespace tmp
 
 namespace bsl {
 
@@ -429,6 +430,7 @@ struct Pair_MakeUtil {
     // constructed pair elements by value.
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+    // CLASS METHODS
     template <class TYPE, class ...Args, int ...I>
     static TYPE make(
            BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
@@ -764,6 +766,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     // is used instead of 'enable_if' because the allocator type is not a
     // template parameter and cannot, therefore, be used for SFINAE
     // metaprogramming.
+
     typedef typename bsl::conditional<
         (BloombergLP::bslma::UsesBslmaAllocator<T1>::value ||
          BloombergLP::bslma::UsesBslmaAllocator<T2>::value),
