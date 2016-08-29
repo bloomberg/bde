@@ -1577,18 +1577,13 @@ class map {
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true', then exchange the allocator of this object with that of
-        // 'other'.  If 'propagate_on_container_swap' is 'true' or this object
-        // and 'other' were created with the same allocator, then this method
-        // provides the no-throw exception-safety guarantee, *unless* swapping
-        // the (user-supplied) comparator objects can throw, and has 'O[1]'
-        // complexity; otherwise, this method has 'O[n + m]' complexity, where
-        // 'n' and 'm' are the number of elements in this object and 'other',
-        // respectively.  Note that this object and 'other' are left in valid
-        // but unspecified states if an exception is thrown (in the case where
-        // 'propagate_on_container_swap' is 'false' and this object and 'other'
-        // were created with different allocators), such as when the comparator
-        // objects are swapped.
+        // 'true', then exchange the allocator of this object with that of the
+        // 'other' object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee, *unless*
+        // swapping the (user-supplied) comparator objects can throw, and
+        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // either this object was created with the same allocator as 'other' or
+        // 'propagate_on_container_swap' is 'true'.
 
     void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this map.  Note that the map is empty after
