@@ -104,9 +104,9 @@ BSLS_IDENT("$Id: $")
 //  const bdlt::Date startDate(2012, 4, 20);
 //  const bdlt::Date endDate(2014, 4, 20);
 //
-//  bdlt::Calendar   calUS(startDate, endDate);
-//  calUS.addWeekendDay(bdlt::DayOfWeek::BDET_SAT);
-//  calUS.addWeekendDay(bdlt::DayOfWeek::BDET_SUN);
+//  bdlt::Calendar calUS(startDate, endDate);
+//  calUS.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+//  calUS.addWeekendDay(bdlt::DayOfWeek::e_SUN);
 //  calUS.addHoliday(unadjustedDate);
 //..
 // Now, we determine the actual payment date by invoking the 'shiftIfValid'

@@ -258,11 +258,11 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Manipulating dates with 'CalendarUtil'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Manipulating Dates with 'CalendarUtil'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the actual interest payment date in
 // January 2014 from a US bond that pays on the 20th of each month and uses the
-// modified following rolling convention.
+// modified following date shifting convention.
 //
 // We will create a calendar, 'calUS', that has the calendar information
 // populated for the US in 2014.  We can then use the 'shiftIfValid' function
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     const bdlt::Date startDate(2012, 4, 20);
     const bdlt::Date endDate(2014, 4, 20);
 
-    bdlt::Calendar   calUS(startDate, endDate);
+    bdlt::Calendar calUS(startDate, endDate);
     calUS.addWeekendDay(bdlt::DayOfWeek::e_SAT);
     calUS.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     calUS.addHoliday(unadjustedDate);
