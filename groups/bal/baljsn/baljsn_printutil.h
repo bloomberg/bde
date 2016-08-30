@@ -130,6 +130,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
+#ifndef INCLUDED_BSL_C_STDIO
+#include <bsl_c_stdio.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALUTIL
 #include <bdldfp_decimalutil.h>
 #endif
@@ -331,11 +335,20 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
       default: {
         const int LEN = 32;
         char      buffer[LEN];
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
         const int len = snprintf(buffer,
                                  LEN,
                                  "%-1.*g",
                                  maxStreamPrecision<TYPE>(options),
                                  value);
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#undef snprintf
+#endif
         stream.write(buffer, len);
       }
     }
