@@ -69,16 +69,12 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 
-#  if !__has_feature(aligned_union)
+#  if defined(__APPLE_CC__) && __APPLE_CC__ <= 6000
 #    undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 #  endif
 
-#  if !__has_feature(is_trivially_constructible)      || \
-      !__has_feature(is_trivially_copy_constructible) || \
-      !__has_feature(is_trivially_move_constructible) || \
-      !__has_feature(is_trivially_assignable)         || \
-      !__has_feature(is_trivially_copy_assignable)    || \
-      !__has_feature(is_trivially_move_assignable)
+#  if !__has_feature(is_trivially_constructible) || \
+      !__has_feature(is_trivially_assignable) 
 #    undef BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
 #  endif
 
