@@ -1,9 +1,9 @@
 // bslma_managedptr_members.t.cpp                                     -*-C++-*-
 #include <bslma_managedptr_members.h>
 
-#include <bslma_default.h>               // for testing only
-#include <bslma_testallocator.h>         // for testing only
-#include <bslma_testallocatormonitor.h>  // for testing only
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>

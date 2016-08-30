@@ -781,7 +781,7 @@ class ManagedPtr_Ref {
     // constructing 'ManagedPtr' objects.
 
     ManagedPtr_Members *d_base_p;  // non-null pointer to the managed state of
-                                   // a 'ManagedPtr' object.
+                                   // a 'ManagedPtr' object
 
     TARGET_TYPE        *d_cast_p;  // safely-cast pointer to the referenced
                                    // object
@@ -953,7 +953,7 @@ class ManagedPtr {
         // Create an empty managed pointer.
 
     template <class MANAGED_TYPE>
-    explicit ManagedPtr(MANAGED_TYPE *ptr) BSLS_CPP11_NOEXCEPT;
+    explicit ManagedPtr(MANAGED_TYPE *ptr);
         // Create a managed pointer having a target object referenced by the
         // specified 'ptr', owning the managed object '*ptr', and having a
         // deleter that uses the currently installed default allocator to
@@ -1057,15 +1057,12 @@ class ManagedPtr {
         // deleter that will invoke the specified 'deleter' with the address of
         // the currently managed object, and with the specified 'cookie' (that
         // the deleter can use for its own purposes), unless '0 == ptr', in
-        // which case create an empty managed pointer.  This constructor will
-        // not compile unless 'MANAGED_TYPE *' is convertible to
-        // 'TARGET_TYPE *'.  The deleter will invoke the destructor of
-        // 'MANAGED_TYPE' rather than the destructor of 'TARGET_TYPE'.  The
-        // behavior is undefined if 'ptr' is already managed by another object,
-        // or if '0 == deleter && 0 != ptr'.  Note that this declaration is
-        // required only because the deprecated overloads create an ambiguity
-        // in this case.  It should be removed when the deprecated overloads
-        // are removed.
+        // which case create an empty managed pointer.  The behavior is
+        // undefined if 'ptr' is already managed by another object, or if
+        // '0 == deleter && 0 != ptr'.  Note that this constructor is required
+        // only because the deprecated overloads cause an ambiguity in its
+        // absence; it should be removed when the deprecated overloads are
+        // removed.
 
     template <class MANAGED_TYPE>
     ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
@@ -1426,7 +1423,7 @@ struct ManagedPtr_FactoryDeleterType
     : bsl::conditional<
                  bsl::is_convertible<FACTORY_TYPE *, Allocator *>::value,
                  ManagedPtr_FactoryDeleter<TARGET_TYPE, Allocator>,
-                 ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> >::type {
+                 ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> > {
     // This metafunction class-template provides a means to compute the
     // preferred deleter function for a factory class for those methods of
     // 'ManagedPtr' that supply only a factory, and no additional deleter
@@ -1440,7 +1437,7 @@ struct ManagedPtr_FactoryDeleterType
     typedef typename bsl::conditional<
              bsl::is_convertible<FACTORY_TYPE *, Allocator *>::value,
              ManagedPtr_FactoryDeleter<TARGET_TYPE, Allocator>,
-             ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> >::type Type;
+             ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> >::type type;
 };
 
               // ========================================
@@ -1453,7 +1450,7 @@ struct ManagedPtr_DefaultDeleter {
     // invokes 'delete' with the passed pointer.
 
     // CLASS METHODS
-    static void deleter(void *ptr, void *) BSLS_CPP11_NOEXCEPT;
+    static void deleter(void *ptr, void *);
         // Cast the specified 'ptr' to (template parameter) type
         // 'MANAGED_TYPE *', and then call 'delete' with the cast pointer.
 };
@@ -1564,7 +1561,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr() BSLS_CPP11_NOEXCEPT
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr) BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
 : d_members(stripCompletePointerType(ptr),
             0,
             &ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter,
@@ -1658,7 +1655,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 : d_members(stripCompletePointerType(ptr),
             factory,
             &ManagedPtr_FactoryDeleterType<MANAGED_TYPE,
-                                           FACTORY_TYPE>::Type::deleter,
+                                           FACTORY_TYPE>::type::deleter,
             stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
@@ -1868,7 +1865,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 
     typedef typename
-    ManagedPtr_FactoryDeleterType<MANAGED_TYPE, FACTORY_TYPE>::Type
+    ManagedPtr_FactoryDeleterType<MANAGED_TYPE, FACTORY_TYPE>::type
                                                                 DeleterFactory;
 
     this->loadImp(ptr, static_cast<void *>(factory), &DeleterFactory::deleter);
@@ -1972,8 +1969,8 @@ ManagedPtr<TARGET_TYPE>::release() BSLS_CPP11_NOEXCEPT
 
     TARGET_TYPE *p = get();
 
-    // The behavior is undefined if 'd_members.deleter()' is called when 'p' is
-    // null.
+    // The behavior would be undefined if 'd_members.deleter()' were called
+    // when 'p' is null.
 
     if (p) {
         ResultType result = { p, d_members.deleter() };
@@ -2100,7 +2097,6 @@ void ManagedPtrNilDeleter<TARGET_TYPE>::deleter(void *, void *)
 template <class MANAGED_TYPE>
 inline
 void ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter(void *ptr, void *)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     delete reinterpret_cast<MANAGED_TYPE *>(ptr);
 }

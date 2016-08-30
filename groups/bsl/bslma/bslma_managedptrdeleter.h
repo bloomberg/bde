@@ -104,8 +104,7 @@ class ManagedPtrDeleter {
         // Create a default 'ManagedPtrDeleter' object that does not refer to
         // any object or factory instance.
 
-    ManagedPtrDeleter(void *object, void *factory, Deleter deleter)
-                                                           BSLS_CPP11_NOEXCEPT;
+    ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
         // Create a 'ManagedPtrDeleter' object that refers to the object and
         // factory instances located at the specified 'object' and 'factory'
         // memory locations, and the specified 'deleter'.  The behavior is
@@ -132,7 +131,7 @@ class ManagedPtrDeleter {
     void clear() BSLS_CPP11_NOEXCEPT;
         // Reset this 'ManagedPtrDeleter' to its default-constructed state.
 
-    void set(void *object, void *factory, Deleter deleter) BSLS_CPP11_NOEXCEPT;
+    void set(void *object, void *factory, Deleter deleter);
         // Set this 'ManagedPtrDeleter' to refer to the object and factory
         // instances located at the specified 'object' and 'factory' memory
         // locations, and the specified 'deleter'.  The behavior is undefined
@@ -191,7 +190,7 @@ ManagedPtrDeleter::ManagedPtrDeleter() BSLS_CPP11_NOEXCEPT
 inline
 ManagedPtrDeleter::ManagedPtrDeleter(void    *object,
                                      void    *factory,
-                                     Deleter  deleter) BSLS_CPP11_NOEXCEPT
+                                     Deleter  deleter)
 : d_object_p(object)
 , d_factory_p(factory)
 , d_deleter(deleter)
@@ -209,7 +208,6 @@ void ManagedPtrDeleter::clear() BSLS_CPP11_NOEXCEPT
 
 inline
 void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     d_object_p  = object;
     d_factory_p = factory;

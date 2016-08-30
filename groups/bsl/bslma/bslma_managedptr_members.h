@@ -121,7 +121,7 @@ class ManagedPtr_Members {
 
     void move(ManagedPtr_Members *other);
         // Reset this object to have the same 'pointer' as the specified
-        // 'other' object, and, if '0 != other.pointer()', the same deleter as
+        // 'other' object, and, if '0 != other->pointer()', the same deleter as
         // 'other', then put 'other' into an unset state.  This method has no
         // effect on the previously managed object (if any).  The behavior is
         // undefined unless 'this != other'.
@@ -129,7 +129,7 @@ class ManagedPtr_Members {
     void moveAssign(ManagedPtr_Members *other);
         // Destroy the currently managed object (if any), reset this object to
         // have the same 'pointer' as the specified 'other' object, and, if
-        // '0 != other.pointer()', the same deleter as 'other', then put
+        // '0 != other->pointer()', the same deleter as 'other', then put
         // 'other' into an unset state.  This method has no effect if
         // 'this == other'.
 
@@ -163,7 +163,7 @@ class ManagedPtr_Members {
         // managed object, or 0 if this object is in an unset state.  Note that
         // the returned pointer may be an alias to the managed object.
 
-    void runDeleter() const BSLS_CPP11_NOEXCEPT;
+    void runDeleter() const;
         // Destroy the currently managed object (if any).  Note that calling
         // this method twice on an object that is not in an unset state,
         // without assigning a new pointer to manage between the two calls,
@@ -232,7 +232,7 @@ void ManagedPtr_Members::move(ManagedPtr_Members *other)
     BSLS_ASSERT_SAFE(other);
     BSLS_ASSERT_SAFE(this != other);
 
-    // If 'other.d_obj_p' is null, then 'other.d_deleter' has an unspecified
+    // If 'other->d_obj_p' is null, then 'other->d_deleter' has an unspecified
     // value.
 
     d_obj_p = other->d_obj_p;
@@ -294,7 +294,7 @@ void *ManagedPtr_Members::pointer() const BSLS_CPP11_NOEXCEPT
 }
 
 inline
-void ManagedPtr_Members::runDeleter() const BSLS_CPP11_NOEXCEPT
+void ManagedPtr_Members::runDeleter() const
 {
     if (d_obj_p) {
         d_deleter.deleteManagedObject();

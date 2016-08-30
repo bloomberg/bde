@@ -1,8 +1,8 @@
 // bslma_managedptrdeleter.t.cpp                                      -*-C++-*-
 #include <bslma_managedptrdeleter.h>
 
-#include <bslma_default.h>                      // for testing only
-#include <bslma_testallocator.h>                // for testing only
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
 

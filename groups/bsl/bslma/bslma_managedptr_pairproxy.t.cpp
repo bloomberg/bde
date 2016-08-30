@@ -1,8 +1,8 @@
 // bslma_managedptr_pairproxy.t.cpp                                   -*-C++-*-
 #include <bslma_managedptr_pairproxy.h>
 
-#include <bslma_default.h>        // for testing only
-#include <bslma_testallocator.h>  // for testing only
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
 

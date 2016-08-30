@@ -1,9 +1,9 @@
 // bslma_managedptr_factorydeleter.t.cpp                              -*-C++-*-
 #include <bslma_managedptr_factorydeleter.h>
 
-#include <bslma_default.h>               // for testing only
-#include <bslma_testallocator.h>         // for testing only
-#include <bslma_testallocatormonitor.h>  // for testing only
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>

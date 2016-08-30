@@ -3,9 +3,9 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>    // for testing only
-#include <bslma_testallocator.h>            // for testing only
-#include <bslma_testallocatormonitor.h>     // for testing only
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
@@ -2378,7 +2378,7 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
     // correctly cleared.
     if (!negativeTesting) {
         typedef typename
-        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
+        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::type
                                                                   DeleterClass;
 
         const bslma::ManagedPtrDeleter del;
