@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 
-#  if defined(__APPLE_CC__) && __APPLE_CC__ <= 6000
+#  if defined(__APPLE_CC__) && __APPLE_CC__ < 6000
 #    undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 #  endif
 
