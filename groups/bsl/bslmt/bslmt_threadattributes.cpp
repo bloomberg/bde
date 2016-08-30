@@ -64,11 +64,6 @@ bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
     return *this;
 }
 
-void bslmt::ThreadAttributes::setThreadName(const bslstl::StringRef& value)
-{
-    d_threadName.assign(value);
-}
-
 // FREE OPERATORS
 bool bslmt::operator==(const ThreadAttributes& lhs,
                        const ThreadAttributes& rhs)

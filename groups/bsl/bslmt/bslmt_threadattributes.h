@@ -129,8 +129,8 @@ BSLS_IDENT("$Id: $")
 // thread names actually supported by specific platforms may have limited
 // length, depending upon the platform, so thread names may be truncated when
 // assigned to the actual thread.  At this time, only Linux and Darwin support
-// thread names, and there is a max thread name length of 15 on both of those
-// platforms.
+// thread names, and there is a maximum thread name length of 15 on both of
+// those platforms.
 //
 ///Usage
 ///-----
@@ -264,6 +264,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -395,7 +399,7 @@ class ThreadAttributes {
         //: o 'schedulingPolicy()   == e_SCHED_DEFAULT'
         //: o 'schedulingPriority() == e_UNSET_PRIORITY'
         //: o 'stackSize()          == e_UNSET_STACK_SIZE'
-        //: o 'threadName           == ""'
+        //: o 'threadName()         == ""'
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -467,6 +471,9 @@ class ThreadAttributes {
         // 'value'.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
     DetachedState detachedState() const;
         // Return the value of the 'detachedState' attribute of this object.  A
         // value of 'e_CREATE_JOINABLE' indicates that a thread must be joined
@@ -596,12 +603,18 @@ void bslmt::ThreadAttributes::setStackSize(int value)
 }
 
 inline
-bslstl::StringRef bslmt::ThreadAttributes::threadName() const
+void bslmt::ThreadAttributes::setThreadName(const bslstl::StringRef& value)
 {
-    return d_threadName;
+    d_threadName.assign(value);
 }
 
 // ACCESSORS
+inline
+bslma::Allocator *bslmt::ThreadAttributes::allocator() const
+{
+    return d_threadName.get_allocator().mechanism();
+}
+
 inline
 bslmt::ThreadAttributes::DetachedState
 bslmt::ThreadAttributes::detachedState() const
@@ -638,6 +651,12 @@ inline
 int bslmt::ThreadAttributes::stackSize() const
 {
     return d_stackSize;
+}
+
+inline
+bslstl::StringRef bslmt::ThreadAttributes::threadName() const
+{
+    return d_threadName;
 }
 
 }  // close enterprise namespace

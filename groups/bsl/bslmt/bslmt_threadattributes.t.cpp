@@ -127,9 +127,7 @@ typedef bslmt::ThreadAttributes Obj;
         // Perform some calculation that involves no subroutine calls or
         // additional automatic variables.
 
-if (verbose) {
         (void) bufferLocal;    // silence unused warnings
-}
     }
 //..
 // Then, we define our main function, in which we demonstrate configuring a
@@ -206,12 +204,10 @@ if (verbose) {
         int policy = attributes.schedulingPolicy();
         int priority = attributes.schedulingPriority();
 
-if (verbose) {
         (void) policy;          // silence unused warnings
         (void) priority;        // silence unused warnings
         (void) threadHandle;    // silence unused warnings
         (void) function;        // silence unused warnings
-}
 
         // the following is pseudo-code for actually creating the thread
 #if 0
@@ -305,8 +301,8 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
 
         if (verbose) {
-            cout << "PRIMARY METHOD TEST" << endl;
-            cout << "==============" << endl;
+            cout << "PRIMARY METHOD TEST\n"
+                    "===================\n";
         }
 
         bslma::TestAllocator ta;
@@ -326,31 +322,31 @@ int main(int argc, char *argv[])
 
             int                   d_whichVerify;
         } PARAM[] = {
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER,
-                0, 0, 0, 0, "incredibly terribly long thread name", 1 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                0, 0, 0, 0, "incredibly terribly long thread name", 2 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                5, 0, 0, 0, "incredibly terribly long thread name", 3 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                4, true, 0, 0, "incredibly terribly long thread name", 4 },
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 300000, 0, "incredibly terribly long thread name", 5 },
-#else
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 80000, 0, "incredibly terribly long thread name", 5 },
-#endif
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, "incredibly terribly long thread name", 6 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, "incredibly terribly long thread name", 7 }
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
+                                   "incredibly terribly long thread name", 1 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 0, 0, 0, 0,
+                            "How long is your thread name? I wanna know.", 2 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 5, 0, 0, 0,
+                         "My thread name is sooooooooooooooooooooo long.", 3 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 4, true, 0, 0,
+                "My thread name got lost and couldn't find its way home.", 4 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 300000, 0,
+                             "My thread name goes to the next time zone.", 4 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 80000, 0,
+                                                             "short name", 5 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
+                           "My thread name goes to Nova Scotia and back.", 6 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
+                 "That's nothing!"
+                      "  The other end of my thread name is in Timbuktu.", 7 }
         };
 
         size_t numParams = sizeof(PARAM) / sizeof(Parameters);
         for (unsigned i = 0; i < numParams; ++i) {
-            Int64 numTaPreAlloc = ta.numAllocations();
-            Obj mX(&ta);
+            const Int64 numTaPreAlloc = ta.numAllocations();
+            const Int64 numDaPreAlloc = da.numAllocations();
+
+            Obj mX(&ta);    const Obj& X = mX;
             mX.setDetachedState(PARAM[i].d_detachedState);
             mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
             mX.setSchedulingPriority(PARAM[i].d_schedulingPriority);
@@ -359,10 +355,9 @@ int main(int argc, char *argv[])
             mX.setGuardSize(PARAM[i].d_guardSize);
             mX.setThreadName(PARAM[i].d_threadName);
 
-            ASSERT(0 == da.numAllocations());
-            ASSERT(ta.numAllocations() > numTaPreAlloc);
-
-            const Obj& X = mX;
+            ASSERT(da.numAllocations() == numDaPreAlloc);
+            ASSERTV(X.threadName(), ("short name" != X.threadName()) ==
+                                        (ta.numAllocations() > numTaPreAlloc));
 
             Obj mY(&ta);
             LOOP_ASSERT(i, X != mY);
@@ -372,6 +367,30 @@ int main(int argc, char *argv[])
             const Obj Z(X, &ta);
 
             const Obj& Y = mY;
+
+            ASSERT(da.numAllocations() == numDaPreAlloc);
+
+            const Obj ZD(X);
+            Obj mA;    const Obj& A = mA;
+
+            ASSERT(A != X);
+
+            mA = X;
+
+            ASSERTV(A.threadName(), ("short name" != A.threadName()) ==
+                                        (da.numAllocations() > numDaPreAlloc));
+
+            ASSERT(&ta == X.allocator());
+            ASSERT(&ta == Y.allocator());
+            ASSERT(&ta == Z.allocator());
+            ASSERT(&da == ZD.allocator());
+            ASSERT(&da == A.allocator());
+
+            ASSERT(X  == Y);
+            ASSERT(Z  == X);
+            ASSERT(ZD == X)
+            ASSERT(A  == X);
+
             switch (PARAM[i].d_whichVerify) {
             case 1:
                 LOOP_ASSERT(PARAM[i].d_line,

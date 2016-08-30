@@ -68,6 +68,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadattributes.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -76,12 +80,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_PTHREAD
@@ -260,12 +264,12 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // Suspend execution of the current thread until the specified
         // 'absoluteTime'.  Optionally specify 'retryOnSignalInterrupt'
         // indicating whether to put this thread to sleep again if the
-        // operating system interupts the sleep because of a signal.
+        // operating system interrupts the sleep because of a signal.
         // Optionally specify 'clockType' which determines the epoch from which
         // the interval 'absoluteTime' is measured (see {'Supported
         // Clock-Types'} in the component documentation).  Return 0 on success,
         // and a non-zero value otherwise.  If 'retryOnSignalInterrupt' is
-        // 'true', an interupt from a signal will be ignored and the current
+        // 'true', an interrupt from a signal will be ignored and the current
         // the thread will be put back to sleep until 'absoluteTime', otherwise
         // this call will return 0 to the calling thread immediately.  The
         // behavior is undefined unless 'absoluteTime' represents a time after

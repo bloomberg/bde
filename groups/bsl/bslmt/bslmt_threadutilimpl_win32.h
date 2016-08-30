@@ -60,10 +60,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
@@ -76,12 +72,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
-#include <bsls_timeinterval.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_STRING
+#include <bsls_string.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES

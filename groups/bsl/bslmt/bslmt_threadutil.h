@@ -248,9 +248,9 @@ BSLS_IDENT("$Id: $")
 //
 //      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
 //      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
-//                                                MostUrgentThreadFunction,
-//                                                FairlyUrgentThreadFunction,
-//                                                LeastUrgentThreadFunction };
+//                                                MostUrgentThreadFunctor,
+//                                                FairlyUrgentThreadFunctor,
+//                                                LeastUrgentThreadFunctor };
 //      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
 //
 //      bslmt::ThreadAttributes attributes;
@@ -273,7 +273,6 @@ BSLS_IDENT("$Id: $")
 //          int rc = bslmt::ThreadUtil::join(handles[i]);
 //          assert(0 == rc);
 //      }
-//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -282,6 +281,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
 #include <bslmt_entrypointfunctoradapter.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_THREADATTRIBUTES
@@ -308,10 +311,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -320,16 +319,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -362,11 +357,13 @@ struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
     // managing threads.
 
-    // TYPES
+  private:
+    // PRIVATE TYPES
     typedef ThreadUtilImpl<Platform::ThreadPolicy> Imp;
-        // Platform-specific implementation type.  Non-bslmt components should
-        // not use directly.
+        // Platform-specific implementation type.
 
+  public:
+    // PUBLIC TYPES
     typedef Imp::Handle                            Handle;
         // Thread handle type.  Use this type to refer to a thread in a
         // platform-independent way.
@@ -412,25 +409,26 @@ struct ThreadUtil {
                       ThreadFunction           function,
                       void                    *userData);
         // Create a new thread of program control whose entry point will be the
-        // specified 'function', and which will be passed 'userData' as its
-        // sole argument, and load into the specified 'handle' an identifier
-        // that may be used to refer to this thread in calls to other
-        // 'ThreadUtil' methods.  Optionally specify 'attributes' describing
-        // the properties for the new thread to create.  If 'attributes' is not
-        // supplied, a default 'ThreadAttributes' object is used.  Return 0 on
-        // success, and a non-zero value otherwise.  'bslmt::Configuration' is
-        // used to determine the created thread's default stack-size if either
-        // 'attributes' is not supplied or if 'attributes.stackSize()' has the
-        // unset value.  The behavior is undefined unless unless 'attributes',
-        // if specified, has a 'stackSize' that is either greater than 0 or
-        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
-        // explicitly "detached" (by invoking the 'detach' class method with
-        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
-        // to 'join' must be made to reclaim any system resources associated
-        // with the newly-created thread.  Also note that users are encouraged
-        // to either explicitly provide a stack size attribute, or configure a
-        // 'bslmt'-wide default using 'bslmt::Configuration', because the
-        // default stack size is surprisingly small on some platforms.
+        // specified 'function', and which will be passed the specified
+        // 'userData' as its sole argument, and load into the specified
+        // 'handle' an identifier that may be used to refer to this thread in
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Return 0 on success, and a non-zero value otherwise.
+        // 'bslmt::Configuration' is used to determine the created thread's
+        // default stack-size if either 'attributes' is not supplied or if
+        // 'attributes.stackSize()' has the unset value.  The behavior is
+        // undefined unless 'attributes', if specified, has a 'stackSize' that
+        // is either greater than 0 or 'e_UNSET_STACK_SIZE'.  Note that unless
+        // the created thread is explicitly "detached" (by invoking the
+        // 'detach' class method with 'handle') or the 'k_CREATE_DETACHED'
+        // attribute is specified, a call to 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that users are encouraged to either explicitly provide a stack
+        // size attribute, or configure a 'bslmt'-wide default using
+        // 'bslmt::Configuration', because the default stack size is
+        // surprisingly small on some platforms.
 
     template <class INVOKABLE>
     static int create(Handle                  *handle,
@@ -443,9 +441,9 @@ struct ThreadUtil {
         // the the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
-        // 'attributes' describing the properties for the new thread to create.
-        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
-        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Return 0 on success, and a non-zero value otherwise.
         // 'function' shall be a reference to a type, 'INVOKABLE', that can be
         // copy-constructed, and where the expression '(void)function()' will
         // execute a function call (i.e., either a 'void()()' function, or a
@@ -453,16 +451,16 @@ struct ThreadUtil {
         // 'bslmt::Configuration' is used to determine the created thread's
         // default stack-size if either 'attributes' is not supplied or if
         // 'attributes.stackSize()' has the unset value.  The behavior is
-        // undefined unless unless 'attributes', if specified, has a
-        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
-        // Note that unless the created thread is explicitly "detached" (by
-        // invoking the 'detach' class method with 'handle') or the
-        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
-        // made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that users are encouraged to either
-        // explicitly provide a stack size attribute, or configure a
-        // 'bslmt'-wide default using 'bslmt::Configuration',  because the
-        // default stack size is surprisingly small on some platforms.
+        // undefined unless 'attributes', if specified, has a 'stackSize' that
+        // is either greater than 0 or 'e_UNSET_STACK_SIZE'.  Note that unless
+        // the created thread is explicitly "detached" (by invoking the
+        // 'detach' class method with 'handle') or the 'k_CREATE_DETACHED'
+        // attribute is specified, a call to 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that users are encouraged to either explicitly provide a stack
+        // size attribute, or configure a 'bslmt'-wide default using
+        // 'bslmt::Configuration', because the default stack size is
+        // surprisingly small on some platforms.
 
     static int createWithAllocator(Handle                  *handle,
                                    ThreadFunction           function,
@@ -474,26 +472,27 @@ struct ThreadUtil {
                                    void                    *userData,
                                    bslma::Allocator        *allocator);
         // Create a new thread of program control whose entry point will be the
-        // specified 'function', and which will be passed 'userData' as its
-        // sole argument, and load into the specified 'handle' an identifier
-        // that may be used to refer to this thread in calls to other
-        // 'ThreadUtil' methods.  Optionally specify 'attributes' describing
-        // the properties for the new thread to create.  If 'attributes' is not
-        // supplied, a default 'ThreadAttributes' object is used.  Use the
-        // specified 'allocator' to allocate memory.  Return 0 on success, and
-        // a non-zero value otherwise.  'bslmt::Configuration' is used to
-        // determine the created thread's default stack-size if either
+        // specified 'function', and which will be passed the specified
+        // 'userData' as its sole argument, and load into the specified
+        // 'handle' an identifier that may be used to refer to this thread in
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Use the specified 'allocator' to supply memory.  Return 0 on
+        // success, and a non-zero value otherwise.  'bslmt::Configuration' is
+        // used to determine the created thread's default stack-size if either
         // 'attributes' is not supplied or if 'attributes.stackSize()' has the
-        // unset value.  The behavior is undefined unless unless 'attributes',
-        // if specified, has a 'stackSize' that is either greater than 0 or
-        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
-        // explicitly "detached" (by invoking the 'detach' class method with
-        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
-        // to 'join' must be made to reclaim any system resources associated
-        // with the newly-created thread.  Also note that users are encouraged
-        // to either explicitly provide a stack size attribute, or configure a
-        // 'bslmt'-wide default using 'bslmt::Configuration', because the
-        // default stack size is surprisingly small on some platforms.
+        // unset value.  The behavior is undefined unless 'attributes', if
+        // specified, has a 'stackSize' that is either greater than 0 or
+        // 'e_UNSET_STACK_SIZE', and unless '0 != allocator'.  Note that unless
+        // the created thread is explicitly "detached" (by invoking the
+        // 'detach' class method with 'handle') or the 'k_CREATE_DETACHED'
+        // attribute is specified, a call to 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that users are encouraged to either explicitly provide a stack
+        // size attribute, or configure a 'bslmt'-wide default using
+        // 'bslmt::Configuration', because the default stack size is
+        // surprisingly small on some platforms.
 
     template <class INVOKABLE>
     static int createWithAllocator(Handle                  *handle,
@@ -509,9 +508,9 @@ struct ThreadUtil {
         // to supply memory to copy 'function'), and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
-        // 'attributes' describing the properties for the new thread to create.
-        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
-        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Return 0 on success, and a non-zero value otherwise.
         // 'function' shall be a reference to a type, 'INVOKABLE', that can be
         // copy-constructed, and where the expression '(void)function()' will
         // execute a function call (i.e., either a 'void()()' function, or a
@@ -519,12 +518,12 @@ struct ThreadUtil {
         // 'bslmt::Configuration' is used to determine the created thread's
         // default stack-size if either 'attributes' is not supplied or if
         // 'attributes.stackSize()' has the unset value.  The behavior is
-        // undefined unless unless 'attributes', if specified, has a
-        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
-        // Note that unless the created thread is explicitly "detached" (by
-        // invoking the 'detach' class method with 'handle') or the
-        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
-        // made to reclaim any system resources associated with the
+        // undefined unless 'attributes', if specified, has a 'stackSize' that
+        // is either greater than 0 or 'e_UNSET_STACK_SIZE', and unless
+        // '0 != allocator'.  Note that unless the created thread is explicitly
+        // "detached" (by invoking the 'detach' class method with 'handle') or
+        // the 'k_CREATE_DETACHED' attribute is specified, a call to 'join'
+        // must be made to reclaim any system resources associated with the
         // newly-created thread.  Also note that the lifetime of 'allocator'
         // must exceed the lifetime of the thread.  Also note that users are
         // encouraged to either explicitly provide a stack size attribute, or
@@ -771,6 +770,8 @@ int bslmt::ThreadUtil::create(Handle         *handle,
                               ThreadFunction  function,
                               void           *userData)
 {
+    BSLS_ASSERT_SAFE(handle);
+
     return Imp::create(handle, function, userData);
 }
 
@@ -779,7 +780,11 @@ inline
 int bslmt::ThreadUtil::create(Handle           *handle,
                               const INVOKABLE&  function)
 {
-    return createWithAllocator(handle, function, 0);
+    BSLS_ASSERT_SAFE(handle);
+
+    return createWithAllocator(handle,
+                               function,
+                               bslma::Default::globalAllocator());
 }
 
 template <class INVOKABLE>
@@ -788,7 +793,12 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
                               const INVOKABLE&         function)
 {
-    return createWithAllocator(handle, attributes, function, 0);
+    BSLS_ASSERT_SAFE(handle);
+
+    return createWithAllocator(handle,
+                               attributes,
+                               function,
+                               bslma::Default::globalAllocator());
 }
 
 inline
@@ -797,10 +807,12 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            void                    *userData,
                                            bslma::Allocator        *allocator)
 {
-    (void) allocator;   // 'allocator' is unused in this function, which is
-                        // provided for symmetry and in case this function
-                        // comes to need an allocator at sometime in the
-                        // future.
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_SAFE(allocator);
+
+    // 'allocator' is unused in this function, which is provided for symmetry
+    // and in case this function comes to need an allocator at sometime in the
+    // future.
 
     return Imp::create(handle, function, userData);
 }
@@ -812,12 +824,14 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            const INVOKABLE&         function,
                                            bslma::Allocator        *allocator)
 {
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_SAFE(allocator);
+
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
-    EntryPointFunctorAdapterUtil::allocateAdapter(
-                                   &threadData,
-                                   function,
-                                   attributes.threadName(),
-                                   bslma::Default::globalAllocator(allocator));
+    EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                                                  function,
+                                                  attributes.threadName(),
+                                                  allocator);
 
     int rc = Imp::create(handle,
                          attributes,
@@ -835,12 +849,14 @@ int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
                                            const INVOKABLE&  function,
                                            bslma::Allocator *allocator)
 {
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_SAFE(allocator);
+
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
-    EntryPointFunctorAdapterUtil::allocateAdapter(
-                                   &threadData,
-                                   function,
-                                   bslstl::StringRef(),
-                                   bslma::Default::globalAllocator(allocator));
+    EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                                                  function,
+                                                  bslstl::StringRef(),
+                                                  allocator);
 
     int rc = Imp::create(handle, bslmt_EntryPointFunctorAdapter_invoker,
                          threadData.ptr());

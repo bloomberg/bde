@@ -76,7 +76,8 @@ extern "C" {
    typedef void *(*CallbackFunction)(void*);
 }
 
-void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
+void *executeWithArgument(CallbackFunction funcPtr, void *argument)
+{
    return funcPtr(argument);
 }
 
@@ -93,39 +94,43 @@ class WordCountJob {
     WordCountJob(const bslstl::StringRef&  message,
                  int                      *result,
                  bslma::Allocator         *basicAllocator = 0);
-      // Create a new functor that, upon execution, counts the number of words
-      // (contiguous sequences of non-space characters) in the specified
-      // 'message' and stores the count in the specified 'result' address.  Use
-      // the specified 'basicAllocator' to supply memory.  If 'basicAllocator'
-      // is 0, the currently installed default allocator is used.
+        // Create a new functor that, upon execution, counts the number of
+        // words (contiguous sequences of non-space characters) in the
+        // specified 'message' and stores the count in the specified 'result'
+        // address.  Use the specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    WordCountJob(const WordCountJob&  other,
+    WordCountJob(const WordCountJob&  original,
                  bslma::Allocator    *basicAllocator = 0);
-      // Create a new functor that performs the same calculation as the
-      // specified 'other' functor.  Use the specified 'basicAllocator' to
-      // supply memory.  If 'basicAllocator' is 0, the currently installed
-      // default allocator is used.
+        // Create a new functor that performs the same calculation as the
+        // specified 'other' functor.  Use the specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     // MANIPULATORS
     void operator()();
-      // Count the number of words in the message and store the count in the
-      // address specified on construction.
+        // Count the number of words in the message and store the count in the
+        // address specified on construction.
 };
 
-inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
-                                  int                      *result,
-                                  bslma::Allocator         *basicAllocator)
+inline
+WordCountJob::WordCountJob(const bslstl::StringRef&  message,
+                           int                      *result,
+                           bslma::Allocator         *basicAllocator)
 : d_message(message, basicAllocator)
 , d_result_p(result)
 {}
 
-inline WordCountJob::WordCountJob(const WordCountJob&  other,
-                                  bslma::Allocator    *basicAllocator)
-: d_message(other.d_message, basicAllocator)
-, d_result_p(other.d_result_p)
+inline
+WordCountJob::WordCountJob(const WordCountJob&  original,
+                           bslma::Allocator    *basicAllocator)
+: d_message(original.d_message, basicAllocator)
+, d_result_p(original.d_result_p)
 {}
 
-void WordCountJob::operator()() {
+void WordCountJob::operator()()
+{
   bool inWord = false;
   *d_result_p = 0;
   for (unsigned i = 0; i < d_message.length(); ++i) {

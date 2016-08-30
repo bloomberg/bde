@@ -25,7 +25,7 @@ BSLS_IDENT("$: $")
 // 'EntryPointFunctorAdapter', invoking the invokable object contained within
 // it and then deallocating the adapter object along with the contained
 // invokable object.  Together, 'EntryPointFunctorAdapter' and
-// 'bldqq_EntryPointFunctorAdapter_invoker' simplify the process of invoking a
+// 'bslmt_EntryPointFunctorAdapter_invoker' simplify the process of invoking a
 // generic functor as a C-style callback, such as a thread entry point.
 //
 // Finally, this component provides 'EntryPointFunctorAdapterUtil', a namespace
@@ -53,7 +53,7 @@ BSLS_IDENT("$: $")
 //..
 // In this example, we want to use this interface to invoke a C++-style
 // functor.  Our approach will be to use
-// 'bldqq_EntryPointFunctorAdapter_invoker' as the C-linkage callback function,
+// 'bslmt_EntryPointFunctorAdapter_invoker' as the C-linkage callback function,
 // and a dynamically allocated value of 'EntryPointFunctorAdapter' as the
 // 'void*' argument.
 //
@@ -84,8 +84,8 @@ BSLS_IDENT("$: $")
 //                  bslma::Allocator    *basicAllocator = 0);
 //       // Create a new functor that performs the same calculation as the
 //       // specified 'other' functor.  Use the specified 'basicAllocator'
-//       // to supply memory.  If 'basicAllocator' is 0, the currently installed
-//       // default allocator is used.
+//       // to supply memory.  If 'basicAllocator' is 0, the currently
+//       // installed default allocator is used.
 //
 //     // MANIPULATORS
 //     void operator()();
@@ -149,6 +149,10 @@ BSLS_IDENT("$: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
 #include <bslmt_threadutilimpl_pthread.h>
 #endif
@@ -157,12 +161,12 @@ BSLS_IDENT("$: $")
 #include <bslmt_threadutilimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
-#include <bslmt_platform.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -219,7 +223,7 @@ class EntryPointFunctorAdapter_Base {
     explicit EntryPointFunctorAdapter_Base(InvokerFunction function);
         // Create a new object holding the specified 'function'.
 
-  public :
+  public:
     // PUBLIC ACCESSORS
     InvokerFunction function() const;
         // Return the function supplied at construction.
@@ -239,6 +243,7 @@ class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
     // FRIENDS
     friend struct EntryPointFunctorAdapterUtil;
 
+  private:
     // NOT IMPLEMENTED
     EntryPointFunctorAdapter(const EntryPointFunctorAdapter&);
     EntryPointFunctorAdapter& operator=(const EntryPointFunctorAdapter&);
@@ -247,13 +252,13 @@ class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
     EntryPointFunctorAdapter(const TYPE&               functor,
                              const bslstl::StringRef&  threadName,
                              bslma::Allocator         *allocator);
-        // Create a new managed object holding new copies of the specified
-        // 'functor' and the specified 'threadName' values and using the
-        // specified 'allocator' to manage memory.
+        // Create a new managed object holding copies of the specified
+        // 'functor' and 'threadName' values and using the specified
+        // 'allocator' to supply memory.
 
     // PRIVATE CLASS METHODS
     static void invokerFunction(void *adapter);
-        // Interpreting the specified 'adapter' as a
+        // Interpreting the specified 'adapter' as an
         // 'EntryPointFunctorAdapter<TYPE>*', invoke 'd_object' and then
         // deallocate 'adapter' using the allocator used by '*adapter'.
 
@@ -269,6 +274,7 @@ class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
 
 struct EntryPointFunctorAdapterUtil {
 
+    // CLASS METHODS
     template<typename TYPE>
     static void allocateAdapter(
        bslma::ManagedPtr<EntryPointFunctorAdapter<TYPE> > *adapter,
@@ -298,7 +304,8 @@ EntryPointFunctorAdapter_Base::EntryPointFunctorAdapter_Base(
 {}
 
 // PUBLIC ACCESSORS
-inline EntryPointFunctorAdapter_Base::InvokerFunction
+inline
+EntryPointFunctorAdapter_Base::InvokerFunction
 EntryPointFunctorAdapter_Base::function() const
 {
     return d_function;
@@ -320,7 +327,7 @@ void EntryPointFunctorAdapter<TYPE>::invokerFunction(void *adapterRaw)
     bslma::RawDeleterGuard<EntryPointFunctorAdapter<TYPE>,
                            bslma::Allocator> adapterGuard(adapter, a);
 
-    if (0 == adapter->d_threadName.empty()) {
+    if (false == adapter->d_threadName.empty()) {
         ThreadUtilImpl<Platform::ThreadPolicy>::setThreadName(
                                                         adapter->d_threadName);
     }

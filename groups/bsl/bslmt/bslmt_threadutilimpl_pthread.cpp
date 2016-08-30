@@ -460,12 +460,12 @@ void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::setThreadName(
                                            const bslstl::StringRef& threadName)
 {
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-    // http://linux.die.net/man/2/prctl says that 'prctl(PR_SET_NAME, ...' can
+    // http://linux.die.net/man/2/prctl says that 'prctl(PR_SET_NAME, ...)' can
     // only handle names up to 16 bytes, including the terminating '\0'.
 
     // http://linux.die.net/man/3/pthread_getname_np says that
     // 'pthread_setname_np' can't handle a string longer than 16 bytes,
-    // including the terminating '\0').
+    // including the terminating '\0'.
 
     enum { k_BUF_SIZE = 16 };   // 16 is appropriate for both Linux and Darwin.
     char localBuf[k_BUF_SIZE];

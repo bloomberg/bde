@@ -111,7 +111,7 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-bool isPost_5_10;    // On Solairis, is OS post-Solaris 5.0
+bool isPost_5_10;    // On Solaris, is OS post-Solaris 5.0
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -127,156 +127,6 @@ bool isPost_5_10;    // On Solairis, is OS post-Solaris 5.0
 #else
     const int MIN_GUARD_SIZE = 1;
 #endif
-
-///Usage
-///-----
-// This section illustrates the intended use of this component.
-//
-///Example 1: Creating a Simple Thread with Default Attributes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we create a thread using the default attribute settings.
-// Upon creation, the thread executes the user-supplied C-linkage function
-// 'myThreadFunction' that counts 5 seconds before terminating:
-//
-// First, we create a function that will run in the spawned thread:
-//..
-//  extern "C" void *myThreadFunction(void *)
-//      // Print to standard output "Another second has passed" every second
-//      // for five seconds, and return 0.
-//  {
-//      for (int i = 0; i < 3; ++i) {
-//          bslmt::ThreadUtil::microSleep(0, 1);
-//          bsl::cout << "Another second has passed." << bsl::endl;
-//      }
-//      return 0;
-//  }
-//..
-// Now, we show how to create and join the thread.
-//
-// After creating the thread, the 'main' routine *joins* the thread, which, in
-// effect, causes 'main' to wait for execution of 'myThreadFunction' to
-// complete, and guarantees that the output from 'main' will follow the last
-// output from the user-supplied function:
-//..
-//  int main()
-//  {
-//      bslmt::Configuration::setDefaultThreadStackSize(
-//                  bslmt::Configuration::recommendedDefaultThreadStackSize());
-//
-//      bslmt::ThreadUtil::Handle handle;
-//
-//      bslmt::ThreadAttributes attr;
-//      attr.setStackSize(1024 * 1024);
-//
-//      int rc = bslmt::ThreadUtil::create(&handle, attr, myThreadFunction, 0);
-//      ASSERT(0 == rc);
-//
-//      bslmt::ThreadUtil::yield();
-//
-//      rc = bslmt::ThreadUtil::join(handle);
-//      ASSERT(0 == rc);
-//
-//      bsl::cout << "A three second interval has elapsed\n";
-//
-//      return 0;
-//  }
-//..
-// Finally, the output of this program is:
-//..
-//  Another second has passed.
-//  Another second has passed.
-//  Another second has passed.
-//  A three second interval has elapsed.
-//..
-///Example 2: Creating a Simple Thread with User-Specified Attributes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will choose to override the default thread attribute
-// values.
-//
-// The attributes of a thread can be specified explicitly by supplying a
-// 'bslmt::ThreadAttributes' object to the 'create' method.  For instance, we
-// could specify a smaller stack size for a thread to conserve system resources
-// if we know that we will require not require the platform's default stack
-// size.
-//
-// First, we define our thread function, noting that it doesn't need much stack
-// space:
-//..
-//  extern "C" void *mySmallStackThreadFunction(void *threadArg)
-//      // Initialize a small object on the stack and do some work.
-//  {
-//      char *initValue = (char *)threadArg;
-//      char Small[8];
-//      bsl::memset(&Small[0], *initValue, 8);
-//      // do some work ...
-//      return 0;
-//  }
-//..
-// Finally, we show how to create a detached thread running the function just
-// created with a small stack size:
-//..
-//  void createSmallStackSizeThread()
-//      // Create a detached thread with a small stack size and perform some
-//      // work.
-//  {
-//      enum { k_STACK_SIZE = 16384 };
-//      bslmt::ThreadAttributes attributes;
-//      attributes.setDetachedState(
-//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
-//      attributes.setStackSize(k_STACK_SIZE);
-//
-//      char initValue = 1;
-//      bslmt::ThreadUtil::Handle handle;
-//      int status = bslmt::ThreadUtil::create(&handle,
-//                                            attributes,
-//                                            mySmallStackThreadFunction,
-//                                            &initValue);
-//  }
-//..
-//
-///Example 3: Setting Thread Priorities
-/// - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate creating 3 threads with different priorities.
-// We use the 'convertToSchedulingPriority' function to translate a normalized,
-// floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority
-// in the range '[ getMinSchedulingPriority, getMaxSchedulingPriority ]' to set
-// the 'schedulingPriority' attribute.
-//..
-//  void runSeveralThreads()
-//      // Create 3 threads with different priorities and then wait for them
-//      // all to finish.
-//  {
-//      enum { k_NUM_THREADS = 3 };
-//
-//      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
-//      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
-//                                                MostUrgentThreadFunction,
-//                                                FairlyUrgentThreadFunction,
-//                                                LeastUrgentThreadFunction };
-//      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
-//
-//      bslmt::ThreadAttributes attributes;
-//      attributes.setInheritSchedule(false);
-//      const bslmt::ThreadAttributes::SchedulingPolicy policy =
-//                                  bslmt::ThreadAttributes::e_SCHED_OTHER;
-//      attributes.setSchedulingPolicy(policy);
-//
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          attributes.setSchedulingPriority(
-//               bslmt::ThreadUtil::convertToSchedulingPriority(policy,
-//                                                             priorities[i]));
-//          int rc = bslmt::ThreadUtil::create(&handles[i],
-//                                             attributes,
-//                                             functions[i], 0);
-//          ASSERT(0 == rc);
-//      }
-//
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          int rc = bslmt::ThreadUtil::join(handles[i]);
-//          ASSERT(0 == rc);
-//      }
-//  }
-//..
 
 // ============================================================================
 //                       GLOBAL FUNCTIONS FOR TESTING
@@ -1585,20 +1435,20 @@ int main(int argc, char *argv[])
         //:
         //: 2 Iterate through all values of 'CreateMode', doing the appropriate
         //:   'create*' call.
-        //:   o After joining the created thread, observe that the thread
+        //:   1 After joining the created thread, observe that the thread
         //:     modified a variable, proving it ran.  (C-1)
         //:
-        //:   o Observe the value of a string the thread assigned to from
+        //:   2 Observe the value of a string the thread assigned to from
         //:     'bslmt::ThreadUtil::threadName()', observing that the thread
         //:     name was as expected.  (C-2)
         //:
-        //:   o Observe that the value returned in the 'status' field of 'join'
+        //:   3 Observe that the value returned in the 'status' field of 'join'
         //:     was as expected.  (C-3)
         //:
-        //:   o Observe that the default allocator and global allocator weren't
+        //:   4 Observe that the default allocator and global allocator weren't
         //:     used.  (C-4)
         //
-        // Tesitng
+        // Testing:
         //   int create(Hdl *, const Inv&);
         //   int create(Hdl *, const Attr&, const Inv&);
         //   int create(Hdl *, Func, void *);
@@ -1624,12 +1474,17 @@ int main(int argc, char *argv[])
         bslma::Default::setDefaultAllocator(&da);
         bslma::Default::setGlobalAllocator(&ga);
 
-#if   defined(BSLS_PLATFORM_OS_LINUX)
+        // Only Linux and Darwin support thread names.  On Linux, the default
+        // thread name is the (truncated) task name.  On Darwin, it's the empty
+        // string.  On platforms that don't support thread names, the thread
+        // name will always have a value of the empty string.
+
+#if defined(BSLS_PLATFORM_OS_LINUX)
         bsl::string defaultThreadName("bslmt_threadutil.t", &oa);
                                                          // basename of process
 
         // Crop it down to 15 chars as that is max thread name length that
-        // Linux supports.
+        // Linux and Darwin supports.
 
         defaultThreadName.resize(
                         bsl::min<bsl::size_t>(defaultThreadName.length(), 15));
@@ -1761,16 +1616,20 @@ int main(int argc, char *argv[])
               case e_NO_ALLOC_ATTR_NAME:
               case e_ALLOC_FUNCTOR_ATTR_NAME:
               case e_ALLOC_ATTR_NAME: {
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
                 LOOP2_ASSERT(cm, threadName, "woof" == threadName);
 #else
                 LOOP2_ASSERT(cm, threadName, threadName.empty());
 #endif
               } break;
               default: {
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+                // All platforms that support thread names.
+
                 LOOP2_ASSERT(cm, threadName, defaultThreadName == threadName);
 #else
+                // Platforms that don't support thread names.
+
                 LOOP2_ASSERT(cm, threadName, threadName.empty());
 #endif
               }
@@ -2235,12 +2094,12 @@ int main(int argc, char *argv[])
             int rc = bslmt::ThreadUtil::create(&handles[i],
                                                attributes,
                                                functions[i], 0);
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == rc);
         }
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::join(handles[i]);
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == rc);
         }
 #endif
       }  break;
@@ -3047,7 +2906,7 @@ int main(int argc, char *argv[])
         // PRIORITY EFFECTIVENESS TEST
         //
         // Concerns:
-        //: 1 The priority effectiveness test cannot be run nightly on Solairs
+        //: 1 The priority effectiveness test cannot be run nightly on Solaris
         //:   since it takes prohibitive time on that platform, so we enable
         //:   its running as a negative test case here.
         //

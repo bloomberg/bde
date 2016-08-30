@@ -46,9 +46,9 @@ struct NamedFuncPtrRecord {
     : d_threadFunction(threadFunction)
     , d_userData(userData)
     , d_threadName(threadName, allocator)
-        // Create a 'NamedFuncRecord' containing the specified
-        // 'threadFunction', the specified 'userData', and the specified
-        // 'threadName', and allocating with the specified 'allocator'.
+        // Create a 'NamedFuncPtrRecord' containing the specified
+        // 'threadFunction', 'userData', and 'threadName', and using the
+        // specified 'allocator' to supply memory.
     {
     }
 };
@@ -60,10 +60,10 @@ namespace BloombergLP {
 
 extern "C"
 void *bslmt_threadutil_namedFuncPtrThunk(void *arg)
-    // extern "C" formatted routine which allows us to call a "C"-style
-    // function and name the thread, using information in the specified
-    // 'arg', which points to a 'u::NamedFuncPtrRecord' which must be freed by
-    // this function.
+    // C-linkage routine that allows us to call a C-style function and name the
+    // thread, using information in the specified 'arg', which points to a
+    // 'u::NamedFuncPtrRecord' that must be freed by this function.  The
+    // behavior is undefined if the thread name is empty.
 {
     u::NamedFuncPtrRecord *nfpr_p = static_cast<u::NamedFuncPtrRecord *>(arg);
     bslma::ManagedPtr<u::NamedFuncPtrRecord> guard(
@@ -122,14 +122,16 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
                               ThreadFunction           function,
                               void                    *userData)
 {
-    if (0 == attributes.threadName().isEmpty()) {
+    BSLS_ASSERT(handle);
+
+    if (false == attributes.threadName().isEmpty()) {
         // Named thread.  Only 'createWithAllocator' can name threads.
 
         return createWithAllocator(handle,
                                    attributes,
                                    function,
                                    userData,
-                                   0);                                // RETURN
+                                   bslma::Default::globalAllocator());// RETURN
     }
 
     // Unnamed thread.
@@ -143,10 +145,12 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            void                    *userData,
                                            bslma::Allocator        *allocator)
 {
-    if (0 == attributes.threadName().isEmpty()) {
+    BSLS_ASSERT(handle);
+    BSLS_ASSERT(allocator);
+
+    if (false == attributes.threadName().isEmpty()) {
         // Named thread.
 
-        allocator = bslma::Default::globalAllocator(allocator);
         bslma::ManagedPtr<u::NamedFuncPtrRecord> nfpr_m(
                 new (*allocator) u::NamedFuncPtrRecord(function,
                                                        userData,
