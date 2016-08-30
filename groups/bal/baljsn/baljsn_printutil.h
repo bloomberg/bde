@@ -130,8 +130,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
-#ifndef INCLUDED_BSL_C_STDIO
-#include <bsl_c_stdio.h>
+#ifndef INCLUDED_BSL_CSTDIO
+#include <bsl_cstdio.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMALUTIL
@@ -333,23 +333,18 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
         }
       } break;
       default: {
-        const int LEN = 32;
-        char      buffer[LEN];
+        const int SIZE = 128;
+        char      buffer[SIZE];
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
+        // format: "-"  forces left alignment, "#" always prints period
 
-        const int len = snprintf(buffer,
-                                 LEN,
-                                 "%-1.*g",
-                                 maxStreamPrecision<TYPE>(options),
-                                 value);
+        const int rc = bsl::sprintf(buffer,
+                                    "%-1.*g",
+                                    maxStreamPrecision<TYPE>(options),
+                                    value);
+        BSLS_ASSERT(rc < static_cast<int>(sizeof buffer));
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
-        stream.write(buffer, len);
+        stream.write(buffer, rc);
       }
     }
     return 0;
