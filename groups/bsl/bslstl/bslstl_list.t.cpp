@@ -163,10 +163,9 @@ using bsl::list;
 // [29] iterator insert(const_iterator pos, T&& value);
 // [29] void push_back(T&& value);
 // [29] void push_front(T&& value);
-// [29] All emplace methods handle rvalues.
 // [18] iterator erase(const_iterator pos);
 // [18] iterator erase(const_iterator first, const_iterator last);
-// [19] void swap(list& rhs);
+// [19] void bsl::swap(Obj& rhs);
 // [ 2] void clear();
 // [24] void splice(iterator pos, list& other);
 // [24] void splice(iterator pos, list&& other);
@@ -205,7 +204,7 @@ using bsl::list;
 // [20] bool operator>(const list&, const list&);
 // [20] bool operator<=(const list&, const list&);
 // [20] bool operator>=(const list&, const list&);
-// [19] void bsl::swap(list& lhs, list& rhs);
+// [19] void bsl::swap(Obj& lhs, list& rhs);
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(list<T,A> *object, const char *spec, int vF = 1);
@@ -220,6 +219,7 @@ using bsl::list;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [34] USAGE EXAMPLE
+// [29] All emplace methods handle rvalues.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -432,7 +432,7 @@ void invokeAdlSwap(TYPE *a, TYPE *b)
 template <class TYPE>
 void invokePatternSwap(TYPE *a, TYPE *b)
     // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).
+    // 'swap' method found by the recommended pattern for calling 'swap'.
 {
     // Invoke 'swap' using the recommended pattern for 'bsl' clients.
 
@@ -2255,30 +2255,6 @@ struct TestDriver {
         }
     };
 
-                              // ================
-                              // class ValidGuard
-                              // ================
-
-    class ValidGuard {
-        // This scoped guard helps to verify the basic guarantee of rollback in
-        // exception-throwing code.
-
-        Obj *d_object_p;
-        int  d_line;
-
-      public:
-        // CREATORS
-        ValidGuard(Obj *object, int line);
-            // Store a pointer to the specified 'object', and store the
-            // specified line number 'line', to be used in warning messages if
-            // checks fail.
-
-        ~ValidGuard();
-            // When this guard is destroy, verify that the object is not in an
-            // invalid state.  If the object is in an invalid state, issue a
-            // warning including the line number.
-    };
-
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -2570,23 +2546,6 @@ struct TestDriver {
     static void test33_initializerList();
         // Test initializer lists.
 };
-
-                          // ----------------------------
-                          // class TestDriver::ValidGuard
-                          // ----------------------------
-
-// CREATORS
-template <class TYPE, class ALLOC>
-TestDriver<TYPE,ALLOC>::ValidGuard::ValidGuard(Obj *object, int line)
-: d_object_p(object)
-, d_line(line)
-{}
-
-template <class TYPE, class ALLOC>
-TestDriver<TYPE,ALLOC>::ValidGuard::~ValidGuard()
-{
-    ASSERTV(d_line, (~ (size_t) 0) != d_object_p->size());
-}
 
                         // --------------------------------
                         // class TestDriver::ExceptionGuard
@@ -6455,7 +6414,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     // ------------------------------------------------------------------------
     // SWAP MEMBER AND FREE FUNCTIONS
     //   Ensure that, when member and free 'swap' are implemented, we can
-    //   exchange the values of any two 'bsl::list' objects of the same type.
+    //   exchange the values of any two containers of the same type.
     //
     // Concerns:
     //: 1 Both functions exchange the values of the (two) supplied objects.
@@ -6469,36 +6428,23 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:   function allocates memory from any allocator and the allocator
     //:   address held by both objects is unchanged.
     //:
-    //: 5 If the two objects being swapped use different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'false_type' (which is the case when 'ALLOC' is
-    //:   'bsl::allocator<TYPE>' or 'bslma::Allocator *'), then both allocators
-    //:   will allocate memory and the allocators held by both objects are
-    //:   unchanged.
+    //: 5 If the two objects being swapped use different allocators, then both
+    //:   allocators will allocate memory and the allocators held by both
+    //:   objects are unchanged.
     //:
-    //: 6 If the two objects being swapped use different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'true_type', then no memory will be allocated and the allocators will
-    //:   also be swapped (TBD: call 'test19_swap' with a type of 'ALLOC' for
-    //:   which 'AllocatorTraits::propagate_on_container_swap' is true).
-    //:
-    //: 7 Both functions provide the basic exception guarantee w.r.t. to
+    //: 6 Both functions provide the basic exception guarantee w.r.t. to
     //:   memory allocation.
     //:
-    //: 8 The free 'swap' function is discoverable through ADL (Argument
+    //: 7 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup), and through the standard C++ idiom for calling
     //:   'swap'.
     //:
-    //: 9 Neither 'swap' function uses the default allocator, unless one of the
+    //: 8 Neither 'swap' function uses the default allocator, unless one of the
     //:   objects swapped uses the default allocator.
     //:
-    //: 10 While the 'swap' functions may allocate memory, they free as much
-    //:    memory as they allocate for no net change in memory in use.  (Note:
-    //:    this may not be true if the either of the allocators in use block
-    //:    memory chunks together -- fragmentation/defragmentation may result
-    //:    in a change in memory use, but if the memory allocators are directly
-    //:    based on 'bslma::TestAllocator', no change in memory in use will
-    //:    occur).
+    //: 9 While the 'swap' functions may allocate memory, they free as much
+    //:   memory as they allocate for no net change in memory in use, provided
+    //:   both allocators are of type 'bslma::TestAllocator'.
     //
     // Plan:
     //: 1 Use the addresses of the 'swap' member and free functions defined
@@ -6506,26 +6452,28 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:   and free-function pointers having the appropriate signatures and
     //:   return types.  (C-2)
     //:
-    //: 2 Repeat all the following run-time tests in this test doing swaps
-    //:   using each of the following four alternatives.  The behavior should
-    //:   be indentical in each case:
+    //: 2 Repeat the following run-time tests in this test doing swaps using
+    //:   each of the following four alternatives.  The behavior should be
+    //:   identical in each case.  Note that for the types of swap other than
+    //:   'member swap', the test need only be performed once.
     //:
-    //:   1 Free 'swap', no namespace specified.
+    //:   1 By calling free 'swap', no namespace specified.  The only namespace
+    //:     in scope when this 'swap' is called is 'BloombergLP', and there is
+    //:     no 'swap' in that namespace.
     //:
-    //:   2 Member 'swap'.
+    //:   2 By calling member 'swap'.
     //:
-    //:   3 'swap' invoked using ADL lookup by calling the 'invokeAdlSwap'
-    //:     helper (C-8)
+    //:   3 By invoking 'swap' using ADL lookup by calling the 'invokeAdlSwap'
+    //:     helper (C-7)
     //:
-    //:     o The 'invokeAndSwap' helper function will call free 'swap' after
+    //:     o The 'invokeAdlSwap' helper function will call free 'swap' after
     //:       'using' the namespace 'incorrect', which contains a matching
     //:       function 'incorrect::swap' designed to fail.  If ADL lookup
-    //:       functions correctly, the correct function
-    //:       'bsl::swap(list&, list&)' will be preferred and the test will
-    //:       pass.
+    //:       functions correctly, the correct function 'bsl::swap(Obj&, Obj&)'
+    //:       will be preferred and the test will pass.
     //:
-    //:   4 'swap' invoked using the standard C++ idiom by calling the
-    //:     'invokePatternSwap' helper (C-8)
+    //:   4 By invoking 'swap' using the standard C++ idiom by calling the
+    //:     'invokePatternSwap' helper. (C-7)
     //:
     //:     o The 'invokePatternSwap' helper function will call free 'swap'
     //:       after 'using' the namespace 'bsl'.  This is the standard idiom
@@ -6542,14 +6490,14 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:     increasing object 'size', where the first row in the table should
     //:     specify a value equal to that of a default-constructed object.
     //:
-    //: 5 For each row 'R1' in the table of P-3: (C-1, 3..7)
+    //: 5 For each row 'R1' in the table of P-3: (C-1, 3..6)
     //:
-    //:   1 Create two 'ALLOC' objects, 'OA' and 'SCRATCH'.
+    //:   1 Create two 'bslma::TestAllocator' objects, 'oa' and 'scratch'.
     //:
-    //:   2 Use the default constructor and 'OA' to create a modifiable 'Obj',
+    //:   2 Use the default constructor and 'oa' to create a modifiable 'Obj',
     //:     'mW', and use the 'gg' function to give it the value described by
     //:     'R1'; use the same method to create an identical object 'mXX' using
-    //:     the 'scratch' allocator.  Create const references 'W' and 'XX'
+    //:     the 'scratch' allocator.  Create 'const' references 'W' and 'XX'
     //:     from 'mW' and 'mXX', respectively.
     //:
     //:   3 Swap the value of 'mW' with itself; verify, after each swap,
@@ -6561,16 +6509,16 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:
     //:     3 There was no additional object memory allocation.  (C-4)
     //:
-    //:   4 For each row 'R2' in the table of P-3: (C-1, 4, 8)
+    //:   4 For each row 'R2' in the table of P-3: (C-1, 4, 7)
     //:
-    //:     1 Use the default constructor, 'OA', and the 'gg' function to
+    //:     1 Use the default constructor, 'oa', and the 'gg' function to
     //:       create a modifiable 'Obj', 'mX', identical to 'mXX'.  Base a
-    //:       const reference 'X' off of 'mX'.  (P-4.2).
+    //:       'const' reference 'X' off of 'mX'.  (P-4.2).
     //:
     //:     2 Use the default constructor and the 'gg' function to create a
     //:       modifiable 'Obj' 'mY' having the value described by 'R2', using
-    //:       'OA', and use the same technique to create an identical object
-    //:       'mYY'.  Create const references 'Y' and 'YY' based on 'mY' and
+    //:       'oa', and use the same technique to create an identical object
+    //:       'mYY'.  Create 'const' references 'Y' and 'YY' based on 'mY' and
     //:       'mYY', respectively.
     //:
     //:     3 Swap the values of 'mX' and 'mY'; verify, after each swap, that:
@@ -6578,55 +6526,37 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
-    //:       2 The default allocator was not used during the swap.  (C-9)
+    //:       2 The default allocator was not used during the swap.  (C-8)
     //:
     //:       3 The common object allocator address held by 'mX' and 'mY'
     //:         is unchanged in both objects.  (C-4)
     //:
     //:       4 There was no additional object memory allocation.  (C-4)
     //:
-    //:     3 Create a new object allocator, 'OAZ'.
+    //:     4 Create a new object allocator, 'oaz'.
     //:
-    //:     4 Use the default constructor, 'OA', and the 'gg' function to
+    //:     5 Use the default constructor, 'oa', and the 'gg' function to
     //:       create a modifiable 'Obj' 'mA', having the value described by
-    //:       'R1'.  Use the default constructor, 'OAZ', and the 'gg' function
+    //:       'R1'.  Use the default constructor, 'oaz', and the 'gg' function
     //:       to create a modifiable 'Obj' 'mB', having the value described by
     //:       'R2'.
     //:
-    //:     5 Use the member and free 'swap' functions to swap the values of
+    //:     6 Use the member and free 'swap' functions to swap the values of
     //:       'mA' and 'mB' respectively under the presence of exceptions;
-    //:       verify, after each swap, that: (C-1, 5, 6, 7, 9, 10)
+    //:       verify, after each swap, that: (C-1, 5, 6, 8, 9)
     //:
-    //:       1 If an exception is thrown, both 'mA' and 'mB' are checked by
-    //:         'ValidGuard' objects to verify that '(size_t) -1 != size()' and
-    //:         that they are therefore in a valid state.  (C-7)
-    //:
-    //:       2 If no exception occurred:
+    //:       1 If no exception occurred:
     //:
     //:         1 The values have been exchanged. (C-1)
     //:
-    //:         2 The default allocator was not used during the swap.  (C-9)
+    //:         2 The default allocator was not used during the swap.  (C-8)
     //:
     //:         3 The total amount of memory in use by the two allocators is
-    //:           unchanged.  (C-10)
-    //:
-    //:         4 If 'AllocatorTraits::propagate_on_container_swap::value' is
-    //:           'false' (C-5):
-    //:
-    //:           1 The allocators used by 'mA' and 'mB' were unchanged.
-    //:
-    //:           2 There were allocations by both 'OA' and 'OAZ'.
-    //:
-    //:         5 If 'AllocatorTraits::propagate_on_container_swap::value' is
-    //:           'true' (C-6):
-    //:
-    //:           1 The allocators used by 'mA' and 'mB' were exchanged.
-    //:
-    //:           2 There were allocations by neither 'OA' nor 'OAZ'.
+    //:           unchanged.  (C-9)
     //
     // Testing:
-    //   void swap(list& other);
-    //   void swap(list& a, list& b);
+    //   void bsl::swap(Obj& rhs);
+    //   void bsl::swap(Obj& lhs, list& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("SWAP MEMBER AND FREE FUNCTIONS: %s\n"
@@ -6656,9 +6586,6 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
         e_END_SWAP };
 
-    typedef typename bsl::allocator_traits<ALLOC>::template
-                          rebind_traits<bsl::List_Node<TYPE> > AllocatorTraits;
-
     // Set up the default allocator.
 
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -6666,20 +6593,19 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
     // Use the default table.
 
-    enum {                 NUM_DATA        = DEFAULT_NUM_DATA };
+    enum {                 NUM_DATA        = DEFAULT_NUM_DATA,
+                           LAST_SPEC       = NUM_DATA - 1 };
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1 = DATA[ti].d_spec_p;
 
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
-        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        ALLOC OA(&oa);
-        ALLOC SCRATCH(&scratch);
-
-        Obj mW(OA);          const Obj& W  = gg(&mW,  SPEC1);
-        Obj mXX(SCRATCH);    const Obj& XX = gg(&mXX, SPEC1);
+        Obj mW(&oa);          const Obj& W  = gg(&mW,  SPEC1);
+        Obj mXX(&scratch);    const Obj& XX = gg(&mXX, SPEC1);
         ASSERT(W == XX);
 
         if (veryVerbose) { T_ P_(SPEC1) P_(W) P(XX) }
@@ -6689,48 +6615,40 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
         static bool firstFlag = true;
         if (firstFlag) {
-            ASSERTV(SPEC1, Obj(), W, Obj() == W);
             firstFlag = false;
+            ASSERTV(SPEC1, Obj(), W, Obj() == W);
         }
 
-        for (int tSwap = e_BEGIN_SWAP; tSwap < e_END_SWAP; ++tSwap) {
-            SwapType swapType = static_cast<SwapType>(tSwap);
-
+        {
             bslma::TestAllocatorMonitor oam(&oa);
             bslma::TestAllocatorMonitor dam(&da);
 
-            switch (swapType) {
-              case e_FREE_SWAP: {
-                swap(mW, mW);
-              } break;
-              case e_MEMBER_SWAP: {
-                mW.swap(mW);
-              } break;
-              case e_ADL_SWAP: {
-                invokeAdlSwap(&mW, &mW);
-              } break;
-              case e_PATTERN_SWAP: {
-                invokePatternSwap(&mW, &mW);
-              } break;
-              default: {
-                ASSERT(0 && "unrecognized swap type");
-              }
-            }
+            mW.swap(mW);
 
             ASSERTV(SPEC1, XX, W, XX == W);
-            ASSERTV(SPEC1, OA == W.get_allocator());
+            ASSERTV(SPEC1, &oa == W.get_allocator().mechanism());
             ASSERTV(SPEC1, oam.isTotalSame());
             ASSERTV(SPEC1, dam.isTotalSame());
         }
+    }
+
+    int numTrials[e_END_SWAP] = { 0 };
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const char *const SPEC1 = DATA[ti].d_spec_p;
+
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        Obj mXX(&scratch);    const Obj& XX = gg(&mXX, SPEC1);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char *const SPEC2 = DATA[tj].d_spec_p;
 
-            Obj mX(OA);            const Obj& X  = gg(&mX,  SPEC1);
+            Obj mX(&oa);            const Obj& X  = gg(&mX,  SPEC1);
             ASSERT(X == XX);
 
-            Obj mY(OA);            const Obj& Y  = gg(&mY,  SPEC2);
-            Obj mYY(SCRATCH);      const Obj& YY = gg(&mYY, SPEC2);
+            Obj mY(&oa);            const Obj& Y  = gg(&mY,  SPEC2);
+            Obj mYY(&scratch);      const Obj& YY = gg(&mYY, SPEC2);
             ASSERT(Y == YY);
 
             if (veryVerbose) { T_ P_(SPEC2); P_(X); P(Y); }
@@ -6743,6 +6661,23 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
             for (int tSwap = e_BEGIN_SWAP; tSwap < e_END_SWAP; ++tSwap) {
                 SwapType swapType = static_cast<SwapType>(tSwap);
+
+                // The swaps other than member swap all ultimately just forward
+                // to member swap.  We are only testing them to make sure they
+                // compile and work, so we will call then only once to save
+                // cpu time.
+
+                if (e_MEMBER_SWAP != swapType) {
+                    if (LAST_SPEC != ti || 1 != tj) {
+                        continue;
+                    }
+
+                    // When we're only testing one case, verify that it's a
+                    // non-trivial case.
+
+                    ASSERT(X != Y && !X.empty() && !Y.empty());
+                }
+                ++numTrials[swapType];
 
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&da);
@@ -6767,116 +6702,83 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
                 ASSERTV(SPEC1, SPEC2, *pExpX, X, *pExpX == X);
                 ASSERTV(SPEC1, SPEC2, *pExpY, Y, *pExpY == Y);
-                ASSERTV(SPEC1, SPEC2, OA == X.get_allocator());
-                ASSERTV(SPEC1, SPEC2, OA == Y.get_allocator());
+                ASSERTV(SPEC1, SPEC2, &oa == X.get_allocator().mechanism());
+                ASSERTV(SPEC1, SPEC2, &oa == Y.get_allocator().mechanism());
                 ASSERTV(SPEC1, SPEC2, oam.isTotalSame());
                 ASSERTV(SPEC1, SPEC2, dam.isTotalSame());
 
                 using std::swap; swap(pExpX, pExpY);
             }
-            ASSERTV(XX == X && YY == Y);
-            ASSERTV(ti == tj ? X == Y && XX == YY && *pExpX == *pExpY
-                             : X != Y && XX != YY && *pExpX != *pExpY);
+        }
+    }
+    ASSERT(1                   == numTrials[e_FREE_SWAP]);
+    ASSERT(NUM_DATA * NUM_DATA == numTrials[e_MEMBER_SWAP]);
+    ASSERT(1                   == numTrials[e_ADL_SWAP]);
+    ASSERT(1                   == numTrials[e_PATTERN_SWAP]);
 
-            if (ti & 1) {
-                // To avoid taking too much CPU time, skip odd-numbered specs
-                // for 'mA'.
+    // Swap of object using different allocators -- may allocate memory.
 
-                continue;
-            }
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const char *const SPEC1 = DATA[ti].d_spec_p;
 
-            // swap of object using different allocators -- will allocate
-            // memory unless 'AllocatorTraits::propagate_on_container_swap'
+        Obj mXX(&scratch);    const Obj& XX = gg(&mXX, SPEC1);
+
+        for (int tj = 0; tj < NUM_DATA; ++tj) {
+            const char *const SPEC2 = DATA[tj].d_spec_p;
+
+            Obj mYY(&scratch);      const Obj& YY = gg(&mYY, SPEC2);
 
             bslma::TestAllocator aa("mA allocator", veryVeryVeryVerbose);
-            ALLOC                AA(&aa);
-
             bslma::TestAllocator ba("mB allocator", veryVeryVeryVerbose);
-            ALLOC                BA(&ba);
 
-            for (int tSwap = e_BEGIN_SWAP; tSwap < e_END_SWAP; ++tSwap) {
-                SwapType swapType = static_cast<SwapType>(tSwap);
+            for (int bThrow = 0; bThrow < 2; ++bThrow) {
+                bslma::TestAllocator& ta = bThrow ? ba : aa;
 
-                for (int bThrow = 0; bThrow < 2; ++bThrow) {
-                    bslma::TestAllocator& ta = bThrow ? ba : aa;
+                int numThrows = -1;
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+                    const Int64 taLimit = ta.allocationLimit();
+                    ta.setAllocationLimit(-1);
 
-                    int numThrows = -1;
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
-                        const Int64 taLimit = ta.allocationLimit();
-                        ta.setAllocationLimit(-1);
+                    Obj mA(&aa);    const Obj& A = gg(&mA, SPEC1);
+                    Obj mB(&ba);    const Obj& B = gg(&mB, SPEC2);
 
-                        Obj mA(AA);    const Obj& A = gg(&mA, SPEC1);
-                        Obj mB(BA);    const Obj& B = gg(&mB, SPEC2);
+                    ASSERT(XX == A && YY == B);
+                    ASSERTV(ti == tj ? A == B && XX == YY
+                                     : A != B && XX != YY);
 
-                        ValidGuard vga(&mA, __LINE__);
-                        ValidGuard vgb(&mB, __LINE__);
+                    bslma::TestAllocatorMonitor aam(&aa);
+                    bslma::TestAllocatorMonitor bam(&ba);
+                    bslma::TestAllocatorMonitor dam(&da);
+                    const Int64 AU = aa.numBytesInUse() + ba.numBytesInUse();
+                    ta.setAllocationLimit(taLimit);
 
-                        ASSERT(XX == A && YY == B);
-                        ASSERTV(ti == tj ? A == B && XX == YY
-                                         : A != B && XX != YY);
+                    ++numThrows;
 
-                        bslma::TestAllocatorMonitor aam(&aa);
-                        bslma::TestAllocatorMonitor bam(&ba);
-                        bslma::TestAllocatorMonitor dam(&da);
-                        const Int64 AU = aa.numBytesInUse() +
-                                                            ba.numBytesInUse();
-                        ta.setAllocationLimit(taLimit);
+                    mA.swap(mB);
 
-                        ++numThrows;
-
-                        switch (swapType) {
-                          case e_FREE_SWAP: {
-                            swap(mA, mB);
-                          } break;
-                          case e_MEMBER_SWAP: {
-                            mA.swap(mB);
-                          } break;
-                          case e_ADL_SWAP: {
-                            invokeAdlSwap(&mA, &mB);
-                          } break;
-                          case e_PATTERN_SWAP: {
-                            invokePatternSwap(&mA, &mB);
-                          } break;
-                          default: {
-                            ASSERTV(tSwap, 0 && "unrecognized swap type");
-                          }
-                        }
-
-                        ASSERTV(SPEC1, SPEC2, YY, A, YY == A);
-                        ASSERTV(SPEC1, SPEC2, XX, B, XX == B);
+                    ASSERTV(SPEC1, SPEC2, YY, A, YY == A);
+                    ASSERTV(SPEC1, SPEC2, XX, B, XX == B);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                        // This check is custom for 'list' and will need to be
-                        // tailored to each container type.
+                    // This check is custom for 'list' and will need to be
+                    // tailored to each container type.
 
-                        Int64 throwSize = bThrow ? XX.size() : YY.size();
-                        ASSERTV(bThrow, throwSize, numThrows,
+                    const Int64 throwSize = bThrow ? XX.size() : YY.size();
+                    ASSERTV(bThrow, throwSize, numThrows,
                                                    throwSize + 1 <= numThrows);
 #endif
 
-                        ASSERTV(SPEC1, SPEC2, dam .isTotalSame());
+                    ASSERTV(SPEC1, SPEC2, dam.isTotalSame());
 
-                        ASSERTV(AU, aa.numBytesInUse(), ba.numBytesInUse(),
-                               aa.numBytesInUse() + ba.numBytesInUse(),
-                               aa.numBytesInUse() + ba.numBytesInUse() == AU);
+                    ASSERTV(AU, aa.numBytesInUse(),  ba.numBytesInUse(),
+                                aa.numBytesInUse() + ba.numBytesInUse(),
+                                aa.numBytesInUse() + ba.numBytesInUse() == AU);
 
-                        if (AllocatorTraits::propagate_on_container_swap::
-                                                                       value) {
-                            ASSERTV(SPEC1, SPEC2, BA == A.get_allocator());
-                            ASSERTV(SPEC1, SPEC2, AA == B.get_allocator());
-                            ASSERTV(SPEC1, SPEC2, aam.isTotalSame());
-                            ASSERTV(SPEC1, SPEC2, bam.isTotalSame());
-                        }
-                        else {
-                            ASSERTV(SPEC1, SPEC2, AA == A.get_allocator());
-                            ASSERTV(SPEC1, SPEC2, BA == B.get_allocator());
-                            ASSERTV(SPEC1, SPEC2,
-                                                YY.empty() || aam.isTotalUp());
-                            ASSERTV(SPEC1, SPEC2,
-                                                XX.empty() || bam.isTotalUp());
-                        }
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                }
+                    ASSERTV(SPEC1,SPEC2, &aa == A.get_allocator().mechanism());
+                    ASSERTV(SPEC1,SPEC2, &ba == B.get_allocator().mechanism());
+                    ASSERTV(SPEC1,SPEC2, YY.empty() || aam.isTotalUp());
+                    ASSERTV(SPEC1,SPEC2, XX.empty() || bam.isTotalUp());
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
     }
@@ -13602,10 +13504,6 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
-
-        // Call with non 'bslma::Allocator *' type of allocator.
-
-        TestDriver<T, bsl::allocator<T> >::test19_swap();
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -14626,10 +14524,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING GENERATOR FUNCTION 'g':\n"
                             "===============================\n");
 
-        if (verbose) printf("The 'g' generator function has been removed as\n"
-                            "'bsltf' contains a test type that lacks a copy\n"
-                            "c'tor.  Also, it is not an essential"
-                            "function.\n");
+        if (verbose) printf(
+                "The 'g' generator function has been removed as 'bsltf'\n"
+                "contains a test type that lacks a copy c'tor.  Also, it is\n"
+                "not an essential function.\n");
       } break;
       case 7: {
         // --------------------------------------------------------------------
