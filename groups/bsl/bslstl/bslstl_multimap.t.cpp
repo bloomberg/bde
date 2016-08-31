@@ -205,7 +205,8 @@ using namespace bsl;
 //
 // [22] CONCERN: 'multimap' is compatible with standard allocators.
 // [23] CONCERN: 'multimap' has the necessary type traits.
-// [24] CONCERN: The type provides the full interface defined by the standard.
+// [24] CONCERN: Constructor of a template wrapper class compiles.
+// [25] CONCERN: The type provides the full interface defined by the standard.
 // [33] CONCERN: 'multimap' supports incomplete types.
 
 // ============================================================================
@@ -957,41 +958,14 @@ namespace {
                        // =========================
 
 struct IncompleteType;
-struct TestIncompleteType
-{
-    // This 'struct' provides a simple compile-time test to verify that the
-    // incomplete type can be used in the container definition.  Currently,
-    // definition of the 'bsl::multimap' can contain incomplete types on all
+struct TestIncompleteType {
+    // This 'struct' provides a simple compile-time test to verify that
+    // incomplete types can be used in container definitions.  Currently,
+    // definitions of 'bsl::multimap' can contain incomplete types on all
     // supported platforms.
     //
-    // The text below captures the original (now obsolete) rationale for
-    // creating this test:
-    //..
-    //  struct Recursive {
-    //      bsl::map<int, Recursive> d_data;
-    //  };
-    //..
-    // This 'struct' provides a simple compile-time test that exposes a bug in
-    // the Sun compiler when parsing member-function templates that make use of
-    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
-    // should not be instantiated until parsing client code calling that
-    // function, by which time any incomplete types must have become complete,
-    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
-    // soon as it sees it, while instantiating any use of the 'map'.  This
-    // causes a request to instantiate 'is_convertible' with incomplete types,
-    // which is undefined behavior.  A recent update to the 'is_convertible'
-    // trait added a static assertion precisely to catch such misuse.
-    //
-    // To provide a simple example that will fail to compile (thanks to the
-    // static assertion above) unless the problem is worked around, we create a
-    // recursive data structure using a map, as the struct 'Recursive' is an
-    // incomplete type within its own definition.  Note that there are no test
-    // cases exercising 'Recursive', it is sufficient just to define the class.
-    //
-    // We decided to note the above, but allow the use of the 'is_convertible'
-    // meta-function on Sun since it is so important to the new features added
-    // as part of the C++11 project.  Now the check is done on every platform
-    // *except* for Sun, where we know that a problem exists.
+    // See 'TestIncompleteType' in bslstl_map.t.cpp for the rationale behind
+    // this test type.
 
     // PUBLIC TYPES
     typedef bsl::multimap<int, IncompleteType>::iterator            Iter1;
@@ -1004,8 +978,7 @@ struct TestIncompleteType
     bsl::multimap<IncompleteType, IncompleteType> d_data3;
 };
 
-struct IncompleteType
-{
+struct IncompleteType {
     int d_data;
 };
 

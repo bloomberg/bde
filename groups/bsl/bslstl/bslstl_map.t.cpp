@@ -1069,12 +1069,11 @@ namespace {
                        // =========================
 
 struct IncompleteType;
-struct TestIncompleteType
-{
-    // This 'struct' provides a simple compile-time test to verify that the
-    // incomplete type can be used in the container definition.  Currently,
-    // definition of the 'bsl::map' can contain incomplete types on all
-    // supported platforms.
+struct TestIncompleteType {
+    // This 'struct' provides a simple compile-time test to verify that
+    // incomplete types can be used in container definitions.  Currently,
+    // definitions of 'bsl::map' can contain incomplete types on all supported
+    // platforms.
     //
     // The text below captures the original (now obsolete) rationale for
     // creating this test:
@@ -1116,8 +1115,7 @@ struct TestIncompleteType
     bsl::map<IncompleteType, IncompleteType> d_data3;
 };
 
-struct IncompleteType
-{
+struct IncompleteType {
     int d_data;
 };
 
