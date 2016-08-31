@@ -10,29 +10,30 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for values used for testing.
 //
 //@CLASSES:
-//           bsltf::TestValuesArray: container for values used for testing.
-//   bsltf::TestValuesArrayIterator: iterators for the container
+//  bsltf::TestValuesArray: container for values used for testing
+//  bsltf::TestValuesArrayIterator: iterator for the container
 //
 //@SEE_ALSO: bsltf_testfacility
 //
 //@AUTHOR: Raymond Chiu (schiu49)
 //
-//@DESCRIPTION: This component defines a class 'TestValuesArray' providing a
-// a uniform interface for creating and accessing a sequence of test values of
-// type that has a copy constructor, and may or may not have a default
-// constructor.
+//@DESCRIPTION: This component defines a class 'bsltf::TestValuesArray'
+// providing a uniform interface for creating and accessing a sequence of test
+// values of a type that has a copy constructor, and may or may not have a
+// default constructor.
 //
-// This component also defines an iterator class 'TestValuesArrayIterator'
-// providing access to elements in a 'TestValuesArray' object.
-// 'TestValuesArrayIterator' is designed to satisfies the minimal requirement
-// of an input iterator as defined by the C++11 standard [24.2.3].  It uses the
-// 'BSLS_ASSERT' macro to detect undefined behavior.
+// This component also defines an iterator class
+// 'bsltf::TestValuesArrayIterator' providing access to elements in a
+// 'TestValuesArray' object.  'TestValuesArrayIterator' is designed to
+// satisfies the minimal requirement of an input iterator as defined by the
+// C++11 standard [24.2.3].  It uses the 'BSLS_ASSERT' macro to detect
+// undefined behavior.
 //
 // The sequence described by this container is an input-range, that may be
-// traversed exactly once.  Once an iterator increments, any other iterator
-// at the same point in the sequence is invalidated.  The 'TestValuesArray'
-// object provides a 'resetIterators' method that invalidates all existing
-// iterators, and allows a new traversal of the sequence to start.
+// traversed exactly once.  Once an iterator is incremented, any other iterator
+// at the same position in the sequence is invalidated.  The 'TestValuesArray'
+// object provides a 'resetIterators' method that restores the ability to
+// iterate the container.
 //
 ///Iterator
 ///--------
@@ -105,6 +106,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class VALUE>
 //  void runTest()
+//      // Test driver.
 //  {
 //..
 //  Then, we define a set of test values and expected results:
@@ -118,12 +120,12 @@ BSLS_IDENT("$Id: $")
 //          { "ADCB",  'D' },
 //          { "EDCBA", 'E' }
 //      };
-//      const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//      const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 //..
 //  Now, for each set of test values, verify that the function return the
 //  expected result.
 //..
-//      for (int i = 0; i < NUM_DATA; ++i) {
+//      for (size_t i = 0; i < NUM_DATA; ++i) {
 //          const char *const SPEC = DATA[i].d_spec;
 //          const VALUE       EXP  =
 //                bsltf::TemplateTestFacility::create<VALUE>(DATA[i].d_result);
@@ -210,16 +212,16 @@ class TestValuesArrayIterator {
     // test scenarios supported by this component.
 
     // DATA
-    const VALUE *d_data_p;              // pointer to array of values (held,
-                                        // not owned)
+    const VALUE *d_data_p;             // pointer to array of values (held,
+                                       // not owned)
 
-    const VALUE *d_end_p;               // end pointer (held, not owned)
+    const VALUE *d_end_p;              // end pointer (held, not owned)
 
-    bool        *d_dereferenceable_p;   // indicate if dereferenceable (held,
-                                        // not owned)
+    bool        *d_dereferenceable_p;  // indicate if dereferenceable (held,
+                                       // not owned)
 
-    bool        *d_isValid_p;           // indicate not yet invalidated (held,
-                                        // not owned)
+    bool        *d_isValid_p;          // indicate not yet invalidated (held,
+                                       // not owned)
 
   private:
     // FRIENDS
@@ -254,9 +256,13 @@ class TestValuesArrayIterator {
         // respectively.
 
     TestValuesArrayIterator(const TestValuesArrayIterator& original);
+        // Create an iterator having the same value as the specified 'original'
+        // object.  The behavior is undefined unless 'original' is valid.
 
     // MANIPULATORS
     TestValuesArrayIterator& operator=(const TestValuesArrayIterator& other);
+        // Assign to this object the value of the specified 'other' object.
+        // The behavior is undefined unless 'other' is valid.
 
     TestValuesArrayIterator& operator++();
         // Move this iterator to the next element in the container.  Any copies
@@ -267,40 +273,39 @@ class TestValuesArrayIterator {
     TestValuesArray_PostIncrementPtr<VALUE> operator++(int);
         // Move this iterator to the next element in the container, and return
         // an object that can be dereferenced to refer to the same object that
-        // this iterator initially points to.  Any copies
-        // of this iterator are no longer dereferenceable or comparable.  The
-        // behavior is undefined unless this iterator refers to a valid value
-        // in the container.
+        // this iterator initially points to.  Any copies of this iterator are
+        // no longer dereferenceable or comparable.  The behavior is undefined
+        // unless this iterator refers to a valid value in the container.
 
     // ACCESSORS
     const VALUE& operator *() const;
         // Return the value referred to by this object.  This object is no
-        // longer dereferenceable after a call to this function.  The
-        // behavior is undefined unless this iterator is dereferenceable.
+        // longer dereferenceable after a call to this function.  The behavior
+        // is undefined unless this iterator is dereferenceable.
 
     const VALUE *operator->() const;
-        // Return the address of the value (of the parameterized 'VALUE_TYPE')
-        // of the element at which this iterator is positioned.  The behavior
-        // is undefined unless this iterator dereferenceable.
+        // Return the address of the element (of the template parameter
+        // 'VALUE') at which this iterator is positioned.  The behavior is
+        // undefined unless this iterator dereferenceable.
 };
 
 template <class VALUE>
 bool operator==(const TestValuesArrayIterator<VALUE>& lhs,
                 const TestValuesArrayIterator<VALUE>& rhs);
-    // Return 'true' if this object and 'rhs' refers to the same element, and
-    // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs' are
-    // comparable.
+    // Return 'true' if the specified 'lhs' and the specified 'rhs' refer to
+    // the same element, and 'false' otherwise.  The behavior is undefined
+    // unless 'lhs' and 'rhs' are comparable.
 
 template <class VALUE>
 bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
                 const TestValuesArrayIterator<VALUE>& rhs);
-    // Return 'true' if this object and 'rhs' does *not* refers to the same
-    // element, and 'false' otherwise.  The behavior is undefined unless 'lhs'
-    // and 'rhs' are comparable.
+    // Return 'true' if the specified 'lhs' and the specified 'rhs' do *not*
+    // refer to the same element, and 'false' otherwise.  The behavior is
+    // undefined unless 'lhs' and 'rhs' are comparable.
 
-                       // ====================
-                       // class TestValueArray
-                       // ====================
+                       // =====================
+                       // class TestValuesArray
+                       // =====================
 
 template <class VALUE,
           class ALLOCATOR = bsl::allocator<VALUE>,
@@ -308,46 +313,43 @@ template <class VALUE,
               TestValuesArray_DefaultConverter<VALUE, ALLOCATOR> >
 class TestValuesArray
 {
-    // This class provide a container to store values of the parameterized
-    // 'VALUE', and also provide the iterators to access the values.  The
-    // iterators are designed to conform to a standard input iterator, and will
-    // report any misuse of the iterator.
-
-    // DATA
-    ALLOCATOR         d_allocator;        // allocator (held, not owned)
-
-    VALUE            *d_data;             // pointer to memory storing the
-                                          // values (owned)
-
-    size_t            d_size;             // number of elements in this object
-
-    bool             *d_dereferenceable;  // pointer to an array to indicate
-                                          // which iterator is dereferenceable
-                                          // (owned)
-
-    bool             *d_validIterator;       // pointer to an array to indicate
-                                          // which iterator is comparable
-                                          // (owned)
+    // This class provides a container to store values of the (template
+    // parameter) type 'VALUE', and also provides the iterators to access the
+    // values.  The iterators are designed to conform to a standard input
+    // iterator, and report any misuse of the iterator.
 
   private:
-    // NOT IMPLEMENTED
-    TestValuesArray(const TestValuesArray&);
-    TestValuesArray& operator=(const TestValuesArray&);
-
-  private:
-    // TYPES
+    // PRIVATE TYPES
     typedef typename bsl::allocator_traits<ALLOCATOR>::template
             rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
     typedef typename AllocatorTraits::allocator_type AllocatorType;
-    typedef typename AllocatorTraits::size_type size_type;
+    typedef typename AllocatorTraits::size_type      size_type;
+
+    // DATA
+    ALLOCATOR  d_allocator;          // allocator (held, not owned)
+
+    VALUE     *d_data_p;             // pointer to memory storing the values
+                                     // (owned)
+
+    size_t     d_size;               // number of elements in this container
+
+    bool      *d_dereferenceable_p;  // pointer to an array to indicate if
+                                     // value is dereferenceable (owned)
+
+    bool      *d_validIterator_p;    // pointer to an array to indicate if
+                                     // value is comparable (owned)
+
+    // NOT IMPLEMENTED
+    TestValuesArray(const TestValuesArray&);             // = delete
+    TestValuesArray& operator=(const TestValuesArray&);  // = delete
 
     // PRIVATE MANIPULATOR
     void initialize(const char *spec);
-        // TBD: fix comment
-        // Initialize this object with the specified 'spec' using the specified
-        // 'basicAllocator' to supply memory.
+        // Initialize this container, using the specified 'spec' to populate
+        // container with test values.
 
   public:
+    // TYPES
     typedef TestValuesArrayIterator<VALUE> iterator;
         // Iterator for this container.
 
@@ -361,37 +363,43 @@ class TestValuesArray
         // indicate the values this object should contain, where the values are
         // created by invoking the 'bsltf::TemplateTestFacility::create' method
         // on each character of 'spec'.  If no 'spec' is supplied, the object
-        // will contain 52 distinct values of type 'VALUE'.  Optionally,
-        // specify 'basicAllocator' to used to supply memory.  If no allocator
-        // is supplied, a 'bslma::MallocFree' allocator will be used to supply
-        // memory.
+        // will contain 52 distinct values of the (template parameter) type
+        // 'VALUE'.  Optionally, specify 'basicAllocator' used to supply
+        // memory.  If no allocator is supplied, a 'bslma::MallocFree'
+        // allocator is used to supply memory.
 
     ~TestValuesArray();
-        // Destroy this object and all contained objects.
+        // Destroy this container and all contained elements.
 
     // MANIPULATORS
     iterator begin();
-        // Return an iterator to the first element.
-
-    iterator index(size_t value);
-        // Return an iterator to the element at the specified 'index'.
+        // Return an iterator providing non-modifiable access to the first
+        // 'VALUE' object in the sequence of 'VALUE' objects maintained by this
+        // container, or the 'end' iterator if this container is empty.
 
     iterator end();
-        // Return an iterator to the past-the-end element.
+        // Return an iterator providing access to the past-the-end position in
+        // the sequence of 'VALUE' objects maintained by this container.
+
+    iterator index(size_t position);
+        // Return an iterator to the element at the specified 'position'.  The
+        // behavior is undefined unless 'position <= size()'.
 
     void resetIterators();
         // Make all iterators dereferenceable and comparable again.
 
     // ACCESSORS
     const VALUE *data() const;
-        // Return the address of the first element in this object.
+        // Return the address of the non-modifiable first element in this
+        // container.
 
     const VALUE& operator[](size_t index) const;
         // Return a reference providing non-modifiable access to the element at
-        // the specified 'index'.
+        // the specified 'index'.  The behavior is undefined unless
+        // '0 < size() && index < size()'.
 
     size_t size() const;
-        // Return number of elements in this object.
+        // Return number of elements in this container.
 };
 
                        // ======================================
@@ -399,10 +407,19 @@ class TestValuesArray
                        // ======================================
 
 template <class VALUE, class ALLOCATOR>
-struct TestValuesArray_DefaultConverter {
+struct TestValuesArray_DefaultConverter
+    // This 'struct' provides a namespace for an utility function,
+    // 'createInplace', that creates an object of the (template parameter) type
+    // 'VALUE' from a character identifier.
+{
     // CLASS METHODS
-    static
-    void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
+    static void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
+        // Create an object of the (template parameter) type 'VALUE' at the
+        // specified 'objPtr' address whose state is unique for the specified
+        // 'value'.  Use the specified 'allocator' to supply memory.  The
+        // behavior is undefined unless '0 <= value && value < 128' and 'VALUE'
+        // is contained in the macro
+        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 };
 
                        // ======================================
@@ -410,43 +427,31 @@ struct TestValuesArray_DefaultConverter {
                        // ======================================
 
 template <class VALUE>
-class TestValuesArray_PostIncrementPtr {
+class TestValuesArray_PostIncrementPtr
+    // This class is a wrapper that encapsulates a reference, providing
+    // non-modifiable access to the element of 'TestValuesArray' container.
+    // Object of this class is returned by post increment operator of
+    // TestValuesArray' container.
+{
   private:
     // DATA
-    const VALUE *d_data_p;
+    const VALUE *d_data_p;  // pointer to the value (not owned)
 
   public:
     // CREATORS
     explicit TestValuesArray_PostIncrementPtr(const VALUE* ptr);
+        // Create a 'TestValuesArray_PostIncrementPtr' object having the value
+        // of the specified 'ptr'.
 
     // ACCESSORS
     const VALUE& operator*() const;
+        // Return a reference providing non-modifiable access to the object
+        // referred to by this wrapper.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
-
-                       // --------------------------------------
-                       // class TestValuesArray_PostIncrementPtr
-                       // --------------------------------------
-
-template <class VALUE>
-inline
-TestValuesArray_PostIncrementPtr<VALUE>::
-TestValuesArray_PostIncrementPtr(const VALUE* ptr)
-: d_data_p(ptr)
-{
-    BSLS_ASSERT_OPT(ptr);
-}
-
-template <class VALUE>
-inline
-const VALUE&
-TestValuesArray_PostIncrementPtr<VALUE>::operator*() const
-{
-    return *d_data_p;
-}
 
                        // -----------------------------
                        // class TestValuesArrayIterator
@@ -575,25 +580,11 @@ bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
     return !(lhs == rhs);
 }
 
-namespace bsltf {
-
-                       // --------------------------------------
-                       // class TestValuesArray_DefaultConverter
-                       // --------------------------------------
-
-template <class VALUE, class ALLOCATOR>
-inline
-void TestValuesArray_DefaultConverter<VALUE, ALLOCATOR>::createInplace(
-                                                          VALUE     *objPtr,
-                                                          char       value,
-                                                          ALLOCATOR  allocator)
+namespace bsltf
 {
-    bsltf::TemplateTestFacility::emplace(objPtr, value, allocator);
-}
-
-                       // --------------------
-                       // class TestValueArray
-                       // --------------------
+                       // ---------------------
+                       // class TestValuesArray
+                       // ---------------------
 
 // CREATORS
 template <class VALUE, class ALLOCATOR, class CONVERTER>
@@ -605,6 +596,7 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray()
 
     initialize(DEFAULT_SPEC);
 }
+
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
                                                       ALLOCATOR basicAllocator)
@@ -637,22 +629,21 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::~TestValuesArray()
 {
-    // Optimization - we should run the loop only if the VALUE type has a
-    // non-trivial destructor.  Surely we have code for this in 'bslalg'?
-
     for (size_t i = 0; i < d_size; ++i) {
-        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_data + i);
+        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_data_p + i);
     }
+
     size_type numBytes = static_cast<size_type>(
                      d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
     size_type numMaxAlignedType =
                        (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
     AllocatorType alignAlloc(d_allocator);
     AllocatorTraits::deallocate(
         alignAlloc,
         reinterpret_cast<bsls::AlignmentUtil::MaxAlignedType *>(
-                                             reinterpret_cast<void *>(d_data)),
+                                           reinterpret_cast<void *>(d_data_p)),
         numMaxAlignedType);
         // The redundant cast to 'void *' persuades gcc/Solaris that there are
         // no alignment issues to warn about.
@@ -662,7 +653,7 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::~TestValuesArray()
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::initialize(const char *spec)
 {
-    BSLS_ASSERT_OPT(spec);
+    BSLS_ASSERT_SAFE(spec);
 
     d_size = strlen(spec);
 
@@ -672,21 +663,22 @@ void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::initialize(const char *spec)
                      d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
     size_type numMaxAlignedType =
                        (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
     AllocatorType alignAlloc(d_allocator);
-    d_data = reinterpret_cast<VALUE *>(AllocatorTraits::allocate(
+    d_data_p = reinterpret_cast<VALUE *>(AllocatorTraits::allocate(
         alignAlloc, numMaxAlignedType));
 
-    d_dereferenceable = reinterpret_cast<bool *>(d_data + d_size);
-    d_validIterator = d_dereferenceable + d_size + 1;
+    d_dereferenceable_p = reinterpret_cast<bool *>(d_data_p + d_size);
+    d_validIterator_p = d_dereferenceable_p + d_size + 1;
 
     for (int i = 0; '\0' != spec[i]; ++i) {
-        CONVERTER::createInplace(d_data + i, spec[i], d_allocator);
+        CONVERTER::createInplace(d_data_p + i, spec[i], d_allocator);
     }
 
-    memset(d_dereferenceable, true, d_size * sizeof(bool));
-    d_dereferenceable[d_size] = false;  // 'end' is never dereferenceable
-    memset(d_validIterator, true, (d_size + 1) * sizeof(bool));
+    memset(d_dereferenceable_p, true, d_size * sizeof(bool));
+    d_dereferenceable_p[d_size] = false;  // 'end' is never dereferenceable
+    memset(d_validIterator_p, true, (d_size + 1) * sizeof(bool));
 }
 
 // MANIPULATORS
@@ -697,21 +689,8 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::begin()
 {
     return iterator(data(),
                     data() + d_size,
-                    d_dereferenceable,
-                    d_validIterator);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-inline
-typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::index(size_t value)
-{
-    BSLS_ASSERT_OPT(value <= size());
-
-    return iterator(data() + value,
-                    data() + d_size,
-                    d_dereferenceable + value,
-                    d_validIterator + value);
+                    d_dereferenceable_p,
+                    d_validIterator_p);
 }
 
 template <class VALUE, class ALLOCATOR, class CONVERTER>
@@ -721,16 +700,29 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::end()
 {
     return iterator(data() + d_size,
                     data() + d_size,
-                    d_dereferenceable + d_size,
-                    d_validIterator + d_size);
+                    d_dereferenceable_p + d_size,
+                    d_validIterator_p + d_size);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+inline
+typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::index(size_t position)
+{
+    BSLS_ASSERT_SAFE(position <= size());
+
+    return iterator(data() + position,
+                    data() + d_size,
+                    d_dereferenceable_p + position,
+                    d_validIterator_p + position);
 }
 
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::resetIterators()
 {
-    memset(d_dereferenceable, 1, d_size * sizeof(bool));
-    d_dereferenceable[d_size] = false;
-    memset(d_validIterator, 1, (d_size + 1) * sizeof(bool));
+    memset(d_dereferenceable_p, 1, d_size * sizeof(bool));
+    d_dereferenceable_p[d_size] = false;
+    memset(d_validIterator_p, 1, (d_size + 1) * sizeof(bool));
 }
 
 // ACCESSORS
@@ -738,7 +730,7 @@ template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
 const VALUE *TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::data() const
 {
-    return d_data;
+    return d_data_p;
 }
 
 template <class VALUE, class ALLOCATOR, class CONVERTER>
@@ -746,6 +738,8 @@ inline
 const VALUE& TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::
 operator[](size_t index) const
 {
+    BSLS_ASSERT_SAFE(0 < size() && index < size());
+
     return data()[index];
 }
 
@@ -754,6 +748,40 @@ inline
 size_t TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::size() const
 {
     return d_size;
+}
+
+                       // --------------------------------------
+                       // class TestValuesArray_DefaultConverter
+                       // --------------------------------------
+
+template <class VALUE, class ALLOCATOR>
+inline
+void TestValuesArray_DefaultConverter<VALUE, ALLOCATOR>::createInplace(
+                                                          VALUE     *objPtr,
+                                                          char       value,
+                                                          ALLOCATOR  allocator)
+{
+    bsltf::TemplateTestFacility::emplace(objPtr, value, allocator);
+}
+
+                       // --------------------------------------
+                       // class TestValuesArray_PostIncrementPtr
+                       // --------------------------------------
+
+template <class VALUE>
+inline
+TestValuesArray_PostIncrementPtr<VALUE>::
+TestValuesArray_PostIncrementPtr(const VALUE* ptr)
+: d_data_p(ptr)
+{
+    BSLS_ASSERT_SAFE(ptr);
+}
+
+template <class VALUE>
+inline
+const VALUE& TestValuesArray_PostIncrementPtr<VALUE>::operator*() const
+{
+    return *d_data_p;
 }
 
 }  // close package namespace
