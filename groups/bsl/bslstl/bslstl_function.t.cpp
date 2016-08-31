@@ -318,6 +318,17 @@ class bdef_Function<PROTOTYPE*> : public bsl::function<PROTOTYPE>
 
 } //  close enterprise namespace
 
+namespace bsl {
+
+// Specialize 'bsl::Function_DisableIfLosslessCnvrsn' metafunction to indicate
+// that there is a lossless conversion from 'bdef_Function' to 'bsl::function'.
+template <class PROTOTYPE, class RESULT>
+struct Function_DisableIfLosslessCnvrsn<BloombergLP::bdef_Function<PROTOTYPE*>,
+                                        bsl::function<PROTOTYPE>, RESULT>
+{
+};
+
+} // close namespace bsl
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // Size type used by test allocator.
@@ -2942,6 +2953,17 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
 }
 
+// Functions for testing the workaround to the SunCC compiler bug (case 19)
+template <class RET_TYPE>
+void sun1(const bsl::function<RET_TYPE()>&)
+{
+}
+
+template <class TYPE>
+void sun2(const TYPE&)
+{
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -2983,6 +3005,34 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
+      case 19: {
+        // --------------------------------------------------------------------
+        // SUNCC BUG
+        //
+        // Concerns:
+        //: The SunCC compiler fails to deduce an argument of type _pointer to
+        //: function template specialization taking argument of type
+        //: 'bsl::function<T()>' if 'bsl::function' uses partial template
+        //: specialzation. The concern is to ensure that this bug does not
+        //: manafest with the current implementation of 'bsl::function'.
+        //
+        // Test plan:
+        //: 1 Create a function template 'sun1' taking an argument of type
+        //:   'bsl::function<T()>'.
+        //: 2 Create a function template 'sun2' taking an argument of type
+        //:   'const T&'.
+        //: 3 Call 'sun2(&sun1<int>)' and verify that it compiles and runs.
+        //
+        // Testing:
+        //      Workaround for SunCC bug
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONVERSION TO 'bdef_Function'"
+                            "\n=============================\n");
+
+        sun2(&sun1<int>);
+
+      } break;
       case 18: {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
