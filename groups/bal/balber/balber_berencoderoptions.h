@@ -73,6 +73,10 @@ class BerEncoderOptions {
     // BER encoding options
 
     // DATA
+    int d_datetimeFractionalSecondPrecision;
+        // This option controls the number of decimal places used for seconds
+        // when encoding 'Datetime' and 'DatetimeTz'.
+
     int d_traceLevel;
         // trace (verbosity) level
 
@@ -112,6 +116,7 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
       , e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+      , e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_TRACE_LEVEL                          =
                             e_ATTRIBUTE_ID_TRACE_LEVEL
@@ -121,11 +126,14 @@ class BerEncoderOptions {
                             e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS
       , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
                             e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION =
+                            e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        k_NUM_ATTRIBUTES = 4
+        k_NUM_ATTRIBUTES = 5
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -136,6 +144,7 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
       , e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+      , e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_TRACE_LEVEL                          =
                          e_ATTRIBUTE_INDEX_TRACE_LEVEL
@@ -145,6 +154,8 @@ class BerEncoderOptions {
                          e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS
       , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
                          e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION =
+                         e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -154,6 +165,7 @@ class BerEncoderOptions {
     static const int  DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
     static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
+    static const int  DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
@@ -270,6 +282,11 @@ class BerEncoderOptions {
         // incompatible with the string encoding format and must be used after
         // ensuring that the ber decoder can decode the binary format.
 
+    void setDatetimeFractionalSecondPrecision(int value);
+        // Set the 'DatetimeFractionalSecondPrecision' attribute of this object
+        // to the specified 'value'.  The behavior is undefined unless
+        // 'value == 3 || value == 6'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -340,6 +357,10 @@ class BerEncoderOptions {
     bool encodeDateAndTimeTypesAsBinary() const;
         // Return a reference to the non-modifiable
         // 'EncodeDateAndTimeTypesAsBinary' attribute of this object.
+
+    int datetimeFractionalSecondPrecision() const;
+        // Return a reference to the non-modifiable
+        // 'DatetimeFractionalSecondPrecision' attribute of this object.
 };
 
 // FREE OPERATORS
@@ -410,6 +431,10 @@ STREAM& BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
                                               stream,
                                               d_encodeDateAndTimeTypesAsBinary,
                                               1);
+            bslx::InStreamFunctions::bdexStreamIn(
+                                           stream,
+                                           d_datetimeFractionalSecondPrecision,
+                                           1);
           } break;
           default: {
             stream.invalidate();
@@ -451,6 +476,13 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
+    ret = manipulator(&d_datetimeFractionalSecondPrecision,
+                      ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -480,6 +512,12 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
                       &d_encodeDateAndTimeTypesAsBinary,
                       ATTRIBUTE_INFO_ARRAY[
                       e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      } break;
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return manipulator(
+                      &d_datetimeFractionalSecondPrecision,
+                      ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -526,6 +564,13 @@ void BerEncoderOptions::setEncodeDateAndTimeTypesAsBinary(bool value)
     d_encodeDateAndTimeTypesAsBinary = value;
 }
 
+inline
+void BerEncoderOptions::setDatetimeFractionalSecondPrecision(int value)
+{
+    BSLS_ASSERT(value == 3 || value == 6);
+    d_datetimeFractionalSecondPrecision = value;
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
@@ -545,6 +590,10 @@ STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
                                               stream,
                                               d_encodeDateAndTimeTypesAsBinary,
                                               1);
+        bslx::OutStreamFunctions::bdexStreamOut(
+                                           stream,
+                                           d_datetimeFractionalSecondPrecision,
+                                           1);
       } break;
       default: {
         stream.invalidate();
@@ -585,6 +634,14 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
+    ret = accessor(d_datetimeFractionalSecondPrecision,
+                   ATTRIBUTE_INFO_ARRAY[
+                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -613,6 +670,12 @@ int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                       d_encodeDateAndTimeTypesAsBinary,
                       ATTRIBUTE_INFO_ARRAY[
                       e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      } break;
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return accessor(
+            d_datetimeFractionalSecondPrecision,
+            ATTRIBUTE_INFO_ARRAY[
+            e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -658,6 +721,13 @@ bool BerEncoderOptions::encodeDateAndTimeTypesAsBinary() const
 {
     return d_encodeDateAndTimeTypesAsBinary;
 }
+
+inline
+int BerEncoderOptions::datetimeFractionalSecondPrecision() const
+{
+    return d_datetimeFractionalSecondPrecision;
+}
+
 }  // close package namespace
 
 
@@ -671,7 +741,9 @@ bool balber::operator==(const BerEncoderOptions& lhs,
          && lhs.bdeVersionConformance()          == rhs.bdeVersionConformance()
          && lhs.encodeEmptyArrays()              == rhs.encodeEmptyArrays()
          && lhs.encodeDateAndTimeTypesAsBinary() ==
-                                          rhs.encodeDateAndTimeTypesAsBinary();
+                                           rhs.encodeDateAndTimeTypesAsBinary()
+         && lhs.datetimeFractionalSecondPrecision() ==
+                                       rhs.datetimeFractionalSecondPrecision();
 }
 
 inline
@@ -682,7 +754,9 @@ bool balber::operator!=(const BerEncoderOptions& lhs,
          || lhs.bdeVersionConformance()          != rhs.bdeVersionConformance()
          || lhs.encodeEmptyArrays()              != rhs.encodeEmptyArrays()
          || lhs.encodeDateAndTimeTypesAsBinary() !=
-                                          rhs.encodeDateAndTimeTypesAsBinary();
+                                           rhs.encodeDateAndTimeTypesAsBinary()
+         || lhs.datetimeFractionalSecondPrecision() !=
+                                       rhs.datetimeFractionalSecondPrecision();
 }
 
 inline
