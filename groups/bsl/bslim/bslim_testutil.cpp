@@ -4,6 +4,57 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP {
+
+namespace bslim {
+
+                        // --------------
+                        // class TestUtil
+                        // --------------
+
+bool TestUtil::compareText(bslstl::StringRef lhs,  
+                           bslstl::StringRef rhs, 
+                           bsl::ostream&     errorStream)
+{
+    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) { 
+        if (lhs[i] != rhs[i]) { 
+            errorStream << "lhs: \"" << lhs << "\"\n" 
+                        << "rhs: \"" << rhs << "\"\n" 
+                        << "Strings differ at index (" << i << ") " 
+                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") " 
+                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                        << bsl::endl; 
+            return false;                                             // RETURN 
+        } 
+    } 
+ 
+    if (lhs.length() < rhs.length()) { 
+        unsigned int i = lhs.length(); 
+        errorStream << "lhs: \"" << lhs << "\"\n" 
+                    << "rhs: \"" << rhs << "\"\n" 
+                    << "Strings differ at index (" << i << ") " 
+                    << "lhs[i] = END-OF-STRING " 
+                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                    << bsl::endl; 
+        return false;                                                 // RETURN 
+ 
+    } 
+    if (lhs.length() > rhs.length()) { 
+        unsigned int i = rhs.length(); 
+        errorStream << "lhs: \"" << lhs << "\"\n" 
+                    << "rhs: \"" << rhs << "\"\n" 
+                    << "Strings differ at index (" << i << ") " 
+                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") " 
+                    << "rhs[i] = END-OF-STRING" 
+                    << bsl::endl; 
+        return false;                                                 // RETURN 
+    } 
+    return true; 
+}
+
+}  // close namespace bslim
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2012 Bloomberg Finance L.P.
 //
