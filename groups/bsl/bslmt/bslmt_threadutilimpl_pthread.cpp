@@ -522,7 +522,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     // can be found:
     //: o http://felinemenace.org/~nemo/mach/manpages/
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
-    //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
+    //: o Mac OS X Internals: A Systems Approach (On Safari-Online)
 
     // This implementation is very sensitive to the 'clockType'.  For safety,
     // we will assert the value is one of the two currently expected values.

@@ -38,18 +38,21 @@ BSLS_IDENT("$: $")
 //
 ///Example 1: Wrapping a C++ Invokable Type
 /// - - - - - - - - - - - - - - - - - - - -
+///Example 1: Wrapping a C++ Invokable Type
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have an existing interface for invoking a C-linkage function and
 // passing a void* argument to it.  This situation may arise when starting
 // threads or in general when registering a C-style callback.  A simplistic
 // example of such a function is:
 //..
-// extern "C" {
-//    typedef void *(*CallbackFunction)(void*);
-// }
+//  extern "C" {
+//     typedef void *(*CallbackFunction)(void*);
+//  }
 //
-// void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
-//    return funcPtr(argument);
-// }
+//  void *executeWithArgument(CallbackFunction funcPtr, void *argument)
+//  {
+//     return funcPtr(argument);
+//  }
 //..
 // In this example, we want to use this interface to invoke a C++-style
 // functor.  Our approach will be to use
@@ -60,74 +63,80 @@ BSLS_IDENT("$: $")
 // First, we define a C++ functor type.  This type implements the job of
 // counting the number of words in a string held by value.
 //..
-// class WordCountJob {
-//     // DATA
-//     bsl::string  d_message;
-//     int         *d_result_p; // held, not owned
+//  class WordCountJob {
+//      // DATA
+//      bsl::string  d_message;
+//      int         *d_result_p; // held, not owned
 //
-//   public:
-//     // TRAITS
-//     BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob, bslma::UsesBslmaAllocator);
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob,
+//                                     bslma::UsesBslmaAllocator);
 //
-//     // CREATORS
-//     WordCountJob(const bslstl::StringRef&  message,
-//                  int                      *result,
-//                  bslma::Allocator         *basicAllocator = 0);
-//       // Create a new functor that, upon execution, counts the number of
-//       // words (contiguous sequences of non-space characters) in the
-//       // specified 'message' and stores the count in the specified
-//       // 'result' address.  Use the specified 'basicAllocator' to supply
-//       // memory.  If 'basicAllocator' is 0, the currently installed default
-//       // allocator is used.
+//      // CREATORS
+//      WordCountJob(const bslstl::StringRef&  message,
+//                   int                      *result,
+//                   bslma::Allocator         *basicAllocator = 0);
+//          // Create a new functor that, upon execution, counts the number of
+//          // words (contiguous sequences of non-space characters) in the
+//          // specified 'message' and stores the count in the specified
+//          // 'result' address.  Optionally specify a 'basicAllocator' used to
+//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //
-//     WordCountJob(const WordCountJob&  other,
-//                  bslma::Allocator    *basicAllocator = 0);
-//       // Create a new functor that performs the same calculation as the
-//       // specified 'other' functor.  Use the specified 'basicAllocator'
-//       // to supply memory.  If 'basicAllocator' is 0, the currently
-//       // installed default allocator is used.
+//      WordCountJob(const WordCountJob&  original,
+//                   bslma::Allocator    *basicAllocator = 0);
+//          // Create a new functor that performs the same calculation as the
+//          // specified 'other' functor.  Use the specified 'basicAllocator'
+//          // to supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //
-//     // MANIPULATORS
-//     void operator()();
-//       // Count the number of words in the message and store the count in
-//       // the address specified on construction.
-// };
+//      // MANIPULATORS
+//      void operator()();
+//          // Count the number of words in the message and store the count in
+//          // the address specified on construction.
+//  };
 //
-// inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
-//                                   int                      *result,
-//                                   bslma::Allocator         *basicAllocator)
-// : d_message(message, basicAllocator)
-// , d_result_p(result)
-// {}
+//  inline
+//  WordCountJob::WordCountJob(const bslstl::StringRef&  message,
+//                             int                      *result,
+//                             bslma::Allocator         *basicAllocator)
+//  : d_message(message, basicAllocator)
+//  , d_result_p(result)
+//  {}
 //
-// inline WordCountJob::WordCountJob(const WordCountJob&  other,
-//                                   bslma::Allocator    *basicAllocator)
-// : d_message(other.d_message, basicAllocator)
-// , d_result_p(other.d_result_p)
-// {}
+//  inline
+//  WordCountJob::WordCountJob(const WordCountJob&  original,
+//                             bslma::Allocator    *basicAllocator)
+//  : d_message(original.d_message, basicAllocator)
+//  , d_result_p(original.d_result_p)
+//  {}
 //
-// void WordCountJob::operator()() {
-//   bool inWord = false;
-//   *d_result_p = 0;
-//   for (int i = 0; i < d_message.length(); ++i) {
-//     if (isspace(d_message[i])) {
-//        inWord = false;
-//     } else if (!inWord) {
-//        inWord = true;
-//        ++(*d_result_p);
-//     }
-//   }
-// }
-//..
+//  void WordCountJob::operator()()
+//  {
+//      bool inWord = false;
+//      *d_result_p = 0;
+//      for (unsigned i = 0; i < d_message.length(); ++i) {
+//          if (isspace(d_message[i])) {
+//              inWord = false;
+//          } else if (!inWord) {
+//              inWord = true;
+//              ++(*d_result_p);
+//          }
+//      }
+//  }
 // Next, we dynamically allocate an 'EntryPointFunctorAdapter' wrapping an
 // instance of this functor:
 //..
-// int result = 0;
-// WordCountJob job("The quick brown fox jumped over the lazy dog.", &result);
+//  int result = 0;
+//  WordCountJob job("The quick brown fox jumped over the lazy dog.",
+//                   &result);
 //
-// bslma::ManagedPtr<
-//     bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
-// bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData, job);
+//  bslma::ManagedPtr<
+//      bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
+//  bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+//                                                       job,
+//                                                       "");
 //..
 // Finally, we use 'bslmt_EntryPointFunctorAdapter_invoker' to invoke the job
 // in the context of a C-linkage function.  Note that
@@ -138,12 +147,11 @@ BSLS_IDENT("$: $")
 // 'ManagedPtr' to aid in proper error and exception handling, outside the
 // scope of this example.)
 //..
-// executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
-//                     threadData.ptr());
-// threadData.release();
-// assert(9 == result);
+//  executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
+//                      threadData.ptr());
+//  threadData.release();
+//  assert(9 == result);
 //..
-//
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -282,10 +290,10 @@ struct EntryPointFunctorAdapterUtil {
        const bslstl::StringRef&                            threadName,
        bslma::Allocator                                   *basicAllocator = 0);
         // Allocate a new 'EntryPointFunctorAdapter' holding copies of the
-        // specified 'invokable' object and the specified 'threadName', and
-        // load the result into the specified 'adapter'.  Use 'basicAllocator'
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // specified 'invokable' object and 'threadName', and load the result
+        // into the specified 'adapter'.  Use 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 };
 
 // ============================================================================

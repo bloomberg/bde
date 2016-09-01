@@ -7,6 +7,8 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 
 void *bslmt_EntryPointFunctorAdapter_invoker(void* argument)
+    // Interpreting 'argument' as an 'EntryPointFunctorAdapter_Base*', invoke
+    // 'argument->function(argument)'.  Do not use outside this component.
 {
     bslmt::EntryPointFunctorAdapter_Base* threadArg =
         (bslmt::EntryPointFunctorAdapter_Base*)argument;

@@ -146,7 +146,7 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            bslma::Allocator        *allocator)
 {
     BSLS_ASSERT(handle);
-    BSLS_ASSERT(allocator);
+    BSLS_ASSERT_OPT(allocator);
 
     if (false == attributes.threadName().isEmpty()) {
         // Named thread.

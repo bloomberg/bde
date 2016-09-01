@@ -319,26 +319,24 @@ int main(int argc, char *argv[])
             int                    d_stackSize;
             int                    d_guardSize;
             const char            *d_threadName;
-
-            int                   d_whichVerify;
         } PARAM[] = {
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
-                                   "incredibly terribly long thread name", 1 },
+                                      "incredibly terribly long thread name" },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 0, 0, 0, 0,
-                            "How long is your thread name? I wanna know.", 2 },
+                               "How long is your thread name? I wanna know." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 5, 0, 0, 0,
-                         "My thread name is sooooooooooooooooooooo long.", 3 },
+                            "My thread name is sooooooooooooooooooooo long." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 4, true, 0, 0,
-                "My thread name got lost and couldn't find its way home.", 4 },
+                   "My thread name got lost and couldn't find its way home." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 300000, 0,
-                             "My thread name goes to the next time zone.", 4 },
+                                "My thread name goes to the next time zone." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 80000, 0,
-                                                             "short name", 5 },
+                                                                "short name" },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
-                           "My thread name goes to Nova Scotia and back.", 6 },
+                              "My thread name goes to Nova Scotia and back." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
                  "That's nothing!"
-                      "  The other end of my thread name is in Timbuktu.", 7 }
+                         "  The other end of my thread name is in Timbuktu." }
         };
 
         size_t numParams = sizeof(PARAM) / sizeof(Parameters);
@@ -377,9 +375,6 @@ int main(int argc, char *argv[])
 
             mA = X;
 
-            ASSERTV(A.threadName(), ("short name" != A.threadName()) ==
-                                        (da.numAllocations() > numDaPreAlloc));
-
             ASSERT(&ta == X.allocator());
             ASSERT(&ta == Y.allocator());
             ASSERT(&ta == Z.allocator());
@@ -391,73 +386,57 @@ int main(int argc, char *argv[])
             ASSERT(ZD == X)
             ASSERT(A  == X);
 
-            switch (PARAM[i].d_whichVerify) {
-            case 1:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_detachedState == X.detachedState());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_detachedState == Y.detachedState());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_detachedState == Z.detachedState());
-                break;
-            case 2:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPolicy ==
-                            X.schedulingPolicy());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPolicy ==
-                            Y.schedulingPolicy());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPolicy ==
-                            Z.schedulingPolicy());
-                break;
-            case 3:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPriority ==
-                            X.schedulingPriority());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPriority ==
-                            Y.schedulingPriority());
-                break;
-            case 4:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_inheritSchedule ==
-                            X.inheritSchedule());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_inheritSchedule ==
-                            Y.inheritSchedule());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_inheritSchedule ==
-                            Z.inheritSchedule());
-                break;
-            case 5:
-                LOOP2_ASSERT(PARAM[i].d_line,
-                             X.stackSize(), PARAM[i].d_stackSize ==
-                             X.stackSize());
-                LOOP2_ASSERT(PARAM[i].d_line,
-                             Y.stackSize(), PARAM[i].d_stackSize ==
-                             Y.stackSize());
-                LOOP2_ASSERT(PARAM[i].d_line,
-                             Z.stackSize(), PARAM[i].d_stackSize ==
-                             Z.stackSize());
-                break;
-            case 6:
-                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
-                            X.guardSize());
-                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
-                            Y.guardSize());
-                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
-                            Z.guardSize());
-                break;
-            case 7:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_threadName == X.threadName());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_threadName == Y.threadName());
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_threadName == Z.threadName());
-                break;
-            }
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == X.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == Y.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == Z.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        X.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        Y.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        Z.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPriority ==
+                        X.schedulingPriority());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPriority ==
+                        Y.schedulingPriority());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        X.inheritSchedule());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        Y.inheritSchedule());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        Z.inheritSchedule());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         X.stackSize(), PARAM[i].d_stackSize ==
+                         X.stackSize());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         Y.stackSize(), PARAM[i].d_stackSize ==
+                         Y.stackSize());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         Z.stackSize(), PARAM[i].d_stackSize ==
+                         Z.stackSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        X.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        Y.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        Z.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == X.threadName());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == Y.threadName());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == Z.threadName());
         }
       } break;
       case 1: {
