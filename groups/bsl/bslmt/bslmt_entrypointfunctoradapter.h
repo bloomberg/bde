@@ -87,9 +87,9 @@ BSLS_IDENT("$: $")
 //      WordCountJob(const WordCountJob&  original,
 //                   bslma::Allocator    *basicAllocator = 0);
 //          // Create a new functor that performs the same calculation as the
-//          // specified 'other' functor.  Use the specified 'basicAllocator'
-//          // to supply memory.  If 'basicAllocator' is 0, the currently
-//          // installed default allocator is used.
+//          // specified 'other' functor.  Optionally specify a
+//          // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
+//          // the currently installed default allocator is used.
 //
 //      // MANIPULATORS
 //      void operator()();
