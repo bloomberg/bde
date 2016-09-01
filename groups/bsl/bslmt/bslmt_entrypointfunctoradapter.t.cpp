@@ -122,8 +122,8 @@ void aSsErT(bool condition, const char *message, int line)
                      bslma::Allocator    *basicAllocator = 0);
             // Create a new functor that performs the same calculation as the
             // specified 'other' functor.  Optionally specify a
-            // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
-            // the currently installed default allocator is used.
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
 
         // MANIPULATORS
         void operator()();
