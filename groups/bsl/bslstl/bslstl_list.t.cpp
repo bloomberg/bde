@@ -6521,8 +6521,8 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:       'mYY'.  Create 'const' references 'Y' and 'YY' based on 'mY' and
     //:       'mYY', respectively.
     //:
-    //:     3 Swap the values of 'mX' and 'mY'; verify, after each swap, that:
-    //:       (C-1, 4)
+    //:     3 Swap the values of 'mX' and 'mY' using both member and free swap;
+    //:       verify, after each swap, that: (C-1, 4)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
@@ -6553,6 +6553,20 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:
     //:         3 The total amount of memory in use by the two allocators is
     //:           unchanged.  (C-9)
+    //:
+    //:     7 For one pair of values, swap 'mX' and 'mY' using both
+    //:       'invokePatternSwap' and 'invokeAdlSwap'.  Verify, after each
+    //:       swap, that: (C-1, 4)
+    //:
+    //:       1 The values have been exchanged.  (C-1)
+    //:
+    //:       2 The default allocator was not used during the swap.  (C-8)
+    //:
+    //:       3 The common object allocator address held by 'mX' and 'mY'
+    //:         is unchanged in both objects.  (C-4)
+    //:
+    //:       4 There was no additional object memory allocation.  (C-4)
+    //:
     //
     // Testing:
     //   void bsl::swap(Obj& rhs);
@@ -6575,16 +6589,6 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         (void)memberSwap;  // quash potential compiler warnings
         (void)freeSwap;
     }
-
-    enum SwapType {
-        e_BEGIN_SWAP,
-
-        e_FREE_SWAP = e_BEGIN_SWAP,
-        e_MEMBER_SWAP,
-        e_ADL_SWAP,
-        e_PATTERN_SWAP,
-
-        e_END_SWAP };
 
     // Set up the default allocator.
 
@@ -6632,7 +6636,9 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         }
     }
 
-    int numTrials[e_END_SWAP] = { 0 };
+    // Swap objects using the same allocator with member and free swap --
+    // shouldn't allocate.  Run tests over exhaustive pairs of values.
+
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1 = DATA[ti].d_spec_p;
 
@@ -6644,77 +6650,36 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char *const SPEC2 = DATA[tj].d_spec_p;
 
-            Obj mX(&oa);            const Obj& X  = gg(&mX,  SPEC1);
-            ASSERT(X == XX);
-
-            Obj mY(&oa);            const Obj& Y  = gg(&mY,  SPEC2);
             Obj mYY(&scratch);      const Obj& YY = gg(&mYY, SPEC2);
-            ASSERT(Y == YY);
 
-            if (veryVerbose) { T_ P_(SPEC2); P_(X); P(Y); }
+            ASSERT(ti == tj ? XX == YY : XX != YY);
 
-            const Obj *pExpX = &YY, *pExpY = &XX;
-            ASSERTV(ti == tj ? X == Y && XX == YY && *pExpX == *pExpY
-                             : X != Y && XX != YY && *pExpX != *pExpY);
+            for (int freeSwap = 0; freeSwap < 2; ++freeSwap) {
+                Obj mX(&oa);            const Obj& X  = gg(&mX,  SPEC1);
+                ASSERT(X == XX);
+                Obj mY(&oa);            const Obj& Y  = gg(&mY,  SPEC2);
+                ASSERT(Y == YY);
 
-            // swap objects using the same allocator -- shouldn't allocate
-
-            for (int tSwap = e_BEGIN_SWAP; tSwap < e_END_SWAP; ++tSwap) {
-                SwapType swapType = static_cast<SwapType>(tSwap);
-
-                // The swaps other than member swap all ultimately just forward
-                // to member swap.  We are only testing them to make sure they
-                // compile and work, so we will call then only once to save
-                // cpu time.
-
-                if (e_MEMBER_SWAP != swapType) {
-                    if (LAST_SPEC != ti || 1 != tj) {
-                        continue;
-                    }
-
-                    // When we're only testing one case, verify that it's a
-                    // non-trivial case.
-
-                    ASSERT(X != Y && !X.empty() && !Y.empty());
-                }
-                ++numTrials[swapType];
+                if (veryVerbose) { T_ P_(SPEC1) P(SPEC2); }
 
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&da);
 
-                switch (swapType) {
-                  case e_FREE_SWAP: {
-                    swap(mX, mY);
-                  } break;
-                  case e_MEMBER_SWAP: {
-                    mX.swap(mY);
-                  } break;
-                  case e_ADL_SWAP: {
-                    invokeAdlSwap(&mX, &mY);
-                  } break;
-                  case e_PATTERN_SWAP: {
-                    invokePatternSwap(&mX, &mY);
-                  } break;
-                  default: {
-                    ASSERTV(tSwap, 0 && "unrecognized swap type");
-                  }
+                switch (freeSwap) {
+                  case 0:  mX.swap(mY);                                break;
+                  case 1:  swap(mX, mY);                               break;
+                  default: ASSERT(0 && "unrecognized free swap type"); break;
                 }
 
-                ASSERTV(SPEC1, SPEC2, *pExpX, X, *pExpX == X);
-                ASSERTV(SPEC1, SPEC2, *pExpY, Y, *pExpY == Y);
+                ASSERTV(SPEC1, SPEC2, YY, X, YY == X);
+                ASSERTV(SPEC1, SPEC2, XX, Y, XX == Y);
                 ASSERTV(SPEC1, SPEC2, &oa == X.get_allocator().mechanism());
                 ASSERTV(SPEC1, SPEC2, &oa == Y.get_allocator().mechanism());
                 ASSERTV(SPEC1, SPEC2, oam.isTotalSame());
                 ASSERTV(SPEC1, SPEC2, dam.isTotalSame());
-
-                using std::swap; swap(pExpX, pExpY);
             }
         }
     }
-    ASSERT(1                   == numTrials[e_FREE_SWAP]);
-    ASSERT(NUM_DATA * NUM_DATA == numTrials[e_MEMBER_SWAP]);
-    ASSERT(1                   == numTrials[e_ADL_SWAP]);
-    ASSERT(1                   == numTrials[e_PATTERN_SWAP]);
 
     // Swap of object using different allocators -- may allocate memory.
 
@@ -6731,7 +6696,14 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
             bslma::TestAllocator aa("mA allocator", veryVeryVeryVerbose);
             bslma::TestAllocator ba("mB allocator", veryVeryVeryVerbose);
 
-            for (int bThrow = 0; bThrow < 2; ++bThrow) {
+            bool doneFree = false, doneBThrow = false;
+            for (int mode = 0; mode < 4; ++mode) {
+                bool freeSwap = mode & 1;
+                bool bThrow   = mode & 2;
+
+                freeSwap && (doneFree   = true);
+                bThrow   && (doneBThrow = true);
+
                 bslma::TestAllocator& ta = bThrow ? ba : aa;
 
                 int numThrows = -1;
@@ -6754,7 +6726,10 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
                     ++numThrows;
 
-                    mA.swap(mB);
+                    switch (freeSwap) {
+                      case false:  mA.swap(mB);   break;
+                      case true:   swap(mA, mB);  break;
+                    }
 
                     ASSERTV(SPEC1, SPEC2, YY, A, YY == A);
                     ASSERTV(SPEC1, SPEC2, XX, B, XX == B);
@@ -6780,7 +6755,45 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
                     ASSERTV(SPEC1,SPEC2, XX.empty() || bam.isTotalUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
+            ASSERT(doneFree && doneBThrow);
         }
+    }
+
+    // Swap objects using the same allocator once with pattern and adl swap.
+    // Shouldn't allocate.  Run tests on a single pair of values.
+
+    for (int adlSwap = 0; adlSwap < 2; ++adlSwap) {
+        const char *SPEC1 = "A";
+        const char *SPEC2 = "BCDE";
+
+        bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        Obj mX(&oa);          const Obj& X  = gg(&mX,  SPEC1);
+        Obj mXX(&scratch);    const Obj& XX = gg(&mXX, SPEC1);
+        ASSERT(X == XX);
+
+        Obj mY(&oa);          const Obj& Y  = gg(&mY,  SPEC2);
+        Obj mYY(&scratch);    const Obj& YY = gg(&mYY, SPEC2);
+        ASSERT(Y == YY);
+
+        ASSERT(XX != YY && X != Y);
+
+        bslma::TestAllocatorMonitor oam(&oa);
+        bslma::TestAllocatorMonitor dam(&da);
+
+        switch (adlSwap) {
+          case 0:  invokePatternSwap(&mX, &mY);               break;
+          case 1:  invokeAdlSwap(    &mX, &mY);               break;
+          default: ASSERT(0 && "unrecognized adl swap type"); break;
+        }
+
+        ASSERTV(SPEC1, SPEC2, YY, X, YY == X);
+        ASSERTV(SPEC1, SPEC2, XX, Y, XX == Y);
+        ASSERTV(SPEC1, SPEC2, &oa == X.get_allocator().mechanism());
+        ASSERTV(SPEC1, SPEC2, &oa == Y.get_allocator().mechanism());
+        ASSERTV(SPEC1, SPEC2, oam.isTotalSame());
+        ASSERTV(SPEC1, SPEC2, dam.isTotalSame());
     }
 }
 
