@@ -149,6 +149,7 @@ using namespace bsl;
 // [13] bool operator>=(const Datetime& lhs, const Datetime& rhs);
 //
 // [ 5] ostream& operator<<(ostream &stream, const Datetime &object);
+// [72] void hashAppend(HASHALG&, const Datetime&);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED METHODS
 // [10] static int maxSupportedBdexVersion();
@@ -346,6 +347,128 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 73: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG&, const Datetime&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        static const struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            int d_hour;
+            int d_minute;
+            int d_second;
+            int d_msec;
+            int d_usec;
+        } DATA[] = {
+
+            // There are two sets of values in this table.  The first row of
+            // each represents a "baseline" object value and the each of the
+            // subsequent rows in each differ (slightly) in exactly one salient
+            // attribute.
+
+//LINE YEAR      MONTH   DAY     HOUR    MINUTE  SECOND  MSEC     USEC
+//---- ----      ------  ------  ------  ------  ------  -------  -------
+{ L_,    1    ,  1    ,  1    ,  24    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,   0    ,  0    ,  0    ,   0    ,   0     },
+
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0 + 1 },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0 + 1,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0 + 1,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0 + 1,  0    ,   0    ,   0     },
+                              // 23 + 1 equals 24 (done earlier)
+{ L_,    1    ,  1    ,  1 + 1,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1 + 1,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1 + 1,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
+
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999    , 999     },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999    , 999 - 1 },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999 - 1,   0     },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59 - 1, 999    ,   0     },
+{ L_, 9999    , 12    , 31    ,  23    , 59 - 1, 59    , 999    ,   0     },
+{ L_, 9999    , 12    , 31    ,  23 - 1, 59    , 59    , 999    ,   0     },
+{ L_, 9999    , 12    , 31 - 1,  23    , 59    , 59    , 999    ,   0     },
+{ L_, 9999    , 12 - 1, 31 - 1,  23    , 59    , 59    , 999    ,   0     },
+{ L_, 9999 - 1, 12    , 31    ,  23    , 59    , 59    , 999    ,   0     },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        if (verbose) {
+            cout << "\nCompare hashes of every value with every value.\n";
+        }
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int LINE1   = DATA[ti].d_line;
+            const int YEAR1   = DATA[ti].d_year;
+            const int MONTH1  = DATA[ti].d_month;
+            const int DAY1    = DATA[ti].d_day;
+            const int HOUR1   = DATA[ti].d_hour;
+            const int MINUTE1 = DATA[ti].d_minute;
+            const int SECOND1 = DATA[ti].d_second;
+            const int MSEC1   = DATA[ti].d_msec;
+            const int USEC1   = DATA[ti].d_usec;
+
+            if (veryVerbose) {
+                T_  P_(YEAR1) P_(MONTH1)  P(DAY1)
+                T_  P_(HOUR1) P_(MINUTE1) P_(SECOND1) P_(MSEC1) P(USEC1)
+            }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int LINE2   = DATA[tj].d_line;
+                const int YEAR2   = DATA[tj].d_year;
+                const int MONTH2  = DATA[tj].d_month;
+                const int DAY2    = DATA[tj].d_day;
+                const int HOUR2   = DATA[tj].d_hour;
+                const int MINUTE2 = DATA[tj].d_minute;
+                const int SECOND2 = DATA[tj].d_second;
+                const int MSEC2   = DATA[tj].d_msec;
+                const int USEC2   = DATA[tj].d_usec;
+
+                if (veryVerbose) {
+                    T_ T_ P_(YEAR2) P_(MONTH2)  P(DAY2)
+                    T_ T_ P_(HOUR2) P_(MINUTE2) P_(SECOND2) P_(MSEC2) P(USEC2)
+                }
+
+                Obj mX;  const Obj& X = mX;
+                mX.setYearMonthDay(YEAR1, MONTH1, DAY1);
+                mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1, USEC1);
+
+                Obj mY;  const Obj& Y = mY;
+                mY.setYearMonthDay(YEAR2, MONTH2, DAY2);
+                mY.setTime(HOUR2, MINUTE2, SECOND2, MSEC2, USEC2);
+
+                HashType hX = hasher(X);
+                HashType hY = hasher(Y);
+
+                if (veryVerbose) { T_ P_(ti) P_(tj) P_(hX) P(hY) }
+
+                LOOP4_ASSERT(LINE1, LINE2, hX, hY,  (ti == tj) == (X == Y));
+            }
+        }
+      } break;
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------

@@ -128,6 +128,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timeunitratio.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -500,6 +504,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeInterval& object);
     // operation has no effect.  Note that this human-readable format is not
     // fully specified and can change without notice.  Also note that this
     // method has the same behavior as 'object.print(stream, 0, -1)'.
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const DatetimeInterval& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DatetimeInterval'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -923,6 +934,14 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&           stream,
                                const DatetimeInterval& object)
 {
     return object.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void bdlt::hashAppend(HASHALG& hashAlg, const DatetimeInterval& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.totalMilliseconds());
 }
 
 }  // close enterprise namespace
