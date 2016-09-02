@@ -40,6 +40,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <io.h>
 #include <direct.h>
 #include <bdlde_charconvertutf16.h>
+#include <tchar.h>
 #undef MIN
 #define snprintf _snprintf
 
@@ -1157,7 +1158,7 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
                                         ULONG            Length,
                                         INT              FileInformationClass);
 
-    static HMODULE hNtDll = LoadLibrary("ntdll.dll");
+    static HMODULE hNtDll = LoadLibrary(_T("ntdll.dll"));
     static NTQUERYVOLUMEINFORMATIONFILE *pNQVIF =
         hNtDll ? (NTQUERYVOLUMEINFORMATIONFILE*)
                          GetProcAddress(hNtDll, "NtQueryVolumeInformationFile")
