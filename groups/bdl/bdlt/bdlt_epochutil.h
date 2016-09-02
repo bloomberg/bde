@@ -43,7 +43,12 @@ BSLS_IDENT("$Id: $")
 // Note that the interfaces using 'bdlt::EpochUtil::TimeT64' can be validly
 // used for values before the epoch (corresponding to negative 'TimeT64'
 // values), whereas the interfaces using 'bsl::time_t' have undefined behavior
-// for such input.
+// for such input.  Furthermore, even on platforms where 'bsl::time_t' is a
+// 64-bit value, clients of this component are strongly encouraged to use the
+// 'TimeT64'-based method to avoid limitations imposed by the
+// 'bsl::time_t'-based methods required to ensure identical behavior on all
+// supported platforms (e.g., see the function-level documentation for
+// 'convertToTimeT(bsl::time_t time)').
 //
 // Also note that these conversions do not take into account the leap seconds
 // (25 as of this writing) added to UTC by the International Earth Rotation and
@@ -203,22 +208,25 @@ struct EpochUtil {
         // Return, as a 'Datetime', the absolute datetime computed as the sum
         // of the specified relative 'time' and the epoch.  The behavior is
         // undefined unless '0 <= time' and, for the resultant 'Datetime' 'dt',
-        // '0 == convertToTimeT(&time, dt)'.  Note that the returned value will
-        // use Coordinated Universal Time (UTC) as a reference.
+        // '0 == convertToTimeT(&time, dt)' (i.e., 'time' is representable as a
+        // 32-bit 'int').  Note that the returned value will use Coordinated
+        // Universal Time (UTC) as a reference.
 
     static void convertFromTimeT(Datetime *result, bsl::time_t time);
         // Load into the specified 'result' the absolute datetime converted to
         // a 'Datetime', computed as the sum of the specified relative 'time'
         // and the epoch.  The behavior is undefined unless '0 <= time' and
-        // '0 == convertToTimeT(&time, *result)'.  Note that 'result' will use
-        // Coordinated Universal Time (UTC) as a reference.
+        // '0 == convertToTimeT(&time, *result)' (i.e., 'time' is representable
+        // as a 32-bit 'int').  Note that 'result' will use Coordinated
+        // Universal Time (UTC) as a reference.
 
     static bsl::time_t convertToTimeT(const Datetime& datetime);
         // Return the relative time computed as the difference between the
         // specified absolute 'datetime' and the epoch.  The behavior is
         // undefined unless 'datetime - epoch() >= DatetimeInterval()' and the
         // converted 'datetime' can be represented in the destination format on
-        // all supported platforms.  Note that 'datetime' is assumed to use
+        // all supported platforms (i.e., the resultant value is representable
+        // as a 32-bit 'int').  Note that 'datetime' is assumed to use
         // Coordinated Universal Time (UTC) as a reference.  Also note that if
         // error detection is desired, the overloaded version that loads the
         // converted 'datetime' into a supplied destination object should be
@@ -229,10 +237,11 @@ struct EpochUtil {
         // Load into the specified 'result' the relative time computed as the
         // difference between the specified absolute 'datetime' and the epoch.
         // Return 0 on success, and a non-zero value (with no effect on
-        // 'result') if 'datetime' cannot be represented in the destination
-        // format on all supported platforms or
-        // 'datetime - epoch() < DatetimeInterval()'.  Note that 'datetime' is
-        // assumed to use Coordinated Universal Time (UTC) as a reference.
+        // 'result') if 'datetime - epoch() < DatetimeInterval()' or 'datetime'
+        // cannot be represented in the destination format on all supported
+        // platforms (i.e., the computed '*result' is not representable as a
+        // 32-bit 'int').  Note that 'datetime' is assumed to use Coordinated
+        // Universal Time (UTC) as a reference.
 
                            // 'TimeT64'-Based Methods
 
@@ -391,7 +400,8 @@ bsl::time_t EpochUtil::convertToTimeT(const Datetime& datetime)
     BSLS_ASSERT_SAFE(dti.totalSeconds() <= 0x7fffffffLL);
 
     // Note that, with safe-assertions disabled, the representation of
-    // 'bsl::time_t' must not affect the resultant 'bsl::time_t'.
+    // 'bsl::time_t' must not affect the resultant 'bsl::time_t' (i.e., in case
+    // 'bsl::time_t' is 64-bit).
 
     return bsl::time_t(static_cast<int>(dti.totalSeconds()));
 }
