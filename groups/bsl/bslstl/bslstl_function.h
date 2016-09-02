@@ -431,22 +431,31 @@ class Function_SmallObjectOptimization {
             // in c++11 mode.
 #endif
 
-        static const std::size_t VALUE =
-            sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
-            BloombergLP::bslmf::IsBitwiseMoveable<TP>::value  ? sizeof(TP) :
-            Function_NothrowWrapperUtil<TP>::IS_WRAPPED       ? sizeof(TP) :
+        static const bool k_AVOID_SOO =
+            sizeof(TP) > sizeof(InplaceBuffer)                ? false :
+            BloombergLP::bslmf::IsBitwiseMoveable<TP>::value  ? false :
+            Function_NothrowWrapperUtil<TP>::IS_WRAPPED       ? false :
 #if    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)           \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
             // Check if nothrow move constructible.  The use of '::new' lets
             // us check the constructor without also checking the destructor.
             // This is especially important in gcc 4.7 and before because
             // destructors are not implicitly 'noexcept' in those compilers.
-            noexcept(::new((void*) 0) TP(myDeclVal<TP>())) ? sizeof(TP) :
+            noexcept(::new((void*) 0) TP(myDeclVal<TP>())) ? false :
 #endif
             // If not nonthrow or bitwise moveable, then add
             // 'k_NON_SOO_SMALL_SIZE' to the size indicate that we should not
             // use the small object optimization for this type.
-            sizeof(TP) + k_NON_SOO_SMALL_SIZE;
+            true;
+
+        // The actual calculation of 'VALUE' is separated from the logic that
+        // determines whether or not we should use small object optimization.
+        // This prevents the compiler from assembling the intermediate value
+        // 'sizeof(TP) + k_NON_SOO_SMALL_SIZE', which will be thrown away when
+        // 'false == k_AVOID_SOO' but may cause overflow warnings nonetheless.
+
+        static const std::size_t VALUE =
+                         sizeof(TP) + (k_AVOID_SOO ? k_NON_SOO_SMALL_SIZE : 0);
     };
 
     template <class FN>
