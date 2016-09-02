@@ -38,6 +38,7 @@ int CalendarUtil::addBusinessDaysIfValid(
 
     if (numBusinessDays < 0) {
         // an iterator to the business day on or before original
+
         bdlt::Calendar::BusinessDayConstReverseIterator rit =
                                          calendar.rbeginBusinessDays(original);
 
@@ -54,6 +55,7 @@ int CalendarUtil::addBusinessDaysIfValid(
     }
     else {
         // an iterator to the business day on or after 'original'
+
         bdlt::Calendar::BusinessDayConstIterator fit =
                                           calendar.beginBusinessDays(original);
 
@@ -79,8 +81,8 @@ int CalendarUtil::nthBusinessDayOfMonthOrMaxIfValid(
                                                int                    month,
                                                int                    n)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT(year >= 1 && year <= 9999);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(year  >= 1 && year  <= 9999);
     BSLS_ASSERT(month >= 1 && month <= 12);
     BSLS_ASSERT(n != 0);
 
@@ -163,7 +165,7 @@ int CalendarUtil::shiftIfValid(bdlt::Date            *result,
                                const bdlt::Calendar&  calendar,
                                ShiftConvention        convention)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT(result);
 
     enum { e_BAD_CONVENTION = -1, e_SUCCESS = 0 };
 
@@ -234,18 +236,19 @@ int CalendarUtil::shiftModifiedFollowingIfValid(
                                                const bdlt::Date&      original,
                                                const bdlt::Calendar&  calendar)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT(result);
 
     enum {
-        e_SUCCESS = 0,
-        e_BAD_INPUT = 1,
+        e_SUCCESS      = 0,
+        e_BAD_INPUT    = 1,
         e_OUT_OF_RANGE = 2,
-        e_NOT_FOUND = 3
+        e_NOT_FOUND    = 3
     };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
     }
+
     bdlt::Date date(original);
 
     int lastDay = bdlt::SerialDateImpUtil::lastDayOfMonth(original.year(),
@@ -294,18 +297,19 @@ int CalendarUtil::shiftModifiedPrecedingIfValid(
                                                const bdlt::Date&      original,
                                                const bdlt::Calendar&  calendar)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT(result);
 
     enum {
-        e_SUCCESS = 0,
-        e_BAD_INPUT = 1,
+        e_SUCCESS      = 0,
+        e_BAD_INPUT    = 1,
         e_OUT_OF_RANGE = 2,
-        e_NOT_FOUND = 3
+        e_NOT_FOUND    = 3
     };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
     }
+
     bdlt::Date date(original);
 
     int firstDay = 1;
@@ -326,8 +330,10 @@ int CalendarUtil::shiftModifiedPrecedingIfValid(
     }
 
     // go in reverse
+
     int lastDay = bdlt::SerialDateImpUtil::lastDayOfMonth(original.year(),
                                                           original.month());
+
     date = original;
     while (true) {
         if (calendar.isBusinessDay(date)) {
@@ -372,6 +378,7 @@ int CalendarUtil::subtractBusinessDaysIfValid(
 
     if (numBusinessDays >= 0) {
         // an iterator to the business day on or before original
+
         bdlt::Calendar::BusinessDayConstReverseIterator rit =
                                          calendar.rbeginBusinessDays(original);
 
@@ -388,6 +395,7 @@ int CalendarUtil::subtractBusinessDaysIfValid(
     }
     else {
         // an iterator to the business day on or after 'original'
+
         bdlt::Calendar::BusinessDayConstIterator fit =
                                           calendar.beginBusinessDays(original);
 
