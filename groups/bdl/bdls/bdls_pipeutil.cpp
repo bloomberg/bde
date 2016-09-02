@@ -20,7 +20,9 @@ BSLS_IDENT_RCSID(bdls_pipeutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
