@@ -196,10 +196,10 @@ bool operator!=(const MovableTestType& lhs,
 
 // FREE FUNCTIONS
 MoveState::Enum getMovedFrom(const MovableTestType& object);
-    // Return the move-from state of the sepcified 'object'.
+    // Return the move-from state of the specified 'object'.
 
 MoveState::Enum getMovedInto(const MovableTestType& object);
-    // Return the move-into state of the sepcified 'object'.
+    // Return the move-into state of the specified 'object'.
 
 void setMovedInto(MovableTestType *object, MoveState::Enum value);
     // Set the moved-into state of the specified 'object' to the specified

@@ -9,6 +9,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <limits.h>
@@ -35,8 +36,8 @@ using namespace BloombergLP::bsltf;
 // manipulators tested fully in case 2.
 //
 // This particular test class does not allocate any memory from the default
-// constructor.  Futhermore, when copying or moving the default-constructed object,
-// there should not be no memory allocated ether.
+// constructor.  Futhermore, when copying or moving the default-constructed
+// object, there should not be no memory allocated ether.
 //
 // Global Concerns:
 //: o In no case does memory come from the global allocator.
@@ -143,9 +144,8 @@ const DefaultDataRow DEFAULT_DATA[] =
     //LINE  VALUE
     //----  --------
     { L_,         0 },
-    { L_,   INT_MIN },
-    { L_,        -1 },
     { L_,         1 },
+    { L_,       512 },
     { L_,   INT_MAX },
 };
 const size_t DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -1791,6 +1791,18 @@ int main(int argc, char *argv[])
                         0 == sa.numBlocksInUse());
             }
         }
+
+        if (verbose) printf("\tNegative Testing.\n");
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_PASS(Obj(0));
+            ASSERT_SAFE_PASS(Obj(1));
+            ASSERT_SAFE_PASS(Obj(INT_MAX));
+            ASSERT_SAFE_FAIL(Obj(-1));
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1977,11 +1989,11 @@ int main(int argc, char *argv[])
 
         {
             Obj X;
-            ASSERT(-1 ==  X);
+            ASSERT(-1 == X);
             Obj Y(0);
-            ASSERT( 0 ==  Y);
+            ASSERT(0 == Y);
             Obj Z(1);
-            ASSERT( 1 ==  Z);
+            ASSERT(1 == Z);
         }
       } break;
       default: {

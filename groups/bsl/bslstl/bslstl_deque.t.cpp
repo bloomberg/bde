@@ -370,8 +370,11 @@ const int DEFAULT_ALLOC_BLOCKS = 2;
 
 const int k_MINIMUM_PAGE_LENGTH = NOMINAL_BLOCK_BYTES;
 
-// Define values used to initialize positional arguments. Note, that you cannot
-// change those values as they use to map the argument types identifiers.
+// Define values used to initialize positional arguments for
+// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
+// constructors.  Note, that you cannot change those values as they are used by
+// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
+// objects to their integer identifiers.
 static const int V01 = 1;
 static const int V02 = 20;
 static const int V03 = 23;
