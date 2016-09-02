@@ -105,8 +105,8 @@ BSLS_IDENT("$Id: $")
 //  const bdlt::Date endDate(2014, 4, 20);
 //
 //  bdlt::Calendar   calUS(startDate, endDate);
-//  calUS.addWeekendDay(bdlt::DayOfWeek::BDET_SAT);
-//  calUS.addWeekendDay(bdlt::DayOfWeek::BDET_SUN);
+//  calUS.addWeekendDay(bdlt::DayOfWeek::e_SAT);
+//  calUS.addWeekendDay(bdlt::DayOfWeek::e_SUN);
 //  calUS.addHoliday(unadjustedDate);
 //..
 // Now, we determine the actual payment date by invoking the 'shiftIfValid'
@@ -329,8 +329,9 @@ int CalendarUtil::shiftFollowingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
@@ -354,8 +355,9 @@ int CalendarUtil::shiftPrecedingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN

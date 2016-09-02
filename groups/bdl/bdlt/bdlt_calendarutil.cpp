@@ -165,7 +165,7 @@ int CalendarUtil::shiftIfValid(bdlt::Date            *result,
 {
     BSLS_ASSERT_SAFE(result);
 
-    enum {e_BAD_CONVENTION = -1, e_SUCCESS = 0};
+    enum { e_BAD_CONVENTION = -1, e_SUCCESS = 0 };
 
     switch (convention) { // switch on shift convention
       case e_FOLLOWING: {
@@ -200,6 +200,8 @@ int CalendarUtil::shiftIfValid(bdlt::Date            *result,
                                bool                   extendSpecialDay,
                                ShiftConvention        specialConvention)
 {
+    BSLS_ASSERT_SAFE(result);
+
     enum { e_OUT_OF_RANGE = 1 };
 
     bdlt::Date test(original);
@@ -232,8 +234,14 @@ int CalendarUtil::shiftModifiedFollowingIfValid(
                                                const bdlt::Date&      original,
                                                const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {
+        e_SUCCESS = 0,
+        e_BAD_INPUT = 1,
+        e_OUT_OF_RANGE = 2,
+        e_NOT_FOUND = 3
+    };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
@@ -286,8 +294,14 @@ int CalendarUtil::shiftModifiedPrecedingIfValid(
                                                const bdlt::Date&      original,
                                                const bdlt::Calendar&  calendar)
 {
-    enum {e_SUCCESS = 0, e_BAD_INPUT = 1, e_OUT_OF_RANGE = 2, e_NOT_FOUND = 3};
     BSLS_ASSERT_SAFE(result);
+
+    enum {
+        e_SUCCESS = 0,
+        e_BAD_INPUT = 1,
+        e_OUT_OF_RANGE = 2,
+        e_NOT_FOUND = 3
+    };
 
     if (!calendar.isInRange(original)) {
         return e_BAD_INPUT;                                           // RETURN
