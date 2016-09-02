@@ -2487,8 +2487,8 @@ int main(int argc, char *argv[])
                     result2Dup = Util::convertFromTimeT64(result);
                     if (veryVerbose) { cout << "After: "; P(result2Dup) }
 
-                    // *** The millisecond and microsecond fields are always set
-                    //     to 0.  ***
+                    // *** The millisecond and microsecond fields are always
+                    //     set to 0.  ***
                     if (veryVeryVerbose) { P(INPUT) }
                     bdlt::Datetime tmp2(INPUT);
                     tmp2.setMillisecond(0);

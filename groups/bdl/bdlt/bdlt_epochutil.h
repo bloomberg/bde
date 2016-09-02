@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //  ---------------------     --------------     ------------
 //  bsl::time_t               relative           seconds
 //  bdlt::EpochUtil::TimeT64  relative           seconds
-//  bdlt::Datetime            absolute (UTC)     milliseconds
+//  bdlt::Datetime            absolute (UTC)     microseconds
 //  bdlt::DatetimeInterval    relative           milliseconds
 //  bsls::TimeInterval        relative           nanoseconds
 //..
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // Also note that these conversions do not take into account the leap seconds
 // (25 as of this writing) added to UTC by the International Earth Rotation and
 // Reference Systems Service, but simply regard each day as having a fixed
-// number of seconds (24 hours * 60 minutes / hour * 60 seconds / minute).
+// number of seconds (24 hours * 60 minutes per hour * 60 seconds per minute).
 //
 ///Thread Safety
 ///-------------
@@ -202,25 +202,27 @@ struct EpochUtil {
     static Datetime convertFromTimeT(bsl::time_t time);
         // Return, as a 'Datetime', the absolute datetime computed as the sum
         // of the specified relative 'time' and the epoch.  The behavior is
-        // undefined unless '0 <= time'.  Note that the returned value will use
-        // Coordinated Universal Time (UTC) as a reference.
+        // undefined unless '0 <= time' and, for the resultant 'Datetime' 'dt',
+        // '0 == convertToTimeT(&time, dt)'.  Note that the returned value will
+        // use Coordinated Universal Time (UTC) as a reference.
 
     static void convertFromTimeT(Datetime *result, bsl::time_t time);
         // Load into the specified 'result' the absolute datetime converted to
         // a 'Datetime', computed as the sum of the specified relative 'time'
-        // and the epoch.  The behavior is undefined unless '0 <= time'.  Note
-        // that 'result' will use Coordinated Universal Time (UTC) as a
-        // reference.
+        // and the epoch.  The behavior is undefined unless '0 <= time' and
+        // '0 == convertToTimeT(&time, *result)'.  Note that 'result' will use
+        // Coordinated Universal Time (UTC) as a reference.
 
     static bsl::time_t convertToTimeT(const Datetime& datetime);
         // Return the relative time computed as the difference between the
         // specified absolute 'datetime' and the epoch.  The behavior is
         // undefined unless 'datetime - epoch() >= DatetimeInterval()' and the
-        // converted 'datetime' can be represented in the destination format.
-        // Note that 'datetime' is assumed to use Coordinated Universal Time
-        // (UTC) as a reference.  Also note that if error detection is desired,
-        // the overloaded version that loads the converted 'datetime' into a
-        // supplied destination object should be used.
+        // converted 'datetime' can be represented in the destination format on
+        // all supported platforms.  Note that 'datetime' is assumed to use
+        // Coordinated Universal Time (UTC) as a reference.  Also note that if
+        // error detection is desired, the overloaded version that loads the
+        // converted 'datetime' into a supplied destination object should be
+        // used.
 
     static int convertToTimeT(bsl::time_t     *result,
                               const Datetime&  datetime);
@@ -228,9 +230,9 @@ struct EpochUtil {
         // difference between the specified absolute 'datetime' and the epoch.
         // Return 0 on success, and a non-zero value (with no effect on
         // 'result') if 'datetime' cannot be represented in the destination
-        // format or 'datetime - epoch() < DatetimeInterval()'.  Note that
-        // 'datetime' is assumed to use Coordinated Universal Time (UTC) as a
-        // reference.
+        // format on all supported platforms or
+        // 'datetime - epoch() < DatetimeInterval()'.  Note that 'datetime' is
+        // assumed to use Coordinated Universal Time (UTC) as a reference.
 
                            // 'TimeT64'-Based Methods
 
@@ -325,9 +327,9 @@ struct EpochUtil {
                                                      const Datetime& datetime);
         // Return, as a 'DatetimeInterval', the relative time computed as the
         // difference between the specified absolute 'datetime' and the epoch.
-        // The behavior is undefined unless 'datetime' is not the
-        // default-constructed value and 'epoch() <= datetime'.  Note that if
-        // error detection is desired, the overloaded version that loads the
+        // The behavior is undefined unless
+        // 'datetime - epoch() >= DatetimeInterval()'.  Note that if error
+        // detection is desired, the overloaded version that loads the
         // converted 'datetime' into a supplied 'DatetimeInterval' object
         // should be used.
 
@@ -336,8 +338,8 @@ struct EpochUtil {
         // Load into the specified 'result' the relative time converted to a
         // 'DatetimeInterval', computed as the difference between the specified
         // absolute 'datetime' and the epoch.  Return 0 on success, and a
-        // non-zero value (with no effect on 'result') if 'datetime' is the
-        // default-constructed value or 'datetime < epoch()'.
+        // non-zero value (with no effect on 'result') if
+        // 'datetime - epoch() < DatetimeInterval()'.
 };
 
 // ============================================================================
@@ -361,6 +363,7 @@ inline
 Datetime EpochUtil::convertFromTimeT(bsl::time_t time)
 {
     BSLS_ASSERT_SAFE(0 <= time);
+    BSLS_ASSERT_SAFE(     time < 0x7fffffffLL);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -373,6 +376,7 @@ void EpochUtil::convertFromTimeT(Datetime *result, bsl::time_t time)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(0 <= time);
+    BSLS_ASSERT_SAFE(     time < 0x7fffffffLL);
 
     *result = epoch();
     result->addSeconds(time);
@@ -381,10 +385,13 @@ void EpochUtil::convertFromTimeT(Datetime *result, bsl::time_t time)
 inline
 bsl::time_t EpochUtil::convertToTimeT(const Datetime& datetime)
 {
-    DatetimeInterval dti = datetime - epoch();
+    const DatetimeInterval dti = datetime - epoch();
 
-    BSLS_ASSERT_SAFE(dti >= DatetimeInterval());
+    BSLS_ASSERT_SAFE(dti                >= DatetimeInterval());
     BSLS_ASSERT_SAFE(dti.totalSeconds() <= 0x7fffffffLL);
+
+    // Note that, with safe-assertions disabled, the representation of
+    // 'bsl::time_t' must not affect the resultant 'bsl::time_t'.
 
     return bsl::time_t(static_cast<int>(dti.totalSeconds()));
 }
@@ -394,19 +401,19 @@ int EpochUtil::convertToTimeT(bsl::time_t *result, const Datetime& datetime)
 {
     BSLS_ASSERT_SAFE(result);
 
-    DatetimeInterval dti = datetime - epoch();
+    const DatetimeInterval dti = datetime - epoch();
 
     if (dti < DatetimeInterval()) {
         return 1;                                                     // RETURN
     }
 
-    bsls::Types::Int64 seconds = dti.totalSeconds();
+    const bsls::Types::Int64 seconds = dti.totalSeconds();
 
-    if (seconds > 0x7FFFFFFFLL) {  // 2^31 - 1
-        return 1;                                        // OVERFLOW  // RETURN
+    if (seconds > 0x7fffffffLL) {
+        return 1;                                                     // RETURN
     }
 
-    *result = bsl::time_t(static_cast<int>(seconds));
+    *result = static_cast<bsl::time_t>(seconds);
 
     return 0;
 }
@@ -461,7 +468,7 @@ void EpochUtil::convertToTimeT64(TimeT64 *result, const Datetime& datetime)
 {
     BSLS_ASSERT_SAFE(result);
 
-    *result = TimeT64(EpochUtil::convertToTimeT64(datetime));
+    *result = EpochUtil::convertToTimeT64(datetime);
 }
 
                        // 'bsls::TimeInterval'-Based Methods
@@ -489,7 +496,7 @@ void EpochUtil::convertFromTimeInterval(
 inline
 bsls::TimeInterval EpochUtil::convertToTimeInterval(const Datetime& datetime)
 {
-    DatetimeInterval dti = datetime - epoch();
+    const DatetimeInterval dti = datetime - epoch();
 
     BSLS_ASSERT_SAFE(dti >= DatetimeInterval());
 
@@ -504,7 +511,7 @@ int EpochUtil::convertToTimeInterval(bsls::TimeInterval *result,
 {
     BSLS_ASSERT_SAFE(result);
 
-    DatetimeInterval dti = datetime - epoch();
+    const DatetimeInterval dti = datetime - epoch();
 
     if (dti < DatetimeInterval()) {
         return 1;                                                     // RETURN
@@ -535,14 +542,13 @@ void EpochUtil::convertFromDatetimeInterval(
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(0 <= datetimeInterval.totalMilliseconds());
 
-    *result = epoch();
-    result->addMilliseconds(datetimeInterval.totalMilliseconds());
+    *result = epoch() + datetimeInterval;
 }
 
 inline
 DatetimeInterval EpochUtil::convertToDatetimeInterval(const Datetime& datetime)
 {
-    BSLS_ASSERT_SAFE(datetime.date() >= epoch().date());
+    BSLS_ASSERT_SAFE(datetime - epoch() >= DatetimeInterval());
 
     return datetime - epoch();
 }
@@ -553,7 +559,7 @@ int EpochUtil::convertToDatetimeInterval(DatetimeInterval *result,
 {
     BSLS_ASSERT_SAFE(result);
 
-    if (datetime.date() < epoch().date()) {
+    if (datetime - epoch() < DatetimeInterval()) {
         return 1;                                                     // RETURN
     }
     *result = datetime - epoch();
