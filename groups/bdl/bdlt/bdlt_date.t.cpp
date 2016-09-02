@@ -121,7 +121,7 @@ using namespace bsl;
 // [15] Date operator+(int numDays, const Date& date);
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
-// [20] hashAppend(HASHALG& hashAlg, const Date& date);
+// [20] void hashAppend(HASHALG&, const Date&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [21] USAGE EXAMPLE
@@ -461,7 +461,7 @@ if (verbose)
         //    not.
         //
         // Testing:
-        //     hashAppend(HASHALG& hashAlg, const Date&  date);
+        //    void hashAppend(HASHALG&, const Date&);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'hashAppend'"
                           << "\n====================\n";

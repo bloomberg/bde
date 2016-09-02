@@ -571,12 +571,12 @@ int operator-(const Date& lhs, const Date& rhs);
     // Return the (signed) number of days between the specified 'lhs' and 'rhs'
     // dates.  Note that if 'lhs < rhs' the result will be negative.
 
+// FREE FUNCTIONS
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const Date& date);
-    // Pass the specified 'date' to the specified 'hashAlg'.  Note that this
-    // function is intended to integrate with the 'bslh' modular hashing
-    // system, and effectively provides a 'bsl::hash' specialization for
-    // 'date'.
+void hashAppend(HASHALG& hashAlg, const Date& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Date'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -978,12 +978,13 @@ int bdlt::operator-(const Date& lhs, const Date& rhs)
     return lhs.d_serialDate - rhs.d_serialDate;
 }
 
-// ASPECTS
+// FREE FUNCTIONS
 template <class HASHALG>
-void bdlt::hashAppend(HASHALG& hashAlg, const Date& date)
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const Date& object)
 {
     using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, date.d_serialDate);
+    hashAppend(hashAlg, object.d_serialDate);
 }
 
 }  // close enterprise namespace

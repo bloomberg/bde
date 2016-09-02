@@ -166,10 +166,11 @@ using namespace bsl;
 // [ 5] ostream& operator<<(ostream&, const Calendar&);
 //
 // FREE FUNCTIONS
+// [30] void hashAppend(HASHALG&, const Calendar&);
 // [ 8] void swap(Calendar& a, Calendar& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [30] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 // [ 3] CALENDAR& gg(CALENDAR *o, const char *s);
 // [ 3] int ggg(CALENDAR *obj, const char *spec, bool vF);
 // ============================================================================
@@ -1152,7 +1153,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1220,6 +1221,49 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(2015, 7, 30) ==
                          MyCalendarUtil::modifiedFollowing(31, 7, 2015, cal2));
 //..
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG& hashAlg, const Calendar&);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING 'hashAppend'"
+                          << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<>   Hasher;
+        typedef Hasher::result_type           HashType;
+        Hasher                                hasher;
+        static const char                   **SPECS = DEFAULT_SPECS;
+
+        if (verbose) {
+            cout << "\nCompare hashes of every value with every value.\n";
+        }
+
+        for (int ti = 0; SPECS[ti]; ++ti) {
+            for (int tj = 0; SPECS[tj]; ++tj) {
+                Obj mX;  const Obj& X = gg(&mX, SPECS[ti]);
+                Obj mY;  const Obj  Y = gg(&mY, SPECS[tj]);
+
+                HashType hX = hasher(X);
+                HashType hY = hasher(Y);
+
+                if (veryVerbose) { T_ P_(ti) P_(tj) P_(hX) P(hY) }
+
+                LOOP4_ASSERT(ti, tj, hX, hY,  (ti == tj) == (hX == hY));
+            }
+        }
       } break;
       case 29: {
         // -------------------------------------------------------------------

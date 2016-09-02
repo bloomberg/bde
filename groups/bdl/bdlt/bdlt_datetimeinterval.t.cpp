@@ -131,9 +131,10 @@ using namespace bsl;
 // [17] bool operator> (const DatetimeInterval& lhs, rhs);
 // [17] bool operator>=(const DatetimeInterval& lhs, rhs);
 // [ 5] ostream& operator<<(ostream &os, const DatetimeInterval& object);
+// [21] void hashAppend(HASHALG&, const DatetimeInterval&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
+// [22] USAGE EXAMPLE
 // [ 3] TEST APPARATUS
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
@@ -542,7 +543,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -624,6 +625,78 @@ if (veryVerbose)
 //  -2_07:59:56.000
 //..
 
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG&, const DatetimeInterval&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        static const struct {
+            int   d_line;        // source line number
+            Int64 d_totalMsecs;
+        } DATA[] = {
+            //LINE   TOTAL MILLISECONDS
+            //----   ------------------
+            { L_,                     0 },
+
+            { L_,                     1 },
+            { L_,                 13027 },
+            { L_,               INT_MAX },
+            { L_,           k_MSECS_MAX },
+
+            { L_,                    -1 },
+            { L_,                -42058 },
+            { L_,               INT_MIN },
+            { L_,           k_MSECS_MIN },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   ILINE        = DATA[ti].d_line;
+            const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
+
+            if (veryVerbose) { T_ P_(ILINE) P(ITOTAL_MSECS) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int   JLINE        = DATA[tj].d_line;
+                const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
+
+                if (veryVerbose) { T_ T_ P_(JLINE) P(JTOTAL_MSECS) }
+
+                Obj mX;  const Obj& X = mX;
+                mX.setTotalMilliseconds(ITOTAL_MSECS);
+
+                Obj mY;  const Obj& Y = mY;
+                mY.setTotalMilliseconds(JTOTAL_MSECS);
+
+                HashType hX = hasher(X);
+                HashType hY = hasher(Y);
+
+                if (veryVerbose) { T_ T_ P_(JLINE) P_(hX) P(hY) }
+
+                LOOP4_ASSERT(ILINE, JLINE, hX, hY, (ti == tj) == (hX == hY));
+            }
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------

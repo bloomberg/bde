@@ -64,9 +64,10 @@ using namespace bsl;
 // [ 6] bool operator==(const TimeTz& lhs, const TimeTz& rhs);
 // [ 6] bool operator!=(const TimeTz& lhs, const TimeTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream& stream, const TimeTz& rhs);
+// [18] void hashAppend(HASHALG&, const TimeTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [18] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 // [ *] CONCERN: no use of global or default allocators
 // [ 8] Reserved for 'swap' testing.
 
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -226,6 +227,104 @@ int main(int argc, char *argv[])
     ASSERT(0 == delta.seconds());
     ASSERT(0 == delta.milliseconds());
 //..
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG& hashAlg, const Calendar&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        {
+            struct {
+                int d_line;         // line number
+                int d_hour;         // 'Time' hour attribute
+                int d_minute;       // 'Time' minute attribute
+                int d_second;       // 'Time' second attribute
+                int d_millisecond;  // 'Time' millisecond attribute
+                int d_offset;       // offset
+            } DATA[] = {
+                //    v------------- TIME ------------v
+                //LN  HOUR  MINUTE  SECOND  MILLISECOND  OFFSET
+                //--  ----  ------  ------  -----------  ------
+                {L_,    24,      0,      0,           0,      0 },
+
+                {L_,    23,     59,     59,         999,      0 },
+                {L_,     0,      0,      0,           0,      0 },
+
+                {L_,    23,     59,     59,         999,      1 },
+                {L_,     0,      0,      0,           0,      1 },
+
+                {L_,    23,     59,     59,         999,     -1 },
+                {L_,     0,      0,      0,           0,     -1 },
+
+                {L_,    23,     59,     59,         999,   1439 },
+                {L_,     0,      0,      0,           0,   1439 },
+
+                {L_,    23,     59,     59,         999,  -1439 },
+                {L_,     0,      0,      0,           0,  -1439 },
+
+                {L_,    14,     30,     30,         500,   2*60 },
+                {L_,    13,     30,     30,         500,   1*60 },
+                {L_,    12,     30,     30,         500,      0 },
+                {L_,    11,     30,     30,         500,  -1*60 },
+                {L_,    10,     30,     30,         500,  -2*60 },
+            };
+            int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int X_LINE        = DATA[ti].d_line;
+                const int X_HOUR        = DATA[ti].d_hour;
+                const int X_MINUTE      = DATA[ti].d_minute;
+                const int X_SECOND      = DATA[ti].d_second;
+                const int X_MILLISECOND = DATA[ti].d_millisecond;
+                const int X_OFFSET      = DATA[ti].d_offset;
+
+                const bdlt::Time X_TIME(
+                                    X_HOUR, X_MINUTE, X_SECOND, X_MILLISECOND);
+
+                Obj mX(X_TIME, X_OFFSET); const Obj& X = mX;
+
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int Y_LINE        = DATA[tj].d_line;
+                    const int Y_HOUR        = DATA[tj].d_hour;
+                    const int Y_MINUTE      = DATA[tj].d_minute;
+                    const int Y_SECOND      = DATA[tj].d_second;
+                    const int Y_MILLISECOND = DATA[tj].d_millisecond;
+                    const int Y_OFFSET      = DATA[tj].d_offset;
+
+                    if (veryVerbose) { T_ P_(X_LINE) P (Y_LINE) }
+
+                    const bdlt::Time Y_TIME(
+                                    Y_HOUR, Y_MINUTE, Y_SECOND, Y_MILLISECOND);
+
+                    Obj mY(Y_TIME, Y_OFFSET); const Obj& Y = mY;
+
+                    HashType hX = hasher(X);
+                    HashType hY = hasher(Y);
+
+                    ASSERTV(X_LINE, Y_LINE, hX, hY, (ti == tj) == (X == Y));
+                }
+            }
+        }
       } break;
       case 17: {
         // Deprecated test case.  Do not remove.

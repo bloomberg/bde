@@ -262,6 +262,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -345,6 +349,8 @@ class Datetime {
     friend bool operator<=(const Datetime&, const Datetime&);
     friend bool operator> (const Datetime&, const Datetime&);
     friend bool operator>=(const Datetime&, const Datetime&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const Datetime&);
 
     // PRIVATE MANIPULATOR
     void setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds);
@@ -878,6 +884,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
     //..
     //  print(stream, 0, -1);
     //..
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Datetime& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Datetime'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -1930,6 +1943,15 @@ bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
     bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
 
     return lhsValue >= rhsValue;
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const Datetime& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.updatedRepresentation());
 }
 
 }  // close enterprise namespace

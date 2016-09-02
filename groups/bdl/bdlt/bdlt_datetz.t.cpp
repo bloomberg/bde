@@ -76,9 +76,10 @@ using namespace bsl;
 // [ 6] bool operator==(const DateTz& lhs, const DateTz& rhs);
 // [ 6] bool operator!=(const DateTz& lhs, const DateTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const DateTz&);
+// [16] void hashAppend(HASHALG&, const DateTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
 
 // ============================================================================
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -222,6 +223,101 @@ int main(int argc, char *argv[])
 //..
     ASSERT(dateTz2.utcStartTime() < dateTz3.utcStartTime());
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG& hashAlg, const Calendar&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        if (verbose) cout <<
+            "\nCompare hashes of pairs of values (u, v) in S X S." << endl;
+        {
+            static const struct {
+                int d_line;    // line number
+                int d_year;    // year of date
+                int d_month;   // month of date
+                int d_day;     // day of month of date
+                int d_offset;  // timezone offset
+            } DATA[] = {
+                //LINE  YEAR  MO  DAY  OFFSET
+                //----  ----  --  ---  ------
+                { L_,     1,  1,   1,       0 },
+                { L_,     1,  1,   2,       0 },
+                { L_,     1,  2,   1,       0 },
+                { L_,     2,  1,   1,    1439 },
+                { L_,     1,  1,   1,      -1 },
+                { L_,     1,  1,   2,       1 },
+                { L_,     1,  2,   1,   -1439 },
+                { L_,     2,  1,   1,    1438 },
+
+                { L_,  9998, 12,  31,       0 },
+                { L_,  9999, 11,  30,       0 },
+                { L_,  9999, 12,  30,       0 },
+                { L_,  9999, 12,  31,       0 },
+                { L_,  9998, 12,  31,       1 },
+                { L_,  9999, 11,  30,   -1439 },
+                { L_,  9999, 12,  30,      -1 },
+                { L_,  9999, 12,  31,    -143 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int U_LINE   = DATA[i].d_line;
+                const int U_YEAR   = DATA[i].d_year;
+                const int U_MONTH  = DATA[i].d_month;
+                const int U_DAY    = DATA[i].d_day;
+                const int U_OFFSET = DATA[i].d_offset;
+
+                if (veryVerbose) {
+                    T_ P(U_LINE) P_(U_YEAR) P_(U_MONTH) P_(U_DAY) P(U_OFFSET);
+                }
+
+                const bdlt::Date U_DATE(U_YEAR, U_MONTH, U_DAY);
+                const Obj U(U_DATE, U_OFFSET);
+
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int V_LINE   = DATA[j].d_line;
+                    const int V_YEAR   = DATA[j].d_year;
+                    const int V_MONTH  = DATA[j].d_month;
+                    const int V_DAY    = DATA[j].d_day;
+                    const int V_OFFSET = DATA[j].d_offset;
+
+                    if (veryVerbose) {
+                        T_ T_ P_(V_LINE) P_(V_YEAR);
+                        P_(V_MONTH) P_(V_DAY) P(V_OFFSET);
+                    }
+
+                    const bdlt::Date V_DATE(V_YEAR, V_MONTH, V_DAY);
+                    const Obj V(V_DATE, V_OFFSET);
+
+                    HashType hU = hasher(U);
+                    HashType hV = hasher(V);
+
+                    if (veryVeryVerbose) { T_ T_ T_ P_(i) P_(j) P_(hU) P(hV) }
+                    ASSERTV(U_LINE, V_LINE, (i == j) == (hU == hV));
+                }
+            }
+        }
       } break;
       case 15: {
         // Deprecated test case.  Do not remove.

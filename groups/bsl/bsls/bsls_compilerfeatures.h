@@ -786,6 +786,13 @@ namespace bsls {
 #endif
 #endif
 
+// Our use of piecewise construction requires variadic templates.  Rather than
+// testing for both features everywhere, just remove the former if we do not
+// have the latter.
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#  undef BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
+
 #endif
 
 // ----------------------------------------------------------------------------

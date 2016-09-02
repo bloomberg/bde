@@ -179,10 +179,11 @@ using namespace bsl;
 // [20] bool operator<=(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator>=(const vector<T,A>&, const vector<T,A>&);
 // [19] void swap(vector<T,A>& lhs, vector<T,A>& rhs);
+// [34] void hashAppend(HASHALG& hashAlg, const vector<T,A>&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [34] USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
@@ -1097,6 +1098,9 @@ struct TestDriver {
     static void testCaseM1();
         // Performance test.
 
+    static void testCase34();
+        // Test hashAppend.
+
     static void testCase29();
         // Test functions that take an initializer list.
 
@@ -1943,6 +1947,185 @@ void TestDriver<TYPE,ALLOC>::testCaseM1()
         printf("\t\terase(p):                       %1.6fs\n", time);
         for (int i = 0; i < NUM_VECTOR_S; ++i) {
             delete vectors[i];
+        }
+    }
+}
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase34()
+{
+    // ---------------------------------------------------------------------
+    // TESTING hashAppend:
+    // Concerns:
+    //   1) Objects constructed with the same values hash as equal.
+    //   2) Objects constructed such that they have same (logical) value but
+    //      different internal representation (due to the lack or presence
+    //      of an allocator, and/or different capacities) always hash as equal.
+    //   3) Unequal objects hash as unequal (not required, but we can hope).
+    //
+    // Plan:
+    //   For concerns 1 and 3, Specify a set A of unique allocators including
+    //   no allocator.  Specify a set S of unique object values having various
+    //   minor or subtle differences, ordered by non-decreasing length.
+    //   Verify the correctness of hash values matching using all elements (u,
+    //   ua, v, va) of the cross product S X A X S X A.
+    //
+    //   For concern 2 create two objects using all elements in S one at a
+    //   time.  For the second object change its internal representation by
+    //   extending it by different amounts in the set E, followed by erasing
+    //   its contents using 'clear'.  Then recreate the original value and
+    //   verify that the second object still hashes equal to the first.
+    //
+    // Testing:
+    //   void hashAppend(HASHALG& hashAlg, const vector<T,A>&);
+    // --------------------------------------------------------------------
+
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef Hasher::result_type         HashType;
+    Hasher                              hasher;
+
+    bslma::TestAllocator testAllocator1(veryVeryVerbose);
+    bslma::TestAllocator testAllocator2(veryVeryVerbose);
+
+    bslma::Allocator *ALLOCATOR[] = {
+        &testAllocator1,
+        &testAllocator2
+    };
+
+    const int NUM_ALLOCATOR = sizeof ALLOCATOR / sizeof *ALLOCATOR;
+
+    const TestValues    VALUES;
+    const int           NUM_VALUES = 5;         // TBD: fix this
+
+    static const char *SPECS[] = {
+        "",
+        "A",      "B",
+        "AA",     "AB",     "BB",     "BA",
+        "AAA",    "BAA",    "ABA",    "AAB",
+        "AAAA",   "BAAA",   "ABAA",   "AABA",   "AAAB",
+        "AAAAA",  "BAAAA",  "ABAAA",  "AABAA",  "AAABA",  "AAAAB",
+        "AAAAAA", "BAAAAA", "AABAAA", "AAABAA", "AAAAAB",
+        "AAAAAAA",          "BAAAAAA",          "AAAAABA",
+        "AAAAAAAA",         "ABAAAAAA",         "AAAAABAA",
+        "AAAAAAAAA",        "AABAAAAAA",        "AAAAABAAA",
+        "AAAAAAAAAA",       "AAABAAAAAA",       "AAAAABAAAA",
+        "AAAAAAAAAAA",      "AAAABAAAAAA",      "AAAAABAAAAA",
+        "AAAAAAAAAAAA",     "AAAABAAAAAAA",     "AAAAABAAAAAA",
+        "AAAAAAAAAAAAA",    "AAAABAAAAAAAA",    "AAAAABAAAAAAA",
+        "AAAAAAAAAAAAAA",   "AAAABAAAAAAAAA",   "AAAAABAAAAAAAA",
+        "AAAAAAAAAAAAAAA",  "AAAABAAAAAAAAAA",  "AAAAABAAAAAAAAA",
+        0  // null string required as last element
+    };
+
+    if (verbose) printf("\nCompare hash values of each pair of similar and"
+                        " different values (u, ua, v, va) in S X A X S X A"
+                        " without perturbation.\n");
+    {
+        int oldLen = -1;
+
+        // Create first object
+        for (int si = 0; SPECS[si]; ++si) {
+            for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
+
+                const char *const U_SPEC = SPECS[si];
+                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
+
+                Obj mU(ALLOCATOR[ai]); const Obj& U = gg(&mU, U_SPEC);
+                // same lengths
+                LOOP2_ASSERT(si, ai, LENGTH == static_cast<int>(U.size()));
+
+                if (LENGTH != oldLen) {
+                    if (verbose)
+                        printf( "\tUsing lhs objects of length %d.\n",
+                                                                  LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);//non-decreasing
+                    oldLen = LENGTH;
+                }
+
+                if (veryVerbose) { T_; T_;
+                    P_(si); P_(U_SPEC); P(U); }
+
+                // Create second object
+                for (int sj = 0; SPECS[sj]; ++sj) {
+                    for (int aj = 0; aj < NUM_ALLOCATOR; ++aj) {
+
+                        const char *const V_SPEC = SPECS[sj];
+                        Obj mV(ALLOCATOR[aj]);
+                        const Obj& V = gg(&mV, V_SPEC);
+
+                        if (veryVerbose) {
+                            T_; T_; P_(sj); P_(V_SPEC); P(V);
+                        }
+
+                        HashType hU = hasher(U);
+                        HashType hV = hasher(V);
+                        LOOP2_ASSERT(si, sj, (si == sj) == (hU == hV));
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\nCompare hash values of each pair of similar values "
+                        "(u, ua, v, va) in S X A X S X A after perturbing.\n");
+    {
+        static const std::size_t EXTEND[] = {
+            0, 1, 2, 3, 4, 5, 7, 8, 9, 15
+        };
+
+        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+        int oldLen = -1;
+
+        // Create first object
+        for (int si = 0; SPECS[si]; ++si) {
+            for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
+
+                const char *const U_SPEC = SPECS[si];
+                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
+
+                Obj mU(ALLOCATOR[ai]); const Obj& U = mU;
+                gg(&mU, U_SPEC);
+                // same lengths
+                LOOP_ASSERT(si, LENGTH == static_cast<int>(U.size()));
+
+                if (LENGTH != oldLen) {
+                    if (verbose)
+                        printf( "\tUsing lhs objects of length %d.\n",
+                                                                  LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);
+                    oldLen = LENGTH;
+                }
+
+                if (veryVerbose) { P_(si); P_(U_SPEC); P(U); }
+
+                // Create second object
+                for (int sj = 0; SPECS[sj]; ++sj) {
+                    for (int aj = 0; aj < NUM_ALLOCATOR; ++aj) {
+                        //Perform perturbation
+                        for (int e = 0; e < NUM_EXTEND; ++e) {
+
+                            const char *const V_SPEC = SPECS[sj];
+                            Obj mV(ALLOCATOR[aj]); const Obj& V = mV;
+                            gg(&mV, V_SPEC);
+
+                            stretchRemoveAll(&mV,
+                                             EXTEND[e],
+                                             TstFacility::getIdentifier(
+                                                 VALUES[e % NUM_VALUES]));
+                            gg(&mV, V_SPEC);
+
+                            if (veryVerbose) {
+                                T_; T_; P_(sj); P_(V_SPEC); P(V);
+                            }
+
+                            HashType hU = hasher(U);
+                            HashType hV = hasher(V);
+                            LOOP2_ASSERT(si, sj, (si == sj) == (hU == hV));
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -12853,7 +13036,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -12896,6 +13079,18 @@ int main(int argc, char *argv[])
             ASSERT(3 == m1.theValue(1, 0));
             ASSERT(4 == m1.theValue(1, 1));
         }
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING 'hashAppend'
+        // --------------------------------------------------------------------
+        RUN_EACH_TYPE(TestDriver,
+                      testCase34,
+
+                      signed char,
+                      size_t,
+                      bsltf::TemplateTestFacility::ObjectPtr
+                      );
       } break;
       case 33: {
         // --------------------------------------------------------------------

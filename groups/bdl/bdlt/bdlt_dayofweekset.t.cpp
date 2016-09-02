@@ -83,6 +83,7 @@ using bsl::flush;
 // [ 6] operator==(const DayOfWeekSet&, const DayOfWeekSet&);
 // [ 6] operator!=(const DayOfWeekSet&, const DayOfWeekSet&);
 // [ 5] operator<<(ostream&, const DayOfWeekSet&);
+// [15] void hashAppend(HASHALG&, const DayOfWeekSet&);
 // ----------------------------------------------------------------------------
 // [ 4] DayOfWeekSet_Iter();
 // [ 4] DayOfWeekSet_Iter(int data, int index);
@@ -99,7 +100,7 @@ using bsl::flush;
 // [ 2] ~DayOfWeekSet();
 // [ 2] void add(DayOfWeek value);
 // [ 2] void removeAll();
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [ 3] DayOfWeekSet& gg(DayOfWeekSet* obj, const char *spec);
 // [ 3] int ggg(DayOfWeekSet *object, const char *spec, int vF = 1);
 // [ 3] DayOfWeekSet g(const char *spec);
@@ -390,7 +391,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard allocatorGuard(&dfltAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -577,6 +578,94 @@ int main(int argc, char *argv[])
 //  TUE
 //  MON
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG& hashAlg, const DayOfWeekSet&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        if (verbose) {
+            cout << "\nCompare hashes of pairs of similar values (u, v)"
+                    " in S X S.\n";
+        }
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_spec;     // string
+            } DATA[] = {
+                //line spec
+                //---- ---------------------
+                { L_,  ""                 },
+                { L_,  "A"                },
+                { L_,  "B"                },
+                { L_,  "AB"               },
+                { L_,  "BC"               },
+                { L_,  "CD"               },
+                { L_,  "ABC"              },
+                { L_,  "BCD"              },
+                { L_,  "CDE"              },
+                { L_,  "DEF"              },
+                { L_,  "ABCD"             },
+                { L_,  "AEFG"             },
+                { L_,  "BCDE"             },
+                { L_,  "CDEF"             },
+                { L_,  "DEFG"             },
+                { L_,  "ABCDE"            },
+                { L_,  "ABCEFG"           },
+                { L_,  "ABCDEFG"          }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            int oldLen = -1;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int curLen = strlen(DATA[i].d_spec);
+                if (curLen != oldLen) {
+                    if (veryVerbose) cout << "\tUsing lhs objects of length "
+                                          << curLen << '.' << endl;
+                    ASSERTV(i, oldLen <= curLen); // non-decreasing
+                    oldLen = curLen;
+                }
+
+                Obj mX;  const Obj& X = mX;
+                ASSERT(-1 == ggg(&mX, DATA[i].d_spec));
+
+                if (veryVerbose) { P_(i) P_(DATA[i].d_spec) P(X) }
+
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    Obj mY;  const Obj& Y = mY;
+                    ASSERT(-1 == ggg(&mY, DATA[j].d_spec));
+
+                    if (veryVerbose) { T_ P_(j) P_(DATA[j].d_spec) P(Y) }
+
+                    HashType hX = hasher(X);
+                    HashType hY = hasher(Y);
+
+                    if (veryVerbose) { T_ P_(hX) P(hY) }
+
+                    ASSERTV(i, j,  (i == j) == (hX == hY));
+                }
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------

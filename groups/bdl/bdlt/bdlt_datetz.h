@@ -295,6 +295,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DateTz& rhs);
     // method has the same behavior as 'object.print(stream, 0, -1)', but with
     // the attribute names elided.
 
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const DateTz& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DateTz'.  Note that two
+    // objects which represent the same UTC time but have different offsets
+    // will not (necessarily) hash to the same value.
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -469,6 +478,16 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const DateTz& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const DateTz& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.localDate());
+    hashAppend(hashAlg, object.offset());
 }
 
 }  // close enterprise namespace

@@ -82,9 +82,10 @@ using namespace bsl;
 // [ 6] bool operator==(const DatetimeTz& lhs, const DatetimeTz& rhs);
 // [ 6] bool operator!=(const DatetimeTz& lhs, const DatetimeTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const DatetimeTz&);
+// [15] void hashAppend(HASHALG&, const DatetimeTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
 
 // ============================================================================
@@ -256,7 +257,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   Extracted from component header file.
@@ -382,6 +383,131 @@ if (verbose) {
 //  Estimated Delivery Time in London:      19OCT2014_03:48:56.000+0100
 //  Estimated Delivery Time in Los Angeles: 18OCT2014_06:48:56.000-0800
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG&, const DatetimeTz&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        if (verbose) {
+            cout << "\nCompare hashes of pairs of values (u, v) in S X S.\n";
+        }
+        {
+            static const struct {
+                int d_year;    // year of datetime
+                int d_month;   // month of datetime
+                int d_day;     // day of month of datetime
+                int d_hour;    // hour of datetime
+                int d_min;     // minute of datetime
+                int d_sec;     // second of datetime
+                int d_msec;    // millisecond of datetime
+                int d_offset;  // timezone offset
+            } DATA[] = {
+            //    YEAR  MO  DAY  HOUR  MIN  SEC  MSEC   OFFSET
+            //    ----  --  ---  ----  ---  ---  ----  -------
+                {    1,  1,   1,   24,   0,   0,    0,       0 },
+                {    2,  1,   1,    3,   0,   0,    0,       0 },
+                {    2,  1,   1,    0,   3,   0,    0,       0 },
+                {    2,  1,   1,    0,   0,   3,    0,       0 },
+                {    2,  1,   1,    0,   0,   0,    3,       0 },
+                {    2,  1,   1,    0,   0,   0,    0,       3 },
+                {   10,  4,   5,    1,   0,   0,    0,       1 },
+                {  100,  6,   7,    7,   1,   0,    0,   -1439 },
+                { 1000,  8,   9,   22,   0,   1,    0,    1439 },
+                { 2000,  2,  29,   12,   0,   0,    1,      -1 },
+                { 2000,  2,  29,   12,   0,   0,    1,       0 },
+                { 2000,  2,  29,   12,   0,   0,    1,       1 },
+                { 2002,  7,   4,   18,  59,   0,    0,    1380 },
+                { 2003,  8,   5,    9,   0,  59,    0,   -1380 },
+                { 2004,  9,   3,   11,   0,   0,  999,    5*60 },
+                { 2016,  8,  30,   10,   0,   0,    0,   -2*60 },
+                { 2016,  8,  30,   12,   0,   0,    0,       0 },
+                { 2016,  8,  30,   14,   0,   0,    0,    2*60 },
+                { 9999, 12,  31,   18,  17,  42,  103,   -5*60 }
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int U_YEAR   = DATA[i].d_year;
+                const int U_MONTH  = DATA[i].d_month;
+                const int U_DAY    = DATA[i].d_day;
+                const int U_HOUR   = DATA[i].d_hour;
+                const int U_MIN    = DATA[i].d_min;
+                const int U_SEC    = DATA[i].d_sec;
+                const int U_MSEC   = DATA[i].d_msec;
+                const int U_OFFSET = DATA[i].d_offset;
+
+                if (veryVerbose) {
+                    T_ P_(U_YEAR) P_(U_MONTH) P_(U_DAY)
+                    P_(U_HOUR) P_(U_MIN) P_(U_SEC) P_(U_MSEC)
+                    P(U_OFFSET)
+                }
+
+                const bdlt::Datetime U_DATETIME(U_YEAR,
+                                                U_MONTH,
+                                                U_DAY,
+                                                U_HOUR,
+                                                U_MIN,
+                                                U_SEC,
+                                                U_MSEC);
+
+                const Obj U(U_DATETIME, U_OFFSET);
+
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int V_YEAR   = DATA[j].d_year;
+                    const int V_MONTH  = DATA[j].d_month;
+                    const int V_DAY    = DATA[j].d_day;
+                    const int V_HOUR   = DATA[j].d_hour;
+                    const int V_MIN    = DATA[j].d_min;
+                    const int V_SEC    = DATA[j].d_sec;
+                    const int V_MSEC   = DATA[j].d_msec;
+                    const int V_OFFSET = DATA[j].d_offset;
+
+                    if (veryVerbose) {
+                        T_ T_ P_(V_YEAR) P_(V_MONTH) P_(V_DAY)
+                        P_(V_HOUR) P_(V_MIN) P_(V_SEC) P_(V_MSEC)
+                        P(V_OFFSET)
+                    }
+
+                    const bdlt::Datetime V_DATETIME(V_YEAR,
+                                                    V_MONTH,
+                                                    V_DAY,
+                                                    V_HOUR,
+                                                    V_MIN,
+                                                    V_SEC,
+                                                    V_MSEC);
+
+                    const Obj V(V_DATETIME, V_OFFSET);
+
+                    HashType hU = hasher(U);
+                    HashType hV = hasher(V);
+
+                    if (veryVeryVerbose) { T_ T_ T_ P_(i) P_(j) P_(hU) P(hV) }
+
+                    LOOP2_ASSERT(i, j, (i == j) == (hU == hV));
+                }
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------

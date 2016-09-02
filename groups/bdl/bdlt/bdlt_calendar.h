@@ -499,6 +499,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -559,6 +563,8 @@ class Calendar {
     // FRIENDS
     friend bool operator==(const Calendar&, const Calendar&);
     friend bool operator!=(const Calendar&, const Calendar&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const Calendar&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -1257,6 +1263,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Calendar& calendar);
     // 'stream', and return a reference to the modifiable 'stream'.
 
 // FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Calendar& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Calendar'.
+
 void swap(Calendar& a, Calendar& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
@@ -1977,6 +1989,14 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Calendar& calendar)
 }
 
 // FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const Calendar& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.d_packedCalendar);
+}
+
 inline
 void bdlt::swap(Calendar& a, Calendar& b)
 {
