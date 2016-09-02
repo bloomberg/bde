@@ -5,7 +5,6 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-
 namespace bslim {
 
                         // --------------
@@ -16,7 +15,11 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
                            bslstl::StringRef rhs, 
                            bsl::ostream&     errorStream)
 {
-    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) { 
+    bslstl::StringRef::size_type size;
+
+    for (size = 0; size < lhs.length() && size < rhs.length(); ++size) { 
+        int i = static_cast<int>(size);
+        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
         if (lhs[i] != rhs[i]) { 
             errorStream << "lhs: \"" << lhs << "\"\n" 
                         << "rhs: \"" << rhs << "\"\n" 
@@ -28,8 +31,9 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
         } 
     } 
  
-    if (lhs.length() < rhs.length()) { 
-        unsigned int i = lhs.length(); 
+    if (size < rhs.length()) { 
+        int i = static_cast<int>(size);
+        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
         errorStream << "lhs: \"" << lhs << "\"\n" 
                     << "rhs: \"" << rhs << "\"\n" 
                     << "Strings differ at index (" << i << ") " 
@@ -39,8 +43,9 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
         return false;                                                 // RETURN 
  
     } 
-    if (lhs.length() > rhs.length()) { 
-        unsigned int i = rhs.length(); 
+    if (size < lhs.length()) { 
+        int i = static_cast<int>(size);
+        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
         errorStream << "lhs: \"" << lhs << "\"\n" 
                     << "rhs: \"" << rhs << "\"\n" 
                     << "Strings differ at index (" << i << ") " 
