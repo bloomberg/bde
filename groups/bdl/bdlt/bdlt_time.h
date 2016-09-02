@@ -787,7 +787,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Time& time)
 }
 
 // FREE FUNCTIONS
-template <typename HASHALG>
+template <class HASHALG>
 inline
 void bdlt::hashAppend(HASHALG& hashAlg, const Time& object)
 {
