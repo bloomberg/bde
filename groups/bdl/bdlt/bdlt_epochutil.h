@@ -45,10 +45,10 @@ BSLS_IDENT("$Id: $")
 // values), whereas the interfaces using 'bsl::time_t' have undefined behavior
 // for such input.  Furthermore, even on platforms where 'bsl::time_t' is a
 // 64-bit value, clients of this component are strongly encouraged to use the
-// 'TimeT64'-based method to avoid limitations imposed by the
+// 'TimeT64'-based methods to avoid limitations imposed by the
 // 'bsl::time_t'-based methods required to ensure identical behavior on all
 // supported platforms (e.g., see the function-level documentation for
-// 'convertToTimeT(bsl::time_t time)').
+// 'convertToTimeT(bsl::time_t)').
 //
 // Also note that these conversions do not take into account the leap seconds
 // (25 as of this writing) added to UTC by the International Earth Rotation and
