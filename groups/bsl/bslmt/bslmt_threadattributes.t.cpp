@@ -320,10 +320,14 @@ int main(int argc, char *argv[])
             int                    d_guardSize;
             const char            *d_threadName;
         } PARAM[] = {
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0, "" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0, "x" },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
-                                      "incredibly terribly long thread name" },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 0, 0, 0, 0,
+                                                                "short name" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
                                "How long is your thread name? I wanna know." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 0, 0, 0, 0,
+                                      "incredibly terribly long thread name" },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 5, 0, 0, 0,
                             "My thread name is sooooooooooooooooooooo long." },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 4, true, 0, 0,
@@ -354,7 +358,7 @@ int main(int argc, char *argv[])
             mX.setThreadName(PARAM[i].d_threadName);
 
             ASSERT(da.numAllocations() == numDaPreAlloc);
-            ASSERTV(X.threadName(), ("short name" != X.threadName()) ==
+            ASSERTV(X.threadName(), (X.threadName().length() > 15) ==
                                         (ta.numAllocations() > numTaPreAlloc));
 
             Obj mY(&ta);

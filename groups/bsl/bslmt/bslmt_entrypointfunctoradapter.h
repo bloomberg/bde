@@ -38,8 +38,6 @@ BSLS_IDENT("$: $")
 //
 ///Example 1: Wrapping a C++ Invokable Type
 /// - - - - - - - - - - - - - - - - - - - -
-///Example 1: Wrapping a C++ Invokable Type
-/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have an existing interface for invoking a C-linkage function and
 // passing a void* argument to it.  This situation may arise when starting
 // threads or in general when registering a C-style callback.  A simplistic
@@ -291,9 +289,9 @@ struct EntryPointFunctorAdapterUtil {
        bslma::Allocator                                   *basicAllocator = 0);
         // Allocate a new 'EntryPointFunctorAdapter' holding copies of the
         // specified 'invokable' object and 'threadName', and load the result
-        // into the specified 'adapter'.  Use 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // into the specified 'adapter'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 };
 
 // ============================================================================
