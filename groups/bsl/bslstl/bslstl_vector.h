@@ -586,6 +586,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -664,6 +668,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -5948,6 +5956,19 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
     static_cast<Base&>(a).swap(static_cast<Base&>(b));
+}
+
+// HASH SPECIALIZATIONS
+template <class HASHALG, class VALUE_TYPE, class ALLOCATOR>
+inline
+void hashAppend(HASHALG& hashAlg, const vector<VALUE_TYPE, ALLOCATOR>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    typedef typename vector<VALUE_TYPE, ALLOCATOR>::const_iterator ci_t;
+    hashAppend(hashAlg, input.size());
+    for (ci_t b = input.begin(), e = input.end(); b != e; ++b) {
+        hashAppend(hashAlg, *b);
+    }
 }
 
                    // -------------------------------------
