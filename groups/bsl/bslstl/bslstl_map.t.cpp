@@ -1375,7 +1375,8 @@ class TestDriver {
     static void testCase29();
         // Test insert of movable value.
 
-    template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG>
+    template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
     static void testCase28_propagate_on_container_move_assignment_dispatch();
     static void testCase28_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
@@ -1439,7 +1440,8 @@ class TestDriver {
     // static void testCase10();
         // Reserved for BDEX.
 
-    template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG>
+    template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
     static void testCase9_propagate_on_container_copy_assignment_dispatch();
     static void testCase9_propagate_on_container_copy_assignment();
         // Test 'propagate_on_container_copy_assignment'.
@@ -1447,7 +1449,8 @@ class TestDriver {
     static void testCase9();
         // Test copy-assignment operator.
 
-    template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG>
+    template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+              bool OTHER_FLAGS>
     static void testCase8_propagate_on_container_swap_dispatch();
     static void testCase8_propagate_on_container_swap();
         // Test 'propagate_on_container_swap'.
@@ -1455,7 +1458,8 @@ class TestDriver {
     static void testCase8();
         // Test 'swap' member and free functions.
 
-    template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG>
+    template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
+              bool OTHER_FLAGS>
     static void testCase7_select_on_container_copy_construction_dispatch();
     static void testCase7_select_on_container_copy_construction();
         // Test 'select_on_container_copy_construction'.
@@ -4780,7 +4784,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG>
+template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::
                    testCase28_propagate_on_container_move_assignment_dispatch()
 {
@@ -4789,9 +4794,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     typedef bsltf::StdStatefulAllocator<
                                    KEY,
-                                   false,
-                                   false,
-                                   false,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
                                    PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG>
                                                  StdAlloc;
 
@@ -4898,6 +4903,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 4 If the allocator is propagated from the source object to the target
     //:   object, all memory allocated from the source object's original
     //:   allocator is released.
+    //:
+    //: 5 The affect of the 'propagate_on_container_move_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
@@ -4905,8 +4913,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:
     //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
     //:   'propagate_on_container_move_assignment' property configured to
-    //:   'false'.  Ensure that the other three properties not under test in
-    //:   this test case are set to 'false' throughout.
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
     //:
     //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
     //:
@@ -4920,14 +4929,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:   3 Move-assign 'Y' to 'X' and use 'operator==' to verify that 'X'
     //:     subsequently has the same value as 'W'.
     //:
-    //:   5 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
     //:     is *not* propagated to 'X' and that the allocator used by 'Y'
     //:     remains unchanged.  (C-1)
     //:
     //: 4 Repeat P-2..3 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocator of 'Y' *is*
     //:   propagated to 'X'.  Also verify that all memory is released to the
-    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..4)
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
     //
     // Testing:
     //   propagate_on_container_move_assignment
@@ -4939,12 +4948,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == false'\n");
 
-    testCase28_propagate_on_container_move_assignment_dispatch<false>();
+    testCase28_propagate_on_container_move_assignment_dispatch<false, false>();
+    testCase28_propagate_on_container_move_assignment_dispatch<false, true>();
 
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == true'\n");
 
-    testCase28_propagate_on_container_move_assignment_dispatch<true>();
+    testCase28_propagate_on_container_move_assignment_dispatch<true, false>();
+    testCase28_propagate_on_container_move_assignment_dispatch<true, true>();
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -6259,7 +6270,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     //:
     //:   4 Verify 'std::out_of_range' is thrown.
     //:
-    //:   5 Repeat P-1.3-4 with the non-'const' version of the 'at' method.
+    //:   5 Repeat P-1.3..4 with the non-'const' version of the 'at' method.
     //:
     //:   6 Invoke 'operator[]' using the out-of-range key in the presence of
     //:     exceptions.
@@ -7309,7 +7320,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
     //:
     //:   2 Insert the rest of 'V' under the presence of exceptions.  (C-7)
     //:
-    //:   3 Verify the object's value.  (C-1-3)
+    //:   3 Verify the object's value.  (C-1..3)
     //:
     //:   4 If the range is empty, verify no memory is allocated  (C-6)
     //:
@@ -8466,7 +8477,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG>
+template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::
                     testCase9_propagate_on_container_copy_assignment_dispatch()
 {
@@ -8475,10 +8487,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     typedef bsltf::StdStatefulAllocator<
                                    KEY,
-                                   false,
+                                   OTHER_FLAGS,
                                    PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
-                                   false,
-                                   false>        StdAlloc;
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS>  StdAlloc;
 
     typedef bsl::map<KEY, VALUE, COMP, StdAlloc> Obj;
 
@@ -8584,6 +8596,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 4 If the allocator is propagated from the source object to the target
     //:   object, all memory allocated from the source object's original
     //:   allocator is released.
+    //:
+    //: 5 The affect of the 'propagate_on_container_copy_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
@@ -8591,8 +8606,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:
     //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
     //:   'propagate_on_container_copy_assignment' property configured to
-    //:   'false'.  Ensure that the other three properties not under test in
-    //:   this test case are set to 'false' throughout.
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
     //:
     //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
     //:
@@ -8606,14 +8622,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:   3 Copy-assign 'Y' to 'X' and use 'operator==' to verify that both
     //:     'X' and 'Y' subsequently have the same value as 'W'.
     //:
-    //:   5 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
     //:     is *not* propagated to 'X' and that the allocator used by 'Y'
     //:     remains unchanged.  (C-1)
     //:
     //: 4 Repeat P-2..3 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocator of 'Y' *is*
     //:   propagated to 'X'.  Also verify that all memory is released to the
-    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..4)
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
     //
     // Testing:
     //   propagate_on_container_copy_assignment
@@ -8625,12 +8641,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     if (verbose)
         printf("\n'propagate_on_container_copy_assignment::value == false'\n");
 
-    testCase9_propagate_on_container_copy_assignment_dispatch<false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, true>();
 
     if (verbose)
         printf("\n'propagate_on_container_copy_assignment::value == true'\n");
 
-    testCase9_propagate_on_container_copy_assignment_dispatch<true>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, true>();
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -8905,7 +8923,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase9()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG>
+template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+          bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::
                                testCase8_propagate_on_container_swap_dispatch()
 {
@@ -8914,10 +8933,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     typedef bsltf::StdStatefulAllocator<
                                     KEY,
-                                    false,
-                                    false,
+                                    OTHER_FLAGS,
+                                    OTHER_FLAGS,
                                     PROPAGATE_ON_CONTAINER_SWAP_FLAG,
-                                    false>       StdAlloc;
+                                    OTHER_FLAGS> StdAlloc;
 
     typedef bsl::map<KEY, VALUE, COMP, StdAlloc> Obj;
 
@@ -9044,20 +9063,24 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:   (i.e., the allocators are *not* exchanged).
     //:
     //: 2 If the 'propagate_on_container_swap' trait is 'true', the
-    //:   allocator used by the target object is updated to be a copy of that
-    //:   used by the source object (i.e., the allocators *are* exchanged).
+    //:   allocator used by the target (source) object is updated to be a copy
+    //:   of that used by the source (target) object (i.e., the allocators
+    //:   *are* exchanged).
     //:
     //: 3 If the allocators are propagated (i.e., exchanged), there is no
     //:   additional allocation from any allocator.
+    //:
+    //: 4 The affect of the 'propagate_on_container_swap' trait is independent
+    //:   of the other three allocator propagation traits.
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
     //:   increasing length, to be used in the following tests.
     //:
     //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
-    //:   'propagate_on_container_swap' property configured to 'false'.  Ensure
-    //:   that the other three properties not under test in this test case are
-    //:   set to 'false' throughout.
+    //:   'propagate_on_container_swap' property configured to 'false'.  In two
+    //:   successive iterations of P-3, first configure the three properties
+    //:   not under test to be 'false', then configure them all to be 'true'.
     //:
     //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
     //:
@@ -9079,7 +9102,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 4 Repeat P-2..3 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
     //:   *are* exchanged.  Also verify that there is no additional allocation
-    //:   from any allocator.  (C-2..3)
+    //:   from any allocator.  (C-2..4)
     //
     // Testing:
     //   propagate_on_container_swap
@@ -9091,11 +9114,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     if (verbose) printf("\n'propagate_on_container_swap::value == false'\n");
 
-    testCase8_propagate_on_container_swap_dispatch<false>();
+    testCase8_propagate_on_container_swap_dispatch<false, false>();
+    testCase8_propagate_on_container_swap_dispatch<false, true>();
 
     if (verbose) printf("\n'propagate_on_container_swap::value == true'\n");
 
-    testCase8_propagate_on_container_swap_dispatch<true>();
+    testCase8_propagate_on_container_swap_dispatch<true, false>();
+    testCase8_propagate_on_container_swap_dispatch<true, true>();
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -9496,7 +9521,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG>
+template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
+          bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::
                      testCase7_select_on_container_copy_construction_dispatch()
 {
@@ -9509,9 +9535,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     typedef bsltf::StdStatefulAllocator<
                                     KEY,
                                     SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
-                                    false,
-                                    false,
-                                    false>       StdAlloc;
+                                    OTHER_FLAGS,
+                                    OTHER_FLAGS,
+                                    OTHER_FLAGS> StdAlloc;
 
     typedef bsl::map<KEY, VALUE, COMP, StdAlloc> Obj;
 
@@ -9592,6 +9618,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 2 In the absence of a 'select_on_container_copy_construction' method,
     //:   the allocator of a source object using a standard allocator is always
     //:   propagated to the newly constructed object (C++03 semantics).
+    //:
+    //: 3 The affect of the 'select_on_container_copy_construction' trait is
+    //:   independent of the other three allocator propagation traits.
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
@@ -9599,8 +9628,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:
     //: 2 Create a 'bsltf::StdStatefulAllocator' with its
     //:   'select_on_container_copy_construction' property configured to
-    //:   'false'.  Ensure that the other three properties not under test in
-    //:   this test case are set to 'false' throughout.
+    //:   'false'.  In two successive iterations of P-3..5, first configure the
+    //:   three properties not under test to be 'false', then confgiure them
+    //:   all to be 'true'.
     //:
     //: 3 For each value in S, initialize objects 'W' (a control) and 'X' using
     //:   the allocator from P-2.
@@ -9618,7 +9648,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 7 Repeat P-2..5 except that this time use a 'StatefulStlAllocator',
     //:   which does not define a 'select_on_container_copy_construction'
     //:   method, and verify that the allocator of 'X' is *always* propagated
-    //:   to 'Y'.  (C-2)
+    //:   to 'Y'.  (C-2..3)
     //
     // Testing:
     //   select_on_container_copy_construction
@@ -9627,12 +9657,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     if (verbose) printf("\n'select_on_container_copy_construction' "
                         "propagates *default* allocator.\n");
 
-    testCase7_select_on_container_copy_construction_dispatch<false>();
+    testCase7_select_on_container_copy_construction_dispatch<false, false>();
+    testCase7_select_on_container_copy_construction_dispatch<false, true>();
 
     if (verbose) printf("\n'select_on_container_copy_construction' "
                         "propagates allocator of source object.\n");
 
-    testCase7_select_on_container_copy_construction_dispatch<true>();
+    testCase7_select_on_container_copy_construction_dispatch<true, false>();
+    testCase7_select_on_container_copy_construction_dispatch<true, true>();
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
