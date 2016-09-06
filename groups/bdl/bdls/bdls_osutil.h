@@ -46,8 +46,8 @@ BSLS_IDENT("$Id: $")
 // Then, we use the standard streams to write the operating system version
 // information to the console, or an error message of failure:
 //..
-//  int rc = bdls::OsUtil::getOsInfo(&name, &version, &patch);
-//  if (0 == rc) {
+//  const int rc = bdls::OsUtil::getOsInfo(&name, &version, &patch);
+//  if (rc == 0) {
 //      bsl::cout << "OS Name: " << name << "\n"
 //                << "Version: " << version << "\n"
 //                << "Patch:   " << patch << "\n";
@@ -90,17 +90,16 @@ struct OsUtil {
                          bsl::string *osPatch);
         // Load the operating system name, version name and patch name into the
         // specified 'osName', 'osVersion' and 'osPatch' respectively.  Return
-        // 0 on success and a non-zero value otherwise.  On MS Windows systems
-        // 'osName' will be 'Windows', with 'osVersion' set to 'dwMajorVersion'
-        // concatenated with a dot and 'dwMinorVersion', and 'osPatch' will be
-        // set to 'szCSDVresion' (Service Pack name), as returned by
-        // !GetVersionEx!.  On Posix systems, 'osName', 'osVersion' and
-        // 'osPatch' will be set to 'sysname', 'release', and 'version',
-        // respectively, as returned by !uname(2)!.
+        // 0 on success and a non-zero value otherwise.  The loaded values may
+        // represent an emulation provided for the current process (see
+        // "manifest-based behavior" in Windows programming documentation for
+        // an example) and therefore are not suitable for determining supported
+        // features or the real environment/version.  If you need to determine
+        // the presence of certain features please consult the documentation of
+        // the operating systems you need to support.
 };
+
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 #endif
