@@ -54,6 +54,8 @@ const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER = tru
 
 const bool balxml::EncoderOptions::DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS = true;
 
+const int balxml::EncoderOptions::DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION = 6;
+
 const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_OBJECT_NAMESPACE,
@@ -152,6 +154,13 @@ const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("OutputXSIAlias") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
+    },
+    {
+        e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION,
+        "DatetimeFractionalSecondPrecision",
+        sizeof("DatetimeFractionalSecondPrecision") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
     }
 };
 
@@ -471,6 +480,45 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
                                                                       // RETURN
             }
         } break;
+        case 33: {
+            if (name[0]=='d'
+             && name[1]=='a'
+             && name[2]=='t'
+             && name[3]=='e'
+             && name[4]=='t'
+             && name[5]=='i'
+             && name[6]=='m'
+             && name[7]=='e'
+             && name[8]=='F'
+             && name[9]=='r'
+             && name[10]=='a'
+             && name[11]=='c'
+             && name[12]=='t'
+             && name[13]=='i'
+             && name[14]=='o'
+             && name[15]=='n'
+             && name[16]=='a'
+             && name[17]=='l'
+             && name[18]=='S'
+             && name[19]=='e'
+             && name[20]=='c'
+             && name[21]=='o'
+             && name[22]=='n'
+             && name[23]=='d'
+             && name[24]=='P'
+             && name[25]=='r'
+             && name[26]=='e'
+             && name[27]=='c'
+             && name[28]=='i'
+             && name[29]=='s'
+             && name[30]=='i'
+             && name[31]=='o'
+             && name[32]=='n')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION];
+                                                                      // RETURN
+            }
+        } break;
     }
     return 0;
 }
@@ -506,6 +554,8 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER];
       case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS:
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS];
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION];
       default:
         return 0;
     }
@@ -521,6 +571,7 @@ EncoderOptions::EncoderOptions(bslma::Allocator *basicAllocator)
 , d_initialIndentLevel(DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL)
 , d_spacesPerLevel(DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
 , d_wrapColumn(DEFAULT_INITIALIZER_WRAP_COLUMN)
+, d_datetimeFractionalSecondPrecision(DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION)
 , d_maxDecimalTotalDigits()
 , d_maxDecimalFractionDigits()
 , d_significantDoubleDigits()
@@ -541,6 +592,7 @@ EncoderOptions::EncoderOptions(
 , d_initialIndentLevel(original.d_initialIndentLevel)
 , d_spacesPerLevel(original.d_spacesPerLevel)
 , d_wrapColumn(original.d_wrapColumn)
+, d_datetimeFractionalSecondPrecision(original.d_datetimeFractionalSecondPrecision)
 , d_maxDecimalTotalDigits(original.d_maxDecimalTotalDigits)
 , d_maxDecimalFractionDigits(original.d_maxDecimalFractionDigits)
 , d_significantDoubleDigits(original.d_significantDoubleDigits)
@@ -575,6 +627,7 @@ EncoderOptions::operator=(const EncoderOptions& rhs)
         d_allowControlCharacters = rhs.d_allowControlCharacters;
         d_outputXMLHeader = rhs.d_outputXMLHeader;
         d_outputXSIAlias = rhs.d_outputXSIAlias;
+        d_datetimeFractionalSecondPrecision = rhs.d_datetimeFractionalSecondPrecision;
     }
     return *this;
 }
@@ -595,6 +648,7 @@ void EncoderOptions::reset()
     d_allowControlCharacters = DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
     d_outputXMLHeader = DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER;
     d_outputXSIAlias = DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS;
+    d_datetimeFractionalSecondPrecision = DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
 }
 
 // ACCESSORS
@@ -688,6 +742,11 @@ bsl::ostream& EncoderOptions::print(
         bdlb::PrintMethods::print(stream, d_outputXSIAlias,
                                  -levelPlus1, spacesPerLevel);
 
+        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "DatetimeFractionalSecondPrecision = ";
+        bdlb::PrintMethods::print(stream, d_datetimeFractionalSecondPrecision,
+                                 -levelPlus1, spacesPerLevel);
+
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
     }
@@ -764,6 +823,11 @@ bsl::ostream& EncoderOptions::print(
         stream << ' ';
         stream << "OutputXSIAlias = ";
         bdlb::PrintMethods::print(stream, d_outputXSIAlias,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "DatetimeFractionalSecondPrecision = ";
+        bdlb::PrintMethods::print(stream, d_datetimeFractionalSecondPrecision,
                                  -levelPlus1, spacesPerLevel);
 
         stream << " ]";
