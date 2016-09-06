@@ -147,12 +147,12 @@ bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
 {
     BSLS_ASSERT_SAFE(input);
 
-    int inputLen = strlen(input);
+    int inputLen = static_cast<int>(strlen(input));
 
-    bdlt::Calendar result(startDate, startDate + inputLen-1);
-    if (0 == inputLen) {
-        result = bdlt::Calendar();
-    }
+    bdlt::Calendar result = (  inputLen
+                             ? bdlt::Calendar(startDate,
+                                              startDate + inputLen - 1)
+                             : bdlt::Calendar());
 
     int numIgnored = 0; // for adjusting the length of the calendar
 
@@ -185,9 +185,15 @@ bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
         }
         ++currentDate;
     }
-    if (numIgnored) {
+
+    if (numIgnored >= inputLen) {
+        result.removeAll();
+    }
+    else if (numIgnored) {
         result.setValidRange(startDate,
-                             startDate + strlen(input) - 1 - numIgnored);
+                             startDate + inputLen
+                                       - 1
+                                       - numIgnored);
     }
     return result;
 }
@@ -201,7 +207,7 @@ int getStartDate(const char *input)
     // return 999.
 {
     BSLS_ASSERT_SAFE(input);
-    int inputLen = strlen(input);
+    int inputLen = static_cast<int>(strlen(input));
 
     int daysBeforeMonth = 0;
     for (int i = 0; i < inputLen; ++i) {
@@ -317,11 +323,15 @@ int main(int argc, char *argv[])
         //:   range of the calendar, an error code is returned leaving the
         //:   result unchanged, otherwise the expected value is loaded into the
         //:   result and success indicated in return value.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid and invalid inputs to address the above concerns. (C-1)
         //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-2)
         //
         // Testing:
         //   int addBusinessDays(bdlt::Date *result, orig, cdr, num);
@@ -494,6 +504,35 @@ int main(int argc, char *argv[])
                              LOADED2,
                              LOADED_P == LOADED2);
             }
+        }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_PASS(Util::addBusinessDaysIfValid(&result,
+                                                     date,
+                                                     cdr,
+                                                     0));
+            ASSERT_FAIL(Util::addBusinessDaysIfValid(0,
+                                                     date,
+                                                     cdr,
+                                                     0));
+
+            ASSERT_PASS(Util::subtractBusinessDaysIfValid(&result,
+                                                          date,
+                                                          cdr,
+                                                          0));
+            ASSERT_FAIL(Util::subtractBusinessDaysIfValid(0,
+                                                          date,
+                                                          cdr,
+                                                          0));
         }
 
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -747,6 +786,10 @@ int main(int argc, char *argv[])
 
             cdr.setValidRange(bdlt::Date(2000, 1, 1), bdlt::Date(2000, 1, 31));
 
+            // invalid result
+            ASSERT_FAIL(Util::nthBusinessDayOfMonthOrMaxIfValid(
+                                                         0, cdr, 2000,  1, 1));
+
             // invalid year
             ASSERT_FAIL(Util::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &OUTPUT, cdr,   -1,  1, 1));
@@ -784,6 +827,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 This method loads 'original' date to the 'result' if the used
         //:   convention 'e_UNADJUSTED'.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Test that, when convention is used content of the 'result' and
@@ -793,6 +838,8 @@ int main(int argc, char *argv[])
         //: 2 Verify that, when 'e_UNADJUSTED' is used as the convention, the
         //:   'result' contains the value of 'original' date. (C-2)
         //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-3)
         //
         // Testing:
         //  shiftIfValid(bdlt::Date *result, orig, calendar, convention)
@@ -1013,6 +1060,41 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_PASS(Util::shiftIfValid(&result,
+                                           date,
+                                           cdr,
+                                           Util::e_FOLLOWING));
+            ASSERT_FAIL(Util::shiftIfValid(0,
+                                           date,
+                                           cdr,
+                                           Util::e_FOLLOWING));
+
+            ASSERT_PASS(Util::shiftIfValid(&result,
+                                           date,
+                                           cdr,
+                                           Util::e_FOLLOWING,
+                                           bdlt::DayOfWeek::e_FRI,
+                                           true,
+                                           Util::e_PRECEDING));
+            ASSERT_FAIL(Util::shiftIfValid(0,
+                                           date,
+                                           cdr,
+                                           Util::e_FOLLOWING,
+                                           bdlt::DayOfWeek::e_FRI,
+                                           true,
+                                           Util::e_PRECEDING));
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1035,12 +1117,15 @@ int main(int argc, char *argv[])
         //:
         //: 4 If non-zero value is returned, result remains unchanged.
         //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
         //:   value.  (C-1..4)
         //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-5)
         //
         // Testing:
         //  shiftPrecedingIfValid(bdlt::Date *result, orig, calendar)
@@ -2173,10 +2258,25 @@ int main(int argc, char *argv[])
                     START,
                     ORIGINAL,
                     LOADED,
-                     RESULT,
+                    RESULT,
                     RESULT == LOADED);
-         }
-         ASSERT(0 == defaultAllocator.numBytesInUse());
+        }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_SAFE_PASS(Util::shiftPrecedingIfValid(&result, date, cdr));
+            ASSERT_SAFE_FAIL(Util::shiftPrecedingIfValid(      0, date, cdr));
+        }
+
+        ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2199,12 +2299,15 @@ int main(int argc, char *argv[])
         //:
         //: 4 If non-zero value is returned, result remains unchanged.
         //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
         //:   value.  (C-1..4)
         //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-5)
         //
         // Testing:
         //  shiftFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -3319,7 +3422,7 @@ int main(int argc, char *argv[])
                                                       calendar);
 
             if (veryVerbose) {
-                T_ P_(LINE) P_(ORIGINAL) P_(RESULT) P_(LOADED);
+                T_ P_(LINE) P_(ORIGINAL) P_(RESULT) P(LOADED);
             }
 
             // Check status
@@ -3340,6 +3443,21 @@ int main(int argc, char *argv[])
                     RESULT,
                     RESULT == LOADED);
         }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_SAFE_PASS(Util::shiftFollowingIfValid(&result, date, cdr));
+            ASSERT_SAFE_FAIL(Util::shiftFollowingIfValid(      0, date, cdr));
+        }
+
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
       case 4: {
@@ -3372,12 +3490,15 @@ int main(int argc, char *argv[])
         //:
         //: 6 If non-zero value is returned, result remains unchanged.
         //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
         //:   value.  (C-1..6)
         //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-7)
         //
         // Testing:
         //  shiftModifiedFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -4513,6 +4634,25 @@ int main(int argc, char *argv[])
                     RESULT,
                     RESULT == LOADED);
         }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_PASS(Util::shiftModifiedFollowingIfValid(&result,
+                                                            date,
+                                                            cdr));
+            ASSERT_FAIL(Util::shiftModifiedFollowingIfValid(0,
+                                                            date,
+                                                            cdr));
+        }
+
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
       case 3: {
@@ -4545,12 +4685,15 @@ int main(int argc, char *argv[])
         //:
         //: 6 If non-zero value is returned, result remains unchanged.
         //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
         //:   value.  (C-1..6)
         //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for argument values.  (C-7)
         //
         // Testing:
         //   shiftModifiedPrecedingIfValid(bdlt::Date *result, orig, calendar)
@@ -5686,6 +5829,25 @@ int main(int argc, char *argv[])
                     RESULT,
                     RESULT == LOADED);
         }
+
+        // negative tests
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bdlt::Calendar cdr;
+            bdlt::Date     date;
+            bdlt::Date     result;
+
+            ASSERT_PASS(Util::shiftModifiedPrecedingIfValid(&result,
+                                                            date,
+                                                            cdr));
+            ASSERT_FAIL(Util::shiftModifiedPrecedingIfValid(0,
+                                                            date,
+                                                            cdr));
+        }
+
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
       case 2: {
@@ -5848,23 +6010,25 @@ int main(int argc, char *argv[])
                     rval.numBusinessDays(),
                     rval.numBusinessDays() == BDAYS);
 
-            // check if start date match
-            ASSERTV(LINE,
-                    INPUT,
-                    LENGTH,
-                    BDAYS,
-                    rval,
-                    rval.firstDate(),
-                    rval.firstDate() == START);
+            if (LENGTH) {
+                // check if start date match
+                ASSERTV(LINE,
+                        INPUT,
+                        LENGTH,
+                        BDAYS,
+                        rval,
+                        rval.firstDate(),
+                        rval.firstDate() == START);
 
-            // check if last date match
-            ASSERTV(LINE,
-                    INPUT,
-                    LENGTH,
-                    BDAYS,
-                    rval,
-                    rval.lastDate(),
-                    rval.lastDate() == END);
+                // check if last date match
+                ASSERTV(LINE,
+                        INPUT,
+                        LENGTH,
+                        BDAYS,
+                        rval,
+                        rval.lastDate(),
+                        rval.lastDate() == END);
+            }
 
             // check if length match
             ASSERTV(LINE,

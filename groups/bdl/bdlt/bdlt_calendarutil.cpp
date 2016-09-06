@@ -202,7 +202,7 @@ int CalendarUtil::shiftIfValid(bdlt::Date            *result,
                                bool                   extendSpecialDay,
                                ShiftConvention        specialConvention)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT(result);
 
     enum { e_OUT_OF_RANGE = 1 };
 
