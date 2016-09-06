@@ -110,6 +110,8 @@ BSLS_IDENT("$Id: $")
 //  |             0)                       |  2002-03-17T15:46:09.330+00:00  |
 //  +--------------------------------------+---------------------------------+
 //..
+// Note that the ISO 8601 specification does not have an equivalent to
+// 'bdlt::DateTz'.
 //
 ///Configuration
 ///- - - - - - -
