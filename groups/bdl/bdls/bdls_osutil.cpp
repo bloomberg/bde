@@ -17,6 +17,8 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_sstream.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -63,13 +65,19 @@ int OsUtil::getOsInfo(bsl::string *osName,
     version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
     *osVersion = version.str();
 
+    version.clear();
+    version.str("");
     // Service pack number
-    *osPatch = osvi.szCSDVersion;
+    if (osvi.wServicePackMajor) {
+        version << "Service Pack " << osvi.wServicePackMajor << '.'
+                << osvi.wServicePackMinor;
+    }
+    *osPatch = version.str();
     return 0;
 }
 }  // close package namespace
 
-#else
+#elif defined(BSLS_PLATFORM_OS_UNIX)
 
 namespace bdls {
 int OsUtil::getOsInfo(bsl::string *osName,
@@ -90,6 +98,10 @@ int OsUtil::getOsInfo(bsl::string *osName,
     return 0;
 }
 }  // close package namespace
+
+#else
+
+BSLMF_ASSERT("Unsupported operating system", false);
 
 #endif
 }  // close enterprise namespace
