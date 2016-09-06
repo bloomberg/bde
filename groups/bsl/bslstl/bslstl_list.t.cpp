@@ -204,7 +204,7 @@ using bsl::list;
 // [20] bool operator>(const list&, const list&);
 // [20] bool operator<=(const list&, const list&);
 // [20] bool operator>=(const list&, const list&);
-// [19] void bsl::swap(Obj& lhs, list& rhs);
+// [19] void bsl::swap(Obj& lhs, Obj& rhs);
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(list<T,A> *object, const char *spec, int vF = 1);
@@ -219,7 +219,7 @@ using bsl::list;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [34] USAGE EXAMPLE
-// [29] All emplace methods handle rvalues.
+// [29] Concern: All emplace methods handle rvalues.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -4036,6 +4036,7 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     //   void push_back(T&& value);
     //   void push_front(T&& value);
     //   All emplace methods handle rvalues.
+    //   Concern: All emplace methods handle rvalues.
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING MOVE INSERTION: TYPE: %s\n",
@@ -6429,7 +6430,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:   address held by both objects is unchanged.
     //:
     //: 5 If the two objects being swapped use different allocators, then both
-    //:   allocators will allocate memory and the allocators held by both
+    //:   allocators may allocate memory and the allocators held by both
     //:   objects are unchanged.
     //:
     //: 6 Both functions provide the basic exception guarantee w.r.t. to
@@ -6464,7 +6465,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:   2 By calling member 'swap'.
     //:
     //:   3 By invoking 'swap' using ADL lookup by calling the 'invokeAdlSwap'
-    //:     helper (C-7)
+    //:     helper: (C-7)
     //:
     //:     o The 'invokeAdlSwap' helper function will call free 'swap' after
     //:       'using' the namespace 'incorrect', which contains a matching
@@ -6473,7 +6474,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:       will be preferred and the test will pass.
     //:
     //:   4 By invoking 'swap' using the standard C++ idiom by calling the
-    //:     'invokePatternSwap' helper. (C-7)
+    //:     'invokePatternSwap' helper: (C-7)
     //:
     //:     o The 'invokePatternSwap' helper function will call free 'swap'
     //:       after 'using' the namespace 'bsl'.  This is the standard idiom
@@ -6542,7 +6543,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:       'R2'.
     //:
     //:     6 Use the member and free 'swap' functions to swap the values of
-    //:       'mA' and 'mB' respectively under the presence of exceptions;
+    //:       'mA' and 'mB', respectively, under the presence of exceptions;
     //:       verify, after each swap, that: (C-1, 5, 6, 8, 9)
     //:
     //:       1 If no exception occurred:
@@ -6566,11 +6567,10 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
     //:         is unchanged in both objects.  (C-4)
     //:
     //:       4 There was no additional object memory allocation.  (C-4)
-    //:
     //
     // Testing:
     //   void bsl::swap(Obj& rhs);
-    //   void bsl::swap(Obj& lhs, list& rhs);
+    //   void bsl::swap(Obj& lhs, Obj& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("SWAP MEMBER AND FREE FUNCTIONS: %s\n"
@@ -6623,11 +6623,16 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
             ASSERTV(SPEC1, Obj(), W, Obj() == W);
         }
 
-        {
+        for (int freeSwap = 0; freeSwap < 2; ++freeSwap) {
             bslma::TestAllocatorMonitor oam(&oa);
             bslma::TestAllocatorMonitor dam(&da);
 
-            mW.swap(mW);
+            if (freeSwap) {
+                swap(mW, mW);
+            }
+            else {
+                mW.swap(mW);
+            }
 
             ASSERTV(SPEC1, XX, W, XX == W);
             ASSERTV(SPEC1, &oa == W.get_allocator().mechanism());
@@ -6636,7 +6641,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         }
     }
 
-    // Swap objects using the same allocator with member and free swap --
+    // Swap objects using the same allocator with member and free 'swap' --
     // shouldn't allocate.  Run tests over exhaustive pairs of values.
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -6665,10 +6670,11 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&da);
 
-                switch (freeSwap) {
-                  case 0:  mX.swap(mY);                                break;
-                  case 1:  swap(mX, mY);                               break;
-                  default: ASSERT(0 && "unrecognized free swap type"); break;
+                if (freeSwap) {
+                    swap(mX, mY);
+                }
+                else {
+                    mX.swap(mY);
                 }
 
                 ASSERTV(SPEC1, SPEC2, YY, X, YY == X);
@@ -6681,7 +6687,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         }
     }
 
-    // Swap of object using different allocators -- may allocate memory.
+    // Swap objects using different allocators -- may allocate memory.
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1 = DATA[ti].d_spec_p;
@@ -6759,7 +6765,7 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         }
     }
 
-    // Swap objects using the same allocator once with pattern and adl swap.
+    // Swap objects using the same allocator once with pattern and ADL swap.
     // Shouldn't allocate.  Run tests on a single pair of values.
 
     for (int adlSwap = 0; adlSwap < 2; ++adlSwap) {
@@ -6782,10 +6788,11 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
         bslma::TestAllocatorMonitor oam(&oa);
         bslma::TestAllocatorMonitor dam(&da);
 
-        switch (adlSwap) {
-          case 0:  invokePatternSwap(&mX, &mY);               break;
-          case 1:  invokeAdlSwap(    &mX, &mY);               break;
-          default: ASSERT(0 && "unrecognized adl swap type"); break;
+        if (adlSwap) {
+            invokeAdlSwap(    &mX, &mY);
+        }
+        else {
+            invokePatternSwap(&mX, &mY);
         }
 
         ASSERTV(SPEC1, SPEC2, YY, X, YY == X);
@@ -12901,7 +12908,7 @@ int main(int argc, char *argv[])
         //   iterator insert(const_iterator pos, T&& value);
         //   void push_back(T&& value);
         //   void push_front(T&& value);
-        //   All emplace methods handle rvalues.
+        //   Concern: All emplace methods handle rvalues.
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING MOVE INSERTION:\n"
@@ -13499,8 +13506,8 @@ int main(int argc, char *argv[])
         //:   leaves the containers unchanged.
         //
         // Testing:
-        //   void swap(list& rhs);
-        //   void bsl::swap(list& lhs, list& rhs);
+        //   void swap(Obj& rhs);
+        //   void bsl::swap(Obj& lhs, Obj& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING SWAP:\n"
