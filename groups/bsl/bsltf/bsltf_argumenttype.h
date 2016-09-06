@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a non-allocating test class to represent a func argument
+//@PURPOSE: Provide a non-allocating test class to represent a func argument.
 //
 //@REVIEW_FOR_MASTER:
 //
@@ -19,19 +19,18 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component provides a representation of a non-allocating
-// argument type template class used for testing functions that take a variable
-// number of template arguments.  The integer template parameter enables
-// specification of a number of types without requiring a separate component
-// for each.  Note that there are no manipulators, not even an assignment
-// operator, for the class and the value constructor is the only way to assign
-// an object a value.  Copy and move constructors are defined.
+// argument type template class, 'bsltf::ArgumentType<N>', used for testing
+// functions that take a variable number of template arguments.  The integer
+// template parameter enables specification of a number of types without
+// requiring a separate component for each.  Copy and move constructors are
+// defined.
 //
 ///Attributes
 ///----------
 //..
 //  Name                Type         Default
 //  ------------------  -----------  -------
-//  data                int          0
+//  data                int          -1
 //..
 //: o 'data': representation of the class value
 //
@@ -47,12 +46,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
+#ifndef INCLUDED_BSLTF_MOVESTATE
+#include <bsltf_movestate.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MOVABLEREF
@@ -69,59 +64,71 @@ namespace bsltf {
 template <int N>
 class ArgumentType {
     // This class template declares a separate type for each template parameter
-    // value 'N', that wraps an integer value and provides implicit conversion
-    // to and from 'int'.  Its main purpose is that having separate types for
-    // testing enables distinguishing them when calling through a function
-    // template interface, thereby avoiding ambiguities or accidental switching
-    // of arguments in the implementation of in-place constructors.
+    // value 'N', 'bsltf::ArgumentType<N>', that wraps an integer value and
+    // provides implicit conversion to and from 'int'.  Its main purpose is
+    // that having separate types for testing enables distinguishing them when
+    // calling through a function template interface, thereby avoiding
+    // ambiguities or accidental switching of arguments in the implementation
+    // of in-place constructors.
+
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
 
     // DATA
-    int  d_value;
-    bool d_movedFrom;
-
-    typedef bslmf::MovableRefUtil MovUtil;
-
-  private:
-    // TBD: we need this because assignability is an important requirement in
-    //      the implementation of containers
-    // void operator=(const ArgumentType&);  // =delete;
+    int              d_data;       // attribute value
+    MoveState::Enum  d_movedFrom;  // moved-from state
+    MoveState::Enum  d_movedInto;  // moved-into state
 
   public:
     // CREATORS
-    explicit ArgumentType(int value = -1);
-        // Create a test argument object having the optionally specified
-        // 'value', and having the value '-1' otherwise.
+    ArgumentType();
+        // Create an 'ArgumentType' object having the default attribute value
+        // '-1'.
 
-    ArgumentType(const ArgumentType& other);
-        // Create a test argument object having the same value as the specified
-        // 'other'.
+    explicit ArgumentType(int value);
+        // Create an 'ArgumentType' object having the specified 'value'. The
+        // behavior is undefined unless 'value >= 0'.
+
+    ArgumentType(const ArgumentType& original);
+        // Create an 'ArgumentType' object having the same value as the
+        // specified 'original'.
 
     ArgumentType(BloombergLP::bslmf::MovableRef<ArgumentType> original);
-        // Create a test argument object having the same value as the specified
-        // 'original'.  Note that 'original' is left in a valid but unspecified
-        // state.
+        // Create an 'ArgumentType' object having the same value as the
+        // specified 'original'.  Note that 'original' is left in a valid but
+        // unspecified state.
+
+    //! ~ArgumentType() = default;
+        // Destroy this object.
 
     // MANIPULATORS
-
-    // TBD: we need this because assignability is an important requirement in
-    //      the implementation of containers
     ArgumentType& operator=(const ArgumentType& rhs);
-        // Assign to this test argument the value of the specified 'rhs'
-        // object.
+        // Assign to this object the value of the specified 'rhs' object.
 
     ArgumentType& operator=(BloombergLP::bslmf::MovableRef<ArgumentType> rhs);
-        // Assign to this test argument the value of the specified 'rhs'
-        // object.  Note that 'rhs' is left in a valid but unspecified state.
+        // Assign to this object the value of the specified 'rhs' object.  Note
+        // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
     operator int() const;
-        // Return the value of this test argument object.
+        // Return the value of this object.
 
-    bool movedFrom() const;
-        // Return 'true' if another 'ArgumentType' object has adopted the state
-        // of this object, and 'false' otherwise.
+    MoveState::Enum movedFrom() const;
+        // Return the move state of this object as source of a move operation.
+
+    MoveState::Enum movedInto() const;
+        // Return the move state of this object as target of a move operation.
+
 };
 
+// FREE FUNCTIONS
+template <int N>
+MoveState::Enum getMovedFrom(const ArgumentType<N>& object);
+    // Return the move-from state of the specified 'object'.
+
+template <int N>
+MoveState::Enum getMovedInto(const ArgumentType<N>& object);
+    // Return the move-into state of the specified 'object'.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -134,17 +141,29 @@ class ArgumentType {
 // CREATORS
 template <int N>
 inline
-ArgumentType<N>::ArgumentType(int value)
-: d_value(value)
-, d_movedFrom(false)
+ArgumentType<N>::ArgumentType()
+: d_data(-1)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
 {
 }
 
 template <int N>
 inline
-ArgumentType<N>::ArgumentType(const ArgumentType& other)
-: d_value(other.d_value)
-, d_movedFrom(other.d_movedFrom)
+ArgumentType<N>::ArgumentType(int value)
+: d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
+{
+    BSLS_ASSERT_SAFE(value >= 0);
+    d_data = value;
+}
+
+template <int N>
+inline
+ArgumentType<N>::ArgumentType(const ArgumentType& original)
+: d_data(original.d_data)
+, d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_NOT_MOVED)
 {
 }
 
@@ -152,10 +171,16 @@ template <int N>
 inline
 ArgumentType<N>::ArgumentType(
                   BloombergLP::bslmf::MovableRef<ArgumentType> original)
-: d_value(MovUtil::access(original).d_value)
-, d_movedFrom(MovUtil::access(original).d_movedFrom)
+: d_movedFrom(MoveState::e_NOT_MOVED)
+, d_movedInto(MoveState::e_MOVED)
 {
-    MovUtil::access(original).d_movedFrom = true;
+    ArgumentType& lvalue = original;
+
+    d_data = lvalue.d_data;
+
+    lvalue.d_data = -1;
+    lvalue.d_movedFrom = MoveState::e_MOVED;
+    lvalue.d_movedInto = MoveState::e_NOT_MOVED;
 }
 
 // MANIPULATORS
@@ -163,12 +188,10 @@ template <int N>
 inline
 ArgumentType<N>& ArgumentType<N>::operator=(const ArgumentType& rhs)
 {
-    BSLS_ASSERT_SAFE(false == rhs.d_movedFrom);
-    BSLS_ASSERT_SAFE(false == d_movedFrom);
-
     if (this != &rhs) {
-        d_value = rhs.d_value;
-        d_movedFrom = rhs.d_movedFrom;
+        d_data = rhs.d_data;
+        d_movedFrom = MoveState::e_NOT_MOVED;
+        d_movedInto = MoveState::e_NOT_MOVED;
     }
     return *this;
 }
@@ -180,13 +203,14 @@ ArgumentType<N>::operator=(BloombergLP::bslmf::MovableRef<ArgumentType> rhs)
 {
     ArgumentType& lvalue = rhs;
 
-    BSLS_ASSERT_SAFE(false == rhs.d_movedFrom);
-    BSLS_ASSERT_SAFE(false == d_movedFrom);
-
     if (this != &lvalue) {
-        d_value = lvalue.d_value;
-        d_movedFrom = lvalue.d_movedFrom;
-        lvalue.d_movedFrom = true;
+        d_data = lvalue.d_data;
+        d_movedFrom = MoveState::e_NOT_MOVED;
+        d_movedInto = MoveState::e_MOVED;
+
+        lvalue.d_data = -1;
+        lvalue.d_movedFrom = MoveState::e_MOVED;
+        lvalue.d_movedInto = MoveState::e_NOT_MOVED;
     }
     return *this;
 }
@@ -196,15 +220,36 @@ template <int N>
 inline
 ArgumentType<N>::operator int() const
 {
-    return d_value;
+    return d_data;
 }
 
 template <int N>
 inline
-bool
-ArgumentType<N>::movedFrom() const
+MoveState::Enum ArgumentType<N>::movedFrom() const
 {
     return d_movedFrom;
+}
+
+template <int N>
+inline
+MoveState::Enum ArgumentType<N>::movedInto() const
+{
+    return d_movedInto;
+}
+
+// FREE FUNCTIONS
+template <int N>
+inline
+MoveState::Enum getMovedFrom(const ArgumentType<N>& object)
+{
+    return object.movedFrom();
+}
+
+template <int N>
+inline
+MoveState::Enum getMovedInto(const ArgumentType<N>& object)
+{
+    return object.movedInto();
 }
 
 }  // close package namespace
