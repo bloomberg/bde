@@ -1901,6 +1901,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nTesting exception neutrality." << endl;
         {
             const bsl::size_t DATA[] = { 0,
@@ -1973,7 +1974,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, 0 == oa.numBlocksInUse());
             }
         }
-
+#endif
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {

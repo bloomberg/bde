@@ -1527,6 +1527,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nTesting exception neutrality." << endl;
         {
             const size_t DATA[] = { 0,
@@ -1585,6 +1586,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, eta.numBlocksInUse(), 0 == eta.numBlocksInUse());
             }
         }
+#endif
 
         if (verbose) cout << "\nTesting destructor." << endl;
         {
