@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 #    endif
 #    if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 #      ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#        define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
+#        define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION     1
 #      endif
 #    endif
 #  endif
