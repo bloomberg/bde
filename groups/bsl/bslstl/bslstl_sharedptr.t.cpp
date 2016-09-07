@@ -3011,20 +3011,20 @@ void Harness::prepareObject(MyInplaceAllocatableObject *target,
     ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13() || 2 == N13);
     ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14() || 2 == N14);
 
-    ASSERTV(da, EXP.arg01().getAllocator(), da == EXP.arg01().getAllocator());
-    ASSERTV(da, EXP.arg02().getAllocator(), da == EXP.arg02().getAllocator());
-    ASSERTV(da, EXP.arg03().getAllocator(), da == EXP.arg03().getAllocator());
-    ASSERTV(da, EXP.arg04().getAllocator(), da == EXP.arg04().getAllocator());
-    ASSERTV(da, EXP.arg05().getAllocator(), da == EXP.arg05().getAllocator());
-    ASSERTV(da, EXP.arg06().getAllocator(), da == EXP.arg06().getAllocator());
-    ASSERTV(da, EXP.arg07().getAllocator(), da == EXP.arg07().getAllocator());
-    ASSERTV(da, EXP.arg08().getAllocator(), da == EXP.arg08().getAllocator());
-    ASSERTV(da, EXP.arg09().getAllocator(), da == EXP.arg09().getAllocator());
-    ASSERTV(da, EXP.arg10().getAllocator(), da == EXP.arg10().getAllocator());
-    ASSERTV(da, EXP.arg11().getAllocator(), da == EXP.arg11().getAllocator());
-    ASSERTV(da, EXP.arg12().getAllocator(), da == EXP.arg12().getAllocator());
-    ASSERTV(da, EXP.arg13().getAllocator(), da == EXP.arg13().getAllocator());
-    ASSERTV(da, EXP.arg14().getAllocator(), da == EXP.arg14().getAllocator());
+    ASSERTV(da, EXP.arg01().allocator(), da == EXP.arg01().allocator());
+    ASSERTV(da, EXP.arg02().allocator(), da == EXP.arg02().allocator());
+    ASSERTV(da, EXP.arg03().allocator(), da == EXP.arg03().allocator());
+    ASSERTV(da, EXP.arg04().allocator(), da == EXP.arg04().allocator());
+    ASSERTV(da, EXP.arg05().allocator(), da == EXP.arg05().allocator());
+    ASSERTV(da, EXP.arg06().allocator(), da == EXP.arg06().allocator());
+    ASSERTV(da, EXP.arg07().allocator(), da == EXP.arg07().allocator());
+    ASSERTV(da, EXP.arg08().allocator(), da == EXP.arg08().allocator());
+    ASSERTV(da, EXP.arg09().allocator(), da == EXP.arg09().allocator());
+    ASSERTV(da, EXP.arg10().allocator(), da == EXP.arg10().allocator());
+    ASSERTV(da, EXP.arg11().allocator(), da == EXP.arg11().allocator());
+    ASSERTV(da, EXP.arg12().allocator(), da == EXP.arg12().allocator());
+    ASSERTV(da, EXP.arg13().allocator(), da == EXP.arg13().allocator());
+    ASSERTV(da, EXP.arg14().allocator(), da == EXP.arg14().allocator());
 }
 
 template <int N_ARGS,
@@ -3311,7 +3311,7 @@ void Harness::testCase23_RunTest(
         ASSERT(1 == X.use_count());
         ASSERT(X.get());
         ASSERT(EXP == *X);
-        ASSERTV(da, X->getAllocator(), da == X->getAllocator() );
+        ASSERTV(da, X->allocator(), da == X->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -3954,7 +3954,7 @@ void Harness::testCase32_DefaultAllocator()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+        ASSERTV(da, x->allocator(), da == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -4268,7 +4268,7 @@ void Harness::testCase32_LocalAllocator()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+        ASSERTV(da, x->allocator(), da == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -5350,7 +5350,7 @@ void Harness::testCase34_AllocatorAware()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
+        ASSERTV(&ta, x->allocator(), &ta == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -7706,7 +7706,7 @@ int main(int argc, char *argv[])
                 ASSERTV(numAllocations,   ta.numAllocations(),
                         numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
-                ASSERT(&sa == x->getAllocator());
+                ASSERT(&sa == x->allocator());
                 ASSERT(1 == x.use_count());
                 ASSERTV(sa.numAllocations(), 0 == sa.numAllocations());
             }
@@ -7815,7 +7815,7 @@ int main(int argc, char *argv[])
                                                  MovUtil::move(A13),
                                                  MovUtil::move(A14),
                                                 &ta);
-            ASSERTV( &ta, EXP.getAllocator(),   &ta == EXP.getAllocator() );
+            ASSERTV( &ta, EXP.allocator(), &ta == EXP.allocator() );
             ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01());
             ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02());
             ASSERTV(VA03, EXP.arg03(), VA03 == EXP.arg03());
@@ -7904,7 +7904,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(EXP == *x);
                 ASSERT(1 == x.use_count());
-                ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
+                ASSERTV(&ta, x->allocator(), &ta == x->allocator() );
                 ASSERT(B01.movedFrom());
                 ASSERT(B02.movedFrom());
                 ASSERT(B03.movedFrom());
