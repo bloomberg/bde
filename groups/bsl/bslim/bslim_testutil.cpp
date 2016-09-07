@@ -15,11 +15,9 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
                            bslstl::StringRef rhs, 
                            bsl::ostream&     errorStream)
 {
-    bslstl::StringRef::size_type size;
+    bslstl::StringRef::size_type i;
 
-    for (size = 0; size < lhs.length() && size < rhs.length(); ++size) { 
-        int i = static_cast<int>(size);
-        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
+    for (i = 0; i < lhs.length() && i < rhs.length(); ++i) { 
         if (lhs[i] != rhs[i]) { 
             errorStream << "lhs: \"" << lhs << "\"\n" 
                         << "rhs: \"" << rhs << "\"\n" 
@@ -31,9 +29,7 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
         } 
     } 
  
-    if (size < rhs.length()) { 
-        int i = static_cast<int>(size);
-        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
+    if (i < rhs.length()) { 
         errorStream << "lhs: \"" << lhs << "\"\n" 
                     << "rhs: \"" << rhs << "\"\n" 
                     << "Strings differ at index (" << i << ") " 
@@ -43,9 +39,7 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
         return false;                                                 // RETURN 
  
     } 
-    if (size < lhs.length()) { 
-        int i = static_cast<int>(size);
-        BSLS_ASSERT_OPT(static_cast<bslstl::StringRef::size_type>(i) == size);
+    if (i < lhs.length()) { 
         errorStream << "lhs: \"" << lhs << "\"\n" 
                     << "rhs: \"" << rhs << "\"\n" 
                     << "Strings differ at index (" << i << ") " 

@@ -144,7 +144,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <algorithm>
 //
-//  int getNumBlanks(const bslstl::StringRef& stringRef)
+//   bslstl::StringRef::difference_type
+//   getNumBlanks(const bslstl::StringRef& stringRef)
 //      // Return the number of blank (' ') characters in the string referenced
 //      // by the specified 'stringRef'.
 //  {
@@ -158,7 +159,7 @@ BSLS_IDENT("$Id: $")
 // Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
 //..
 //  bslstl::StringRef emptyRef;
-//  int numBlanks = getNumBlanks(emptyRef);
+//  bslstl::StringRef::difference_type numBlanks = getNumBlanks(emptyRef);
 //  assert(0 == numBlanks);
 //
 //  assert(""         == emptyRef);
@@ -231,7 +232,7 @@ BSLS_IDENT("$Id: $")
 // be able to hold embedded null characters:
 //..
 //  char poemWithNulls[512];
-//  const int poemLength = std::strlen(poem);
+//  const bsl::size_t poemLength = std::strlen(poem);
 //  assert(poemLength < 512);
 //
 //  std::memcpy(poemWithNulls, poem, poemLength + 1);
@@ -353,7 +354,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         //  isEmpty() == true
         //..
 
-    StringRefImp(const CHAR_TYPE *data, int length);
+    StringRefImp(const CHAR_TYPE *data, size_type length);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
         // and extends for the specified 'numCharacters.  The external
@@ -397,8 +398,8 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // constructor's definition is compiler generated.
 
     StringRefImp(const StringRefImp& original,
-                 int                 startIndex,
-                 int                 numCharacters);
+                 size_type           startIndex,
+                 size_type           numCharacters);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'startIndex'
         // in the specified 'original' string reference, and extends either
@@ -421,7 +422,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // to have values of attributes 'begin' and 'end' equal to the 'rhs'
         // object's attributes.
 
-    void assign(const CHAR_TYPE *data, int length);
+    void assign(const CHAR_TYPE *data, size_type length);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for the specified 'length' characters.  The
         // string indicated by 'data' and 'length' must remain valid as long as
@@ -466,7 +467,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         //..
 
     // ACCESSORS
-    const_reference operator[](int index) const;
+    const_reference operator[](size_type index) const;
         // Return a reference providing a non-modifiable access to the
         // character at the specified 'index' in the string bound to this
         // reference.  This reference remains valid as long as the string
@@ -771,18 +772,15 @@ StringRefImp<CHAR_TYPE>::StringRefImp()
 
 template <class CHAR_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data,
-                                      int              length)
+StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data, size_type length)
 : Base(data, data + length)
 {
-    BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 }
 
 template <class CHAR_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin,
-                                      const_iterator end)
+StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin, const_iterator end)
 : Base(begin, end)
 {
 }
@@ -813,17 +811,13 @@ template <class CHAR_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(
                                   const StringRefImp<CHAR_TYPE>& original,
-                                  int                            startIndex,
-                                  int                            numCharacters)
+                                  size_type                      startIndex,
+                                  size_type                      numCharacters)
 : Base(original.begin() + startIndex,
        original.begin() + startIndex +
-         native_std::min<native_std::size_t>(numCharacters,
-                                             original.length() - startIndex))
+                native_std::min(numCharacters, original.length() - startIndex))
 {
-    BSLS_ASSERT_SAFE(0 <= startIndex);
-    BSLS_ASSERT_SAFE(0 <= numCharacters);
-    BSLS_ASSERT_SAFE(static_cast<native_std::size_t>(startIndex)
-                                                        <= original.length());
+    BSLS_ASSERT_SAFE(startIndex <= original.length());
 }
 
 
@@ -839,10 +833,8 @@ StringRefImp<CHAR_TYPE>&
 
 template <class CHAR_TYPE>
 inline
-void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data,
-                                     int              length)
+void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data, size_type length)
 {
-    BSLS_ASSERT_SAFE(0 <= length);
     BSLS_ASSERT_SAFE(data || 0 == length);
 
     *this = StringRefImp(data, data + length);
@@ -850,8 +842,7 @@ void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data,
 
 template <class CHAR_TYPE>
 inline
-void StringRefImp<CHAR_TYPE>::assign(const_iterator begin,
-                                     const_iterator end)
+void StringRefImp<CHAR_TYPE>::assign(const_iterator begin, const_iterator end)
 {
     *this = StringRefImp(begin, end);
 }
@@ -892,10 +883,9 @@ void StringRefImp<CHAR_TYPE>::reset()
 template <class CHAR_TYPE>
 inline
 typename StringRefImp<CHAR_TYPE>::const_reference
-    StringRefImp<CHAR_TYPE>::operator[](int index) const
+StringRefImp<CHAR_TYPE>::operator[](size_type index) const
 {
-    BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < static_cast<int>(end() - begin()));
+    BSLS_ASSERT_SAFE(index < end() - begin());
 
     return begin()[index];
 }
@@ -983,8 +973,10 @@ int StringRefImp<CHAR_TYPE>::compare(
                     other.data(),
                     native_std::min(this->length(), other.length()));
 
-    return result != 0 ? result
-                       : static_cast<int>(this->length() - other.length());
+    if (result == 0 && this->length() != other.length()) {
+        result == this->length() < other.length() ? -1 : 1;
+    }
+    return result;
 }
 
 }  // close package namespace
