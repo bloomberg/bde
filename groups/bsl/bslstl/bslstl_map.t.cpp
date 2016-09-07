@@ -399,6 +399,18 @@ const DefaultDataRow DEFAULT_DATA[] = {
 };
 static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
+// Define values used to initialize positional arguments for
+// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
+// constructors.  Note, that you cannot change those values as they are used by
+// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
+// objects to their integer identifiers.
+static const int K01 = 1;
+static const int K02 = 20;
+static const int K03 = 23;
+static const int V01 = 44;
+static const int V02 = 68;
+static const int V03 = 912;
+
 // TBD There is a fundamental flaw when testing operations involving two maps,
 // such as operator== and operator<, that the 'DEFAULT_DATA' table does not
 // produce maps that have the same keys, but different values.  It is possible
@@ -613,7 +625,7 @@ struct ExceptionProctor {
     // MANIPULATORS
     void release()
         // Release this proctor from verifying the state of the object
-        // supplied at construction..
+        // supplied at construction.
     {
         d_object_p = 0;
     }
@@ -1048,16 +1060,16 @@ class TestAllocatorUtil {
                      const bsltf::AllocEmplacableTestType& value,
                      const bslma::Allocator&               allocator)
     {
-        ASSERTV(line, &allocator == value.arg01().getAllocator());
-        ASSERTV(line, &allocator == value.arg02().getAllocator());
-        ASSERTV(line, &allocator == value.arg03().getAllocator());
-        ASSERTV(line, &allocator == value.arg04().getAllocator());
-        ASSERTV(line, &allocator == value.arg05().getAllocator());
-        ASSERTV(line, &allocator == value.arg06().getAllocator());
-        ASSERTV(line, &allocator == value.arg07().getAllocator());
-        ASSERTV(line, &allocator == value.arg08().getAllocator());
-        ASSERTV(line, &allocator == value.arg09().getAllocator());
-        ASSERTV(line, &allocator == value.arg10().getAllocator());
+        ASSERTV(line, &allocator == value.arg01().allocator());
+        ASSERTV(line, &allocator == value.arg02().allocator());
+        ASSERTV(line, &allocator == value.arg03().allocator());
+        ASSERTV(line, &allocator == value.arg04().allocator());
+        ASSERTV(line, &allocator == value.arg05().allocator());
+        ASSERTV(line, &allocator == value.arg06().allocator());
+        ASSERTV(line, &allocator == value.arg07().allocator());
+        ASSERTV(line, &allocator == value.arg08().allocator());
+        ASSERTV(line, &allocator == value.arg09().allocator());
+        ASSERTV(line, &allocator == value.arg10().allocator());
     }
 };
 
@@ -1575,41 +1587,45 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
     Obj& mX = *target;  const Obj& X = mX;
 
     bslma::TestAllocator aa("args", veryVeryVeryVerbose);
-
-    bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
-    ConstrUtil::construct(BUFK1.address(), &aa,   1);
-    typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorGuard<typename KEY::ArgType01>   GK1(&AK1);
-
-    bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
-    ConstrUtil::construct(BUFK2.address(), &aa,  20);
-    typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorGuard<typename KEY::ArgType02>   GK2(&AK2);
-
-    bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
-    ConstrUtil::construct(BUFK3.address(), &aa,  23);
-    typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorGuard<typename KEY::ArgType03>   GK3(&AK3);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
-    ConstrUtil::construct(BUFV1.address(), &aa,   2);
-    typename VALUE::ArgType01& AV1 = BUFV1.object();
-    bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
-    ConstrUtil::construct(BUFV2.address(), &aa,  18);
-    typename VALUE::ArgType02& AV2 = BUFV2.object();
-    bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
-    ConstrUtil::construct(BUFV3.address(), &aa,  31);
-    typename VALUE::ArgType03& AV3 = BUFV3.object();
-    bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     pair<Iter, bool> result;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+
+        // Construct all arguments inside the exception test loop as the
+        // exception thrown after moving only a portion of arguments leave the
+        // moved arguments in a valid, but unspecified state.
+        bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
+        ConstrUtil::construct(BUFK1.address(), &aa, K01);
+        typename KEY::ArgType01& AK1 = BUFK1.object();
+        bslma::DestructorGuard<typename KEY::ArgType01>   GK1(&AK1);
+
+        bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
+        ConstrUtil::construct(BUFK2.address(), &aa, K02);
+        typename KEY::ArgType02& AK2 = BUFK2.object();
+        bslma::DestructorGuard<typename KEY::ArgType02>   GK2(&AK2);
+
+        bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
+        ConstrUtil::construct(BUFK3.address(), &aa, K03);
+        typename KEY::ArgType03& AK3 = BUFK3.object();
+        bslma::DestructorGuard<typename KEY::ArgType03>   GK3(&AK3);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
+        ConstrUtil::construct(BUFV1.address(), &aa, V01);
+        typename VALUE::ArgType01& AV1 = BUFV1.object();
+        bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
+        ConstrUtil::construct(BUFV2.address(), &aa, V02);
+        typename VALUE::ArgType02& AV2 = BUFV2.object();
+        bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
+        ConstrUtil::construct(BUFV3.address(), &aa, V03);
+        typename VALUE::ArgType03& AV3 = BUFV3.object();
+        bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+
         ExceptionProctor<Obj> proctor(&X, L_, &scratch);
 
         switch (NUM_KEY_ARGS) {
@@ -1766,34 +1782,39 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
         }
 
         proctor.release();
+
+        ASSERTV(inserted, inserted == result.second);
+
+        ASSERTV(MOVE_K1, AK1.movedFrom(),
+               MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);
+        ASSERTV(MOVE_K2, AK2.movedFrom(),
+               MOVE_K2 == (MoveState::e_MOVED == AK2.movedFrom()) || 2 == NK2);
+        ASSERTV(MOVE_K3, AK3.movedFrom(),
+               MOVE_K3 == (MoveState::e_MOVED == AK3.movedFrom()) || 2 == NK3);
+
+        ASSERTV(MOVE_V1, AV1.movedFrom(),
+               MOVE_V1 == (MoveState::e_MOVED == AV1.movedFrom()) || 2 == NV1);
+        ASSERTV(MOVE_V2, AV2.movedFrom(),
+               MOVE_V2 == (MoveState::e_MOVED == AV2.movedFrom()) || 2 == NV2);
+        ASSERTV(MOVE_V3, AV3.movedFrom(),
+               MOVE_V3 == (MoveState::e_MOVED == AV3.movedFrom()) || 2 == NV3);
+
+        const KEY& K = result.first->first;
+        const VALUE& V = result.first->second;
+
+        ASSERTV(K01, K.arg01(), K01 == K.arg01() || 2 == NK1);
+        ASSERTV(K02, K.arg02(), K02 == K.arg02() || 2 == NK2);
+        ASSERTV(K03, K.arg03(), K03 == K.arg03() || 2 == NK3);
+
+        if (inserted) {
+            ASSERTV(V01, V.arg01(), V01 == V.arg01() || 2 == NV1);
+            ASSERTV(V02, V.arg02(), V02 == V.arg02() || 2 == NV2);
+            ASSERTV(V03, V.arg03(), V03 == V.arg03() || 2 == NV3);
+        }
+
+        TestAllocatorUtil::test(L_, K, oa);
+        TestAllocatorUtil::test(L_, V, oa);
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-    ASSERTV(inserted, inserted == result.second);
-
-    ASSERTV(MOVE_K1 == AK1.movedFrom() || 2 == NK1);
-    ASSERTV(MOVE_K2 == AK2.movedFrom() || 2 == NK2);
-    ASSERTV(MOVE_K3 == AK3.movedFrom() || 2 == NK3);
-
-    ASSERTV(MOVE_V1 == AV1.movedFrom() || 2 == NV1);
-    ASSERTV(MOVE_V2 == AV2.movedFrom() || 2 == NV2);
-    ASSERTV(MOVE_V3 == AV3.movedFrom() || 2 == NV3);
-
-    const KEY& K = result.first->first;
-
-    ASSERTV(AK1 == K.arg01() || 2 == NK1);
-    ASSERTV(AK2 == K.arg02() || 2 == NK2);
-    ASSERTV(AK3 == K.arg03() || 2 == NK3);
-
-    const VALUE& V = result.first->second;
-
-    if (inserted) {
-        ASSERTV(AV1 == V.arg01() || 2 == NV1);
-        ASSERTV(AV2 == V.arg02() || 2 == NV2);
-        ASSERTV(AV3 == V.arg03() || 2 == NV3);
-    }
-
-    TestAllocatorUtil::test(L_, K, oa);
-    TestAllocatorUtil::test(L_, V, oa);
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -1833,41 +1854,45 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
     Obj& mX = *target;  const Obj& X = mX;
 
     bslma::TestAllocator aa("args", veryVeryVeryVerbose);
-
-    bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
-    ConstrUtil::construct(BUFK1.address(), &aa,   1);
-    typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorGuard<typename KEY::ArgType01>   GK1(&AK1);
-
-    bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
-    ConstrUtil::construct(BUFK2.address(), &aa,  20);
-    typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorGuard<typename KEY::ArgType02>   GK2(&AK2);
-
-    bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
-    ConstrUtil::construct(BUFK3.address(), &aa,  23);
-    typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorGuard<typename KEY::ArgType03>   GK3(&AK3);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
-    ConstrUtil::construct(BUFV1.address(), &aa,   2);
-    typename VALUE::ArgType01& AV1 = BUFV1.object();
-    bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
-    ConstrUtil::construct(BUFV2.address(), &aa,  18);
-    typename VALUE::ArgType02& AV2 = BUFV2.object();
-    bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
-
-    bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
-    ConstrUtil::construct(BUFV3.address(), &aa,  31);
-    typename VALUE::ArgType03& AV3 = BUFV3.object();
-    bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     Iter result;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+
+        // Construct all arguments inside the exception test loop as the
+        // exception thrown after moving only a portion of arguments leave the
+        // moved arguments in a valid, but unspecified state.
+        bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
+        ConstrUtil::construct(BUFK1.address(), &aa, K01);
+        typename KEY::ArgType01& AK1 = BUFK1.object();
+        bslma::DestructorGuard<typename KEY::ArgType01>   GK1(&AK1);
+
+        bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
+        ConstrUtil::construct(BUFK2.address(), &aa, K02);
+        typename KEY::ArgType02& AK2 = BUFK2.object();
+        bslma::DestructorGuard<typename KEY::ArgType02>   GK2(&AK2);
+
+        bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
+        ConstrUtil::construct(BUFK3.address(), &aa, K03);
+        typename KEY::ArgType03& AK3 = BUFK3.object();
+        bslma::DestructorGuard<typename KEY::ArgType03>   GK3(&AK3);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
+        ConstrUtil::construct(BUFV1.address(), &aa, V01);
+        typename VALUE::ArgType01& AV1 = BUFV1.object();
+        bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
+        ConstrUtil::construct(BUFV2.address(), &aa, V02);
+        typename VALUE::ArgType02& AV2 = BUFV2.object();
+        bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
+
+        bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
+        ConstrUtil::construct(BUFV3.address(), &aa, V03);
+        typename VALUE::ArgType03& AV3 = BUFV3.object();
+        bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
+
         ExceptionProctor<Obj> proctor(&X, L_, &scratch);
 
         switch (NUM_KEY_ARGS) {
@@ -2040,34 +2065,40 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
         }
 
         proctor.release();
+
+        ASSERTV(inserted, inserted == (&(*result) != &(*hint)));
+
+        ASSERTV(MOVE_K1, AK1.movedFrom(),
+               MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);
+        ASSERTV(MOVE_K2, AK2.movedFrom(),
+               MOVE_K2 == (MoveState::e_MOVED == AK2.movedFrom()) || 2 == NK2);
+        ASSERTV(MOVE_K3, AK3.movedFrom(),
+               MOVE_K3 == (MoveState::e_MOVED == AK3.movedFrom()) || 2 == NK3);
+
+        ASSERTV(MOVE_V1, AV1.movedFrom(),
+               MOVE_V1 == (MoveState::e_MOVED == AV1.movedFrom()) || 2 == NV1);
+        ASSERTV(MOVE_V2, AV2.movedFrom(),
+               MOVE_V2 == (MoveState::e_MOVED == AV2.movedFrom()) || 2 == NV2);
+        ASSERTV(MOVE_V3, AV3.movedFrom(),
+               MOVE_V3 == (MoveState::e_MOVED == AV3.movedFrom()) || 2 == NV3);
+
+        const KEY&   K = result->first;
+        const VALUE& V = result->second;
+
+        ASSERTV(K01, K.arg01(), K01 == K.arg01() || 2 == NK1);
+        ASSERTV(K02, K.arg02(), K02 == K.arg02() || 2 == NK2);
+        ASSERTV(K03, K.arg03(), K03 == K.arg03() || 2 == NK3);
+
+        if (inserted) {
+            ASSERTV(V01, V.arg01(), V01 == V.arg01() || 2 == NV1);
+            ASSERTV(V02, V.arg02(), V02 == V.arg02() || 2 == NV2);
+            ASSERTV(V03, V.arg03(), V03 == V.arg03() || 2 == NV3);
+        }
+
+        TestAllocatorUtil::test(L_, K, oa);
+        TestAllocatorUtil::test(L_, V, oa);
+
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-    ASSERTV(inserted, inserted == (&(*result) != &(*hint)));
-
-    ASSERTV(MOVE_K1 == AK1.movedFrom() || 2 == NK1);
-    ASSERTV(MOVE_K2 == AK2.movedFrom() || 2 == NK2);
-    ASSERTV(MOVE_K3 == AK3.movedFrom() || 2 == NK3);
-
-    ASSERTV(MOVE_V1 == AV1.movedFrom() || 2 == NV1);
-    ASSERTV(MOVE_V2 == AV2.movedFrom() || 2 == NV2);
-    ASSERTV(MOVE_V3 == AV3.movedFrom() || 2 == NV3);
-
-    const KEY&   K = result->first;
-    const VALUE& V = result->second;
-
-    ASSERTV(AK1 == K.arg01() || 2 == NK1);
-    ASSERTV(AK2 == K.arg02() || 2 == NK2);
-    ASSERTV(AK3 == K.arg03() || 2 == NK3);
-
-    if (inserted) {
-        ASSERTV(AV1 == V.arg01() || 2 == NV1);
-        ASSERTV(AV2 == V.arg02() || 2 == NV2);
-        ASSERTV(AV3 == V.arg03() || 2 == NV3);
-    }
-
-    TestAllocatorUtil::test(L_, K, oa);
-    TestAllocatorUtil::test(L_, V, oa);
-
     return result;
 }
 #endif

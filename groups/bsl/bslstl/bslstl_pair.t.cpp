@@ -348,12 +348,11 @@ template <class TYPE, int ALLOCATOR_ACCESSOR_CLASS =
               || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
               || bsl::is_same<TYPE, AlBase>::value
-              || bsl::is_same<TYPE, AlDerived>::value)
-              ? 1    // 'allocator()'
-              : (bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
+              || bsl::is_same<TYPE, AlDerived>::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
               || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
               || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value)
-              ? 2    // 'getAllocator()'
+              ? 1    // 'allocator()'
               : 0>   // no accessor
 struct AllocatorMatchesImp {
 };
@@ -376,20 +375,6 @@ struct AllocatorMatchesImp<TYPE, 1> {
     {
         bool ret;
         ASSERTV(NameOf<TYPE>(), (ret = alloc == object.allocator()));
-
-        return ret;
-    }
-};
-
-template <class TYPE>
-struct AllocatorMatchesImp<TYPE, 2> {
-    bool operator()(const TYPE&       object,
-                    bslma::Allocator *alloc) const
-        // The specified 'object' has a 'getAllocator' accessor.  Check that
-        // the specified 'alloc' matches the allocator of 'object'.
-    {
-        bool ret;
-        ASSERTV(NameOf<TYPE>(), (ret = alloc == object.getAllocator()));
 
         return ret;
     }
@@ -2329,15 +2314,15 @@ void TupleTestDriver::runTestAlloc()
 
         const EType& F = p->first;
 
-        ASSERTV(name, AF1 == F.arg01() || 2 == NF1);
-        ASSERTV(name, AF2 == F.arg02() || 2 == NF2);
-        ASSERTV(name, AF3 == F.arg03() || 2 == NF3);
+        ASSERTV(name, 1  == F.arg01() || 2 == NF1);
+        ASSERTV(name, 20 == F.arg02() || 2 == NF2);
+        ASSERTV(name, 23 == F.arg03() || 2 == NF3);
 
         const EType& S = p->second;
 
-        ASSERTV(name, AS1 == S.arg01() || 2 == NS1);
-        ASSERTV(name, AS2 == S.arg02() || 2 == NS2);
-        ASSERTV(name, AS3 == S.arg03() || 2 == NS3);
+        ASSERTV(name, 2  == S.arg01() || 2 == NS1);
+        ASSERTV(name, 18 == S.arg02() || 2 == NS2);
+        ASSERTV(name, 31 == S.arg03() || 2 == NS3);
 
         ASSERTV(name, u::allocatorMatches(F.arg01(), &aa));
         ASSERTV(name, u::allocatorMatches(F.arg02(), &aa));
@@ -2553,15 +2538,15 @@ void TupleTestDriver::runTestNoAlloc()
 
     const EType& F = p->first;
 
-    ASSERTV(name, AF1 == F.arg01() || 2 == NF1);
-    ASSERTV(name, AF2 == F.arg02() || 2 == NF2);
-    ASSERTV(name, AF3 == F.arg03() || 2 == NF3);
+    ASSERTV(name, 1  == F.arg01() || 2 == NF1);
+    ASSERTV(name, 20 == F.arg02() || 2 == NF2);
+    ASSERTV(name, 23 == F.arg03() || 2 == NF3);
 
     const EType& S = p->second;
 
-    ASSERTV(name, AS1 == S.arg01() || 2 == NS1);
-    ASSERTV(name, AS2 == S.arg02() || 2 == NS2);
-    ASSERTV(name, AS3 == S.arg03() || 2 == NS3);
+    ASSERTV(name, 2  == S.arg01() || 2 == NS1);
+    ASSERTV(name, 18 == S.arg02() || 2 == NS2);
+    ASSERTV(name, 31 == S.arg03() || 2 == NS3);
 
     ASSERTV(name, da.numAllocations(), 0 == da.numAllocations());
 }

@@ -75,7 +75,7 @@ using namespace BloombergLP::bsltf;
 // [  ] AllocArgType12 arg12() const;
 // [  ] AllocArgType13 arg13() const;
 // [  ] AllocArgType14 arg14() const;
-// [  ] bslma::Allocator *getAllocator() const;
+// [  ] bslma::Allocator *allocator() const;
 // [  ] bool isEqual(rhs) const;
 //
 // FREE OPERATORS
@@ -175,7 +175,13 @@ static const AllocEmplacableTestType::ArgType12 V12(333,  &g_argAlloc);
 static const AllocEmplacableTestType::ArgType13 V13(712,  &g_argAlloc);
 static const AllocEmplacableTestType::ArgType14 V14(1414, &g_argAlloc);
 
-struct TestDriver {
+class TestDriver {
+  private:
+    // TYPES
+
+    // Shorthands
+    typedef bsltf::MoveState                      MoveState;
+
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
     template <class T>
@@ -190,6 +196,12 @@ struct TestDriver {
     static bslma::Allocator *extractBslma(ALLOCATOR *basicAllocator) {
         return basicAllocator;
     }
+
+  public:
+    template <int N_ARGS,
+              int N01,
+              int N02>
+    static void testCase2();
 
     template <int N_ARGS,
               int N01,
@@ -215,16 +227,79 @@ struct TestDriver {
 
 template <class T>
 inline
+const T& TestDriver::testArg(T& t, bsl::false_type)
+{
+    return  t;
+}
+
+template <class T>
+inline
 bslmf::MovableRef<T> TestDriver::testArg(T& t, bsl::true_type)
 {
     return bslmf::MovableRefUtil::move(t);
 }
 
-template <class T>
-inline
-const T& TestDriver::testArg(T& t, bsl::false_type)
+template <int N_ARGS,
+          int N01,
+          int N02>
+void TestDriver::testCase2()
 {
-    return  t;
+    bslma::TestAllocator *da =
+             dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT(da);
+
+    // In C++17 these become the simpler to name 'bool_constant'
+    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
+    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
+
+    bslma::TestAllocator aa("arguments allocator", veryVeryVeryVerbose);
+
+    bsls::ObjectBuffer<Obj> buffer;
+    Obj& mX = buffer.object(); const Obj& X = mX;
+
+    bslma::TestAllocator ta("test allocator", veryVeryVerbose);
+    bslma::TestAllocator *objAllocator = 0;
+
+    for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+        const char CONFIG = cfg;
+
+        switch (cfg) {
+          case 'a': {
+            objAllocator = da;
+          } break;
+          case 'b': {
+            objAllocator = &ta;
+          } break;
+        }
+
+        bslma::TestAllocator& oa = *objAllocator;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+            AllocEmplacableTestType::ArgType01 A01(V01, &aa);
+            AllocEmplacableTestType::ArgType02 A02(V02, &aa);
+
+            switch (N_ARGS) {
+              case 0: {
+                new (buffer.address()) Obj(&oa);
+              } break;
+              case 1: {
+                new (buffer.address()) Obj(testArg(A01, MOVE_01),
+                                           &oa);
+              } break;
+              case 2: {
+                new (buffer.address()) Obj(testArg(A01, MOVE_01),
+                                           testArg(A02, MOVE_02),
+                                           &oa);
+              } break;
+              default: {
+                ASSERTV(!"Invalid # of args!");
+              } break;
+            }
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        bslma::DestructorProctor<Obj> proctor(&buffer.object());
+
+        ASSERTV(N_ARGS, CONFIG, V01, X.arg01(), V01 == X.arg01() || 2 == N01);
+        ASSERTV(N_ARGS, CONFIG, V02, X.arg02(), V02 == X.arg02() || 2 == N02);
+    }
 }
 
 template <int N_ARGS,
@@ -266,22 +341,6 @@ void TestDriver::testCase1()
 
     bslma::TestAllocator aa("arguments allocator", veryVeryVeryVerbose);
 
-    // 14 arguments, all using a local test allocator
-    AllocEmplacableTestType::ArgType01 A01(V01, &aa);
-    AllocEmplacableTestType::ArgType02 A02(V02, &aa);
-    AllocEmplacableTestType::ArgType03 A03(V03, &aa);
-    AllocEmplacableTestType::ArgType04 A04(V04, &aa);
-    AllocEmplacableTestType::ArgType05 A05(V05, &aa);
-    AllocEmplacableTestType::ArgType06 A06(V06, &aa);
-    AllocEmplacableTestType::ArgType07 A07(V07, &aa);
-    AllocEmplacableTestType::ArgType08 A08(V08, &aa);
-    AllocEmplacableTestType::ArgType09 A09(V09, &aa);
-    AllocEmplacableTestType::ArgType10 A10(V10, &aa);
-    AllocEmplacableTestType::ArgType11 A11(V11, &aa);
-    AllocEmplacableTestType::ArgType12 A12(V12, &aa);
-    AllocEmplacableTestType::ArgType13 A13(V13, &aa);
-    AllocEmplacableTestType::ArgType14 A14(V14, &aa);
-
     bsls::ObjectBuffer<Obj> buffer;
     Obj& mX = buffer.object(); const Obj& X = mX;
 
@@ -292,6 +351,23 @@ void TestDriver::testCase1()
 
     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
         const char CONFIG = cfg;
+
+        // 14 arguments, all using a local test allocator
+        AllocEmplacableTestType::ArgType01 A01(V01, &aa);
+        AllocEmplacableTestType::ArgType02 A02(V02, &aa);
+        AllocEmplacableTestType::ArgType03 A03(V03, &aa);
+        AllocEmplacableTestType::ArgType04 A04(V04, &aa);
+        AllocEmplacableTestType::ArgType05 A05(V05, &aa);
+        AllocEmplacableTestType::ArgType06 A06(V06, &aa);
+        AllocEmplacableTestType::ArgType07 A07(V07, &aa);
+        AllocEmplacableTestType::ArgType08 A08(V08, &aa);
+        AllocEmplacableTestType::ArgType09 A09(V09, &aa);
+        AllocEmplacableTestType::ArgType10 A10(V10, &aa);
+        AllocEmplacableTestType::ArgType11 A11(V11, &aa);
+        AllocEmplacableTestType::ArgType12 A12(V12, &aa);
+        AllocEmplacableTestType::ArgType13 A13(V13, &aa);
+        AllocEmplacableTestType::ArgType14 A14(V14, &aa);
+
         switch (cfg) {
           case 'a': {
             dam.reset(da);
@@ -446,25 +522,25 @@ void TestDriver::testCase1()
               } break;
               case 1: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
-                                          &ta);
+                                           &ta);
               } break;
               case 2: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
                                            testArg(A02, MOVE_02),
-                                          &ta);
+                                           &ta);
               } break;
               case 3: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
                                            testArg(A02, MOVE_02),
                                            testArg(A03, MOVE_03),
-                                          &ta);
+                                           &ta);
               } break;
               case 4: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
                                            testArg(A02, MOVE_02),
                                            testArg(A03, MOVE_03),
                                            testArg(A04, MOVE_04),
-                                          &ta);
+                                           &ta);
               } break;
               case 5: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -472,7 +548,7 @@ void TestDriver::testCase1()
                                            testArg(A03, MOVE_03),
                                            testArg(A04, MOVE_04),
                                            testArg(A05, MOVE_05),
-                                          &ta);
+                                           &ta);
               } break;
               case 6: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -481,7 +557,7 @@ void TestDriver::testCase1()
                                            testArg(A04, MOVE_04),
                                            testArg(A05, MOVE_05),
                                            testArg(A06, MOVE_06),
-                                          &ta);
+                                           &ta);
               } break;
               case 7: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -491,7 +567,7 @@ void TestDriver::testCase1()
                                            testArg(A05, MOVE_05),
                                            testArg(A06, MOVE_06),
                                            testArg(A07, MOVE_07),
-                                          &ta);
+                                           &ta);
               } break;
               case 8: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -502,7 +578,7 @@ void TestDriver::testCase1()
                                            testArg(A06, MOVE_06),
                                            testArg(A07, MOVE_07),
                                            testArg(A08, MOVE_08),
-                                          &ta);
+                                           &ta);
               } break;
               case 9: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -514,7 +590,7 @@ void TestDriver::testCase1()
                                            testArg(A07, MOVE_07),
                                            testArg(A08, MOVE_08),
                                            testArg(A09, MOVE_09),
-                                          &ta);
+                                           &ta);
               } break;
               case 10: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -527,7 +603,7 @@ void TestDriver::testCase1()
                                            testArg(A08, MOVE_08),
                                            testArg(A09, MOVE_09),
                                            testArg(A10, MOVE_10),
-                                          &ta);
+                                           &ta);
               } break;
               case 11: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -541,7 +617,7 @@ void TestDriver::testCase1()
                                            testArg(A09, MOVE_09),
                                            testArg(A10, MOVE_10),
                                            testArg(A11, MOVE_11),
-                                          &ta);
+                                           &ta);
               } break;
               case 12: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -556,7 +632,7 @@ void TestDriver::testCase1()
                                            testArg(A10, MOVE_10),
                                            testArg(A11, MOVE_11),
                                            testArg(A12, MOVE_12),
-                                          &ta);
+                                           &ta);
               } break;
               case 13: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -572,7 +648,7 @@ void TestDriver::testCase1()
                                            testArg(A11, MOVE_11),
                                            testArg(A12, MOVE_12),
                                            testArg(A13, MOVE_13),
-                                          &ta);
+                                           &ta);
               } break;
               case 14: {
                 new (buffer.address()) Obj(testArg(A01, MOVE_01),
@@ -589,7 +665,7 @@ void TestDriver::testCase1()
                                            testArg(A12, MOVE_12),
                                            testArg(A13, MOVE_13),
                                            testArg(A14, MOVE_14),
-                                          &ta);
+                                           &ta);
               } break;
               default: {
                 ASSERTV(!"Invalid # of args!");
@@ -605,51 +681,65 @@ void TestDriver::testCase1()
 
         bslma::TestAllocator& oa = *objAllocator;
 
-        ASSERTV(CONFIG, &aa == A01.getAllocator());
-        ASSERTV(CONFIG, &aa == A02.getAllocator());
-        ASSERTV(CONFIG, &aa == A03.getAllocator());
-        ASSERTV(CONFIG, &aa == A04.getAllocator());
-        ASSERTV(CONFIG, &aa == A05.getAllocator());
-        ASSERTV(CONFIG, &aa == A06.getAllocator());
-        ASSERTV(CONFIG, &aa == A07.getAllocator());
-        ASSERTV(CONFIG, &aa == A08.getAllocator());
-        ASSERTV(CONFIG, &aa == A09.getAllocator());
-        ASSERTV(CONFIG, &aa == A10.getAllocator());
-        ASSERTV(CONFIG, &aa == A11.getAllocator());
-        ASSERTV(CONFIG, &aa == A12.getAllocator());
-        ASSERTV(CONFIG, &aa == A13.getAllocator());
-        ASSERTV(CONFIG, &aa == A14.getAllocator());
+        ASSERTV(CONFIG, &aa == A01.allocator());
+        ASSERTV(CONFIG, &aa == A02.allocator());
+        ASSERTV(CONFIG, &aa == A03.allocator());
+        ASSERTV(CONFIG, &aa == A04.allocator());
+        ASSERTV(CONFIG, &aa == A05.allocator());
+        ASSERTV(CONFIG, &aa == A06.allocator());
+        ASSERTV(CONFIG, &aa == A07.allocator());
+        ASSERTV(CONFIG, &aa == A08.allocator());
+        ASSERTV(CONFIG, &aa == A09.allocator());
+        ASSERTV(CONFIG, &aa == A10.allocator());
+        ASSERTV(CONFIG, &aa == A11.allocator());
+        ASSERTV(CONFIG, &aa == A12.allocator());
+        ASSERTV(CONFIG, &aa == A13.allocator());
+        ASSERTV(CONFIG, &aa == A14.allocator());
 
-        ASSERTV(CONFIG, &oa ==   X.arg01().getAllocator() || 2 == N01);
-        ASSERTV(CONFIG, &oa ==   X.arg02().getAllocator() || 2 == N02);
-        ASSERTV(CONFIG, &oa ==   X.arg03().getAllocator() || 2 == N03);
-        ASSERTV(CONFIG, &oa ==   X.arg04().getAllocator() || 2 == N04);
-        ASSERTV(CONFIG, &oa ==   X.arg05().getAllocator() || 2 == N05);
-        ASSERTV(CONFIG, &oa ==   X.arg06().getAllocator() || 2 == N06);
-        ASSERTV(CONFIG, &oa ==   X.arg07().getAllocator() || 2 == N07);
-        ASSERTV(CONFIG, &oa ==   X.arg08().getAllocator() || 2 == N08);
-        ASSERTV(CONFIG, &oa ==   X.arg09().getAllocator() || 2 == N09);
-        ASSERTV(CONFIG, &oa ==   X.arg10().getAllocator() || 2 == N10);
-        ASSERTV(CONFIG, &oa ==   X.arg11().getAllocator() || 2 == N11);
-        ASSERTV(CONFIG, &oa ==   X.arg12().getAllocator() || 2 == N12);
-        ASSERTV(CONFIG, &oa ==   X.arg13().getAllocator() || 2 == N13);
-        ASSERTV(CONFIG, &oa ==   X.arg14().getAllocator() || 2 == N14);
+        ASSERTV(CONFIG, &oa == X.arg01().allocator() || 2 == N01);
+        ASSERTV(CONFIG, &oa == X.arg02().allocator() || 2 == N02);
+        ASSERTV(CONFIG, &oa == X.arg03().allocator() || 2 == N03);
+        ASSERTV(CONFIG, &oa == X.arg04().allocator() || 2 == N04);
+        ASSERTV(CONFIG, &oa == X.arg05().allocator() || 2 == N05);
+        ASSERTV(CONFIG, &oa == X.arg06().allocator() || 2 == N06);
+        ASSERTV(CONFIG, &oa == X.arg07().allocator() || 2 == N07);
+        ASSERTV(CONFIG, &oa == X.arg08().allocator() || 2 == N08);
+        ASSERTV(CONFIG, &oa == X.arg09().allocator() || 2 == N09);
+        ASSERTV(CONFIG, &oa == X.arg10().allocator() || 2 == N10);
+        ASSERTV(CONFIG, &oa == X.arg11().allocator() || 2 == N11);
+        ASSERTV(CONFIG, &oa == X.arg12().allocator() || 2 == N12);
+        ASSERTV(CONFIG, &oa == X.arg13().allocator() || 2 == N13);
+        ASSERTV(CONFIG, &oa == X.arg14().allocator() || 2 == N14);
 
 
-        ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-        ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-        ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-        ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-        ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-        ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-        ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-        ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-        ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-        ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-        ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-        ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-        ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-        ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+        ASSERTV(MOVE_01, A01.movedFrom(),
+                           MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+        ASSERTV(MOVE_02, A02.movedFrom(),
+                           MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+        ASSERTV(MOVE_03, A03.movedFrom(),
+                           MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+        ASSERTV(MOVE_04, A04.movedFrom(),
+                           MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+        ASSERTV(MOVE_05, A05.movedFrom(),
+                           MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+        ASSERTV(MOVE_06, A06.movedFrom(),
+                           MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+        ASSERTV(MOVE_07, A07.movedFrom(),
+                           MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+        ASSERTV(MOVE_08, A08.movedFrom(),
+                           MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+        ASSERTV(MOVE_09, A09.movedFrom(),
+                           MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+        ASSERTV(MOVE_10, A10.movedFrom(),
+                           MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+        ASSERTV(MOVE_11, A11.movedFrom(),
+                           MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+        ASSERTV(MOVE_12, A12.movedFrom(),
+                           MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+        ASSERTV(MOVE_13, A13.movedFrom(),
+                           MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+        ASSERTV(MOVE_14, A14.movedFrom(),
+                           MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
         ASSERTV(V01, X.arg01(), V01 == X.arg01() || 2 == N01);
         ASSERTV(V02, X.arg02(), V02 == X.arg02() || 2 == N02);
@@ -709,6 +799,14 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+#ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
+        TestDriver::testCase2<0,2,2>();
+        TestDriver::testCase2<1,0,2>();
+        TestDriver::testCase2<1,1,2>();
+        TestDriver::testCase2<2,1,1>();
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
