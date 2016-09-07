@@ -1619,26 +1619,37 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 }
 
 inline
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                            bsl::ostream&               stream,
-                                            const bdlt::Datetime&       object,
-                                            const EncoderOptions       *,
-                                            bdlat_TypeCategory::Simple)
+bsl::ostream& TypesPrintUtil_Imp::printDefault(bsl::ostream&          stream,
+                                               const bdlt::Datetime&  object,
+                                               const EncoderOptions  *options,
+                                               bdlat_TypeCategory::Simple)
 {
     bdlt::Iso8601UtilConfiguration config;
-    config.setFractionalSecondPrecision(6);
+    if (options) {
+        config.setFractionalSecondPrecision(
+                                 options->datetimeFractionalSecondPrecision());
+    }
+    else {
+        config.setFractionalSecondPrecision(6);
+    }
     return bdlt::Iso8601Util::generate(stream, object, config);
 }
 
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                            bsl::ostream&               stream,
-                                            const bdlt::DatetimeTz&     object,
-                                            const EncoderOptions       *,
-                                            bdlat_TypeCategory::Simple)
+                                              bsl::ostream&            stream,
+                                              const bdlt::DatetimeTz&  object,
+                                              const EncoderOptions    *options,
+                                              bdlat_TypeCategory::Simple)
 {
     bdlt::Iso8601UtilConfiguration config;
-    config.setFractionalSecondPrecision(6);
+    if (options) {
+        config.setFractionalSecondPrecision(
+                                 options->datetimeFractionalSecondPrecision());
+    }
+    else {
+        config.setFractionalSecondPrecision(6);
+    }
     return bdlt::Iso8601Util::generate(stream, object, config);
 }
 
