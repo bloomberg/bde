@@ -48,7 +48,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdls {
                              // ==================
                              // struct ProcessUtil
@@ -65,12 +64,15 @@ struct ProcessUtil {
 
     static int getProcessName(bsl::string *result);
         // Load the system specific process name for the currently running
-        // process into the specified 'result'.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that on many systems, this is the
-        // fully qualified path name of the current executable.
+        // process into the specified 'result'.  The process name may be in
+        // any language on all supported platforms.  To provide that support,
+        // 'result' will be encoded as UTF-8, but it might not be normalized.
+        // Return 0 on success, and a non-zero value otherwise.  Note that on
+        // many systems, this is the fully qualified path name of the current
+        // executable.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
