@@ -511,24 +511,10 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
-        if (verbose) printf("\tNegative testing '0 <= startIndex'.\n");
-        {
-            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, -1, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, INT_MIN, 0));
-        }
-
         if (verbose) printf("\tNegative testing 'startIndex <= or.length'.\n");
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, ORIGINAL.length(), 0));
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
-        }
-
-        if (verbose) printf("\tNegative testing '0 <= numCharacters'.\n");
-        {
-            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, -1));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, INT_MIN));
         }
     }
 }
@@ -657,10 +643,10 @@ void testBasicAccessors(bool verbose)
         const bslstl::StringRefImp<CHAR>& X2 = x2;
 
         // NON-EMPTY STRING
-        bslstl::StringRefImp<CHAR>::size_type Len =
+        bslstl::StringRef::size_type Len =
             native_std::char_traits<CHAR>::length(
                 TestData<CHAR>::nonEmptyString);
-        for (bslstl::StringRefImp<CHAR>::size_type idx = 0; idx < Len; ++idx) {
+        for (bslstl::StringRef::size_type idx = 0; idx < Len; ++idx) {
             LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
         }
     }
