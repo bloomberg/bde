@@ -52,45 +52,8 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     BSLS_ASSERT_SAFE(  0  < requestedBuckets);
     BSLS_ASSERT_SAFE(0.0  < maxLoadFactor);
 
-    static const size_t MAX_SIZE_T = native_std::numeric_limits<size_t>::max();
-    static const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
-
-    struct Impl {
-        // This local utility class provides a couple of methods for converting
-        // 'double' values to 'size_t' values, applying different policies in
-        // event of an overflow.  This clarifies the main logic of the function
-        // rather than placing this logic inline a number of times.
-
-        // CLASS METHODS
-        static size_t roundToMax(double d)
-            // Return the integer value corresponding to the specified 'd', or
-            // the highest unsigned value representable by 'size_t' if 'd' is
-            // larger.  The behavior is undefined unless '0.0 <= d'.
-        {
-            BSLS_ASSERT_SAFE(0.0 <= d);
-
-            return d < MAX_AS_DBL
-                 ? static_cast<size_t>(d)
-                 : MAX_SIZE_T;
-        }
-
-        static size_t throwIfOverMax(double d)
-            // Throw a 'std::length_error' exception if the specified 'd' is
-            // larger than the highest unsigned value representable by
-            // 'size_t'.  Return the integer value corresponding to 'd',
-            // rounding down.  The behavior is undefined unless '0.0 <= d'.
-        {
-            BSLS_ASSERT_SAFE(0.0 <= d);
-
-            if (d > MAX_AS_DBL) {
-                StdExceptUtil::throwLengthError(
-                                           "The number of buckets overflows.");
-            }
-
-            return static_cast<size_t>(d);
-        }
-    };
-
+    const size_t MAX_SIZE_T = native_std::numeric_limits<size_t>::max();
+    const double MAX_AS_DBL = static_cast<double>(MAX_SIZE_T);
 
     // This check is why 'minElements' must be at least one - so that we do not
     // allocate a number of buckets that cannot hold at least one element, and
@@ -101,21 +64,28 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // systems.  The truncation that occurs in such cases does not impact the
     // final result, so we do not need any deeper analysis in such cases.
 
-    size_t result = native_std::max(
-       requestedBuckets,
-       Impl::throwIfOverMax(static_cast<double>(minElements) / maxLoadFactor));
-
-    result = nextPrime(result);  // throws if too large
-
-    double newCapacity = static_cast<double>(result) * maxLoadFactor;
-
-    while (minElements > newCapacity ) {
-        result  = nextPrime(2 * result);  // throws if too large
-        newCapacity = static_cast<double>(result) * maxLoadFactor;
+    double d = static_cast<double>(minElements) / maxLoadFactor;
+    if (d > MAX_AS_DBL) {
+        // Throw a 'std::length_error' exception if 'd' is larger than the
+        // highest unsigned value representable by 'size_t'.
+        StdExceptUtil::throwLengthError("The number of buckets overflows.");
     }
+    size_t result = native_std::max(requestedBuckets, static_cast<size_t>(d));
 
-    *capacity = Impl::roundToMax(newCapacity);
-    return result;
+    for (;;) {
+        result = nextPrime(result);  // throws if too large
+        double newCapacity = static_cast<double>(result) * maxLoadFactor;
+        if (minElements <= newCapacity) {
+            // Set '*capacity' to the integer value corresponding to
+            // 'newCapacity', or the highest unsigned value representable by
+            // 'size_t' if 'newCapacity' is larger.
+            *capacity = newCapacity < MAX_AS_DBL
+                            ? static_cast<size_t>(newCapacity)
+                            : MAX_SIZE_T;
+            return result;                                            // RETURN
+        }
+        result *= 2;
+    }
 }
 
 bslma::Allocator *HashTable_ImpDetails::incidentalAllocator()
