@@ -70,9 +70,10 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         // highest unsigned value representable by 'size_t'.
         StdExceptUtil::throwLengthError("The number of buckets overflows.");
     }
-    size_t result = native_std::max(requestedBuckets, static_cast<size_t>(d));
-
-    for (;;) {
+    for (size_t result =
+             native_std::max(requestedBuckets, static_cast<size_t>(d));
+         ;
+         result *= 2) {
         result = nextPrime(result);  // throws if too large
         double newCapacity = static_cast<double>(result) * maxLoadFactor;
         if (minElements <= newCapacity) {
@@ -84,7 +85,6 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
                             : MAX_SIZE_T;
             return result;                                            // RETURN
         }
-        result *= 2;
     }
 }
 
