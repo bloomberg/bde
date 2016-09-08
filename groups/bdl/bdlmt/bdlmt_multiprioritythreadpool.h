@@ -521,6 +521,7 @@ class MultipriorityThreadPool {
                                           // broadcast when suspended threads
                                           // are to resume
 
+  private:
     // NOT IMPLEMENTED
     MultipriorityThreadPool(const MultipriorityThreadPool&);
     MultipriorityThreadPool& operator=(const MultipriorityThreadPool&);
