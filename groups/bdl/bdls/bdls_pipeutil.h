@@ -47,20 +47,21 @@ struct PipeUtil {
     static int makeCanonicalName(bsl::string              *pipeName,
                                  const bslstl::StringRef&  baseName);
         // Load into the specified 'pipeName' the system-dependent canonical
-        // pipe name corresponding to the specified 'baseName'.  On Unix
-        // systems, attempts to load the environment variable TMPDIR to create
-        // the pipe name.  Return 0 on success, and a nonzero value if
-        // 'baseName' cannot be part of a pipe name on this system.
+        // pipe name corresponding to the specified 'baseName'.  Return 0 on
+        // success, and a nonzero value if 'baseName' cannot be part of a pipe
+        // name on this system.
 
     static int send(const bslstl::StringRef& pipeName,
                     const bslstl::StringRef& message);
-        // Send the specified 'message' to the pipe with the specified
+        // Send the specified 'message' to the pipe with the specified UTF-8
         // 'pipeName'.  Return 0 on success, and a nonzero value otherwise.
+        // The behavior is undefined unless 'pipeName' is a valid UTF-8 string.
 
     static bool isOpenForReading(const bslstl::StringRef& pipeName);
-        // Return 'true' if the pipe with the specified 'pipeName' exists and
-        // is currently open for reading by some process, and 'false'
-        // otherwise.
+        // Return 'true' if the pipe with the specified UTF-8 'pipeName' exists
+        // and is currently open for reading by some process, and 'false'
+        // otherwise.  The behavior is undefined unless 'pipeName' is a valid
+        // UTF-8 string.
 };
 
 }  // close package namespace
