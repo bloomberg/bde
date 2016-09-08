@@ -12,8 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
-#include <bdlma_localsequentialallocator.h>
-
 #include <bdlsb_memoutstreambuf.h>
 
 #include <bsls_assert.h>
@@ -25,6 +23,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
 #include <bdlde_charconvertutf16.h>
+#include <bdlma_localsequentialallocator.h>
 #else
 #include <unistd.h>
 #endif
