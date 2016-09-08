@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
+#include <bdlma_localsequentialallocator.h>
+
 #include <bdlsb_memoutstreambuf.h>
 
 #include <bsls_assert.h>
@@ -22,6 +24,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
+#include <bdlde_charconvertutf16.h>
 #else
 #include <unistd.h>
 #endif
@@ -64,15 +67,24 @@ int ProcessUtil::getProcessName(bsl::string *result)
     result->clear();
 
 #if defined BSLS_PLATFORM_OS_WINDOWS
-    int  rc = 0;
-
-    result->resize(MAX_PATH);
-    DWORD length = GetModuleFileName(0, &(*result->begin()), result->size());
-    if (length > 0) {
-        result->resize(length);
+    bdlma::LocalSequentialAllocator<MAX_PATH + 1> la;
+    bsl::wstring wResult(MAX_PATH, 0, &la);
+    while (wResult.length() <= 4 * MAX_PATH) {
+        DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
+        if (length <= 0) {  // Error
+            return 1;                                                 // RETURN
+        }
+        else if (length < wResult.length()) {  // Success
+            wResult.resize(length);
+            return bdlde::CharConvertUtf16::utf16ToUtf8(result, wResult);
+                                                                      // RETURN
+        }
+        else {  // Not enough space for the process name in 'wResult'
+            wResult.resize(wResult.length() * 2); // Make more space
+        }
     }
 
-    return length <= 0;
+    return -1;
 #else
 # if defined BSLS_PLATFORM_OS_HPUX
     result->resize(256);
