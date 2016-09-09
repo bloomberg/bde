@@ -25,13 +25,19 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name                Type           Default         Simple Constraints
 //  ------------------  -----------    -------         ------------------
-//  encodingStyle       EncodingStyle  BAEJSN_COMPACT  none
+//  encodingStyle       EncodingStyle  e_COMPACT       none
 //  initialIndentLevel  int            0               >= 0
 //  spacesPerLevel      int            0               >= 0
 //  encodeEmptyArrays   bool           false           none
 //  encodeNullElements  bool           false           none
+//  encodeInfAndNaNAsStrings
+//                      bool           false           none
 //  datetimeFractionalSecondPrecision
 //                      int            3               >= 0 and <= 6
+//  maxFloatPrecision   int            bsl::numeric_limits<float>::digits10
+//                                                     >= 1 and <= 9
+//  maxDoublePrecision  int            bsl::numeric_limits<double>::digits10
+//                                                     >= 1 and <= 17
 //..
 //: o 'encodingStyle': encoding style used to encode the JSON data.
 //:
@@ -44,10 +50,28 @@ BSLS_IDENT("$Id: $")
 //: o 'encodeNullElements': option specifying if null elements should be
 //:                         encoded.
 //:
+//: o 'encodeInfAndNaNAsStrings': JSON does not provide a way to encode these
+//:                               values as they are not numbers.  This option
+//:                               provides a way to encode these values.
+//:                               Although the resulting output is a valid
+//:                               JSON document, decoders expecting floating
+//:                               point numbers to be encoded only as numbers
+//:                               will fail to decode.  Users of this option
+//:                               must therefore exercise caution and ensure
+//:                               that if this option is used then the parser
+//:                               decoding the generated JSON can handle
+//:                               doubles as strings.
+//:
 //: o 'datetimeFractionalSecondPrecision': option specifying the number of
 //:                                        decimal places used for seconds when
 //:                                        encoding 'Datetime' and
 //:                                        'DatetimeTz'.
+//:
+//: o 'maxFloatPrecision': option specifying the maximum number of decimal
+//:                        places used to encode each 'float' value.
+//:
+//: o 'maxDoublePrecision': option specifying the maximum number of decimal
+//:                         places used to encode each 'double' value.
 //
 ///Usage
 ///-----
@@ -61,17 +85,28 @@ BSLS_IDENT("$Id: $")
 //
 // First, we default-construct a 'baljsn::EncoderOptions' object:
 //..
-//  const int  INITIAL_INDENT_LEVEL = 1;
-//  const int  SPACES_PER_LEVEL     = 4;
-//  const bool ENCODE_EMPTY_ARRAYS  = true;
-//  const bool ENCODE_NULL_ELEMENTS = true;
+//  const int  INITIAL_INDENT_LEVEL      = 1;
+//  const int  SPACES_PER_LEVEL          = 4;
+//  const bool ENCODE_EMPTY_ARRAYS       = true;
+//  const bool ENCODE_NULL_ELEMENTS      = true;
+//  const bool ENCODE_INF_NAN_AS_STRINGS = true;
+//  const int  DATETIME_PRECISION        = 6;
+//  const int  FLOAT_PRECISION           = 3;
+//  const int  DOUBLE_PRECISION          = 9;
 //
 //  baljsn::EncoderOptions options;
-//  assert(0 == options.initialIndentLevel());
-//  assert(0 == options.spacesPerLevel());
-//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
+//  assert(0     == options.initialIndentLevel());
+//  assert(0     == options.spacesPerLevel());
+//  assert(EncoderOptions::e_COMPACT == options.encodingStyle());
 //  assert(false == options.encodeEmptyArrays());
 //  assert(false == options.encodeNullElements());
+//  assert(false == options.encodeInfAndNaNAsStrings());
+//  assert(3     == options.datetimeFractionalSecondPrecision());
+//  assert(bsl::numeric_limits<float>::digits10
+//                                             == options.maxFloatPrecision());
+//  assert(bsl::numeric_limits<double>::digits10
+//                                            ==
+//                                            options.maxDoublePrecision());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -90,6 +125,18 @@ BSLS_IDENT("$Id: $")
 //
 //  options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
 //  assert(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
+//
+//  options.setEncodeInfAndNaNAsStrings(ENCODE_INF_NAN_AS_STRINGS);
+//  assert(ENCODE_INF_NAN_AS_STRINGS == options.encodeInfAndNaNAsStrings());
+//
+//  options.setDatetimeFractionalSecondPrecision(DATETIME_PRECISION);
+//  assert(DATETIME_PRECISION == options.datetimeFractionalSecondPrecision());
+//
+//  options.setMaxFloatPrecision(FLOAT_PRECISION);
+//  assert(FLOAT_PRECISION == options.maxFloatPrecision());
+//
+//  options.setMaxDoublePrecision(DOUBLE_PRECISION);
+//  assert(DOUBLE_PRECISION == options.maxDoublePrecision());
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -103,6 +150,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #define INCLUDED_BSL_IOSFWD
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#define INCLUDED_BSL_LIMITS
 #endif
 
 namespace BloombergLP {
@@ -154,10 +206,21 @@ class EncoderOptions {
     bool          d_encodeNullElements;  // flag specifying if null elements
                                          // should be encoded
 
+    bool          d_encodeInfAndNaNAsStrings;
+                                         // flag specifying if +INF/-INF/NaN
+                                         // floating point values should be
+                                         // encoded as strings
+
     int           d_datetimeFractionalSecondPrecision;
                                          // number of decimal places used for
                                          // second in 'Datetime' and
                                          // 'DatetimeTz'
+
+    int           d_maxFloatPrecision;   // maximum number of decimal places
+                                         // used to encode 'float' values
+
+    int           d_maxDoublePrecision;  // maximum number of decimal places
+                                         // used to encode 'double' values
 
   public:
     // CREATORS
@@ -165,12 +228,15 @@ class EncoderOptions {
         // Create a 'EncoderOptions' object having the (default) attribute
         // values:
         //..
-        //  encodingStyle                     == BAEJSN_COMPACT
+        //  encodingStyle                     == e_COMPACT
         //  initialIndentLevel                == 0
         //  spacesPerLevel                    == 0
         //  encodeEmptyArrays                 == false
-        //  datetimeFractionalSecondPrecision == 3
         //  encodeNullElements                == false
+        //  encodeInfAndNaNAsStrings          == false
+        //  datetimeFractionalSecondPrecision == 3
+        //  maxFloatPrecision  == bsl::numeric_limits<float>::digits10
+        //  maxDoublePrecision == bsl::numeric_limits<double>::digits10
         //..
 
     //! EncoderOptions(const EncoderOptions& original) = default;
@@ -206,10 +272,24 @@ class EncoderOptions {
         // Set the 'encodeNullElements' attribute of this object to the
         // specified 'value'.
 
+    void setEncodeInfAndNaNAsStrings(bool value);
+        // Set the 'encodeInfAndNaNAsStrings' attribute of this object to the
+        // specified 'value'.
+
     void setDatetimeFractionalSecondPrecision(int value);
         // Set the 'datetimeFractionalSecondPrecision' attribute of this object
         // to the specified 'value'.  The behavior is undefined unless
         // '0 <= value' and 'value <= 6'.
+
+    void setMaxFloatPrecision(int value);
+        // Set the 'maxFloatPrecision' attribute of this object to the
+        // specified 'value'.  The behavior is undefined unless
+        // '1 <= value <= 9'.
+
+    void setMaxDoublePrecision(int value);
+        // Set the 'maxDoublePrecision' attribute of this object to the
+        // specified 'value'.  The behavior is undefined unless
+        // '1 <= value <= 17'.
 
     // ACCESSORS
     int initialIndentLevel() const;
@@ -230,9 +310,21 @@ class EncoderOptions {
         // Return the value of the 'encodeNullElements' attribute of this
         // object.
 
+    bool encodeInfAndNaNAsStrings() const;
+        // Return the value of the 'encodeInfAndNaNAsStrings' attribute of this
+        // object.
+
     int datetimeFractionalSecondPrecision() const;
         // Return the value of the 'datetimeFractionalSecondPrecision'
         // attribute of this object.
+
+    int maxFloatPrecision() const;
+        // Return the value of the 'maxFloatPrecision' attribute of this
+        // object.
+
+    int maxDoublePrecision() const;
+        // Return the value of the 'maxDoublePrecision' attribute of this
+        // object.
 
                                   // Aspects
 
@@ -259,14 +351,18 @@ bool operator==(const EncoderOptions& lhs, const EncoderOptions& rhs);
     // value, and 'false' otherwise.  Two 'EncoderOptions' objects have the
     // same value if all of the corresponding values of their
     // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
-    // 'encodeEmptyArrays', and 'encodeNullElements' attributes are the same.
+    // 'encodeEmptyArrays', and 'encodeNullElements',
+    // 'encodeInfAndNaNAsStrings', 'datetimeFractionalSecondPrecision',
+    // 'maxFloatPrecision', and 'maxDoublePrecision' attributes are the same.
 
 bool operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'EncoderOptions' objects do not
     // have the same value if any of the corresponding values of their
     // 'initialIndentLevel', 'spacesPerLevel', 'encodingStyle',
-    // 'encodeEmptyArrays', and 'encodeNullElements' attributes are not the
+    // 'encodeEmptyArrays', and 'encodeNullElements',
+    // 'encodeInfAndNaNAsStrings' 'datetimeFractionalSecondPrecision',
+    // 'maxFloatPrecision', or 'maxDoublePrecision' attributes are not the
     // same.
 
 bsl::ostream& operator<<(bsl::ostream&         stream,
@@ -295,7 +391,10 @@ EncoderOptions::EncoderOptions()
 , d_encodingStyle(e_COMPACT)
 , d_encodeEmptyArrays(false)
 , d_encodeNullElements(false)
+, d_encodeInfAndNaNAsStrings(false)
 , d_datetimeFractionalSecondPrecision(3)
+, d_maxFloatPrecision(bsl::numeric_limits<float>::digits10)
+, d_maxDoublePrecision(bsl::numeric_limits<double>::digits10)
 {
 }
 
@@ -342,11 +441,36 @@ void EncoderOptions::setEncodeNullElements(bool value)
 }
 
 inline
+void EncoderOptions::setEncodeInfAndNaNAsStrings(bool value)
+{
+    d_encodeInfAndNaNAsStrings = value;
+}
+
+inline
 void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 {
     BSLS_ASSERT_SAFE(0 <= value     );
     BSLS_ASSERT_SAFE(     value <= 6);
+
     d_datetimeFractionalSecondPrecision = value;
+}
+
+inline
+void EncoderOptions::setMaxFloatPrecision(int value)
+{
+    BSLS_ASSERT_SAFE(1 <= value     );
+    BSLS_ASSERT_SAFE(     value <= 9);
+
+    d_maxFloatPrecision = value;
+}
+
+inline
+void EncoderOptions::setMaxDoublePrecision(int value)
+{
+    BSLS_ASSERT_SAFE(1 <= value     );
+    BSLS_ASSERT_SAFE(     value <= 17);
+
+    d_maxDoublePrecision = value;
 }
 
 // ACCESSORS
@@ -382,10 +506,29 @@ bool EncoderOptions::encodeNullElements() const
 }
 
 inline
+bool EncoderOptions::encodeInfAndNaNAsStrings() const
+{
+    return d_encodeInfAndNaNAsStrings;
+}
+
+inline
 int EncoderOptions::datetimeFractionalSecondPrecision() const
 {
     return d_datetimeFractionalSecondPrecision;
 }
+
+inline
+int EncoderOptions::maxFloatPrecision() const
+{
+    return d_maxFloatPrecision;
+}
+
+inline
+int EncoderOptions::maxDoublePrecision() const
+{
+    return d_maxDoublePrecision;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -396,7 +539,12 @@ bool baljsn::operator==(const EncoderOptions& lhs, const EncoderOptions& rhs)
          && lhs.spacesPerLevel()     == rhs.spacesPerLevel()
          && lhs.encodingStyle()      == rhs.encodingStyle()
          && lhs.encodeEmptyArrays()  == rhs.encodeEmptyArrays()
-         && lhs.encodeNullElements() == rhs.encodeNullElements();
+         && lhs.encodeNullElements() == rhs.encodeNullElements()
+         && lhs.encodeInfAndNaNAsStrings() == rhs.encodeInfAndNaNAsStrings()
+         && lhs.datetimeFractionalSecondPrecision()
+                                     == rhs.datetimeFractionalSecondPrecision()
+         && lhs.maxFloatPrecision()  == rhs.maxFloatPrecision()
+         && lhs.maxDoublePrecision() == rhs.maxDoublePrecision();
 }
 
 inline
@@ -406,7 +554,12 @@ bool baljsn::operator!=(const EncoderOptions& lhs, const EncoderOptions& rhs)
          || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
          || lhs.encodingStyle()      != rhs.encodingStyle()
          || lhs.encodeEmptyArrays()  != rhs.encodeEmptyArrays()
-         || lhs.encodeNullElements() != rhs.encodeNullElements();
+         || lhs.encodeNullElements() != rhs.encodeNullElements()
+         || lhs.encodeInfAndNaNAsStrings() != rhs.encodeInfAndNaNAsStrings()
+         || lhs.datetimeFractionalSecondPrecision()
+                                     != rhs.datetimeFractionalSecondPrecision()
+         || lhs.maxFloatPrecision()  != rhs.maxFloatPrecision()
+         || lhs.maxDoublePrecision() != rhs.maxDoublePrecision();
 }
 
 }  // close enterprise namespace

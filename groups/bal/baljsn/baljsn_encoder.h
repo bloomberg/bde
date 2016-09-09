@@ -39,29 +39,8 @@ BSLS_IDENT("$Id: $")
 // bulky to transmit.  It is more efficient to use a binary encoding (such as
 // BER) if the encoding format is under your control (see 'balber_berencoder').
 //
-///Encoding Format for a Simple Type
-///---------------------------------
-// The following table describes how various Simple types are encoded.
-//..
-//  Simple Type          JSON Type  Notes
-//  -----------          ---------  -----
-//  char                 number     The integer value of the character
-//  unsigned char        number     The integer value of the character
-//  int                  number
-//  unsigned int         number
-//  bsls::Types::Int64   number
-//  bsls::Types::Uint64  number
-//  float                number
-//  double               number
-//  char *               string
-//  bsl::string          string
-//  bdlt::Date            string     ISO 8601 format
-//  bdlt::DateTz          string     ISO 8601 format
-//  bdlt::Time            string     ISO 8601 format
-//  bdlt::TimeTz          string     ISO 8601 format
-//  bdlt::DatetimeTz      string     ISO 8601 format
-//  bdlt::DatetimeTz      string     ISO 8601 format
-//..
+// Refer to the details of the JSON encoding format supported by this decoder
+// in the package documentation file (doc/baljsn.txt).
 //
 ///Usage
 ///-----
