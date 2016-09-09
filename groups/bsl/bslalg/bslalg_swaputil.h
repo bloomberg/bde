@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // Equivalent to:
 //      // using bsl::swap;
-//      // bsl::swap(d_expensiveData, other.d_expensiveData);
+//      // swap(d_expensiveData, other.d_expensiveData);
 //  }
 //..
 // Notice that calling 'bslalg::SwapUtil::swap' is equivalent to making the
