@@ -155,6 +155,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_BSLONCE
+#include <bsls_bslonce.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -215,7 +223,7 @@ class NameOf : public NameOf_Base {
     // containing the name.
 
     // CLASS DATA
-    static const char *s_buffer_p;
+    static bsls::AtomicPointer<const char> s_buffer_p;
 
   public:
     // CREATOR
@@ -242,14 +250,20 @@ class NameOf : public NameOf_Base {
 
 // CLASS DATA
 template <class TYPE>
-const char *NameOf<TYPE>::s_buffer_p = 0;
+bsls::AtomicPointer<const char> NameOf<TYPE>::s_buffer_p;
 
 // CREATOR
 template <class TYPE>
 NameOf<TYPE>::NameOf()
     // Initialize the base class of this object to name of 'TYPE'.
 {
-    if (!s_buffer_p) {
+    // It is important to ensure that no two threads are initializing the same
+    // buffer at the same time.
+
+    static BslOnce once = BSLS_BSLONCE_INITIALIZER;
+    BslOnceGuard   onceGuard;
+
+    if (!s_buffer_p && onceGuard.enter(&once)) {
 #if   defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
         static char buffer[sizeof(__PRETTY_FUNCTION__) -
                                                        k_USELESS_PREAMBLE_LEN];
