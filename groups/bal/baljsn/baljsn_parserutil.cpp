@@ -10,6 +10,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bdlde_charconvertutf32.h>
 
 #include <bdlb_chartype.h>
+#include <bdlb_string.h>
 
 #include <bdldfp_decimalutil.h>
 
@@ -38,6 +39,100 @@ bool isValidNextChar(int nextChar)
         || ',' == static_cast<char>(nextChar)
         || ']' == static_cast<char>(nextChar)
         || '}' == static_cast<char>(nextChar);
+}
+
+template <class TYPE>
+int loadInfOrNan(TYPE *value, bslstl::StringRef data)
+{
+    const int NO_SIGN_NAN_OR_INF_STRING_LEN   =  5;
+    const int INF_OR_NAN_WITH_SIGN_STRING_LEN =  6;
+    const int INFINITY_NO_SIGN_STRING_LEN     = 10;
+    const int INFINITY_WITH_SIGN_STRING_LEN   = 11;
+
+    int rc = -1;
+
+    switch (data.length()) {
+      case NO_SIGN_NAN_OR_INF_STRING_LEN: {
+        if (bdlb::String::areEqualCaseless("\"nan\"",
+                                          NO_SIGN_NAN_OR_INF_STRING_LEN,
+                                          data.data(),
+                                          NO_SIGN_NAN_OR_INF_STRING_LEN)) {
+            *value = bsl::numeric_limits<TYPE>::quiet_NaN();
+            rc = 0;
+        }
+        else if (bdlb::String::areEqualCaseless(
+                                              "\"inf\"",
+                                              NO_SIGN_NAN_OR_INF_STRING_LEN,
+                                              data.data(),
+                                              NO_SIGN_NAN_OR_INF_STRING_LEN)) {
+            *value = bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+      } break;
+      case INF_OR_NAN_WITH_SIGN_STRING_LEN: {
+        if (bdlb::String::areEqualCaseless("\"+inf\"",
+                                          INF_OR_NAN_WITH_SIGN_STRING_LEN,
+                                          data.data(),
+                                          INF_OR_NAN_WITH_SIGN_STRING_LEN)) {
+            *value = bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+        else if (bdlb::String::areEqualCaseless(
+                                            "\"-inf\"",
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN,
+                                            data.data(),
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN)) {
+            *value = -bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+        else if (bdlb::String::areEqualCaseless(
+                                            "\"+nan\"",
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN,
+                                            data.data(),
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN)) {
+
+            *value = bsl::numeric_limits<TYPE>::quiet_NaN();
+            rc = 0;
+        }
+        else if (bdlb::String::areEqualCaseless(
+                                            "\"-nan\"",
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN,
+                                            data.data(),
+                                            INF_OR_NAN_WITH_SIGN_STRING_LEN)) {
+
+            *value = -bsl::numeric_limits<TYPE>::quiet_NaN();
+            rc = 0;
+        }
+      } break;
+      case INFINITY_NO_SIGN_STRING_LEN: {
+        if (bdlb::String::areEqualCaseless("\"infinity\"",
+                                          INFINITY_NO_SIGN_STRING_LEN,
+                                          data.data(),
+                                          INFINITY_NO_SIGN_STRING_LEN)) {
+            *value = bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+      } break;
+      case INFINITY_WITH_SIGN_STRING_LEN: {
+        if (bdlb::String::areEqualCaseless("\"+infinity\"",
+                                          INFINITY_WITH_SIGN_STRING_LEN,
+                                          data.data(),
+                                          INFINITY_WITH_SIGN_STRING_LEN)) {
+            *value = bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+        else if (bdlb::String::areEqualCaseless(
+                                              "\"-infinity\"",
+                                              INFINITY_WITH_SIGN_STRING_LEN,
+                                              data.data(),
+                                              INFINITY_WITH_SIGN_STRING_LEN)) {
+            *value = -bsl::numeric_limits<TYPE>::infinity();
+            rc = 0;
+        }
+      } break;
+    }
+
+    return rc;
 }
 
 static const bsls::Types::Uint64 UINT64_MAX_VALUE =
@@ -174,6 +269,14 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
         return -1;
     }
 
+    if ('"' == data[0]) {
+       // Parse "NaN", "+INF" and "-INF" as floating point values.  Note that
+       // these values are encoded as strings in a JSON standard unconformant
+       // way.
+
+        return loadInfOrNan(value, data);                             // RETURN
+    }
+
     const int MAX_STRING_LENGTH = 32; // 32 > 16 + 3 + 2 + 1
     char      buffer[MAX_STRING_LENGTH + 1];
 
@@ -199,6 +302,14 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
      || '+' == data[0]
      || (data.length() > 1 && '-' == data[0] && '.' == data[1])) {
         return -1;                                                    // RETURN
+    }
+
+    if ('"' == data[0]) {
+       // Parse "NaN", "+INF" and "-INF" as floating point values.  Note that
+       // these values are encoded as strings in a JSON standard unconformant
+       // way.
+
+        return loadInfOrNan(value, data);                             // RETURN
     }
 
     const int k_MAX_STRING_LENGTH = 63;
