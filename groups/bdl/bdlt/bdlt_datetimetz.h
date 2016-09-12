@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DatetimeTz dt2(dt1);
 //  assert(offset1   == dt2.offset());
 //  assert(datetime1 == dt2.localDatetime());
-//  assert(datetime2 != dt2.utcDatetime());
+//  assert(datetime2 == dt2.utcDatetime());
 //..
 // Now, create a third object, 'dt3', representing the time 10:33:25.000 on
 // 01/01/2001 in the PST time zone (UTC-8):
