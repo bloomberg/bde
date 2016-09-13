@@ -953,15 +953,15 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             Node *& head = d_heads[itemPriority];
             if (!head) {
@@ -992,15 +992,15 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             if (d_notEmptyFlags & mask) {
                 d_tails[itemPriority]->nextPtr() = newNode;
