@@ -1,5 +1,29 @@
-bsl-internal (3.0.2.0) unstable; urgency=low
+bsl-internal (3.0.4.0) unstable; urgency=low
 
+  * d914049 Merge pull request #706 from che2/releases/3.0.x
+  * 248af51 Merge pull request #637 from mgiroux/review/apaprock-scalar-primitives-maybe-uninitialized-drqs-87862955
+  * fad434a Merge pull request #703 from mgiroux/review/bump-patchversion-to-3.0.4
+  * 9c2e9a0 Bump patchversion to 3.0.4
+  * e4bae82 Merge pull request #691 from hrosen4/pr/689-rebased-releases/3.0.x
+  * 9b6c3b1 Merge pull request #693 from afeher/move-an-include
+  * 1472546 Merge pull request #683 from afeher/bdls_pipeutil-fix-mbcs-windows
+  * 72526a2 Merge pull request #682 from hrosen4/darwin-c++03-type_traits-3.04-drqs-88674288
+  * e5a2d29 Merge pull request #680 from afeher/bdls_processutil-fix-for-mbcs-windows
+  * 43d5f14 Merge pull request #685 from jmendelsohn4/drqs-88262799/bdlt_epochutil_enhanced_precision
+  * d076c60 Merge pull request #674 from che2/revert-berencoder-datetime-format-drqs-88346514
+  * fb5f4b4 Merge pull request #675 from che2/baexml-encoderoptions-midif-drqs-87973002
+  * fb60521 Merge pull request #671 from hrosen4/type_traits-3.0.4-drqs-87976746
+  * 4e0e281 Merge pull request #660 from afeher/fix-osutil
+  * edb292a Merge pull request #661 from afeher/fix-bslstl_function-warning
+  * 6f8a23f Merge pull request #662 from jmendelsohn4/drqs-88262799/bdlt_epochutil_enhanced_precision
+  * 2315bfa Merge pull request #659 from afeher/fix-bdls_filesystemutil-mbcs-windows
+  * ff7a294 Merge pull request #658 from afeher/fix-redefined-macro
+
+ -- Chen He <che24@bloomberg.net>  Tue, 13 Sep 2016 17:30:34 -0400
+
+bsl-internal (3.0.2.0) git; urgency=low
+
+  * 649b1dc Changelog for version 3.0.2.0
   * 09df666 Changelog for version 3.0.2.0
   * b234adb Changelog for version 3.0.2.0
   * 5381d8b Changelog for version 3.0.1.0
@@ -8,7 +32,7 @@ bsl-internal (3.0.2.0) unstable; urgency=low
   * a9b3671 Merge pull request #646 from mgiroux/review/enable-BUILD_ID-in-bsls_ident-drqs-77787475
   * 69ec8b7 Merge pull request #643 from ameredit/windows_patch_for_3_0_0
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 22:59:33 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 23:00:44 -0400
 
 bsl-internal (3.0.1.0) git; urgency=low
 
@@ -642,7 +666,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * efe82c0 [APPROVAL] pending/master/gets-14_drqs-64932703 to master
   * 9c2c49f [APPROVAL] INTERNAL pending/master/stdexcept-exception_drqs-66864749 to master
   * 0df81d8 [APPROVAL] pending/master/stdexcept-exception_drqs-66864749 to master
-  * 525a41a [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
+  * 525a41aa [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * 8d90399 [APPROVAL] pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * bfec9c2 [APPROVAL] INTERNAL fix-bad-git-merge-bslmf_typelist.h to master
   * 34d4b32 [APPROVAL] fix-bad-git-merge-bslmf_typelist.h to master
