@@ -1115,6 +1115,8 @@ void TestDriver::testCase3()
     ASSERTV(cZero, cExpectedZero,
             0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
 
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2089,6 +2091,8 @@ void TestDriver::testCase2()
     ASSERTV(cZero, cExpectedZero,
             0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
 
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2910,6 +2914,8 @@ void TestDriver::testCase1()
     BDEC::Decimal32 cExpectedZero = BDLDFP_DECIMAL_DF(0e0);
     ASSERTV(cZero, cExpectedZero,
             0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
 
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
