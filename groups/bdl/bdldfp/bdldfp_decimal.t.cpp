@@ -1105,6 +1105,16 @@ void TestDriver::testCase3()
     ASSERT(BDLDFP_DECIMAL_DL(-42.0) == BDEC::Decimal128(-42ll)); //longlong
     ASSERT(BDLDFP_DECIMAL_DL( 42.0) == BDEC::Decimal128(42ull)); // ulongl
 
+    BDEC::Decimal128 cDefault;
+    BDEC::Decimal128 cExpectedDefault = BDLDFP_DECIMAL_DL(0e-6176);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal128 cZero(0);
+    BDEC::Decimal128 cExpectedZero = BDLDFP_DECIMAL_DL(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2069,6 +2079,16 @@ void TestDriver::testCase2()
     ASSERT(BDLDFP_DECIMAL_DD(-42.0) == BDEC::Decimal64(-42ll)); // longlong
     ASSERT(BDLDFP_DECIMAL_DD( 42.0) == BDEC::Decimal64(42ull)); // ulongl
 
+    BDEC::Decimal64 cDefault;
+    BDEC::Decimal64 cExpectedDefault = BDLDFP_DECIMAL_DD(0e-398);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal64 cZero(0);
+    BDEC::Decimal64 cExpectedZero = BDLDFP_DECIMAL_DD(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2880,6 +2900,16 @@ void TestDriver::testCase1()
     ASSERT(BDLDFP_DECIMAL_DF( 42.0) == BDEC::Decimal32(42ul)); // ulong
     ASSERT(BDLDFP_DECIMAL_DF(-42.0) == BDEC::Decimal32(-42ll)); // longlong
     ASSERT(BDLDFP_DECIMAL_DF( 42.0) == BDEC::Decimal32(42ull)); // ulongl
+
+    BDEC::Decimal32 cDefault;
+    BDEC::Decimal32 cExpectedDefault = BDLDFP_DECIMAL_DF(0e-101);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal32 cZero(0);
+    BDEC::Decimal32 cExpectedZero = BDLDFP_DECIMAL_DF(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
 
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
