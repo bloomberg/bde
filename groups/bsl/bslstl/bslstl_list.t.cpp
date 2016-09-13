@@ -4035,7 +4035,6 @@ void TestDriver<TYPE,ALLOC>::test29_moveInsert()
     //   iterator insert(const_iterator pos, T&& value);
     //   void push_back(T&& value);
     //   void push_front(T&& value);
-    //   All emplace methods handle rvalues.
     //   Concern: All emplace methods handle rvalues.
     // ------------------------------------------------------------------------
 
@@ -6732,9 +6731,11 @@ void TestDriver<TYPE,ALLOC>::test19_swap()
 
                     ++numThrows;
 
-                    switch (freeSwap) {
-                      case false:  mA.swap(mB);   break;
-                      case true:   swap(mA, mB);  break;
+                    if (freeSwap) {
+                        swap(mA, mB);
+                    }
+                    else {
+                        mA.swap(mB);
                     }
 
                     ASSERTV(SPEC1, SPEC2, YY, A, YY == A);
