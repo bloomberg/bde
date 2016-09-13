@@ -321,7 +321,7 @@ class Stack
 
 template <class VALUE>
 class TestDriver {
-    // This parameterized 'struct' provide a namespace for testing the 'map'
+    // This parameterized 'struct' provides a namespace for testing the 'map'
     // container.  The (template parameter) 'VALUE' specifies the value type
     // for this class.  Each "testCase*" method tests a specific aspect of
     // 'SimplePool<VALUE>'.  Every test case should be invoked with various

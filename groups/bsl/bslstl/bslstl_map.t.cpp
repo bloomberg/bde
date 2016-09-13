@@ -4901,10 +4901,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //;   not it is propagated to the target object.
     //:
     //: 4 If the allocator is propagated from the source object to the target
-    //:   object, all memory allocated from the source object's original
+    //:   object, all memory allocated from the target object's original
     //:   allocator is released.
     //:
-    //: 5 The affect of the 'propagate_on_container_move_assignment' trait is
+    //: 5 The effect of the 'propagate_on_container_move_assignment' trait is
     //:   independent of the other three allocator propagation traits.
     //
     // Plan:
@@ -8594,10 +8594,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //;   not it is propagated to the target object.
     //:
     //: 4 If the allocator is propagated from the source object to the target
-    //:   object, all memory allocated from the source object's original
+    //:   object, all memory allocated from the target object's original
     //:   allocator is released.
     //:
-    //: 5 The affect of the 'propagate_on_container_copy_assignment' trait is
+    //: 5 The effect of the 'propagate_on_container_copy_assignment' trait is
     //:   independent of the other three allocator propagation traits.
     //
     // Plan:
@@ -9070,8 +9070,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 3 If the allocators are propagated (i.e., exchanged), there is no
     //:   additional allocation from any allocator.
     //:
-    //: 4 The affect of the 'propagate_on_container_swap' trait is independent
+    //: 4 The effect of the 'propagate_on_container_swap' trait is independent
     //:   of the other three allocator propagation traits.
+    //:
+    //: 5 Following the swap operation, neither object holds on to memory
+    //:   allocated from the other object's allocator.
     //
     // Plan:
     //: 1 Specify a set S of object values with varied differences, ordered by
@@ -9102,7 +9105,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //: 4 Repeat P-2..3 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
     //:   *are* exchanged.  Also verify that there is no additional allocation
-    //:   from any allocator.  (C-2..4)
+    //:   from any allocator.  (C-2..5)
     //
     // Testing:
     //   propagate_on_container_swap
@@ -9619,7 +9622,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     //:   the allocator of a source object using a standard allocator is always
     //:   propagated to the newly constructed object (C++03 semantics).
     //:
-    //: 3 The affect of the 'select_on_container_copy_construction' trait is
+    //: 3 The effect of the 'select_on_container_copy_construction' trait is
     //:   independent of the other three allocator propagation traits.
     //
     // Plan:
