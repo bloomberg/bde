@@ -9887,7 +9887,7 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
         RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase17,
+                      testCase18,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
@@ -10016,7 +10016,7 @@ int main(int argc, char *argv[])
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
-                      testCase6,
+                      testCase9,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
         RUN_EACH_TYPE(StdBslmaTestDriver,
