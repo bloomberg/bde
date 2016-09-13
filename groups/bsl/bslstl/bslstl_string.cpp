@@ -610,7 +610,7 @@ double bsl::stod(const wstring& str, std::size_t *pos)
     return value;
 }
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR > 1800
 float bsl::stof(const string& str, std::size_t *pos)
 {
     char *ptr;
