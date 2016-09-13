@@ -38,3 +38,5 @@ TAGS
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.suo
+*.sdf
