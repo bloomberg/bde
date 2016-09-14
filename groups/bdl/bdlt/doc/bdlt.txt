@@ -35,7 +35,8 @@
      bdlt_fixutil
      bdlt_iso8601util
 
-  6. bdlt_datetimeutil
+  6. bdlt_calendarutil
+     bdlt_datetimeutil
      bdlt_datetimetz
 
   5. bdlt_calendar
@@ -80,6 +81,9 @@
 :
 : 'bdlt_calendarreverseiteratoradapter':
 :      Provide reverse iterator adapter for calendar iterators.
+:
+: 'bdlt_calendarutil':
+:      Provide common date manipulations requiring a calendar.
 :
 : 'bdlt_currenttime':
 :      Provide utilities to retrieve the current time.
