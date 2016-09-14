@@ -138,7 +138,8 @@ class EncoderOptions {
         // alias with the top-level element.
     bool                             d_useZAbbreviationForUtc;
         // This option control whether 'Z' should be used for the zone
-        // designator of 'DateTz' or instead of '+00:00' (specific to UTC).
+        // designator of 'DateTz', 'TimeTz', and 'DatetimeTz' instead of
+        // '+00:00' (specific to UTC).
 
   public:
     // TYPES
