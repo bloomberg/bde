@@ -925,6 +925,8 @@ int main(int argc, char *argv[])
                 Obj::visitPaths("woo*" PS "woo*" PS "woo*", woofVisitor);
             }
 
+            bsl::sort(woofPathsVec.begin(), woofPathsVec.end());
+
             LOOP2_ASSERT(woofPathsExpVec.size(), woofPathsVec.size(),
                                 woofPathsExpVec.size() == woofPathsVec.size());
             ASSERT(woofPathsExpVec == woofPathsVec);

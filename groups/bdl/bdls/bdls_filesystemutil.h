@@ -640,8 +640,10 @@ struct FilesystemUtil {
         // filesystem matching the specified 'pattern'.  Note that if 'visitor'
         // deletes files or directories during the search, 'visitor' may
         // subsequently be called with paths which have already been deleted,
-        // so must be prepared for this event.  See 'findMatchingPaths' for a
-        // discussion of how 'pattern' is interpreted.
+        // so must be prepared for this event.  Also note that there is no
+        // guarantee as to the order in which paths will be visited.  See
+        // 'findMatchingPaths' for a discussion of how 'pattern' is
+        // interpreted.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
