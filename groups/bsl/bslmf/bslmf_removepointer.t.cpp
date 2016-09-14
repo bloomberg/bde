@@ -97,9 +97,7 @@ void testFuncPtrType(TYPE)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
-#endif
 }
 
 template <class TYPE>
@@ -121,10 +119,8 @@ void testConstFuncPtrType(TYPE const)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
     ASSERT((bsl::is_same<TYPE const, FUNC_TYPE *const>::value));
-#endif
 }
 
 template <class TYPE>
@@ -146,10 +142,8 @@ void testVolatileFuncPtrType(TYPE volatile)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
     ASSERT((bsl::is_same<TYPE volatile, FUNC_TYPE *volatile>::value));
-#endif
 }
 
 template <class TYPE>
@@ -171,11 +165,9 @@ void testConstVolatileFuncPtrType(TYPE const volatile)
     // Now add the pointer back and verify that we end up with the same type,
     // unless on a compiler that where removing the pointer didn't produce the
     // expected result.
-#if !defined(BSLS_PLATFORM_CMP_IBM)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
     ASSERT((bsl::is_same<TYPE const volatile,
                          FUNC_TYPE *const volatile>::value));
-#endif
 }
 
 void funcWithDefaultArg(int /* arg */)
