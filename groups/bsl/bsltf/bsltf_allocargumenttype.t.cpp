@@ -127,7 +127,6 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bsltf::AllocArgumentType<1> Obj;
 
 typedef bslmf::MovableRefUtil       MoveUtil;
-typedef bsltf::MoveState            MoveState;
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
