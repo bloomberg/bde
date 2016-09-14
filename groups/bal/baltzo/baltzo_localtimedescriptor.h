@@ -228,7 +228,7 @@ class LocalTimeDescriptor {
     // MANIPULATORS
     LocalTimeDescriptor& operator=(const LocalTimeDescriptor& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+        // return a non-'const' reference to this object.
 
     void setDescription(const bslstl::StringRef&  value);
     void setDescription(const char               *value);
@@ -256,9 +256,9 @@ class LocalTimeDescriptor {
 
     // ACCESSORS
     const bsl::string& description() const;
-        // Return a reference providing non-modifiable access to the
-        // 'description' attribute of this object.  Note that 'description' is
-        // not canonical, and is intended for debugging only.
+        // Return a 'const' reference to the 'description' attribute of this
+        // object.  Note that 'description' is not canonical, and is intended
+        // for debugging only.
 
     bool dstInEffectFlag() const;
         // Return the value of the 'dstInEffectFlag' attribute of this object.
