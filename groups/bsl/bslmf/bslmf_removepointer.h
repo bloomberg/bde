@@ -142,18 +142,21 @@ struct RemovePointer_Imp<TYPE *const volatile> {
 #if defined(BSLS_PLATFORM_CMP_IBM)
 template <class TYPE, bool isFunctionPtr>
 struct RemovePointer_Aix : RemovePointer_Imp<TYPE> {
-    // The implementation of the 'RemovePointer_Imp' for the AIX xlC compiler
-    // which has a bug removing pointer from a function pointer type if the
-    // function has default arguments.  To workaround the bug, this
-    // specialization doesn't remove pointer from function pointer types.  Note
-    // that the workaround has a potential to break some code that needs to
-    // obtain the function type from a function pointer to function correctly.
-    // However, nothing in BDE currently relies on that.
+    // The implementation of the 'RemovePointer_Imp' for the AIX xlC 11
+    // compiler uses the generic mechanism for non-function types, but see
+    // below for a specialization for pointer-to-function types.
 };
 
 template <class TYPE>
 struct RemovePointer_Aix<TYPE, true> {
-    typedef TYPE Type;
+    // The implementation of the 'RemovePointer_Imp' for the AIX xlC 11
+    // compiler when 'TYPE' is a pointer-to-function.  xlC 11 has a bug
+    // specializing on 'TYPE*' where 'TYPE' is was deduced from the address of
+    // a function with default arguments. To workaround the bug, this
+    // specialization uses 'FunctionPointerTraits' to obtain the function
+    // type by somewhat more complicated means.
+
+    typedef typename FunctionPointerTraits<TYPE>::FuncType Type;
 };
 #endif
 

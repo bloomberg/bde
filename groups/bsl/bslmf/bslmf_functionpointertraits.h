@@ -28,9 +28,9 @@ BSLS_IDENT("$Id: $")
 // information regarding the function type, such as its argument list type and
 // its return type.
 //
-// Note that there is no reference to function traits, since whether 'FUNC' is
-// a reference to function type can be very easily obtained using the
-// meta-function call 'bslmf::IsFunctionPointer<FUNC *>'.
+// Note that there is no reference-to-function traits class, since whether
+// 'FUNC' is a reference to function type can be very easily obtained using
+// the meta-function call 'bslmf::IsFunctionPointer<FUNC *>'.
 //
 ///Usage
 ///-----
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //  int main()
 //  {
 //      assert(0 == bslmf::IsFunctionPointer<int>::value);
-//      assert(0 == bslmf::IsFunctionPointer<int>::value);
+//      assert(0 == bslmf::IsFunctionPointer<void>::value);
 //
 //      assert(1 == bslmf::IsFunctionPointer<IntFunctionIntIntPtr>::value);
 //      typedef bslmf::FunctionPointerTraits<IntFunctionIntIntPtr>::ResultType
@@ -110,8 +110,7 @@ struct FunctionPointerTraits {
 template <class PROTOTYPE>
 struct IsFunctionPointer
 : bsl::integral_constant<bool,
-                         BloombergLP::bslmf::FunctionPointerTraits<PROTOTYPE>
-                                                       ::IS_FUNCTION_POINTER> {
+                      FunctionPointerTraits<PROTOTYPE>::IS_FUNCTION_POINTER> {
     // This template determines if the specified 'PROTOTYPE' is a free (i.e.,
     // non-member) function pointer.  'value' is defined as 1 if the specified
     // 'PROTOTYPE' is a function pointer type, and a zero value otherwise.
@@ -129,6 +128,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)()> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList0                       ArgumentList;
+    typedef BSLMF_RETURN                    FuncType();
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -141,6 +141,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList1<A1>                   ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -153,6 +154,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList2<A1,A2>                ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -165,6 +167,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList3<A1,A2,A3>             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -177,6 +180,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList4<A1,A2,A3,A4>          ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -189,6 +193,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList5<A1,A2,A3,A4,A5>       ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -202,6 +207,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList6<A1,A2,A3,A4,A5,A6>    ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -215,6 +221,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList7<A1,A2,A3,A4,A5,A6,A7> ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -228,6 +235,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8)> {
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                       ResultType;
     typedef TypeList8<A1,A2,A3,A4,A5,A6,A7,A8> ArgumentList;
+    typedef BSLMF_RETURN                       FuncType(A1,A2,A3,A4,A5,A6,A7,
+                                                        A8);
     typedef FunctionPointerCPlusPlusLinkage    Linkage;
 };
 
@@ -242,6 +251,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
     enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                          ResultType;
     typedef TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9> ArgumentList;
+    typedef BSLMF_RETURN                          FuncType(A1,A2,A3,A4,A5,A6,
+                                                           A7,A8,A9);
     typedef FunctionPointerCPlusPlusLinkage       Linkage;
 };
 
@@ -255,9 +266,12 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                               ResultType;
-    typedef TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> ArgumentList;
-    typedef FunctionPointerCPlusPlusLinkage            Linkage;
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
+                                            ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10);
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
 template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
@@ -270,9 +284,12 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 0 };
-    typedef BSLMF_RETURN                                   ResultType;
-    typedef TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11> ArgumentList;
-    typedef FunctionPointerCPlusPlusLinkage                Linkage;
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11>
+                                            ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11);
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
 template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
@@ -288,6 +305,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11,A12);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -305,6 +324,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11,A12,A13);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -322,6 +343,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11,A12,A13,A14);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -336,6 +359,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList0                       ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -348,6 +372,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList1<A1>                   ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -360,6 +385,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList2<A1,A2>                ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -372,6 +398,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList3<A1,A2,A3>             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -384,6 +411,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList4<A1,A2,A3,A4>          ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -396,6 +424,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList5<A1,A2,A3,A4,A5>       ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -409,6 +438,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList6<A1,A2,A3,A4,A5,A6>    ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -422,6 +452,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList7<A1,A2,A3,A4,A5,A6,A7> ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -435,6 +466,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8...)> {
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                       ResultType;
     typedef TypeList8<A1,A2,A3,A4,A5,A6,A7,A8> ArgumentList;
+    typedef BSLMF_RETURN                       FuncType(A1,A2,A3,A4,A5,A6,A7,
+                                                        A8...);
     typedef FunctionPointerCPlusPlusLinkage    Linkage;
 };
 
@@ -449,6 +482,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
     enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                          ResultType;
     typedef TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9> ArgumentList;
+    typedef BSLMF_RETURN                          FuncType(A1,A2,A3,A4,A5,A6,
+                                                           A7,A8,A9...);
     typedef FunctionPointerCPlusPlusLinkage       Linkage;
 };
 
@@ -462,9 +497,12 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                               ResultType;
-    typedef TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> ArgumentList;
-    typedef FunctionPointerCPlusPlusLinkage            Linkage;
+    typedef BSLMF_RETURN                     ResultType;
+    typedef TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
+                                             ArgumentList;
+    typedef BSLMF_RETURN                     FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                      A9,A10...);
+    typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
 template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
@@ -477,9 +515,12 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
-    typedef BSLMF_RETURN                                   ResultType;
-    typedef TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11> ArgumentList;
-    typedef FunctionPointerCPlusPlusLinkage                Linkage;
+    typedef BSLMF_RETURN                     ResultType;
+    typedef TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11>
+                                             ArgumentList;
+    typedef BSLMF_RETURN                     FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                      A9,A10,A11...);
+    typedef FunctionPointerCPlusPlusLinkage  Linkage;
 };
 
 template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
@@ -495,6 +536,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11,A12...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -512,6 +555,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                     A9,A10,A11,A12,A13...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
@@ -529,6 +574,8 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14>
                                             ArgumentList;
+    typedef BSLMF_RETURN                    FuncType(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                    A9,A10,A11,A12,A13,A14...);
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
