@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
                                                                    s,
                                                                    &allocator);
         }
-        ASSERT(0 == Z.numBytesInUse())
+        ASSERT(0 == Z.numBytesInUse());
 
       } break;
       default: {

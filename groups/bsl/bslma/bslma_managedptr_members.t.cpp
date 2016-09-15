@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
             members.setAliasPtr(&alias);
             test.d_x = 13;
             members.runDeleter();
-            LOOP_ASSERT(test.d_x, 42 == test.d_x)
+            LOOP_ASSERT(test.d_x, 42 == test.d_x);
         }
         g_deleteCount = 0;
 

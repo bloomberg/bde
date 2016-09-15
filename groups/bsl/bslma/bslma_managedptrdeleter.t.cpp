@@ -1108,7 +1108,7 @@ int main(int argc, char *argv[])
             // Use untested functionality to help ensure the first row of the
             // table contains the default-constructed value.
             if (0 == ti) {
-                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X);
             }
 
             // -------------------------------------
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
                 // Use untested functionality to help ensure the first row of
                 // the table contains the default-constructed value.
                 if (0 == ti) {
-                    LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+                    LOOP3_ASSERT(LINE, Obj(), X, Obj() == X);
                 }
 
                 // -------------------------------------

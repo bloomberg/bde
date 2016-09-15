@@ -736,19 +736,19 @@ if (verbose) {
 
     status = mhs.insert(10);
     ASSERT( 1    ==  mhs.size());
-    ASSERT(10    == *status.first)
+    ASSERT(10    == *status.first);
     ASSERT(true  ==  status.second);
 
     status = mhs.insert(10);
     ASSERT( 1    ==  mhs.size());
-    ASSERT(10    == *status.first)
+    ASSERT(10    == *status.first);
     ASSERT(false ==  status.second);
 //..
 // We can insert a different value (20) and thereby increase the set size to 2.
 //..
     status = mhs.insert(20);
     ASSERT( 2    ==  mhs.size());
-    ASSERT(20    == *status.first)
+    ASSERT(20    == *status.first);
     ASSERT(true  ==  status.second);
 //..
 // Each of the inserted values (10, 20) can be found in the set.

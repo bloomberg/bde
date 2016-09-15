@@ -4967,7 +4967,7 @@ int main(int argc, char *argv[]) {
                 reverse(a, S);
                 ASSERT(2 == a[0]); ASSERT(1 == a[1]);
                 reverse(a, S);
-                ASSERT(1 == a[0]); ASSERT(2 == a[1])
+                ASSERT(1 == a[0]); ASSERT(2 == a[1]);
             }
             {
                 float a[] = { 1, 2, 3 };

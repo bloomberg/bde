@@ -4441,7 +4441,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                ASSERTV(LINE, Obj(), X, Obj() == X)
+                ASSERTV(LINE, Obj(), X, Obj() == X);
                 firstFlag = false;
             }
 
@@ -5531,7 +5531,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                ASSERTV(LINE, Obj(), X, Obj() == X)
+                ASSERTV(LINE, Obj(), X, Obj() == X);
                 firstFlag = false;
             }
 
@@ -5670,7 +5670,7 @@ int main(int argc, char *argv[])
 
                 static bool firstFlag = true;
                 if (firstFlag) {
-                    ASSERTV(ILINE, Obj(), W, Obj() == W)
+                    ASSERTV(ILINE, Obj(), W, Obj() == W);
                     firstFlag = false;
                 }
             }
