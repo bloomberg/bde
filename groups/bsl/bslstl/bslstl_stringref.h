@@ -144,7 +144,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <algorithm>
 //
-//   bslstl::StringRef::difference_type
+//   bslstl::StringRef::size_type
 //   getNumBlanks(const bslstl::StringRef& stringRef)
 //      // Return the number of blank (' ') characters in the string referenced
 //      // by the specified 'stringRef'.
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 // Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
 //..
 //  bslstl::StringRef emptyRef;
-//  bslstl::StringRef::difference_type numBlanks = getNumBlanks(emptyRef);
+//  bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
 //  assert(0 == numBlanks);
 //
 //  assert(""         == emptyRef);
