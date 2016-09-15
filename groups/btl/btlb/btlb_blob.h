@@ -691,6 +691,19 @@ class Blob {
         // position.  The behavior is undefined unless
         // '0 <= index < numBuffers()'.
 
+    void removeBuffers(int index, int numBuffers);
+        // Remove the specified 'numBuffers' starting at the specified 'index'
+        // from this blob.  Buffers at positions higher than 'index' (if any)
+        // are shifted down by 'numBuffers' index positions.  The behavior is
+        // undefined unless '0 <= index', '0 <= numBuffers', and
+        // 'index + numBuffers <= numBuffers()'.
+
+    void removeUnusedBuffers();
+        // Remove any unused capacity buffers from this blob.  Note that this
+        // method does not trim the last data buffer, and that the resulting
+        // 'totalSize' will be 'length' plus any unused capacity in the last
+        // buffer having data.
+
     void reserveBufferCapacity(int numBuffers);
         // Allocate sufficient capacity to store at least the specified
         // 'numBuffers' buffers.  The behavior is undefined unless
