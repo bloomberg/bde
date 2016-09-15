@@ -139,7 +139,7 @@ PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
         BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
-        return -1;                                                    // RETURN
+        return false;                                                 // RETURN
     }
 
     HANDLE pipe = CreateFileW(wPipeName.data(),
