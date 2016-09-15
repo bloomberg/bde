@@ -370,7 +370,6 @@ inline
 Datetime EpochUtil::convertFromTimeT(bsl::time_t time)
 {
     BSLS_ASSERT_SAFE(0 <= time);
-    BSLS_ASSERT_SAFE(     time <= 0x7fffffffLL);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -383,7 +382,6 @@ void EpochUtil::convertFromTimeT(Datetime *result, bsl::time_t time)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(0 <= time);
-    BSLS_ASSERT_SAFE(     time <= 0x7fffffffLL);
 
     *result = epoch();
     result->addSeconds(time);
