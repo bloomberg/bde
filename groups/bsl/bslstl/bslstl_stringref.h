@@ -358,7 +358,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     StringRefImp(const CHAR_TYPE *data, size_type length);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
-        // and extends for the specified 'numCharacters.  The external
+        // and extends for the specified 'numCharacters'.  The external
         // representation must remain valid as long as it is bound to this
         // string reference.  Passing 0 has the same effect as default
         // construction.  The behavior is undefined unless '0 <= length' and,

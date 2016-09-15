@@ -544,13 +544,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         // Return the number of blank (' ') characters in the string referenced
         // by the specified 'stringRef'.
     {
-#ifdef BSLS_PLATFORM_CMP_SUN
-        bslstl::StringRef::size_type n = 0;
-        std::count(stringRef.begin(), stringRef.end(), ' ', n);
-        return n;
-#else
         return std::count(stringRef.begin(), stringRef.end(), ' ');
-#endif
     }
 //..
 // Notice that the function delegates the work to the 'std::count' STL
