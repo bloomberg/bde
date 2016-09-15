@@ -89,6 +89,8 @@ using bsl::cerr;
 // [ 6] void btlb::Blob::appendBuffer(buffer);
 // [ 7] void btlb::Blob::removeAll();
 // [ 7] void btlb::Blob::removeBuffer(index);
+// [ 7] void btlb::Blob::removeBuffers(index, numBuffers);
+// [ 7] void btlb::Blob::removeUnusedBuffers();
 // [ 8] void btlb::Blob::prependDataBuffer(buffer);
 // [ 8] void btlb::Blob::appendDataBuffer(buffer)
 // [ 9] void btlb::Blob::moveBuffers(btlb::Blob *srcBlob);
@@ -1640,7 +1642,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'removeBuffer' AND 'removeAll'
+        // TESTING 'remove*' methods
         //
         // Concerns:
         //   - That removing a non data buffer must not decrease the length of
@@ -1663,6 +1665,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   btlb::Blob::removeBuffer(int);
+        //   void btlb::Blob::removeBuffers(index, numBuffers);
+        //   void btlb::Blob::removeUnusedBuffers();
         //   btlb::Blob::removeAll();
         // --------------------------------------------------------------------
 
@@ -1739,6 +1743,158 @@ int main(int argc, char *argv[])
                     ASSERT(DATA_LENGTH == X.length());
                     ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
                 }
+
+                checkNoAliasedBlobBuffers(X);
+            }
+            ASSERT(0 <  ta.numAllocations());
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == ta.numMismatches());
+            ASSERT(0 == defaultAlloc.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "ntTesting 'removeBuffers'" << endl;
+
+        for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
+        for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
+        for (int dataLength = 0; dataLength <= bufferSize * numBuffers;
+                                                  ++dataLength)
+        for (int removePos  = 0; removePos < numBuffers; ++removePos)
+        for (int numRemoveBuffers = 0;
+             numRemoveBuffers <= numBuffers - removePos;
+             ++numRemoveBuffers)
+        {
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bslma::TestAllocator& testAllocator = ta;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            {
+                const int BUFFER_SIZE          = bufferSize;
+                const int DATA_LENGTH          = dataLength;
+                const int NUM_BUFFERS          = numBuffers;
+                const int REMOVE_POSITION      = removePos;
+                const int NUM_REMOVE_BUFFERS   = numRemoveBuffers;
+                const int NUM_DATA_BUFFERS     = (dataLength + BUFFER_SIZE - 1)
+                                               / BUFFER_SIZE;
+                const int EXP_NUM_BUFFERS   = NUM_BUFFERS - NUM_REMOVE_BUFFERS;
+                const int LAST_DB_LENGTH       = NUM_DATA_BUFFERS > 0
+                       ? DATA_LENGTH - (NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                       : 0;
+
+                int EXP_DATA_LENGTH  = DATA_LENGTH,
+                    EXP_DATA_BUFFERS = NUM_DATA_BUFFERS,
+                    EXP_TOTAL_SIZE   = BUFFER_SIZE * NUM_BUFFERS,
+                    EXP_LAST_DB_LENGTH = LAST_DB_LENGTH;
+
+                if (veryVerbose) {
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                          P_(REMOVE_POSITION) P(NUM_REMOVE_BUFFERS);
+                    T_; P_(NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
+                          P(EXP_LAST_DB_LENGTH);
+                }
+
+                typedef btlb::Blob Obj;
+                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+
+                Obj mX(&fa, &ta);   const Obj& X = mX;
+                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
+
+                mX.setLength(DATA_LENGTH);
+                ASSERT(DATA_LENGTH        == X.length());
+                ASSERT(NUM_BUFFERS        == X.numBuffers());
+                ASSERT(NUM_DATA_BUFFERS   == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                checkNoAliasedBlobBuffers(X);
+
+                int LAST_DATA_BUFFER_IDX = X.numDataBuffers() - 1;
+
+                for (int idx = REMOVE_POSITION;
+                     idx < REMOVE_POSITION + NUM_REMOVE_BUFFERS; ++idx) {
+                    const int SIZE = X.buffer(idx).size();
+                    EXP_TOTAL_SIZE -= SIZE;
+                    if (idx <= LAST_DATA_BUFFER_IDX) {
+                        --EXP_DATA_BUFFERS;
+                        if (LAST_DATA_BUFFER_IDX == idx) {
+                            EXP_DATA_LENGTH -= X.lastDataBufferLength();
+                        }
+                        else {
+                            EXP_DATA_LENGTH -= SIZE;
+                        }
+                    }
+                }
+
+                // TEST FUNCTION BELOW
+
+                mX.removeBuffers(REMOVE_POSITION, NUM_REMOVE_BUFFERS);
+
+                ASSERT(EXP_NUM_BUFFERS  == X.numBuffers());
+                ASSERT(EXP_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_DATA_LENGTH  == X.length());
+                ASSERT(EXP_TOTAL_SIZE   == X.totalSize());
+
+                checkNoAliasedBlobBuffers(X);
+            }
+            ASSERT(0 <  ta.numAllocations());
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == ta.numMismatches());
+            ASSERT(0 == defaultAlloc.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "ntTesting 'removeUnusedBuffers'" << endl;
+
+        for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
+        for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
+        for (int dataLength = 0; dataLength <= bufferSize * numBuffers;
+                                                  ++dataLength)
+        for (int removePos  = 0; removePos < numBuffers; ++removePos)
+        {
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bslma::TestAllocator& testAllocator = ta;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            {
+                const int BUFFER_SIZE          = bufferSize;
+                const int DATA_LENGTH          = dataLength;
+                const int NUM_BUFFERS          = numBuffers;
+                const int EXP_NUM_DATA_BUFFERS = (dataLength + BUFFER_SIZE - 1)
+                                               / BUFFER_SIZE;
+                const int EXP_LAST_DB_LENGTH   = EXP_NUM_DATA_BUFFERS > 0
+                       ? DATA_LENGTH - (EXP_NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
+                       : 0;
+
+                if (veryVerbose) {
+                    T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS); P_(NUM_BUFFERS);
+                          P(EXP_LAST_DB_LENGTH);
+                }
+
+                typedef btlb::Blob Obj;
+                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+
+                Obj mX(&fa, &ta);   const Obj& X = mX;
+                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
+
+                mX.setLength(DATA_LENGTH);
+                ASSERT(DATA_LENGTH          == X.length());
+                ASSERT(NUM_BUFFERS          == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
+                checkNoAliasedBlobBuffers(X);
+
+                mX.removeUnusedBuffers();  // TEST HERE
+
+                ASSERT(DATA_LENGTH          == X.length());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numBuffers());
 
                 checkNoAliasedBlobBuffers(X);
             }
