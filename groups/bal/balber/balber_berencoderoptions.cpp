@@ -263,10 +263,10 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
 // CREATORS
 
 BerEncoderOptions::BerEncoderOptions()
-: d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
-, d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
-, d_datetimeFractionalSecondPrecision(
+: d_datetimeFractionalSecondPrecision(
                       DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION)
+, d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
+, d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
 , d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS)
 , d_encodeDateAndTimeTypesAsBinary(
                       DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY)
@@ -274,10 +274,10 @@ BerEncoderOptions::BerEncoderOptions()
 }
 
 BerEncoderOptions::BerEncoderOptions(const BerEncoderOptions& original)
-: d_traceLevel(original.d_traceLevel)
-, d_bdeVersionConformance(original.d_bdeVersionConformance)
-, d_datetimeFractionalSecondPrecision(
+: d_datetimeFractionalSecondPrecision(
                                   original.d_datetimeFractionalSecondPrecision)
+, d_traceLevel(original.d_traceLevel)
+, d_bdeVersionConformance(original.d_bdeVersionConformance)
 , d_encodeEmptyArrays(original.d_encodeEmptyArrays)
 , d_encodeDateAndTimeTypesAsBinary(original.d_encodeDateAndTimeTypesAsBinary)
 {
