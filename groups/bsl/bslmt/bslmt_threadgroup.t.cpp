@@ -9,8 +9,10 @@
 
 #include <bslmt_threadgroup.h>
 
-#include <bslmt_semaphore.h>
 #include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 
@@ -381,6 +383,22 @@ int main(int argc, char *argv[])
 
             ASSERT(NUM_ITERATIONS * NUM_THREADS * NUM_BATCHES == value);
         }
+
+        // There is the possibility of a delay between the threads posting to
+        // 'doneSemaphore' and the underlying managed pointers reclaiming the
+        // memory from the threads.  Since the threads are detached, there is
+        // no way to determine when the threads have had their memory returned.
+        // As such, a short loop will be allowed before the strict tests are
+        // performed.
+
+        {
+            int count = 0;
+            while (ta.numBytesInUse() && count < 10) {
+                ++count;
+                bslmt::ThreadUtil::microSleep(100 * 1000);  // 100ms
+            }
+        }
+
         ASSERT(0 == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
