@@ -424,7 +424,7 @@ void TestDriver<TYPE>::test4()
         SetComparator<Key, FunctorType> mB(fB);
         const SetComparator<Key, FunctorType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -445,7 +445,7 @@ void TestDriver<TYPE>::test4()
         SetComparator<Key, FunctionType> mB(fB);
         const SetComparator<Key, FunctionType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -466,7 +466,7 @@ void TestDriver<TYPE>::test4()
         SetComparator<Key, FunctorType> mB(fB);
         const SetComparator<Key, FunctorType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -487,7 +487,7 @@ void TestDriver<TYPE>::test4()
         SetComparator<Key, FunctionType> mB(fB);
         const SetComparator<Key, FunctionType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -618,12 +618,12 @@ void TestDriver<TYPE>::test3()
         ASSERTV(N1.value(), K0, comp(K0, N1));
         ASSERTV(comp.keyComparator().numCalls(),
                 1 == comp.keyComparator().numCalls());
-        ASSERTV(0 == functor.numCalls())
+        ASSERTV(0 == functor.numCalls());
 
         ASSERTV(K0, N1.value(), !comp(N1, K0));
         ASSERTV(comp.keyComparator().numCalls(),
                 2 == comp.keyComparator().numCalls());
-        ASSERTV(0 == functor.numCalls())
+        ASSERTV(0 == functor.numCalls());
 
         NonConstFunctorType ncFunctor(1);
         SetComparator<Key, NonConstFunctorType> ncComp(ncFunctor);
@@ -633,7 +633,7 @@ void TestDriver<TYPE>::test3()
         ASSERTV(N1.value(), K0, ncComp(K0, N1));
         ASSERTV(ncComp.keyComparator().numCalls(),
                 1 == ncComp.keyComparator().numCalls());
-        ASSERTV(0 == ncFunctor.numCalls())
+        ASSERTV(0 == ncFunctor.numCalls());
 
         ASSERTV(K0, N1.value(), !ncComp(N1, K0));
         ASSERTV(ncComp.keyComparator().numCalls(),

@@ -1450,7 +1450,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     std::memset(&mX, 92, sizeof mX);                                          \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
-    ASSERT(alloc == X.d_allocator)                                            \
+    ASSERT(alloc == X.d_allocator);                                           \
   }                                                                           \
   {                                                                           \
     /* Expects allocator after 'allocator_arg_t' tag */                       \
@@ -1462,7 +1462,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     std::memset(&mX, 92, sizeof mX);                                          \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
-    ASSERT(alloc == X.d_allocator)                                            \
+    ASSERT(alloc == X.d_allocator);                                           \
   }
 
 //=============================================================================

@@ -2616,7 +2616,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
                     ASSERTV(LINE, CONFIG, BB, AA, EXP, AA == EXP);
                 }
                 ASSERTV(LINE, CONFIG, SIZE, B, A,
-                        B + (SIZE == 0) + TYPE_ALLOC == A)
+                        B + (SIZE == 0) + TYPE_ALLOC == A);
             }
         }
     }
@@ -3000,7 +3000,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
                     ASSERTV(LINE, CONFIG, BB, AA, EXP, AA == EXP);
                 }
                 ASSERTV(LINE, CONFIG, SIZE, B, A,
-                        B + (SIZE == 0) + TYPE_ALLOC == A)
+                        B + (SIZE == 0) + TYPE_ALLOC == A);
             }
         }
     }
@@ -3415,7 +3415,7 @@ void TestDriver<TYPE,ALLOC>::testCase26()
                     ASSERTV(LINE, CONFIG, BB, AA, EXP, AA == EXP);
                 }
                 ASSERTV(LINE, CONFIG, SIZE, B, A,
-                        B + (SIZE == 0) + TYPE_ALLOC == A)
+                        B + (SIZE == 0) + TYPE_ALLOC == A);
             }
         }
     }
@@ -3690,7 +3690,7 @@ void TestDriver<TYPE,ALLOC>::testCase25()
                     ASSERTV(LINE, CONFIG, BB, AA, EXP, AA == EXP);
                 }
                 ASSERTV(LINE, CONFIG, SIZE, B, A,
-                        B + (SIZE == 0) + TYPE_ALLOC == A)
+                        B + (SIZE == 0) + TYPE_ALLOC == A);
             }
         }
     }
@@ -12323,7 +12323,7 @@ void TestDriver<TYPE, ALLOC>::testCase2()
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int id = TstFacility::getIdentifier(VALUES[tj]);
                     primaryManipulator(&mX, id, &scratch);
-                    ASSERT(tj + 1 == X.size())
+                    ASSERT(tj + 1 == X.size());
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == X[tj]);
                     for (size_t tk = 0; tk < tj; ++tk) {
                         ASSERTV(LENGTH, tj, CONFIG, VALUES[tk] == X[tk]);
@@ -12359,7 +12359,7 @@ void TestDriver<TYPE, ALLOC>::testCase2()
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int id = TstFacility::getIdentifier(VALUES[tj]);
                     primaryManipulator(&mX, id, &scratch);
-                    ASSERT(tj + 1 == X.size())
+                    ASSERT(tj + 1 == X.size());
                     ASSERTV(LENGTH, tj, CONFIG, VALUES[tj] == X[tj]);
                 }
 

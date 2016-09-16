@@ -2440,7 +2440,7 @@ void TestDriver<CONTAINER>::testCase18MoveOnlyType()
     }
 
     ASSERT( is_special_container);
-    ASSERT(!is_copy_constructible)
+    ASSERT(!is_copy_constructible);
 
     if (verbose) { printf("Movable 'push'"); }
     {
@@ -2459,8 +2459,8 @@ void TestDriver<CONTAINER>::testCase18MoveOnlyType()
             mX.push(MoveUtil::move(VALUE(i)));
             ASSERT(isCalledMethodCheckPassed<CONTAINER>(expectedPushMethod));
 
-            ASSERT(value0   == X.front())
-            ASSERT(VALUE(i) == X.back())
+            ASSERT(value0   == X.front());
+            ASSERT(VALUE(i) == X.back());
         }
     }
 
@@ -2523,7 +2523,7 @@ void TestDriver<CONTAINER>::testCase18MoveOnlyType()
               case  9: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);    break;
               case 10: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0); break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
+                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
             }
             ASSERTV(
                    numArgs,
@@ -2586,7 +2586,7 @@ void TestDriver<CONTAINER>::testCase17MoveOnlyType()
     }
 
     ASSERT( is_special_container);
-    ASSERT(!is_copy_constructible)
+    ASSERT(!is_copy_constructible);
 
     {
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2862,7 +2862,7 @@ void TestDriver<CONTAINER>::testCase18(bool isMovableContainer)
               case  9: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);    break;
               case 10: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0); break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
+                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
             }
             ASSERTV(
                    value,
