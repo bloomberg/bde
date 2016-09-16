@@ -13689,7 +13689,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7_1()
         ASSERT(X == W);
         ASSERT(X.get_allocator() == oa);
         ASSERT(X.get_allocator().id() == id);
-        ASSERT(W.get_allocator() != oa)
+        ASSERT(W.get_allocator() != oa);
         ASSERT(W.get_allocator() == Allocator());
         ASSERT(W.get_allocator().id() == 0);
 

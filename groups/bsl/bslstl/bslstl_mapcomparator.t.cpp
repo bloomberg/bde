@@ -383,7 +383,7 @@ void TestDriver<TYPE>::test4()
         MapComparator<Key, Value, FunctionType> mB(fB);
         const MapComparator<Key, Value, FunctionType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -425,7 +425,7 @@ void TestDriver<TYPE>::test4()
         MapComparator<Key, Value, FunctionType> mB(fB);
         const MapComparator<Key, Value, FunctionType>& B = mB;
 
-        ASSERT(fA != fB)
+        ASSERT(fA != fB);
         ASSERT(A.keyComparator() == fA);
         ASSERT(B.keyComparator() == fB);
 
@@ -562,7 +562,7 @@ void TestDriver<TYPE>::test3()
         ASSERTV(N1.value().first, K0, comp(K0, N1));
         ASSERTV(comp.keyComparator().numCalls(),
                 1 == comp.keyComparator().numCalls());
-        ASSERTV(0 == functor.numCalls())
+        ASSERTV(0 == functor.numCalls());
 
         ASSERTV(K0, N1.value().first, !comp(N1, K0));
         ASSERTV(comp.keyComparator().numCalls(),
@@ -574,12 +574,12 @@ void TestDriver<TYPE>::test3()
         ASSERTV(N1.value().first, K0, ncComp(K0, N1));
         ASSERTV(ncComp.keyComparator().numCalls(),
                 1 == ncComp.keyComparator().numCalls());
-        ASSERTV(0 == ncFunctor.numCalls())
+        ASSERTV(0 == ncFunctor.numCalls());
 
         ASSERTV(K0, N1.value().first, !ncComp(N1, K0));
         ASSERTV(ncComp.keyComparator().numCalls(),
                 2 == ncComp.keyComparator().numCalls());
-        ASSERTV(0 == ncFunctor.numCalls())
+        ASSERTV(0 == ncFunctor.numCalls());
 
         AllocTraits::destroy(allocator, &mN1.value());
         AllocTraits::deallocate(allocator, n1Ptr, 1);

@@ -127,8 +127,9 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS: class 'OutputRedirector'
-// [ 9] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [-1] CONCERN: 'printf' stack corruption test works
+// [10] CONCERN: macros compile correctly when used with 'if'/'else'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1971,7 +1972,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -2008,6 +2009,66 @@ int main(int argc, char *argv[])
         // defined as part of Example 1, should still be 0.
 
         ASSERT(testStatus == 0);
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // CONCERN: macros compile correctly when used with 'if'/'else'
+        //
+        // Concerns:
+        //: 1 Each of the test macros should be usable in an 'if'/'else' chain
+        //:   without requiring wrapping in {braces}.  It would be neceesary to
+        //:   terminate each statement with a semicolon.
+        //
+        // Plan:
+        //: 1 Create a simple test of a local variable that can be trivially
+        //:   asserted with different semantics on 32/64 bit platforms.  Then
+        //:   assert appropriately down each branch of an 'if'/'else' condition
+        //:   that tests for platform integer sizes.
+        //: 2 Repeat the 'ASSERTV' form of that test up to the maximum number
+        //:   of arguments supported for display (5).
+        //
+        // Testing:
+        //   CONCERN: macros compile correctly when used with 'if'/'else'
+        // --------------------------------------------------------------------
+        if (verbose) fprintf(stderr,
+           "\tCONCERN: macros compile correctly when used with 'if'/'else'\n");
+
+
+        long val = 0xffffffffL;
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERT(val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERT(val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val, val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val, val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val, val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val, val < 0);
+
+        if (sizeof(int) == sizeof(long))
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val, val, val < 0);
+        else
+            BSLS_BSLTESTUTIL_ASSERTV(val, val, val, val, val, val < 0);
       } break;
       case 9: {
         // --------------------------------------------------------------------
