@@ -632,9 +632,9 @@ int MultiQueueThreadPool::resumeQueue(int id)
             if (0 != context->d_queue.d_numPendingJobs) {
                 ++d_numActiveQueues;
                 // Enqueue the processing callback for this queue.
-                int status = 
+                int status =
                     d_threadPool_p->enqueueJob(context->d_processingCb);
-                BSLS_ASSERT(0 == status);
+                (void)status; BSLS_ASSERT(0 == status);
             }
             rc = 0;
         }
@@ -694,7 +694,7 @@ void MultiQueueThreadPool::shutdown()
                                                                         ++it) {
         MultiQueueThreadPool_QueueContext *context = 0;
         int status = d_queueRegistry.remove(*it, &context);
-        BSLS_ASSERT(0 == status);
+        (void)status; BSLS_ASSERT(0 == status);
         BSLS_ASSERT(0 == context->d_queue.d_numPendingJobs ||
                     context->d_queue.d_paused);
         d_queuePool.releaseObject(context);

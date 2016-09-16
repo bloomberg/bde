@@ -1208,7 +1208,7 @@ namespace btlmt {
 void Channel::invokeChannelDown(ChannelHandle              self,
                                 ChannelPool::ChannelEvents type)
 {
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+    (void)self; BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                   bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
@@ -1274,6 +1274,7 @@ void Channel::invokeWriteQueueHighWatermark(ChannelHandle)
                                              e_HIGH_WATERMARK_ALERT_PENDING,
                                              e_HIGH_WATERMARK_ALERT_DELIVERED);
 
+    (void)prevHighWatermarkState;
     BSLS_ASSERT(e_HIGH_WATERMARK_ALERT_PENDING == prevHighWatermarkState
              || e_LOW_WATERMARK_ALERT_PENDING  == prevHighWatermarkState);
 }
@@ -1297,6 +1298,7 @@ void Channel::invokeWriteQueueLowWatermark(ChannelHandle)
     int prevHighWatermarkState = d_highWatermarkAlertState.swap(
                                             e_HIGH_WATERMARK_ALERT_NOT_ACTIVE);
 
+    (void)prevHighWatermarkState;
     BSLS_ASSERT(e_LOW_WATERMARK_ALERT_PENDING == prevHighWatermarkState);
 
     d_channelStateCb(d_channelId,
@@ -1415,7 +1417,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
 
             int rc = d_channelPool_p->d_channels.remove(d_channelId);
 
-            BSLS_ASSERT(0 == rc);
+            (void)rc; BSLS_ASSERT(0 == rc);
         }
 
         if (serializedFlag) {
@@ -1437,7 +1439,7 @@ inline
 int Channel::protectAndCheckCallback(const ChannelHandle& self,
                                      ChannelDownMask      mask)
 {
-    BSLS_ASSERT(this == self.get());
+    (void)self; BSLS_ASSERT(this == self.get());
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                   bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
@@ -1588,7 +1590,7 @@ void Channel::readCb(ChannelHandle self)
             const int rc = d_eventManager_p->rescheduleTimer(
                                                           d_readTimeoutTimerId,
                                                           timeout);
-            BSLS_ASSERT(!rc);
+            (void)rc; BSLS_ASSERT(!rc);
         }
     }
 }
@@ -1990,7 +1992,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
     int flags = fcntl(fd, F_GETFD);
     int ret   = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
 
-    BSLS_ASSERT( -1 != ret);
+    (void)ret; BSLS_ASSERT( -1 != ret);
 #endif
 
     d_writeEnqueuedData.createInplace(d_allocator_p,
@@ -2645,7 +2647,7 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     BSLS_ASSERT(channelHandle);
 
     int rc = d_channels.replace(newId, channelHandle);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     // Reschedule the acceptTimeoutCb.
 
@@ -3302,7 +3304,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
 
     // Always executed in the source event manager's dispatcher thread.
 
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+    (void)srcManager; BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                         bslmt::ThreadUtil::self(),
                                         srcManager->dispatcherThreadHandle()));
 
@@ -3339,7 +3341,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     BSLS_ASSERT(channelHandle);
 
     int rc = d_channels.replace(newId, channelHandle);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bind(
                                                      &Channel::invokeChannelUp,
@@ -4017,7 +4019,7 @@ int ChannelPool::shutdown(int                       channelId,
                           btlso::Flag::ShutdownType type,
                           ShutdownMode              how)
 {
-    BSLS_ASSERT(e_IMMEDIATE == how);
+    (void)how; BSLS_ASSERT(e_IMMEDIATE == how);
 
     enum {
         e_NOT_FOUND    = -1,
@@ -4066,7 +4068,7 @@ int ChannelPool::stopAndRemoveAllChannels()
                attr.setStackSize(d_config.threadStackSize());
 
                int rc = d_managers[i]->enable(attr);
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return -1;                                                 // RETURN
         }
@@ -4177,7 +4179,7 @@ int ChannelPool::start()
         if (0 != ret) {
            while(--i >= 0) {
                int rc = d_managers[i]->disable();
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return ret;                                                // RETURN
         }
@@ -4197,7 +4199,7 @@ int ChannelPool::stop()
                bslmt::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return -1;                                                 // RETURN
         }

@@ -885,7 +885,7 @@ btls5::TestServer::SessionFactory::SessionFactory(
     int rc;  // return code
 
     rc = d_sessionPool->start();
-    BSLS_ASSERT(!rc);
+    (void)rc; BSLS_ASSERT(!rc);
 
     int handle;
     rc = d_sessionPool->listen(&handle,
