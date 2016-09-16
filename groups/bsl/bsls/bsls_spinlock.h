@@ -22,6 +22,15 @@ BSLS_IDENT("$: $")
 // the same lock.  Use 'SpinLockGuard' for automatic locking-unlocking in a
 // scope.
 //
+// *WARNING*: A 'bsls::SpinLock' *must* be aggregate initialized to 
+// 'BSLS_SPINLOCK_UNLOCKED'.  For example:
+//..
+//  bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
+//.. 
+// Note that 'SpinLock' is a struct requiring aggregate initialization
+// to allow lock variables to be staticially initalized when using a C++03 
+// compiler (i.e., without using 'constexpr').
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
