@@ -423,9 +423,10 @@ class ObjectCatalog {
 
   private:
     // PRIVATE CLASS METHODS
-    static
-    TYPE *getNodeValue(Node *node);
+    static TYPE *getNodeValue(Node *node);
         // Return a pointer to the 'd_value' field of the specified 'node'.
+        // The behavior is undefined unless '0 != node' and 'node->d_value' is
+        // initialized to a 'TYPE' object.
 
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
@@ -622,9 +623,9 @@ inline
 TYPE *ObjectCatalog<TYPE>::getNodeValue(
                                       typename ObjectCatalog<TYPE>::Node *node)
 {
-    void *p = node->d_value;
+    BSLS_ASSERT_SAFE(node);
 
-    return static_cast<TYPE *>(p);
+    return reinterpret_cast<TYPE *>(node->d_value);
 }
 
 // PRIVATE MANIPULATORS
