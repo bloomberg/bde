@@ -56,7 +56,7 @@ makeUniqueName(char *buffer, const char *prefix, bsls::Types::UintPtr suffix)
     snprintf(buffer, SEM_NAME_LEN, "%s%04x_%04x",
                                    prefix,
                                    (getpid() & 0xffff),
-                                   (suffix & 0xffff));
+                                   static_cast<unsigned>(suffix & 0xffff));
 }
 
 }  // close unnamed namespace
