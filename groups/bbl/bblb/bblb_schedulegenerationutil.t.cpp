@@ -652,15 +652,15 @@ int main(int argc, char *argv[])
         bdlt::Calendar cal5(noHolidaysLarge);
 
         static const struct {
-            int                  d_lineNum;
-            int                  d_earliestYYYYMMDD;
-            int                  d_latestYYYYMMDD;
-            const bdlt::Calendar *d_calendar;
-            int                  d_exampleYear;
-            int                  d_exampleMonth;
-            int                  d_intervalInMonths;
-            int                  d_targetBusinessDayOfMonth;
-            const char          *d_expectedOutputString_p;
+            int                   d_lineNum;
+            int                   d_earliestYYYYMMDD;
+            int                   d_latestYYYYMMDD;
+            const bdlt::Calendar *d_calendar_p;
+            int                   d_exampleYear;
+            int                   d_exampleMonth;
+            int                   d_intervalInMonths;
+            int                   d_targetBusinessDayOfMonth;
+            const char           *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest    cal   exYr  eM  I   tBDOM  EXP
             //--  --------  --------  -----  ----  --  --  -----  ----------
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
             bdlt::Date latest  = bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                    INPUT[di].d_latestYYYYMMDD);
 
-            const bdlt::Calendar *calendar = INPUT[di].d_calendar;
+            const bdlt::Calendar *calendar = INPUT[di].d_calendar_p;
 
             const int   exampleYear    = INPUT[di].d_exampleYear;
             const int   exampleMonth   = INPUT[di].d_exampleMonth;
