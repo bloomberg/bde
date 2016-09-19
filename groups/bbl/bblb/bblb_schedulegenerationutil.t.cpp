@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
             int                    d_exampleMonth;
             int                    d_intervalInMonths;
             int                    d_ocurrenceWeek;
-            const char            *d_expectedOutputString;
+            const char            *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest   dayOfWk   exYr  eM  I   O   EXP
             //--  --------  --------  --------  ----  --  --  --  ----------
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
             const int   exampleMonth   = INPUT[di].d_exampleMonth;
             const int   interval       = INPUT[di].d_intervalInMonths;
             const int   ocurrenceWeek  = INPUT[di].d_ocurrenceWeek;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString;
+            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
 
             Obj::generateFromDayOfWeekInMonth(&schedule,
                                               earliest,
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
             int                    d_exampleMonth;
             int                    d_intervalInMonths;
             int                    d_dayOfMonth;
-            const char            *d_expectedOutputString;
+            const char            *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest   dayOfWk   exYr  eM  I   DM  EXP
             //--  --------  --------  --------  ----  --  --  --  ----------
@@ -500,7 +500,7 @@ int main(int argc, char *argv[])
             const int   exampleMonth   = INPUT[di].d_exampleMonth;
             const int   interval       = INPUT[di].d_intervalInMonths;
             const int   dayOfMonth     = INPUT[di].d_dayOfMonth;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString;
+            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
 
             Obj::generateFromDayOfWeekAfterDayOfMonth(&schedule,
                                                       earliest,
@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
             int                  d_exampleMonth;
             int                  d_intervalInMonths;
             int                  d_targetBusinessDayOfMonth;
-            const char          *d_expectedOutputString;
+            const char          *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest    cal   exYr  eM  I   tBDOM  EXP
             //--  --------  --------  -----  ----  --  --  -----  ----------
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
             const int   exampleMonth   = INPUT[di].d_exampleMonth;
             const int   interval       = INPUT[di].d_intervalInMonths;
             const int   targetBusDay   = INPUT[di].d_targetBusinessDayOfMonth;
-            const char *expectedOutput = INPUT[di].d_expectedOutputString;
+            const char *expectedOutput = INPUT[di].d_expectedOutputString_p;
 
             Obj::generateFromBusinessDayOfMonth(&schedule,
                                                 earliest,
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
             int         d_intervalInMonths;
             int         d_targetDayOfMonth;
             int         d_targetDayOfFeb;
-            const char *d_expectedOutputString;
+            const char *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest   exYr  eM  I   tDOM  tDOF  EXP
             //--  --------  --------  ----  --  --  ----  ----  ------------
@@ -872,7 +872,7 @@ int main(int argc, char *argv[])
             const int   interval         = INPUT[di].d_intervalInMonths;
             const int   targetDayOfMonth = INPUT[di].d_targetDayOfMonth;
             const int   targetDayOfFeb   = INPUT[di].d_targetDayOfFeb;
-            const char *expectedOutput   = INPUT[di].d_expectedOutputString;
+            const char *expectedOutput   = INPUT[di].d_expectedOutputString_p;
 
             Obj::generateFromDayOfMonth(&schedule,
                                         earliest,
@@ -993,7 +993,7 @@ int main(int argc, char *argv[])
             int         d_latestYYYYMMDD;
             int         d_exampleYYYYMMDD;
             int         d_interval;
-            const char *d_expectedOutputString;
+            const char *d_expectedOutputString_p;
         } INPUT[] = {
             //LN  earliest   latest   example    I   EXP
             //--  --------  --------  --------  ---  -----------------------
@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
                                                   INPUT[di].d_exampleYYYYMMDD);
 
             const int   interval       = INPUT[di].d_interval;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString;
+            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
 
             Obj::generateFromDayInterval(
                                &schedule, earliest, latest, example, interval);
