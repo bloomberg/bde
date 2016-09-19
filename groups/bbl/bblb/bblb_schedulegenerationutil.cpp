@@ -13,8 +13,7 @@ BSLS_IDENT_RCSID(bblb_schedulegenerationutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
-
-#include <stdlib.h>
+#include <bsl_cstdlib.h>
 
 namespace BloombergLP {
 namespace bblb {
