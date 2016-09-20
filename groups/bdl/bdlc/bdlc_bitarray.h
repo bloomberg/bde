@@ -14,13 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component implements an efficient value-semantic,
-// sequential container of boolean values (i.e., 0 or 1) of type 'bool'.  A
-// 'BitArray' may be thought of as an arbitrary-precision 'unsigned int'.  This
-// metaphor is used to motivate the rich set of "bitwise" operations on
-// 'BitArray' objects provided by this component, as well as the notion of
-// "zero extension" of a (shorter) bit array during binary operations on bit
-// arrays having lengths that are not the same.
+//@DESCRIPTION: This component implements 'bdlc::BitArray', an efficient
+// value-semantic, sequential container of boolean values (i.e., 0 or 1) of
+// type 'bool'.  A 'BitArray' may be thought of as an arbitrary-precision
+// 'unsigned int'.  This metaphor is used to motivate the rich set of "bitwise"
+// operations on 'BitArray' objects provided by this component, as well as the
+// notion of "zero extension" of a (shorter) bit array during binary operations
+// on bit arrays having lengths that are not the same.
 //
 ///Bit-Array-Specific Functionality
 ///--------------------------------
@@ -518,7 +518,7 @@ class BitArray {
     // PUBLIC TYPES
     enum { k_BITS_PER_UINT64 = 64 };  // bits used to represent a 'uint64_t'
 
-    // PUBLIC CLASS CONSTANTS
+    // PUBLIC CLASS DATA
     static const bsl::size_t k_INVALID_INDEX =
                                           bdlb::BitStringUtil::k_INVALID_INDEX;
 
@@ -603,41 +603,42 @@ class BitArray {
 
     BitArray& operator&=(const BitArray& rhs);
         // Bitwise AND the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a reference providing
-        // modifiable access to this object.  If 'length() > rhs.length()', the
-        // unmatched most-significant bits in this array are set to 0;
-        // otherwise, any unmatched most-significant bits in 'rhs' are ignored.
-        // Note that this behavior is consistent with zero-extending 'rhs' if
-        // needed, but leaving the length of this array unchanged.
+        // this array (retaining the results), and return a non-'const'
+        // reference to this object.  The length of the result will be the
+        // maximum of the lengths of this object and 'rhs', where any
+        // most-significant bits that are represented in one of the two but not
+        // the other will be set to 0.  Note that 'a &= b;' will result in the
+        // same value of 'a' as 'a = a & b;'.
 
     BitArray& operator-=(const BitArray& rhs);
         // Bitwise MINUS the value of the specified 'rhs' array from the value
-        // of this array (retaining the results), and return a reference
-        // providing modifiable access to this object.  If
+        // of this array (retaining the results), and return a non-'const'
+        // reference to this object.  The length of the result will be the
+        // maximum of the lengths of this object and 'rhs'.  If
         // 'length() > rhs.length()', the unmatched most-significant bits in
-        // this array are left unchanged; otherwise, any unmatched
-        // most-significant bits in 'rhs' are ignored.  Note that this behavior
-        // is consistent with zero-extending 'rhs' if needed, but leaving the
-        // length of this array unchanged.  Also note that the logical
-        // difference 'A - B' is defined to be 'A & !B'.
+        // this array are left unchanged; otherwise, any high-order bits of the
+        // result that were not present in this object prior to the operation
+        // will be set to 0.  Note that 'a -= b;' will result in the same value
+        // of 'a' as 'a = a - b;' and if 'a' and 'b' are the same length,
+        // 'a -= b' will result in the same value of 'a' as 'a &= ~b'.
 
     BitArray& operator|=(const BitArray& rhs);
         // Bitwise OR the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a reference providing
-        // modifiable access to this object.  If 'length() > rhs.length()', the
+        // this array (retaining the results), and return a non-'const'
+        // reference to this object.  If 'length() > rhs.length()', the
         // unmatched most-significant bits in this array are left unchanged;
-        // otherwise, any unmatched most-significant bits in 'rhs' are ignored.
-        // Note that this behavior is consistent with zero-extending 'rhs' if
-        // needed, but leaving the length of this array unchanged.
+        // otherwise, any unmatched most-significant bits in 'rhs' are
+        // propagated to the result without modification.  Note that 'a |= b;'
+        // will result in the same value of 'a' as 'a = a | b;'.
 
     BitArray& operator^=(const BitArray& rhs);
         // Bitwise XOR the value of the specified 'rhs' array with the value of
         // this array (retaining the results), and return a reference providing
         // modifiable access to this object.  If 'length() > rhs.length()', the
         // unmatched most-significant bits in this array are left unchanged;
-        // otherwise, any unmatched most-significant bits in 'rhs' are ignored.
-        // Note that this behavior is consistent with zero-extending 'rhs' if
-        // needed, but leaving the length of this array unchanged.
+        // otherwise, any unmatched most-significant bits in 'rhs' are
+        // propagated to the result without modification.  Note that 'a ^= b;'
+        // will result in the same value of 'a' as 'a = a ^ b;'.
 
     BitArray& operator<<=(bsl::size_t numBits);
         // Shift the bits in this array LEFT by the specified 'numBits',
@@ -1070,30 +1071,30 @@ BitArray operator&(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise AND of the specified 'lhs' and
     // 'rhs' arrays.  The length of the resulting bit array will be the maximum
     // of that of 'lhs' and 'rhs', with any unmatched high-order bits set to
-    // 0.  Note that this behavior is consistent with zero-extending the
-    // shorter array.
+    // 0.  Note that this behavior is consistent with zero-extending a copy of
+    // the shorter array.
 
 BitArray operator-(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise MINUS of the specified 'lhs' and
     // 'rhs' arrays.  The length of the resulting bit array will be the maximum
     // of that of 'lhs' and 'rhs', with any unmatched high-order 'lhs' bits
     // copied unchanged, and any unmatched high-order 'rhs' bits set to 0.
-    // Note that this behavior is consistent with zero-extending the shorter
-    // array.
+    // Note that this behavior is consistent with zero-extending a copy of the
+    // shorter array.
 
 BitArray operator|(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise OR of the specified 'lhs' and 'rhs'
     // arrays.  The length of the resulting bit array will be the maximum of
     // that of 'lhs' and 'rhs', with any unmatched high-order bits copied
     // unchanged.  Note that this behavior is consistent with zero-extending
-    // the shorter array.
+    // a copy of the shorter array.
 
 BitArray operator^(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise XOR of the specified 'lhs' and
     // 'rhs' arrays.  The length of the resulting bit array will be the maximum
     // of that of 'lhs' and 'rhs', with any unmatched high-order bits copied
     // unchanged.  Note that this behavior is consistent with zero-extending
-    // the shorter array.
+    // a copy of the shorter array.
 
 BitArray operator<<(const BitArray& array, bsl::size_t numBits);
     // Return the value of the specified 'array' left-shifted by the specified
@@ -1186,16 +1187,19 @@ BitArray& BitArray::operator=(const BitArray& rhs)
 inline
 BitArray& BitArray::operator&=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        bdlb::BitStringUtil::andEqual(data(),
-                                      0,
-                                      rhs.data(),
-                                      0,
-                                      bsl::min(d_length, rhs.d_length));
-        if (d_length > rhs.d_length) {
-            assign0(rhs.d_length, d_length - rhs.d_length);
-        }
+    if (this == &rhs) {
+        return *this;                                                 // RETURN
     }
+
+    const bsl::size_t rLen = rhs.d_length;
+
+    if      (rLen > d_length) {
+        setLength(rLen, false);
+    }
+    else if (rLen < d_length) {
+        assign0(rLen, d_length - rLen);
+    }
+    bdlb::BitStringUtil::andEqual(data(), 0, rhs.data(), 0, rLen);
 
     return *this;
 }
@@ -1203,16 +1207,16 @@ BitArray& BitArray::operator&=(const BitArray& rhs)
 inline
 BitArray& BitArray::operator-=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        bdlb::BitStringUtil::minusEqual(data(),
-                                        0,
-                                        rhs.data(),
-                                        0,
-                                        bsl::min(d_length, rhs.d_length));
-    }
-    else {
+    if (this == &rhs) {
         assignAll0();
+
+        return *this;                                                 // RETURN
     }
+
+    if (d_length < rhs.d_length) {
+        setLength(rhs.d_length, false);
+    }
+    bdlb::BitStringUtil::minusEqual(data(), 0, rhs.data(), 0, rhs.d_length);
 
     return *this;
 }
@@ -1220,13 +1224,14 @@ BitArray& BitArray::operator-=(const BitArray& rhs)
 inline
 BitArray& BitArray::operator|=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        bdlb::BitStringUtil::orEqual(data(),
-                                     0,
-                                     rhs.data(),
-                                     0,
-                                     bsl::min(d_length, rhs.d_length));
+    if (this == &rhs) {
+        return *this;                                                 // RETURN
     }
+
+    if (d_length < rhs.d_length) {
+        setLength(rhs.d_length, false);
+    }
+    bdlb::BitStringUtil::orEqual(data(), 0, rhs.data(), 0, rhs.d_length);
 
     return *this;
 }
@@ -1234,16 +1239,16 @@ BitArray& BitArray::operator|=(const BitArray& rhs)
 inline
 BitArray& BitArray::operator^=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        bdlb::BitStringUtil::xorEqual(data(),
-                                      0,
-                                      rhs.data(),
-                                      0,
-                                      bsl::min(d_length, rhs.d_length));;
-    }
-    else {
+    if (this == &rhs) {
         assignAll0();
+
+        return *this;                                                 // RETURN
     }
+
+    if (d_length < rhs.d_length) {
+        setLength(rhs.d_length, false);
+    }
+    bdlb::BitStringUtil::xorEqual(data(), 0, rhs.data(), 0, rhs.d_length);
 
     return *this;
 }
