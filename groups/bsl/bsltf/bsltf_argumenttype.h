@@ -7,23 +7,20 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a non-allocating test class to represent a func argument.
-//
-//@REVIEW_FOR_MASTER:
+//@PURPOSE: Provide a non-allocating class to test variadic function arguments.
 //
 //@CLASSES:
-//   bsltf::ArgumentType<N>: simple wrapper around an in-place 'int'
+//  bsltf::ArgumentType<N>: simple wrapper around an in-place 'int'
 //
-//@SEE_ALSO: bsltf_templatetestfacility
+//@SEE_ALSO: bsltf_allocargumenttype, bsltf_templatetestfacility
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component provides a representation of a non-allocating
-// argument type template class, 'bsltf::ArgumentType<N>', used for testing
-// functions that take a variable number of template arguments.  The integer
-// template parameter enables specification of a number of types without
-// requiring a separate component for each.  Copy and move constructors are
-// defined.
+//@DESCRIPTION: This component provides a class, 'bsltf::ArgumentType<N>', used
+// for testing functions that take a variable number of template arguments.
+// The integer template parameter enables specification of a number of types
+// without requiring a separate component for each.  'bsltf::ArgumentType' does
+// not allocate memory, and defines both copy and move constructors.
 //
 ///Attributes
 ///----------
@@ -38,9 +35,171 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
-// Suppose we wanted to ...
+///Example 1: Passing arguments of the correct type and order
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we wanted to test a function that takes a variable number of
+// arguments and forwards it to another function.  Note, that the example below
+// provides separate implementations for compilers that support C++11 standard
+// and those that do not.  For clarity, we provide function implementation for
+// up to 2 arguments for the compilers that do not support variadic templates.
+//
+// First, we define a function:
+//..
+//  #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+//
+//  template <class TYPE, class... Args>
+//  void setData(TYPE& object, Args&&... arguments);
+//
+//  #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+//
+//  template <class TYPE>
+//  void setData(TYPE& object);
+//
+//  template <class TYPE, class Args_01>
+//  void setData(TYPE&                                       object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01);
+//
+//  template <class TYPE, class Args_01, class Args_02>
+//  void setData(TYPE&                                       object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02)  arguments_02);
+//  #else
+//
+//  // The code below is a workaround for the absence of perfect forwarding in
+//  // some compilers.
+//  template <class TYPE, class... Args>
+//  void setData(TYPE&                                      object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+//
+//  #endif
+//..
+// Then, we implement the function:
+//..
+//  #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+//
+//  template <class TYPE, class... Args>
+//  inline
+//  void setData(TYPE& object, Args&&... arguments)
+//  {
+//      object.setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+//  }
+//
+//  #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+//
+//  template <class TYPE>
+//  inline
+//  void setData(TYPE& object)
+//  {
+//      object.setData();
+//  }
+//
+//  template <class TYPE, class Args_01>
+//  inline
+//  void setData(TYPE&                                       object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01)
+//  {
+//      object.setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+//  }
+//
+//  template <class TYPE, class Args_01, class Args_02>
+//  inline
+//  void setData(TYPE&                                       object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02)  arguments_02)
+//  {
+//      object.setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+//                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+//  }
+//
+//  #else
+//
+//  // The code below is a workaround for the absence of perfect forwarding in
+//  // some compilers.
+//  template <class TYPE, class... Args>
+//  inline
+//  void setData(TYPE&                                      object,
+//               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+//  {
+//      object.setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+//  }
+//
+//  #endif
+//..
+// Next, we provide a class, 'TestClass', that implements the method with
+// variable number of arguments:
+//..
+//  class TestClass {
+//    public:
+//      // PUBLIC TYPES
+//      typedef bsltf::ArgumentType< 1> ArgType01;
+//      typedef bsltf::ArgumentType< 2> ArgType02;
+//
+//    private:
+//      // DATA
+//      ArgType01 d_arg01;
+//      ArgType02 d_arg02;
+//
+//    public:
+//      // CREATORS
+//      //! TestClass() = default;
+//
+//      //! ~TestClass() = default;
+//
+//      // MANIPULATORS
+//      void setData()
+//      {
+//          d_arg01 = ArgType01();
+//          d_arg02 = ArgType02();
+//      }
+//
+//      void setData(ArgType01 arg01)
+//      {
+//          d_arg01 = arg01;
+//          d_arg02 = ArgType02();
+//      }
+//
+//      void setData(ArgType01 arg01, ArgType02 arg02)
+//      {
+//          d_arg01 = arg01;
+//          d_arg02 = arg02;
+//      }
+//
+//      // ACCESSORS
+//      const ArgType01& arg01() const
+//      {
+//          return d_arg01;
+//      }
+//
+//      const ArgType02& arg02() const
+//      {
+//          return d_arg02;
+//      }
+//  };
+//..
+// Finally, we can test our forwarding function:
+//..
+//  void usageExample()
+//  {
+//      TestClass mX; const TestClass& X = mX;
+//      assert(TestClass::ArgType01() == X.arg01());
+//      assert(TestClass::ArgType02() == X.arg02());
+//
+//      TestClass::ArgType01 A01(1);
+//      setData(mX, A01);
+//      assert(A01                    == X.arg01());
+//      assert(TestClass::ArgType02() == X.arg02());
+//
+//      TestClass::ArgType01 A11(13);
+//      TestClass::ArgType02 A12(28);
+//      setData(mX, A11, A12);
+//      assert(A11                    == X.arg01());
+//      assert(A12                    == X.arg02());
+//
+//      setData(mX);
+//      assert(TestClass::ArgType01() == X.arg01());
+//      assert(TestClass::ArgType02() == X.arg02());
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -103,10 +262,12 @@ class ArgumentType {
 
     // MANIPULATORS
     ArgumentType& operator=(const ArgumentType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     ArgumentType& operator=(BloombergLP::bslmf::MovableRef<ArgumentType> rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
         // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS

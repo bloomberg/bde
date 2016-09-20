@@ -6,9 +6,12 @@
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_util.h>             // for usage example only
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>  // for usage example only
 
 #include <limits.h>
 #include <stdio.h>
@@ -58,7 +61,7 @@ using namespace BloombergLP::bsltf;
 // [13] MoveState::Enum movedFrom() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // [ *] CONCERN: No memory is ever allocated.
 
 // ============================================================================
@@ -150,6 +153,177 @@ const size_t DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+namespace {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Passing arguments of the correct type and order
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we wanted to test a function that takes a variable number of
+// arguments and forwards it to another function.  Note, that the example below
+// provides separate implementations for compilers that support C++11 standard
+// and those that do not.  For clarity, we provide function implementation for
+// up to 2 arguments for the compilers that do not support variadic templates.
+//
+// First, we define a function:
+//..
+    #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+    template <class TYPE, class... Args>
+    void setData(TYPE& object, Args&&... arguments);
+
+    #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+
+    template <class TYPE>
+    void setData(TYPE& object);
+
+    template <class TYPE, class Args_01>
+    void setData(TYPE&                                       object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01);
+
+    template <class TYPE, class Args_01, class Args_02>
+    void setData(TYPE&                                       object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02)  arguments_02);
+    #else
+
+    // The code below is a workaround for the absence of perfect forwarding in
+    // some compilers.
+    template <class TYPE, class... Args>
+    void setData(TYPE&                                      object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+
+    #endif
+//..
+// Then, we implement the function:
+//..
+    #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+    template <class TYPE, class... Args>
+    inline
+    void setData(TYPE& object, Args&&... arguments)
+    {
+        object.setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+    }
+
+    #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+
+    template <class TYPE>
+    inline
+    void setData(TYPE& object)
+    {
+        object.setData();
+    }
+
+    template <class TYPE, class Args_01>
+    inline
+    void setData(TYPE&                                       object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01)
+    {
+        object.setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+    }
+
+    template <class TYPE, class Args_01, class Args_02>
+    inline
+    void setData(TYPE&                                       object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02)  arguments_02)
+    {
+        object.setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                       BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+    }
+
+    #else
+
+    // The code below is a workaround for the absence of perfect forwarding in
+    // some compilers.
+    template <class TYPE, class... Args>
+    inline
+    void setData(TYPE&                                      object,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+    {
+        object.setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+    }
+
+    #endif
+//..
+// Next, we provide a class, 'TestClass', that implements the method with
+// variable number of arguments:
+//..
+    class TestClass {
+      public:
+        // PUBLIC TYPES
+        typedef bsltf::ArgumentType< 1> ArgType01;
+        typedef bsltf::ArgumentType< 2> ArgType02;
+
+      private:
+        // DATA
+        ArgType01 d_arg01;
+        ArgType02 d_arg02;
+
+      public:
+        // CREATORS
+        //! TestClass() = default;
+
+        //! ~TestClass() = default;
+
+        // MANIPULATORS
+        void setData()
+        {
+            d_arg01 = ArgType01();
+            d_arg02 = ArgType02();
+        }
+
+        void setData(ArgType01 arg01)
+        {
+            d_arg01 = arg01;
+            d_arg02 = ArgType02();
+        }
+
+        void setData(ArgType01 arg01, ArgType02 arg02)
+        {
+            d_arg01 = arg01;
+            d_arg02 = arg02;
+        }
+
+        // ACCESSORS
+        const ArgType01& arg01() const
+        {
+            return d_arg01;
+        }
+
+        const ArgType02& arg02() const
+        {
+            return d_arg02;
+        }
+    };
+//..
+// Finally, we can test our forwarding function:
+//..
+    void usageExample()
+    {
+        TestClass mX; const TestClass& X = mX;
+        ASSERT(TestClass::ArgType01() == X.arg01());
+        ASSERT(TestClass::ArgType02() == X.arg02());
+
+        TestClass::ArgType01 A01(1);
+        setData(mX, A01);
+        ASSERT(A01                    == X.arg01());
+        ASSERT(TestClass::ArgType02() == X.arg02());
+
+        TestClass::ArgType01 A11(13);
+        TestClass::ArgType02 A12(28);
+        setData(mX, A11, A12);
+        ASSERT(A11                    == X.arg01());
+        ASSERT(A12                    == X.arg02());
+
+        setData(mX);
+        ASSERT(TestClass::ArgType01() == X.arg01());
+        ASSERT(TestClass::ArgType02() == X.arg02());
+    }
+//..
+}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -183,6 +357,28 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 14: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        usageExample();
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING 'movedFrom' AND 'movedInto' METHODS
