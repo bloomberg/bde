@@ -279,17 +279,17 @@ class LocalTimeDescriptor {
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to 'stream'.
-        // Optionally specify an initial indentation 'level', whose absolute
-        // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute value
-        // indicates the number of spaces per indentation level for this and
-        // all of its nested objects.  If 'level' is negative, suppress
-        // indentation of the first line.  If 'spacesPerLevel' is negative,
-        // format the entire output on one line, suppressing all but the
-        // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the format
-        // is not fully specified, and can change without notice.
+        // human-readable format, and return a non-'const' reference to
+        // 'stream'.  Optionally specify an initial indentation 'level', whose
+        // absolute value is incremented recursively for nested objects.  If
+        // 'level' is specified, optionally specify 'spacesPerLevel', whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.  Note that the
+        // format is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -312,12 +312,12 @@ bool operator!=(const LocalTimeDescriptor& lhs,
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const LocalTimeDescriptor& object);
     // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference providing
-    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  Note that this human-readable format is not
-    // fully specified and can change without notice.  Also note that this
-    // method has the same behavior as 'object.print(stream, 0, -1)', but with
-    // the attribute names elided.
+    // 'stream' in a single-line format, and return a non-'const' reference to
+    // 'stream'.  If 'stream' is not valid on entry, this operation has no
+    // effect.  Note that this human-readable format is not fully specified and
+    // can change without notice.  Also note that this method has the same
+    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
+    // elided.
 
 // FREE FUNCTIONS
 void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
