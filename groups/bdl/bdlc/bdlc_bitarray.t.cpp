@@ -1743,13 +1743,12 @@ int main(int argc, char *argv[])
         //: 2 The value of the parameters that are not to be modified stay
         //:   unchanged.
         //:
-        //: 3 For the assignment operators, the additional concern(s) are:
-        //:   o No allocations are performed.
+        //: 3 For the bitwise assignment operators:
+        //:   o No allocations are performed unless the lhs grows in length.
         //:   o alias-safe
         //:   o A reference to the modifiable object assigned to is returned.
         //:
-        //: 4 For the non-assignment operators, an additional concern is:
-        //:   o exception-neutrality
+        //: 4 All bitwise operators are exception-neutral.
         //
         // Note that there is no possibility of undefined behavior, no
         // preconditions need testing.
@@ -1766,13 +1765,15 @@ int main(int argc, char *argv[])
         //:   later to ensure that 'Y' has not changed.
         //:
         //: 3 In blocks for each of the operations '&', '-', '|', and '^':
-        //:   o Create an object 'E' by applying bitwise operations, one bit
-        //:     at a time, between 'X' and 'Y'.
+        //:   o Create an object 'E' by applying 'setLength' and bitwise
+        //:     operations, one bit at a time, between 'X' and 'Y'.
         //:   o Create 'mR', a copy of 'X' and bit-wise assign to it,
         //:     monitoring the test allocator to ensure no allocation happened
-        //:     and verify that the result is as expected. (C-1)
-        //:   o Observe that no memory was allocated by the bitwise assignment
-        //:     operator.  (C-3-1)
+        //:     unless 'R' grows in length and verify that the result is as
+        //:     expected.  (C-1, C-3-1)
+        //:   o Do the bitwise assignment in a 'BEGIN' - 'END' block, testing
+        //:     that 'R == X' at the beginning of the block to verify
+        //:     exception-neutrality.  (C-4)
         //:   o Keep a reference 'RRR' to the result of the assignment and
         //:     verify that its address matches that of 'R'.  (C-3-3)
         //:   o Observe that 'Y' is unchanged.  (C-2)
@@ -1835,10 +1836,14 @@ int main(int argc, char *argv[])
                 const Obj&        X   = gDispatch(DST);
                 const Obj         XX(X);
 
+                const size_t xl = X.length();
+
                 for (int tj = 0; SPECS[tj]; ++tj) {
                     const char *const SRC = SPECS[tj];
                     const Obj&        Y   = gDispatch(SRC);          // control
                     const Obj         YY = Y;
+
+                    const size_t yl = Y.length(), maxLen = bsl::max(xl, yl);
 
                     if (veryVerbose) {
                         P(X) P(Y)
@@ -1847,45 +1852,43 @@ int main(int argc, char *argv[])
                     { // and
                         Obj    mE(X, &testAllocator);    const Obj& E = mE;
                         size_t i;
-                        for (i = 0; i < X.length() && i < Y.length(); ++i) {
+                        for (i = 0; i < xl && i < yl; ++i) {
                             mE.andEqual(i, Y[i]);
                         }
-                        mE.assign0(i, X.length() - i);
+                        if (xl > yl) {
+                            mE.assign0(i, xl - i);
+                        }
+                        else {
+                            mE.setLength(yl, false);
+                        }
 
                         Obj mR(X, &testAllocator);    const Obj& R = mR;
 
                         const Int64 BB = testAllocator.numBlocksTotal();
                         const Int64 B  = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        Obj& RRR = (mR &= Y);
-                        ASSERT(&RRR == &R);
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        ASSERT(YY == Y);
-
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            ASSERT(R == X);
+                            Obj& RRR = (mR &= Y);
+                            ASSERT(&RRR == &R);
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64 A  = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
-                        ASSERT(B  == A);
 
                         LOOP4_ASSERT(ti, tj, E, R, E == R);
+                        ASSERT(xl < yl || AA == BB);
+                        ASSERT(B == A);
+                        ASSERT(maxLen == R.length());
+                        ASSERT(YY == Y);
 
                         bslma::DefaultAllocatorGuard dag(&testAllocator);
-                        {
-                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                             const Obj& Z = X & Y;
 
                             LOOP2_ASSERT(ti, tj, E == Z);
-                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                        }
+                            ASSERT(maxLen == Z.length());
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         ASSERT(XX == X);
                         ASSERT(YY == Y);
@@ -1894,44 +1897,40 @@ int main(int argc, char *argv[])
                     { // minus
                         Obj    mE(X, &testAllocator);    const Obj& E = mE;
                         size_t i;
-                        for (i = 0; i < X.length() && i < Y.length(); ++i) {
+                        for (i = 0; i < xl && i < yl; ++i) {
                             mE.minusEqual(i, Y[i]);
+                        }
+                        if (xl < yl) {
+                            mE.setLength(yl, false);
                         }
 
                         Obj mR(X, &testAllocator);    const Obj& R = mR;
 
                         const Int64 BB = testAllocator.numBlocksTotal();
                         const Int64 B  = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        Obj& RRR = (mR -= Y);
-                        ASSERT(&RRR == &R);
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        ASSERT(YY == Y);
-
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            ASSERT(R == X);
+                            Obj& RRR = (mR -= Y);
+                            ASSERT(&RRR == &R);
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64 A  = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
-                        ASSERT(B  == A);
 
                         LOOP4_ASSERT(ti, tj, E, R, E == R);
+                        ASSERT(xl < yl || AA == BB);
+                        ASSERT(B == A);
+                        ASSERT(maxLen == R.length());
+                        ASSERT(YY == Y);
 
                         bslma::DefaultAllocatorGuard dag(&testAllocator);
-                        {
-                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                             const Obj& Z = X - Y;
 
                             LOOP2_ASSERT(ti, tj, E == Z);
-                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                        }
+                            ASSERT(maxLen == Z.length());
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         ASSERT(XX == X);
                         ASSERT(YY == Y);
@@ -1939,8 +1938,11 @@ int main(int argc, char *argv[])
 
                     { // or
                         Obj    mE(X, &testAllocator);    const Obj& E = mE;
+                        if (xl < yl) {
+                            mE.setLength(yl, false);
+                        }
                         size_t i;
-                        for (i = 0; i < X.length() && i < Y.length(); ++i) {
+                        for (i = 0; i < yl; ++i) {
                             mE.orEqual(i, Y[i]);
                         }
 
@@ -1948,36 +1950,29 @@ int main(int argc, char *argv[])
 
                         const Int64 BB = testAllocator.numBlocksTotal();
                         const Int64 B  = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        Obj& RRR = (mR |= Y);
-                        ASSERT(&RRR == &R);
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        ASSERT(YY == Y);
-
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            ASSERT(R == X);
+                            Obj& RRR = (mR |= Y);
+                            ASSERT(&RRR == &R);
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64 A  = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
-                        ASSERT(B  == A);
 
                         LOOP4_ASSERT(ti, tj, E, R, E == R);
+                        ASSERT(xl < yl || AA == BB);
+                        ASSERT(B == A);
+                        ASSERT(maxLen == R.length());
+                        ASSERT(YY == Y);
 
                         bslma::DefaultAllocatorGuard dag(&testAllocator);
-                        {
-                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                             const Obj& Z = X | Y;
 
                             LOOP2_ASSERT(ti, tj, E == Z);
-                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                        }
+                            ASSERT(maxLen == Z.length());
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         ASSERT(XX == X);
                         ASSERT(YY == Y);
@@ -1985,8 +1980,11 @@ int main(int argc, char *argv[])
 
                     { // xor
                         Obj    mE(X, &testAllocator);    const Obj& E = mE;
+                        if (xl < yl) {
+                            mE.setLength(yl, false);
+                        }
                         size_t i;
-                        for (i = 0; i < X.length() && i < Y.length(); ++i) {
+                        for (i = 0; i < yl; ++i) {
                             mE.xorEqual(i, Y[i]);
                         }
 
@@ -1994,36 +1992,29 @@ int main(int argc, char *argv[])
 
                         const Int64 BB = testAllocator.numBlocksTotal();
                         const Int64 B  = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        Obj& RRR = (mR ^= Y);
-                        ASSERT(&RRR == &R);
-
-                        if (veryVerbose) {
-                            P(R) P(Y)
-                        }
-
-                        ASSERT(YY == Y);
-
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            ASSERT(R == X);
+                            Obj& RRR = (mR ^= Y);
+                            ASSERT(&RRR == &R);
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64 A  = testAllocator.numBlocksInUse();
-                        ASSERT(BB == AA);
-                        ASSERT(B  == A);
 
                         LOOP4_ASSERT(ti, tj, E, R, E == R);
+                        ASSERT(xl < yl || AA == BB);
+                        ASSERT(B == A);
+                        ASSERT(maxLen == R.length());
+                        ASSERT(YY == Y);
 
                         bslma::DefaultAllocatorGuard dag(&testAllocator);
-                        {
-                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                             const Obj& Z = X ^ Y;
 
                             LOOP2_ASSERT(ti, tj, E == Z);
-                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                        }
+                            ASSERT(maxLen == Z.length());
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         ASSERT(XX == X);
                         ASSERT(YY == Y);
