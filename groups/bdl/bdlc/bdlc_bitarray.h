@@ -599,7 +599,7 @@ class BitArray {
     // MANIPULATORS
     BitArray& operator=(const BitArray& rhs);
         // Assign to this array the value of the specified 'rhs' array, and
-        // return a reference providing modifiable access to this array.
+        // return a non-'const' reference to this array.
 
     BitArray& operator&=(const BitArray& rhs);
         // Bitwise AND the value of the specified 'rhs' array with the value of
@@ -620,7 +620,8 @@ class BitArray {
         // result that were not present in this object prior to the operation
         // will be set to 0.  Note that 'a -= b;' will result in the same value
         // of 'a' as 'a = a - b;' and if 'a' and 'b' are the same length,
-        // 'a -= b' will result in the same value of 'a' as 'a &= ~b'.
+        // 'a -= b;' will result in the same value of 'a' as 'a &= ~b;' or
+        // 'a = a & ~b;'.
 
     BitArray& operator|=(const BitArray& rhs);
         // Bitwise OR the value of the specified 'rhs' array with the value of
@@ -633,8 +634,8 @@ class BitArray {
 
     BitArray& operator^=(const BitArray& rhs);
         // Bitwise XOR the value of the specified 'rhs' array with the value of
-        // this array (retaining the results), and return a reference providing
-        // modifiable access to this object.  If 'length() > rhs.length()', the
+        // this array (retaining the results), and return a non-'const'
+        // reference to this object.  If 'length() > rhs.length()', the
         // unmatched most-significant bits in this array are left unchanged;
         // otherwise, any unmatched most-significant bits in 'rhs' are
         // propagated to the result without modification.  Note that 'a ^= b;'
@@ -643,17 +644,17 @@ class BitArray {
     BitArray& operator<<=(bsl::size_t numBits);
         // Shift the bits in this array LEFT by the specified 'numBits',
         // filling lower-order bits with zeros (retaining the results), and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless 'numBits <= length()'.  Note that the
-        // length of this array is unchanged and the highest-order 'numBits'
-        // are discarded.
+        // return a non-'const' reference to this object.  The behavior is
+        // undefined unless 'numBits <= length()'.  Note that the length of
+        // this array is unchanged and the highest-order 'numBits' are
+        // discarded.
 
     BitArray& operator>>=(bsl::size_t numBits);
         // Shift the bits in this array RIGHT by the specified 'numBits',
         // filling higher-order bits with zeros and discarding low-order bits,
-        // and return a reference providing modifiable access to this object.
-        // The behavior is undefined unless 'numBits <= length()'.  Note that
-        // the length of this array is unchanged.
+        // and return a non-'const' reference to this object.  The behavior is
+        // undefined unless 'numBits <= length()'.  Note that the length of
+        // this array is unchanged.
 
     void andEqual(bsl::size_t index, bool value);
         // AND the bit at the specified 'index' in this array with the
@@ -1025,16 +1026,16 @@ class BitArray {
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
+        // optionally specified indentation 'level' and return a non-'const'
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  Each line is indented by the
+        // absolute value of 'level * spacesPerLevel'.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, suppress line breaks and format the entire output on one
+        // line.  If 'stream' is initially invalid, this operation has no
+        // effect.  Note that a trailing newline is provided in multiline mode
+        // only.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
@@ -1070,9 +1071,9 @@ BitArray operator~(const BitArray& array);
 BitArray operator&(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise AND of the specified 'lhs' and
     // 'rhs' arrays.  The length of the resulting bit array will be the maximum
-    // of that of 'lhs' and 'rhs', with any unmatched high-order bits set to
-    // 0.  Note that this behavior is consistent with zero-extending a copy of
-    // the shorter array.
+    // of that of 'lhs' and 'rhs', with any unmatched high-order bits set to 0.
+    // Note that this behavior is consistent with zero-extending a copy of the
+    // shorter array.
 
 BitArray operator-(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise MINUS of the specified 'lhs' and
@@ -1086,15 +1087,15 @@ BitArray operator|(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise OR of the specified 'lhs' and 'rhs'
     // arrays.  The length of the resulting bit array will be the maximum of
     // that of 'lhs' and 'rhs', with any unmatched high-order bits copied
-    // unchanged.  Note that this behavior is consistent with zero-extending
-    // a copy of the shorter array.
+    // unchanged.  Note that this behavior is consistent with zero-extending a
+    // copy of the shorter array.
 
 BitArray operator^(const BitArray& lhs, const BitArray& rhs);
     // Return the value that is the bitwise XOR of the specified 'lhs' and
     // 'rhs' arrays.  The length of the resulting bit array will be the maximum
     // of that of 'lhs' and 'rhs', with any unmatched high-order bits copied
-    // unchanged.  Note that this behavior is consistent with zero-extending
-    // a copy of the shorter array.
+    // unchanged.  Note that this behavior is consistent with zero-extending a
+    // copy of the shorter array.
 
 BitArray operator<<(const BitArray& array, bsl::size_t numBits);
     // Return the value of the specified 'array' left-shifted by the specified
@@ -1106,10 +1107,9 @@ BitArray operator<<(const BitArray& array, bsl::size_t numBits);
 BitArray operator>>(const BitArray& array, bsl::size_t numBits);
     // Return the value of the specified 'array' right-shifted by the specified
     // 'numBits' positions, having filled the higher-index positions with
-    // zeros.  The behavior is undefined unless
-    // 'numBits <= array.length()'.  Note that the length of the result equals
-    // the length of the original array, and that the lowest-order 'numBits'
-    // are discarded in the result.
+    // zeros.  The behavior is undefined unless 'numBits <= array.length()'.
+    // Note that the length of the result equals the length of the original
+    // array, and that the lowest-order 'numBits' are discarded in the result.
 
 bsl::ostream& operator<<(bsl::ostream& stream, const BitArray& rhs);
     // Format the bits in the specified 'rhs' bit array to the specified output
