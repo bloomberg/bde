@@ -72,12 +72,12 @@ BSLS_IDENT("$Id: $")
 #     ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
 #       undef BSL_STDHDRS_RUN_EPILOGUE
 #       undef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+//      Incorporate the parts of bsl_stdhdrs_epilogue.h that clean up the
+//      temporary undefining of std to bsl.
+#       define std bsl
+#       define BSL_STDHDRS_DEFINED_STD_MACRO
+#       undef  BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #     endif
-//    Incorporate the parts of bsl_stdhdrs_epilogue.h that clean up the
-//    temporary undefining of std to bsl.
-#     define std bsl
-#     define BSL_STDHDRS_DEFINED_STD_MACRO
-#     undef  BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   endif
 
 # endif  // BSL_OVERRIDES_STD
