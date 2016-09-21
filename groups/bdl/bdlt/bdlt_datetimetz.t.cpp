@@ -1017,13 +1017,15 @@ if (verbose) {
         bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
 
         // Scalar object values used in various stream tests.
-        const bdlt::Datetime A(   1,  1,  1, 24,  0,  0,   0);
-        const bdlt::Datetime B(   1,  1,  1,  0,  0,  0,   0);
-        const bdlt::Datetime C(   3,  4,  7,  9, 12, 24, 102);
-        const bdlt::Datetime D(2012,  4,  7,  9, 20, 30, 206);
-        const bdlt::Datetime E(2014,  6, 14, 17, 34, 52, 503);
-        const bdlt::Datetime F(2014, 10, 22, 23, 56, 57, 702);
-        const bdlt::Datetime G(9999, 12, 31, 18, 59, 59, 999);
+        const bdlt::Datetime A(   1,  1,  1, 24,  0,  0,   0,   0);
+        const bdlt::Datetime B(   1,  1,  1,  0,  0,  0,   0,  17);
+        const bdlt::Datetime C(   3,  4,  7,  9, 12, 24, 102,   0);
+        const bdlt::Datetime D(2012,  4,  7,  9, 20, 30, 206,   0);
+        const bdlt::Datetime E(2014,  6, 14, 17, 34, 52, 503, 321);
+        const bdlt::Datetime F(2014, 10, 22, 23, 56, 57, 702,   0);
+        const bdlt::Datetime G(9999, 12, 31, 18, 59, 59, 999,   0);
+        const bdlt::Datetime H(9999, 12, 31, 18, 59, 59, 999, 123);
+        const bdlt::Datetime I(9999, 12, 31, 18, 59, 59, 999, 999);
 
         const Obj VA(A,     0);
         const Obj VB(B,     1);
@@ -1032,9 +1034,11 @@ if (verbose) {
         const Obj VE(E,  -507);
         const Obj VF(F,  1000);
         const Obj VG(G, -1100);
+        const Obj VH(H,  1200);
+        const Obj VI(I, -1200);
 
         // Array object used in various stream tests.
-        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
+        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG, VH, VI };
         const int NUM_VALUES = static_cast<int>(sizeof VALUES
                                                 / sizeof *VALUES);
 
@@ -1111,7 +1115,13 @@ if (verbose) {
             }
             {
                 for (int i = 0; i < NUM_VALUES; ++i) {
-                    const Obj X(VALUES[i]);
+                    Obj mX(VALUES[i]);  const Obj& X = mX;
+
+                    if (VERSION < 2 && X.localDatetime().hour() != 24) {
+                        bdlt::Datetime mXX = X.localDatetime();
+                        mXX.setMicrosecond(0);
+                        mX.setDatetimeTz(mXX, X.offset());
+                    }
 
                     Out out(VERSION_SELECTOR, &allocator);
 
@@ -1132,6 +1142,13 @@ if (verbose) {
                         LOOP2_ASSERT(i, j, !in.isEmpty());
 
                         Obj mT(VALUES[j]);  const Obj& T = mT;
+
+                        if (VERSION < 2 && T.localDatetime().hour() != 24) {
+                            bdlt::Datetime mTT = T.localDatetime();
+                            mTT.setMicrosecond(0);
+                            mT.setDatetimeTz(mTT, T.offset());
+                        }
+
                         LOOP2_ASSERT(i, j, (X == T) == (i == j));
 
                         BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
@@ -1140,7 +1157,7 @@ if (verbose) {
                             LOOP2_ASSERT(i, j, &in == &rvIn);
                         } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-                              LOOP2_ASSERT(i, j, X == T);
+                        LOOP2_ASSERT(i, j, X == T);
                         LOOP2_ASSERT(i, j, in);
                         LOOP2_ASSERT(i, j, in.isEmpty());
                     }
@@ -1191,7 +1208,7 @@ if (verbose) {
                         LOOP_ASSERT(i, !in);
                         LOOP_ASSERT(i, X == T);
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
-                          }
+                }
             }
 
             // Verify correct behavior for non-empty, invalid streams.
@@ -1243,9 +1260,33 @@ if (verbose) {
                      << endl;
             }
             {
-                const Obj W1 = VA, X1 = VB;
-                const Obj W2 = VB, X2 = VC;
-                const Obj W3 = VC, X3 = VD;
+                const Obj W1 = VA;
+                const Obj W2 = VB;
+                const Obj W3 = VC;
+
+                Obj mX1(VB);  const Obj& X1 = mX1;
+
+                if (VERSION < 2 && X1.localDatetime().hour() != 24) {
+                    bdlt::Datetime mXX = X1.localDatetime();
+                    mXX.setMicrosecond(0);
+                    mX1.setDatetimeTz(mXX, X1.offset());
+                }
+
+                Obj mX2(VC);  const Obj& X2 = mX2;
+
+                if (VERSION < 2 && X2.localDatetime().hour() != 24) {
+                    bdlt::Datetime mXX = X2.localDatetime();
+                    mXX.setMicrosecond(0);
+                    mX2.setDatetimeTz(mXX, X2.offset());
+                }
+
+                Obj mX3(VD);  const Obj& X3 = mX3;
+
+                if (VERSION < 2 && X3.localDatetime().hour() != 24) {
+                    bdlt::Datetime mXX = X3.localDatetime();
+                    mXX.setMicrosecond(0);
+                    mX3.setDatetimeTz(mXX, X3.offset());
+                }
 
                 using bslx::OutStreamFunctions::bdexStreamOut;
                 using bslx::InStreamFunctions::bdexStreamIn;
