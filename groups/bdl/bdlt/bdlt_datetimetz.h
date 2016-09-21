@@ -461,10 +461,10 @@ class DatetimeTz {
 
 // FREE OPERATORS
 bool operator==(const DatetimeTz& lhs, const DatetimeTz& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects
-    // have the same value, and 'false' otherwise.  Two 'DatetimeTz' objects
-    // have the same value if they have the same local datetime value and the
-    // same time zone offset value.
+    // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects have
+    // the same value, and 'false' otherwise.  Two 'DatetimeTz' objects have
+    // the same value if they have the same local datetime value and the same
+    // time zone offset value.
 
 bool operator!=(const DatetimeTz& lhs, const DatetimeTz& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects do
@@ -491,7 +491,7 @@ void hashAppend(HASHALG& hashAlg, const DatetimeTz& object);
     // will not (necessarily) hash to the same value.
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                              // ----------------
@@ -564,8 +564,7 @@ void DatetimeTz::setDatetimeTz(const Datetime& localDatetime, int offset)
 }
 
 inline
-int DatetimeTz::setDatetimeTzIfValid(const Datetime& localDatetime,
-                                     int             offset)
+int DatetimeTz::setDatetimeTzIfValid(const Datetime& localDatetime, int offset)
 {
     if (isValid(localDatetime, offset)) {
         setDatetimeTz(localDatetime, offset);
@@ -581,9 +580,10 @@ STREAM& DatetimeTz::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
             Datetime localDatetime;
-            localDatetime.bdexStreamIn(stream, 1);
+            localDatetime.bdexStreamIn(stream, version);
 
             int offset;
             stream.getInt32(offset);
@@ -646,8 +646,9 @@ STREAM& DatetimeTz::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
-            d_localDatetime.bdexStreamOut(stream, 1);
+            d_localDatetime.bdexStreamOut(stream, version);
             stream.putInt32(d_offset);
           } break;
           default: {
@@ -730,7 +731,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::DatetimeTz> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
