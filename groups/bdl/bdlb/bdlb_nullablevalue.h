@@ -623,6 +623,15 @@ class NullableValue_WithAllocator {
     // FRIENDS
     friend class NullableValue<TYPE>;
 
+  private:
+    // PRIVATE MANIPULATORS
+    template <class BDE_OTHER_TYPE>
+    void makeValueRaw(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
+        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
+        // converted to 'TYPE'.  The behavior is undefined unless this object
+        // is null.  Note that this method will fail to compile if 'TYPE and
+        // 'BDE_OTHER_TYPE' are not compatible.
+
   public:
     // CREATORS
     explicit NullableValue_WithAllocator(bslma::Allocator *basicAllocator = 0);
@@ -788,6 +797,15 @@ class NullableValue_WithoutAllocator {
 
     // FRIENDS
     friend class NullableValue<TYPE>;
+
+  private:
+    // PRIVATE MANIPULATORS
+    template <class BDE_OTHER_TYPE>
+    void makeValueRaw(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
+        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
+        // converted to 'TYPE'.  The behavior is undefined unless this object
+        // is null.  Note that this method will fail to compile if 'TYPE and
+        // 'BDE_OTHER_TYPE' are not compatible.
 
   public:
     // CREATORS
@@ -977,7 +995,7 @@ NullableValue<TYPE>::NullableValue(
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             void>::type *)
 {
-    d_imp.makeValue(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
+    d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
 }
 
 template <class TYPE>
@@ -990,7 +1008,7 @@ NullableValue<TYPE>::NullableValue(
                             void>::type *)
 : d_imp(basicAllocator)
 {
-    d_imp.makeValue(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
+    d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
 }
 
 template <class TYPE>
@@ -1000,7 +1018,7 @@ NullableValue<TYPE>::NullableValue(
                                  const NullableValue<BDE_OTHER_TYPE>& original)
 {
     if (!original.isNull()) {
-        d_imp.makeValue(original.value());
+        d_imp.makeValueRaw(original.value());
     }
 }
 
@@ -1013,7 +1031,7 @@ NullableValue<TYPE>::NullableValue(
 : d_imp(basicAllocator)
 {
     if (!original.isNull()) {
-        d_imp.makeValue(original.value());
+        d_imp.makeValueRaw(original.value());
     }
 }
 
@@ -1431,6 +1449,21 @@ namespace bdlb {
                // class NullableValue_WithAllocator<TYPE>
                // ---------------------------------------
 
+// PRIVATE MANIPULATORS
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+void NullableValue_WithAllocator<TYPE>::makeValueRaw(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
+{
+    BSLS_ASSERT_SAFE(d_isNull);
+
+    bslma::ConstructionUtil::construct(
+                         d_buffer.address(),
+                         d_allocator_p,
+                         BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
+    d_isNull = false;
+}
+
 // CREATORS
 template <class TYPE>
 inline
@@ -1450,7 +1483,7 @@ NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (!original.isNull()) {
-        makeValue(original.value());
+        makeValueRaw(original.value());
     }
 }
 
@@ -1462,8 +1495,9 @@ NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
 , d_allocator_p(MoveUtil::access(original).d_allocator_p)
 {
     NullableValue_WithAllocator& lvalue = original;
+
     if (!lvalue.isNull()) {
-        makeValue(MoveUtil::move(lvalue.value()));
+        makeValueRaw(MoveUtil::move(lvalue.value()));
     }
 }
 
@@ -1476,8 +1510,9 @@ NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     NullableValue_WithAllocator& lvalue = original;
+
     if (!lvalue.isNull()) {
-        makeValue(MoveUtil::move(lvalue.value()));
+        makeValueRaw(MoveUtil::move(lvalue.value()));
     }
 }
 
@@ -1510,6 +1545,7 @@ NullableValue_WithAllocator<TYPE>::operator=(
                             bslmf::MovableRef<NullableValue_WithAllocator> rhs)
 {
     NullableValue_WithAllocator& lvalue = rhs;
+
     if (!lvalue.isNull()) {
         makeValue(MoveUtil::move(lvalue.value()));
     }
@@ -1568,11 +1604,7 @@ void NullableValue_WithAllocator<TYPE>::makeValue(
                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
 {
     if (d_isNull) {
-        bslma::ConstructionUtil::construct(
-            d_buffer.address(),
-            d_allocator_p,
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-        d_isNull = false;
+        makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
     }
     else {
         d_buffer.object() =
@@ -1778,6 +1810,21 @@ const TYPE& NullableValue_WithAllocator<TYPE>::value() const
               // class NullableValue_WithoutAllocator<TYPE>
               // ------------------------------------------
 
+// PRIVATE MANIPULATORS
+template <class TYPE>
+template <class BDE_OTHER_TYPE>
+void NullableValue_WithoutAllocator<TYPE>::makeValueRaw(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
+{
+    BSLS_ASSERT_SAFE(d_isNull);
+
+    bslma::ConstructionUtil::construct(
+                         d_buffer.address(),
+                         (void *)0,
+                         BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
+    d_isNull = false;
+}
+
 // CREATORS
 template <class TYPE>
 inline
@@ -1793,7 +1840,7 @@ NullableValue_WithoutAllocator(const NullableValue_WithoutAllocator& original)
 : d_isNull(true)
 {
     if (!original.isNull()) {
-        makeValue(original.value());
+        makeValueRaw(original.value());
     }
 }
 
@@ -1804,8 +1851,9 @@ NullableValue_WithoutAllocator<TYPE>::NullableValue_WithoutAllocator(
 : d_isNull(true)
 {
     NullableValue_WithoutAllocator& lvalue = original;
+
     if (!lvalue.isNull()) {
-        makeValue(MoveUtil::move(lvalue.value()));
+        makeValueRaw(MoveUtil::move(lvalue.value()));
     }
 }
 
@@ -1838,6 +1886,7 @@ NullableValue_WithoutAllocator<TYPE>::operator=(
                          bslmf::MovableRef<NullableValue_WithoutAllocator> rhs)
 {
     NullableValue_WithoutAllocator& lvalue = rhs;
+
     if (!lvalue.isNull()) {
         makeValue(MoveUtil::move(lvalue.value()));
     }
@@ -1892,11 +1941,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValue(
                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
 {
     if (d_isNull) {
-        bslma::ConstructionUtil::construct(
-            d_buffer.address(),
-            (void *) 0,
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-        d_isNull = false;
+        makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
     }
     else {
         d_buffer.object() =
@@ -1923,7 +1968,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(ARGS&&... args)
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     d_isNull = false;
 }
@@ -1939,7 +1984,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0);
+        (void *)0);
     d_isNull = false;
 }
 
@@ -1952,7 +1997,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
     d_isNull = false;
 }
@@ -1968,7 +2013,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
     d_isNull = false;
@@ -1987,7 +2032,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
@@ -2009,7 +2054,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
@@ -2034,7 +2079,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
@@ -2055,7 +2100,7 @@ void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(
     reset();
     bslma::ConstructionUtil::construct(
         d_buffer.address(),
-        (void *) 0,
+        (void *)0,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     d_isNull = false;
 }
