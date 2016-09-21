@@ -69,9 +69,9 @@ void LiteralUtil::createQuotedEscapedCString(bsl::string              *result,
 
                                 // 0_123_
             char octalBuffer[5] = "\\___";
-            octalBuffer[1] = '0' + (uch / 64);
-            octalBuffer[2] = '0' + ((uch & 070) / 8);
-            octalBuffer[3] = '0' + (uch & 07);
+            octalBuffer[1] = static_cast<char>('0' + (uch / 64));
+            octalBuffer[2] = static_cast<char>('0' + ((uch & 070) / 8));
+            octalBuffer[3] = static_cast<char>('0' + (uch & 07));
 
             *result += octalBuffer;
             break;
