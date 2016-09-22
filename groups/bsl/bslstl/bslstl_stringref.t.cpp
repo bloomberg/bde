@@ -2990,6 +2990,38 @@ int main(int argc, char *argv[])
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
                                  std::strlen(NON_EMPTY_STRING));
+
+          // Assorted integer types for length
+#define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
+        {                                                                     \
+          Obj x(EMPTY_STRING, LITERAL_ZERO);                                  \
+          const Obj& X = x;                                                   \
+          ASSERT(X.isEmpty());                                                \
+          ASSERT(X.length()  == 0);                                           \
+          ASSERT(X.begin()   == X.end());                                     \
+          ASSERT(X.begin()   == EMPTY_STRING);                                \
+          ASSERT(X.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));    \
+        }                                                                     \
+        {                                                                     \
+          Obj x(NON_EMPTY_STRING,                                             \
+                static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
+          const Obj& X = x;                                                   \
+          ASSERT(!X.isEmpty());                                               \
+          ASSERT(X.length()  == 30);                                          \
+          ASSERT(X.begin()   != X.end());                                     \
+          ASSERT(X.begin()   == NON_EMPTY_STRING);                            \
+          ASSERT(X.end()     == NON_EMPTY_STRING +                            \
+                                 std::strlen(NON_EMPTY_STRING));              \
+        }
+
+          TEST_INT_TYPE(short, (short)0)
+          TEST_INT_TYPE(unsigned short, (unsigned short)0)
+          TEST_INT_TYPE(int, 0)
+          TEST_INT_TYPE(unsigned, 0u)
+          TEST_INT_TYPE(long, 0l)
+          TEST_INT_TYPE(unsigned long, 0ul)
+          TEST_INT_TYPE(long long, 0ll)
+          TEST_INT_TYPE(unsigned long long, 0ull)
         }
 
         if (veryVerbose)
