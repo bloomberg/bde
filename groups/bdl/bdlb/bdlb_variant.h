@@ -2473,9 +2473,9 @@ Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<Variant> rhs)
     // Up-cast needed since template matching has higher overloading precedence
     // than derived-to-base matching.
 
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -2649,9 +2649,9 @@ operator=(bslmf::MovableRef<Variant> rhs)
     // Up-cast needed since template matching has higher overloading precedence
     // than derived-to-base matching.
 
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -2892,9 +2892,9 @@ inline
 Variant2<A1, A2>&
 Variant2<A1, A2>::operator=(bslmf::MovableRef<Variant2> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant2& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -3134,9 +3134,9 @@ inline
 Variant3<A1, A2, A3>&
 Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<Variant3> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant3& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -3377,9 +3377,9 @@ inline
 Variant4<A1, A2, A3, A4>&
 Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<Variant4> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant4& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -3620,9 +3620,9 @@ inline
 Variant5<A1, A2, A3, A4, A5>&
 Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<Variant5> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant5& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -3863,9 +3863,9 @@ inline
 Variant6<A1, A2, A3, A4, A5, A6>&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<Variant6> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant6& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -4109,9 +4109,9 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>&
 Variant7<A1, A2, A3, A4, A5, A6, A7>::
 operator=(bslmf::MovableRef<Variant7> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant7& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -4368,9 +4368,9 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 operator=(bslmf::MovableRef<Variant8> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant8& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -4628,9 +4628,9 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 operator=(bslmf::MovableRef<Variant9> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant9& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -4889,9 +4889,9 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 operator=(bslmf::MovableRef<Variant10> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant10& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -5151,9 +5151,9 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 operator=(bslmf::MovableRef<Variant11> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant11& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -5413,9 +5413,9 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 operator=(bslmf::MovableRef<Variant12> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant12& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -5688,9 +5688,9 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 operator=(bslmf::MovableRef<Variant13> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant13& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -5966,9 +5966,9 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 operator=(bslmf::MovableRef<Variant14> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant14& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -6244,9 +6244,9 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 operator=(bslmf::MovableRef<Variant15> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant15& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -6539,9 +6539,9 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>::
 operator=(bslmf::MovableRef<Variant16> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant16& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -6834,9 +6834,9 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
 operator=(bslmf::MovableRef<Variant17> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant17& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
                        // ====================
@@ -7128,9 +7128,9 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>::
 operator=(bslmf::MovableRef<Variant18> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant18& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -7436,9 +7436,9 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
 operator=(bslmf::MovableRef<Variant19> rhs)
 {
-    Imp& lvalue = static_cast<Imp&>(rhs);
+    Variant19& lvalue = rhs;
 
-    Imp::operator=(MoveUtil::move(lvalue));
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
     return *this;
 }
 
@@ -7606,14 +7606,12 @@ struct Variant_MoveConstructVisitor {
 
     // ACCESSORS
     template <class TYPE>
-    void operator()(const TYPE& value) const
+    void operator()(TYPE& value) const
     {
-        TYPE& lvalue = const_cast<TYPE&>(value);
-
         bslma::ConstructionUtil::construct(
                                           reinterpret_cast<TYPE *>(d_buffer_p),
                                           d_allocator_p,
-                                          bslmf::MovableRefUtil::move(lvalue));
+                                          bslmf::MovableRefUtil::move(value));
     }
 };
 
@@ -7683,12 +7681,10 @@ struct Variant_MoveAssignVisitor {
 
     // ACCESSORS
     template <class TYPE>
-    void operator()(const TYPE& value)
+    void operator()(TYPE& value)
     {
-        TYPE& lvalue = const_cast<TYPE&>(value);
-
         *reinterpret_cast<TYPE *>(d_buffer_p) =
-                                           bslmf::MovableRefUtil::move(lvalue);
+                                            bslmf::MovableRefUtil::move(value);
     }
 };
 
@@ -7748,13 +7744,13 @@ struct Variant_BdexStreamInVisitor {
     // ACCESSORS
     template <class VALUETYPE>
     inline
-    void operator() (VALUETYPE& object) const
+    void operator()(VALUETYPE& object) const
     {
         bslx::InStreamFunctions::bdexStreamIn(d_stream, object, d_version);
     }
 
     inline
-    void operator() (bslmf::Nil) const
+    void operator()(bslmf::Nil) const
     {
         // no op
     }
@@ -7786,13 +7782,13 @@ struct Variant_BdexStreamOutVisitor {
     // ACCESSORS
     template <class VALUETYPE>
     inline
-    void operator() (const VALUETYPE& object) const
+    void operator()(const VALUETYPE& object) const
     {
         bslx::OutStreamFunctions::bdexStreamOut(d_stream, object, d_version);
     }
 
     inline
-    void operator() (bslmf::Nil) const
+    void operator()(bslmf::Nil) const
     {
         // no op
     }
@@ -8697,7 +8693,9 @@ VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp> original)
     if (this->d_type) {
         Variant_MoveConstructVisitor moveConstructor(&this->d_value,
                                                      this->getAllocator());
-        original.apply(moveConstructor);
+        VariantImp& lvalue = original;
+
+        lvalue.apply(moveConstructor);
     }
 }
 
@@ -8709,7 +8707,9 @@ VariantImp<TYPES>::VariantImp(bslmf::MovableRef<VariantImp>  original,
     if (this->d_type) {
         Variant_MoveConstructVisitor moveConstructor(&this->d_value,
                                                      this->getAllocator());
-        original.apply(moveConstructor);
+        VariantImp& lvalue = original;
+
+        lvalue.apply(moveConstructor);
     }
 }
 
@@ -8771,21 +8771,23 @@ template <class TYPES>
 VariantImp<TYPES>&
 VariantImp<TYPES>::operator=(bslmf::MovableRef<VariantImp> rhs)
 {
-    if (&rhs != this) {
-        if (this->d_type == rhs.d_type) {
+    VariantImp& lvalue = rhs;
+
+    if (&lvalue != this) {
+        if (this->d_type == lvalue.d_type) {
             if (this->d_type) {
                 Variant_MoveAssignVisitor assigner(&this->d_value);
-                rhs.apply(assigner);
+                lvalue.apply(assigner);
             }
         }
         else {
             reset();
-            if (rhs.d_type) {
+            if (lvalue.d_type) {
                 Variant_MoveConstructVisitor moveConstructor(
                                                          &this->d_value,
                                                          this->getAllocator());
-                rhs.apply(moveConstructor);
-                this->d_type = rhs.d_type;
+                lvalue.apply(moveConstructor);
+                this->d_type = lvalue.d_type;
             }
         }
     }
