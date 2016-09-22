@@ -6,20 +6,24 @@
 
 @DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains a
  package that provides a solution for computing day count and year fraction for
- various day-count conventions.
+ various day-count conventions and a package for basic computations.
 
 /Hierarchical Synopsis
 /---------------------
- The 'bbl' package group currently has 2 packages having 2 levels of physical
+ The 'bbl' package group currently has 3 packages having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
 ..
-  2. bbldc
+  2. bblb
+     bbldc
 
   1. bblscm
 ..
 
 /Package Synopsis
 /----------------
+: 'bblb':
+:      Provide basic computations.
+:
 : 'bbldc':
 :      Provide day-count convention implementations.
 :
@@ -30,6 +34,11 @@
 /----------------
  This section a brief introduction to the packages of the 'bbl' package group.
  See the respective Package Level documents for more details.
+
+/'bblb'
+/- - -
+ The {'bblb'} package provides basic computations.  At the moment, this package
+ contains a component, 'bblb_schedulegenerationutil', for schedule generation.
 
 /'bbldc'
 /- - - -
