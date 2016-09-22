@@ -255,6 +255,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISINTEGRAL
+#include <bslmf_isintegral.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -354,19 +362,19 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         //  isEmpty() == true
         //..
 
-    StringRefImp(const CHAR_TYPE *data, int length);
-    StringRefImp(const CHAR_TYPE *data, size_type length);
+    template <class INT_TYPE>
+    StringRefImp(const CHAR_TYPE *data,
+                 INT_TYPE         length,
+                 typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                                         INT_TYPE>::type = 0);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
-        // and extends for the specified 'numCharacters'.  The external
-        // representation must remain valid as long as it is bound to this
-        // string reference.  Passing 0 has the same effect as default
-        // construction.  The behavior is undefined unless '0 <= length' and,
-        // if '0 == data', then '0 == length'.  Note that, like an
-        // 'std::string', the 'data' need not be null-terminated and may
-        // contain embedded null characters.  Note that the seemingly redundant
-        // 'int' version is present to be a better overload match than the
-        // constructor taking a pair of pointers below.
+        // and extends for the specified 'length'.  The external representation
+        // must remain valid as long as it is bound to this string reference.
+        // Passing 0 has the same effect as default construction.  The behavior
+        // is undefined unless '0 <= length' and, if '0 == data', then
+        // '0 == length'.  Note that, like an 'std::string', the 'data' need
+        // not be null-terminated and may contain embedded null characters.
 
     StringRefImp(const_iterator begin, const_iterator end);
         // Create a string-reference object having a valid 'std::string' value,
@@ -773,8 +781,12 @@ StringRefImp<CHAR_TYPE>::StringRefImp()
 }
 
 template <class CHAR_TYPE>
+template <class INT_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data, int length)
+StringRefImp<CHAR_TYPE>::StringRefImp(
+    const CHAR_TYPE *data,
+    INT_TYPE         length,
+    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value, INT_TYPE>::type)
 : Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
@@ -783,17 +795,11 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data, int length)
 
 template <class CHAR_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data, size_type length)
-: Base(data, data + length)
-{
-    BSLS_ASSERT_SAFE(data || 0 == length);
-}
-
-template <class CHAR_TYPE>
-inline
 StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin, const_iterator end)
 : Base(begin, end)
 {
+    BSLS_ASSERT_SAFE((begin == 0) == (end == 0));
+    BSLS_ASSERT_SAFE(begin <= end);
 }
 
 template <class CHAR_TYPE>
@@ -801,6 +807,7 @@ inline
 StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data)
 : Base(data, data + native_std::char_traits<CHAR_TYPE>::length(data))
 {
+    BSLS_ASSERT_SAFE(data);
 }
 
 template <class CHAR_TYPE>
