@@ -1191,7 +1191,7 @@ int main(int argc, char *argv[])
         //:
         //: 8 Every object releases any allocated memory at destruction.
         //:
-        //: 9 The original object is passed as a non-'const reference.
+        //: 9 The original object is passed as a 'const' reference.
         //:
         //:10 The value of the original object is unchanged.
         //:
@@ -1511,8 +1511,8 @@ int main(int argc, char *argv[])
         //: 9 Comparison is symmetric with respect to user-defined conversion
         //:   (i.e., both comparison operators are free functions).
         //:
-        //:10 Non-modifiable objects can be compared (i.e., objects or
-        //:   non-'const' references).
+        //:10 'const objects can be compared (i.e., 'const' objects and 'const'
+        //:   references).
         //:
         //:11 No memory allocation occurs as a result of comparison (e.g., the
         //:   arguments are not passed by value).
@@ -2066,8 +2066,7 @@ int main(int argc, char *argv[])
         //:   from P-1, to create an object (having default attribute values).
         //:
         //: 3 Verify that each basic accessor, invoked on a 'const' reference
-        //:   access to the object created in P2, returns the expected value.
-        //:   (C-2)
+        //:   to the object created in P2, returns the expected value.  (C-2)
         //:
         //: 4 For each salient attribute (contributing to value):  (C-1, 3..4)
         //:   1 Use the corresponding primary manipulator to set the attribute
