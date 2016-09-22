@@ -933,7 +933,7 @@ void TcpTimedCbChannel::bufferedReadCb()
     int requestLength = d_currentReadRequest_p->d_requestLength;
     int numBytesRemaining = requestLength - d_readBufferOffset;
     int available = static_cast<int>(d_readBuffer.size()) - d_readBufferOffset;
-    BSLS_ASSERT(available >= numBytesRemaining);
+    (void)numBytesRemaining; BSLS_ASSERT(available >= numBytesRemaining);
 
     int s = d_socket_p->read(&d_readBuffer.front() + d_readBufferOffset,
                              available); // Fill in the read buffer.
@@ -3640,7 +3640,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
                                                          - d_writeBufferOffset,
                                          buffers + idx + 1,
                                          numBuffers - idx - 1);
-                    BSLS_ASSERT(length == len);
+                    (void)len; BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
                 TcpTimedCbChannel_WReg *request =
@@ -3662,7 +3662,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
                 TcpTimedCbChannel_WReg *request =
@@ -3688,7 +3688,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
                 d_writeBufferOffset += length;
 
                 TcpTimedCbChannel_WReg *request =
@@ -3724,7 +3724,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
                   static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
                   buffers,
                   numBuffers);
-        BSLS_ASSERT(length == len);
+        (void)len; BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
 
@@ -3785,7 +3785,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
                                                          - d_writeBufferOffset,
                                          buffers + idx + 1,
                                          numBuffers - idx - 1);
-                    BSLS_ASSERT(length == len);
+                    (void)len; BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
                 TcpTimedCbChannel_WReg *request =
@@ -3807,7 +3807,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
                 TcpTimedCbChannel_WReg *request =
@@ -3833,7 +3833,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
 
@@ -3869,7 +3869,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
             &d_writeBuffer[d_writeBufferOffset],
             static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
-        BSLS_ASSERT(length == len);
+        (void)len; BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
 
@@ -3936,7 +3936,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                                          buffers + idx + 1,
                                          numBuffers - idx - 1);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
             }
             d_writeBufferOffset += numBytes;
             TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
@@ -3959,7 +3959,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-            BSLS_ASSERT(length == len);
+            (void)len; BSLS_ASSERT(length == len);
 
             d_writeBufferOffset += length;
             TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
@@ -3986,7 +3986,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                                          buffers,
                                          numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
 
@@ -4026,7 +4026,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
             &d_writeBuffer[d_writeBufferOffset],
             static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
-        BSLS_ASSERT(length == len);
+        (void)len; BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
 
@@ -4092,7 +4092,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                                    buffers + idx + 1,
                                    numBuffers - idx - 1);
-                    BSLS_ASSERT(length == len);
+                    (void)len; BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
                 TcpTimedCbChannel_WReg *request =
@@ -4115,7 +4115,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                                   buffers,
                                   numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
                 TcpTimedCbChannel_WReg *request = new (d_wrequestPool)
@@ -4142,7 +4142,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                                                          - d_writeBufferOffset,
                               buffers,
                               numBuffers);
-                BSLS_ASSERT(length == len);
+                (void)len; BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
 
@@ -4182,7 +4182,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
             &d_writeBuffer[d_writeBufferOffset],
             static_cast<int>(d_writeBuffer.size()) - d_writeBufferOffset,
             buffers, numBuffers);
-        BSLS_ASSERT(length == len);
+        (void)len; BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
 

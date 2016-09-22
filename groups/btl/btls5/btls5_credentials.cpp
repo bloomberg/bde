@@ -49,6 +49,7 @@ static bool areValidCredentials(const bslstl::StringRef& username,
 void Credentials::set(const bslstl::StringRef& username,
                       const bslstl::StringRef& password)
 {
+    (void)areValidCredentials;
     BSLS_ASSERT(areValidCredentials(username, password));
 
     d_username.assign(username.begin(), username.end());
