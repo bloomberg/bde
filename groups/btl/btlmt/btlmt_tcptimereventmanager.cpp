@@ -1386,7 +1386,7 @@ int TcpTimerEventManager::disable()
 
         int rc = bslmt::ThreadUtil::join(dispatcherHandle);
 
-        BSLS_ASSERT(0 == rc);
+        (void)rc; BSLS_ASSERT(0 == rc);
         d_requestPool.deleteObjectRaw(req);
         d_state = e_DISABLED;
 
@@ -1619,7 +1619,7 @@ int TcpTimerEventManager::rescheduleTimer(const void                *id,
                                                                       // RETURN
     }
 
-    int rc;
+    int rc = 0;
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_stateLock);
     {
         switch (d_state) {
@@ -1900,7 +1900,7 @@ int TcpTimerEventManager::isRegistered(
         return d_manager_p->isRegistered(handle, event);              // RETURN
     }
 
-    int result;
+    int result = 0;
 
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_stateLock);
 
@@ -1961,7 +1961,7 @@ int TcpTimerEventManager::numSocketEvents(
     if (bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(), d_dispatcher)) {
         return d_manager_p->numSocketEvents(handle);                  // RETURN
     }
-    int result;
+    int result = 0;
 
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_stateLock);
 

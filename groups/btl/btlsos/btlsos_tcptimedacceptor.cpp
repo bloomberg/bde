@@ -70,7 +70,7 @@ RESULT *allocate(int                                     *status,
 
     // Bring the listening socket into blocking mode
     int rc = socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     btlso::IPv4Address peer;
     btlso::StreamSocket<btlso::IPv4Address> *acceptedConnection = 0;
@@ -118,9 +118,9 @@ RESULT *timedAllocate(int                                     *status,
     int rc = socket->blockingMode(&result);
 
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-    BSLS_ASSERT(0 != rc);
+    (void)rc; BSLS_ASSERT(0 != rc);
     #else
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
     BSLS_ASSERT(btlso::Flag::e_NONBLOCKING_MODE == result);
     #endif
 
