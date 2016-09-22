@@ -375,9 +375,6 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // is undefined unless '0 <= length' and, if '0 == data', then
         // '0 == length'.  Note that, like an 'std::string', the 'data' need
         // not be null-terminated and may contain embedded null characters.
-        // Note that the seemingly redundant 'int' version is present to be a
-        // better overload match than the constructor taking a pair of pointers
-        // below.
 
     StringRefImp(const_iterator begin, const_iterator end);
         // Create a string-reference object having a valid 'std::string' value,
