@@ -367,6 +367,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
                  INT_TYPE         length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
                                          INT_TYPE>::type = 0);
+    StringRefImp(const CHAR_TYPE *data, size_type length);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
         // and extends for the specified 'length'.  The external representation
@@ -790,6 +791,14 @@ StringRefImp<CHAR_TYPE>::StringRefImp(
 : Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_ASSERT_SAFE(data || 0 == length);
+}
+
+template <class CHAR_TYPE>
+inline
+StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data, size_type length)
+: Base(data, data + length)
+{
     BSLS_ASSERT_SAFE(data || 0 == length);
 }
 
