@@ -1,5 +1,21 @@
-bsl-internal (3.0.4.0) unstable; urgency=low
+bsl-internal (3.0.4.1) unstable; urgency=low
 
+  * cdb2028 Merge pull request #747 from hversche/pr/746-rebased-releases/3.0.x
+  * 717a2d4 Merge pull request #742 from afeher/remove-narrowing-warning
+  * c23d849 Merge pull request #726 from jmendelsohn4/drqs-89038199/bdlt_datetimetz_bdex_support_for_microseconds
+  * e6813e1 Remove narrowing conversion warning.
+  * 91b3b1b Merge pull request #740 from hrosen4/swaputil-recursive-3.0.5-drqs-89393882
+  * b7777a7 Merge pull request #738 from afeher/quoted-escaped-string-literal-creator
+  * 53bfcd6 Merge pull request #721 from afeher/tiny-tidy
+  * 0cc024d Merge pull request #728 from jmendelsohn4/drqs-88737563/bslmt_threadgroup_test_case_4_fix
+  * 7da1f12 Merge pull request #719 from jmendelsohn4/drqs-89072888/bdlt_epochutil_always_true_assert_warning
+  * 07c183b Merge pull request #709 from che2/balxml-encoderoptions-use-z-drqs-88689528
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 23 Sep 2016 10:06:25 -0400
+
+bsl-internal (3.0.4.0) git; urgency=low
+
+  * eab4cde Changelog for version 3.0.4.0
   * d914049 Merge pull request #706 from che2/releases/3.0.x
   * 248af51 Merge pull request #637 from mgiroux/review/apaprock-scalar-primitives-maybe-uninitialized-drqs-87862955
   * fad434a Merge pull request #703 from mgiroux/review/bump-patchversion-to-3.0.4
@@ -19,7 +35,7 @@ bsl-internal (3.0.4.0) unstable; urgency=low
   * 2315bfa Merge pull request #659 from afeher/fix-bdls_filesystemutil-mbcs-windows
   * ff7a294 Merge pull request #658 from afeher/fix-redefined-macro
 
- -- Chen He <che24@bloomberg.net>  Tue, 13 Sep 2016 17:30:34 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Sep 2016 19:18:40 -0400
 
 bsl-internal (3.0.2.0) git; urgency=low
 
