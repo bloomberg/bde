@@ -26,6 +26,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>   // IsDebbugerPresent
 #include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
 
 typedef unsigned long DWORD;
@@ -132,11 +133,11 @@ void Assert::failAbort(const char *text, const char *file, int line)
     sigset_t newset;
     sigemptyset(&newset);
     sigaddset(&newset, SIGABRT);
-    #if defined(BDE_BUILD_TARGET_MT)
-        pthread_sigmask(SIG_UNBLOCK, &newset, 0);
-    #else
-        sigprocmask(SIG_UNBLOCK, &newset, 0);
-    #endif
+#if defined(BDE_BUILD_TARGET_MT)
+    pthread_sigmask(SIG_UNBLOCK, &newset, 0);
+#else
+    sigprocmask(SIG_UNBLOCK, &newset, 0);
+#endif
 #endif
 
 
@@ -144,10 +145,11 @@ void Assert::failAbort(const char *text, const char *file, int line)
     // The following configures the runtime library on how to report asserts,
     // errors, and warnings in order to avoid pop-up windows when 'abort' is
     // called.
-
-    _CrtSetReportMode(_CRT_ASSERT, 0);
-    _CrtSetReportMode(_CRT_ERROR,  0);
-    _CrtSetReportMode(_CRT_WARN,   0);
+    if (!IsDebuggerPresent()) {
+        _CrtSetReportMode(_CRT_ASSERT, 0);
+        _CrtSetReportMode(_CRT_ERROR, 0);
+        _CrtSetReportMode(_CRT_WARN, 0);
+    }
 #endif
 
     std::abort();
