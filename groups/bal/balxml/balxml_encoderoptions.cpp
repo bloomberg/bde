@@ -169,7 +169,7 @@ const bdlat_AttributeInfo balxml::EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         "UseZAbbreviationForUtc",
         sizeof("UseZAbbreviationForUtc") - 1,
         "",
-        bdeat_FormattingMode::e_TEXT
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
