@@ -61,7 +61,7 @@ inline bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
     int resultDay = bsl::min(last,
                              (dayOfFeb == 0 || month != 2) ? day : dayOfFeb);
 
-    BSLS_ASSERT(bdlt::Date::isValid(year, month, resultDay));
+    BSLS_ASSERT(bdlt::Date::isValidYearMonthDay(year, month, resultDay));
 
     return bdlt::Date(year, month, resultDay);
 }
