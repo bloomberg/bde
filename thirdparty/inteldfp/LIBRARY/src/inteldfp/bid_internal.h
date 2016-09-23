@@ -30,11 +30,11 @@
 #ifndef __BIDECIMAL_H
 #define __BIDECIMAL_H
 
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#   define INTELDFP_BID_INTERNAL_DEFINED_CSND
-#endif
-#define _CRT_SECURE_NO_DEPRECATE
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#   ifndef _CRT_SECURE_NO_DEPRECATE
+#      define INTELDFP_BID_INTERNAL_DEFINED_CSND
+#      define _CRT_SECURE_NO_DEPRECATE
+#   endif
 #   define INTELDFP_BID_INTERNAL_PRAGMA_PUSHED
 #   pragma warning( push )
 #   pragma warning( disable: 4996 )
