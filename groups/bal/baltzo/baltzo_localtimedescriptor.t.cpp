@@ -268,7 +268,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   '?',  UTC_MIN,   true,  "a"            },
     { L_,   'Y',  UTC_MAX,   true,  LONG_STRING    },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
         { L_,    INT_MAX + 0,   false   },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE     = DATA[ti].d_line;
@@ -1511,8 +1511,8 @@ int main(int argc, char *argv[])
         //: 9 Comparison is symmetric with respect to user-defined conversion
         //:   (i.e., both comparison operators are free functions).
         //:
-        //:10 'const objects can be compared (i.e., 'const' objects and 'const'
-        //:   references).
+        //:10 Non-modifiable objects can be compared (i.e., 'const' objects and
+        //:   'const' references).
         //:
         //:11 No memory allocation occurs as a result of comparison (e.g., the
         //:   arguments are not passed by value).
@@ -1648,7 +1648,7 @@ int main(int argc, char *argv[])
         { L_,       A1,   A2,   B3 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1981,7 +1981,7 @@ int main(int argc, char *argv[])
 #undef SP
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
