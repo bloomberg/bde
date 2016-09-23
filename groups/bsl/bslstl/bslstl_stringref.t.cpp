@@ -209,6 +209,9 @@ struct TestData
     static CHAR const * nonEmptyString;
     static CHAR const * stringValue1;
     static CHAR const * stringValue2;
+
+    enum Enum { k_ENUM_ZERO_VALUE, k_ENUM_MAX = 0xFFFF };
+    enum      { k_ZERO_VALUE,      k_MAX      = 0xFFFF };
 };
 
 template <>
@@ -2999,8 +3002,11 @@ int main(int argc, char *argv[])
                                  std::strlen(NON_EMPTY_STRING));
 
           // Assorted integer types for length
-#define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
+#define TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
         {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Literal zero " #LITERAL_ZERO "\n";                \
+          }                                                                   \
           Obj x(EMPTY_STRING, LITERAL_ZERO);                                  \
           const Obj& X = x;                                                   \
           ASSERT(X.isEmpty());                                                \
@@ -3008,8 +3014,12 @@ int main(int argc, char *argv[])
           ASSERT(X.begin()   == X.end());                                     \
           ASSERT(X.begin()   == EMPTY_STRING);                                \
           ASSERT(X.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));    \
-        }                                                                     \
+        }
+#define TEST_TYPE(INT_TYPE)                                                   \
         {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Integral type " #INT_TYPE "\n";                   \
+          }                                                                   \
           Obj x(NON_EMPTY_STRING,                                             \
                 static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
           const Obj& X = x;                                                   \
@@ -3020,6 +3030,9 @@ int main(int argc, char *argv[])
           ASSERT(X.end()     == NON_EMPTY_STRING +                            \
                                  std::strlen(NON_EMPTY_STRING));              \
         }
+#define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
+        TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
+        TEST_TYPE(INT_TYPE)
 
           TEST_INT_TYPE(short, (short)0)
           TEST_INT_TYPE(unsigned short, (unsigned short)0)
@@ -3029,6 +3042,17 @@ int main(int argc, char *argv[])
           TEST_INT_TYPE(unsigned long, 0ul)
           TEST_INT_TYPE(long long, 0ll)
           TEST_INT_TYPE(unsigned long long, 0ull)
+
+          enum Enum { k_LOCAL_ENUM_ZERO_VALUE, k_LOCAL_ENUM_MAX = 0xFFFF };
+          enum      { k_LOCAL_ZERO_VALUE,      k_LOCAL_MAX      = 0xFFFF };
+
+          TEST_LITERAL_ZERO(TestData<char>::k_ENUM_ZERO_VALUE)
+          TEST_TYPE(TestData<char>::Enum)
+          TEST_LITERAL_ZERO(TestData<char>::k_ZERO_VALUE)
+
+          TEST_LITERAL_ZERO(k_LOCAL_ENUM_ZERO_VALUE)
+          TEST_TYPE(Enum)
+          TEST_LITERAL_ZERO(k_LOCAL_ZERO_VALUE)
         }
 
         if (veryVerbose)
