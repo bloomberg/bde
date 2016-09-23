@@ -49,15 +49,17 @@ using bsl::endl;
 // [ 9] void reset(bsl::streambuf &streamBuf);
 // [12] void resetStreamBufGetPointer();
 // [13] void setAllowStandAloneValues(bool value);
+// [14] void setAllowHeterogenousArrays(bool value);
 // [ 3] int advanceToNextToken();
 //
 // ACCESSORS
 // [ 3] TokenType tokenType() const;
 // [13] bool allowStandAloneValues() const;
+// [14] bool allowHeterogenousArrays() const;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -192,7 +194,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -313,6 +315,159 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == address.d_state);
     ASSERT(10022           == address.d_zipcode);
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'setAllowHeterogenousArrays' and 'allowHeterogenousArrays'
+        //
+        // Concerns:
+        //: 1 'allowHeterogenousArrays' returns 'true' by default.
+        //:
+        //: 2 'setAllowHeterogenousArrays' method sets the
+        //:   'allowHeterogenousArrays' option to the specified value.
+        //:
+        //: 3 'allowHeterogenousArrays' method returns the correct value of the
+        //:   'allowHeterogenousArrays' option.
+        //:
+        //: 4 If 'allowHeterogenousArrays' option is 'false' then only JSON
+        //:   arrays that have homogenous values are accepted.  Note that
+        //:   homogenous implies that the values are all simple types (number
+        //:   or string) or all arrays or all objects.
+        //:
+        //: 5 If 'allowHeterogenousArrays' option is 'true' then arrays of
+        //:   heterogenous values are accepted.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the value of the
+        //:   'allowHeterogenousArrays' option, the expected token type after
+        //:   invoking 'advanceToNextToken', and the expected value.
+        //:
+        //: 2 For each row in the table, construct a 'Tokenizer', 'mX',
+        //:   with the values in that row.
+        //:
+        //: 3 Confirm that the 'allowHeterogenousArrays' setter and getter
+        //:   functions works as expected.
+        //:
+        //: 4 Confirm that the if 'allowHeterogenousArrays' value is 'true'
+        //:   then arrays of heterogenous values are tokenized correctly.
+        //
+        // Testing:
+        //   void setAllowHeterogenousArrays(bool value);
+        //   bool allowHeterogenousArrays() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'allowHeterogenousArrays' option" << endl
+                          << "=======================================" << endl;
+
+        const struct {
+            int             d_line;
+            const char     *d_text_p;
+            int             d_numAdvances;
+            bool            d_allowHeterogenousArrays;
+            bool            d_validFlag;
+            Obj::TokenType  d_expTokenType;
+        } DATA[] = {
+            // {
+            //     L_,
+            //     "[1,\"Hello\"]",
+            //     2,
+            //     false,
+            //     true,
+            //     Obj::e_ELEMENT_VALUE,
+            // },
+            // {
+            //     L_,
+            //     "[1,\"Hello\"]",
+            //     2,
+            //     true,
+            //     true,
+            //     Obj::e_ELEMENT_VALUE,
+            // },
+            // {
+            //     L_,
+            //     "[[],1]",
+            //     3,
+            //     false,
+            //     false,
+            //     Obj::e_ERROR,
+            // },
+            {
+                L_,
+                "[[],1]",
+                3,
+                true,
+                true,
+                Obj::e_ELEMENT_VALUE,
+            },
+            // {
+            //     L_,
+            //     "[[], \"Hello\"]",
+            //     4,
+            //     false,
+            //     false,
+            //     Obj::e_ERROR,
+            // },
+            // {
+            //     L_,
+            //     "[1,{}]",
+            //     2,
+            //     false,
+            //     false,
+            //     Obj::e_ERROR,
+            // },
+            // {
+            //     L_,
+            //     "[1,{}]",
+            //     2,
+            //     true,
+            //     true,
+            //     Obj::e_START_OBJECT,
+            // },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+            const int            LINE      = DATA[ti].d_line;
+            const string         TEXT      = DATA[ti].d_text_p;
+            const int            NUM_ADV   = DATA[ti].d_numAdvances;
+            const bool           ALLOW_HETEROGENOUS_ARRAYS
+                                          = DATA[ti].d_allowHeterogenousArrays;
+            const bool           IS_VALID  = DATA[ti].d_validFlag;
+            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
+
+            bsl::istringstream iss(TEXT);
+
+            if (veryVerbose) {
+                P(LINE) P(TEXT) P(IS_VALID)
+                P(EXP_TOKEN)
+            }
+
+            Obj mX;  const Obj& X = mX;
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+            ASSERTV(X.allowHeterogenousArrays(),
+                    true == X.allowHeterogenousArrays());
+
+            mX.reset(iss.rdbuf());
+
+            mX.setAllowHeterogenousArrays(ALLOW_HETEROGENOUS_ARRAYS);
+            ASSERTV(X.allowHeterogenousArrays(), ALLOW_HETEROGENOUS_ARRAYS,
+                    ALLOW_HETEROGENOUS_ARRAYS == X.allowHeterogenousArrays());
+
+            for (int i = 0; i < NUM_ADV; ++i) {
+                ASSERTV(LINE, 0 == mX.advanceToNextToken());
+            }
+
+            if (IS_VALID) {
+                ASSERTV(LINE, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(), EXP_TOKEN,
+                        EXP_TOKEN == X.tokenType());
+            }
+            else {
+                ASSERTV(LINE, 0 != mX.advanceToNextToken());
+            }
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------

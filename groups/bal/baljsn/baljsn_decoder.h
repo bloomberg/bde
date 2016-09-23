@@ -944,6 +944,7 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
 
     d_tokenizer.reset(streamBuf);
     d_tokenizer.setAllowStandAloneValues(false);
+    d_tokenizer.setAllowHeterogenousArrays(false);
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
