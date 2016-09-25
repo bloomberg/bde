@@ -437,6 +437,10 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // to have values of attributes 'begin' and 'end' equal to the 'rhs'
         // object's attributes.
 
+    template <class INT_TYPE>
+    void assign(const CHAR_TYPE *data, INT_TYPE length,
+                 typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                                         INT_TYPE>::type = 0);
     void assign(const CHAR_TYPE *data, size_type length);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for the specified 'length' characters.  The
@@ -444,7 +448,10 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // it is bound to this object.  The behavior is undefined unless
         // '0 <= length' or '0 == data && 0 == length'.  Note that the string
         // need not be null-terminated and may contain embedded null
-        // characters.
+        // characters.  Note that the template and non-template versions
+        // combine to allow various integral and enumeration types to be used
+        // for length while preventing '(char *, 0)' initializer arguments from
+        // matching the two-iterator overload of 'assign' below.
 
     void assign(const_iterator begin, const_iterator end);
         // Bind this string reference to the string at the specified 'begin'
@@ -860,6 +867,18 @@ StringRefImp<CHAR_TYPE>&
 {
     Base::operator=(rhs);
     return *this;
+}
+
+template <class CHAR_TYPE>
+template <class INT_TYPE>
+inline
+void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data, INT_TYPE length,
+                 typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                                         INT_TYPE>::type)
+{
+    BSLS_ASSERT_SAFE(data || 0 == length);
+
+    *this = StringRefImp(data, data + length);
 }
 
 template <class CHAR_TYPE>
