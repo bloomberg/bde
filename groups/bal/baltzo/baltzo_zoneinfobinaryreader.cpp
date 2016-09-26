@@ -8,8 +8,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryheader.h>
 
-#include <ball_log.h>
-
 #include <bdlb_bigendian.h>
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
@@ -31,6 +29,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_byteorder.h>
+#include <bsls_log.h>
 #include <bsls_types.h>
 
 ///Implementation Notes
@@ -49,8 +48,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 //:        o time/tzfile.c        (source for loading tz data)
 
 namespace BloombergLP {
-
-static const char LOG_CATEGORY[] = "baltzo.ZONEINFOBINARYREADER";
 
 namespace {
 
@@ -197,59 +194,47 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
 {
     BSLS_ASSERT(result);
 
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     RawHeader rawHeader;
     if (!stream.read((char *)&rawHeader, sizeof(RawHeader))) {
-        BALL_LOG_ERROR << "Unable to read Zoneinfo header." << BALL_LOG_END;
+        BSLS_LOG_ERROR("Unable to read Zoneinfo header.");
         return -1;                                                    // RETURN
     }
 
     if (0 != bsl::memcmp(EXPECTED_HEADER_ID, rawHeader.d_headerId, 4)) {
         bsl::string headerId;
         formatHeaderId(&headerId, rawHeader.d_headerId, 4);
-        BALL_LOG_ERROR << "Did not find expected header id.  Expecting "
-                       << "'TZif', found '" + headerId + "'"
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Did not find expected header id.  Expecting "
+                       "'TZif', found '%s'", headerId.c_str());
         return -2;                                                    // RETURN
     }
 
     char version = *rawHeader.d_version;
     if ('\0' != version && '2' != version) {
-        BALL_LOG_ERROR << "Found unexpected version value: "
-                       << (int)version
-                       << " ('"
-                       << version
-                       << "').  Expecting '\\0' or '2'."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Found unexpected version value: %d ('%c'). "
+                       "Expecting '\\0' or '2'.", (int)version, version);
         return -3;                                                    // RETURN
     }
     result->setVersion(version);
 
     int numLocalTimeTypes = decode32(rawHeader.d_numLocalTimeTypes);
     if (0 >= numLocalTimeTypes) {
-        BALL_LOG_ERROR << "Empty list of local-time types in Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Empty list of local-time types in Zoneinfo file.");
         return -4;                                                    // RETURN
     }
     result->setNumLocalTimeTypes(numLocalTimeTypes);
 
     int numIsGmt = decode32(rawHeader.d_numIsGmt);
     if (0 > numIsGmt) {
-        BALL_LOG_ERROR << "Invalid number of 'isGmt' flags "
-                       << numIsGmt
-                       << " found in Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Invalid number of 'isGmt' flags %d found in Zoneinfo "
+                       "file.", numIsGmt);
         return -5;                                                    // RETURN
     }
     result->setNumIsGmt(numIsGmt);
 
     int numIsStd = decode32(rawHeader.d_numIsStd);
     if (0 > numIsStd) {
-        BALL_LOG_ERROR << "Invalid number of 'isStd' flags "
-                       << numIsStd
-                       << " found in Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Invalid number of 'isStd' flags %d found in Zoneinfo "
+                       "file.", numIsStd);
         return -6;                                                    // RETURN
     }
     result->setNumIsStd(numIsStd);
@@ -261,34 +246,30 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
 
     if ((0 != numIsGmt && numIsGmt != numLocalTimeTypes)
         || (0 != numIsStd && numIsStd != numLocalTimeTypes)) {
-        BALL_LOG_WARN << "Unexpected number of isGmt or isStd values in "
-                      << "Zoneinfo file."
-                      << BALL_LOG_END;
+        BSLS_LOG_WARN("Unexpected number of isGmt or isStd values in "
+                      "Zoneinfo file.");
     }
 
     int numLeaps = decode32(rawHeader.d_numLeaps);
     if (0 != numLeaps) {
-        BALL_LOG_ERROR << "Non-zero number of leap corrections found in "
-                       << "Zoneinfo file.  Leap correction is not supported "
-                       << "by 'baltzo::ZoneinfoBinaryReader'."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Non-zero number of leap corrections found in "
+                       "Zoneinfo file.  Leap correction is not supported "
+                       "by 'baltzo::ZoneinfoBinaryReader'.");
         return -7;                                                    // RETURN
     }
     result->setNumLeaps(numLeaps);
 
     int numTransitions = decode32(rawHeader.d_numTransitions);
     if (0 > numTransitions) {
-        BALL_LOG_ERROR << "Invalid number of transitions found in Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Invalid number of transitions found in Zoneinfo "
+                       "file.");
         return -8;                                                    // RETURN
     }
     result->setNumTransitions(numTransitions);
 
     int abbrevDataSize = decode32(rawHeader.d_abbrevDataSize);
     if (0 >= abbrevDataSize) {
-        BALL_LOG_ERROR << "No abbreviations data found in Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("No abbreviations data found in Zoneinfo file.");
         return -9;                                                    // RETURN
     }
     result->setAbbrevDataSize(abbrevDataSize);
@@ -307,17 +288,14 @@ int loadLocalTimeDescriptors(
     // abbreviations in the specified 'abbreviationBuffer'.  Return 0 on
     // success, and a non-zero value otherwise.
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
         if (!validIndex(abbreviationBuffer,
                         localTimeDescriptors[i].d_abbreviationIndex)) {
-            BALL_LOG_ERROR << "Invalid abbreviation buffer index "
-                           << (int)localTimeDescriptors[i].d_abbreviationIndex
-                           << " found in Zoneinfo file.  Expecting [0 .. "
-                           << abbreviationBuffer.size() - 1
-                           << "]."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Invalid abbreviation buffer index %d found in "
+                           "Zoneinfo file.  Expecting [0 .. %d].",
+                           (int)localTimeDescriptors[i].d_abbreviationIndex,
+                           abbreviationBuffer.size() - 1);
             return -20;                                               // RETURN
         }
 
@@ -325,11 +303,8 @@ int loadLocalTimeDescriptors(
 
         if (!baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(
                                                                   utcOffset)) {
-            BALL_LOG_ERROR << "Invalid UTC offset "
-                           << utcOffset
-                           << " found in Zoneinfo file.  Expecting "
-                           << "[-86399 .. 86399]."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Invalid UTC offset %d found in Zoneinfo file.  "
+                           "Expecting [-86399 .. 86399].", utcOffset);
 
             return -21;                                               // RETURN
         }
@@ -347,8 +322,7 @@ int loadLocalTimeDescriptors(
                               - localTimeDescriptors[i].d_abbreviationIndex
                               - 1);
         if (maxLength < bdlb::String::strnlen(description, maxLength + 1)) {
-            BALL_LOG_ERROR << "Abbreviation string is not null-terminated."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Abbreviation string is not null-terminated.");
             return -22;                                               // RETURN
         }
 
@@ -374,8 +348,6 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     // data in a Zoneinfo binary file).  If an error occurs during the
     // operation, the resulting value of 'zoneinfoResult' is unspecified.
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
         return rc;                                                    // RETURN
@@ -385,8 +357,7 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&transitions,
                           stream,
                           headerResult->numTransitions())) {
-        BALL_LOG_ERROR << "Error reading transitions from Zoneinfo file."
-                       << BALL_LOG_END
+        BSLS_LOG_ERROR("Error reading transitions from Zoneinfo file.");
         return -23;                                                   // RETURN
     }
 
@@ -394,9 +365,7 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&localTimeIndices,
                           stream,
                           headerResult->numTransitions())){
-        BALL_LOG_ERROR << "Error reading local time indices from "
-                       << "Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local time indices from Zoneinfo file.");
         return -24;                                                   // RETURN
     }
 
@@ -404,8 +373,7 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&localTimeDescriptors,
                           stream,
                           headerResult->numLocalTimeTypes())){
-        BALL_LOG_ERROR << "Error reading local-time types from Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local-time types from Zoneinfo file.");
         return -25;                                                   // RETURN
     }
 
@@ -413,32 +381,28 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&abbreviationBuffer,
                           stream,
                           headerResult->abbrevDataSize())) {
-        BALL_LOG_ERROR << "Error reading abbreviation buffer from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading abbreviation buffer from Zoneinfo "
+                       "file.");
         return -26;                                                   // RETURN
     }
 
     bsl::vector<RawLeapInfo64> leapInfos;
     if (0 != readRawArray(&leapInfos, stream, headerResult->numLeaps())) {
-        BALL_LOG_ERROR << "Error reading leap information from Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading leap information from Zoneinfo file.");
         return -27;                                                   // RETURN
     }
 
     bsl::vector<unsigned char> isGmt;
     if (0 != readRawArray(&isGmt, stream, headerResult->numIsGmt())) {
-        BALL_LOG_ERROR << "Error reading 'isGmt' information from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading 'isGmt' information from Zoneinfo "
+                       "file.");
         return -28;                                                   // RETURN
     }
 
     bsl::vector<unsigned char> isStd;
     if (0 != readRawArray(&isStd, stream, headerResult->numIsStd())) {
-        BALL_LOG_ERROR << "Error reading 'isStd' information from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading 'isStd' information from Zoneinfo "
+                       "file.");
         return -29;                                                   // RETURN
     }
 
@@ -453,9 +417,8 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     if (0 != loadLocalTimeDescriptors(&descriptors,
                                       localTimeDescriptors,
                                       abbreviationBuffer)) {
-        BALL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local time descriptors from Zoneinfo "
+                       "file.");
         return -30;                                                   // RETURN
     }
 
@@ -471,18 +434,15 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
 
     for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
-            BALL_LOG_ERROR << "Invalid local-type type index "
-                           << (int)localTimeIndices[i]
-                           << " found in Zoneinfo file.  Expecting [0 .. "
-                           << descriptors.size() - 1
-                           << "]."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Invalid local-type type index %d found in Zoneinfo"
+                           " file.  Expecting [0 .. %d].",
+                           (int)localTimeIndices[i],
+                           descriptors.size() - 1);
             return -31;                                               // RETURN
         }
 
         if (i > 0 && transitions[i - 1] >= transitions[i]) {
-            BALL_LOG_ERROR << "Transition time is not in ascending order."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Transition time is not in ascending order.");
             return -32;                                               // RETURN
         }
 
@@ -510,8 +470,6 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
                                        ZoneinfoBinaryHeader *headerResult,
                                        bsl::istream&         stream)
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
         return rc;                                                    // RETURN
@@ -521,8 +479,7 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&transitions,
                           stream,
                           headerResult->numTransitions())) {
-        BALL_LOG_ERROR << "Error reading transitions from Zoneinfo file."
-                       << BALL_LOG_END
+        BSLS_LOG_ERROR("Error reading transitions from Zoneinfo file.");
         return -10;                                                   // RETURN
     }
 
@@ -530,9 +487,7 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&localTimeIndices,
                           stream,
                           headerResult->numTransitions())){
-        BALL_LOG_ERROR << "Error reading local time indices from "
-                       << "Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local time indices from Zoneinfo file.");
         return -11;                                                   // RETURN
     }
 
@@ -540,8 +495,7 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&localTimeDescriptors,
                           stream,
                           headerResult->numLocalTimeTypes())){
-        BALL_LOG_ERROR << "Error reading local-time types from Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local-time types from Zoneinfo file.");
         return -12;                                                   // RETURN
     }
 
@@ -549,32 +503,28 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     if (0 != readRawArray(&abbreviationBuffer,
                           stream,
                           headerResult->abbrevDataSize())) {
-        BALL_LOG_ERROR << "Error reading abbreviation buffer from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading abbreviation buffer from Zoneinfo "
+                       "file.");
         return -13;                                                   // RETURN
     }
 
     bsl::vector<RawLeapInfo> leapInfos;
     if (0 != readRawArray(&leapInfos, stream, headerResult->numLeaps())) {
-        BALL_LOG_ERROR << "Error reading leap information from Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading leap information from Zoneinfo file.");
         return -14;                                                   // RETURN
     }
 
     bsl::vector<unsigned char> isGmt;
     if (0 != readRawArray(&isGmt, stream, headerResult->numIsGmt())) {
-        BALL_LOG_ERROR << "Error reading 'isGmt' information from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading 'isGmt' information from Zoneinfo "
+                       "file.");
         return -15;                                                   // RETURN
     }
 
     bsl::vector<unsigned char> isStd;
     if (0 != readRawArray(&isStd, stream, headerResult->numIsStd())) {
-        BALL_LOG_ERROR << "Error reading 'isStd' information from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading 'isStd' information from Zoneinfo "
+                       "file.");
         return -16;                                                   // RETURN
     }
 
@@ -600,9 +550,8 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     if (0 != loadLocalTimeDescriptors(&descriptors,
                                       localTimeDescriptors,
                                       abbreviationBuffer)) {
-        BALL_LOG_ERROR << "Error reading local time descriptors from Zoneinfo "
-                       << "file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading local time descriptors from Zoneinfo "
+                       "file.");
         return -17;                                                   // RETURN
     }
 
@@ -616,18 +565,15 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
 
     for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
-            BALL_LOG_ERROR << "Invalid local-type type index "
-                           << (int)localTimeIndices[i]
-                           << " found in Zoneinfo file.  Expecting [0 .. "
-                           << descriptors.size() - 1
-                           << "]."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Invalid local-type type index %d found in Zoneinfo"
+                           " file.  Expecting [0 .. %d].",
+                           (int)localTimeIndices[i],
+                           descriptors.size() - 1);
             return -18;                                               // RETURN
         }
 
         if (i > 0 && transitions[i - 1] >= transitions[i]) {
-            BALL_LOG_ERROR << "Transition time is not in ascending order."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Transition time is not in ascending order.");
             return -19;                                               // RETURN
         }
 

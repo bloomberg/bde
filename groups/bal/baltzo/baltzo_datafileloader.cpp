@@ -8,8 +8,6 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryreader.h>
 
-#include <ball_log.h>
-
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 
@@ -20,6 +18,7 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 #include <bslstl_stringref.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstring.h>
@@ -28,8 +27,6 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-static const char LOG_CATEGORY[] = "BALTZO.DATAFILELOADER";
 
 static const char *INVALID_PATH = "! INVALID_FILE_PATH !";
 
@@ -128,10 +125,9 @@ void baltzo::DataFileLoader::configureRootPath(const char *path)
     BSLS_ASSERT(path);
 
     if (!isPlausibleZoneinfoRootPath(path)) {
-        BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-        BALL_LOG_DEBUG << "Invalid directory provided to initialize "
-                       << "Zoneinfo database time-zone information loader: "
-                       << path << BALL_LOG_END;
+        BSLS_LOG_DEBUG("Invalid directory provided to initialize "
+                       "Zoneinfo database time-zone information loader: %s",
+                       path);
     }
     d_rootPath = path;
 }
@@ -154,13 +150,10 @@ int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
 
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     bsl::string path;
     const int rc = loadTimeZoneFilePath(&path, timeZoneId);
     if (0 != rc) {
-        BALL_LOG_ERROR << "Poorly formed time-zone identifier '"
-                       << timeZoneId << "'" << BALL_LOG_END;
+        BSLS_LOG_ERROR("Poorly formed time-zone identifier '%s'", timeZoneId);
         return UNSUPPORTED_ID;                                        // RETURN
     }
 
@@ -176,8 +169,8 @@ int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
         // the data-file loader is not correctly configured, return
         // 'UNSPECIFIED_ERROR' (different from 'k_UNSUPPORTED_ID').
 
-        BALL_LOG_ERROR << "Failed to open time-zone information file '"
-                       << path << "'" << BALL_LOG_END;
+        BSLS_LOG_ERROR("Failed to open time-zone information file '%s'", 
+                       path.c_str());
 
         return isRootPathPlausible()
                ? UNSUPPORTED_ID
