@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalplatform.h>
-#include <bdldfp_uint128.h>
+#include <bdldfp_decimalimputil.h>
 
 #include <bsls_assert.h>
 #include <bslmf_assert.h>
@@ -869,6 +869,204 @@ bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
+}
+
+int DecimalUtil::decompose(int          *sign,
+                           unsigned int *significand,
+                           int          *exponent,
+                           Decimal32     value)
+{
+    BSLS_ASSERT(sign);
+    BSLS_ASSERT(significand);
+    BSLS_ASSERT(exponent);
+
+    enum {
+        k_SIGN_MASK             = 0x80000000ul,
+        k_SPECIAL_ENCODING_MASK = 0x60000000ul,
+        k_INFINITY_MASK         = 0x78000000ul,
+        k_NAN_MASK              = 0x7c000000ul,
+        k_SMALL_COEFF_MASK      = 0x001ffffful,
+        k_LARGE_COEFF_MASK      = 0x007ffffful,
+        k_LARGE_COEFF_HIGH_BIT  = 0x00800000ul,
+        k_EXPONENT_MASK         = 0xff,
+        k_EXPONENT_SHIFT_LARGE  = 21,
+        k_EXPONENT_SHIFT_SMALL  = 23,
+        k_DECIMAL_EXPONENT_BIAS = 101,
+    };
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    unsigned int x = value.data()->d_raw;
+#else
+    unsigned int x = *value.data()->words;
+#endif
+
+    unsigned int tmp;
+    int cl = classify(value);
+
+    *sign = (x & k_SIGN_MASK) ? -1 : 1;
+
+    if ((x & k_SPECIAL_ENCODING_MASK) == k_SPECIAL_ENCODING_MASK) {
+        // special encodings
+        if ((x & k_INFINITY_MASK) == k_INFINITY_MASK) {
+            // NaN or Infinity
+            *exponent = 0;
+            *significand = x & 0x7e000000;
+            if ((x & k_NAN_MASK) == k_INFINITY_MASK) {
+                *significand = x & 0x7c000000;
+            }
+            return cl;
+        }
+        // get significand
+        *significand = (x & k_SMALL_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
+
+        // get exponent
+        tmp = x >> k_EXPONENT_SHIFT_LARGE;
+        *exponent = (tmp & k_EXPONENT_MASK) - k_DECIMAL_EXPONENT_BIAS;
+        return cl;
+    }
+    // get exponent
+    tmp = x >> k_EXPONENT_SHIFT_SMALL;
+    *exponent = (tmp & k_EXPONENT_MASK) - k_DECIMAL_EXPONENT_BIAS;
+    // get coefficient
+    *significand = (x & k_LARGE_COEFF_MASK);
+
+    return cl;
+}
+
+int DecimalUtil::decompose(int                 *sign,
+                           bsls::Types::Uint64 *significand,
+                           int                 *exponent,
+                           Decimal64            value)
+{
+    BSLS_ASSERT(sign);
+    BSLS_ASSERT(significand);
+    BSLS_ASSERT(exponent);
+
+    enum {
+        k_SIGN_MASK             = 0x8000000000000000ull,
+        k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
+        k_INFINITY_MASK         = 0x7800000000000000ull,
+        k_SINFINITY_MASK        = 0xf800000000000000ull,
+        k_NAN_MASK              = 0x7c00000000000000ull,
+        k_SMALL_COEFF_MASK      = 0x001fffffffffffffull,
+        k_LARGE_COEFF_MASK      = 0x0007ffffffffffffull,
+        k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
+        k_EXPONENT_MASK         = 0x3ff,
+        k_EXPONENT_SHIFT_LARGE  = 51,
+        k_EXPONENT_SHIFT_SMALL  = 53,
+        k_DECIMAL_EXPONENT_BIAS = 398,
+    };
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    bsls::Types::Uint64 x = value.data()->d_raw;
+#else
+    bsls::Types::Uint64 x = *value.data()->longs;
+#endif
+
+    bsls::Types::Uint64 tmp;
+    int cl = classify(value);
+
+    *sign = (x & k_SIGN_MASK) ? -1 : 1;
+
+    if ((x & k_SPECIAL_ENCODING_MASK) == k_SPECIAL_ENCODING_MASK) {
+        // special encodings
+        if ((x & k_INFINITY_MASK) == k_INFINITY_MASK) {
+            *exponent = 0;
+            *significand = x & 0x7e00000000000000ull;
+            if ((x & k_NAN_MASK) == k_INFINITY_MASK) {
+                *significand = x & 0x7c00000000000000ull;
+            }
+            return cl; // NaN or Infinity
+        }
+        *significand = (x & k_LARGE_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
+        // get exponent
+        tmp = x >> k_EXPONENT_SHIFT_LARGE;
+        *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
+                    - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+        return cl;
+    }
+    // exponent
+    tmp = x >> k_EXPONENT_SHIFT_SMALL;
+    *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
+                - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+    // coefficient
+    *significand = (x & k_SMALL_COEFF_MASK);
+
+    return cl;
+}
+
+int DecimalUtil::decompose(int                 *sign,
+                           Uint128             *significand,
+                           int                 *exponent,
+                           Decimal128           value)
+{
+    enum {
+        k_SIGN_MASK             = 0x8000000000000000ull,
+        k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
+        k_INFINITY_MASK         = 0x7800000000000000ull,
+        k_SINFINITY_MASK        = 0xf800000000000000ull,
+        k_NAN_MASK              = 0x7c00000000000000ull,
+        k_SMALL_COEFF_MASK      = 0x0001ffffffffffffull,
+        k_LARGE_COEFF_MASK      = 0x00007fffffffffffull,
+        k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
+        k_EXPONENT_MASK         = 0x3fff,
+        k_EXPONENT_SHIFT_LARGE  = 47,
+        k_EXPONENT_SHIFT_SMALL  = 49,
+        k_DECIMAL_EXPONENT_BIAS = 6176,
+    };
+
+    BSLS_ASSERT(sign);
+    BSLS_ASSERT(significand);
+    BSLS_ASSERT(exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsls::Types::Uint64 xH = value.data()->d_raw.w[0];
+    bsls::Types::Uint64 xL = value.data()->d_raw.w[1];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    bsls::Types::Uint64 xL = value.data()->d_raw.w[0];
+    bsls::Types::Uint64 xH = value.data()->d_raw.w[1];
+    #endif
+#else
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsls::Types::Uint64 xH = *value.data()->longs[0];
+    bsls::Types::Uint64 xL = *value.data()->longs[1];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    bsls::Types::Uint64 xL = *value.data()->longs[0];
+    bsls::Types::Uint64 xH = *value.data()->longs[1];
+    #endif
+#endif
+
+    bsls::Types::Uint64 tmp;
+    int cl = classify(value);
+
+   *sign = (xH & k_SIGN_MASK) ? -1 : 1;
+
+    if ((xH & k_SPECIAL_ENCODING_MASK) == k_SPECIAL_ENCODING_MASK) {
+        // special encodings
+        if ((xH & k_INFINITY_MASK) == k_INFINITY_MASK) {
+            *exponent = 0;
+            significand->setHigh(xH & 0x7e00000000000000ull);
+            significand->setLow(0);
+            if ((xH & k_NAN_MASK) == k_INFINITY_MASK) {
+                significand->setHigh(xH & 0x7c00000000000000ull);
+            }
+            return cl; // NaN or Infinity
+        }
+
+        // The significand is out of the valid range (begins with 2^113) and
+        // thus is decomposed as zero.
+        return FP_ZERO;
+    }
+
+    tmp = xH >> k_EXPONENT_SHIFT_SMALL;
+    *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
+                - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+    // coefficient
+    significand->setHigh(xH & k_SMALL_COEFF_MASK);
+    significand->setLow(xL);
+
+    return cl;
 }
 
 }  // close package namespace
