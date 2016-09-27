@@ -409,7 +409,7 @@ BSLS_IDENT("$Id: $")
 //
 // A third example illustrates use of 'applyRaw', the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
-// ways to specify the return value from 'apply:
+// ways to specify the return value from 'apply':
 //: o The return value is specified in the visitor.
 //: o The return value is specified with the function call.
 //
@@ -8855,7 +8855,7 @@ RET_TYPE VariantImp<TYPES>::applyRaw(VISITOR& visitor)
 {
     typedef Variant_RawVisitorHelper<RET_TYPE, VISITOR> Helper;
 
-    return doApplyR<const Helper&, RET_TYPE>(Helper(visitor), this->d_type);
+    return doApplyR<const Helper&, RET_TYPE>(Helper(&visitor), this->d_type);
 }
 
 template <class TYPES>
@@ -8865,7 +8865,7 @@ RET_TYPE VariantImp<TYPES>::applyRaw(const VISITOR& visitor)
 {
     typedef Variant_RawVisitorHelper<RET_TYPE, const VISITOR> Helper;
 
-    return doApplyR<const Helper&, RET_TYPE>(Helper(visitor), this->d_type);
+    return doApplyR<const Helper&, RET_TYPE>(Helper(&visitor), this->d_type);
 }
 
 template <class TYPES>

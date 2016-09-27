@@ -46,10 +46,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                            XLC Warning
 //                            -----------
-// There is a large set of template instantiations located at the bottom of
-// the file.  This was recommended by IBM support as a work-around for a
-// a xlc compiler crash caused by test-case 18.
-//
+// There is a large set of template instantiations located at the bottom of the
+// file.  This was recommended by IBM support as a work-around for an xlC
+// compiler crash caused by test case 18.
 //
 //                              Overview
 //                              --------
@@ -240,6 +239,11 @@ typedef bslmf::TypeList<int, bsl::string, TestInt,
                         TestString, TestVoid> VariantTypes;
 
 typedef bdlb::VariantImp<VariantTypes>        Obj;
+// TBD Consider making this a 'typedef' to 'Variant' instead (*not* to 'Imp').
+// The default ctor, copy ctor, and copy-assignment operator of 'Variant' do
+// not appear to be tested (despite claims to the contrary in the "Testing"
+// sections of case 2, case 7, and case 9, respectively.  The value ctor and
+// value assignment operator of 'Variant' do not seem to be tested either.
 
 //-----------------------------------------------------------------------------
 
@@ -657,7 +661,7 @@ class TestString {
             stream.putUint8(sum);
           } break;
           default: ASSERT(0);
-        };
+        }
         return stream;
     }
 
@@ -1947,13 +1951,15 @@ Obj g(const char *spec)
 
 namespace nilvisitor {
 
+const int EXPECTED_VISITOR_RETURN_VALUE = 7;
+
 struct TestVisitorWithResultType {
     // This test visitor explicitly does not provide an overload for
     // 'bslmf::Nil', and has a non-void 'ResultType'.
 
     typedef int ResultType;
 
-    ResultType operator()(int) const { return 0; }
+    ResultType operator()(int) const { return EXPECTED_VISITOR_RETURN_VALUE; }
 };
 
 struct TestVisitorWithoutResultType {
@@ -1967,7 +1973,7 @@ struct TestVisitorWithUndeclaredResultType {
     // This test visitor explicitly does not provide an overload for
     // 'bslmf::Nil', and has no 'ResultType'.
 
-     int operator()(int) const { return 0; }
+     int operator()(int) const { return EXPECTED_VISITOR_RETURN_VALUE; }
 };
 
 }  // close namespace nilvisitor
@@ -2040,47 +2046,45 @@ struct TestUtil {
 
                switch (X.typeIndex()) {
                  case UNSET: {
-                     ASSERT(TYPE_IDX2 == UNSET);
+                   ASSERT(TYPE_IDX2 == UNSET);
                  } break;
                  case INT_TYPE: {
-                     ASSERT(INT_DATA[VALUE_IDX2] == X.the<int>());
+                   ASSERT(INT_DATA[VALUE_IDX2] == X.the<int>());
                  } break;
                  case TEST_INT_TYPE: {
-                     ASSERT(TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
+                   ASSERT(TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
                  } break;
                  case STRING_TYPE: {
-                     ASSERT(STRING_DATA[VALUE_IDX2] == X.the<bsl::string>());
+                   ASSERT(STRING_DATA[VALUE_IDX2] == X.the<bsl::string>());
                  } break;
                  case TEST_STRING_TYPE: {
-                     ASSERT(TEST_STRING_DATA[VALUE_IDX2] ==
-                            X.the<TestString>());
+                   ASSERT(TEST_STRING_DATA[VALUE_IDX2] == X.the<TestString>());
                  } break;
                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
                }
 
                switch (Y.typeIndex()) {
                  case UNSET: {
-                     ASSERT(TYPE_IDX1 == UNSET);
+                   ASSERT(TYPE_IDX1 == UNSET);
                  } break;
                  case INT_TYPE: {
-                     ASSERT(INT_DATA[VALUE_IDX1] == Y.the<int>());
+                   ASSERT(INT_DATA[VALUE_IDX1] == Y.the<int>());
                  } break;
                  case TEST_INT_TYPE: {
-                     ASSERT(TEST_INT_DATA[VALUE_IDX1] == Y.the<TestInt>());
+                   ASSERT(TEST_INT_DATA[VALUE_IDX1] == Y.the<TestInt>());
                  } break;
                  case STRING_TYPE: {
-                     ASSERT(STRING_DATA[VALUE_IDX1] == Y.the<bsl::string>());
+                   ASSERT(STRING_DATA[VALUE_IDX1] == Y.the<bsl::string>());
                  } break;
                  case TEST_STRING_TYPE: {
-                     ASSERT(TEST_STRING_DATA[VALUE_IDX1] ==
-                            Y.the<TestString>());
+                   ASSERT(TEST_STRING_DATA[VALUE_IDX1] == Y.the<TestString>());
                  } break;
                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
                }
            }
        }
-
    }
+
    static void testCase20()
    {
        using namespace nilvisitor;
@@ -2099,6 +2103,7 @@ struct TestUtil {
        TestVisitorWithResultType&           vwrt  = withResultType;
        TestVisitorWithoutResultType&        vwort = withoutResultType;
        TestVisitorWithUndeclaredResultType& vwurt = withUndeclaredResultType;
+
        const TestVisitorWithResultType&           VWRT  = vwrt;
        const TestVisitorWithoutResultType&        VWORT = vwort;
        const TestVisitorWithUndeclaredResultType& VWURT = vwurt;
@@ -2115,13 +2120,21 @@ struct TestUtil {
            "\nCall applyRaw using template deduction for the return type."
                          << endl;
        {
-           Variant value(1);  const Variant& X = value;
+           Variant mX(1);  const Variant& X = mX;
 
-           X.applyRaw(vwrt);
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(vwrt));
+           mX.applyRaw(vwort);
+           mX.applyRaw(vwurt);
+
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(VWRT));
+           mX.applyRaw(VWORT);
+           mX.applyRaw(VWURT);
+
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(vwrt));
            X.applyRaw(vwort);
            X.applyRaw(vwurt);
 
-           X.applyRaw(VWRT);
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(VWRT));
            X.applyRaw(VWORT);
            X.applyRaw(VWURT);
        }
@@ -2132,13 +2145,19 @@ struct TestUtil {
        {
            // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
 
-           Variant value(1);  const Variant& X = value;
+           Variant mX(1);  const Variant& X = mX;
 
-           X.applyRaw<int>(vwrt);
-           X.applyRaw<int>(vwurt);
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwrt));
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwurt));
 
-           // X.applyRaw<int>(VWRT);
-           // X.applyRaw<int>(VWURT);
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWRT));
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWURT));
+
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwrt));
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwurt));
+
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWRT));
+           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWURT));
        }
    }
 
@@ -2226,7 +2245,7 @@ struct TestUtil {
            typedef bdlb::Variant<NT1, NT2, NT3> SmallVariant;
 
            ASSERT(8 == sizeof(SmallVariant));  //   4 (type index)
-           // + 4 (size of largest type)
+                                               // + 4 (size of largest type)
 
            if (verbose) cout << "\tWith types that use allocator." << endl;
 
@@ -2280,8 +2299,8 @@ struct TestUtil {
 
        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
        {
-           typedef bdlb::Variant<UA1, UA2,  UA3,  UA4,  UA5,  UA6,  UA7,  UA8,
-                                 UA9, UA10, UA11, UA12, UA13, UA14, UA15,
+           typedef bdlb::Variant<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,  UA8,
+                                 UA9,  UA10, UA11, UA12, UA13, UA14, UA15,
                                  UA16, UA17, UA18, UA19, UA20> Obj;
 
            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
@@ -2330,8 +2349,8 @@ struct TestUtil {
 
        if (verbose) cout << "\tAll are bitwise copyable." << endl;
        {
-           typedef bdlb::Variant<BC1, BC2,  BC3,  BC4,  BC5,  BC6,  BC7,  BC8,
-                                 BC9, BC10, BC11, BC12, BC13, BC14, BC15,
+           typedef bdlb::Variant<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,  BC8,
+                                 BC9,  BC10, BC11, BC12, BC13, BC14, BC15,
                                  BC16, BC17, BC18, BC19, BC20> Obj;
 
            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
@@ -2380,8 +2399,8 @@ struct TestUtil {
 
        if (verbose) cout << "\tAll are bitwise moveable." << endl;
        {
-           typedef bdlb::Variant<BM1, BM2,  BM3,  BM4,  BM5,  BM6,  BM7,  BM8,
-                                 BM9, BM10, BM11, BM12, BM13, BM14, BM15,
+           typedef bdlb::Variant<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,  BM8,
+                                 BM9,  BM10, BM11, BM12, BM13, BM14, BM15,
                                  BM16, BM17, BM18, BM19, BM20> Obj;
 
            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
@@ -6764,7 +6783,6 @@ struct TestUtil {
 
            ASSERT(false == variant.isUnset());
        }
-
    }
 
    static void testCase16()
@@ -6839,7 +6857,6 @@ struct TestUtil {
            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(visitor));
            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(visitor));
        }
-
    }
 
    static void testCase15()
@@ -7223,7 +7240,6 @@ struct TestUtil {
             ASSERT(false == Copyable::s_copyConstructorCalled);
             checkCopyableParameters(X.the<Copyable>(), 14);
         }
-
     }
 
     static void testCase13()
@@ -7356,7 +7372,7 @@ struct TestUtil {
                         LOOP2_ASSERT(LINE1, LINE2, Y == X.the<TestVoid>());
 
                       } break;
-                      default : ASSERT(!"Unreachable by design");
+                      default: ASSERT(!"Unreachable by design");
                     }
 
                     // Verify value after 'Y' goes out of scope.
@@ -7476,7 +7492,6 @@ struct TestUtil {
 
     static void testCase12()
     {
-
         if (verbose) cout << endl
                           << "TESTING CREATORS" << endl
                           << "================" << endl;
@@ -7744,7 +7759,7 @@ struct TestUtil {
                 ASSERT(Z.the<TestVoid>() == Y.the<TestVoid>());
 
               } break;
-              default : {
+              default: {
                 ASSERT(!"Not reachable by design");
               }
             }
@@ -7754,7 +7769,6 @@ struct TestUtil {
             ASSERT(3 == X.the<int>());
         }
     }
-
 };
 
 //=============================================================================
@@ -8047,7 +8061,7 @@ int main(int argc, char *argv[])
 //
 // A third example illustrates use of 'applyRaw', the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
-// ways to specify the return value from 'apply:
+// ways to specify the return value from 'apply':
 //: o The return value is specified in the visitor.
 //: o The return value is specified with the function call.
 //
@@ -9698,8 +9712,9 @@ int main(int argc, char *argv[])
         //   using the basic accessors.
         //
         // Testing:
-        //   is<Type>() const;
-        //   the<Type>() const;
+        //   bool is<Type>() const;
+        //   const TYPE& the<TYPE>() const;
+        //   int typeIndex() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -10078,7 +10093,10 @@ int main(int argc, char *argv[])
             bslma::TestAllocator da; // default allocator
             bslma::DefaultAllocatorGuard DAG(&da);
             int previousTotal = static_cast<int>(da.numBlocksTotal());
-            const Obj X, Y((bslma::Allocator *)0);
+
+            const Obj X;
+            const Obj Y((bslma::Allocator *)0);
+
             LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
             LOOP_ASSERT(X.typeIndex(), 0 == Y.typeIndex());
             LOOP_ASSERT(da.numBlocksTotal(),
@@ -10089,7 +10107,9 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\twith a specified allocator" << endl;
             int previousTotal =
                               static_cast<int>(testAllocator.numBlocksTotal());
+
             const Obj X(&testAllocator);
+
             LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
             LOOP_ASSERT(testAllocator.numBlocksTotal(),
                         testAllocator.numBlocksTotal() == previousTotal);
@@ -10101,7 +10121,9 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int previousTotal =
                               static_cast<int>(testAllocator.numBlocksTotal());
+
               const Obj X(&testAllocator);
+
               ASSERT(0 == X.typeIndex());
               ASSERT(testAllocator.numBlocksTotal() == previousTotal);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -10112,7 +10134,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\twithout allocators" << endl;
 
         {
-            Obj mX;   const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VA << endl;
@@ -10152,7 +10174,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            Obj mX;   const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VS << endl;
