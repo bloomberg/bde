@@ -1,5 +1,15 @@
-bsl-internal (3.0.4.1) unstable; urgency=low
+bsl-internal (3.0.5.0) unstable; urgency=low
 
+  * 0cde5e9 Merge pull request #757 from mgiroux/review/bump-version-to-3.0.5
+  * 74f43fd bump version to 3.0.5
+  * e0f1bb5 Merge pull request #755 from hversche/pr/753-rebased-releases/3.0.x
+  * 7e4c245 Merge pull request #751 from hversche/pr/750-rebased-releases/3.0.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 26 Sep 2016 10:59:16 -0400
+
+bsl-internal (3.0.4.1) git; urgency=low
+
+  * d217a7e Changelog for version 3.0.4.1
   * cdb2028 Merge pull request #747 from hversche/pr/746-rebased-releases/3.0.x
   * 717a2d4 Merge pull request #742 from afeher/remove-narrowing-warning
   * c23d849 Merge pull request #726 from jmendelsohn4/drqs-89038199/bdlt_datetimetz_bdex_support_for_microseconds
@@ -11,7 +21,7 @@ bsl-internal (3.0.4.1) unstable; urgency=low
   * 7da1f12 Merge pull request #719 from jmendelsohn4/drqs-89072888/bdlt_epochutil_always_true_assert_warning
   * 07c183b Merge pull request #709 from che2/balxml-encoderoptions-use-z-drqs-88689528
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 23 Sep 2016 10:06:25 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Sep 2016 10:37:30 -0400
 
 bsl-internal (3.0.4.0) git; urgency=low
 
