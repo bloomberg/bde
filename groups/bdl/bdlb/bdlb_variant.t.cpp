@@ -18,6 +18,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslx_testinstream.h>
 #include <bslx_testinstreamexception.h>
@@ -159,9 +160,11 @@ using namespace bsl;
 namespace {
 
 int testStatus = 0;
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
+
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 void aSsErT(bool condition, const char *message, int line)
 {
@@ -1979,4960 +1982,5477 @@ struct TestVisitorWithUndeclaredResultType {
 }  // close namespace nilvisitor
 
 struct TestUtil {
-   // This 'struct' defines several test cases outside of 'main' to avoid
-   // out-of-memory errors with the XLC compiler.
+    // This 'struct' defines several test cases outside of 'main' to avoid
+    // out-of-memory errors with the XLC compiler.
 
-   static void testCase21()
-   {
-       if (verbose) cout << endl
-                         << "TESTING 'swap'" << endl
-                         << "==============" << endl;
+    static void testCase21()
+    {
+        if (verbose) cout << endl
+                          << "TESTING 'swap'" << endl
+                          << "==============" << endl;
 
-       bslma::TestAllocator ta(veryVeryVerbose);
-       bslma::TestAllocator tb(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator tb(veryVeryVeryVerbose);
 
-       static struct {
-               int         d_lineNum;
-               const char *d_input;        // input specifications
-               int         d_expTypeIdx;   // expected type index
-               int         d_expValueIdx;  // expected value index (within type)
-       } DATA[] = {
-           // LINE INPUT         TYPE_IDX VALUE_IDX
-           // ---- -----         -------- ---------
-           { L_, "~",             UNSET,        0 },
-           { L_, "A",          INT_TYPE,        0 },
-           { L_, "B",          INT_TYPE,        1 },
-           { L_, "F",     TEST_INT_TYPE,        0 },
-           { L_, "G",     TEST_INT_TYPE,        1 },
-           { L_, "S",       STRING_TYPE,        0 },
-           { L_, "T",       STRING_TYPE,        1 },
-           { L_, "K",  TEST_STRING_TYPE,        0 },
-           { L_, "L",  TEST_STRING_TYPE,        1 },
-       };
+        static struct {
+            int         d_lineNum;
+            const char *d_input;        // input specifications
+            int         d_expTypeIdx;   // expected type index
+            int         d_expValueIdx;  // expected value index (within type)
+        } DATA[] = {
+            // LINE INPUT         TYPE_IDX VALUE_IDX
+            // ---- -----         -------- ---------
+            { L_, "~",             UNSET,        0 },
+            { L_, "A",          INT_TYPE,        0 },
+            { L_, "B",          INT_TYPE,        1 },
+            { L_, "F",     TEST_INT_TYPE,        0 },
+            { L_, "G",     TEST_INT_TYPE,        1 },
+            { L_, "S",       STRING_TYPE,        0 },
+            { L_, "T",       STRING_TYPE,        1 },
+            { L_, "K",  TEST_STRING_TYPE,        0 },
+            { L_, "L",  TEST_STRING_TYPE,        1 },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-       const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE1      = DATA[ti].d_lineNum;
+            const char *INPUT1     = DATA[ti].d_input;
+            const int   TYPE_IDX1  = DATA[ti].d_expTypeIdx;
+            const int   VALUE_IDX1 = DATA[ti].d_expValueIdx;
 
-       for (int ti = 0; ti < NUM_DATA; ++ti) {
-           const int   LINE1      = DATA[ti].d_lineNum;
-           const char *INPUT1     = DATA[ti].d_input;
-           const int   TYPE_IDX1  = DATA[ti].d_expTypeIdx;
-           const int   VALUE_IDX1 = DATA[ti].d_expValueIdx;
+            if (veryVerbose) {
+                T_ P_(LINE1); P_(INPUT1); P_(TYPE_IDX1); P(VALUE_IDX1);
+            }
 
-           if (veryVerbose) {
-               T_ P_(LINE1); P_(INPUT1); P_(TYPE_IDX1); P(VALUE_IDX1);
-           }
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int   LINE2      = DATA[ti].d_lineNum;
+                const char *INPUT2     = DATA[ti].d_input;
+                const int   TYPE_IDX2  = DATA[ti].d_expTypeIdx;
+                const int   VALUE_IDX2 = DATA[ti].d_expValueIdx;
 
-           for (int tj = 0; tj < NUM_DATA; ++tj) {
-               const int   LINE2      = DATA[ti].d_lineNum;
-               const char *INPUT2     = DATA[ti].d_input;
-               const int   TYPE_IDX2  = DATA[ti].d_expTypeIdx;
-               const int   VALUE_IDX2 = DATA[ti].d_expValueIdx;
+                if (veryVerbose) {
+                    T_ P_(LINE2); P_(INPUT2); P_(TYPE_IDX2); P(VALUE_IDX2);
+                }
 
-               if (veryVerbose) {
-                   T_ P_(LINE2); P_(INPUT2); P_(TYPE_IDX2); P(VALUE_IDX2);
-               }
+                Obj mX(&ta);  const Obj& X = mX;
+                int retCode = ggg(&mX, INPUT1, false);
+                ASSERT(-1 == retCode);
 
-               Obj mX(&ta); const Obj& X = mX;
-               int retCode = ggg(&mX, INPUT1, false);
-               ASSERT(-1 == retCode);
+                Obj mY(&tb);  const Obj& Y = mY;
+                retCode = ggg(&mY, INPUT2, false);
+                ASSERT(-1 == retCode);
 
-               Obj mY(&tb); const Obj& Y = mY;
-               retCode = ggg(&mY, INPUT2, false);
-               ASSERT(-1 == retCode);
+                mX.swap(mY);
+                swap(mX, mY);  // try the free function as well
+                mY.swap(mX);
 
-               mX.swap(mY);
-               swap(mX, mY);  // try the free function as well
-               mY.swap(mX);
+                switch (X.typeIndex()) {
+                  case UNSET: {
+                    ASSERT(TYPE_IDX2 == UNSET);
+                  } break;
+                  case INT_TYPE: {
+                    ASSERT(INT_DATA[VALUE_IDX2] == X.the<int>());
+                  } break;
+                  case TEST_INT_TYPE: {
+                    ASSERT(TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
+                  } break;
+                  case STRING_TYPE: {
+                    ASSERT(STRING_DATA[VALUE_IDX2] == X.the<bsl::string>());
+                  } break;
+                  case TEST_STRING_TYPE: {
+                    ASSERT(TEST_STRING_DATA[VALUE_IDX2] ==
+                                                          Y.the<TestString>());
+                  } break;
+                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
+                }
 
-               switch (X.typeIndex()) {
-                 case UNSET: {
-                   ASSERT(TYPE_IDX2 == UNSET);
-                 } break;
-                 case INT_TYPE: {
-                   ASSERT(INT_DATA[VALUE_IDX2] == X.the<int>());
-                 } break;
-                 case TEST_INT_TYPE: {
-                   ASSERT(TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
-                 } break;
-                 case STRING_TYPE: {
-                   ASSERT(STRING_DATA[VALUE_IDX2] == X.the<bsl::string>());
-                 } break;
-                 case TEST_STRING_TYPE: {
-                   ASSERT(TEST_STRING_DATA[VALUE_IDX2] == X.the<TestString>());
-                 } break;
-                 default: LOOP2_ASSERT(LINE1, LINE2, 0);
-               }
+                switch (Y.typeIndex()) {
+                  case UNSET: {
+                    ASSERT(TYPE_IDX1 == UNSET);
+                  } break;
+                  case INT_TYPE: {
+                    ASSERT(INT_DATA[VALUE_IDX1] == Y.the<int>());
+                  } break;
+                  case TEST_INT_TYPE: {
+                    ASSERT(TEST_INT_DATA[VALUE_IDX1] == Y.the<TestInt>());
+                  } break;
+                  case STRING_TYPE: {
+                    ASSERT(STRING_DATA[VALUE_IDX1] == Y.the<bsl::string>());
+                  } break;
+                  case TEST_STRING_TYPE: {
+                    ASSERT(TEST_STRING_DATA[VALUE_IDX1] ==
+                                                          Y.the<TestString>());
+                  } break;
+                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
+                }
+            }
+        }
+    }
 
-               switch (Y.typeIndex()) {
-                 case UNSET: {
-                   ASSERT(TYPE_IDX1 == UNSET);
-                 } break;
-                 case INT_TYPE: {
-                   ASSERT(INT_DATA[VALUE_IDX1] == Y.the<int>());
-                 } break;
-                 case TEST_INT_TYPE: {
-                   ASSERT(TEST_INT_DATA[VALUE_IDX1] == Y.the<TestInt>());
-                 } break;
-                 case STRING_TYPE: {
-                   ASSERT(STRING_DATA[VALUE_IDX1] == Y.the<bsl::string>());
-                 } break;
-                 case TEST_STRING_TYPE: {
-                   ASSERT(TEST_STRING_DATA[VALUE_IDX1] == Y.the<TestString>());
-                 } break;
-                 default: LOOP2_ASSERT(LINE1, LINE2, 0);
-               }
-           }
-       }
-   }
+    static void testCase20()
+    {
+        using namespace nilvisitor;
 
-   static void testCase20()
-   {
-       using namespace nilvisitor;
+        if (verbose)
+            cout << endl
+                 << "CONCERN: 'applyRaw' & VISITOR w/o Nil overload" << endl
+                 << "==============================================" << endl;
 
-       if (verbose)
-           cout << endl
-                << "CONCERN: 'applyRaw' & VISITOR w/o Nil overload" << endl
-                << "==============================================" << endl;
+        typedef bdlb::Variant<int> Variant;
 
-       typedef bdlb::Variant<int> Variant;
+        TestVisitorWithResultType           withResultType;
+        TestVisitorWithoutResultType        withoutResultType;
+        TestVisitorWithUndeclaredResultType withUndeclaredResultType;
 
-       TestVisitorWithResultType           withResultType;
-       TestVisitorWithoutResultType        withoutResultType;
-       TestVisitorWithUndeclaredResultType withUndeclaredResultType;
+        TestVisitorWithResultType&           vwrt  = withResultType;
+        TestVisitorWithoutResultType&        vwort = withoutResultType;
+        TestVisitorWithUndeclaredResultType& vwurt = withUndeclaredResultType;
 
-       TestVisitorWithResultType&           vwrt  = withResultType;
-       TestVisitorWithoutResultType&        vwort = withoutResultType;
-       TestVisitorWithUndeclaredResultType& vwurt = withUndeclaredResultType;
+        const TestVisitorWithResultType&           VWRT  = vwrt;
+        const TestVisitorWithoutResultType&        VWORT = vwort;
+        const TestVisitorWithUndeclaredResultType& VWURT = vwurt;
 
-       const TestVisitorWithResultType&           VWRT  = vwrt;
-       const TestVisitorWithoutResultType&        VWORT = vwort;
-       const TestVisitorWithUndeclaredResultType& VWURT = vwurt;
+        // We will test 'applyRaw' on the cross product of:
+        //: o 'const' and non-'const' variant.
+        //: o 'const' and non-'const' visitor.
+        //: o A visitor functor that:
+        //:   o Declares a result type.
+        //:   o Does not declare a result type and returns 'void'.
+        //:   o Does not declare a result type and doesn't return 'void'.
 
-       // We will test 'applyRaw' on the cross product of:
-       //: o 'const' and non-'const' variant.
-       //: o 'const' and non-'const' visitor.
-       //: o A visitor functor that:
-       //:   o Declares a result type.
-       //:   o Does not declare a result type and returns 'void'.
-       //:   o Does not declare a result type and doesn't return 'void'.
+        if (verbose) cout <<
+            "\nCall applyRaw using template deduction for the return type."
+                          << endl;
+        {
+            Variant mX(1);  const Variant& X = mX;
 
-       if (verbose) cout <<
-           "\nCall applyRaw using template deduction for the return type."
-                         << endl;
-       {
-           Variant mX(1);  const Variant& X = mX;
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(vwrt));
+            mX.applyRaw(vwort);
+            mX.applyRaw(vwurt);
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(vwrt));
-           mX.applyRaw(vwort);
-           mX.applyRaw(vwurt);
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(VWRT));
+            mX.applyRaw(VWORT);
+            mX.applyRaw(VWURT);
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw(VWRT));
-           mX.applyRaw(VWORT);
-           mX.applyRaw(VWURT);
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(vwrt));
+            X.applyRaw(vwort);
+            X.applyRaw(vwurt);
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(vwrt));
-           X.applyRaw(vwort);
-           X.applyRaw(vwurt);
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(VWRT));
+            X.applyRaw(VWORT);
+            X.applyRaw(VWURT);
+        }
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw(VWRT));
-           X.applyRaw(VWORT);
-           X.applyRaw(VWURT);
-       }
+        if (verbose) cout <<
+            "\nCall applyRaw using template w/o deduction for the return type."
+                          << endl;
+        {
+            // Note that 'applyRaw<TYPE>' cannot have 'void' as the result
+            // type.
 
-       if (verbose) cout <<
-           "\nCall applyRaw using template w/o deduction for the return type."
-                         << endl;
-       {
-           // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
+            Variant mX(1);  const Variant& X = mX;
 
-           Variant mX(1);  const Variant& X = mX;
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwrt));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwurt));
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwrt));
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwurt));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWRT));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWURT));
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWRT));
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWURT));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwrt));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwurt));
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwrt));
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwurt));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWRT));
+            ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWURT));
+        }
+    }
 
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWRT));
-           ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWURT));
-       }
-   }
+    static void testCase19()
+    {
+        if (verbose) cout << endl << "TESTING TRAITS" << endl
+                                  << "==============" << endl;
 
-   static void testCase19()
-   {
-       if (verbose) cout << endl << "TESTING TRAITS" << endl
-                                 << "==============" << endl;
+        typedef NilTraits<1>         NT1;    typedef NilTraits<2>         NT2;
+        typedef NilTraits<3>         NT3;    typedef NilTraits<4>         NT4;
+        typedef NilTraits<5>         NT5;    typedef NilTraits<6>         NT6;
+        typedef NilTraits<7>         NT7;    typedef NilTraits<8>         NT8;
+        typedef NilTraits<9>         NT9;    typedef NilTraits<10>        NT10;
+        typedef NilTraits<11>        NT11;   typedef NilTraits<12>        NT12;
+        typedef NilTraits<13>        NT13;   typedef NilTraits<14>        NT14;
+        typedef NilTraits<15>        NT15;   typedef NilTraits<16>        NT16;
+        typedef NilTraits<17>        NT17;   typedef NilTraits<18>        NT18;
+        typedef NilTraits<19>        NT19;   typedef NilTraits<20>        NT20;
 
-       typedef NilTraits<1>         NT1;    typedef NilTraits<2>         NT2;
-       typedef NilTraits<3>         NT3;    typedef NilTraits<4>         NT4;
-       typedef NilTraits<5>         NT5;    typedef NilTraits<6>         NT6;
-       typedef NilTraits<7>         NT7;    typedef NilTraits<8>         NT8;
-       typedef NilTraits<9>         NT9;    typedef NilTraits<10>        NT10;
-       typedef NilTraits<11>        NT11;   typedef NilTraits<12>        NT12;
-       typedef NilTraits<13>        NT13;   typedef NilTraits<14>        NT14;
-       typedef NilTraits<15>        NT15;   typedef NilTraits<16>        NT16;
-       typedef NilTraits<17>        NT17;   typedef NilTraits<18>        NT18;
-       typedef NilTraits<19>        NT19;   typedef NilTraits<20>        NT20;
+        typedef UsesAllocator<1>     UA1;    typedef UsesAllocator<2>     UA2;
+        typedef UsesAllocator<3>     UA3;    typedef UsesAllocator<4>     UA4;
+        typedef UsesAllocator<5>     UA5;    typedef UsesAllocator<6>     UA6;
+        typedef UsesAllocator<7>     UA7;    typedef UsesAllocator<8>     UA8;
+        typedef UsesAllocator<9>     UA9;    typedef UsesAllocator<10>    UA10;
+        typedef UsesAllocator<11>    UA11;   typedef UsesAllocator<12>    UA12;
+        typedef UsesAllocator<13>    UA13;   typedef UsesAllocator<14>    UA14;
+        typedef UsesAllocator<15>    UA15;   typedef UsesAllocator<16>    UA16;
+        typedef UsesAllocator<17>    UA17;   typedef UsesAllocator<18>    UA18;
+        typedef UsesAllocator<19>    UA19;   typedef UsesAllocator<20>    UA20;
 
-       typedef UsesAllocator<1>     UA1;    typedef UsesAllocator<2>     UA2;
-       typedef UsesAllocator<3>     UA3;    typedef UsesAllocator<4>     UA4;
-       typedef UsesAllocator<5>     UA5;    typedef UsesAllocator<6>     UA6;
-       typedef UsesAllocator<7>     UA7;    typedef UsesAllocator<8>     UA8;
-       typedef UsesAllocator<9>     UA9;    typedef UsesAllocator<10>    UA10;
-       typedef UsesAllocator<11>    UA11;   typedef UsesAllocator<12>    UA12;
-       typedef UsesAllocator<13>    UA13;   typedef UsesAllocator<14>    UA14;
-       typedef UsesAllocator<15>    UA15;   typedef UsesAllocator<16>    UA16;
-       typedef UsesAllocator<17>    UA17;   typedef UsesAllocator<18>    UA18;
-       typedef UsesAllocator<19>    UA19;   typedef UsesAllocator<20>    UA20;
+        typedef BitwiseCopyable<1>   BC1;    typedef BitwiseCopyable<2>   BC2;
+        typedef BitwiseCopyable<3>   BC3;    typedef BitwiseCopyable<4>   BC4;
+        typedef BitwiseCopyable<5>   BC5;    typedef BitwiseCopyable<6>   BC6;
+        typedef BitwiseCopyable<7>   BC7;    typedef BitwiseCopyable<8>   BC8;
+        typedef BitwiseCopyable<9>   BC9;    typedef BitwiseCopyable<10>  BC10;
+        typedef BitwiseCopyable<11>  BC11;   typedef BitwiseCopyable<12>  BC12;
+        typedef BitwiseCopyable<13>  BC13;   typedef BitwiseCopyable<14>  BC14;
+        typedef BitwiseCopyable<15>  BC15;   typedef BitwiseCopyable<16>  BC16;
+        typedef BitwiseCopyable<17>  BC17;   typedef BitwiseCopyable<18>  BC18;
+        typedef BitwiseCopyable<19>  BC19;   typedef BitwiseCopyable<20>  BC20;
 
-       typedef BitwiseCopyable<1>   BC1;    typedef BitwiseCopyable<2>   BC2;
-       typedef BitwiseCopyable<3>   BC3;    typedef BitwiseCopyable<4>   BC4;
-       typedef BitwiseCopyable<5>   BC5;    typedef BitwiseCopyable<6>   BC6;
-       typedef BitwiseCopyable<7>   BC7;    typedef BitwiseCopyable<8>   BC8;
-       typedef BitwiseCopyable<9>   BC9;    typedef BitwiseCopyable<10>  BC10;
-       typedef BitwiseCopyable<11>  BC11;   typedef BitwiseCopyable<12>  BC12;
-       typedef BitwiseCopyable<13>  BC13;   typedef BitwiseCopyable<14>  BC14;
-       typedef BitwiseCopyable<15>  BC15;   typedef BitwiseCopyable<16>  BC16;
-       typedef BitwiseCopyable<17>  BC17;   typedef BitwiseCopyable<18>  BC18;
-       typedef BitwiseCopyable<19>  BC19;   typedef BitwiseCopyable<20>  BC20;
+        typedef BitwiseMoveable<1>   BM1;    typedef BitwiseMoveable<2>   BM2;
+        typedef BitwiseMoveable<3>   BM3;    typedef BitwiseMoveable<4>   BM4;
+        typedef BitwiseMoveable<5>   BM5;    typedef BitwiseMoveable<6>   BM6;
+        typedef BitwiseMoveable<7>   BM7;    typedef BitwiseMoveable<8>   BM8;
+        typedef BitwiseMoveable<9>   BM9;    typedef BitwiseMoveable<10>  BM10;
+        typedef BitwiseMoveable<11>  BM11;   typedef BitwiseMoveable<12>  BM12;
+        typedef BitwiseMoveable<13>  BM13;   typedef BitwiseMoveable<14>  BM14;
+        typedef BitwiseMoveable<15>  BM15;   typedef BitwiseMoveable<16>  BM16;
+        typedef BitwiseMoveable<17>  BM17;   typedef BitwiseMoveable<18>  BM18;
+        typedef BitwiseMoveable<19>  BM19;   typedef BitwiseMoveable<20>  BM20;
 
-       typedef BitwiseMoveable<1>   BM1;    typedef BitwiseMoveable<2>   BM2;
-       typedef BitwiseMoveable<3>   BM3;    typedef BitwiseMoveable<4>   BM4;
-       typedef BitwiseMoveable<5>   BM5;    typedef BitwiseMoveable<6>   BM6;
-       typedef BitwiseMoveable<7>   BM7;    typedef BitwiseMoveable<8>   BM8;
-       typedef BitwiseMoveable<9>   BM9;    typedef BitwiseMoveable<10>  BM10;
-       typedef BitwiseMoveable<11>  BM11;   typedef BitwiseMoveable<12>  BM12;
-       typedef BitwiseMoveable<13>  BM13;   typedef BitwiseMoveable<14>  BM14;
-       typedef BitwiseMoveable<15>  BM15;   typedef BitwiseMoveable<16>  BM16;
-       typedef BitwiseMoveable<17>  BM17;   typedef BitwiseMoveable<18>  BM18;
-       typedef BitwiseMoveable<19>  BM19;   typedef BitwiseMoveable<20>  BM20;
+        if (verbose) cout << "\nSanity check for test driver defined types."
+                          << endl;
 
-       if (verbose) cout << "\nSanity check for test driver defined types."
-                         << endl;
+        ASSERT(false == bslma::UsesBslmaAllocator<NT1>::value);
+        ASSERT(false == bslma::UsesBslmaAllocator<NT10>::value);
+        ASSERT(false == bslma::UsesBslmaAllocator<NT20>::value);
 
-       ASSERT(false == bslma::UsesBslmaAllocator<NT1>::value);
-       ASSERT(false == bslma::UsesBslmaAllocator<NT10>::value);
-       ASSERT(false == bslma::UsesBslmaAllocator<NT20>::value);
+        ASSERT(false == bsl::is_trivially_copyable<NT1>::value);
+        ASSERT(false == bsl::is_trivially_copyable<NT10>::value);
+        ASSERT(false == bsl::is_trivially_copyable<NT20>::value);
 
-       ASSERT(false == bsl::is_trivially_copyable<NT1>::value);
-       ASSERT(false == bsl::is_trivially_copyable<NT10>::value);
-       ASSERT(false == bsl::is_trivially_copyable<NT20>::value);
+        ASSERT(false == bslmf::IsBitwiseMoveable<NT1>::value);
+        ASSERT(false == bslmf::IsBitwiseMoveable<NT10>::value);
+        ASSERT(false == bslmf::IsBitwiseMoveable<NT20>::value);
 
-       ASSERT(false == bslmf::IsBitwiseMoveable<NT1>::value);
-       ASSERT(false == bslmf::IsBitwiseMoveable<NT10>::value);
-       ASSERT(false == bslmf::IsBitwiseMoveable<NT20>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<UA1>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<UA10>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<UA20>::value);
 
-       ASSERT(true  == bslma::UsesBslmaAllocator<UA1>::value);
-       ASSERT(true  == bslma::UsesBslmaAllocator<UA10>::value);
-       ASSERT(true  == bslma::UsesBslmaAllocator<UA20>::value);
+        ASSERT(true  == bsl::is_trivially_copyable<BC1>::value);
+        ASSERT(true  == bsl::is_trivially_copyable<BC10>::value);
+        ASSERT(true  == bsl::is_trivially_copyable<BC20>::value);
 
-       ASSERT(true  == bsl::is_trivially_copyable<BC1>::value);
-       ASSERT(true  == bsl::is_trivially_copyable<BC10>::value);
-       ASSERT(true  == bsl::is_trivially_copyable<BC20>::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<BM1>::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<BM10>::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<BM20>::value);
 
-       ASSERT(true  == bslmf::IsBitwiseMoveable<BM1>::value);
-       ASSERT(true  == bslmf::IsBitwiseMoveable<BM10>::value);
-       ASSERT(true  == bslmf::IsBitwiseMoveable<BM20>::value);
+        if (verbose) cout << "\nTesting size of the variant." << endl;
+        {
+            if (verbose) cout << "\tWithout types that use allocator." << endl;
 
-       if (verbose) cout << "\nTesting size of the variant." << endl;
-       {
-           if (verbose) cout << "\tWithout types that use allocator." << endl;
+            // Arbitrarily choose 3 arguments.
+            typedef bdlb::Variant<NT1, NT2, NT3> SmallVariant;
 
-           // Arbitrarily choose 3 arguments.
-           typedef bdlb::Variant<NT1, NT2, NT3> SmallVariant;
+            ASSERT(8 == sizeof(SmallVariant));  //   4 (type index)
+                                                // + 4 (size of largest type)
 
-           ASSERT(8 == sizeof(SmallVariant));  //   4 (type index)
-                                               // + 4 (size of largest type)
+            if (verbose) cout << "\tWith types that use allocator." << endl;
 
-           if (verbose) cout << "\tWith types that use allocator." << endl;
+            typedef bdlb::Variant<UA1, NT2, NT3> BigVar1;
+            typedef bdlb::Variant<NT1, UA2, NT3> BigVar2;
+            typedef bdlb::Variant<NT1, NT2, UA3> BigVar3;
 
-           typedef bdlb::Variant<UA1, NT2, NT3> BigVar1;
-           typedef bdlb::Variant<NT1, UA2, NT3> BigVar2;
-           typedef bdlb::Variant<NT1, NT2, UA3> BigVar3;
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, UA18, NT19, NT20> BigVar18;
 
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, UA18, NT19, NT20> BigVar18;
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, UA19, NT20> BigVar19;
 
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, UA19, NT20> BigVar19;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, NT19, UA20> BigVar20;
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, NT19, UA20> BigVar20;
 
 #if BSLS_PLATFORM_CPU_64_BIT
-           LOOP_ASSERT(sizeof(BigVar1),  24 == sizeof(BigVar1));
-           LOOP_ASSERT(sizeof(BigVar2),  24 == sizeof(BigVar2));
-           LOOP_ASSERT(sizeof(BigVar3),  24 == sizeof(BigVar3));
-           LOOP_ASSERT(sizeof(BigVar18), 24 == sizeof(BigVar18));
-           LOOP_ASSERT(sizeof(BigVar19), 24 == sizeof(BigVar19));
-           LOOP_ASSERT(sizeof(BigVar20), 24 == sizeof(BigVar20));
+            LOOP_ASSERT(sizeof(BigVar1),  24 == sizeof(BigVar1));
+            LOOP_ASSERT(sizeof(BigVar2),  24 == sizeof(BigVar2));
+            LOOP_ASSERT(sizeof(BigVar3),  24 == sizeof(BigVar3));
+            LOOP_ASSERT(sizeof(BigVar18), 24 == sizeof(BigVar18));
+            LOOP_ASSERT(sizeof(BigVar19), 24 == sizeof(BigVar19));
+            LOOP_ASSERT(sizeof(BigVar20), 24 == sizeof(BigVar20));
 #else
-           LOOP_ASSERT(sizeof(BigVar1),  12 == sizeof(BigVar1));
-           LOOP_ASSERT(sizeof(BigVar2),  12 == sizeof(BigVar2));
-           LOOP_ASSERT(sizeof(BigVar3),  12 == sizeof(BigVar3));
-           LOOP_ASSERT(sizeof(BigVar18), 12 == sizeof(BigVar18));
-           LOOP_ASSERT(sizeof(BigVar19), 12 == sizeof(BigVar19));
-           LOOP_ASSERT(sizeof(BigVar20), 12 == sizeof(BigVar20));
+            LOOP_ASSERT(sizeof(BigVar1),  12 == sizeof(BigVar1));
+            LOOP_ASSERT(sizeof(BigVar2),  12 == sizeof(BigVar2));
+            LOOP_ASSERT(sizeof(BigVar3),  12 == sizeof(BigVar3));
+            LOOP_ASSERT(sizeof(BigVar18), 12 == sizeof(BigVar18));
+            LOOP_ASSERT(sizeof(BigVar19), 12 == sizeof(BigVar19));
+            LOOP_ASSERT(sizeof(BigVar20), 12 == sizeof(BigVar20));
 #endif
-       }
-
-       if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
-
-       if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
-       {
-           typedef bdlb::Variant<NT1, NT2, NT3> Obj;
-
-           ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
-       }
-
-       if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
-       {
-           typedef bdlb::Variant<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,  UA8,
-                                 UA9,  UA10, UA11, UA12, UA13, UA14, UA15,
-                                 UA16, UA17, UA18, UA19, UA20> Obj;
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-       }
-
-       if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
-       {
-           typedef bdlb::Variant<UA1, NT2, NT3> Obj1;
-           typedef bdlb::Variant<NT1, UA2, NT3> Obj2;
-           typedef bdlb::Variant<NT1, NT2, UA3> Obj3;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, UA18, NT19, NT20> Obj18;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, UA19, NT20> Obj19;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, NT19, UA20> Obj20;
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj1>::value);
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj2>::value);
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj3>::value);
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj18>::value);
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj19>::value);
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj20>::value);
-       }
-
-       if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
-
-       if (verbose) cout << "\tNone are bitwise copyable." << endl;
-       {
-           typedef bdlb::Variant<NT1, NT2, NT3> Obj;
-
-           ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
-       }
-
-       if (verbose) cout << "\tAll are bitwise copyable." << endl;
-       {
-           typedef bdlb::Variant<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,  BC8,
-                                 BC9,  BC10, BC11, BC12, BC13, BC14, BC15,
-                                 BC16, BC17, BC18, BC19, BC20> Obj;
-
-           ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
-       }
-
-       if (verbose) cout << "\tSome are bitwise copyable." << endl;
-       {
-           typedef bdlb::Variant<BC1, NT2, NT3> Obj1;
-           typedef bdlb::Variant<NT1, BC2, NT3> Obj2;
-           typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, BC18, NT19, NT20> Obj18;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, BC19, NT20> Obj19;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, NT19, BC20> Obj20;
-
-           ASSERT(false == bsl::is_trivially_copyable<Obj1>::value);
-           ASSERT(false == bsl::is_trivially_copyable<Obj2>::value);
-           ASSERT(false == bsl::is_trivially_copyable<Obj3>::value);
-           ASSERT(false == bsl::is_trivially_copyable<Obj18>::value);
-           ASSERT(false == bsl::is_trivially_copyable<Obj19>::value);
-           ASSERT(false == bsl::is_trivially_copyable<Obj20>::value);
-       }
-
-       if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
-
-       if (verbose) cout << "\tNone are bitwise moveable." << endl;
-       {
-           typedef bdlb::Variant<NT1, NT2, NT3> Obj;
-
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
-       }
-
-       if (verbose) cout << "\tAll are bitwise moveable." << endl;
-       {
-           typedef bdlb::Variant<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,  BM8,
-                                 BM9,  BM10, BM11, BM12, BM13, BM14, BM15,
-                                 BM16, BM17, BM18, BM19, BM20> Obj;
-
-           ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
-       }
-
-       if (verbose) cout << "\tSome are bitwise moveable." << endl;
-       {
-           typedef bdlb::Variant<BC1, NT2, NT3> Obj1;
-           typedef bdlb::Variant<NT1, BC2, NT3> Obj2;
-           typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, BC18, NT19, NT20> Obj18;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, BC19, NT20> Obj19;
-
-           typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
-                                 NT5,  NT6,  NT7,  NT8,
-                                 NT9,  NT10, NT11, NT12,
-                                 NT13, NT14, NT15, NT16,
-                                 NT17, NT18, NT19, BC20> Obj20;
-
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj1>::value);
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj2>::value);
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj3>::value);
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj18>::value);
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj19>::value);
-           ASSERT(false == bslmf::IsBitwiseMoveable<Obj20>::value);
-       }
-   }
-
-   static void testCase18()
-   {
-       bslma::TestAllocator testAllocator(veryVeryVerbose);
-
-       if (verbose) cout << endl
-                         << "TESTING CLASSES 'bdlb::VariantN'."
-                         << "=================================" << endl;
-
-       typedef bslmf::TypeListNil  TestNil;  // for brevity
-
-       typedef TestString   TestArg1;  // for concern 4
-       typedef TestArg<2>   TestArg2;
-       typedef TestArg<3>   TestArg3;
-       typedef TestArg<4>   TestArg4;
-       typedef TestArg<5>   TestArg5;
-       typedef TestArg<6>   TestArg6;
-       typedef TestArg<7>   TestArg7;
-       typedef TestArg<8>   TestArg8;
-       typedef TestArg<9>   TestArg9;
-       typedef TestArg<10>  TestArg10;
-       typedef TestArg<11>  TestArg11;
-       typedef TestArg<12>  TestArg12;
-       typedef TestArg<13>  TestArg13;
-       typedef TestArg<14>  TestArg14;
-       typedef TestArg<15>  TestArg15;
-       typedef TestArg<16>  TestArg16;
-       typedef TestArg<17>  TestArg17;
-       typedef TestArg<18>  TestArg18;
-       typedef TestArg<19>  TestArg19;
-       typedef TestArg<20>  TestArg20;
-       const TestArg1 V1("This is a string long enough to trigger allocation"
-                         " even if Small-String-Optimization is used"
-                         " in the 'bsl::string' implementation.");
-
-       const TestArg2  V2 (2 );
-       const TestArg3  V3 (3 );
-       const TestArg4  V4 (4 );
-       const TestArg5  V5 (5 );
-       const TestArg6  V6 (6 );
-       const TestArg7  V7 (7 );
-       const TestArg8  V8 (8 );
-       const TestArg9  V9 (9 );
-       const TestArg10 V10(10);
-       const TestArg11 V11(11);
-       const TestArg12 V12(12);
-       const TestArg13 V13(13);
-       const TestArg14 V14(14);
-       const TestArg15 V15(15);
-       const TestArg16 V16(16);
-       const TestArg17 V17(17);
-       const TestArg18 V18(18);
-       const TestArg19 V19(19);
-       const TestArg20 V20(20);
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
-       {
-           typedef bdlb::Variant2<TestArg1, TestArg2> Obj;
-
-           ASSERT(2 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator);         const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
-       {
-           typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> Obj;
-
-           ASSERT(3 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
-       {
-           typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4> Obj;
-
-           ASSERT(4 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
-       {
-           typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
-                                  TestArg5> Obj;
-
-           ASSERT(5 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
-       {
-           typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
-                                  TestArg5, TestArg6> Obj;
-
-           ASSERT(6 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
-       {
-           typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
-                                  TestArg5, TestArg6, TestArg7> Obj;
-
-           ASSERT(7 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
-       {
-           typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
-                                  TestArg5, TestArg6, TestArg7, TestArg8> Obj;
-
-           ASSERT(8 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
-       {
-           typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
-                                  TestArg5, TestArg6, TestArg7, TestArg8,
-                                  TestArg9> Obj;
-
-           ASSERT(9 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9, Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
-       {
-           typedef bdlb::Variant10<TestArg1, TestArg2, TestArg3, TestArg4,
+        }
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                  UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                  UA15, UA16, UA17, UA18, UA19, UA20> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant<UA1, NT2, NT3> Obj1;
+            typedef bdlb::Variant<NT1, UA2, NT3> Obj2;
+            typedef bdlb::Variant<NT1, NT2, UA3> Obj3;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, UA18, NT19, NT20> Obj18;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, UA19, NT20> Obj19;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, NT19, UA20> Obj20;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj1>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj2>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj3>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj18>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj19>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj20>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                  BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                  BC15, BC16, BC17, BC18, BC19, BC20> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant<BC1, NT2, NT3> Obj1;
+            typedef bdlb::Variant<NT1, BC2, NT3> Obj2;
+            typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, BC18, NT19, NT20> Obj18;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, BC19, NT20> Obj19;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, NT19, BC20> Obj20;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj1>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj2>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj3>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj18>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj19>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj20>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                  BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                  BM15, BM16, BM17, BM18, BM19, BM20> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant<BC1, NT2, NT3> Obj1;
+            typedef bdlb::Variant<NT1, BC2, NT3> Obj2;
+            typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, BC18, NT19, NT20> Obj18;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, BC19, NT20> Obj19;
+
+            typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
+                                  NT5,  NT6,  NT7,  NT8,
+                                  NT9,  NT10, NT11, NT12,
+                                  NT13, NT14, NT15, NT16,
+                                  NT17, NT18, NT19, BC20> Obj20;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj1>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj2>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj3>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj18>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj19>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj20>::value);
+        }
+    }
+
+    static void testCase18()
+    {
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+        if (verbose) cout << endl
+                          << "TESTING CLASSES 'bdlb::VariantN'."
+                          << "=================================" << endl;
+
+        typedef bslmf::TypeListNil TestNil;  // for brevity
+
+        typedef TestString   TestArg1;  // for concern 4
+        typedef TestArg<2>   TestArg2;
+        typedef TestArg<3>   TestArg3;
+        typedef TestArg<4>   TestArg4;
+        typedef TestArg<5>   TestArg5;
+        typedef TestArg<6>   TestArg6;
+        typedef TestArg<7>   TestArg7;
+        typedef TestArg<8>   TestArg8;
+        typedef TestArg<9>   TestArg9;
+        typedef TestArg<10>  TestArg10;
+        typedef TestArg<11>  TestArg11;
+        typedef TestArg<12>  TestArg12;
+        typedef TestArg<13>  TestArg13;
+        typedef TestArg<14>  TestArg14;
+        typedef TestArg<15>  TestArg15;
+        typedef TestArg<16>  TestArg16;
+        typedef TestArg<17>  TestArg17;
+        typedef TestArg<18>  TestArg18;
+        typedef TestArg<19>  TestArg19;
+        typedef TestArg<20>  TestArg20;
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        const TestArg1  V1("This is a string long enough to trigger allocation"
+                           " even if Small-String-Optimization is used"
+                           " in the 'bsl::string' implementation.", &scratch);
+
+        const TestArg2  V2 ( 2);
+        const TestArg3  V3 ( 3);
+        const TestArg4  V4 ( 4);
+        const TestArg5  V5 ( 5);
+        const TestArg6  V6 ( 6);
+        const TestArg7  V7 ( 7);
+        const TestArg8  V8 ( 8);
+        const TestArg9  V9 ( 9);
+        const TestArg10 V10(10);
+        const TestArg11 V11(11);
+        const TestArg12 V12(12);
+        const TestArg13 V13(13);
+        const TestArg14 V14(14);
+        const TestArg15 V15(15);
+        const TestArg16 V16(16);
+        const TestArg17 V17(17);
+        const TestArg18 V18(18);
+        const TestArg19 V19(19);
+        const TestArg20 V20(20);
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+        {
+            typedef bdlb::Variant2<TestArg1, TestArg2> Obj;
+
+            ASSERT(2 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+        {
+            typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> Obj;
+
+            ASSERT(3 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+        {
+            typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4> Obj;
+
+            ASSERT(4 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+        {
+            typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
+                                   TestArg5> Obj;
+
+            ASSERT(5 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+        {
+            typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
+                                   TestArg5, TestArg6> Obj;
+
+            ASSERT(6 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+        {
+            typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
+                                   TestArg5, TestArg6, TestArg7> Obj;
+
+            ASSERT(7 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+        {
+            typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
+                                   TestArg5, TestArg6, TestArg7, TestArg8> Obj;
+
+            ASSERT(8 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+        {
+            typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
                                    TestArg5, TestArg6, TestArg7, TestArg8,
-                                   TestArg9, TestArg10> Obj;
-
-           ASSERT(10 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
-       {
-           typedef bdlb::Variant11<TestArg1, TestArg2, TestArg3, TestArg4,
-                                   TestArg5, TestArg6, TestArg7, TestArg8,
-                                   TestArg9, TestArg10, TestArg11> Obj;
-
-           ASSERT(11 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
-       {
-           typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3, TestArg4,
-                                   TestArg5, TestArg6,  TestArg7, TestArg8,
-                                   TestArg9, TestArg10, TestArg11,
-                                   TestArg12> Obj;
-
-           ASSERT(12 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
-       {
-           typedef bdlb::Variant13<TestArg1, TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5, TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9, TestArg10, TestArg11, TestArg12,
-                                   TestArg13> Obj;
-
-           ASSERT(13 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
-       {
-           typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14> Obj;
-
-           ASSERT(14 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
-       {
-           typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14, TestArg15> Obj;
-
-           ASSERT(15 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
-       {
-           typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14, TestArg15,
-                                   TestArg16> Obj;
-
-           ASSERT(16 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX = V16;
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-
-               Obj mX16(V16, &testAllocator);         const Obj& X16 = mX16;
-               ASSERT(16 == X16.typeIndex());
-               ASSERT(X16.is<TestArg16>());
-               ASSERT(V16 == X16.the<TestArg16>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
-       {
-           typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14, TestArg15, TestArg16,
-                                   TestArg17> Obj;
-
-           ASSERT(17 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX.assign<TestArg17>(V17);
-               ASSERT(17 == X.typeIndex());
-               ASSERT(X.is<TestArg17>());
-               ASSERT(V17 == X.the<TestArg17>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX = V16;
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX = V17;
-               ASSERT(17 == X.typeIndex());
-               ASSERT(X.is<TestArg17>());
-               ASSERT(V17 == X.the<TestArg17>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-
-               Obj mX16(V16, &testAllocator);         const Obj& X16 = mX16;
-               ASSERT(16 == X16.typeIndex());
-               ASSERT(X16.is<TestArg16>());
-               ASSERT(V16 == X16.the<TestArg16>());
-
-               Obj mX17(V17, &testAllocator);         const Obj& X17 = mX17;
-               ASSERT(17 == X17.typeIndex());
-               ASSERT(X17.is<TestArg17>());
-               ASSERT(V17 == X17.the<TestArg17>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
-       {
-           typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14, TestArg15, TestArg16,
-                                   TestArg17, TestArg18> Obj;
-
-           ASSERT(18 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX.assign<TestArg17>(V17);
-               ASSERT(17 == X.typeIndex());
-               ASSERT(X.is<TestArg17>());
-               ASSERT(V17 == X.the<TestArg17>());
-
-               mX.assign<TestArg18>(V18);
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX = V16;
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX = V18;
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-
-               Obj mX16(V16, &testAllocator);         const Obj& X16 = mX16;
-               ASSERT(16 == X16.typeIndex());
-               ASSERT(X16.is<TestArg16>());
-               ASSERT(V16 == X16.the<TestArg16>());
-
-               Obj mX17(V17, &testAllocator);         const Obj& X17 = mX17;
-               ASSERT(17 == X17.typeIndex());
-               ASSERT(X17.is<TestArg17>());
-               ASSERT(V17 == X17.the<TestArg17>());
-
-               Obj mX18(V18, &testAllocator);         const Obj& X18 = mX18;
-               ASSERT(18 == X18.typeIndex());
-               ASSERT(X18.is<TestArg18>());
-               ASSERT(V18 == X18.the<TestArg18>());
-           }
-       }
-
-       if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
-       {
-           typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                   TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                   TestArg9,  TestArg10, TestArg11, TestArg12,
-                                   TestArg13, TestArg14, TestArg15, TestArg16,
-                                   TestArg17, TestArg18, TestArg19> Obj;
-
-           ASSERT(19 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX.assign<TestArg17>(V17);
-               ASSERT(17 == X.typeIndex());
-               ASSERT(X.is<TestArg17>());
-               ASSERT(V17 == X.the<TestArg17>());
-
-               mX.assign<TestArg18>(V18);
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-
-               mX.assign<TestArg19>(V19);
-               ASSERT(19 == X.typeIndex());
-               ASSERT(X.is<TestArg19>());
-               ASSERT(V19 == X.the<TestArg19>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX = V16;
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX = V18;
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-
-               mX = V19;
-               ASSERT(19 == X.typeIndex());
-               ASSERT(X.is<TestArg19>());
-               ASSERT(V19 == X.the<TestArg19>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-
-               Obj mX16(V16, &testAllocator);         const Obj& X16 = mX16;
-               ASSERT(16 == X16.typeIndex());
-               ASSERT(X16.is<TestArg16>());
-               ASSERT(V16 == X16.the<TestArg16>());
-
-               Obj mX17(V17, &testAllocator);         const Obj& X17 = mX17;
-               ASSERT(17 == X17.typeIndex());
-               ASSERT(X17.is<TestArg17>());
-               ASSERT(V17 == X17.the<TestArg17>());
-
-               Obj mX18(V18, &testAllocator);         const Obj& X18 = mX18;
-               ASSERT(18 == X18.typeIndex());
-               ASSERT(X18.is<TestArg18>());
-               ASSERT(V18 == X18.the<TestArg18>());
-
-               Obj mX19(V19, &testAllocator);         const Obj& X19 = mX19;
-               ASSERT(19 == X19.typeIndex());
-               ASSERT(X19.is<TestArg19>());
-               ASSERT(V19 == X19.the<TestArg19>());
-           }
-       }
-
-       if (verbose)
-           cout << "\nTesting 'bdlb::Variant (with no types)'." << endl;
-       {
-           typedef bdlb::Variant<> Obj;
-
-           ASSERT(0 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestNil, Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestNil, Obj::Type20>::VALUE));
-
-           ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
-
-           Obj mX(&testAllocator); const Obj& X = mX;
-           ASSERT(0 == X.typeIndex());
-       }
-
-       if (verbose)
-           cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
-       {
-           typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
-                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
-                                 TestArg9,  TestArg10, TestArg11, TestArg12,
-                                 TestArg13, TestArg14, TestArg15, TestArg16,
-                                 TestArg17, TestArg18, TestArg19,
-                                 TestArg20> Obj;
-
-           ASSERT(20 == Obj::TypeList::LENGTH);
-
-           ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
-           ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
-           ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
-           ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
-           ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
-           ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
-           ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
-           ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
-           ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
-           ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
-           ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
-           ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
-           ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
-           ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
-           ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
-           ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
-           ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
-           ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
-           ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
-           ASSERT((bsl::is_same<TestArg20, Obj::Type20>::VALUE));
-
-           ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
-           ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
-
-           {
-               if (verbose) cout << "\tTesting default constructor." << endl;
-               Obj mX(&testAllocator); const Obj& X = mX;
-               ASSERT(0 == X.typeIndex());
-
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-               ASSERT(0 == testAllocator.numBlocksInUse());
-
-               if (verbose) cout << "\tTesting 'assign'." << endl;
-               mX.assign<TestArg1>(V1);
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               mX.assign<TestArg2>(V2);
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX.assign<TestArg3>(V3);
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX.assign<TestArg4>(V4);
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX.assign<TestArg5>(V5);
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX.assign<TestArg6>(V6);
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX.assign<TestArg7>(V7);
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX.assign<TestArg8>(V8);
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX.assign<TestArg9>(V9);
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX.assign<TestArg10>(V10);
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX.assign<TestArg11>(V11);
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX.assign<TestArg12>(V12);
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX.assign<TestArg13>(V13);
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX.assign<TestArg14>(V14);
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX.assign<TestArg15>(V15);
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX.assign<TestArg16>(V16);
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX.assign<TestArg17>(V17);
-               ASSERT(17 == X.typeIndex());
-               ASSERT(X.is<TestArg17>());
-               ASSERT(V17 == X.the<TestArg17>());
-
-               mX.assign<TestArg18>(V18);
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-
-               mX.assign<TestArg19>(V19);
-               ASSERT(19 == X.typeIndex());
-               ASSERT(X.is<TestArg19>());
-               ASSERT(V19 == X.the<TestArg19>());
-
-               mX.assign<TestArg20>(V20);
-               ASSERT(20 == X.typeIndex());
-               ASSERT(X.is<TestArg20>());
-               ASSERT(V20 == X.the<TestArg20>());
-
-               if (verbose) cout << "\tTesting 'operator='." << endl;
-               mX = V1;
-               ASSERT(1 == X.typeIndex());
-               ASSERT(X.is<TestArg1>());
-               ASSERT(V1 == X.the<TestArg1>());
-
-               mX = V2;
-               ASSERT(2 == X.typeIndex());
-               ASSERT(X.is<TestArg2>());
-               ASSERT(V2 == X.the<TestArg2>());
-
-               mX = V3;
-               ASSERT(3 == X.typeIndex());
-               ASSERT(X.is<TestArg3>());
-               ASSERT(V3 == X.the<TestArg3>());
-
-               mX = V4;
-               ASSERT(4 == X.typeIndex());
-               ASSERT(X.is<TestArg4>());
-               ASSERT(V4 == X.the<TestArg4>());
-
-               mX = V5;
-               ASSERT(5 == X.typeIndex());
-               ASSERT(X.is<TestArg5>());
-               ASSERT(V5 == X.the<TestArg5>());
-
-               mX = V6;
-               ASSERT(6 == X.typeIndex());
-               ASSERT(X.is<TestArg6>());
-               ASSERT(V6 == X.the<TestArg6>());
-
-               mX = V7;
-               ASSERT(7 == X.typeIndex());
-               ASSERT(X.is<TestArg7>());
-               ASSERT(V7 == X.the<TestArg7>());
-
-               mX = V8;
-               ASSERT(8 == X.typeIndex());
-               ASSERT(X.is<TestArg8>());
-               ASSERT(V8 == X.the<TestArg8>());
-
-               mX = V9;
-               ASSERT(9 == X.typeIndex());
-               ASSERT(X.is<TestArg9>());
-               ASSERT(V9 == X.the<TestArg9>());
-
-               mX = V10;
-               ASSERT(10 == X.typeIndex());
-               ASSERT(X.is<TestArg10>());
-               ASSERT(V10 == X.the<TestArg10>());
-
-               mX = V11;
-               ASSERT(11 == X.typeIndex());
-               ASSERT(X.is<TestArg11>());
-               ASSERT(V11 == X.the<TestArg11>());
-
-               mX = V12;
-               ASSERT(12 == X.typeIndex());
-               ASSERT(X.is<TestArg12>());
-               ASSERT(V12 == X.the<TestArg12>());
-
-               mX = V13;
-               ASSERT(13 == X.typeIndex());
-               ASSERT(X.is<TestArg13>());
-               ASSERT(V13 == X.the<TestArg13>());
-
-               mX = V14;
-               ASSERT(14 == X.typeIndex());
-               ASSERT(X.is<TestArg14>());
-               ASSERT(V14 == X.the<TestArg14>());
-
-               mX = V15;
-               ASSERT(15 == X.typeIndex());
-               ASSERT(X.is<TestArg15>());
-               ASSERT(V15 == X.the<TestArg15>());
-
-               mX = V16;
-               ASSERT(16 == X.typeIndex());
-               ASSERT(X.is<TestArg16>());
-               ASSERT(V16 == X.the<TestArg16>());
-
-               mX = V18;
-               ASSERT(18 == X.typeIndex());
-               ASSERT(X.is<TestArg18>());
-               ASSERT(V18 == X.the<TestArg18>());
-
-               mX = V19;
-               ASSERT(19 == X.typeIndex());
-               ASSERT(X.is<TestArg19>());
-               ASSERT(V19 == X.the<TestArg19>());
-
-               mX = V20;
-               ASSERT(20 == X.typeIndex());
-               ASSERT(X.is<TestArg20>());
-               ASSERT(V20 == X.the<TestArg20>());
-           }
-
-           if (verbose) cout << "\tTesting placement constructor." << endl;
-           {
-               const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-               Obj mX1(V1, &testAllocator);         const Obj& X1 = mX1;
-               ASSERT(1 == X1.typeIndex());
-               ASSERT(X1.is<TestArg1>());
-               ASSERT(V1 == X1.the<TestArg1>());
-
-               ASSERT(0        < testAllocator.numBlocksInUse());
-               ASSERT(PREVIOUS < testAllocator.numBlocksTotal());
-
-               Obj mX2(V2, &testAllocator);         const Obj& X2 = mX2;
-               ASSERT(2 == X2.typeIndex());
-               ASSERT(X2.is<TestArg2>());
-               ASSERT(V2 == X2.the<TestArg2>());
-
-               Obj mX3(V3, &testAllocator);         const Obj& X3 = mX3;
-               ASSERT(3 == X3.typeIndex());
-               ASSERT(X3.is<TestArg3>());
-               ASSERT(V3 == X3.the<TestArg3>());
-
-               Obj mX4(V4, &testAllocator);         const Obj& X4 = mX4;
-               ASSERT(4 == X4.typeIndex());
-               ASSERT(X4.is<TestArg4>());
-               ASSERT(V4 == X4.the<TestArg4>());
-
-               Obj mX5(V5, &testAllocator);         const Obj& X5 = mX5;
-               ASSERT(5 == X5.typeIndex());
-               ASSERT(X5.is<TestArg5>());
-               ASSERT(V5 == X5.the<TestArg5>());
-
-               Obj mX6(V6, &testAllocator);         const Obj& X6 = mX6;
-               ASSERT(6 == X6.typeIndex());
-               ASSERT(X6.is<TestArg6>());
-               ASSERT(V6 == X6.the<TestArg6>());
-
-               Obj mX7(V7, &testAllocator);         const Obj& X7 = mX7;
-               ASSERT(7 == X7.typeIndex());
-               ASSERT(X7.is<TestArg7>());
-               ASSERT(V7 == X7.the<TestArg7>());
-
-               Obj mX8(V8, &testAllocator);         const Obj& X8 = mX8;
-               ASSERT(8 == X8.typeIndex());
-               ASSERT(X8.is<TestArg8>());
-               ASSERT(V8 == X8.the<TestArg8>());
-
-               Obj mX9(V9, &testAllocator);         const Obj& X9 = mX9;
-               ASSERT(9 == X9.typeIndex());
-               ASSERT(X9.is<TestArg9>());
-               ASSERT(V9 == X9.the<TestArg9>());
-
-               Obj mX10(V10, &testAllocator);         const Obj& X10 = mX10;
-               ASSERT(10 == X10.typeIndex());
-               ASSERT(X10.is<TestArg10>());
-               ASSERT(V10 == X10.the<TestArg10>());
-
-               Obj mX11(V11, &testAllocator);         const Obj& X11 = mX11;
-               ASSERT(11 == X11.typeIndex());
-               ASSERT(X11.is<TestArg11>());
-               ASSERT(V11 == X11.the<TestArg11>());
-
-               Obj mX12(V12, &testAllocator);         const Obj& X12 = mX12;
-               ASSERT(12 == X12.typeIndex());
-               ASSERT(X12.is<TestArg12>());
-               ASSERT(V12 == X12.the<TestArg12>());
-
-               Obj mX13(V13, &testAllocator);         const Obj& X13 = mX13;
-               ASSERT(13 == X13.typeIndex());
-               ASSERT(X13.is<TestArg13>());
-               ASSERT(V13 == X13.the<TestArg13>());
-
-               Obj mX14(V14, &testAllocator);         const Obj& X14 = mX14;
-               ASSERT(14 == X14.typeIndex());
-               ASSERT(X14.is<TestArg14>());
-               ASSERT(V14 == X14.the<TestArg14>());
-
-               Obj mX15(V15, &testAllocator);         const Obj& X15 = mX15;
-               ASSERT(15 == X15.typeIndex());
-               ASSERT(X15.is<TestArg15>());
-               ASSERT(V15 == X15.the<TestArg15>());
-
-               Obj mX16(V16, &testAllocator);         const Obj& X16 = mX16;
-               ASSERT(16 == X16.typeIndex());
-               ASSERT(X16.is<TestArg16>());
-               ASSERT(V16 == X16.the<TestArg16>());
-
-               Obj mX17(V17, &testAllocator);         const Obj& X17 = mX17;
-               ASSERT(17 == X17.typeIndex());
-               ASSERT(X17.is<TestArg17>());
-               ASSERT(V17 == X17.the<TestArg17>());
-
-               Obj mX18(V18, &testAllocator);         const Obj& X18 = mX18;
-               ASSERT(18 == X18.typeIndex());
-               ASSERT(X18.is<TestArg18>());
-               ASSERT(V18 == X18.the<TestArg18>());
-
-               Obj mX19(V19, &testAllocator);         const Obj& X19 = mX19;
-               ASSERT(19 == X19.typeIndex());
-               ASSERT(X19.is<TestArg19>());
-               ASSERT(V19 == X19.the<TestArg19>());
-
-               Obj mX20(V20, &testAllocator);         const Obj& X20 = mX20;
-               ASSERT(20 == X20.typeIndex());
-               ASSERT(X20.is<TestArg20>());
-               ASSERT(V20 == X20.the<TestArg20>());
-           }
-       }
-   }
-
-   static void testCase17()
-   {
-       bslma::TestAllocator testAllocator(veryVeryVerbose);
-       if (verbose) cout << endl
-                         << "TESTING 'isUnset'" << endl
-                         << "=================" << endl;
-
-       if (verbose) cout << "\nTesting 'isUnset' with 'reset'." << endl;
-       {
-           typedef bdlb::VariantImp<bslmf::TypeList<int, char> > Obj;
-
-           Obj variant1, variant2;
-
-           ASSERT(true == variant1.isUnset());
-           ASSERT(true == variant2.isUnset());
-
-           variant1 = 1;
-           variant2 = 'a';
-
-           ASSERT(false == variant1.isUnset());
-           ASSERT(false == variant2.isUnset());
-
-           variant1.reset();
-
-           ASSERT(true  == variant1.isUnset());
-           ASSERT(false == variant2.isUnset());
-       }
-
-       if (verbose) cout << "\nTesting 'isUnset' with 'bslmf::Nil'." << endl;
-       {
-           typedef bdlb::VariantImp<bslmf::TypeList<bslmf::Nil, int> > Obj;
-
-           Obj variant = Obj(bslmf::Nil());
-
-           ASSERT(false == variant.isUnset());
-       }
-   }
-
-   static void testCase16()
-   {
-       if (verbose) cout << endl
-                         << "TESTING VISITORS (unset variants)" << endl
-                         << "=================================" << endl;
-
-       typedef bdlb::VariantImp<
-       bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
-
-       if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
-       {
-           my_UnsetVariantVisitor visitor;
-           LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
-
-           Obj mX;
-           mX.apply(visitor);
-
-           LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
-
-           visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-           LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
-
-           const Obj& X = mX;
-           X.apply(visitor);
-
-           LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
-       }
-
-       if (verbose) cout << "\nTesting user specified 'defaultValue'."<< endl;
-       {
-           my_UnsetVariantVisitor visitor;
-           LOOP_ASSERT(visitor.d_lastType,
+                                   TestArg9> Obj;
+
+            ASSERT(9 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6, Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7, Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8, Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9, Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+        {
+            typedef bdlb::Variant10<TestArg1, TestArg2, TestArg3, TestArg4,
+                                    TestArg5, TestArg6, TestArg7, TestArg8,
+                                    TestArg9, TestArg10> Obj;
+
+            ASSERT(10 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+        {
+            typedef bdlb::Variant11<TestArg1, TestArg2,  TestArg3, TestArg4,
+                                    TestArg5, TestArg6,  TestArg7, TestArg8,
+                                    TestArg9, TestArg10, TestArg11> Obj;
+
+            ASSERT(11 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+        {
+            typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3, TestArg4,
+                                    TestArg5, TestArg6,  TestArg7, TestArg8,
+                                    TestArg9, TestArg10, TestArg11,
+                                    TestArg12> Obj;
+
+            ASSERT(12 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+        {
+            typedef bdlb::Variant13<TestArg1, TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5, TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9, TestArg10, TestArg11, TestArg12,
+                                    TestArg13> Obj;
+
+            ASSERT(13 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+        {
+            typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14> Obj;
+
+            ASSERT(14 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+        {
+            typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14, TestArg15> Obj;
+
+            ASSERT(15 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+        {
+            typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14, TestArg15,
+                                    TestArg16> Obj;
+
+            ASSERT(16 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = V16;
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+
+                Obj mX16(V16, &oa);       const Obj& X16 = mX16;
+                ASSERT(16 == X16.typeIndex());
+                ASSERT(X16.is<TestArg16>());
+                ASSERT(V16 == X16.the<TestArg16>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+        {
+            typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14, TestArg15, TestArg16,
+                                    TestArg17> Obj;
+
+            ASSERT(17 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX.assign<TestArg17>(V17);
+                ASSERT(17 == X.typeIndex());
+                ASSERT(X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = V16;
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = V17;
+                ASSERT(17 == X.typeIndex());
+                ASSERT(X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+
+                Obj mX16(V16, &oa);       const Obj& X16 = mX16;
+                ASSERT(16 == X16.typeIndex());
+                ASSERT(X16.is<TestArg16>());
+                ASSERT(V16 == X16.the<TestArg16>());
+
+                Obj mX17(V17, &oa);       const Obj& X17 = mX17;
+                ASSERT(17 == X17.typeIndex());
+                ASSERT(X17.is<TestArg17>());
+                ASSERT(V17 == X17.the<TestArg17>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+        {
+            typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14, TestArg15, TestArg16,
+                                    TestArg17, TestArg18> Obj;
+
+            ASSERT(18 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX.assign<TestArg17>(V17);
+                ASSERT(17 == X.typeIndex());
+                ASSERT(X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX.assign<TestArg18>(V18);
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = V16;
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = V18;
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+
+                Obj mX16(V16, &oa);       const Obj& X16 = mX16;
+                ASSERT(16 == X16.typeIndex());
+                ASSERT(X16.is<TestArg16>());
+                ASSERT(V16 == X16.the<TestArg16>());
+
+                Obj mX17(V17, &oa);       const Obj& X17 = mX17;
+                ASSERT(17 == X17.typeIndex());
+                ASSERT(X17.is<TestArg17>());
+                ASSERT(V17 == X17.the<TestArg17>());
+
+                Obj mX18(V18, &oa);       const Obj& X18 = mX18;
+                ASSERT(18 == X18.typeIndex());
+                ASSERT(X18.is<TestArg18>());
+                ASSERT(V18 == X18.the<TestArg18>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+        {
+            typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                    TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                    TestArg9,  TestArg10, TestArg11, TestArg12,
+                                    TestArg13, TestArg14, TestArg15, TestArg16,
+                                    TestArg17, TestArg18, TestArg19> Obj;
+
+            ASSERT(19 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,   Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX.assign<TestArg17>(V17);
+                ASSERT(17 == X.typeIndex());
+                ASSERT(X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX.assign<TestArg18>(V18);
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX.assign<TestArg19>(V19);
+                ASSERT(19 == X.typeIndex());
+                ASSERT(X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = V16;
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = V18;
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX = V19;
+                ASSERT(19 == X.typeIndex());
+                ASSERT(X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+
+                Obj mX16(V16, &oa);       const Obj& X16 = mX16;
+                ASSERT(16 == X16.typeIndex());
+                ASSERT(X16.is<TestArg16>());
+                ASSERT(V16 == X16.the<TestArg16>());
+
+                Obj mX17(V17, &oa);       const Obj& X17 = mX17;
+                ASSERT(17 == X17.typeIndex());
+                ASSERT(X17.is<TestArg17>());
+                ASSERT(V17 == X17.the<TestArg17>());
+
+                Obj mX18(V18, &oa);       const Obj& X18 = mX18;
+                ASSERT(18 == X18.typeIndex());
+                ASSERT(X18.is<TestArg18>());
+                ASSERT(V18 == X18.the<TestArg18>());
+
+                Obj mX19(V19, &oa);       const Obj& X19 = mX19;
+                ASSERT(19 == X19.typeIndex());
+                ASSERT(X19.is<TestArg19>());
+                ASSERT(V19 == X19.the<TestArg19>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose)
+            cout << "\nTesting 'bdlb::Variant (with no types)'." << endl;
+        {
+            typedef bdlb::Variant<> Obj;
+
+            ASSERT(0 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestNil, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil, Obj::Type20>::VALUE));
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+
+            dam.reset();
+            {
+                Obj mW;  const Obj& W = mW;
+                ASSERT(0 == W.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+            }
+
+            oam.reset();
+            {
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+            }
+        }
+
+        if (verbose)
+            cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
+        {
+            typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                  TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                  TestArg9,  TestArg10, TestArg11, TestArg12,
+                                  TestArg13, TestArg14, TestArg15, TestArg16,
+                                  TestArg17, TestArg18, TestArg19,
+                                  TestArg20> Obj;
+
+            ASSERT(20 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1,  Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestArg2,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestArg3,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestArg4,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestArg5,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestArg6,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestArg7,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestArg8,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestArg9,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestArg10, Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestArg11, Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestArg12, Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestArg13, Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestArg14, Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestArg15, Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestArg16, Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestArg17, Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestArg18, Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestArg19, Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestArg20, Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX.assign<TestArg2>(V2);
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX.assign<TestArg3>(V3);
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX.assign<TestArg4>(V4);
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX.assign<TestArg5>(V5);
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX.assign<TestArg6>(V6);
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX.assign<TestArg7>(V7);
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX.assign<TestArg8>(V8);
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX.assign<TestArg9>(V9);
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX.assign<TestArg10>(V10);
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX.assign<TestArg11>(V11);
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX.assign<TestArg12>(V12);
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX.assign<TestArg13>(V13);
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX.assign<TestArg14>(V14);
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX.assign<TestArg15>(V15);
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX.assign<TestArg16>(V16);
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX.assign<TestArg17>(V17);
+                ASSERT(17 == X.typeIndex());
+                ASSERT(X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX.assign<TestArg18>(V18);
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX.assign<TestArg19>(V19);
+                ASSERT(19 == X.typeIndex());
+                ASSERT(X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+
+                mX.assign<TestArg20>(V20);
+                ASSERT(20 == X.typeIndex());
+                ASSERT(X.is<TestArg20>());
+                ASSERT(V20 == X.the<TestArg20>());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                mX = V2;
+                ASSERT(2 == X.typeIndex());
+                ASSERT(X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+
+                mX = V3;
+                ASSERT(3 == X.typeIndex());
+                ASSERT(X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = V4;
+                ASSERT(4 == X.typeIndex());
+                ASSERT(X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = V5;
+                ASSERT(5 == X.typeIndex());
+                ASSERT(X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = V6;
+                ASSERT(6 == X.typeIndex());
+                ASSERT(X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = V7;
+                ASSERT(7 == X.typeIndex());
+                ASSERT(X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = V8;
+                ASSERT(8 == X.typeIndex());
+                ASSERT(X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = V9;
+                ASSERT(9 == X.typeIndex());
+                ASSERT(X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = V10;
+                ASSERT(10 == X.typeIndex());
+                ASSERT(X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = V11;
+                ASSERT(11 == X.typeIndex());
+                ASSERT(X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = V12;
+                ASSERT(12 == X.typeIndex());
+                ASSERT(X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = V13;
+                ASSERT(13 == X.typeIndex());
+                ASSERT(X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = V14;
+                ASSERT(14 == X.typeIndex());
+                ASSERT(X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = V15;
+                ASSERT(15 == X.typeIndex());
+                ASSERT(X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = V16;
+                ASSERT(16 == X.typeIndex());
+                ASSERT(X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = V18;
+                ASSERT(18 == X.typeIndex());
+                ASSERT(X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX = V19;
+                ASSERT(19 == X.typeIndex());
+                ASSERT(X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+
+                mX = V20;
+                ASSERT(20 == X.typeIndex());
+                ASSERT(X.is<TestArg20>());
+                ASSERT(V20 == X.the<TestArg20>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                Obj mX2(V2, &oa);         const Obj& X2 = mX2;
+                ASSERT(2 == X2.typeIndex());
+                ASSERT(X2.is<TestArg2>());
+                ASSERT(V2 == X2.the<TestArg2>());
+
+                Obj mX3(V3, &oa);         const Obj& X3 = mX3;
+                ASSERT(3 == X3.typeIndex());
+                ASSERT(X3.is<TestArg3>());
+                ASSERT(V3 == X3.the<TestArg3>());
+
+                Obj mX4(V4, &oa);         const Obj& X4 = mX4;
+                ASSERT(4 == X4.typeIndex());
+                ASSERT(X4.is<TestArg4>());
+                ASSERT(V4 == X4.the<TestArg4>());
+
+                Obj mX5(V5, &oa);         const Obj& X5 = mX5;
+                ASSERT(5 == X5.typeIndex());
+                ASSERT(X5.is<TestArg5>());
+                ASSERT(V5 == X5.the<TestArg5>());
+
+                Obj mX6(V6, &oa);         const Obj& X6 = mX6;
+                ASSERT(6 == X6.typeIndex());
+                ASSERT(X6.is<TestArg6>());
+                ASSERT(V6 == X6.the<TestArg6>());
+
+                Obj mX7(V7, &oa);         const Obj& X7 = mX7;
+                ASSERT(7 == X7.typeIndex());
+                ASSERT(X7.is<TestArg7>());
+                ASSERT(V7 == X7.the<TestArg7>());
+
+                Obj mX8(V8, &oa);         const Obj& X8 = mX8;
+                ASSERT(8 == X8.typeIndex());
+                ASSERT(X8.is<TestArg8>());
+                ASSERT(V8 == X8.the<TestArg8>());
+
+                Obj mX9(V9, &oa);         const Obj& X9 = mX9;
+                ASSERT(9 == X9.typeIndex());
+                ASSERT(X9.is<TestArg9>());
+                ASSERT(V9 == X9.the<TestArg9>());
+
+                Obj mX10(V10, &oa);       const Obj& X10 = mX10;
+                ASSERT(10 == X10.typeIndex());
+                ASSERT(X10.is<TestArg10>());
+                ASSERT(V10 == X10.the<TestArg10>());
+
+                Obj mX11(V11, &oa);       const Obj& X11 = mX11;
+                ASSERT(11 == X11.typeIndex());
+                ASSERT(X11.is<TestArg11>());
+                ASSERT(V11 == X11.the<TestArg11>());
+
+                Obj mX12(V12, &oa);       const Obj& X12 = mX12;
+                ASSERT(12 == X12.typeIndex());
+                ASSERT(X12.is<TestArg12>());
+                ASSERT(V12 == X12.the<TestArg12>());
+
+                Obj mX13(V13, &oa);       const Obj& X13 = mX13;
+                ASSERT(13 == X13.typeIndex());
+                ASSERT(X13.is<TestArg13>());
+                ASSERT(V13 == X13.the<TestArg13>());
+
+                Obj mX14(V14, &oa);       const Obj& X14 = mX14;
+                ASSERT(14 == X14.typeIndex());
+                ASSERT(X14.is<TestArg14>());
+                ASSERT(V14 == X14.the<TestArg14>());
+
+                Obj mX15(V15, &oa);       const Obj& X15 = mX15;
+                ASSERT(15 == X15.typeIndex());
+                ASSERT(X15.is<TestArg15>());
+                ASSERT(V15 == X15.the<TestArg15>());
+
+                Obj mX16(V16, &oa);       const Obj& X16 = mX16;
+                ASSERT(16 == X16.typeIndex());
+                ASSERT(X16.is<TestArg16>());
+                ASSERT(V16 == X16.the<TestArg16>());
+
+                Obj mX17(V17, &oa);       const Obj& X17 = mX17;
+                ASSERT(17 == X17.typeIndex());
+                ASSERT(X17.is<TestArg17>());
+                ASSERT(V17 == X17.the<TestArg17>());
+
+                Obj mX18(V18, &oa);       const Obj& X18 = mX18;
+                ASSERT(18 == X18.typeIndex());
+                ASSERT(X18.is<TestArg18>());
+                ASSERT(V18 == X18.the<TestArg18>());
+
+                Obj mX19(V19, &oa);       const Obj& X19 = mX19;
+                ASSERT(19 == X19.typeIndex());
+                ASSERT(X19.is<TestArg19>());
+                ASSERT(V19 == X19.the<TestArg19>());
+
+                Obj mX20(V20, &oa);       const Obj& X20 = mX20;
+                ASSERT(20 == X20.typeIndex());
+                ASSERT(X20.is<TestArg20>());
+                ASSERT(V20 == X20.the<TestArg20>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+    }
+
+    static void testCase17()
+    {
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+
+        if (verbose) cout << endl
+                          << "TESTING 'isUnset'" << endl
+                          << "=================" << endl;
+
+        if (verbose) cout << "\nTesting 'isUnset' with 'reset'." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<int, char> > Obj;
+
+            Obj variant1, variant2;
+
+            ASSERT(true == variant1.isUnset());
+            ASSERT(true == variant2.isUnset());
+
+            variant1 = 1;
+            variant2 = 'a';
+
+            ASSERT(false == variant1.isUnset());
+            ASSERT(false == variant2.isUnset());
+
+            variant1.reset();
+
+            ASSERT(true  == variant1.isUnset());
+            ASSERT(false == variant2.isUnset());
+        }
+
+        if (verbose) cout << "\nTesting 'isUnset' with 'bslmf::Nil'." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<bslmf::Nil, int> > Obj;
+
+            Obj variant = Obj(bslmf::Nil());
+
+            ASSERT(false == variant.isUnset());
+        }
+    }
+
+    static void testCase16()
+    {
+        if (verbose) cout << endl
+                          << "TESTING VISITORS (unset variants)" << endl
+                          << "=================================" << endl;
+
+        typedef bdlb::VariantImp<
+        bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
+
+        if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
+        {
+            my_UnsetVariantVisitor visitor;
+            LOOP_ASSERT(visitor.d_lastType,
                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
-           Obj mX;
-           mX.apply(visitor, TestArg<1>());
+            Obj mX;
+            mX.apply(visitor);
 
-           LOOP_ASSERT(visitor.d_lastType,
-                       my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+            LOOP_ASSERT(visitor.d_lastType,
+                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
 
-           visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-           LOOP_ASSERT(visitor.d_lastType,
+            visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
+            LOOP_ASSERT(visitor.d_lastType,
                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
-           const Obj& X = mX;
-           X.apply(visitor, TestArg<1>());
+            const Obj& X = mX;
+            X.apply(visitor);
 
-           LOOP_ASSERT(visitor.d_lastType,
+            LOOP_ASSERT(visitor.d_lastType,
+                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
+        }
+
+        if (verbose) cout << "\nTesting user specified 'defaultValue'."<< endl;
+        {
+            my_UnsetVariantVisitor visitor;
+            LOOP_ASSERT(visitor.d_lastType,
+                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+
+            Obj mX;
+            mX.apply(visitor, TestArg<1>());
+
+            LOOP_ASSERT(visitor.d_lastType,
                        my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
-       }
 
-       if (verbose) cout << "\nTesting a subtle warning case." << endl;
-       {
-           bdlb::Variant<int> v(1);
-           dummyConvert(0, v);
-       }
+            visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
+            LOOP_ASSERT(visitor.d_lastType,
+                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
-       if (verbose) cout << "\nNegative Testing 'applyRaw'." << endl;
-       {
-           bsls::AssertFailureHandlerGuard hG(
-               bsls::AssertTest::failTestDriver);
+            const Obj& X = mX;
+            X.apply(visitor, TestArg<1>());
 
-           Obj                    mX;
-           my_UnsetVariantVisitor visitor;
+            LOOP_ASSERT(visitor.d_lastType,
+                       my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+        }
 
-           mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(visitor));
-           mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(visitor));
-       }
-   }
+        if (verbose) cout << "\nTesting a subtle warning case." << endl;
+        {
+            bdlb::Variant<int> v(1);
+            dummyConvert(0, v);
+        }
 
-   static void testCase15()
-   {
-       if (verbose) cout << endl
-                         << "TESTING VISITORS (return values)" << endl
-                         << "================================" << endl;
+        if (verbose) cout << "\nNegative Testing 'applyRaw'." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
 
-       bslma::TestAllocator testAllocator(veryVeryVerbose);
+            Obj                    mX;
+            my_UnsetVariantVisitor visitor;
 
-       typedef bdlb::VariantImp<
+            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(visitor));
+            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(visitor));
+        }
+    }
+
+    static void testCase15()
+    {
+        if (verbose) cout << endl
+                          << "TESTING VISITORS (return values)" << endl
+                          << "================================" << endl;
+
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+
+        typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
 
-       if (verbose) cout << "\nTesting visitor that modifies values" << endl;
-       {
-           enum { LENGTH = Obj::TypeList::LENGTH };
-           ASSERT(4 == LENGTH);
+        if (verbose) cout << "\nTesting visitor that modifies values" << endl;
+        {
+            enum { LENGTH = Obj::TypeList::LENGTH };
+            ASSERT(4 == LENGTH);
 
-           Obj mXs[LENGTH]; Obj mYs[LENGTH];
-           mXs[0].createInPlace<int>(INT_DATA[0]);
-           mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
-           mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
-           mXs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
-           mYs[0].createInPlace<int>(INT_DATA[0]);
-           mYs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
-           mYs[2].createInPlace<bsl::string>(STRING_DATA[0]);
-           mYs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
+            Obj mXs[LENGTH]; Obj mYs[LENGTH];
+            mXs[0].createInPlace<int>(INT_DATA[0]);
+            mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
+            mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
+            mXs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
+            mYs[0].createInPlace<int>(INT_DATA[0]);
+            mYs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
+            mYs[2].createInPlace<bsl::string>(STRING_DATA[0]);
+            mYs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
 
-           for (int i = 0;
+            for (int i = 0;
                 i < static_cast<int>(sizeof STRING_DATA / sizeof *STRING_DATA);
                 ++i) {
 
-               const int         INTVAL        = mXs[0].the<int>();
-               const TestInt     TESTINTVAL    = mXs[1].the<TestInt>();
-               const bsl::string STRINGVAL     = mXs[2].the<bsl::string>();
-               const TestString  TESTSTRINGVAL = mXs[3].the<TestString>();
+                const int         INTVAL        = mXs[0].the<int>();
+                const TestInt     TESTINTVAL    = mXs[1].the<TestInt>();
+                const bsl::string STRINGVAL     = mXs[2].the<bsl::string>();
+                const TestString  TESTSTRINGVAL = mXs[3].the<TestString>();
 
-               my_ModifyingVisitor visitor(i);
+                my_ModifyingVisitor visitor(i);
 
-               LOOP_ASSERT(i, INTVAL        == mXs[0].the<int>());
-               LOOP_ASSERT(i, TESTINTVAL    == mXs[1].the<TestInt>());
-               LOOP_ASSERT(i, STRINGVAL     == mXs[2].the<bsl::string>());
-               LOOP_ASSERT(i, TESTSTRINGVAL == mXs[3].the<TestString>());
-               LOOP_ASSERT(i, INTVAL        == mYs[0].the<int>());
-               LOOP_ASSERT(i, TESTINTVAL    == mYs[1].the<TestInt>());
-               LOOP_ASSERT(i, STRINGVAL     == mYs[2].the<bsl::string>());
-               LOOP_ASSERT(i, TESTSTRINGVAL == mYs[3].the<TestString>());
+                LOOP_ASSERT(i, INTVAL        == mXs[0].the<int>());
+                LOOP_ASSERT(i, TESTINTVAL    == mXs[1].the<TestInt>());
+                LOOP_ASSERT(i, STRINGVAL     == mXs[2].the<bsl::string>());
+                LOOP_ASSERT(i, TESTSTRINGVAL == mXs[3].the<TestString>());
+                LOOP_ASSERT(i, INTVAL        == mYs[0].the<int>());
+                LOOP_ASSERT(i, TESTINTVAL    == mYs[1].the<TestInt>());
+                LOOP_ASSERT(i, STRINGVAL     == mYs[2].the<bsl::string>());
+                LOOP_ASSERT(i, TESTSTRINGVAL == mYs[3].the<TestString>());
 
-               // Visit the values.
+                // Visit the values.
 
-               for (int j = 0; j < LENGTH; ++j) {
-                   mXs[j].apply(visitor);
-                   mYs[j].applyRaw(visitor);
-               }
+                for (int j = 0; j < LENGTH; ++j) {
+                    mXs[j].apply(visitor);
+                    mYs[j].applyRaw(visitor);
+                }
 
-               if (veryVerbose) {
-                   const int          theInt       =mXs[0].the<int>();
-                   const TestInt&     theTestInt   =mXs[1].the<TestInt>();
-                   const bsl::string& theString    =mXs[2].the<bsl::string>();
-                   const TestString&  theTestString=mXs[3].the<TestString>();
+                if (veryVerbose) {
+                    const int          theInt       =mXs[0].the<int>();
+                    const TestInt&     theTestInt   =mXs[1].the<TestInt>();
+                    const bsl::string& theString    =mXs[2].the<bsl::string>();
+                    const TestString&  theTestString=mXs[3].the<TestString>();
 
-                   T_ P_(i) P_(INT_DATA[i])    P_(TEST_INT_DATA[i])
+                    T_ P_(i) P_(INT_DATA[i])    P_(TEST_INT_DATA[i])
                        P_(STRING_DATA[i]) P(TEST_STRING_DATA[i])
                        P_(theInt) P_(theTestInt) P_(theString) P(theTestString)
-                       }
+                }
 
-               LOOP_ASSERT(i, INT_DATA[i]        ==mXs[0].the<int>());
-               LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mXs[1].the<TestInt>());
-               LOOP_ASSERT(i, STRING_DATA[i]     ==mXs[2].the<bsl::string>());
-               LOOP_ASSERT(i, TEST_STRING_DATA[i]==mXs[3].the<TestString>());
-               LOOP_ASSERT(i, INT_DATA[i]        ==mYs[0].the<int>());
-               LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mYs[1].the<TestInt>());
-               LOOP_ASSERT(i, STRING_DATA[i]     ==mYs[2].the<bsl::string>());
-               LOOP_ASSERT(i, TEST_STRING_DATA[i]==mYs[3].the<TestString>());
-           }
-       }
+                LOOP_ASSERT(i, INT_DATA[i]        ==mXs[0].the<int>());
+                LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mXs[1].the<TestInt>());
+                LOOP_ASSERT(i, STRING_DATA[i]     ==mXs[2].the<bsl::string>());
+                LOOP_ASSERT(i, TEST_STRING_DATA[i]==mXs[3].the<TestString>());
+                LOOP_ASSERT(i, INT_DATA[i]        ==mYs[0].the<int>());
+                LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mYs[1].the<TestInt>());
+                LOOP_ASSERT(i, STRING_DATA[i]     ==mYs[2].the<bsl::string>());
+                LOOP_ASSERT(i, TEST_STRING_DATA[i]==mYs[3].the<TestString>());
+            }
+        }
 
         if (verbose) cout << "\nTesting return values from visitor." << endl;
 
@@ -7249,7 +7769,7 @@ struct TestUtil {
                           << "TESTING TYPE ASSIGNMENT" << endl
                           << "=======================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
         if (verbose) cout << "\nTesting assignment from different values."
                           << endl;
@@ -7410,21 +7930,22 @@ struct TestUtil {
         if (verbose) cout << "\nTesting allocator with assignment." << endl;
 
         {
-            bslma::TestAllocator ta, da;
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
-            ASSERT(0 == ta.numBlocksTotal());
+            ASSERT(0 == oa.numBlocksTotal());
             ASSERT(0 == da.numBlocksTotal());
 
-            TestAllocObj value(&ta);
+            TestAllocObj value(&oa);
 
-            const int TATOTAL = static_cast<int>(ta.numBlocksTotal());
-            ASSERT(TATOTAL == ta.numBlocksTotal());
+            const int TATOTAL = static_cast<int>(oa.numBlocksTotal());
+            ASSERT(TATOTAL == oa.numBlocksTotal());
             ASSERT(0       == da.numBlocksTotal());
 
             bdlb::Variant<bsl::string, TestAllocObj> mX(value);
 
-            ASSERT(TATOTAL == ta.numBlocksTotal());
+            ASSERT(TATOTAL == oa.numBlocksTotal());
             ASSERT(TATOTAL == da.numBlocksTotal());
         }
 
@@ -7504,47 +8025,50 @@ struct TestUtil {
             typedef bdlb::Variant<TestAllocObj, int, bsl::string,
                                   TestInt, TestString, TestVoid> Obj;
 
-            // 'da'  - default allocator
-            // 'ta'  - test allocator passed to the variant
-            // 'tmp' - allocator for temporaries
+            // 'da'      - default allocator
+            // 'oa'      - test allocator passed to the variant
+            // 'scratch' - allocator for temporaries
 
-            bslma::TestAllocator da, ta, tmp;
+            bslma::TestAllocator da(     "default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa(     "object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
             bslma::DefaultAllocatorGuard guard(&da);
 
             ASSERT(0 == da.numBlocksTotal());
-            ASSERT(0 == ta.numBlocksTotal());
-            ASSERT(0 == tmp.numBlocksTotal());
+            ASSERT(0 == oa.numBlocksTotal());
+            ASSERT(0 == scratch.numBlocksTotal());
 
             {
-                Obj mX(&ta);   const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
                 ASSERT(0 == X.typeIndex());
 
                 if (veryVerbose) { T_ P(X) }
 
                 ASSERT(0 == X.is<TestAllocObj>());
                 ASSERT(0 == da.numBlocksTotal());
-                ASSERT(0 == ta.numBlocksTotal());
-                ASSERT(0 == tmp.numBlocksTotal());
+                ASSERT(0 == oa.numBlocksTotal());
+                ASSERT(0 == scratch.numBlocksTotal());
 
-                const int CURRENTTOTAL = static_cast<int>(ta.numBlocksTotal());
+                const int CURRENTTOTAL = static_cast<int>(oa.numBlocksTotal());
 
                 bsl::string testString("Hello, this is a string long "
-                                       " enough to force memory allocation",
-                                       &tmp);
+                                       "enough to force memory allocation.",
+                                       &scratch);
 
                 ASSERT(0            == da.numBlocksTotal());
-                ASSERT(CURRENTTOTAL == ta.numBlocksTotal());
-                ASSERT(0            <  tmp.numBlocksTotal());
+                ASSERT(CURRENTTOTAL == oa.numBlocksTotal());
+                ASSERT(0            <  scratch.numBlocksTotal());
 
                 mX.assign(testString);
 
                 ASSERT(0            == da.numBlocksTotal());
-                ASSERT(CURRENTTOTAL <  ta.numBlocksTotal());
-                ASSERT(0            <  tmp.numBlocksTotal());
+                ASSERT(CURRENTTOTAL <  oa.numBlocksTotal());
+                ASSERT(0            <  scratch.numBlocksTotal());
             }
             ASSERT(0 == da.numBlocksInUse());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(0 == tmp.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == scratch.numBlocksInUse());
         }
 
         if (verbose) cout << "\nTesting one argument constructor with "
@@ -7590,7 +8114,8 @@ struct TestUtil {
                 T_ P_(LINE) P_(TYPE_IDX) P(VALUE_IDX)
             }
 
-            bslma::TestAllocator da, ta;
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
             switch (TYPE_IDX) {
@@ -7604,17 +8129,17 @@ struct TestUtil {
                 ASSERT(1                   == X.is<int>());
                 ASSERT(INT_DATA[VALUE_IDX] == X.the<int>());
                 ASSERT(0                   == da.numBlocksTotal());
-                ASSERT(0                   == ta.numBlocksTotal());
+                ASSERT(0                   == oa.numBlocksTotal());
 
                 const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
-                Obj mY(INT_DATA[VALUE_IDX], &ta);            const Obj& Y = mY;
+                Obj mY(INT_DATA[VALUE_IDX], &oa);            const Obj& Y = mY;
 
                 ASSERT(INT_TYPE            == Y.typeIndex());
                 ASSERT(1                   == Y.is<int>());
                 ASSERT(INT_DATA[VALUE_IDX] == Y.the<int>());
                 ASSERT(CURRENTTOTAL        == da.numBlocksTotal());
-                ASSERT(0                   == ta.numBlocksTotal());
+                ASSERT(0                   == oa.numBlocksTotal());
 
                 Obj mZ;                                      const Obj& Z = mZ;
                 mZ.assign(INT_DATA[VALUE_IDX]);
@@ -7637,17 +8162,17 @@ struct TestUtil {
                 ASSERT(1                        == X.is<TestInt>());
                 ASSERT(TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
                 ASSERT(0                        == da.numBlocksTotal());
-                ASSERT(0                        == ta.numBlocksTotal());
+                ASSERT(0                        == oa.numBlocksTotal());
 
                 const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
-                Obj mY(TEST_INT_DATA[VALUE_IDX], &ta);       const Obj& Y = mY;
+                Obj mY(TEST_INT_DATA[VALUE_IDX], &oa);       const Obj& Y = mY;
 
                 ASSERT(TEST_INT_TYPE            == Y.typeIndex());
                 ASSERT(1                        == Y.is<TestInt>());
                 ASSERT(TEST_INT_DATA[VALUE_IDX] == Y.the<TestInt>());
                 ASSERT(CURRENTTOTAL             == da.numBlocksTotal());
-                ASSERT(0                        == ta.numBlocksTotal());
+                ASSERT(0                        == oa.numBlocksTotal());
 
                 Obj mZ;                                      const Obj& Z = mZ;
                 mZ.assign(TEST_INT_DATA[VALUE_IDX]);
@@ -7669,11 +8194,11 @@ struct TestUtil {
                 ASSERT(STRING_TYPE            == X.typeIndex());
                 ASSERT(1                      == X.is<bsl::string>());
                 ASSERT(STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
-                ASSERT(0                      == ta.numBlocksTotal());
+                ASSERT(0                      == oa.numBlocksTotal());
 
                 const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
-                Obj mY(STRING_DATA[VALUE_IDX], &ta);         const Obj& Y = mY;
+                Obj mY(STRING_DATA[VALUE_IDX], &oa);         const Obj& Y = mY;
 
                 ASSERT(STRING_TYPE            == Y.typeIndex());
                 ASSERT(1                      == Y.is<bsl::string>());
@@ -7700,11 +8225,11 @@ struct TestUtil {
                 ASSERT(TEST_STRING_TYPE            == X.typeIndex());
                 ASSERT(1                           == X.is<TestString>());
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
-                ASSERT(0                           == ta.numBlocksTotal());
+                ASSERT(0                           == oa.numBlocksTotal());
 
                 const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
-                Obj mY(TEST_STRING_DATA[VALUE_IDX], &ta);    const Obj& Y = mY;
+                Obj mY(TEST_STRING_DATA[VALUE_IDX], &oa);    const Obj& Y = mY;
 
                 ASSERT(TEST_STRING_TYPE            == Y.typeIndex());
                 ASSERT(1                           == Y.is<TestString>());
@@ -7736,17 +8261,17 @@ struct TestUtil {
                 ASSERT(1              == X.is<TestVoid>());
                 ASSERT(TestVoid()     == X.the<TestVoid>());
                 ASSERT(0              == da.numBlocksTotal());
-                ASSERT(0              == ta.numBlocksTotal());
+                ASSERT(0              == oa.numBlocksTotal());
 
                 const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
 
-                Obj mY(TestVoid(), &ta);                     const Obj& Y = mY;
+                Obj mY(TestVoid(), &oa);                     const Obj& Y = mY;
 
                 ASSERT(TEST_VOID_TYPE == Y.typeIndex());
                 ASSERT(1              == Y.is<TestVoid>());
                 ASSERT(TestVoid()     == Y.the<TestVoid>());
                 ASSERT(CURRENTTOTAL   == da.numBlocksTotal());
-                ASSERT(0              == ta.numBlocksTotal());
+                ASSERT(0              == oa.numBlocksTotal());
 
                 Obj mZ;                                      const Obj& Z = mZ;
                 mZ.assign(TestVoid());
@@ -7841,10 +8366,14 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator("test", veryVeryVeryVerbose);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case.
       case 22: {
@@ -9219,8 +9748,9 @@ int main(int argc, char *argv[])
                     // uses the default allocator).  The allocator value of
                     // 'mY' should not be affected.
 
-                    bslma::TestAllocator da; // default allocator
-                    const bslma::DefaultAllocatorGuard DAG(&da);
+                    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                    bslma::DefaultAllocatorGuard dag(&da);
+
                     Obj mY;
                     gg(&mY, SPECS[i]);
                     int defaultBlocks = static_cast<int>(da.numBlocksTotal());
@@ -9425,15 +9955,15 @@ int main(int argc, char *argv[])
             gg(&mX, INPUT);
             gg(&W, INPUT);
 
-            bslma::TestAllocator da; // default allocator
-            const bslma::DefaultAllocatorGuard DAG(&da);
-            bslma::TestAllocator a;  // specified allocator
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
-            int blocks = static_cast<int>(a.numBlocksTotal());
+            int blocks = static_cast<int>(oa.numBlocksTotal());
 
-            const Obj Y(X, &a);
-            blocks = static_cast<int>(a.numBlocksTotal()) - blocks;
+            const Obj Y(X, &oa);
+            blocks = static_cast<int>(oa.numBlocksTotal()) - blocks;
             LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
             int defaultBlocks = static_cast<int>(da.numBlocksTotal());
@@ -10090,8 +10620,9 @@ int main(int argc, char *argv[])
             // order to verify the default allocator is used when no allocator
             // is specified.
 
-            bslma::TestAllocator da; // default allocator
-            bslma::DefaultAllocatorGuard DAG(&da);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
             int previousTotal = static_cast<int>(da.numBlocksTotal());
 
             const Obj X;
@@ -10594,12 +11125,14 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X4 == X4));          ASSERT(0 == (X4 != X4));
 
       } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
