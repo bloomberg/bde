@@ -31,6 +31,7 @@
       bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
+      bslmt_readerwritermutex
       bslmt_turnstile
 
   14. bslmt_barrier
@@ -133,6 +134,9 @@
 :      Provide small, statically-initializable mutex lock.
 :
 : 'bslmt_readerwriterlock':
+:      Provide a multi-reader/single-writer lock.
+:
+: 'bslmt_readerwritermutex':
 :      Provide a multi-reader/single-writer lock.
 :
 : 'bslmt_readlockguard':
