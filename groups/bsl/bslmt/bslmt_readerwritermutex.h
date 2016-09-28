@@ -33,7 +33,118 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// TBD
+// The following snippets of code illustrate the use of
+// 'bslmt::ReaderWriterMutex' to write a thread-safe class, 'my_Account'.  Note
+// the typical use of 'mutable' for the lock:
+//..
+//  class my_Account {
+//      // This 'class' represents a bank account with a single balance.
+//
+//      // DATA
+//      double                            d_money;  // amount of money in the
+//                                                  // account
+//
+//      mutable bslmt::ReaderWriterMutex  d_lock;   // guard access to
+//                                                  // 'd_account_p'
+//
+//    public:
+//      // CREATORS
+//      my_Account();
+//          // Create an account with zero balance.
+//
+//      my_Account(const my_Account& original);
+//          // Create an account having the value of the specified 'original'
+//          // account.
+//
+//      ~my_Account();
+//          // Destroy this account.
+//
+//      // MANIPULATORS
+//      my_Account& operator=(const my_Account& rhs);
+//          // Atomically assign to this account the value of the specified
+//          // 'rhs' account, and return a reference to this modifiable
+//          // account.  Note that this operation is thread-safe; no 'lock' is
+//          // needed.
+//
+//      void deposit(double amount);
+//          // Atomically deposit the specified 'amount' of money into this
+//          // account.  Note that this operation is thread-safe; no 'lock' is
+//          // needed.
+//
+//      void withdraw(double amount);
+//          // Atomically withdraw the specified 'amount' of money from this
+//          // account.  Note that this operation is thread-safe; no 'lock' is
+//          // needed.
+//
+//      // ACCESSORS
+//      double balance() const;
+//          // Atomically return the amount of money that is available for
+//          // withdrawal from this account.
+//  };
+//
+//  // CREATORS
+//  my_Account::my_Account()
+//  : d_money(0.0)
+//  {
+//  }
+//
+//  my_Account::my_Account(const my_Account& original)
+//  : d_money(original.d_money)
+//  {
+//  }
+//
+//  my_Account::~my_Account()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  my_Account& my_Account::operator=(const my_Account& rhs)
+//  {
+//..
+// Where appropriate, clients should use a lock-guard to ensure that an
+// acquired mutex is always properly released, even if an exception is thrown.
+//..
+//      d_lock.lockWrite();
+//      d_money = rhs.d_money;
+//      d_lock.unlockWrite();
+//      return *this;
+//  }
+//
+//  void my_Account::deposit(double amount)
+//  {
+//      d_lock.lockWrite();
+//      d_money += amount;
+//      d_lock.unlockWrite();
+//  }
+//
+//  void my_Account::withdraw(double amount)
+//  {
+//      d_lock.lockWrite();
+//      d_money -= amount;
+//      d_lock.unlockWrite();
+//  }
+//
+//  // ACCESSORS
+//  double my_Account::balance() const
+//  {
+//      d_lock.lockRead();
+//      double rv = d_money;
+//      d_lock.unlockRead();
+//      return rv;
+//  }
+//..
+// The atomic 'my_Account' methods are used as expected:
+//..
+//  my_Account account;
+//
+//  account.deposit(100.50);
+//  assert(100.50 == account.balance());
+//
+//  double paycheck = 50.25;
+//
+//  account.deposit(paycheck);
+//  assert(150.75 == account.balance());
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
