@@ -16,6 +16,7 @@ bslalg_hashtableanchor
 bslalg_hashtablebucket
 bslalg_hashtableimputil
 bslalg_hashutil
+bslalg_hasstliterators
 bslalg_hastrait
 bslalg_rangecompare
 bslalg_rbtreeanchor
