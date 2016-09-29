@@ -157,9 +157,6 @@ typedef bsl::shared_ptr<BALM::IntegerCollector>  IColSPtr;
 typedef bsl::vector<ColSPtr>                     ColSPtrVector;
 typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 
-typedef BloombergLP::bsls::Log         Log;
-typedef BloombergLP::bsls::LogSeverity Severity;
-
 // ============================================================================
 //                     CLASSES FOR AND FUNCTIONS TESTING
 // ----------------------------------------------------------------------------
@@ -1482,7 +1479,7 @@ int main(int argc, char *argv[])
 
         typedef Corp::bslim::TestUtil TU;
 
-        Log::setLogMessageHandler(&LogTestMessageHandler::testMessageHandler);
+        Log::setLogMessageHandler(LogTestMessageHandler::testMessageHandler);
 
         Corp::bslma::TestAllocator defaultAllocator;
         Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
@@ -1612,7 +1609,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
             << "Test logEmptyName" << endl
             << "=================" << endl;
-
+        
         Log::setLogMessageHandler(&LogTestMessageHandler::testMessageHandler);
 
         struct {

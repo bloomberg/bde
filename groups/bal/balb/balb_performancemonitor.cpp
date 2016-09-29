@@ -916,13 +916,13 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     int fd = open(procfsInfo.str().c_str(), O_RDONLY);
     if (fd == -1) {
-        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
     psinfo_t info;
     if (sizeof info != read(fd, &info, sizeof info)) {
-        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
@@ -936,7 +936,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     int rc = pstat_getproc(&status, sizeof status, 0, stats->d_pid);
     if (-1 == rc)
     {
-        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
@@ -971,14 +971,14 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     fd = open(procfsInfo.str().c_str(), O_RDONLY);
     if (fd == -1) {
-        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
 
     psinfo_t info;
     if (sizeof info != read(fd, &info, sizeof info)) {
-        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
@@ -996,14 +996,14 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     fd = open(procfsStatus.str().c_str(), O_RDONLY);
     if (fd == -1) {
-        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
 
     pstatus_t status;
     if (sizeof status != read(fd, &status, sizeof status)) {
-        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)"
+        BSLS_LOG_DEBUG("Failed to read /proc filesystem for pid %d (%s)",
                        stats->d_pid, stats->d_description.c_str());
         return -1;
     }
@@ -1086,7 +1086,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     {
         BSLS_LOG_DEBUG("Calculated impossible CPU utilization = %f, "
                        "num threads = %d", 
-                       stats->d_lstData[e_CPU_UTIL]
+                       stats->d_lstData[e_CPU_UTIL],
                        numThreads);
 
         stats->d_lstData[e_CPU_UTIL] = 0.0;
