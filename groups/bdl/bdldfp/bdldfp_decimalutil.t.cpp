@@ -516,9 +516,9 @@ int main(int argc, char* argv[])
     //: 1 Try decomposing a variety of different valid values into sign,
     //:   significand and exponent compartments.  Including minimum and maximum
     //:   values and special values such as 'NaN' and 'Inf'.  Restore the value
-    //:   using 'sign', significand' and 'exponent' values and check that if
-    //:   the original value is finite the restored value equal to the original
-    //:   value.
+    //:   using 'sign', significand' and 'exponent' parts and check that if the
+    //:   value is not a special (infinity or NaNs), it is restored into the
+    //:   value equal to the original one.
     //
     // Testing:
     //   int decompose(int *, unsigned int *,        int *, Decimal32);
@@ -572,12 +572,12 @@ int main(int argc, char* argv[])
             {  L_,  DEC(-0.0),   FP_ZERO,      -1,           0,   -1 },
 
             // Test special encoding values
-            {  L_,   INF_P,      FP_INFINITE,   1,  0x78000000,    0 },
-            {  L_,   INF_N,      FP_INFINITE,  -1,  0x78000000,    0 },
-            {  L_,   NAN_Q_P,    FP_NAN,        1,  0x7c000000,    0 },
-            {  L_,   NAN_Q_N,    FP_NAN,       -1,  0x7c000000,    0 },
-            {  L_,   NAN_S_P,    FP_NAN,        1,  0x7e000000,    0 },
-            {  L_,   NAN_S_N,    FP_NAN,       -1,  0x7e000000,    0 },
+            {  L_,   INF_P,      FP_INFINITE,   1,    0x800000, 0xc0 },
+            {  L_,   INF_N,      FP_INFINITE,  -1,    0x800000, 0xc0 },
+            {  L_,   NAN_Q_P,    FP_NAN,        1,    0x800000, 0xe0 },
+            {  L_,   NAN_Q_N,    FP_NAN,       -1,    0x800000, 0xe0 },
+            {  L_,   NAN_S_P,    FP_NAN,        1,    0x800000, 0xf0 },
+            {  L_,   NAN_S_N,    FP_NAN,       -1,    0x800000, 0xf0 },
             {  L_,   SUBN_P,     FP_SUBNORMAL,  1,           1, -101 },
             {  L_,   SUBN_N,     FP_SUBNORMAL, -1,           1, -101 },
             {  L_,   SPE_8_P,    FP_NORMAL,     1,     8999999,   -6 },
@@ -719,36 +719,36 @@ int main(int argc, char* argv[])
             // --- ---------- -------     ----   -------------------- --------
 
             // Test zero values
-            {  L_, DEC( 0.0), FP_ZERO,       1,                      0,   -1 },
-            {  L_, DEC(-0.0), FP_ZERO,      -1,                      0,   -1 },
+            {  L_, DEC( 0.0), FP_ZERO,       1,                 0,     -1 },
+            {  L_, DEC(-0.0), FP_ZERO,      -1,                 0,     -1 },
 
             // Test special encoding values
-            {  L_,  INF_P,    FP_INFINITE,   1,  0x7800000000000000ull,    0 },
-            {  L_,  INF_N,    FP_INFINITE,  -1,  0x7800000000000000ull,    0 },
-            {  L_,  NAN_Q_P,  FP_NAN,        1,  0x7c00000000000000ull,    0 },
-            {  L_,  NAN_Q_N,  FP_NAN,       -1,  0x7c00000000000000ull,    0 },
-            {  L_,  NAN_S_P,  FP_NAN,        1,  0x7e00000000000000ull,    0 },
-            {  L_,  NAN_S_N,  FP_NAN,       -1,  0x7e00000000000000ull,    0 },
-            {  L_,  SUBN_P,   FP_SUBNORMAL,  1,                      1, -398 },
-            {  L_,  SUBN_N,   FP_SUBNORMAL, -1,                      1, -398 },
-            {  L_,  SPE_8_P,  FP_NORMAL,     1,       8999999999999999,  -15 },
-            {  L_,  SPE_8_N,  FP_NORMAL,    -1,       8999999999999999,  -15 },
-            {  L_,  SPE_9_P,  FP_NORMAL,     1,       9000000000000001,   -5 },
-            {  L_,  SPE_9_N,  FP_NORMAL,    -1,       9000000000000001,   -5 },
+            {  L_,  INF_P,    FP_INFINITE,   1,  0x20000000000000,  0x300 },
+            {  L_,  INF_N,    FP_INFINITE,  -1,  0x20000000000000,  0x300 },
+            {  L_,  NAN_Q_P,  FP_NAN,        1,  0x20000000000000,  0x380 },
+            {  L_,  NAN_Q_N,  FP_NAN,       -1,  0x20000000000000,  0x380 },
+            {  L_,  NAN_S_P,  FP_NAN,        1,  0x20000000000000,  0x3c0 },
+            {  L_,  NAN_S_N,  FP_NAN,       -1,  0x20000000000000,  0x3c0 },
+            {  L_,  SUBN_P,   FP_SUBNORMAL,  1,                 1,   -398 },
+            {  L_,  SUBN_N,   FP_SUBNORMAL, -1,                 1,   -398 },
+            {  L_,  SPE_8_P,  FP_NORMAL,     1,  8999999999999999,    -15 },
+            {  L_,  SPE_8_N,  FP_NORMAL,    -1,  8999999999999999,    -15 },
+            {  L_,  SPE_9_P,  FP_NORMAL,     1,  9000000000000001,     -5 },
+            {  L_,  SPE_9_N,  FP_NORMAL,    -1,  9000000000000001,     -5 },
 
             // Test boundary values
-            {  L_,   MIN,     FP_NORMAL,     1,                      1, -383 },
-            {  L_,  -MIN,     FP_NORMAL,    -1,                      1, -383 },
-            {  L_,   MAX,     FP_NORMAL,     1,       9999999999999999,  369 },
-            {  L_,  -MAX,     FP_NORMAL,    -1,       9999999999999999,  369 },
+            {  L_,   MIN,     FP_NORMAL,     1,                 1,   -383 },
+            {  L_,  -MIN,     FP_NORMAL,    -1,                 1,   -383 },
+            {  L_,   MAX,     FP_NORMAL,     1,  9999999999999999,    369 },
+            {  L_,  -MAX,     FP_NORMAL,    -1,  9999999999999999,    369 },
 
             // Test arbitrary values
-            {  L_,   DEC( 1.0),  FP_NORMAL,     1,                  10,   -1 },
-            {  L_,   DEC(-1.0),  FP_NORMAL,    -1,                  10,   -1 },
-            {  L_,   DEC( 0.1),  FP_NORMAL,     1,                   1,   -1 },
-            {  L_,   DEC(-0.1),  FP_NORMAL,    -1,                   1,   -1 },
-            {  L_,   DEC( 4.25), FP_NORMAL,     1,                 425,   -2 },
-            {  L_,   DEC(-4.25), FP_NORMAL,    -1,                 425,   -2 },
+            {  L_,   DEC( 1.0),  FP_NORMAL,  1,                10,     -1 },
+            {  L_,   DEC(-1.0),  FP_NORMAL, -1,                10,     -1 },
+            {  L_,   DEC( 0.1),  FP_NORMAL,  1,                 1,     -1 },
+            {  L_,   DEC(-0.1),  FP_NORMAL, -1,                 1,     -1 },
+            {  L_,   DEC( 4.25), FP_NORMAL,  1,               425,     -2 },
+            {  L_,   DEC(-4.25), FP_NORMAL, -1,               425,     -2 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -862,73 +862,78 @@ int main(int argc, char* argv[])
             bsls::Types::Uint64 d_significandL;
             int                 d_exponent;
         } DATA[] = {
-            // L   NUMBER     CLASS        SIGN   SIGNIFICAND HIGH,    EXPONENT
+            // L   NUMBER     CLASS        SIGN   SIGNIFICAND HIGH,  EXPONENT
             //                                    SIGNIFICAND LOW
-            // --- ---------- -------      ----   -------------------- --------
+            // --- ---------- -------      ----   -----------------  --------
 
             // Test zero values
             {  L_, DEC( 0.0),  FP_ZERO,       1,                 0,
-                                                                0,        -1 },
+                                                                 0,       -1 },
             {  L_, DEC(-0.0),  FP_ZERO,      -1,                 0,
-                                                                0,        -1 },
+                                                                 0,       -1 },
 
             // Test special encoding values
-            {  L_,  INF_P,     FP_INFINITE,   1,  0x7800000000000000,
-                                                                  0,       0 },
-            {  L_,  INF_N,     FP_INFINITE,  -1,  0x7800000000000000,
-                                                                  0,       0 },
-            {  L_,  NAN_Q_P,   FP_NAN,        1,  0x7c00000000000000,
-                                                                  0,       0 },
-            {  L_,  NAN_Q_N,   FP_NAN,       -1,  0x7c00000000000000,
-                                                                  0,       0 },
-            {  L_,  NAN_S_P,   FP_NAN,        1,  0x7e00000000000000,
-                                                                  0,       0 },
-            {  L_,  NAN_S_N,   FP_NAN,       -1,  0x7e00000000000000,
-                                                                  0,       0 },
-            {  L_,  SUBN_P,    FP_SUBNORMAL,  1,                   0,
+            {  L_,  INF_P,     FP_INFINITE,   1,   0x20000000000000,
+                                                                  0,  0x3000 },
+            {  L_,  INF_N,     FP_INFINITE,  -1,   0x20000000000000,
+                                                                  0,  0x3000 },
+            {  L_,  NAN_Q_P,   FP_NAN,        1,   0x20000000000000,
+                                                                  0,  0x3800 },
+            {  L_,  NAN_Q_N,   FP_NAN,       -1,   0x20000000000000,
+                                                                  0,  0x3800 },
+            {  L_,  NAN_S_P,   FP_NAN,        1,   0x20000000000000,
+                                                                  0,  0x3c00 },
+            {  L_,  NAN_S_N,   FP_NAN,       -1,   0x20000000000000,
+                                                                  0,  0x3c00 },
+            {  L_,  SUBN_P,    FP_SUBNORMAL,  1,                  0,
                                                                   1,   -6176 },
-            {  L_,  SUBN_N,    FP_SUBNORMAL, -1,                   0,
+            {  L_,  SUBN_N,    FP_SUBNORMAL, -1,                  0,
                                                                   1,   -6176 },
 
             // // Test boundary values
-            {  L_,   MIN,      FP_NORMAL,     1,                   0,
+            {  L_,   MIN,      FP_NORMAL,     1,                  0,
                                                                   1,   -6143 },
-            {  L_,  -MIN,      FP_NORMAL,    -1,                   0,
+            {  L_,  -MIN,      FP_NORMAL,    -1,                  0,
                                                                   1,   -6143 },
-            {  L_,   MAX,      FP_NORMAL,     1,     0x1ED09BEAD87C0,
-                                                  0x378D8E63FFFFFFFF,   6111 },
-            {  L_,  -MAX,      FP_NORMAL,    -1,     0x1ED09BEAD87C0,
-                                                  0x378D8E63FFFFFFFF,   6111 },
+            {  L_,   MAX,      FP_NORMAL,     1,    0x1ED09BEAD87C0,
+                                                 0x378D8E63FFFFFFFF,    6111 },
+            {  L_,  -MAX,      FP_NORMAL,    -1,    0x1ED09BEAD87C0,
+                                                 0x378D8E63FFFFFFFF,    6111 },
 
             // // Test arbitrary values
-            {  L_, DEC( 1.0),  FP_NORMAL,     1,                   0,
-                                                                  10,     -1 },
-            {  L_, DEC(-1.0),  FP_NORMAL,    -1,                   0,
-                                                                  10,     -1 },
-            {  L_, DEC( 0.1),  FP_NORMAL,     1,                   0,
-                                                                   1,     -1 },
-            {  L_, DEC(-0.1),  FP_NORMAL,    -1,                   0,
-                                                                   1,     -1 },
-            {  L_, DEC( 4.25), FP_NORMAL,     1,                   0,
-                                                                 425,     -2 },
-            {  L_, DEC(-4.25), FP_NORMAL,    -1,                   0,
-                                                                 425,     -2 },
-            {  L_, V1,         FP_NORMAL,     1,                   1,
-                                                                   0,      0 },
-            {  L_, V1 * 0x10
-                      + 0x50,  FP_NORMAL,     1,                0x10,
-                                                                0x50,      0 },
+            {  L_, DEC( 1.0),  FP_NORMAL,     1,                  0,
+                                                                 10,      -1 },
+            {  L_, DEC(-1.0),  FP_NORMAL,    -1,                  0,
+                                                                 10,      -1 },
+            {  L_, DEC( 0.1),  FP_NORMAL,     1,                  0,
+                                                                  1,      -1 },
+            {  L_, DEC(-0.1),  FP_NORMAL,    -1,                  0,
+                                                                  1,      -1 },
+            {  L_, DEC( 4.25), FP_NORMAL,     1,                  0,
+                                                                425,      -2 },
+            {  L_, DEC(-4.25), FP_NORMAL,    -1,                  0,
+                                                                425,      -2 },
+            {  L_, V1,         FP_NORMAL,     1,                  1,
+                                                                  0,       0 },
+            {  L_, -V1,        FP_NORMAL,    -1,                  1,
+                                                                  0,       0 },
+            {  L_, V1 * 0x10 + 0x50,
+                               FP_NORMAL,     1,               0x10,
+                                                               0x50,       0 },
+            {  L_, -(V1 * 0x10 + 0x50),
+                               FP_NORMAL,    -1,               0x10,
+                                                               0x50,       0 },
         };
         const int NUM_DATA = sizeof DATA / sizeof * DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                LINE        = DATA[ti].d_line;
-            const Type               DECIMAL128  = DATA[ti].d_decimalValue;
-            const int                CLASS       = DATA[ti].d_class;
-            const int                SIGN        = DATA[ti].d_sign;
+            const int                 LINE          = DATA[ti].d_line;
+            const Type                DECIMAL128    = DATA[ti].d_decimalValue;
+            const int                 CLASS         = DATA[ti].d_class;
+            const int                 SIGN          = DATA[ti].d_sign;
             const bsls::Types::Uint64 SIGNIFICAND_H = DATA[ti].d_significandH;
             const bsls::Types::Uint64 SIGNIFICAND_L = DATA[ti].d_significandL;
-            const int                EXPONENT    = DATA[ti].d_exponent;
+            const int                 EXPONENT      = DATA[ti].d_exponent;
 
             if (veryVerbose) {
                 P_(LINE); P_(CLASS); P_(SIGN);

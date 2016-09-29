@@ -909,11 +909,9 @@ int DecimalUtil::decompose(int          *sign,
         // special encodings
         if ((x & k_INFINITY_MASK) == k_INFINITY_MASK) {
             // NaN or Infinity
-            *exponent = 0;
-            *significand = x & 0x7e000000;
-            if ((x & k_NAN_MASK) == k_INFINITY_MASK) {
-                *significand = x & 0x7c000000;
-            }
+            *significand = (x & k_SMALL_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
+            tmp = x >> k_EXPONENT_SHIFT_LARGE;
+            *exponent = tmp & k_EXPONENT_MASK;
             return cl;
         }
         // get significand
@@ -948,8 +946,8 @@ int DecimalUtil::decompose(int                 *sign,
         k_INFINITY_MASK         = 0x7800000000000000ull,
         k_SINFINITY_MASK        = 0xf800000000000000ull,
         k_NAN_MASK              = 0x7c00000000000000ull,
-        k_SMALL_COEFF_MASK      = 0x001fffffffffffffull,
-        k_LARGE_COEFF_MASK      = 0x0007ffffffffffffull,
+        k_SMALL_COEFF_MASK      = 0x0007ffffffffffffull,
+        k_LARGE_COEFF_MASK      = 0x001fffffffffffffull,
         k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
         k_EXPONENT_MASK         = 0x3ff,
         k_EXPONENT_SHIFT_LARGE  = 51,
@@ -971,14 +969,13 @@ int DecimalUtil::decompose(int                 *sign,
     if ((x & k_SPECIAL_ENCODING_MASK) == k_SPECIAL_ENCODING_MASK) {
         // special encodings
         if ((x & k_INFINITY_MASK) == k_INFINITY_MASK) {
-            *exponent = 0;
-            *significand = x & 0x7e00000000000000ull;
-            if ((x & k_NAN_MASK) == k_INFINITY_MASK) {
-                *significand = x & 0x7c00000000000000ull;
-            }
-            return cl; // NaN or Infinity
+            // NaN or Infinity
+            *significand = (x & k_SMALL_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
+            tmp = x >> k_EXPONENT_SHIFT_LARGE;
+            *exponent = static_cast<int>(tmp & k_EXPONENT_MASK);
+            return cl;
         }
-        *significand = (x & k_LARGE_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
+        *significand = (x & k_SMALL_COEFF_MASK) | k_LARGE_COEFF_HIGH_BIT;
         // get exponent
         tmp = x >> k_EXPONENT_SHIFT_LARGE;
         *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
@@ -990,7 +987,7 @@ int DecimalUtil::decompose(int                 *sign,
     *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
                 - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
     // coefficient
-    *significand = (x & k_SMALL_COEFF_MASK);
+    *significand = x & k_LARGE_COEFF_MASK;
 
     return cl;
 }
@@ -1044,19 +1041,12 @@ int DecimalUtil::decompose(int                 *sign,
 
     if ((xH & k_SPECIAL_ENCODING_MASK) == k_SPECIAL_ENCODING_MASK) {
         // special encodings
-        if ((xH & k_INFINITY_MASK) == k_INFINITY_MASK) {
-            *exponent = 0;
-            significand->setHigh(xH & 0x7e00000000000000ull);
-            significand->setLow(0);
-            if ((xH & k_NAN_MASK) == k_INFINITY_MASK) {
-                significand->setHigh(xH & 0x7c00000000000000ull);
-            }
-            return cl; // NaN or Infinity
-        }
-
-        // The significand is out of the valid range (begins with 2^113) and
-        // thus is decomposed as zero.
-        return FP_ZERO;
+        significand->setHigh((xH & k_SMALL_COEFF_MASK)
+                             | k_LARGE_COEFF_HIGH_BIT);
+        significand->setLow(xL);
+        tmp = xH >> k_EXPONENT_SHIFT_LARGE;
+        *exponent = static_cast<int>(tmp & k_EXPONENT_MASK);
+        return cl; // NaN or Infinity
     }
 
     tmp = xH >> k_EXPONENT_SHIFT_SMALL;

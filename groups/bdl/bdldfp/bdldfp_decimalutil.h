@@ -459,23 +459,24 @@ struct DecimalUtil {
         // the decimal floating-point format and load the result into the
         // specified 'sign', 'significand' and 'exponent' such that
         // 'value' is equal to 'sign * significand * (10 ** exponent)'.
-        // Return the integer value that represents the floating
-        // point classification of the specified 'x' value as follows:
+        // The special values infinity and NaNs are decomposed to 'sign',
+        // 'exponent' and 'significand' parts, even though they don't have
+        // their normal meaning (except 'sign'), that is the specific values
+        // cannot be restored using these parts, unlike the finite ones.
+        // Return the integer value that represents the floating point
+        // classification of the specified 'value' as follows:
         //
-        //: o if 'x' is NaN, return FP_NAN;
-        //: o otherwise if 'x' is positive or negative infinity, return
-        //:   'FP_INFINITE';
-        //: o otherwise if 'x' is a subnormal value, return 'FP_SUBNORMAL';
-        //: o otherwise if 'x' is a zero value, return 'FP_ZERO';
+        //: o if 'value' is NaN, return FP_NAN;
+        //: o if 'value' is infinity, return 'FP_INFINITE';
+        //: o if 'value' is a subnormal value, return 'FP_SUBNORMAL';
+        //: o if 'value' is a zero value, return 'FP_ZERO';
         //: o otherwise return 'FP_NORMAL'.
         //
         // Note that a decomposed representation may not be unique,
         // for example 10 can be represented as either '10 * (10 ** 0)'
         // or '1 * (10 ** 1)'.  The returned 'significand' and 'exponent'
         // reflect the encoded representation of 'value' (i.e., they
-        // reflect the 'quantum' of 'value').  The behavior is undefined unless
-        // the value is in range of the numeric limits of the corresponding
-        // decimal type.
+        // reflect the 'quantum' of 'value').
 };
 
 // ============================================================================
