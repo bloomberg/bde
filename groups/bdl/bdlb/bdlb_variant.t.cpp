@@ -2597,6 +2597,18 @@ struct TestUtil {
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
                 dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
                 oam.reset();
 
                 Obj mX1(V1, &oa);         const Obj& X1 = mX1;
@@ -2717,6 +2729,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -2853,6 +2877,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3005,6 +3041,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3172,6 +3220,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3354,6 +3414,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3551,6 +3623,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3764,6 +3848,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -3992,6 +4088,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -4235,6 +4343,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -4494,6 +4614,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -4768,6 +4900,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -5057,6 +5201,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -5361,6 +5517,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -5681,6 +5849,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -6019,6 +6199,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -6364,6 +6556,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
@@ -6725,6 +6929,18 @@ struct TestUtil {
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
                 dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
                 oam.reset();
 
                 Obj mX1(V1, &oa);         const Obj& X1 = mX1;
@@ -6876,6 +7092,117 @@ struct TestUtil {
                 ASSERT(dam.isTotalSame());
                 ASSERT(oam.isTotalSame());
             }
+        }
+
+        if (verbose)
+            cout << "\nTesting 'bdlb::Variant (with 1 type)'." << endl;
+        {
+            typedef bdlb::Variant<TestArg1> Obj;
+
+            ASSERT(1 == Obj::TypeList::LENGTH);
+
+            ASSERT((bsl::is_same<TestArg1, Obj::Type1 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type2 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type3 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type4 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type5 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type6 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type7 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type8 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type9 >::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type10>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type11>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type12>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type13>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type14>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type15>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type16>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type17>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type18>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type19>::VALUE));
+            ASSERT((bsl::is_same<TestNil,  Obj::Type20>::VALUE));
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+
+            {
+                if (verbose) cout << "\tTesting default constructor." << endl;
+
+                dam.reset();
+                {
+                    Obj mW;  const Obj& W = mW;
+                    ASSERT(0 == W.typeIndex());
+
+                    ASSERT(dam.isTotalSame());
+
+                    mW.assign<TestArg1>(V1);
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT(0 == X.typeIndex());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
+                if (verbose) cout << "\tTesting 'assign'." << endl;
+
+                mX.assign<TestArg1>(V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+
+                mX.reset();
+
+                Obj *mR = &(mX = V1);
+                ASSERT(1 == X.typeIndex());
+                ASSERT(X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting value constructor." << endl;
+            {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX1(V1, &oa);         const Obj& X1 = mX1;
+                ASSERT(1 == X1.typeIndex());
+                ASSERT(X1.is<TestArg1>());
+                ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
         }
 
         if (verbose)
@@ -7155,6 +7482,18 @@ struct TestUtil {
 
             if (verbose) cout << "\tTesting value constructor." << endl;
             {
+                dam.reset();
+                {
+                    Obj mW(V1);  const Obj& W = mW;
+
+                    ASSERT(1 == W.typeIndex());
+                    ASSERT(W.is<TestArg1>());
+                    ASSERT(V1 == W.the<TestArg1>());
+
+                    ASSERT(dam.isInUseUp());
+                }
+                ASSERT(0 == da.numBlocksInUse());
+
                 dam.reset();
                 oam.reset();
 
