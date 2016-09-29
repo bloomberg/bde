@@ -375,7 +375,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
     stats->d_startTimeUtc.addSeconds(procStartTime);
 
-    BSLS_LOG_DEBUG("PID %d started approximately %d secs from unix epoch",
+    BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
 
 
@@ -626,7 +626,9 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
     ProcStatistics procStats;
     if (0 != (rc = readProcStat(&procStats, pid))) {
-        BSLS_LOG_DEBUG("Failed to open '%s'", filename.str().c_str());
+        BSLS_LOG_DEBUG("Failed to open /proc filesystem for pid %d (%s), "
+                       "rc = %d",
+                       stats->d_pid, stats->d_description.c_str(), rc);
         return -1;                                                    // RETURN
     }
 
@@ -637,7 +639,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
 
-    BSLS_LOG_DEBUG("PID %d started approximately %d secs from unix epoch",
+    BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
 
     return 0;
@@ -652,8 +654,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
     ProcStatistics procStats;
     if (0 != readProcStat(&procStats, stats->d_pid)) {
         BSLS_LOG_DEBUG(
-            "Failed to open /proc filesystem for pid %d (%s), rc = %d",
-            stats->d_pid, stats->d_description.c_str(), rc)
+            "Failed to open /proc filesystem for pid %d (%s)",
+            stats->d_pid, stats->d_description.c_str());
         return -1;                                                    // RETURN
     }
 
@@ -771,7 +773,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
                           &bi,
                           PROC_PIDTBSDINFO_SIZE);
     if (PROC_PIDTBSDINFO_SIZE != nb) {
-        BSLS_LOG_DEBUG("Failed to call proc_pidinfo, nb = %d, expected = %d",
+        BSLS_LOG_DEBUG("Failed to call proc_pidinfo, nb = %d, expected = %zu",
                        nb, PROC_PIDTBSDINFO_SIZE);
         return -1;                                                    // RETURN
     }
@@ -784,7 +786,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
     stats->d_startTimeUtc.addMilliseconds(
                                    stats->d_startTime.nanoseconds() / 1000000);
 
-    BSLS_LOG_DEBUG("PID %d started approximately %d secs from unix epoch",
+    BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
     return 0;
 }
@@ -802,7 +804,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
                           &ti,
                           PROC_PIDTASKINFO_SIZE);
     if (PROC_PIDTASKINFO_SIZE != nb) {
-        BSLS_LOG_DEBUG("Failed to call proc_pidinfo, nb = %d, expected = %d",
+        BSLS_LOG_DEBUG("Failed to call proc_pidinfo, nb = %d, expected = %zu",
                        nb, PROC_PIDTASKINFO_SIZE);
         return -1;                                                    // RETURN
     }
@@ -946,7 +948,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     stats->d_startTimeUtc = bdlt::EpochUtil::epoch();
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
 
-    BSLS_LOG_DEBUG("PID %d started approximately %d secs from unix epoch",
+    BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
 
     return 0;
@@ -1400,7 +1402,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     stats->d_startTime = (stats->d_startTimeUtc - epoch).
                                                         totalSecondsAsDouble();
 
-    BSLS_LOG_DEBUG("PID %d started approximately %d secs from unix epoch",
+    BSLS_LOG_DEBUG("PID %d started approximately %lld secs from Unix epoch",
                    stats->d_pid, stats->d_startTime.seconds());
 
     return 0;
@@ -1416,7 +1418,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
                                                  name,
                                                  stats->d_pid);
 
-    BSLS_LOG_TRACE("Found instance index %d for process '%s'', pid = %d",
+    BSLS_LOG_TRACE("Found instance index %d for process '%s', pid = %d",
                    instanceIndex, name.c_str(), stats->d_pid);
 
     PDH_STATUS rc;

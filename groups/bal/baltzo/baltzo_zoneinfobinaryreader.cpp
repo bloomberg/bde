@@ -295,7 +295,7 @@ int loadLocalTimeDescriptors(
             BSLS_LOG_ERROR("Invalid abbreviation buffer index %d found in "
                            "Zoneinfo file.  Expecting [0 .. %d].",
                            (int)localTimeDescriptors[i].d_abbreviationIndex,
-                           abbreviationBuffer.size() - 1);
+                           (int)abbreviationBuffer.size() - 1);
             return -20;                                               // RETURN
         }
 
@@ -434,10 +434,10 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
 
     for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
-            BSLS_LOG_ERROR("Invalid local-type type index %d found in Zoneinfo"
+            BSLS_LOG_ERROR("Invalid local-time type index %d found in Zoneinfo"
                            " file.  Expecting [0 .. %d].",
                            (int)localTimeIndices[i],
-                           descriptors.size() - 1);
+                           (int)descriptors.size() - 1);
             return -31;                                               // RETURN
         }
 
@@ -565,10 +565,10 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
 
     for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
-            BSLS_LOG_ERROR("Invalid local-type type index %d found in Zoneinfo"
+            BSLS_LOG_ERROR("Invalid local-time type index %d found in Zoneinfo"
                            " file.  Expecting [0 .. %d].",
                            (int)localTimeIndices[i],
-                           descriptors.size() - 1);
+                           (int)descriptors.size() - 1);
             return -18;                                               // RETURN
         }
 

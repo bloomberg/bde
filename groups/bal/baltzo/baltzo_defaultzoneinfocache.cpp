@@ -84,7 +84,8 @@ const char *baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation()
         if (!DataFileLoader::isPlausibleZoneinfoRootPath(envValue)) {
             BSLS_LOG_ERROR("Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
                            "does not refer to a directory containing "
-                           "time-zone information data (%s).");
+                           "time-zone information data (%s).",
+                           envValue);
         }
         else {
             BSLS_LOG_INFO("Environment variable 'BDE_ZONEINFO_ROOT_PATH' "

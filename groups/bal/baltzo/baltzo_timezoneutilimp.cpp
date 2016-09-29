@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_types.h>
 
 #include <bsl_ostream.h>
@@ -144,12 +145,14 @@ void selectUtcOffset(
         // If 'iter1' and 'iter2' are different transitions and both match
         // 'selectDstFlag', then there is an ambiguous selection.
 
-        BSLS_LOG_WARN("The choice of a %s local-time is an ambiguous selection"
-                      " for local time types: %s and %s",
+        BSLS_LOG_WARN("The choice of a '%s' local-time is an ambiguous "
+                      "selection for local time types: '%s' and '%s' in time "
+                      "zone '%s'",
                       (selectDstFlag ? "DST" : "STANDARD"),
                       iter1->descriptor().description().c_str(),
-                      iter2->descriptor().description().c_str());
-        
+                      iter2->descriptor().description().c_str(),
+                      timeZone.identifier().c_str());
+
         // The daylight-saving time property of 'iter2' matches the specified
         // 'dstPolicy'.
 
@@ -183,9 +186,12 @@ void selectUtcOffset(
     // The supplied 'dstPolicy' makes no sense, select the latter of the two
     // possible values.
 
-    BSLS_LOG_WARN("The choice of a %s local-time does not match any time type "
-                  "in the provided time zone %s",
-                  (selectDstFlag ? "STANDARD" : "DST"),
+    BSLS_LOG_WARN("The choice of a '%s' local-time does not match any "
+                  "time type between local time types: '%s' and '%s' in time "
+                  "zone '%s'",
+                  (selectDstFlag ? "DST" : "STANDARD"),
+                  iter1->descriptor().description().c_str(),
+                  iter2->descriptor().description().c_str(),
                   timeZone.identifier().c_str());
 
     *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();

@@ -134,7 +134,7 @@ int PipeControlChannel::readNamedPipe()
            }
         }
         else {
-            BSLS_LOG_TRACE("Connecting to named pipe '%s': %s",
+            BSLS_LOG_TRACE("Failed read from named pipe '%s': %s",
                            d_pipeName.c_str(),
                            describeWin32Error(GetLastError()).c_str());
             break;
@@ -168,7 +168,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                         NULL);
 
     if (INVALID_HANDLE_VALUE == d_impl.d_windows.d_handle) {
-        BSLS_LOG_TRACE("Connecting to named pipe '%s': %s",
+        BSLS_LOG_TRACE("Failed to create named pipe '%s': %s",
                        d_pipeName.c_str(),
                        describeWin32Error(GetLastError()).c_str());
         return -1;
@@ -258,7 +258,7 @@ int PipeControlChannel::readNamedPipe()
                 BSLS_LOG_DEBUG("EINTR polling pipe '%s'", d_pipeName.c_str());
                 continue;
             }
-            BSLS_LOG_ERROR("Failed to poll pipe '%s', rc= %d, errno= %d :%s",
+            BSLS_LOG_ERROR("Failed to poll pipe '%s', rc = %d, errno = %d: %s",
                            d_pipeName.c_str(), rc, savedErrno, 
                            bsl::strerror(savedErrno));
             return -1;                                                // RETURN
@@ -293,8 +293,8 @@ int PipeControlChannel::readNamedPipe()
                 return -1;                                            // RETURN
             }
             else {
-                if (bsls::LogSeverity::e_TRACE >=
-                    bsls::Log::severityThreshold()) {
+                if (bsls::Log::severityThreshold() >= 
+                    bsls::LogSeverity::e_TRACE) {
                     bsl::string readBytes(buffer, buffer + bytesRead);
                     BSLS_LOG_TRACE("Read data from pipe: '%s'",
                                    readBytes.c_str());

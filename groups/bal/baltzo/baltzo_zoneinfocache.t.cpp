@@ -20,7 +20,6 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
-#include <bsls_log.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
