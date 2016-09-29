@@ -13,11 +13,11 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
-//  BSLS_CPP11_CONSTEXPR: C++11 '= delete' function definition
+//  BSLS_CPP11_DELETED: C++11 '= delete' function definition
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword
-//  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 'noexcept' function qualifier
+//  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): C++11 'noexcept' function qualifier
 //  BSLS_CPP11_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
 //  BSLS_CPP11_OVERRIDE: C++11 'override' keyword
 //  BSLS_CPP11_PROVISIONALLY_FALSE: C++11 specification placeholder

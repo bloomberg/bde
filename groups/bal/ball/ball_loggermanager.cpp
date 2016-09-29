@@ -157,19 +157,36 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
     return category.maxLevel() >= severity;
 }
 
+inline static 
+ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
+    // Return the 'ball' log severity equivalent to the specified 'bsls' log
+    // 'severity'.
+{
+    switch (severity) {
+        case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
+        case bsls::LogSeverity::e_ERROR: return ball::Severity::e_ERROR;
+        case bsls::LogSeverity::e_WARN:  return ball::Severity::e_WARN;
+        case bsls::LogSeverity::e_INFO:  return ball::Severity::e_INFO;
+        case bsls::LogSeverity::e_DEBUG: return ball::Severity::e_DEBUG;
+        case bsls::LogSeverity::e_TRACE: return ball::Severity::e_TRACE;
+    }
+    BSLS_ASSERT_OPT(false && "Unreachable by design");
+    return ball::Severity::e_ERROR;
+}
 
 static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
     // A lock used to protect the configuration of the 'bsl_Log' callback
     // handler.  This lock prevents the logger manager from being destroyed
     // concurrently to an attempt to log a record.
 
-void bslsLogMessage(const char *fileName,
-                    int         lineNumber,
-                    const char *message)
-    // Write a 'ball' record having the specified 'fileName', 'lineNumber', and
-    // 'message'.  Note that this function signature matches
-    // 'bsls_Log::LogMessageHandler' and is intended to be installed a
-    // 'bsls_Log' message handler.
+void bslsLogMessage(bsls::LogSeverity::Enum  severity,
+                    const char              *fileName,
+                    int                      lineNumber,
+                    const char              *message)
+    // Write a 'ball' record having the specified 'severity', 'fileName',
+    // 'lineNumber', and 'message'.  Note that this function signature matches
+    // 'bsls::Log::LogMessageHandler' and is intended to be installed as a
+    // 'bsls::Log' message handler.
 {
     static ball::Category *category               = 0;
     static const char    *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
@@ -193,10 +210,11 @@ void bslsLogMessage(const char *fileName,
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
 
-        logger.logMessage(*category, ball::Severity::e_ERROR, record);
+        logger.logMessage(*category, convertBslsLogSeverity(severity), record);
     }
     else {
-        (bsls::Log::platformDefaultMessageHandler)(fileName,
+        (bsls::Log::platformDefaultMessageHandler)(severity,
+                                                   fileName,
                                                    lineNumber,
                                                    message);
     }

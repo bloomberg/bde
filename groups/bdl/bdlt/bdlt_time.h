@@ -420,11 +420,10 @@ class Time {
 
 // FREE OPERATORS
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const Time& time);
-    // Pass the specified 'time' to the specified 'hashAlg'.  Note that this
-    // function is intended to integrate with the 'bslh' modular hashing
-    // system, and effectively provides a 'bsl::hash' specialization for
-    // 'time'.
+void hashAppend(HASHALG& hashAlg, const Time& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Time'.
 
 Time operator+(const Time& lhs, const DatetimeInterval& rhs);
     // Return a 'Time' value that is the sum of the specified 'lhs' time and
@@ -702,13 +701,6 @@ int Time::validateAndSetTime(int hour,
 }  // close package namespace
 
 // FREE OPERATORS
-template <typename HASHALG>
-void bdlt::hashAppend(HASHALG& hashAlg, const Time& time)
-{
-    using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, time.d_milliseconds);
-}
-
 inline
 bdlt::Time bdlt::operator+(const Time& lhs, const DatetimeInterval& rhs)
 {
@@ -792,6 +784,15 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Time& time)
 {
     return time.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const Time& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.d_milliseconds);
 }
 
 }  // close enterprise namespace

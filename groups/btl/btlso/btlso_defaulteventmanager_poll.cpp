@@ -399,14 +399,14 @@ int DefaultEventManager<Platform::POLL>::registerSocketEvent(
 
         bool insertedIndex = d_index.insert(
                                    bsl::make_pair(socketHandle, index)).second;
-        BSLS_ASSERT(insertedIndex);
+        (void)insertedIndex; BSLS_ASSERT(insertedIndex);
     }
 
     // Register the handle/event with d_callbacks.
 
     bool insertedEvent = d_callbacks.insert(
                                  bsl::make_pair(handleEvent, callback)).second;
-    BSLS_ASSERT(insertedEvent);
+    (void)insertedEvent; BSLS_ASSERT(insertedEvent);
     return 0;
 }
 
@@ -461,7 +461,6 @@ void DefaultEventManager<Platform::POLL>::deregisterSocketEvent(
 
     typedef bsl::unordered_map<int,int>::size_type size_type;
 
-    size_type rc;
     if (eventmask) {
         currfd.events = eventmask;
     }
@@ -493,14 +492,14 @@ void DefaultEventManager<Platform::POLL>::deregisterSocketEvent(
 
         // Delete index information.
 
-        rc = d_index.erase(socketHandle);
-        BSLS_ASSERT(1 == rc);
+        size_type rc = d_index.erase(socketHandle);
+        (void)rc; BSLS_ASSERT(1 == rc);
     }
 
     // Remove the callback for this handle/event.
 
-    rc = d_callbacks.erase(handleEvent);
-    BSLS_ASSERT(1 == rc);
+    size_type rc = d_callbacks.erase(handleEvent);
+    (void)rc; BSLS_ASSERT(1 == rc);
 }
 
 int DefaultEventManager<Platform::POLL>::deregisterSocket(

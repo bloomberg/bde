@@ -162,6 +162,11 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iostream.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
+
                        // =================
                        // Macro Definitions
                        // =================
@@ -259,6 +264,35 @@ BSLS_IDENT("$Id: $")
     // Print tab (w/o newline).
 
 namespace BloombergLP {
+
+namespace bslim {
+
+                        // ==============
+                        // class TestUtil
+                        // ==============
+
+struct TestUtil {
+    // This 'struct' provides a namespace for a suite of utility functions that
+    // facilitate the creation of BDE-style test-drivers.
+
+    static bool compareText(bslstl::StringRef lhs,
+                            bslstl::StringRef rhs,
+                            bsl::ostream&     errorStream = bsl::cout);
+        // Return 'true' if the specified 'lhs' has the same value as the
+        // specified' rhs', and 'false' otherwise.  Optionally specify a
+        // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
+        // description of how the two strings differ will be written.  If
+        // 'errorStream' is not supplied, 'stdout' will be used to report an
+        // error description.
+
+};
+
+}  // close package namespace
+
+// NOTICE: The following output operators are provided here (rather than in
+// 'bsltf', because 'bsltf' is levelized below the standard library streams
+// used by this functions.
+
 namespace bsltf {
 
 // FREE OPERATORS

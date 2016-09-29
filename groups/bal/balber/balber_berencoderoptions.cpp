@@ -42,6 +42,9 @@ const bool balber::BerEncoderOptions::
               DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS                  = true;
 const bool balber::BerEncoderOptions::
               DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = false;
+const int  balber::BerEncoderOptions::
+              DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION = 3;
+
 const bdlat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         e_ATTRIBUTE_ID_TRACE_LEVEL,
@@ -70,6 +73,13 @@ const bdlat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("EncodeDateAndTimeTypesAsBinary") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
+    },
+    {
+        e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION,
+        "DatetimeFractionalSecondPrecision",
+        sizeof("DatetimeFractionalSecondPrecision") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
     }
 };
 
@@ -186,6 +196,45 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
                                                                       // RETURN
             }
         } break;
+        case 33: {
+            if (name[0]=='D'
+             && name[1]=='a'
+             && name[2]=='t'
+             && name[3]=='e'
+             && name[4]=='t'
+             && name[5]=='i'
+             && name[6]=='m'
+             && name[7]=='e'
+             && name[8]=='F'
+             && name[9]=='r'
+             && name[10]=='a'
+             && name[11]=='c'
+             && name[12]=='t'
+             && name[13]=='i'
+             && name[14]=='o'
+             && name[15]=='n'
+             && name[16]=='a'
+             && name[17]=='l'
+             && name[18]=='S'
+             && name[19]=='e'
+             && name[20]=='c'
+             && name[21]=='o'
+             && name[22]=='n'
+             && name[23]=='d'
+             && name[24]=='P'
+             && name[25]=='r'
+             && name[26]=='e'
+             && name[27]=='c'
+             && name[28]=='i'
+             && name[29]=='s'
+             && name[30]=='i'
+             && name[31]=='o'
+             && name[32]=='n')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[
+                    e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION];
+            }
+        } break;
     }
     return 0;
 }
@@ -203,6 +252,9 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
       case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY:
         return &ATTRIBUTE_INFO_ARRAY[
                        e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION:
+        return &ATTRIBUTE_INFO_ARRAY[
+                       e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION];
       default:
         return 0;
     }
@@ -211,7 +263,9 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
 // CREATORS
 
 BerEncoderOptions::BerEncoderOptions()
-: d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
+: d_datetimeFractionalSecondPrecision(
+                      DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION)
+, d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
 , d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
 , d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS)
 , d_encodeDateAndTimeTypesAsBinary(
@@ -220,7 +274,9 @@ BerEncoderOptions::BerEncoderOptions()
 }
 
 BerEncoderOptions::BerEncoderOptions(const BerEncoderOptions& original)
-: d_traceLevel(original.d_traceLevel)
+: d_datetimeFractionalSecondPrecision(
+                                  original.d_datetimeFractionalSecondPrecision)
+, d_traceLevel(original.d_traceLevel)
 , d_bdeVersionConformance(original.d_bdeVersionConformance)
 , d_encodeEmptyArrays(original.d_encodeEmptyArrays)
 , d_encodeDateAndTimeTypesAsBinary(original.d_encodeDateAndTimeTypesAsBinary)
@@ -242,6 +298,8 @@ BerEncoderOptions::operator=(const BerEncoderOptions& rhs)
         d_encodeEmptyArrays              = rhs.d_encodeEmptyArrays;
         d_encodeDateAndTimeTypesAsBinary =
                                           rhs.d_encodeDateAndTimeTypesAsBinary;
+        d_datetimeFractionalSecondPrecision =
+                                       rhs.d_datetimeFractionalSecondPrecision;
     }
     return *this;
 }
@@ -253,6 +311,8 @@ void BerEncoderOptions::reset()
     d_encodeEmptyArrays     = DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
     d_encodeDateAndTimeTypesAsBinary =
                       DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
+    d_datetimeFractionalSecondPrecision =
+                      DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
 }
 
 // ACCESSORS
@@ -304,7 +364,15 @@ bsl::ostream& BerEncoderOptions::print(
                                   -levelPlus1,
                                   spacesPerLevel);
 
+        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "DatetimeFractionalSecondPrecision = ";
+        bdlb::PrintMethods::print(stream,
+                                  d_datetimeFractionalSecondPrecision,
+                                 -levelPlus1,
+                                  spacesPerLevel);
+
         bdlb::Print::indent(stream, level, spacesPerLevel);
+
         stream << "]\n";
     }
     else {
@@ -335,6 +403,11 @@ bsl::ostream& BerEncoderOptions::print(
         bdlb::PrintMethods::print(stream, d_encodeDateAndTimeTypesAsBinary,
                                   -levelPlus1,
                                   spacesPerLevel);
+
+        stream << ' ';
+        stream << "DatetimeFractionalSecondPrecision = ";
+        bdlb::PrintMethods::print(stream, d_datetimeFractionalSecondPrecision,
+                                 -levelPlus1, spacesPerLevel);
 
         stream << " ]";
     }

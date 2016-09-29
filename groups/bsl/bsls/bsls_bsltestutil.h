@@ -418,52 +418,52 @@ BSLS_IDENT("$Id: $")
                        // =================
 
 #define BSLS_BSLTESTUTIL_ASSERT(X)                                            \
-    { aSsErT(!(X), #X, __LINE__); }
+    do { aSsErT(!(X), #X, __LINE__); } while (false)
 
 #define BSLS_BSLTESTUTIL_LOOP0_ASSERT                                         \
     BSLS_BSLTESTUTIL_ASSERT
 
-#define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) {                                   \
+#define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) do {                                \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
 #define BSLS_BSLTESTUTIL_LOOP1_ASSERT                                         \
     BSLS_BSLTESTUTIL_LOOP_ASSERT
 
-#define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) {                                \
+#define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) do {                             \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
-#define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) {                              \
+#define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) do {                           \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
-#define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) {                            \
+#define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) do {                         \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(L, #L ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
-#define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) {                          \
+#define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) do {                       \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(M, #M ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
-#define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) {                        \
+#define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) do {                     \
     if (!(X)) { bsls::BslTestUtil::callDebugprint(I, #I ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(J, #J ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(K, #K ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(L, #L ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(M, #M ": ", "\t");          \
                 bsls::BslTestUtil::callDebugprint(N, #N ": ", "\n");          \
-                aSsErT(true, #X, __LINE__); } }
+                aSsErT(true, #X, __LINE__); } } while (false)
 
 // The 'BSLS_BSLTESTUTIL_EXPAND' macro is required to workaround a
 // pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in

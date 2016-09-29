@@ -309,6 +309,95 @@ void BlobUtil::copy(char        *dstBuffer,
     }
 }
 
+void BlobUtil::copy(Blob       *dst,
+                    int         dstOffset,
+                    const char *src,
+                    int         length)
+{
+    BSLS_ASSERT(0 <= dstOffset);
+    BSLS_ASSERT(0 <= length);
+
+    if (0 != length) {
+        BSLS_ASSERT(dst);
+        BSLS_ASSERT(src);
+        BSLS_ASSERT(dstOffset <= dst->length() - length);
+
+        bsl::pair<int, int> place = findBufferIndexAndOffset(*dst, dstOffset);
+
+        int copied    = 0;
+        int bufIdx    = place.first;
+        int bufOffset = place.second;
+
+        do {
+            const BlobBuffer& buf = dst->buffer(bufIdx);
+            int toCopy = bsl::min(length - copied, buf.size() - bufOffset);
+            bsl::memcpy(buf.data() + bufOffset, src + copied, toCopy);
+            copied += toCopy;
+            ++bufIdx;
+            bufOffset = 0;
+        } while (copied < length);
+    }
+}
+
+void BlobUtil::copy(Blob        *dst,
+                    int          dstOffset,
+                    const Blob&  src,
+                    int          srcOffset,
+                    int          length)
+{
+    BSLS_ASSERT(0 <= dstOffset);
+    BSLS_ASSERT(0 <= srcOffset);
+    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(srcOffset <= src.length() - length);
+
+    if (0 != length) {
+        BSLS_ASSERT(dst);
+        BSLS_ASSERT(dstOffset <= dst->length() - length);
+
+        bsl::pair<int, int> dstPlace = findBufferIndexAndOffset(*dst,
+                                                                dstOffset);
+        bsl::pair<int, int> srcPlace = findBufferIndexAndOffset(src,
+                                                                srcOffset);
+
+        int copied       = 0;
+        int dstBufIdx    = dstPlace.first;
+        int dstBufOffset = dstPlace.second;
+        int srcBufIdx    = srcPlace.first;
+        int srcBufOffset = srcPlace.second;
+
+        do {
+            const BlobBuffer& dstBuf = dst->buffer(dstBufIdx);
+            const BlobBuffer& srcBuf = src.buffer(srcBufIdx);
+
+            int toCopy = bsl::min(bsl::min(length - copied,
+                                           dstBuf.size() - dstBufOffset),
+                                  srcBuf.size() - srcBufOffset);
+
+            bsl::memcpy(dstBuf.data() + dstBufOffset,
+                        srcBuf.data() + srcBufOffset,
+                        toCopy);
+
+            copied += toCopy;
+
+            if (toCopy == dstBuf.size() - dstBufOffset) {
+                ++dstBufIdx;
+                dstBufOffset = 0;
+            }
+            else {
+                dstBufOffset += toCopy;
+            }
+
+            if (toCopy == srcBuf.size() - srcBufOffset) {
+                ++srcBufIdx;
+                srcBufOffset = 0;
+            }
+            else {
+                srcBufOffset += toCopy;
+            }
+        } while (copied < length);
+    }
+}
+
 char *BlobUtil::getContiguousRangeOrCopy(char        *dstBuffer,
                                          const Blob&  srcBlob,
                                          int          position,

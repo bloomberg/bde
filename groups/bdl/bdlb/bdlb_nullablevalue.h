@@ -522,6 +522,13 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     //..
 
 // FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input);
+    // Pass the boolean value of whether the specified 'input' contains a value
+    // to the specified 'hashAlg' hashing algorithm of (template parameter)
+    // type 'HASHALG'.  If 'input' contains a value, additionally pass that
+    // value to 'hashAlg'.
+
 template <class TYPE>
 void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
@@ -1282,6 +1289,18 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&              stream,
 }
 
 // FREE FUNCTIONS
+template <class HASHALG, class TYPE>
+void bdlb::hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input)
+{
+    if (!input.isNull()) {
+        hashAppend(hashAlg, true);
+        hashAppend(hashAlg, input.value());
+    }
+    else {
+        hashAppend(hashAlg, false);
+    }
+}
+
 template <class TYPE>
 inline
 void bdlb::swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b)

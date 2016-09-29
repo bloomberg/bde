@@ -16,6 +16,7 @@ bdlb_hashutil
 bdlb_nullableallocatedvalue
 bdlb_nullablevalue
 bdlb_nulloutputiterator
+bdlb_literalutil
 bdlb_print
 bdlb_printmethods
 bdlb_random

@@ -577,7 +577,6 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -587,7 +586,10 @@ BSLS_IDENT("$Id: $")
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
 // the 2015 compiler where those issues are ironed out.
+// Note that while MSVC 2013 supports deleted functions in principle, the only
+// use we had caused a C1001 compiler internal error.
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -784,6 +786,13 @@ namespace bsls {
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
+#endif
+
+// Our use of piecewise construction requires variadic templates.  Rather than
+// testing for both features everywhere, just remove the former if we do not
+// have the latter.
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#  undef BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
 
 #endif

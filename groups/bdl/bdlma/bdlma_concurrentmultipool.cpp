@@ -27,6 +27,7 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_log.h>
 
 #include <bsl_cstdio.h>  // 'fprintf'
 #include <bsl_cstdint.h>
@@ -365,9 +366,7 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         static unsigned int count = 0;
         if (count <= 100 && 0 == count % 10) {
-            bsl::fprintf(stderr,
-                         "Error: Allocating 0 bytes [reserveCapacity] in %s\n",
-                         __FILE__);
+            BSLS_LOG_ERROR("Allocating 0 bytes [reserveCapacity]");
         }
         ++count;
         return;                                                       // RETURN

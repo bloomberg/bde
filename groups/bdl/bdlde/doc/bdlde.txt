@@ -29,6 +29,7 @@
      bdlde_byteorder
      bdlde_charconvertstatus
      bdlde_crc32
+     bdlde_crc64
      bdlde_md5
      bdlde_quotedprintabledecoder
      bdlde_quotedprintableencoder
@@ -60,6 +61,9 @@
 :
 : 'bdlde_crc32':
 :      Provide a mechanism for computing the CRC-32 checksum of a dataset.
+:
+: 'bdlde_crc64':
+:      Provide a mechanism for computing the CRC-64 checksum of a dataset.
 :
 : 'bdlde_md5':
 :      Provide a value-semantic type encoding a message in an MD5 digest.

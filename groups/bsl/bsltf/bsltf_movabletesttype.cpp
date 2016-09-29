@@ -54,11 +54,14 @@ MovableTestType::MovableTestType(
 , d_movedInto(bsltf::MoveState::e_MOVED)
 {
     MovableTestType& lvalue = original;
+    lvalue.d_data = 0;
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
 
 MovableTestType::~MovableTestType()
 {
+    BSLS_ASSERT_OPT(bsltf::MoveState::e_MOVED != d_movedFrom || 0 == d_data);
+
     BSLS_ASSERT_OPT(this == d_self_p);
 }
 
@@ -69,6 +72,8 @@ MovableTestType::operator=(const MovableTestType& rhs)
     if (&rhs != this)
     {
         d_data = rhs.d_data;
+        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
     }
     return *this;
 }
@@ -80,7 +85,9 @@ MovableTestType::operator=(bslmf::MovableRef<MovableTestType> rhs)
     if (&lvalue != this)
     {
         d_data = lvalue.d_data;
+        d_movedFrom        = bsltf::MoveState::e_NOT_MOVED;
         d_movedInto        = bsltf::MoveState::e_MOVED;
+        lvalue.d_data      = 0;
         lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
     }
     return *this;
@@ -88,6 +95,9 @@ MovableTestType::operator=(bslmf::MovableRef<MovableTestType> rhs)
 
 void MovableTestType::setData(int value)
 {
+    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
+
     d_data = value;
 }
 

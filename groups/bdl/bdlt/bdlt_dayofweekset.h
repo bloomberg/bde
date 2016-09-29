@@ -226,6 +226,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -358,6 +362,8 @@ class DayOfWeekSet {
     friend bool operator==(const DayOfWeekSet&, const DayOfWeekSet&);
     friend bool operator!=(const DayOfWeekSet&, const DayOfWeekSet&);
     friend DayOfWeekSet operator~(const DayOfWeekSet&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const DayOfWeekSet&);
 
   public:
     // TYPES
@@ -562,6 +568,13 @@ bool operator!=(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
 bsl::ostream& operator<<(bsl::ostream& stream, const DayOfWeekSet& rhs);
     // Write the specified 'rhs' set to the specified output 'stream' in some
     // reasonable (single-line) format, and return a reference to 'stream'.
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const DayOfWeekSet& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DayOfWeekSet'.
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -904,6 +917,15 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const DayOfWeekSet& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const DayOfWeekSet& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.d_days);
 }
 
 // TRAITS SPECIALIZATIONS

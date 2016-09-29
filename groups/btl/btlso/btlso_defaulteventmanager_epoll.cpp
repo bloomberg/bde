@@ -317,7 +317,7 @@ EventManagerName::DefaultEventManager(btlso::TimeMetrics *timeMetric,
 EventManagerName::~DefaultEventManager()
 {
     int rc = close(d_epollFd);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 }
 
 // MANIPULATORS
@@ -337,7 +337,7 @@ void EventManagerName::deregisterAll()
 
         // epoll removes closed file descriptors automatically.
 
-        BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+        (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 
         it->second.d_isValid = false;
         it->second.d_mask = 0;
@@ -405,7 +405,7 @@ void EventManagerName::deregisterSocketEvent(
 
         // epoll removes closed file descriptors automatically.
 
-        BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+        (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 
         if (d_isInvokingCb) {
             // This method has been invoked in a user-callback from
@@ -436,7 +436,7 @@ void EventManagerName::deregisterSocketEvent(
     epollEvent.data.ptr = (void *) &*it;
 
     int ret = epoll_ctl(d_epollFd, EPOLL_CTL_MOD, handle, &epollEvent);
-    BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+    (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 }
 
 int EventManagerName::deregisterSocket(
@@ -456,7 +456,7 @@ int EventManagerName::deregisterSocket(
 
     // epoll removes closed file descriptors automatically.
 
-    BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+    (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 
     if (d_isInvokingCb) {
         // This method has been invoked in a user-callback from

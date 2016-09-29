@@ -586,6 +586,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -664,6 +668,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -4774,14 +4782,8 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(const Vector_Imp& rhs)
         if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             Vector_Imp other(rhs, rhs.get_allocator());
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
-#if defined(BSLS_PLATFORM_CMP_GNU)
             using std::swap;
             swap(ContainerBase::allocator(), other.ContainerBase::allocator());
-#else
-            BloombergLP::bslalg::SwapUtil::swap(
-                                            &ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
-#endif
         }
         else {
             // Invoke 'erase' only if the current vector is not empty.
@@ -4808,14 +4810,8 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(
         else if (
               AllocatorTraits::propagate_on_container_move_assignment::value) {
             Vector_Imp other(MoveUtil::move(lvalue));
-#if defined(BSLS_PLATFORM_CMP_GNU)
             using std::swap;
             swap(ContainerBase::allocator(), other.ContainerBase::allocator());
-#else
-            BloombergLP::bslalg::SwapUtil::swap(
-                                            &ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
-#endif
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
         }
         else {
@@ -5636,13 +5632,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
-#if defined(BSLS_PLATFORM_CMP_GNU)
         using std::swap;
         swap(ContainerBase::allocator(), other.ContainerBase::allocator());
-#else
-        BloombergLP::bslalg::SwapUtil::swap(&ContainerBase::allocator(),
-                                            &other.ContainerBase::allocator());
-#endif
     }
     else {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
@@ -5948,6 +5939,19 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
     static_cast<Base&>(a).swap(static_cast<Base&>(b));
+}
+
+// HASH SPECIALIZATIONS
+template <class HASHALG, class VALUE_TYPE, class ALLOCATOR>
+inline
+void hashAppend(HASHALG& hashAlg, const vector<VALUE_TYPE, ALLOCATOR>& input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    typedef typename vector<VALUE_TYPE, ALLOCATOR>::const_iterator ci_t;
+    hashAppend(hashAlg, input.size());
+    for (ci_t b = input.begin(), e = input.end(); b != e; ++b) {
+        hashAppend(hashAlg, *b);
+    }
 }
 
                    // -------------------------------------

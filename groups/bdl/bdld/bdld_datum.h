@@ -125,7 +125,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //
-//  Datume::destroy(datetime, allocator);
+//  Datum::destroy(datetime, allocator);
 //     // 'datetime' now refers to deallocated memory.  It cannot be used
 //     // used unless it is assigned a new value.
 //..

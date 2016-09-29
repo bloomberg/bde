@@ -1629,7 +1629,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
     for (size_t i = 0; i < NUM_iListBySize; ++i) {
         IList LIST = iListBySize[i];
-        LOOP_ASSERT(i, i == LIST.size())
+        LOOP_ASSERT(i, i == LIST.size());
         for (typename IList::const_iterator cur  = LIST.begin(),
                                             end  = LIST.end();
                                             end != cur;
@@ -1722,7 +1722,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     for (size_t i = 0; i < NUM_iSpecBySize; ++i) {
         const char * const SPEC = iSpecBySize[i];
 
-        LOOP_ASSERT(i, i == strlen(SPEC))
+        LOOP_ASSERT(i, i == strlen(SPEC));
 
         for (const char *       cur  = SPEC,
                         * const end  = SPEC + i;
@@ -15178,11 +15178,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
         if (1 == sizeof(TYPE)) {
             ASSERTV(k_SHORT_BUFFER_CAPACITY_CHAR,   X.capacity(),
-                    k_SHORT_BUFFER_CAPACITY_CHAR == X.capacity())
+                    k_SHORT_BUFFER_CAPACITY_CHAR == X.capacity());
         }
         else if (sizeof(wchar_t) == sizeof(TYPE)) {
             ASSERTV(k_SHORT_BUFFER_CAPACITY_WCHAR_T,   X.capacity(),
-                    k_SHORT_BUFFER_CAPACITY_WCHAR_T == X.capacity())
+                    k_SHORT_BUFFER_CAPACITY_WCHAR_T == X.capacity());
         }
     }
 

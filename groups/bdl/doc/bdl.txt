@@ -12,16 +12,19 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 13 packages having 8 levels of physical
+ The 'bdl' package group currently has 15 packages having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
+  9. bdlat
+     bdld
+
   8. bdldfp
      bdlmt
+     bdlpcre
 
-  7. bdlat
-     bdlcc
+  7. bdlcc
      bdls
 
   6. bdlt
@@ -53,6 +56,9 @@
 : 'bdlcc':
 :      Provide containers that support concurrent (multi-thread) access.
 :
+: 'bdld':
+:      Provide a variant type ('Datum') and supporting utilities.
+:
 : 'bdlde':
 :      Mechanisms for standard encodings and hashings, e.g., base64, md5.
 :
@@ -67,6 +73,9 @@
 :
 : 'bdlmt':
 :      Provides thread pools and event schedulers.
+:
+: 'bdlpcre':
+:      Provide a mechanism to process Perl-compatible regular expressions.
 :
 : 'bdls':
 :      Provide platform-independent system-level utilities.

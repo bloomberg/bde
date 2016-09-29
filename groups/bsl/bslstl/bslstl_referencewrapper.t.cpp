@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The usage example in the component header file compiles, links,
-        //    and runs as shown.
+        //:   and runs as shown.
         //
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove

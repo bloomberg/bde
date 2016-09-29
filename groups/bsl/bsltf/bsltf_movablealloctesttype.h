@@ -210,11 +210,15 @@ bool operator!=(const MovableAllocTestType& lhs,
     // do not have the same value if their 'data' attributes are not the same.
 
 // FREE FUNCTIONS
-inline
-MoveState::Enum getMovedFromState(const MovableAllocTestType& object);
+MoveState::Enum getMovedFrom(const MovableAllocTestType& object);
+    // Return the move-from state of the specified 'object'.
 
-inline
-MoveState::Enum getMovedIntoState(const MovableAllocTestType& object);
+MoveState::Enum getMovedInto(const MovableAllocTestType& object);
+    // Return the move-into state of the specified 'object'.
+
+void setMovedInto(MovableAllocTestType *object, MoveState::Enum value);
+    // Set the moved-into state of the specified 'object' to the specified
+    // 'value'.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -258,6 +262,7 @@ bslma::Allocator *MovableAllocTestType::allocator() const
     return d_allocator_p;
 }
 
+// FREE FUNCTION
 inline
 MoveState::Enum getMovedFrom(const MovableAllocTestType& object)
 {

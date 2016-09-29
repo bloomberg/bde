@@ -108,7 +108,7 @@ typedef char ( &&RRA)[5];
 #endif
 
 #define ASSERT_SAME(X, Y)                                                     \
-    ASSERT((bsl::is_same<bsl::remove_reference<X>::type, Y>::value))
+    ASSERT((bsl::is_same<bsl::remove_reference<X>::type, Y>::value));
 
 #define ASSERT_REMOVE_REF(X, Y)                                               \
     ASSERT_SAME(X, Y)                                                         \
@@ -117,7 +117,7 @@ typedef char ( &&RRA)[5];
     ASSERT_SAME(const volatile X, const volatile Y)
 
 #define ASSERT_SAME2(X, Y)                                                    \
-    ASSERT((bsl::is_same<bslmf::RemoveReference<X>::Type, Y>::value))
+    ASSERT((bsl::is_same<bslmf::RemoveReference<X>::Type, Y>::value));
 
 #define ASSERT_REMOVE_REF2(X, Y)                                              \
     ASSERT_SAME2(X, Y)                                                        \

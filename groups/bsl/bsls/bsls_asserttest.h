@@ -784,10 +784,10 @@ struct AssertTest {
         // Throw a 'AssertTestException' having the specified pointer values
         // 'text' and 'file' and the specified integer 'line' as its salient
         // attributes, provided that 'BDE_BUILD_TARGET_EXC' is defined;
-        // otherwise, write an appropriate message to 'stderr' and abort the
-        // program (similar to 'Assert::failAbort').  Note that this function
-        // is intended to have a signature compatible with a registered
-        // assertion-failure handler function in 'bsls_assert'.
+        // otherwise, log an appropriate message and abort the program (similar
+        // to 'Assert::failAbort').  Note that this function is intended to
+        // have a signature compatible with a registered assertion-failure
+        // handler function in 'bsls_assert'.
 };
 
                    // ===============================

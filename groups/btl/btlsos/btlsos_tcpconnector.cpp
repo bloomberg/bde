@@ -76,7 +76,7 @@ inline
     }
     int rc = socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
 
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
     while (1) {
         int s = socket_p->connect(peerAddress);
 

@@ -149,6 +149,13 @@ void MultiQueueThreadPool_Queue::disable()
 }
 
 inline
+bool MultiQueueThreadPool_Queue::isEnabled() const
+{
+    int state = d_state.loadRelaxed();
+    return (e_DELETING != state && e_ENQUEUING_ENABLED == state);
+}
+
+inline
 void MultiQueueThreadPool_Queue::numProcessedReset(int *numDequeued,
                                                    int *numEnqueued)
 {
@@ -483,6 +490,15 @@ int MultiQueueThreadPool::disableQueue(int id)
     return rc;
 }
 
+bool MultiQueueThreadPool::isEnabled(int id) const
+{
+    MultiQueueThreadPool_QueueContext *context = 0;
+    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    return (STATE_RUNNING == d_state.loadRelaxed() &&
+                                    0 == d_queueRegistry.find(id, &context) &&
+                                                context->d_queue.isEnabled());
+}
+
 int MultiQueueThreadPool::drainQueue(int id)
 {
     MultiQueueThreadPool_QueueContext *context;
@@ -616,9 +632,9 @@ int MultiQueueThreadPool::resumeQueue(int id)
             if (0 != context->d_queue.d_numPendingJobs) {
                 ++d_numActiveQueues;
                 // Enqueue the processing callback for this queue.
-                int status = 
+                int status =
                     d_threadPool_p->enqueueJob(context->d_processingCb);
-                BSLS_ASSERT(0 == status);
+                (void)status; BSLS_ASSERT(0 == status);
             }
             rc = 0;
         }
@@ -678,7 +694,7 @@ void MultiQueueThreadPool::shutdown()
                                                                         ++it) {
         MultiQueueThreadPool_QueueContext *context = 0;
         int status = d_queueRegistry.remove(*it, &context);
-        BSLS_ASSERT(0 == status);
+        (void)status; BSLS_ASSERT(0 == status);
         BSLS_ASSERT(0 == context->d_queue.d_numPendingJobs ||
                     context->d_queue.d_paused);
         d_queuePool.releaseObject(context);

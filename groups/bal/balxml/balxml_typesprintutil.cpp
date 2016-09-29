@@ -49,16 +49,14 @@ bsl::ostream& encodeBase64(bsl::ostream&  stream,
         bsl::ostreambuf_iterator<char> outputIterator(stream);
 
         int status = base64Encoder.convert(outputIterator, begin, end);
-
-        BSLS_ASSERT(0 == status);  // nothing should be retained by encoder
+        (void)status; BSLS_ASSERT(0 == status);  // nothing should be retained
     }
 
     {
         bsl::ostreambuf_iterator<char> outputIterator(stream);
 
         int status = base64Encoder.endConvert(outputIterator);
-
-        BSLS_ASSERT(0 == status);  // nothing should be retained by encoder
+        (void)status; BSLS_ASSERT(0 == status);  // nothing should be retained
     }
 
     return stream;
@@ -615,7 +613,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
 
     // format: "-"  forces left alignment, "#" always prints period
     const int len = ::sprintf(buffer, "%-#1.*f", precision, object);
-    BSLS_ASSERT(len < (int) sizeof buffer);
+    (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)
@@ -698,7 +696,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
 
     // format: "-"  forces left alignment, "#" always prints period
     const int len = ::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
-    BSLS_ASSERT(len < (int) sizeof buffer);
+    (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(pop)

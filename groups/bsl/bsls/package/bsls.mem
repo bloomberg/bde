@@ -42,6 +42,7 @@ bsls_ident
 bsls_int64
 bsls_linkcoercion
 bsls_log
+bsls_logseverity
 bsls_macroincrement
 bsls_macrorepeat
 bsls_nameof

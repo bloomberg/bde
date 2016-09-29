@@ -74,7 +74,7 @@ static RESULT *allocate(int                                     *status,
 
     // Bring the listening socket into blocking mode.
     int rc = socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     btlso::IPv4Address peer;
     btlso::StreamSocket<btlso::IPv4Address> *acceptedConnection = 0;
