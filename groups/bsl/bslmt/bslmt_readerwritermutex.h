@@ -181,12 +181,12 @@ class ReaderWriterMutex {
     // This class provides a multi-reader/single-writer lock mechanism.
 
     // CLASS DATA
-    static const bsls::Types::Int64 k_READER_MASK       = 0x000000000fffffffLL;
+    static const bsls::Types::Int64 k_READER_MASK       = 0x00000000ffffffffLL;
     static const bsls::Types::Int64 k_READER_INC        = 0x0000000000000001LL;
     static const bsls::Types::Int64 k_PENDING_WRITER_MASK
-                                                        = 0x0ffffffff0000000LL;
+                                                        = 0x0fffffff00000000LL;
     static const bsls::Types::Int64 k_PENDING_WRITER_INC
-                                                        = 0x0000000010000000LL;
+                                                        = 0x0000000100000000LL;
     static const bsls::Types::Int64 k_WRITER            = 0x1000000000000000LL;
 
     // DATA
