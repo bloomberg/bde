@@ -5,12 +5,6 @@
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryheader.h>
 
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bdlb_bigendian.h>
 
 #include <bdlt_epochutil.h>
@@ -18,6 +12,8 @@
 #include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bslmf_assert.h>
+
+#include <bsls_log.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
@@ -2600,18 +2596,6 @@ int main(int argc, char *argv[])
     (void)veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    // Turn off logging.
-
-    ball::DefaultObserver observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager& manager =
-                  ball::LoggerManager::initSingleton(&observer, configuration);
-
-    manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
-                                      ball::Severity::e_OFF,
-                                      ball::Severity::e_OFF,
-                                      ball::Severity::e_OFF);
 
     switch (test) { case 0:
       case 11: {

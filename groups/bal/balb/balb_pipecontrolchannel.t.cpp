@@ -11,12 +11,6 @@
 
 #include <bslim_testutil.h>
 
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -34,6 +28,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
@@ -146,8 +141,6 @@ void noopHandler (int)
 
 namespace {
 
-const char LOG_CATEGORY[] = "BAEA.PCC.TEST";
-
                             // ===================
                             // class ControlServer
                             // ===================
@@ -197,7 +190,7 @@ class ControlServer {
     }
 
     // ACCESSORS
-    int numMessages() const {
+    bsl::size_t numMessages() const {
         return d_messages.size();
     }
 
@@ -225,11 +218,6 @@ void verifyPayload(const bsl::string&        expected,
 {
     // Verify that the specified 'found' payload has the same value as the
     // specified 'expected' payload.
-
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
-    BALL_LOG_TRACE << "Control callback received '" << found << "'"
-                   << BALL_LOG_END;
 
     ASSERT(expected == found);
     barrier->wait();
@@ -273,8 +261,7 @@ void loadData(bsl::string *result, int length)
 
 extern "C"
 void onSigPipe(int) {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    BALL_LOG_WARN << "SIGPIPE received" << BALL_LOG_END;
+    BSLS_LOG_WARN("SIGPIPE received");
 }
 
 // ============================================================================
@@ -294,29 +281,7 @@ int main(int argc, char *argv[])
     if (9 == test) {
         devnull.open("/dev/null");
     }
-
-    ball::DefaultObserver observer(9 == test ? &devnull
-                                             : test < 0 ? &bsl::cerr
-                                                        : &bsl::cout);
-#else
-    ball::DefaultObserver observer(test < 0 ? &bsl::cerr : &bsl::cout);
 #endif
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager::initSingleton(&observer, configuration);
-
-    if (test != -10) {
-        ball::Severity::Level passthrough = ball::Severity::e_OFF;
-        if (verbose) passthrough = ball::Severity::e_WARN;
-        if (veryVerbose) passthrough = ball::Severity::e_INFO;
-        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
-
-        ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                        ball::Severity::e_OFF,
-                                                        passthrough,
-                                                        ball::Severity::e_OFF,
-                                                        ball::Severity::e_OFF);
-    }
-
     if (test >= 0) {
         cout << "TEST " << __FILE__ << " CASE " << test << endl;
     }
@@ -346,16 +311,6 @@ int main(int argc, char *argv[])
         }
         veryVeryVerbose = argv[2][0] == 'A';
         verbose = veryVeryVerbose || argv[2][0] == 'Z';
-
-        ball::Severity::Level passthrough = ball::Severity::e_OFF;
-        if (verbose) passthrough = ball::Severity::e_WARN;
-        if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;
-
-        ball::LoggerManager::singleton().setDefaultThresholdLevels(
-                                                        ball::Severity::e_OFF,
-                                                        passthrough,
-                                                        ball::Severity::e_OFF,
-                                                        ball::Severity::e_OFF);
 
         cout << "P" << getpid() << "\n" << flush;
 
