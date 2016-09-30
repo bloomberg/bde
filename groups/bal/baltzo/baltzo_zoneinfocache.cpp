@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 
-#include <ball_log.h>
-
 #include <baltzo_errorcode.h>         // for testing only
 #include <baltzo_zoneinfocache.h>
 #include <baltzo_zoneinfoutil.h>
@@ -18,13 +16,13 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsls_log.h>
+
 #include <bsl_ostream.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
-static const char LOG_CATEGORY[] = "BALTZO.ZONEINFOCACHE";
 
                             // -------------------
                             // class ZoneinfoCache
@@ -81,8 +79,6 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
         result = it->second;
     }
     else {
-        BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
         // Create a proctor for the new time zone value.
 
         Zoneinfo *newTimeZonePtr =
@@ -94,25 +90,23 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);
         if (0 != *rc) {
             if (ErrorCode::k_UNSUPPORTED_ID != *rc) {
-                BALL_LOG_ERROR << "Unexpected error code loading time zone "
-                               << timeZoneId << ": " << *rc
-                               << BALL_LOG_END;
+                BSLS_LOG_ERROR("Unexpected error code loading time zone "
+                               "%s : %d", timeZoneId, *rc);
             }
             return 0;                                                 // RETURN
         }
         if (!ZoneinfoUtil::isWellFormed(*newTimeZonePtr)) {
-            BALL_LOG_ERROR << "Loaded zone info object for "
-                           << timeZoneId << " is not well-formed"
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Loaded zone info object for %s is not well-formed",
+                           timeZoneId);
             *rc = FAILURE;
             return 0;                                                 // RETURN
         }
 
         if (newTimeZonePtr->identifier() != timeZoneId) {
-            BALL_LOG_ERROR << "Loaded time zone id "
-                           << newTimeZonePtr->identifier() << " does not match"
-                           << " requested id: " << timeZoneId
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Loaded time zone id %s does not match "
+                           "request id: %s", 
+                           newTimeZonePtr->identifier().c_str(),
+                           timeZoneId);
             *rc = FAILURE;
             return 0;                                                 // RETURN
         }

@@ -12,14 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
-#include <bsl_utility.h>
-
-#include <bsls_assert.h>
-
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
-
-#include <ball_log.h>
 
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
@@ -35,7 +29,11 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 
+#include <bsls_assert.h>
+#include <bsls_log.h>
+
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 ///Implementation Note
 ///-------------------
@@ -55,8 +53,6 @@ namespace BloombergLP {
 namespace balm {
 
 namespace {
-
-const char k_LOG_CATEGORY[] = "BALM.METRICSMANAGER";
 
 struct SampleDescription {
     // This type is used by 'collectSample' to indirectly refer to a series of
@@ -589,9 +585,8 @@ void MetricsManager_PublicationHelper::publish(
         }
 
         if (elapsedTime == bsls::TimeInterval()) {
-            BALL_LOG_SET_CATEGORY(k_LOG_CATEGORY);
-            BALL_LOG_ERROR << "Invalid elapsed time interval of 0 for "
-                           << "published metrics." << BALL_LOG_END;
+            BSLS_LOG_ERROR("Invalid elapsed time interval of 0 for "
+                           "published metrics.");
             elapsedTime.addNanoseconds(1);
         }
 
