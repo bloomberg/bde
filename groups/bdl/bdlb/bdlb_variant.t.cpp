@@ -242,11 +242,6 @@ typedef bslmf::TypeList<int, bsl::string, TestInt,
                         TestString, TestVoid> VariantTypes;
 
 typedef bdlb::VariantImp<VariantTypes>        Obj;
-// TBD Consider making this a 'typedef' to 'Variant' instead (*not* to 'Imp').
-// The default ctor, copy ctor, and copy-assignment operator of 'Variant' do
-// not appear to be tested (despite claims to the contrary in the "Testing"
-// sections of case 2, case 7, and case 9, respectively.  The value ctor and
-// value assignment operator of 'Variant' do not seem to be tested either.
 
 //-----------------------------------------------------------------------------
 
@@ -503,7 +498,9 @@ class TestInt {
                             value.d_char[2] +
                             value.d_char[3]);
           } break;
-          default: ASSERT(0);
+          default: {
+            ASSERT(0);
+          }
         }
         return stream;
     }
@@ -663,7 +660,9 @@ class TestString {
             }
             stream.putUint8(sum);
           } break;
-          default: ASSERT(0);
+          default: {
+            ASSERT(0);
+          }
         }
         return stream;
     }
@@ -815,7 +814,9 @@ class TestArg {
                             value.d_char[2] +
                             value.d_char[3]);
           } break;
-          default: ASSERT(0);
+          default: {
+            ASSERT(0);
+          }
         }
         return stream;
     }
@@ -915,7 +916,7 @@ void checkCopyableParameters(const Copyable& object, int numTrue)
     // 'Copyable' 'object'.
 {
     for (int i = 0; i < MAX_COPYABLE_PARAMETERS; ++i) {
-        LOOP2_ASSERT(i, numTrue, (i < numTrue) == object.d_arguments[i]);
+        ASSERTV(i, numTrue, (i < numTrue) == object.d_arguments[i]);
     }
 }
 
@@ -2067,7 +2068,9 @@ struct TestUtil {
                     ASSERT(TEST_STRING_DATA[VALUE_IDX2] ==
                                                           Y.the<TestString>());
                   } break;
-                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
+                  default: {
+                    ASSERTV(LINE1, LINE2, 0);
+                  }
                 }
 
                 switch (Y.typeIndex()) {
@@ -2087,7 +2090,9 @@ struct TestUtil {
                     ASSERT(TEST_STRING_DATA[VALUE_IDX1] ==
                                                           Y.the<TestString>());
                   } break;
-                  default: LOOP2_ASSERT(LINE1, LINE2, 0);
+                  default: {
+                    ASSERTV(LINE1, LINE2, 0);
+                  }
                 }
             }
         }
@@ -2281,19 +2286,19 @@ struct TestUtil {
                                   NT17, NT18, NT19, UA20> BigVar20;
 
 #if BSLS_PLATFORM_CPU_64_BIT
-            LOOP_ASSERT(sizeof(BigVar1),  24 == sizeof(BigVar1));
-            LOOP_ASSERT(sizeof(BigVar2),  24 == sizeof(BigVar2));
-            LOOP_ASSERT(sizeof(BigVar3),  24 == sizeof(BigVar3));
-            LOOP_ASSERT(sizeof(BigVar18), 24 == sizeof(BigVar18));
-            LOOP_ASSERT(sizeof(BigVar19), 24 == sizeof(BigVar19));
-            LOOP_ASSERT(sizeof(BigVar20), 24 == sizeof(BigVar20));
+            ASSERTV(sizeof(BigVar1),  24 == sizeof(BigVar1));
+            ASSERTV(sizeof(BigVar2),  24 == sizeof(BigVar2));
+            ASSERTV(sizeof(BigVar3),  24 == sizeof(BigVar3));
+            ASSERTV(sizeof(BigVar18), 24 == sizeof(BigVar18));
+            ASSERTV(sizeof(BigVar19), 24 == sizeof(BigVar19));
+            ASSERTV(sizeof(BigVar20), 24 == sizeof(BigVar20));
 #else
-            LOOP_ASSERT(sizeof(BigVar1),  12 == sizeof(BigVar1));
-            LOOP_ASSERT(sizeof(BigVar2),  12 == sizeof(BigVar2));
-            LOOP_ASSERT(sizeof(BigVar3),  12 == sizeof(BigVar3));
-            LOOP_ASSERT(sizeof(BigVar18), 12 == sizeof(BigVar18));
-            LOOP_ASSERT(sizeof(BigVar19), 12 == sizeof(BigVar19));
-            LOOP_ASSERT(sizeof(BigVar20), 12 == sizeof(BigVar20));
+            ASSERTV(sizeof(BigVar1),  12 == sizeof(BigVar1));
+            ASSERTV(sizeof(BigVar2),  12 == sizeof(BigVar2));
+            ASSERTV(sizeof(BigVar3),  12 == sizeof(BigVar3));
+            ASSERTV(sizeof(BigVar18), 12 == sizeof(BigVar18));
+            ASSERTV(sizeof(BigVar19), 12 == sizeof(BigVar19));
+            ASSERTV(sizeof(BigVar20), 12 == sizeof(BigVar20));
 #endif
         }
 
@@ -7660,47 +7665,47 @@ struct TestUtil {
         if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
         {
             my_UnsetVariantVisitor visitor;
-            LOOP_ASSERT(visitor.d_lastType,
-                       my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
             Obj mX;
             mX.apply(visitor);
 
-            LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
 
             visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-            LOOP_ASSERT(visitor.d_lastType,
-                       my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
             const Obj& X = mX;
             X.apply(visitor);
 
-            LOOP_ASSERT(visitor.d_lastType,
-                      my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
         }
 
         if (verbose) cout << "\nTesting user specified 'defaultValue'."<< endl;
         {
             my_UnsetVariantVisitor visitor;
-            LOOP_ASSERT(visitor.d_lastType,
-                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
             Obj mX;
             mX.apply(visitor, TestArg<1>());
 
-            LOOP_ASSERT(visitor.d_lastType,
-                       my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
 
             visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-            LOOP_ASSERT(visitor.d_lastType,
-                        my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
 
             const Obj& X = mX;
             X.apply(visitor, TestArg<1>());
 
-            LOOP_ASSERT(visitor.d_lastType,
-                       my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+            ASSERTV(visitor.d_lastType,
+                    my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
         }
 
         if (verbose) cout << "\nTesting a subtle warning case." << endl;
@@ -7738,7 +7743,9 @@ struct TestUtil {
             enum { LENGTH = Obj::TypeList::LENGTH };
             ASSERT(4 == LENGTH);
 
-            Obj mXs[LENGTH]; Obj mYs[LENGTH];
+            Obj mXs[LENGTH];
+            Obj mYs[LENGTH];
+
             mXs[0].createInPlace<int>(INT_DATA[0]);
             mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
             mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
@@ -7759,14 +7766,14 @@ struct TestUtil {
 
                 my_ModifyingVisitor visitor(i);
 
-                LOOP_ASSERT(i, INTVAL        == mXs[0].the<int>());
-                LOOP_ASSERT(i, TESTINTVAL    == mXs[1].the<TestInt>());
-                LOOP_ASSERT(i, STRINGVAL     == mXs[2].the<bsl::string>());
-                LOOP_ASSERT(i, TESTSTRINGVAL == mXs[3].the<TestString>());
-                LOOP_ASSERT(i, INTVAL        == mYs[0].the<int>());
-                LOOP_ASSERT(i, TESTINTVAL    == mYs[1].the<TestInt>());
-                LOOP_ASSERT(i, STRINGVAL     == mYs[2].the<bsl::string>());
-                LOOP_ASSERT(i, TESTSTRINGVAL == mYs[3].the<TestString>());
+                ASSERTV(i, INTVAL        == mXs[0].the<int>());
+                ASSERTV(i, TESTINTVAL    == mXs[1].the<TestInt>());
+                ASSERTV(i, STRINGVAL     == mXs[2].the<bsl::string>());
+                ASSERTV(i, TESTSTRINGVAL == mXs[3].the<TestString>());
+                ASSERTV(i, INTVAL        == mYs[0].the<int>());
+                ASSERTV(i, TESTINTVAL    == mYs[1].the<TestInt>());
+                ASSERTV(i, STRINGVAL     == mYs[2].the<bsl::string>());
+                ASSERTV(i, TESTSTRINGVAL == mYs[3].the<TestString>());
 
                 // Visit the values.
 
@@ -7786,14 +7793,14 @@ struct TestUtil {
                        P_(theInt) P_(theTestInt) P_(theString) P(theTestString)
                 }
 
-                LOOP_ASSERT(i, INT_DATA[i]        ==mXs[0].the<int>());
-                LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mXs[1].the<TestInt>());
-                LOOP_ASSERT(i, STRING_DATA[i]     ==mXs[2].the<bsl::string>());
-                LOOP_ASSERT(i, TEST_STRING_DATA[i]==mXs[3].the<TestString>());
-                LOOP_ASSERT(i, INT_DATA[i]        ==mYs[0].the<int>());
-                LOOP_ASSERT(i, TEST_INT_DATA[i]   ==mYs[1].the<TestInt>());
-                LOOP_ASSERT(i, STRING_DATA[i]     ==mYs[2].the<bsl::string>());
-                LOOP_ASSERT(i, TEST_STRING_DATA[i]==mYs[3].the<TestString>());
+                ASSERTV(i, INT_DATA[i]         == mXs[0].the<int>());
+                ASSERTV(i, TEST_INT_DATA[i]    == mXs[1].the<TestInt>());
+                ASSERTV(i, STRING_DATA[i]      == mXs[2].the<bsl::string>());
+                ASSERTV(i, TEST_STRING_DATA[i] == mXs[3].the<TestString>());
+                ASSERTV(i, INT_DATA[i]         == mYs[0].the<int>());
+                ASSERTV(i, TEST_INT_DATA[i]    == mYs[1].the<TestInt>());
+                ASSERTV(i, STRING_DATA[i]      == mYs[2].the<bsl::string>());
+                ASSERTV(i, TEST_STRING_DATA[i] == mYs[3].the<TestString>());
             }
         }
 
@@ -7810,10 +7817,10 @@ struct TestUtil {
 
             wrappedVariant.apply(visitor);
             wrappedVariant2.applyRaw(visitor);
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::VOID_VISIT == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::VOID_VISIT == wrappedVariant2.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::VOID_VISIT == wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::VOID_VISIT == wrappedVariant2.lastVisited());
         }
 
         if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
@@ -7825,12 +7832,10 @@ struct TestUtil {
 
             const int RET  = wrappedVariant.apply(visitor);
             const int RET2 = wrappedVariant2.applyRaw(visitor);
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::RESULT_TYPE_VISIT
-                        == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::RESULT_TYPE_VISIT
-                        == wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::RESULT_TYPE_VISIT == wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::RESULT_TYPE_VISIT == wrappedVariant.lastVisited());
 
             ASSERT(RET  == INT_TYPE);
             ASSERT(RET2 == INT_TYPE);
@@ -7848,11 +7853,10 @@ struct TestUtil {
             ASSERT(999 <= wrappedVariant2.applyRaw<Convertible>(
                        visitor).memberFunc());
 
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::RET_TYPE_VISIT == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::RET_TYPE_VISIT ==
-                        wrappedVariant2.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::RET_TYPE_VISIT == wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::RET_TYPE_VISIT == wrappedVariant2.lastVisited());
         }
 
         if (verbose) cout << "\nTesting 'const' 'apply' methods" << endl;
@@ -7872,12 +7876,10 @@ struct TestUtil {
             WV.apply(visitor);
             WV2.applyRaw(visitor);
 
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::VOID_VISIT_CONST
-                        == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::VOID_VISIT_CONST
-                        == wrappedVariant2.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::VOID_VISIT_CONST == wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::VOID_VISIT_CONST == wrappedVariant2.lastVisited());
         }
 
         if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
@@ -7895,12 +7897,12 @@ struct TestUtil {
             const int RET  = WV.apply(visitor);
             const int RET2 = WV2.applyRaw(visitor);
 
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::RESULT_TYPE_VISIT_CONST
-                        == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::RESULT_TYPE_VISIT_CONST
-                        == wrappedVariant2.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::RESULT_TYPE_VISIT_CONST ==
+                                                 wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::RESULT_TYPE_VISIT_CONST ==
+                                                wrappedVariant2.lastVisited());
 
             ASSERT(RET  == INT_TYPE);
             ASSERT(RET2 == INT_TYPE);
@@ -7921,12 +7923,12 @@ struct TestUtil {
             ASSERT(999 <= WV.apply<Convertible>(visitor).memberFunc());
             ASSERT(999 <= WV2.applyRaw<Convertible>(visitor).memberFunc());
 
-            LOOP_ASSERT(wrappedVariant.lastVisited(),
-                        VWrap::RET_TYPE_VISIT_CONST
-                        == wrappedVariant.lastVisited());
-            LOOP_ASSERT(wrappedVariant2.lastVisited(),
-                        VWrap::RET_TYPE_VISIT_CONST
-                        == wrappedVariant2.lastVisited());
+            ASSERTV(wrappedVariant.lastVisited(),
+                    VWrap::RET_TYPE_VISIT_CONST ==
+                                                 wrappedVariant.lastVisited());
+            ASSERTV(wrappedVariant2.lastVisited(),
+                    VWrap::RET_TYPE_VISIT_CONST ==
+                                                wrappedVariant2.lastVisited());
         }
 
         if (verbose) cout << "\nTesting that visitors do not modify the value."
@@ -7957,11 +7959,20 @@ struct TestUtil {
                           << "TESTING 'createInPlace'" << endl
                           << "=======================" << endl;
 
-        typedef bdlb::VariantImp<bslmf::TypeList<Copyable> > Obj;
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        typedef bdlb::VariantImp<bslmf::TypeList<Copyable, TestString> > Obj;
 
         if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>();
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 0);
+
+            mX.assign<TestString>(VK);  // will allocate
             mX.createInPlace<Copyable>();
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -7970,7 +7981,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 1 arg." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 1);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -7979,7 +7996,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 2 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 2);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -7988,7 +8011,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 3 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 3);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -7997,7 +8026,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 4 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 4);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -8006,7 +8041,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 5 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 5);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -8015,7 +8056,13 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 6 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 6);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true);
 
             ASSERT(false == Copyable::s_copyConstructorCalled);
@@ -8024,7 +8071,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 7 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 7);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true);
 
@@ -8034,7 +8088,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 8 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 8);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true);
 
@@ -8044,7 +8105,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 9 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 9);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true);
 
@@ -8054,7 +8122,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 10 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 10);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true);
 
@@ -8064,7 +8139,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 11 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 11);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true);
 
@@ -8074,7 +8156,14 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 12 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true, true, true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 12);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true, true);
 
@@ -8084,7 +8173,15 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 13 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true, true, true, true,
+                                       true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 13);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true, true,
                                        true);
@@ -8095,7 +8192,15 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'createInPlace' with 14 args." << endl;
         {
-            Obj mX;     const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
+            mX.createInPlace<Copyable>(true, true, true, true, true, true,
+                                       true, true, true, true, true, true,
+                                       true, true);
+
+            ASSERT(false == Copyable::s_copyConstructorCalled);
+            checkCopyableParameters(X.the<Copyable>(), 14);
+
+            mX.assign<TestString>(VK);
             mX.createInPlace<Copyable>(true, true, true, true, true, true,
                                        true, true, true, true, true, true,
                                        true, true);
@@ -8180,91 +8285,89 @@ struct TestUtil {
                         // Assign to 'X' the value 'Y' and check the returned
                         // reference.
 
-                        LOOP2_ASSERT(LINE1, LINE2, INT_DATA[VALUE_IDX2] ==
+                        ASSERTV(LINE1, LINE2, INT_DATA[VALUE_IDX2] ==
                                                          (mX = Y).the<int>());
 
                         // Check that 'Y' is not modified.
 
-                        LOOP2_ASSERT(LINE1, LINE2, INT_DATA[VALUE_IDX2] == Y);
+                        ASSERTV(LINE1, LINE2, INT_DATA[VALUE_IDX2] == Y);
 
                         // Check that 'X' is modified.
 
-                        LOOP2_ASSERT(LINE1, LINE2, Y == X.the<int>());
+                        ASSERTV(LINE1, LINE2, Y == X.the<int>());
 
                       } break;
                       case TEST_INT_TYPE: {
 
                         TestInt Y = TEST_INT_DATA[VALUE_IDX2];
 
-                        LOOP2_ASSERT(LINE1, LINE2, TEST_INT_DATA[VALUE_IDX2]
-                                                  == (mX = Y).the<TestInt>());
-                        LOOP2_ASSERT(LINE1, LINE2, TEST_INT_DATA[VALUE_IDX2]
-                                                                         == Y);
-                        LOOP2_ASSERT(LINE1, LINE2, Y == X.the<TestInt>());
+                        ASSERTV(LINE1, LINE2, TEST_INT_DATA[VALUE_IDX2] ==
+                                                     (mX = Y).the<TestInt>());
+                        ASSERTV(LINE1, LINE2, TEST_INT_DATA[VALUE_IDX2] == Y);
+                        ASSERTV(LINE1, LINE2, Y == X.the<TestInt>());
 
                       } break;
                       case STRING_TYPE : {
 
                         bsl::string Y = STRING_DATA[VALUE_IDX2];
 
-                        LOOP2_ASSERT(LINE1, LINE2, STRING_DATA[VALUE_IDX2]
-                                               == (mX = Y).the<bsl::string>());
-                        LOOP2_ASSERT(LINE1, LINE2, STRING_DATA[VALUE_IDX2]
-                                                                         == Y);
-                        LOOP2_ASSERT(LINE1, LINE2, Y == X.the<bsl::string>());
+                        ASSERTV(LINE1, LINE2, STRING_DATA[VALUE_IDX2] ==
+                                                  (mX = Y).the<bsl::string>());
+                        ASSERTV(LINE1, LINE2, STRING_DATA[VALUE_IDX2] == Y);
+                        ASSERTV(LINE1, LINE2, Y == X.the<bsl::string>());
 
                       } break;
                       case TEST_STRING_TYPE: {
 
                         TestString Y = TEST_STRING_DATA[VALUE_IDX2];
 
-                        LOOP2_ASSERT(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2]
-                                                == (mX = Y).the<TestString>());
-                        LOOP2_ASSERT(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2]
+                        ASSERTV(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2] ==
+                                                   (mX = Y).the<TestString>());
+                        ASSERTV(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2]
                                                                          == Y);
-                        LOOP2_ASSERT(LINE1, LINE2, Y == X.the<TestString>());
+                        ASSERTV(LINE1, LINE2, Y == X.the<TestString>());
 
                       } break;
                       case TEST_VOID_TYPE: {
 
                         TestVoid Y;
 
-                        LOOP2_ASSERT(LINE1, LINE2, TestVoid()
-                                                  == (mX = Y).the<TestVoid>());
-                        LOOP2_ASSERT(LINE1, LINE2, TestVoid() == Y);
-                        LOOP2_ASSERT(LINE1, LINE2, Y == X.the<TestVoid>());
+                        ASSERTV(LINE1, LINE2, TestVoid() ==
+                                                     (mX = Y).the<TestVoid>());
+                        ASSERTV(LINE1, LINE2, TestVoid() == Y);
+                        ASSERTV(LINE1, LINE2, Y == X.the<TestVoid>());
 
                       } break;
-                      default: ASSERT(!"Unreachable by design");
+                      default: {
+                        ASSERT(!"Unreachable by design");
+                      }
                     }
 
                     // Verify value after 'Y' goes out of scope.
 
                     switch (TYPE_IDX2) {
                       case INT_TYPE: {
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     INT_DATA[VALUE_IDX2] == X.the<int>());
+                        ASSERTV(LINE1, LINE2,
+                                INT_DATA[VALUE_IDX2] == X.the<int>());
                       } break;
                       case TEST_INT_TYPE: {
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TEST_INT_DATA[VALUE_IDX2]
-                                                          == X.the<TestInt>());
+                        ASSERTV(LINE1, LINE2,
+                                TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
                       } break;
                       case STRING_TYPE: {
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     STRING_DATA[VALUE_IDX2]
-                                                      == X.the<bsl::string>());
+                        ASSERTV(LINE1, LINE2, STRING_DATA[VALUE_IDX2] ==
+                                                         X.the<bsl::string>());
                       } break;
                       case TEST_STRING_TYPE: {
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TEST_STRING_DATA[VALUE_IDX2]
-                                                       == X.the<TestString>());
+                        ASSERTV(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2] ==
+                                                          X.the<TestString>());
                       } break;
                       case TEST_VOID_TYPE: {
-                        LOOP2_ASSERT(LINE1, LINE2,
-                                     TestVoid() == X.the<TestVoid>());
+                        ASSERTV(LINE1, LINE2, TestVoid() == X.the<TestVoid>());
                       } break;
-                      default: ASSERT(!"Unreachable by design");
+                      default: {
+                        ASSERT(!"Unreachable by design");
+                      }
                     }
                 }
             }
@@ -8321,33 +8424,31 @@ struct TestUtil {
                   switch (TYPE_IDX2) {
                     case INT_TYPE: {
                       mX = INT_DATA[VALUE_IDX2];
-                      LOOP2_ASSERT(LINE1, LINE2,
-                                   INT_DATA[VALUE_IDX2] == X.the<int>());
+                      ASSERTV(LINE1, LINE2,
+                              INT_DATA[VALUE_IDX2] == X.the<int>());
                     } break;
                     case TEST_INT_TYPE: {
                       mX = TEST_INT_DATA[VALUE_IDX2];
-                      LOOP2_ASSERT(LINE1, LINE2,
-                                   TEST_INT_DATA[VALUE_IDX2]
-                                                          == X.the<TestInt>());
+                      ASSERTV(LINE1, LINE2,
+                              TEST_INT_DATA[VALUE_IDX2] == X.the<TestInt>());
                     } break;
                     case STRING_TYPE: {
                       mX = STRING_DATA[VALUE_IDX2];
-                      LOOP2_ASSERT(LINE1, LINE2,
-                                   STRING_DATA[VALUE_IDX2]
-                                                      == X.the<bsl::string>());
+                      ASSERTV(LINE1, LINE2,
+                              STRING_DATA[VALUE_IDX2] == X.the<bsl::string>());
                     } break;
                     case TEST_STRING_TYPE: {
                       mX = TEST_STRING_DATA[VALUE_IDX2];
-                      LOOP2_ASSERT(LINE1, LINE2,
-                                   TEST_STRING_DATA[VALUE_IDX2]
-                                                       == X.the<TestString>());
+                      ASSERTV(LINE1, LINE2, TEST_STRING_DATA[VALUE_IDX2] ==
+                                                          X.the<TestString>());
                     } break;
                     case TEST_VOID_TYPE: {
                       mX = TestVoid();
-                      LOOP2_ASSERT(LINE1, LINE2,
-                                   TestVoid() == X.the<TestVoid>());
+                      ASSERTV(LINE1, LINE2, TestVoid() == X.the<TestVoid>());
                     } break;
-                    default: ASSERT(!"Unreachable by design");
+                    default: {
+                      ASSERT(!"Unreachable by design");
+                    }
                   }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
@@ -9732,8 +9833,8 @@ int main(int argc, char *argv[])
                     const int         LOD = out.length();
 
                     bslx::TestInStream bdexInStream(OD, LOD);
-                    LOOP_ASSERT(U_SPEC, bdexInStream);
-                    LOOP_ASSERT(U_SPEC, !bdexInStream.isEmpty());
+                    ASSERTV(U_SPEC, bdexInStream);
+                    ASSERTV(U_SPEC, !bdexInStream.isEmpty());
 
                     const char *const V_SPEC = SPECS[vi];
 
@@ -9750,16 +9851,16 @@ int main(int argc, char *argv[])
 
                     BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(bdexInStream) {
                         bdexInStream.reset();
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, bdexInStream.isValid());
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, !bdexInStream.isEmpty());
+                        ASSERTV(U_SPEC, V_SPEC, bdexInStream.isValid());
+                        ASSERTV(U_SPEC, V_SPEC, !bdexInStream.isEmpty());
 
                         TObj mV(g(V_SPEC)); const TObj& V = mV;
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == U));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (VV == V));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (ui == vi) == (U == V));
+                        ASSERTV(U_SPEC, V_SPEC, (UU == U));
+                        ASSERTV(U_SPEC, V_SPEC, (VV == V));
+                        ASSERTV(U_SPEC, V_SPEC, (ui == vi) == (U == V));
 
                         bslx::InStreamFunctions::bdexStreamIn(bdexInStream,
                                                               mV,
@@ -9767,15 +9868,15 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { cout << "\t |=> "; P_(U); P(V); }
 
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, bdexInStream.isValid());
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, bdexInStream.isEmpty());
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == U));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (UU == V));
-                        LOOP2_ASSERT(U_SPEC, V_SPEC, (U == V));
+                        ASSERTV(U_SPEC, V_SPEC, bdexInStream.isValid());
+                        ASSERTV(U_SPEC, V_SPEC, bdexInStream.isEmpty());
+                        ASSERTV(U_SPEC, V_SPEC, (UU == U));
+                        ASSERTV(U_SPEC, V_SPEC, (UU == V));
+                        ASSERTV(U_SPEC, V_SPEC, (U == V));
 
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-                    // Redo the tests with 'bdema' exceptions instead, note
+                    // Redo the tests with 'bslma' exceptions instead; note
                     // that it is *not* necessary to assert.
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -9817,20 +9918,20 @@ int main(int argc, char *argv[])
                     // stream leaves the stream invalid and the target object
                     // unchanged.
 
-                    LOOP_ASSERT(ti, bdexInStream);
-                    LOOP_ASSERT(ti, X == t);
+                    ASSERTV(ti, bdexInStream);
+                    ASSERTV(ti, X == t);
 
                     bslx::InStreamFunctions::bdexStreamIn(bdexInStream,
                                                           t,
                                                           VERSION);
-                    LOOP_ASSERT(ti, !bdexInStream);
-                    LOOP3_ASSERT(ti, X, t, X == t);
+                    ASSERTV(ti, !bdexInStream);
+                    ASSERTV(ti, X, t, X == t);
 
                     bslx::InStreamFunctions::bdexStreamIn(bdexInStream,
                                                           t,
                                                           VERSION);
-                    LOOP_ASSERT(ti, !bdexInStream);
-                    LOOP3_ASSERT(ti, X, t, X == t);
+                    ASSERTV(ti, !bdexInStream);
+                    ASSERTV(ti, X, t, X == t);
 
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
@@ -9861,52 +9962,52 @@ int main(int argc, char *argv[])
             for (int i = 0; i < LOD; ++i) {
                 bslx::TestInStream bdexInStream(OD, i);
                 bslx::TestInStream& in = bdexInStream;
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
+                ASSERTV(i, in);  ASSERTV(i, !i == in.isEmpty());
 
                 if (veryVerbose) { cout << "\t\t"; P(i); }
 
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
-                    LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
+                    ASSERTV(i, in); ASSERTV(i, !i == in.isEmpty());
 
                     TObj t1(g("A")), t2(g("B")), t3(g("C"));
                     int stage = 0;
 
                     if (i < LOD1) {
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X1 == t1));
+                        ASSERTV(i, !in);
+                        // ASSERTV(i, (X1 == t1));
                         bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X2 == t2));
+                        ASSERTV(i, !in);
+                        ASSERTV(i, (X2 == t2));
                         bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X3 == t3));
+                        ASSERTV(i, !in);
+                        ASSERTV(i, (X3 == t3));
                     }
                     else if (i < LOD2) {
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y1 == t1));
+                        ASSERTV(i,  in);
+                        ASSERTV(i, (Y1 == t1));
                         stage = 1;
                         bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X2 == t2));
+                        ASSERTV(i, !in);
+                        // ASSERTV(i, (X2 == t2));
                         bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, (X3 == t3));
+                        ASSERTV(i, !in);
+                        ASSERTV(i, (X3 == t3));
                     }
                     else {
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y1 == t1));
+                        ASSERTV(i,  in);
+                        ASSERTV(i, (Y1 == t1));
                         stage = 1;
                         bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, (Y2 == t2));
+                        ASSERTV(i,  in);
+                        ASSERTV(i, (Y2 == t2));
                         stage = 2;
                         bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
-                        LOOP_ASSERT(i, !in);
-                        // LOOP_ASSERT(i, (X3 == t3));
+                        ASSERTV(i, !in);
+                        // ASSERTV(i, (X3 == t3));
                     }
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
@@ -10060,24 +10161,23 @@ int main(int argc, char *argv[])
                         gg(&mY, SPECS[j]);
                         gg(&mZ, SPECS[i]);
 
-                        LOOP_ASSERT(i, YY == (mY = Y));
-                        LOOP_ASSERT(i, YY == Y);
-                        LOOP2_ASSERT(i, j, (i == j) == (X == Y));
-                        LOOP2_ASSERT(i, j, YY == (mX = Y));
-                        LOOP2_ASSERT(i, j, YY == (mZ = Y));
-                        LOOP2_ASSERT(i, j, YY == Y);
-                        LOOP2_ASSERT(i, j, YY == X);
-                        LOOP2_ASSERT(i, j, YY == Z);
+                        ASSERTV(i, YY == (mY = Y));
+                        ASSERTV(i, YY == Y);
+                        ASSERTV(i, j, (i == j) == (X == Y));
+                        ASSERTV(i, j, YY == (mX = Y));
+                        ASSERTV(i, j, YY == (mZ = Y));
+                        ASSERTV(i, j, YY == Y);
+                        ASSERTV(i, j, YY == X);
+                        ASSERTV(i, j, YY == Z);
                     }
-                    LOOP2_ASSERT(i, j, YY == X);
+                    ASSERTV(i, j, YY == X);
                 }
 
                 // Verify that the allocator value is not part of the
                 // assignment.
 
                 {
-                    // Compute the number of blocks needed for this
-                    // assignment.
+                    // Compute the number of blocks needed for this assignment.
 
                     Obj mX(&testAllocator);
                     gg(&mX, SPECS[i]);
@@ -10108,10 +10208,9 @@ int main(int argc, char *argv[])
                     // thus proving the allocator value of 'mY' is unaffected
                     // by the assignment.
 
-                    LOOP3_ASSERT(i, blocks, defaultBlocks,
-                                                      blocks == defaultBlocks);
-                    LOOP3_ASSERT(i, testBlocks, testAllocator.numBlocksTotal(),
-                                 testBlocks == testAllocator.numBlocksTotal());
+                    ASSERTV(i, blocks, defaultBlocks, blocks == defaultBlocks);
+                    ASSERTV(i, testBlocks, testAllocator.numBlocksTotal(),
+                            testBlocks == testAllocator.numBlocksTotal());
                 }
 
                 // Testing exception safety.
@@ -10124,7 +10223,7 @@ int main(int argc, char *argv[])
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       mX = Y;
 
-                      LOOP2_ASSERT(i, j, X == Y);
+                      ASSERTV(i, j, X == Y);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
@@ -10184,13 +10283,13 @@ int main(int argc, char *argv[])
                               static_cast<int>(testAllocator.numBlocksTotal());
             const int IN_USE_BYTES_BEFORE =
                               static_cast<int>(testAllocator.numBytesInUse());
-            LOOP_ASSERT(ti, X == g(spec));
+            ASSERTV(ti, X == g(spec));
             const int TOTAL_BLOCKS_AFTER =
                               static_cast<int>(testAllocator.numBlocksTotal());
             const int IN_USE_BYTES_AFTER =
                               static_cast<int>(testAllocator.numBytesInUse());
-            LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
-            LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
+            ASSERTV(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
+            ASSERTV(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
         }
 
         if (verbose) cout << "\nConfirm return-by-value." << endl;
@@ -10302,23 +10401,23 @@ int main(int argc, char *argv[])
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             int blocks = static_cast<int>(oa.numBlocksTotal());
 
             const Obj Y(X, &oa);
             blocks = static_cast<int>(oa.numBlocksTotal()) - blocks;
-            LOOP2_ASSERT(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
             int defaultBlocks = static_cast<int>(da.numBlocksTotal());
             const Obj Z(X);
             defaultBlocks = static_cast<int>(da.numBlocksTotal())
                             - defaultBlocks;
-            LOOP3_ASSERT(LINE, blocks, defaultBlocks, blocks == defaultBlocks);
+            ASSERTV(LINE, blocks, defaultBlocks, blocks == defaultBlocks);
 
-            LOOP_ASSERT(LINE, W == X);
-            LOOP_ASSERT(LINE, W == Y);
+            ASSERTV(LINE, W == X);
+            ASSERTV(LINE, W == Y);
             delete pX;  // X is now out of scope.
-            LOOP_ASSERT(LINE, W == Y);
+            ASSERTV(LINE, W == Y);
         }
 
         if (verbose)
@@ -10341,7 +10440,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const Obj Y(X, &testAllocator);  // TEST HERE
 
-              LOOP_ASSERT(LINE, X == Y);
+              ASSERTV(LINE, X == Y);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
@@ -10440,8 +10539,8 @@ int main(int argc, char *argv[])
                 Obj mY; const Obj& Y = mY;
                 gg(&mY, INPUT2);
 
-                LOOP2_ASSERT(LINE1, LINE2, (ti == tj) == (X == Y));
-                LOOP2_ASSERT(LINE1, LINE2, (ti != tj) == (X != Y));
+                ASSERTV(LINE1, LINE2, (ti == tj) == (X == Y));
+                ASSERTV(LINE1, LINE2, (ti != tj) == (X != Y));
             }
         }
 
@@ -10542,9 +10641,8 @@ int main(int argc, char *argv[])
 
             gg(&mX, SPEC);
 
-            LOOP_ASSERT(ti, &printStream == &X.print(printStream, LEVEL,
-                                                                      SPACES));
-            LOOP_ASSERT(ti, &operatorStream == &(operatorStream << X));
+            ASSERTV(ti, &printStream == &X.print(printStream, LEVEL, SPACES));
+            ASSERTV(ti, &operatorStream == &(operatorStream << X));
 
             if (veryVerbose) {
                 T_ T_ P(printStream.str())
@@ -10552,17 +10650,17 @@ int main(int argc, char *argv[])
             }
 
             bsl::string cmp = printStream.str();
-            LOOP3_ASSERT(LINE, cmp.size(), RESULT.size(),
+            ASSERTV(LINE, cmp.size(), RESULT.size(),
                                                   cmp.size() == RESULT.size());
             for (int i = 0; i < static_cast<int>(cmp.size()); ++i) {
-                LOOP4_ASSERT(LINE, i, cmp[i], RESULT[i], cmp[i] == RESULT[i]);
+                ASSERTV(LINE, i, cmp[i], RESULT[i], cmp[i] == RESULT[i]);
             }
             if (0 == LEVEL && -1 == SPACES) {
                 bsl::string cmp2 = operatorStream.str();
-                LOOP3_ASSERT(LINE, cmp.size(), cmp2.size(),
+                ASSERTV(LINE, cmp.size(), cmp2.size(),
                                                     cmp.size() == cmp2.size());
                 for (int i = 0; i < static_cast<int>(cmp.size()); ++i) {
-                    LOOP4_ASSERT(LINE, i, cmp[i], cmp2[i], cmp[i] == cmp2[i]);
+                    ASSERTV(LINE, i, cmp[i], cmp2[i], cmp[i] == cmp2[i]);
                 }
             }
         }
@@ -10657,82 +10755,103 @@ int main(int argc, char *argv[])
             Obj mX; const Obj& X = mX;
             gg(&mX, INPUT);
 
-            LOOP3_ASSERT(LINE, TYPE_IDX, X.typeIndex(),
-                         TYPE_IDX == X.typeIndex());
+            ASSERTV(LINE, TYPE_IDX, X.typeIndex(), TYPE_IDX == X.typeIndex());
 
             switch (X.typeIndex()) {
               case UNSET: {
               } break;
               case TEST_VOID_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestInt>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<bsl::string>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestString>());
-                LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<TestVoid>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<int>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestString>());
+                ASSERTV(LINE, VALUE_IDX,  X.is<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
 
                 TestVoid *mR = &mX.the<TestVoid>();
 
-                LOOP2_ASSERT(LINE, VALUE_IDX, *mR == mX.the<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX, *mR == mX.the<TestVoid>());
               } break;
               case INT_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<int>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestInt>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<bsl::string>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestString>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<int>(),
-                             INT_DATA[VALUE_IDX] == X.the<int>());
+                ASSERTV(LINE, VALUE_IDX,  X.is<int>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestString>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<int>(),
+                        INT_DATA[VALUE_IDX] == X.the<int>());
 
                 int *mR = &mX.the<int>();
 
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<int>(),
-                                        *mR == X.the<int>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<int>(), *mR == X.the<int>());
               } break;
               case TEST_INT_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
-                LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<TestInt>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<bsl::string>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestString>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestInt>(),
-                             TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<int>());
+                ASSERTV(LINE, VALUE_IDX,  X.is<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestString>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<TestInt>(),
+                        TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
 
                 TestInt *mR = &mX.the<TestInt>();
 
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestInt>(),
-                                        *mR == X.the<TestInt>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<TestInt>(),
+                                   *mR == X.the<TestInt>());
               } break;
               case STRING_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestInt>());
-                LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<bsl::string>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestString>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<bsl::string>(),
-                             STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<int>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestInt>());
+                ASSERTV(LINE, VALUE_IDX,  X.is<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestString>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<bsl::string>(),
+                        STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
 
                 bsl::string *mR = &mX.the<bsl::string>();
 
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<bsl::string>(),
-                                        *mR == X.the<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<bsl::string>(),
+                                   *mR == X.the<bsl::string>());
               } break;
               case TEST_STRING_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestInt>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<bsl::string>());
-                LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<TestString>());
-                LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestString>(),
-                           TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<int>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX,  X.is<TestString>());
+                ASSERTV(LINE, VALUE_IDX, !X.is<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<TestString>(),
+                        TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
 
                 TestString *mR = &mX.the<TestString>();
 
-                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestString>(),
-                                        *mR == X.the<TestString>());
+                ASSERTV(LINE, VALUE_IDX,  X.the<TestString>(),
+                                   *mR == X.the<TestString>());
               } break;
-              default: LOOP_ASSERT(LINE, 0);
+              default: {
+                ASSERTV(LINE, 0);
+              }
             }
+        }
+
+        if (verbose) cout << "\nNegative Testing 'the'." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj mX;  const Obj& X = mX;
+
+            mX.assign<int>(77);
+
+            ASSERT_SAFE_PASS(mX.the<int>());
+            ASSERT_SAFE_PASS( X.the<int>());
+
+            ASSERT_SAFE_FAIL(mX.the<TestInt>());
+            ASSERT_SAFE_FAIL( X.the<TestInt>());
+
+            mX.reset();
+
+            ASSERT_SAFE_FAIL(mX.the<int>());
+            ASSERT_SAFE_FAIL( X.the<int>());
         }
 
       } break;
@@ -10865,32 +10984,33 @@ int main(int argc, char *argv[])
 
             int retCode = ggg(&mX, INPUT, false);
 
-            LOOP3_ASSERT(LINE, RC, retCode, RC == retCode);
-            LOOP3_ASSERT(LINE, TYPE_IDX, X.typeIndex(),
-                         TYPE_IDX == X.typeIndex());
+            ASSERTV(LINE, RC, retCode, RC == retCode);
+            ASSERTV(LINE, TYPE_IDX, X.typeIndex(), TYPE_IDX == X.typeIndex());
             switch (X.typeIndex()) {
               case UNSET: {
               } break;
               case TEST_VOID_TYPE: {
-                LOOP2_ASSERT(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
+                ASSERTV(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
               } break;
               case INT_TYPE: {
-                LOOP3_ASSERT(LINE, VALUE_IDX, X.the<int>(),
-                                          INT_DATA[VALUE_IDX] == X.the<int>());
+                ASSERTV(LINE, VALUE_IDX, X.the<int>(),
+                        INT_DATA[VALUE_IDX] == X.the<int>());
               } break;
               case TEST_INT_TYPE: {
-                LOOP3_ASSERT(LINE, VALUE_IDX, X.the<TestInt>(),
-                                 TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
+                ASSERTV(LINE, VALUE_IDX, X.the<TestInt>(),
+                        TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
               } break;
               case STRING_TYPE: {
-                LOOP3_ASSERT(LINE, VALUE_IDX, X.the<bsl::string>(),
-                               STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
+                ASSERTV(LINE, VALUE_IDX, X.the<bsl::string>(),
+                        STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
               } break;
               case TEST_STRING_TYPE: {
-                LOOP3_ASSERT(LINE, VALUE_IDX, X.the<TestString>(),
-                           TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
+                ASSERTV(LINE, VALUE_IDX, X.the<TestString>(),
+                        TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
               } break;
-              default: LOOP_ASSERT(LINE, 0);
+              default: {
+                ASSERTV(LINE, 0);
+              }
             }
 
             // Testing the "reset" facility.
@@ -10905,8 +11025,8 @@ int main(int argc, char *argv[])
                 Obj mY; const Obj& Y = mY;
 
                 int ret = ggg(&mY, strInput.c_str(), false);
-                LOOP_ASSERT(LINE, -1 == ret);
-                LOOP_ASSERT(LINE,  0 == Y.typeIndex());
+                ASSERTV(LINE, -1 == ret);
+                ASSERTV(LINE,  0 == Y.typeIndex());
             }
         }
       } break;
@@ -10991,22 +11111,22 @@ int main(int argc, char *argv[])
         {
             const Obj X;
 
-            LOOP_ASSERT(X.typeIndex(),       0 == X.typeIndex());
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(X.typeIndex(),       0 == X.typeIndex());
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
             const Obj Y((bslma::Allocator *)0);
 
-            LOOP_ASSERT(Y.typeIndex(),       0 == Y.typeIndex());
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(Y.typeIndex(),       0 == Y.typeIndex());
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
         if (verbose) cout << "\twith a specified allocator" << endl;
         {
             const Obj X(&oa);
 
-            LOOP_ASSERT(X.typeIndex(),       0 == X.typeIndex());
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-            LOOP_ASSERT(oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
+            ASSERTV(X.typeIndex(),       0 == X.typeIndex());
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting 'assign'." << endl;
