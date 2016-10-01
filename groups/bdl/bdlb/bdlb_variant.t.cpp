@@ -251,10 +251,10 @@ typedef bdlb::VariantImp<VariantTypes>        Obj;
 
 struct TestVoid {
     // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the 'bdex' streaming protocol.  For
+    // compare equal), and supports the BDEX streaming protocol.  For
     // brevity, and only because this is a test driver, we relax our rules and
     // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
+    // of these straightforward and BDE-standard methods.
 
     // CLASS METHODS
     static int maxSupportedBdexVersion()
@@ -308,11 +308,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
 
 class TestAllocObj {
     // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the 'bdex' streaming protocol.  The object
+    // compare equal), and supports the BDEX streaming protocol.  The object
     // allocates during construction and deallocates during destruction.  For
     // brevity, and only because this is a test driver, we relax our rules and
     // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
+    // of these straightforward and BDE-standard methods.
 
     void             *d_data_p;       // holds the memory allocated on
                                       // construction
@@ -553,12 +553,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
                                // ================
 
 class TestString {
-    // This class, similar to 'TestInt', wraps class-level 'bdex' streaming
+    // This class, similar to 'TestInt', wraps class-level BDEX streaming
     // around a 'bsl::string' value, a reference to which one can obtain using
-    // 'theString' method.  It also supports 'bdeu' print methods.  For
+    // 'theString' method.  It also supports 'bdlb' print methods.  For
     // brevity, and only because this is a test driver, we relax our rules and
     // implement each method in the class body and do not provide documentation
-    // of these straightforward and bde-standard methods.
+    // of these straightforward and BDE-standard methods.
 
     // DATA
     bsl::string d_value;
@@ -1596,20 +1596,20 @@ class my_VariantWrapper {
         // operation, this object is valid, but its value is undefined.  If
         // 'version' is not supported, 'stream' is marked invalid and this
         // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
+        // See the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
 
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
         // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  Note that 'version' is *not* used for the 'bdeut_Variant'
+        // 'stream'.  Note that 'version' is *not* used for the 'bdlb::Variant'
         // object, but for the contained object, and thus has a different
         // meaning (and different value) depending on the variant type.  See
-        // the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers, and the
-        // section "Bdex Streamability" in the component-level documentation.
+        // the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers, and the
+        // section "BDEX Streamability" in the component-level documentation.
 
 };
 
@@ -2302,6 +2302,180 @@ struct TestUtil {
 #endif
         }
 
+        if (verbose) cout << endl << "VariantImp" << endl
+                                  << "==========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, NT3> > Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                     UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                     UA15, UA16, UA17, UA18, UA19, UA20> > Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<UA1, NT2, NT3> > Obj1;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, UA2, NT3> > Obj2;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, UA3> > Obj3;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, UA14, NT15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj18;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, UA15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj19;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, NT15, UA16,
+                                     NT17, NT18, NT19, NT20> > Obj20;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj1>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj2>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj3>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj18>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj19>::value);
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj20>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, NT3> > Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                     BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                     BC15, BC16, BC17, BC18, BC19, BC20> > Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<BC1, NT2, NT3> > Obj1;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, BC2, NT3> > Obj2;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, BC3> > Obj3;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, BC14, NT15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj18;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, BC15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj19;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, NT15, BC16,
+                                     NT17, NT18, NT19, NT20> > Obj20;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj1>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj2>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj3>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj18>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj19>::value);
+            ASSERT(false == bsl::is_trivially_copyable<Obj20>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, NT3> > Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                     BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                     BM15, BM16, BM17, BM18, BM19, BM20> > Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::VariantImp<bslmf::TypeList<BM1, NT2, NT3> > Obj1;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, BM2, NT3> > Obj2;
+            typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, BM3> > Obj3;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, BM14, NT15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj18;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, BM15, NT16,
+                                     NT17, NT18, NT19, NT20> > Obj19;
+
+            typedef bdlb::VariantImp<
+                     bslmf::TypeList<NT1,  NT2,  NT3,  NT4,
+                                     NT5,  NT6,  NT7,  NT8,
+                                     NT9,  NT10, NT11, NT12,
+                                     NT13, NT14, NT15, BM16,
+                                     NT17, NT18, NT19, NT20> > Obj20;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj1>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj2>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj3>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj18>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj19>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj20>::value);
+        }
+
+        if (verbose) cout << endl << "Variant" << endl
+                                  << "=======" << endl;
+
         if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
         if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
@@ -2309,6 +2483,7 @@ struct TestUtil {
             typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
             ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
@@ -2318,6 +2493,7 @@ struct TestUtil {
                                   UA15, UA16, UA17, UA18, UA19, UA20> Obj;
 
             ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
@@ -2359,6 +2535,7 @@ struct TestUtil {
             typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
             ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tAll are bitwise copyable." << endl;
@@ -2368,6 +2545,7 @@ struct TestUtil {
                                   BC15, BC16, BC17, BC18, BC19, BC20> Obj;
 
             ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tSome are bitwise copyable." << endl;
@@ -2409,6 +2587,7 @@ struct TestUtil {
             typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tAll are bitwise moveable." << endl;
@@ -2418,31 +2597,32 @@ struct TestUtil {
                                   BM15, BM16, BM17, BM18, BM19, BM20> Obj;
 
             ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
         }
 
         if (verbose) cout << "\tSome are bitwise moveable." << endl;
         {
-            typedef bdlb::Variant<BC1, NT2, NT3> Obj1;
-            typedef bdlb::Variant<NT1, BC2, NT3> Obj2;
-            typedef bdlb::Variant<NT1, NT2, BC3> Obj3;
+            typedef bdlb::Variant<BM1, NT2, NT3> Obj1;
+            typedef bdlb::Variant<NT1, BM2, NT3> Obj2;
+            typedef bdlb::Variant<NT1, NT2, BM3> Obj3;
 
             typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
                                   NT5,  NT6,  NT7,  NT8,
                                   NT9,  NT10, NT11, NT12,
                                   NT13, NT14, NT15, NT16,
-                                  NT17, BC18, NT19, NT20> Obj18;
+                                  NT17, BM18, NT19, NT20> Obj18;
 
             typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
                                   NT5,  NT6,  NT7,  NT8,
                                   NT9,  NT10, NT11, NT12,
                                   NT13, NT14, NT15, NT16,
-                                  NT17, NT18, BC19, NT20> Obj19;
+                                  NT17, NT18, BM19, NT20> Obj19;
 
             typedef bdlb::Variant<NT1,  NT2,  NT3,  NT4,
                                   NT5,  NT6,  NT7,  NT8,
                                   NT9,  NT10, NT11, NT12,
                                   NT13, NT14, NT15, NT16,
-                                  NT17, NT18, NT19, BC20> Obj20;
+                                  NT17, NT18, NT19, BM20> Obj20;
 
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj1>::value);
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj2>::value);
@@ -2450,6 +2630,1650 @@ struct TestUtil {
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj18>::value);
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj19>::value);
             ASSERT(false == bslmf::IsBitwiseMoveable<Obj20>::value);
+        }
+
+        if (verbose) cout << endl << "Variant2" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant2<NT1, NT2> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant2<UA1, UA2> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant2<UA1, NT2> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant2<NT1, NT2> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant2<BC1, BC2> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant2<BC1, NT2> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant2<NT1, NT2> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant2<BM1, BM2> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant2<BM1, NT2> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant3" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant3<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant3<UA1, UA2, UA3> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant3<NT1, UA2, NT3> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant3<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant3<BC1, BC2, BC3> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant3<NT1, BC2, NT3> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant3<NT1, NT2, NT3> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant3<BM1, BM2, BM3> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant3<NT1, BM2, NT3> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant4" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, NT3, NT4> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant4<UA1, UA2, UA3, UA4> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, UA3, NT4> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, NT3, NT4> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant4<BC1, BC2, BC3, BC4> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, BC3, NT4> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, NT3, NT4> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant4<BM1, BM2, BM3, BM4> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant4<NT1, NT2, BM3, NT4> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant5" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, NT4, NT5> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant5<UA1, UA2, UA3, UA4, UA5> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, UA4, NT5> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, NT4, NT5> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant5<BC1, BC2, BC3, BC4, BC5> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, BC4, NT5> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, NT4, NT5> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant5<BM1, BM2, BM3, BM4, BM5> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant5<NT1, NT2, NT3, BM4, NT5> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant6" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, NT5, NT6> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant6<UA1, UA2, UA3, UA4, UA5, UA6> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, UA5, NT6> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, NT5, NT6> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant6<BC1, BC2, BC3, BC4, BC5, BC6> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, BC5, NT6> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, NT5, NT6> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant6<BM1, BM2, BM3, BM4, BM5, BM6> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant6<NT1, NT2, NT3, NT4, BM5, NT6> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant7" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, NT6, NT7> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant7<UA1, UA2, UA3, UA4, UA5, UA6, UA7> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, UA6, NT7> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, NT6, NT7> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant7<BC1, BC2, BC3, BC4, BC5, BC6, BC7> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, BC6, NT7> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, NT6, NT7> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant7<BM1, BM2, BM3, BM4, BM5, BM6, BM7> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, BM6, NT7> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant8" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant8<UA1, UA2, UA3, UA4, UA5, UA6, UA7, UA8> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, UA7, NT8> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant8<BC1, BC2, BC3, BC4, BC5, BC6, BC7, BC8> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, BC7, NT8> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant8<BM1, BM2, BM3, BM4, BM5, BM6, BM7, BM8> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, BM7, NT8> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant9" << endl
+                                  << "========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8,
+                                   NT9> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant9<UA1, UA2, UA3, UA4, UA5, UA6, UA7, UA8,
+                                   UA9> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, UA8,
+                                   NT9> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8,
+                                   NT9> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant9<BC1, BC2, BC3, BC4, BC5, BC6, BC7, BC8,
+                                   BC9> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, BC8,
+                                   NT9> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8,
+                                   NT9> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant9<BM1, BM2, BM3, BM4, BM5, BM6, BM7, BM8,
+                                   BM9> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, BM8,
+                                   NT9> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant10" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant10<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
+                                    UA7,  UA8,  UA9,  UA10> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    UA9,  NT10> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant10<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
+                                    BC7,  BC8,  BC9,  BC10> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    BC9,  NT10> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant10<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,
+                                    BM7,  BM8,  BM9,  BM10> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    BM9,  NT10> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant11" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant11<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
+                                    UA7,  UA8,  UA9,  UA10, UA11> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  UA10, NT11> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant11<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
+                                    BC7,  BC8,  BC9,  BC10, BC11> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  BC10, NT11> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant11<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,
+                                    BM7,  BM8,  BM9,  BM10, BM11> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  BM10, NT11> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant12" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant12<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
+                                    UA7,  UA8,  UA9,  UA10, UA11, UA12> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, UA11, NT12> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant12<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
+                                    BC7,  BC8,  BC9,  BC10, BC11, BC12> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, BC11, NT12> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant12<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,
+                                    BM7,  BM8,  BM9,  BM10, BM11, BM12> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, BM11, NT12> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant13" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant13<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
+                                    UA7,  UA8,  UA9,  UA10, UA11, UA12,
+                                    UA13> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, UA12,
+                                    NT13> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant13<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
+                                    BC7,  BC8,  BC9,  BC10, BC11, BC12,
+                                    BC13> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, BC12,
+                                    NT13> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant13<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,
+                                    BM7,  BM8,  BM9,  BM10, BM11, BM12,
+                                    BM13> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, BM12,
+                                    NT13> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant14" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant14<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
+                                    UA7,  UA8,  UA9,  UA10, UA11, UA12,
+                                    UA13, UA14> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    UA13, NT14> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant14<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,
+                                    BC7,  BC8,  BC9,  BC10, BC11, BC12,
+                                    BC13, BC14> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    BC13, NT14> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant14<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,
+                                    BM7,  BM8,  BM9,  BM10, BM11, BM12,
+                                    BM13, BM14> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    BM13, NT14> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant15" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant15<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                    UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                    UA15> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, UA14, NT15> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant15<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                    BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                    BC15> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, BC14, NT15> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant15<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                    BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                    BM15> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, BM14, NT15> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant16" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant16<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                    UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                    UA15, UA16> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, UA15, NT16> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant16<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                    BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                    BC15, BC16> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, BC15, NT16> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant16<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                    BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                    BM15, BM16> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, BM15, NT16> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant17" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant17<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                    UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                    UA15, UA16, UA17> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, UA16,
+                                    NT17> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant17<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                    BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                    BC15, BC16, BC17> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, BC16,
+                                    NT17> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant17<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                    BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                    BM15, BM16, BM17> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, BM16,
+                                    NT17> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant18" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant18<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                    UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                    UA15, UA16, UA17, UA18> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    UA17, NT18> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant18<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                    BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                    BC15, BC16, BC17, BC18> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    BC17, NT18> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant18<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                    BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                    BM15, BM16, BM17, BM18> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    BM17, NT18> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+        }
+
+        if (verbose) cout << endl << "Variant19" << endl
+                                  << "=========" << endl;
+
+        if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
+
+        if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18, NT19> Obj;
+
+            ASSERT(false == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant19<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
+                                    UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
+                                    UA15, UA16, UA17, UA18, UA19> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, UA18, NT19> Obj;
+
+            ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise copyable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18, NT19> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant19<BC1,  BC2,  BC3,  BC4,  BC5,  BC6,  BC7,
+                                    BC8,  BC9,  BC10, BC11, BC12, BC13, BC14,
+                                    BC15, BC16, BC17, BC18, BC19> Obj;
+
+            ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise copyable." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, BC18, NT19> Obj;
+
+            ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
+        }
+
+        if (verbose) cout << "\nTesting bitwise moveable trait." << endl;
+
+        if (verbose) cout << "\tNone are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, NT18, NT19> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tAll are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant19<BM1,  BM2,  BM3,  BM4,  BM5,  BM6,  BM7,
+                                    BM8,  BM9,  BM10, BM11, BM12, BM13, BM14,
+                                    BM15, BM16, BM17, BM18, BM19> Obj;
+
+            ASSERT(true == bslmf::IsBitwiseMoveable<Obj>::value);
+            ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
+        }
+
+        if (verbose) cout << "\tSome are bitwise moveable." << endl;
+        {
+            typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
+                                    NT5,  NT6,  NT7,  NT8,
+                                    NT9,  NT10, NT11, NT12,
+                                    NT13, NT14, NT15, NT16,
+                                    NT17, BM18, NT19> Obj;
+
+            ASSERT(false == bslmf::IsBitwiseMoveable<Obj>::value);
         }
     }
 
@@ -2462,8 +4286,8 @@ struct TestUtil {
         bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
         if (verbose) cout << endl
-                          << "TESTING CLASSES 'bdlb::VariantN'."
-                          << "=================================" << endl;
+                          << "TESTING CLASSES 'bdlb::VariantN'"
+                          << "================================" << endl;
 
         typedef bslmf::TypeListNil TestNil;  // for brevity
 
@@ -9844,7 +11668,7 @@ int main(int argc, char *argv[])
                         VV.variant().maxSupportedBdexVersion() <= 0) {
                         // This will not work since 'operator<<' will not
                         // stream in the version for UU.  Must abort.
-                        // See "Bdex streamability" in component-level doc.
+                        // See "BDEX Streamability" in component-level doc.
 
                         continue;
                     }
