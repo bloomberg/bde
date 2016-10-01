@@ -79,11 +79,11 @@ using namespace bsl;
 // MANIPULATORS:
 // [13] bdlb::VariantImp& operator=(const TYPE& value);
 // [ 9] bdlb::VariantImp& operator=(const bdlb::VariantImp& rhs);
-// [ 2] void assign(const TYPE& value);
+// [ 2] VariantImp& assign(const TYPE& value);
 // [11] void assignTo(SOURCE const& value);
 // [14] void createInPlace<TYPE>(...);                     // all 15 variations
 // [ 2] void reset();
-// [ 2] TYPE& the<TYPE>();
+// [ 4] TYPE& the<TYPE>();
 //
 // // Testing return value aspect of 'apply'.
 //
@@ -289,7 +289,7 @@ struct TestVoid {
     }
 };
 
-bool operator==(const TestVoid& , const TestVoid& )
+bool operator==(const TestVoid&, const TestVoid&)
 {
     return true;
 }
@@ -381,7 +381,7 @@ class TestAllocObj {
     }
 };
 
-bool operator==(const TestAllocObj& , const TestAllocObj&)
+bool operator==(const TestAllocObj&, const TestAllocObj&)
 {
     return true;
 }
@@ -1011,13 +1011,17 @@ const TestInt     VH(789);
 const TestInt     VI(147);
 const TestInt     VJ(369);
 
-const TestString  VK("StringK");
+const TestString  VK("This is a string long enough to trigger allocation"
+                     " even if Small-String-Optimization is used"
+                     " in the 'bsl::string' implementation.");
 const TestString  VL("StringL");
 const TestString  VM("StringM");
 const TestString  VN("StringN");
 const TestString  VO("StringO");
 
-const bsl::string VS("StringS");
+const bsl::string VS("This is a string long enough to trigger allocation"
+                     " even if Small-String-Optimization is used"
+                     " in the 'bsl::string' implementation.");
 const bsl::string VT("StringT");
 const bsl::string VU("StringU");
 const bsl::string VV("StringV");
@@ -10476,11 +10480,11 @@ int main(int argc, char *argv[])
         const char *G0 = "[ 456 ]";
         const char *G1 = "  [\n    456\n  ]";
 
-        const char *K0 = "[ \"StringK\" ]";
-        const char *K1 = "  [\n    \"StringK\"\n  ]";
-
         const char *L0 = "[ \"StringL\" ]";
         const char *L1 = "  [\n    \"StringL\"\n  ]";
+
+        const char *M0 = "[ \"StringM\" ]";
+        const char *M1 = "  [\n    \"StringM\"\n  ]";
 
         static const struct {
             int         d_lineNum;
@@ -10500,9 +10504,9 @@ int main(int argc, char *argv[])
           {  L_,  "B",       0,    -1,    "456"         },
           {  L_,  "B",       1,     2,    "  456\n"     },
           {  L_,  "B",      -1,    -2,    "456"         },
-          {  L_,  "S",       0,    -1,    "StringS"     },
-          {  L_,  "S",       1,     2,    "  StringS\n" },
-          {  L_,  "S",      -1,    -2,    "StringS"     },
+          {  L_,  "T",       0,    -1,    "StringT"     },
+          {  L_,  "T",       1,     2,    "  StringT\n" },
+          {  L_,  "T",      -1,    -2,    "StringT"     },
           {  L_,  "U",       0,    -1,    "StringU"     },
           {  L_,  "U",       1,     2,    "  StringU\n" },
           {  L_,  "U",      -1,    -2,    "StringU"     },
@@ -10512,12 +10516,12 @@ int main(int argc, char *argv[])
           {  L_,  "G",       0,    -1,    G0            },
           {  L_,  "G",       1,     2,    G1            },
           {  L_,  "G",      -1,    -2,    G0            },
-          {  L_,  "K",       0,    -1,    K0            },
-          {  L_,  "K",       1,     2,    K1            },
-          {  L_,  "K",      -1,    -2,    K0            },
           {  L_,  "L",       0,    -1,    L0            },
           {  L_,  "L",       1,     2,    L1            },
           {  L_,  "L",      -1,    -2,    L0            },
+          {  L_,  "M",       0,    -1,    M0            },
+          {  L_,  "M",       1,     2,    M1            },
+          {  L_,  "M",      -1,    -2,    M0            },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -10581,6 +10585,7 @@ int main(int argc, char *argv[])
         //   using the basic accessors.
         //
         // Testing:
+        //   TYPE& the<TYPE>();  // manipulator
         //   bool is<Type>() const;
         //   const TYPE& the<TYPE>() const;
         //   int typeIndex() const;
@@ -10665,6 +10670,10 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestString>());
                 LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<TestVoid>());
                 LOOP2_ASSERT(LINE, VALUE_IDX, TestVoid() == X.the<TestVoid>());
+
+                TestVoid *mR = &mX.the<TestVoid>();
+
+                LOOP2_ASSERT(LINE, VALUE_IDX, *mR == mX.the<TestVoid>());
               } break;
               case INT_TYPE: {
                 LOOP2_ASSERT(LINE, VALUE_IDX,  X.is<int>());
@@ -10674,6 +10683,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
                 LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<int>(),
                              INT_DATA[VALUE_IDX] == X.the<int>());
+
+                int *mR = &mX.the<int>();
+
+                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<int>(),
+                                        *mR == X.the<int>());
               } break;
               case TEST_INT_TYPE: {
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
@@ -10683,6 +10697,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
                 LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestInt>(),
                              TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
+
+                TestInt *mR = &mX.the<TestInt>();
+
+                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestInt>(),
+                                        *mR == X.the<TestInt>());
               } break;
               case STRING_TYPE: {
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
@@ -10692,6 +10711,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
                 LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<bsl::string>(),
                              STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
+
+                bsl::string *mR = &mX.the<bsl::string>();
+
+                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<bsl::string>(),
+                                        *mR == X.the<bsl::string>());
               } break;
               case TEST_STRING_TYPE: {
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<int>());
@@ -10701,6 +10725,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, VALUE_IDX, !X.is<TestVoid>());
                 LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestString>(),
                            TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
+
+                TestString *mR = &mX.the<TestString>();
+
+                LOOP3_ASSERT(LINE, VALUE_IDX,  X.the<TestString>(),
+                                        *mR == X.the<TestString>());
               } break;
               default: LOOP_ASSERT(LINE, 0);
             }
@@ -10940,7 +10969,7 @@ int main(int argc, char *argv[])
         //    bdlb::Variant();
         //    bdlb::Variant(const TYPEORALLOCATOR& typeOrAlloc);
         //    ~bdlb::Variant();
-        //    void assign<TYPE>(const TYPE& value);
+        //    VariantImp& assign(const TYPE& value);
         //    void reset();
         // --------------------------------------------------------------------
 
@@ -10948,282 +10977,374 @@ int main(int argc, char *argv[])
                           << "TESTING PRIMARY MANIPULATORS" << endl
                           << "============================" << endl;
 
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
         // Default construction does not allocate memory.
 
         if (verbose) cout << "\nTesting default constructor." << endl;
 
+        if (verbose) cout << "\twith default allocator" << endl;
         {
-            if (verbose) cout << "\twith default allocator" << endl;
-
-            // Temporarily install a test allocator as the default allocator in
-            // order to verify the default allocator is used when no allocator
-            // is specified.
-
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            bslma::DefaultAllocatorGuard dag(&da);
-
-            int previousTotal = static_cast<int>(da.numBlocksTotal());
-
             const Obj X;
+
+            LOOP_ASSERT(X.typeIndex(),       0 == X.typeIndex());
+            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
             const Obj Y((bslma::Allocator *)0);
 
-            LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
-            LOOP_ASSERT(X.typeIndex(), 0 == Y.typeIndex());
-            LOOP_ASSERT(da.numBlocksTotal(),
-                        da.numBlocksTotal() == previousTotal);
+            LOOP_ASSERT(Y.typeIndex(),       0 == Y.typeIndex());
+            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
+        if (verbose) cout << "\twith a specified allocator" << endl;
         {
-            if (verbose) cout << "\twith a specified allocator" << endl;
-            int previousTotal =
-                              static_cast<int>(testAllocator.numBlocksTotal());
+            const Obj X(&oa);
 
-            const Obj X(&testAllocator);
-
-            LOOP_ASSERT(X.typeIndex(), 0 == X.typeIndex());
-            LOOP_ASSERT(testAllocator.numBlocksTotal(),
-                        testAllocator.numBlocksTotal() == previousTotal);
-        }
-
-        {
-            if (verbose) cout << "\twith a specified allocator and exceptions"
-                              << endl;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int previousTotal =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-              const Obj X(&testAllocator);
-
-              ASSERT(0 == X.typeIndex());
-              ASSERT(testAllocator.numBlocksTotal() == previousTotal);
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            LOOP_ASSERT(X.typeIndex(),       0 == X.typeIndex());
+            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            LOOP_ASSERT(oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting 'assign'." << endl;
 
-        if (verbose) cout << "\twithout allocators" << endl;
+        // 'VK' and 'VS' each always trigger an allocation except when there
+        // are two or more consecutive assignments of the same value.
+
+        if (verbose) cout << "\twith default allocator" << endl;
 
         {
+            dam.reset();
+
             Obj mX;  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VA << endl;
             }
 
-            mX.assign<int>(VA);
-            ASSERT(1  == X.is<int>());
+            Obj *mR = &mX.assign<int>(VA);
+            ASSERT(      X.is<int>());
             ASSERT(VA == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VB << " (same type)" << endl;
             }
 
-            mX.assign<int>(VB);
-            ASSERT(1  == X.is<int>());
+            mR = &mX.assign<int>(VB);
+            ASSERT(      X.is<int>());
             ASSERT(VB == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
 
-            mX.assign<TestInt>(VF);
-            ASSERT(1  == X.is<TestInt>());
+            mR = &mX.assign<TestInt>(VF);
+            ASSERT(      X.is<TestInt>());
             ASSERT(VF == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
 
-            mX.assign<TestString>(VK);
-            ASSERT(1  == X.is<TestString>());
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseUp());
 
-            mX.assign<bsl::string>(VS);
-            ASSERT(1  == X.is<bsl::string>());
+            dam.reset();
+
+            mR = &mX.assign<bsl::string>(VS);
+            ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalUp());
         }
+        ASSERT(0 == da.numBlocksInUse());
 
         {
+            dam.reset();
+
             Obj mX;  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VS << endl;
             }
 
-            mX.assign<bsl::string>(VS);
-            ASSERT(1  == X.is<bsl::string>());
+            Obj *mR = &mX.assign<bsl::string>(VS);
+            ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseUp());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VT << " (same type)" << endl;
             }
 
-            mX.assign<bsl::string>(VT);
-            ASSERT(1  == X.is<bsl::string>());
+            dam.reset();
+
+            mR = &mX.assign<bsl::string>(VT);
+            ASSERT(      X.is<bsl::string>());
             ASSERT(VT == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
 
-            mX.assign<TestString>(VK);
-            ASSERT(1  == X.is<TestString>());
+            dam.reset();
+
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalUp());
+
+            if (veryVerbose) {
+                cout << "\t\t\tthen to " << VK << " (same value)" << endl;
+            }
+
+            dam.reset();
+
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
+            ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
 
-            mX.assign<TestInt>(VF);
-            ASSERT(1  == X.is<TestInt>());
+            mR = &mX.assign<TestInt>(VF);
+            ASSERT(      X.is<TestInt>());
             ASSERT(VF == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT( 0 == da.numBlocksInUse());
 
-            mX.assign<int>(VA);
-            ASSERT(1  == X.is<int>());
+            dam.reset();
+
+            mR = &mX.assign<int>(VA);
+            ASSERT(      X.is<int>());
             ASSERT(VA == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
         }
+        ASSERT(0 == da.numBlocksInUse());
 
-        if (verbose) cout << "\twith specified allocator" << endl;
+        if (verbose) cout << "\twith a specified allocator" << endl;
 
         {
-            const int TOTAL = static_cast<int>(testAllocator.numBlocksTotal());
+            dam.reset();
+            oam.reset();
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            Obj mX(&oa);  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VA << endl;
             }
 
-            mX.assign<int>(VA);
-            ASSERT(1     == X.is<int>());
-            ASSERT(VA    == X.the<int>());
-            ASSERT(0     == testAllocator.numBlocksInUse());
-            ASSERT(TOTAL == testAllocator.numBlocksTotal());
+            Obj *mR = &mX.assign<int>(VA);
+            ASSERT(      X.is<int>());
+            ASSERT(VA == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VB << " (same type)" << endl;
             }
 
-            mX.assign<int>(VB);
-            ASSERT(1     == X.is<int>());
-            ASSERT(VB    == X.the<int>());
-            ASSERT(0     == testAllocator.numBlocksInUse());
-            ASSERT(TOTAL == testAllocator.numBlocksTotal());
+            mR = &mX.assign<int>(VB);
+            ASSERT(      X.is<int>());
+            ASSERT(VB == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VF << " (different type)" << endl;
             }
 
-            mX.assign<TestInt>(VF);
-            ASSERT(1     == X.is<TestInt>());
-            ASSERT(VF    == X.the<TestInt>());
-            ASSERT(0     == testAllocator.numBlocksInUse());
-            ASSERT(TOTAL == testAllocator.numBlocksTotal());
+            mR = &mX.assign<TestInt>(VF);
+            ASSERT(      X.is<TestInt>());
+            ASSERT(VF == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
 
-            mX.assign<TestString>(VK);
-            ASSERT(1     == X.is<TestString>());
-            ASSERT(VK    == X.the<TestString>());
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
+            ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isInUseUp());
 
-            mX.assign<int>(VA);
-            ASSERT(1      == X.is<int>());
-            ASSERT(VA     == X.the<int>());
-            ASSERT(0      == testAllocator.numBlocksInUse());
+            mR = &mX.assign<int>(VA);
+            ASSERT(      X.is<int>());
+            ASSERT(VA == X.the<int>());
+            ASSERT(mR == &mX);
+            ASSERT( 0 == oa.numBlocksInUse());
+
+            ASSERT(dam.isTotalSame());
         }
+        ASSERT(0 == da.numBlocksInUse());
+        ASSERT(0 == oa.numBlocksInUse());
 
         {
-            const int TOTAL = static_cast<int>(testAllocator.numBlocksTotal());
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            dam.reset();
+            oam.reset();
 
-            ASSERT(0     == testAllocator.numBlocksInUse());
-            ASSERT(TOTAL == testAllocator.numBlocksTotal());
+            Obj mX(&oa);  const Obj& X = mX;
 
             if (veryVerbose) {
                 cout << "\t\tassigning from " << X << " to " << VS << endl;
             }
 
-            mX.assign<bsl::string>(VS);
-            ASSERT(1  == X.is<bsl::string>());
+            Obj *mR = &mX.assign<bsl::string>(VS);
+            ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isInUseUp());
 
-            {
-                const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-                if (veryVerbose) {
-                    cout << "\t\t\tthen to " << VT << " (same type)" << endl;
-                }
-
-                mX.assign<bsl::string>(VT);
-                ASSERT(1  == X.is<bsl::string>());
-                ASSERT(VT == X.the<bsl::string>());
-                ASSERT(PREVIOUS == testAllocator.numBlocksTotal());
+            if (veryVerbose) {
+                cout << "\t\t\tthen to " << VT << " (same type)" << endl;
             }
+
+            oam.reset();
+
+            mR = &mX.assign<bsl::string>(VT);
+            ASSERT(      X.is<bsl::string>());
+            ASSERT(VT == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isInUseSame());
+            ASSERT(oam.isTotalSame());
 
             if (veryVerbose) {
                 cout << "\t\t\tthen to " << VK << " (different type)" << endl;
             }
 
-            mX.assign<TestString>(VK);
-            ASSERT(1  == X.is<TestString>());
+            oam.reset();
+
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
             ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isInUseSame());
+            ASSERT(oam.isTotalUp());
 
-            {
-                const int PREVIOUS =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-
-                if (veryVerbose) {
-                    cout << "\t\t\tthen to " << VF << " (different type)"
-                         << endl;
-                }
-
-                mX.assign<TestInt>(VF);
-                ASSERT(1  == X.is<TestInt>());
-                ASSERT(VF == X.the<TestInt>());
-                ASSERT(0        == testAllocator.numBlocksInUse());
-                ASSERT(PREVIOUS == testAllocator.numBlocksTotal());
+            if (veryVerbose) {
+                cout << "\t\t\tthen to " << VK << " (same value)" << endl;
             }
+
+            oam.reset();
+
+            mR = &mX.assign<TestString>(VK);
+            ASSERT(      X.is<TestString>());
+            ASSERT(VK == X.the<TestString>());
+            ASSERT(mR == &mX);
+            ASSERT(oam.isInUseSame());
+            ASSERT(oam.isTotalSame());
+
+            if (veryVerbose) {
+                cout << "\t\t\tthen to " << VF << " (different type)" << endl;
+            }
+
+            mR = &mX.assign<TestInt>(VF);
+            ASSERT(      X.is<TestInt>());
+            ASSERT(VF == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT( 0 == oa.numBlocksInUse());
+
+            ASSERT(dam.isTotalSame());
         }
+        ASSERT(0 == da.numBlocksInUse());
+        ASSERT(0 == oa.numBlocksInUse());
+
+        if (verbose) cout << "\tin the presence of exceptions" << endl;
+        {
+            dam.reset();
+
+            Obj  mX(&oa);  const Obj& X = mX;
+            Obj *mR;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+              ASSERT(X.isUnset());
+              ASSERT(0 == oa.numBlocksInUse());
+
+              mR = &mX.assign<bsl::string>(VS);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(      X.is<bsl::string>());
+            ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == oa.numBlocksInUse());
 
         if (verbose) cout << "\tTesting 'reset'." << endl;
         {
-            Obj mX(&testAllocator);  const Obj& X = mX;
-            ASSERT( X.isUnset());
+            dam.reset();
+            oam.reset();
+
+            Obj mX(&oa);  const Obj& X = mX;
+            ASSERT(      X.isUnset());
 
             mX.reset();
-            ASSERT( X.isUnset());
+            ASSERT(      X.isUnset());
 
             mX.assign<int>(VA);
-            ASSERT(!X.isUnset());
-            ASSERT( X.is<int>());
+            ASSERT(     !X.isUnset());
+            ASSERT(      X.is<int>());
+            ASSERT(VA == X.the<int>());
 
             mX.reset();
-            ASSERT( X.isUnset());
+            ASSERT(      X.isUnset());
 
             mX.assign<TestInt>(VF);
-            ASSERT(!X.isUnset());
-            ASSERT( X.is<TestInt>());
+            ASSERT(     !X.isUnset());
+            ASSERT(      X.is<TestInt>());
+            ASSERT(VF == X.the<TestInt>());
 
             mX.reset();
-            ASSERT( X.isUnset());
+            ASSERT(      X.isUnset());
 
             mX.assign<TestString>(VK);
-            ASSERT(!X.isUnset());
-            ASSERT( X.is<TestString>());
+            ASSERT(     !X.isUnset());
+            ASSERT(      X.is<TestString>());
+            ASSERT(VK == X.the<TestString>());
+            ASSERT(oam.isInUseUp());
 
             mX.reset();
-            ASSERT( X.isUnset());
+            ASSERT(      X.isUnset());
+            ASSERT(0 == oa.numBlocksInUse());
 
             mX.assign<int>(VA);
-            ASSERT(!X.isUnset());
-            ASSERT( X.is<int>());
+            ASSERT(     !X.isUnset());
+            ASSERT(      X.is<int>());
+            ASSERT(VA == X.the<int>());
 
             mX.reset();
-            ASSERT( X.isUnset());
+            ASSERT(      X.isUnset());
+
+            ASSERT(dam.isTotalSame());
         }
+        ASSERT(0 == da.numBlocksInUse());
+        ASSERT(0 == oa.numBlocksInUse());
 
       } break;
       case 1: {
