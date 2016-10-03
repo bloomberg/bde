@@ -12,6 +12,7 @@
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <bslim_testutil.h>
 #include <bslma_default.h>
@@ -79,7 +80,8 @@ using namespace bdld;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [14] USAGE EXAMPLE
+// [14] CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -249,7 +251,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -390,6 +392,82 @@ int main(int argc, char *argv[])
     Datum::destroy(internalObj, obj.allocator());
 //..
       } break;
+      case 14: {
+        //---------------------------------------------------------------------
+        // CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+        //   Test case 12 verifies the traits defined by 'ManagedDatum' are
+        //   set as expected, this test-case builds on that to verify the
+        //   traits 'ManagedDatum' defines results in the expected behavior
+        //   when a 'ManagedDatum' is loaded into a container using those
+        //   traits.
+        //
+        // Concerns:
+        //: 1 That a vector of 'bdld::ManagedDatum' objects correctly
+        //:   releases the resources of those objects when the container
+        //:   is destroyed.
+        //:
+        //: 2 That a vector of 'bdld::ManagedDatum' objects correctly
+        //:   manage resources of those objects when the container is
+        //:   resized.
+        //
+        // Plan:
+        //: 1 Create a vector of 'ManagedDatum' objects using a test-allocator
+        //:   and insert a series of 'ManagedDatum' objects requiring memory
+        //:   allocation.  Observe that the 'ManagedDatum' objects use
+        //:   the test allocator (and not the default allocator), and
+        //:   that no memory is leaked upon the vector's destructor. (C-1,2)
+        //
+        // Testing:
+        //   CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+        //---------------------------------------------------------------------
+        if (verbose)
+            cout << "CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)\n"
+                 << "==================================================\n";
+
+        if (verbose)
+            cout << "\nCreate a vector of managed datum objects" << endl;
+
+        {
+            const char *DATA = "0123456789012345678901234567890123456789"
+                               "0123456789012345678901234567890123456789";
+
+            bslma::TestAllocator        testAllocator;
+            bsl::vector<Obj>            x(&testAllocator);
+            bslma::TestAllocatorMonitor dam(&defaultAllocator);
+            for (int i = 0; i < 100; ++i) {
+                bdld::Datum datum;
+                if (veryVerbose) {
+                    P(i);
+                }
+
+                {
+                    bslma::TestAllocatorMonitor tam(&testAllocator);
+                    datum = bdld::Datum::copyString(bslstl::StringRef(DATA),
+                                                    &testAllocator);
+                    ASSERT(true  == tam.isInUseUp());
+                    ASSERT(false == dam.isInUseUp());
+                }
+                {
+                    bslma::TestAllocatorMonitor tam(&testAllocator);
+
+                    Obj newElement(datum, &testAllocator);
+
+                    ASSERT(false == tam.isInUseUp());
+                    ASSERT(false == dam.isInUseUp());
+
+                    x.push_back(newElement);
+
+                    ASSERT(false == dam.isInUseUp());
+                }
+                ASSERT(false == dam.isTotalUp());
+                ASSERT(false == dam.isInUseUp());
+                ASSERT(false == dam.isMaxUp());
+            }
+            ASSERT(false == dam.isTotalUp());
+            ASSERT(false == dam.isInUseUp());
+            ASSERT(false == dam.isMaxUp());
+        }
+      } break;
       case 13: {
         //---------------------------------------------------------------------
         // TESTING FREE FUNCTION 'swap'
@@ -488,9 +566,9 @@ int main(int argc, char *argv[])
                           << "TESTING TRAITS" << endl
                           << "==============" << endl;
 
-        ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
-        ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-        ASSERT(bsl::is_trivially_copyable<Obj>::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<Obj>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<Obj>::value);
+        ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
       } break;
       case 11: {
         //---------------------------------------------------------------------
