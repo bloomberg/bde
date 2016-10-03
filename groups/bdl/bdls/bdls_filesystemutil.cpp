@@ -921,7 +921,9 @@ int FilesystemUtil::visitPaths(
                                   FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
-            return -1;                                                // RETURN
+	    // No files found.
+
+            return 0;                                                 // RETURN
         }
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);

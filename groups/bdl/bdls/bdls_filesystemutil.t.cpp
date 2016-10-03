@@ -1435,26 +1435,19 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; cout << "Finding "; P(NAME); }
 
             int rc = Obj::findMatchingPaths(&results, NAME);
-            ASSERT(0 == rc);
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            if (NAME_ANSI == i) {
+            if (!e_IS_UNIX && NAME_ANSI == i) {
+                ASSERT(0 != rc);
                 LOOP_ASSERT(results.size(), 0 == results.size());
-
                 ASSERT(0 != Obj::remove(NAME, false));
-            }
+	    }
             else {
+                ASSERT(0 == rc);
                 LOOP_ASSERT(results.size(), 1    == results.size());
                 LOOP_ASSERT(results[0],     NAME == results[0]);
 
                 LOOP_ASSERT(NAME, 0 == Obj::remove(NAME, false));
             }
-#else
-            LOOP_ASSERT(results.size(), 1    == results.size());
-            LOOP_ASSERT(results[0],     NAME == results[0]);
-
-            LOOP_ASSERT(NAME, 0 == Obj::remove(NAME, false));
-#endif
         }
       } break;
       case 16: {
@@ -4979,16 +4972,18 @@ int main(int argc, char *argv[])
             bdls::PathUtil::appendRaw(&logPath, "*");
             bdls::PathUtil::appendRaw(&logPath, "*o*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            ASSERT(0 == rc);
-            LOOP4_ASSERT(logPath, logPath.length(), NUM_OLD_FILES,
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            LOOP_ASSERT(ni, 0 == rc);
+#endif
+            LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_OLD_FILES,
                                                                logFiles.size(),
                                              NUM_OLD_FILES == logFiles.size());
             bdls::PathUtil::popLeaf(&logPath);
 
             bdls::PathUtil::appendRaw(&logPath, "*n*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            ASSERT(0 == rc);
-            LOOP4_ASSERT(logPath, logPath.length(), NUM_NEW_FILES,
+            LOOP_ASSERT(ni, 0 == rc);
+            LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_NEW_FILES,
                                                                logFiles.size(),
                                              NUM_NEW_FILES == logFiles.size());
             bdls::PathUtil::popLeaf(&logPath);
