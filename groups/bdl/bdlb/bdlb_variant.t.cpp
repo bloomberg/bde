@@ -30,6 +30,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
@@ -238,10 +239,10 @@ enum {
   , TEST_VOID_TYPE   = 5
 };
 
-typedef bslmf::TypeList<int, bsl::string, TestInt,
-                        TestString, TestVoid> VariantTypes;
+typedef bslmf::TypeList<int, bsl::string, TestInt, TestString, TestVoid>
+                                       VariantTypes;
 
-typedef bdlb::VariantImp<VariantTypes>        Obj;
+typedef bdlb::VariantImp<VariantTypes> Obj;
 
 //-----------------------------------------------------------------------------
 
@@ -251,17 +252,17 @@ typedef bdlb::VariantImp<VariantTypes>        Obj;
 
 struct TestVoid {
     // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the BDEX streaming protocol.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and BDE-standard methods.
+    // compare equal), and supports the BDEX streaming protocol.  For brevity,
+    // and only because this is a test driver, we relax our rules and implement
+    // each method in the class body and do not provide documentation of these
+    // straightforward and BDE-standard methods.
 
     // CLASS METHODS
     static int maxSupportedBdexVersion()
     {
         // Implementation note: in order to play nice with our variant wrapper
         // below, we *need* all the TestTypes to have the same version numbers
-        // (2 since TestInt and TestString below all have version 2).
+        // (2, since 'TestInt' and 'TestString' below all have version 2).
 
         return 2;
     }
@@ -291,7 +292,7 @@ bool operator==(const TestVoid&, const TestVoid&)
 
 bool operator!=(const TestVoid& lhs, const TestVoid& rhs)
 {
-    return !(lhs == rhs);
+    return false;
 }
 
 bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
@@ -884,6 +885,7 @@ struct Copyable {
     // PUBLIC DATA
     bool d_arguments[MAX_COPYABLE_PARAMETERS];  // the 14 arguments
 
+    explicit
     Copyable(bool a1  = false, bool a2  = false, bool a3  = false,
              bool a4  = false, bool a5  = false, bool a6  = false,
              bool a7  = false, bool a8  = false, bool a9  = false,
@@ -1360,7 +1362,7 @@ class my_NilAssertVisitor {
     void *d_result_p;
 
   public:
-    my_NilAssertVisitor(void *result)
+    explicit my_NilAssertVisitor(void *result)
     : d_result_p(result)
     {
     }
@@ -1426,11 +1428,11 @@ class my_VariantWrapper {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
+    explicit my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
         // Create a wrapper around an unset variant object.
 
-    my_VariantWrapper(const VARIANT&    object,
-                      bslma::Allocator *basicAllocator = 0);
+    explicit my_VariantWrapper(const VARIANT&    object,
+                               bslma::Allocator *basicAllocator = 0);
         // Create a wrapper around the specified 'object'.
 
     ~my_VariantWrapper();
@@ -1996,8 +1998,8 @@ struct TestUtil {
                           << "TESTING 'swap'" << endl
                           << "==============" << endl;
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
-        bslma::TestAllocator tb(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("object-a", veryVeryVeryVerbose);
+        bslma::TestAllocator tb("object-b", veryVeryVeryVerbose);
 
         static struct {
             int         d_lineNum;
@@ -4314,10 +4316,7 @@ struct TestUtil {
 
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        const TestArg1  V1("This is a string long enough to trigger allocation"
-                           " even if Small-String-Optimization is used"
-                           " in the 'bsl::string' implementation.", &scratch);
-
+        const TestArg1  V1 (VK, &scratch);  // allocates
         const TestArg2  V2 ( 2);
         const TestArg3  V3 ( 3);
         const TestArg4  V4 ( 4);
@@ -9440,8 +9439,6 @@ struct TestUtil {
 
     static void testCase17()
     {
-        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
-
         if (verbose) cout << endl
                           << "TESTING 'isUnset'" << endl
                           << "=================" << endl;
@@ -9557,7 +9554,7 @@ struct TestUtil {
                           << "TESTING VISITORS (return values)" << endl
                           << "================================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
         typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
@@ -9635,8 +9632,8 @@ struct TestUtil {
         if (verbose) cout << "\t1. No specified return value." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             my_DefaultNoReturnVisitor visitor(1);
 
             wrappedVariant.apply(visitor);
@@ -9650,8 +9647,8 @@ struct TestUtil {
         if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             my_ReturningVisitor visitor(1);
 
             const int RET  = wrappedVariant.apply(visitor);
@@ -9668,8 +9665,8 @@ struct TestUtil {
         if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             my_ReturningVisitor visitor(1);
 
             ASSERT(999 <= wrappedVariant.apply<Convertible>(
@@ -9688,8 +9685,8 @@ struct TestUtil {
         if (verbose) cout << "\t1. No specified return value." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             const VWrap& WV  = wrappedVariant;
             const VWrap& WV2 = wrappedVariant2;
 
@@ -9709,8 +9706,8 @@ struct TestUtil {
         if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             const VWrap& WV  = wrappedVariant;
             const VWrap& WV2 = wrappedVariant2;
 
@@ -9735,8 +9732,8 @@ struct TestUtil {
         if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             const VWrap& WV  = wrappedVariant;
             const VWrap& WV2 = wrappedVariant2;
 
@@ -9759,8 +9756,8 @@ struct TestUtil {
                           << endl;
         {
             Obj tmp(1);  // dummy used to initialize the variant
-            VWrap wrappedVariant(tmp, &testAllocator);
-            VWrap wrappedVariant2(tmp, &testAllocator);
+            VWrap wrappedVariant(tmp, &oa);
+            VWrap wrappedVariant2(tmp, &oa);
             wrappedVariant.variant().createInPlace<bsl::string>(
                 STRING_DATA[1]);
             wrappedVariant2.variant().createInPlace<bsl::string>(
@@ -10041,7 +10038,7 @@ struct TestUtil {
                           << "TESTING TYPE ASSIGNMENT" << endl
                           << "=======================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
         if (verbose) cout << "\nTesting assignment from different values."
                           << endl;
@@ -10098,7 +10095,7 @@ struct TestUtil {
                 }
 
                 {
-                    Obj mX(&testAllocator);     const Obj& X = mX;
+                    Obj mX(&oa);  const Obj& X = mX;
                     gg(&mX, INPUT1);
 
                     switch (TYPE_IDX2) {
@@ -10131,7 +10128,7 @@ struct TestUtil {
                         ASSERTV(LINE1, LINE2, Y == X.the<TestInt>());
 
                       } break;
-                      case STRING_TYPE : {
+                      case STRING_TYPE: {
 
                         bsl::string Y = STRING_DATA[VALUE_IDX2];
 
@@ -10204,19 +10201,15 @@ struct TestUtil {
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
+            Obj mX(&oa);  const Obj& X = mX;
+
             ASSERT(0 == oa.numBlocksTotal());
             ASSERT(0 == da.numBlocksTotal());
 
-            TestAllocObj value(&oa);
+            mX = VS;
 
-            const int TATOTAL = static_cast<int>(oa.numBlocksTotal());
-            ASSERT(TATOTAL == oa.numBlocksTotal());
-            ASSERT(0       == da.numBlocksTotal());
-
-            bdlb::Variant<bsl::string, TestAllocObj> mX(value);
-
-            ASSERT(TATOTAL == oa.numBlocksTotal());
-            ASSERT(TATOTAL == da.numBlocksTotal());
+            ASSERT(0 <  oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting exception safety with assignment."
@@ -10241,10 +10234,10 @@ struct TestUtil {
                     T_ T_ P_(LINE2) P_(TYPE_IDX2) P(VALUE_IDX2)
                 }
 
-                Obj mX(&testAllocator);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
                 gg(&mX, INPUT1);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                   switch (TYPE_IDX2) {
                     case INT_TYPE: {
                       mX = INT_DATA[VALUE_IDX2];
@@ -10282,70 +10275,15 @@ struct TestUtil {
     static void testCase12()
     {
         if (verbose) cout << endl
-                          << "TESTING CREATORS" << endl
-                          << "================" << endl;
+                          << "TESTING VALUE CONSTRUCTOR" << endl
+                          << "=========================" << endl;
 
-        if (verbose) cout << "\nTesting one argument constructor with "
-                             "allocator." << endl;
-
-        {
-            // Added 'TestAllocObj' to confirm allocation.
-            typedef bdlb::Variant<TestAllocObj, int, bsl::string,
-                                  TestInt, TestString, TestVoid> Obj;
-
-            // 'da'      - default allocator
-            // 'oa'      - test allocator passed to the variant
-            // 'scratch' - allocator for temporaries
-
-            bslma::TestAllocator da(     "default", veryVeryVeryVerbose);
-            bslma::TestAllocator oa(     "object",  veryVeryVeryVerbose);
-            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-
-            bslma::DefaultAllocatorGuard guard(&da);
-
-            ASSERT(0 == da.numBlocksTotal());
-            ASSERT(0 == oa.numBlocksTotal());
-            ASSERT(0 == scratch.numBlocksTotal());
-
-            {
-                Obj mX(&oa);  const Obj& X = mX;
-                ASSERT(0 == X.typeIndex());
-
-                if (veryVerbose) { T_ P(X) }
-
-                ASSERT(0 == X.is<TestAllocObj>());
-                ASSERT(0 == da.numBlocksTotal());
-                ASSERT(0 == oa.numBlocksTotal());
-                ASSERT(0 == scratch.numBlocksTotal());
-
-                const int CURRENTTOTAL = static_cast<int>(oa.numBlocksTotal());
-
-                bsl::string testString("Hello, this is a string long "
-                                       "enough to force memory allocation.",
-                                       &scratch);
-
-                ASSERT(0            == da.numBlocksTotal());
-                ASSERT(CURRENTTOTAL == oa.numBlocksTotal());
-                ASSERT(0            <  scratch.numBlocksTotal());
-
-                mX.assign(testString);
-
-                ASSERT(0            == da.numBlocksTotal());
-                ASSERT(CURRENTTOTAL <  oa.numBlocksTotal());
-                ASSERT(0            <  scratch.numBlocksTotal());
-            }
-            ASSERT(0 == da.numBlocksInUse());
-            ASSERT(0 == oa.numBlocksInUse());
-            ASSERT(0 == scratch.numBlocksInUse());
-        }
-
-        if (verbose) cout << "\nTesting one argument constructor with "
-                             "'TYPE' and two-argument constructor" << endl;
+        if (verbose) cout << "\nTesting value constructor." << endl;
 
         static struct {
-            int         d_lineNum;
-            int         d_expTypeIdx;   // expected type index
-            int         d_expValueIdx;  // expected value index (within type)
+            int d_lineNum;
+            int d_expTypeIdx;   // expected type index
+            int d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
           // LINE          TYPE_IDX  VALUE_IDX
           // ----          --------  ---------
@@ -10382,184 +10320,199 @@ struct TestUtil {
                 T_ P_(LINE) P_(TYPE_IDX) P(VALUE_IDX)
             }
 
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
             switch (TYPE_IDX) {
               case INT_TYPE: {
 
-                ASSERT(0 == da.numBlocksTotal());
-
-                Obj mX(INT_DATA[VALUE_IDX]);                 const Obj& X = mX;
+                Obj mX(INT_DATA[VALUE_IDX]);       const Obj& X = mX;
 
                 ASSERT(INT_TYPE            == X.typeIndex());
                 ASSERT(1                   == X.is<int>());
                 ASSERT(INT_DATA[VALUE_IDX] == X.the<int>());
-                ASSERT(0                   == da.numBlocksTotal());
-                ASSERT(0                   == oa.numBlocksTotal());
 
-                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
-
-                Obj mY(INT_DATA[VALUE_IDX], &oa);            const Obj& Y = mY;
+                Obj mY(INT_DATA[VALUE_IDX], &oa);  const Obj& Y = mY;
 
                 ASSERT(INT_TYPE            == Y.typeIndex());
                 ASSERT(1                   == Y.is<int>());
                 ASSERT(INT_DATA[VALUE_IDX] == Y.the<int>());
-                ASSERT(CURRENTTOTAL        == da.numBlocksTotal());
-                ASSERT(0                   == oa.numBlocksTotal());
 
-                Obj mZ;                                      const Obj& Z = mZ;
+                Obj mZ(&scratch);                  const Obj& Z = mZ;
                 mZ.assign(INT_DATA[VALUE_IDX]);
 
                 ASSERT(Z.typeIndex() == X.typeIndex());
                 ASSERT(Z.is<int>()   == X.is<int>());
                 ASSERT(Z.the<int>()  == X.the<int>());
+
                 ASSERT(Z.typeIndex() == Y.typeIndex());
                 ASSERT(Z.is<int>()   == Y.is<int>());
                 ASSERT(Z.the<int>()  == Y.the<int>());
 
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
               } break;
-              case TEST_INT_TYPE : {
+              case TEST_INT_TYPE: {
 
-                ASSERT(0 == da.numBlocksTotal());
-
-                Obj mX(TEST_INT_DATA[VALUE_IDX]);            const Obj& X = mX;
+                Obj mX(TEST_INT_DATA[VALUE_IDX]);       const Obj& X = mX;
 
                 ASSERT(TEST_INT_TYPE            == X.typeIndex());
                 ASSERT(1                        == X.is<TestInt>());
                 ASSERT(TEST_INT_DATA[VALUE_IDX] == X.the<TestInt>());
-                ASSERT(0                        == da.numBlocksTotal());
-                ASSERT(0                        == oa.numBlocksTotal());
 
-                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
-
-                Obj mY(TEST_INT_DATA[VALUE_IDX], &oa);       const Obj& Y = mY;
+                Obj mY(TEST_INT_DATA[VALUE_IDX], &oa);  const Obj& Y = mY;
 
                 ASSERT(TEST_INT_TYPE            == Y.typeIndex());
                 ASSERT(1                        == Y.is<TestInt>());
                 ASSERT(TEST_INT_DATA[VALUE_IDX] == Y.the<TestInt>());
-                ASSERT(CURRENTTOTAL             == da.numBlocksTotal());
-                ASSERT(0                        == oa.numBlocksTotal());
 
-                Obj mZ;                                      const Obj& Z = mZ;
+                Obj mZ(&scratch);                       const Obj& Z = mZ;
                 mZ.assign(TEST_INT_DATA[VALUE_IDX]);
 
                 ASSERT(Z.typeIndex()    == X.typeIndex());
                 ASSERT(Z.is<TestInt>()  == X.is<TestInt>());
                 ASSERT(Z.the<TestInt>() == X.the<TestInt>());
+
                 ASSERT(Z.typeIndex()    == Y.typeIndex());
                 ASSERT(Z.is<TestInt>()  == Y.is<TestInt>());
                 ASSERT(Z.the<TestInt>() == Y.the<TestInt>());
 
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
+
               } break;
-              case STRING_TYPE : {
+              case STRING_TYPE: {
 
-                ASSERT(0 == da.numBlocksTotal());
+                // '0 == VALUE_IDX' triggers allocation.
 
-                Obj mX(STRING_DATA[VALUE_IDX]);              const Obj& X = mX;
+                Obj mX(STRING_DATA[VALUE_IDX]);       const Obj& X = mX;
 
                 ASSERT(STRING_TYPE            == X.typeIndex());
                 ASSERT(1                      == X.is<bsl::string>());
                 ASSERT(STRING_DATA[VALUE_IDX] == X.the<bsl::string>());
-                ASSERT(0                      == oa.numBlocksTotal());
 
-                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
+                if (0 == VALUE_IDX) {
+                    ASSERT(dam.isInUseUp());
+                    dam.reset();
+                }
+                else {
+                    ASSERT(dam.isTotalSame());
+                }
+                ASSERT(oam.isTotalSame());
 
-                Obj mY(STRING_DATA[VALUE_IDX], &oa);         const Obj& Y = mY;
+                Obj mY(STRING_DATA[VALUE_IDX], &oa);  const Obj& Y = mY;
 
                 ASSERT(STRING_TYPE            == Y.typeIndex());
                 ASSERT(1                      == Y.is<bsl::string>());
                 ASSERT(STRING_DATA[VALUE_IDX] == Y.the<bsl::string>());
-                ASSERT(CURRENTTOTAL           == da.numBlocksTotal());
 
-                Obj mZ;                                      const Obj& Z = mZ;
+                if (0 == VALUE_IDX) {
+                    ASSERT(oam.isInUseUp());
+                }
+                else {
+                    ASSERT(oam.isTotalSame());
+                }
+                ASSERT(dam.isTotalSame());
+
+                Obj mZ(&scratch);                     const Obj& Z = mZ;
                 mZ.assign(STRING_DATA[VALUE_IDX]);
 
                 ASSERT(Z.typeIndex()        == X.typeIndex());
                 ASSERT(Z.is<bsl::string>()  == X.is<bsl::string>());
                 ASSERT(Z.the<bsl::string>() == X.the<bsl::string>());
+
                 ASSERT(Z.typeIndex()        == Y.typeIndex());
                 ASSERT(Z.is<bsl::string>()  == Y.is<bsl::string>());
                 ASSERT(Z.the<bsl::string>() == Y.the<bsl::string>());
 
               } break;
-              case TEST_STRING_TYPE : {
+              case TEST_STRING_TYPE: {
 
-                ASSERT(0 == da.numBlocksTotal());
+                // '0 == VALUE_IDX' triggers allocation.
 
-                Obj mX(TEST_STRING_DATA[VALUE_IDX]);         const Obj& X = mX;
+                Obj mX(TEST_STRING_DATA[VALUE_IDX]);       const Obj& X = mX;
 
                 ASSERT(TEST_STRING_TYPE            == X.typeIndex());
                 ASSERT(1                           == X.is<TestString>());
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == X.the<TestString>());
                 ASSERT(0                           == oa.numBlocksTotal());
 
-                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
+                if (0 == VALUE_IDX) {
+                    ASSERT(dam.isInUseUp());
+                    dam.reset();
+                }
+                else {
+                    ASSERT(dam.isTotalSame());
+                }
+                ASSERT(oam.isTotalSame());
 
-                Obj mY(TEST_STRING_DATA[VALUE_IDX], &oa);    const Obj& Y = mY;
+                Obj mY(TEST_STRING_DATA[VALUE_IDX], &oa);  const Obj& Y = mY;
 
                 ASSERT(TEST_STRING_TYPE            == Y.typeIndex());
                 ASSERT(1                           == Y.is<TestString>());
                 ASSERT(TEST_STRING_DATA[VALUE_IDX] == Y.the<TestString>());
-                ASSERT(CURRENTTOTAL                == da.numBlocksTotal());
 
-                Obj mZ;                                      const Obj& Z = mZ;
+                if (0 == VALUE_IDX) {
+                    ASSERT(oam.isInUseUp());
+                }
+                else {
+                    ASSERT(oam.isTotalSame());
+                }
+                ASSERT(dam.isTotalSame());
+
+                Obj mZ(&scratch);                          const Obj& Z = mZ;
                 mZ.assign(TEST_STRING_DATA[VALUE_IDX]);
 
                 ASSERT(Z.typeIndex()       == X.typeIndex());
                 ASSERT(Z.is<TestString>()  == X.is<TestString>());
                 ASSERT(Z.the<TestString>() == X.the<TestString>());
+
                 ASSERT(Z.typeIndex()       == Y.typeIndex());
                 ASSERT(Z.is<TestString>()  == Y.is<TestString>());
                 ASSERT(Z.the<TestString>() == Y.the<TestString>());
 
               } break;
-              case TEST_VOID_TYPE : {
+              case TEST_VOID_TYPE: {
 
-                ASSERT(0 == da.numBlocksTotal());
+                const TestVoid TV = TestVoid();
 
-                // The extra parenthesis around 'TestVoid()' is necessary since
-                // the compiler (both SUN and gcc) confuses the construction of
-                // a temporary with a function pointer to the constructor.
-
-                Obj mX((TestVoid()));                        const Obj& X = mX;
+                Obj mX(TV);        const Obj& X = mX;
 
                 ASSERT(TEST_VOID_TYPE == X.typeIndex());
                 ASSERT(1              == X.is<TestVoid>());
-                ASSERT(TestVoid()     == X.the<TestVoid>());
-                ASSERT(0              == da.numBlocksTotal());
-                ASSERT(0              == oa.numBlocksTotal());
+                ASSERT(TV             == X.the<TestVoid>());
 
-                const int CURRENTTOTAL = static_cast<int>(da.numBlocksTotal());
-
-                Obj mY(TestVoid(), &oa);                     const Obj& Y = mY;
+                Obj mY(TV, &oa);   const Obj& Y = mY;
 
                 ASSERT(TEST_VOID_TYPE == Y.typeIndex());
                 ASSERT(1              == Y.is<TestVoid>());
-                ASSERT(TestVoid()     == Y.the<TestVoid>());
-                ASSERT(CURRENTTOTAL   == da.numBlocksTotal());
-                ASSERT(0              == oa.numBlocksTotal());
+                ASSERT(TV             == Y.the<TestVoid>());
 
-                Obj mZ;                                      const Obj& Z = mZ;
-                mZ.assign(TestVoid());
+                Obj mZ(&scratch);  const Obj& Z = mZ;
+                mZ.assign(TV);
 
                 ASSERT(Z.typeIndex()     == X.typeIndex());
                 ASSERT(Z.is<TestVoid>()  == X.is<TestVoid>());
                 ASSERT(Z.the<TestVoid>() == X.the<TestVoid>());
+
                 ASSERT(Z.typeIndex()     == Y.typeIndex());
                 ASSERT(Z.is<TestVoid>()  == Y.is<TestVoid>());
                 ASSERT(Z.the<TestVoid>() == Y.the<TestVoid>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isTotalSame());
 
               } break;
               default: {
                 ASSERT(!"Not reachable by design");
               }
             }
-
-            const Obj X(int(3));
-            ASSERT(1 == X.is<int>());
-            ASSERT(3 == X.the<int>());
         }
     }
 };
@@ -10637,8 +10590,6 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    bslma::TestAllocator testAllocator("test", veryVeryVeryVerbose);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
@@ -11445,7 +11396,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING CREATORS
+        // TESTING VALUE CONSTRUCTOR
         //
         // Concerns:
         //   1. When a 'bslma::Allocator' pointer is passed to the one-argument
@@ -11546,6 +11497,8 @@ int main(int argc, char *argv[])
                           << "TESTING STREAMING FUNCTIONALITY" << endl
                           << "===============================" << endl;
 
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
         using bslx::VersionFunctions::k_NO_VERSION;
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
@@ -11576,7 +11529,7 @@ int main(int argc, char *argv[])
             const int version = 1;
 
             const char *const SPEC = SPECS[i];
-            TObj mX(g(SPEC), &testAllocator);  const TObj& X = mX;
+            TObj mX(g(SPEC), &oa);  const TObj& X = mX;
             if (veryVerbose) { cout << "\t\t   Value being streamed: "; P(X); }
 
             bslx::TestOutStream out(0);  X.bdexStreamOut(out, version);
@@ -11587,7 +11540,7 @@ int main(int argc, char *argv[])
             bslx::TestInStream in(OD, LOD);  ASSERT(in);
             ASSERT(!in.isEmpty());
 
-            TObj t(&testAllocator);
+            TObj t(&oa);
             if (0 == strcmp("K", SPEC)) {
                 gg(&t.variant(), "F");
             } else {
@@ -11609,7 +11562,7 @@ int main(int argc, char *argv[])
             const int version = 2;
 
             const char *const SPEC = SPECS[i];
-            TObj mX(g(SPEC), &testAllocator);  const TObj& X = mX;
+            TObj mX(g(SPEC), &oa);  const TObj& X = mX;
             if (veryVerbose) { cout << "\t\t   Value being streamed: "; P(X); }
 
             bslx::TestOutStream out(0);  X.bdexStreamOut(out, version);
@@ -11620,7 +11573,7 @@ int main(int argc, char *argv[])
             bslx::TestInStream in(OD, LOD);  ASSERT(in);
             ASSERT(!in.isEmpty());
 
-            TObj t(&testAllocator);
+            TObj t(&oa);
             if (0 == strcmp("K", SPEC)) {
                 gg(&t.variant(), "F");
             } else {
@@ -11703,18 +11656,18 @@ int main(int argc, char *argv[])
                     // Redo the tests with 'bslma' exceptions instead; note
                     // that it is *not* necessary to assert.
 
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
-                        testAllocator.setAllocationLimit(-1);
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        const int AL = oa.allocationLimit();
+                        oa.setAllocationLimit(-1);
 
                         TObj mV(g(V_SPEC)); const TObj& V = mV;
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
-                        testAllocator.setAllocationLimit(AL);
+                        oa.setAllocationLimit(AL);
                         bslx::InStreamFunctions::bdexStreamIn(bdexInStream,
-                                                         mV,
-                                                         VERSION);
+                                                              mV,
+                                                              VERSION);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
@@ -11909,7 +11862,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR
+        // TESTING COPY-ASSIGNMENT OPERATOR
         //
         // Concerns:
         //   1. The value represented by any object of a variant type can be
@@ -11948,8 +11901,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING ASSIGNMENT OPERATOR" << endl
-                          << "===========================" << endl;
+                          << "TESTING COPY-ASSIGNMENT OPERATOR" << endl
+                          << "================================" << endl;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
         static const char *SPECS[] = {
             "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
@@ -11964,8 +11919,8 @@ int main(int argc, char *argv[])
             }
 
             for (int j = 0; SPECS[j]; ++j) {
-                const Obj XX(g(SPECS[i]), &testAllocator);
-                const Obj YY(g(SPECS[j]), &testAllocator);
+                const Obj XX(g(SPECS[i]), &oa);
+                const Obj YY(g(SPECS[j]), &oa);
 
                 if (veryVerbose) {
                     T_ T_ P_(j) P_(SPECS[j]) P(YY)
@@ -11977,11 +11932,11 @@ int main(int argc, char *argv[])
                 // scope, its destructor will assert its invariants.
 
                 {
-                    Obj mX(&testAllocator);  const Obj& X = mX;
+                    Obj mX(&oa);  const Obj& X = mX;
                     gg(&mX, SPECS[i]);
                     {
-                        Obj mY(&testAllocator); const Obj& Y = mY;
-                        Obj mZ(&testAllocator); const Obj& Z = mZ;
+                        Obj mY(&oa);  const Obj& Y = mY;
+                        Obj mZ(&oa);  const Obj& Z = mZ;
                         gg(&mY, SPECS[j]);
                         gg(&mZ, SPECS[i]);
 
@@ -12003,13 +11958,11 @@ int main(int argc, char *argv[])
                 {
                     // Compute the number of blocks needed for this assignment.
 
-                    Obj mX(&testAllocator);
+                    Obj mX(&oa);
                     gg(&mX, SPECS[i]);
-                    int blocks =
-                              static_cast<int>(testAllocator.numBlocksTotal());
+                    int blocks = static_cast<int>(oa.numBlocksTotal());
                     mX = YY;
-                    blocks = static_cast<int>(testAllocator.numBlocksTotal())
-                             - blocks;
+                    blocks = static_cast<int>(oa.numBlocksTotal()) - blocks;
 
                     // Assign 'YY' (which uses a test allocator) to 'mY' (which
                     // uses the default allocator).  The allocator value of
@@ -12021,8 +11974,7 @@ int main(int argc, char *argv[])
                     Obj mY;
                     gg(&mY, SPECS[i]);
                     int defaultBlocks = static_cast<int>(da.numBlocksTotal());
-                    int testBlocks    =
-                             static_cast<int>(testAllocator.numBlocksTotal());
+                    int testBlocks    = static_cast<int>(oa.numBlocksTotal());
                     mY = YY;
                     defaultBlocks = static_cast<int>(da.numBlocksTotal())
                                     - defaultBlocks;
@@ -12033,18 +11985,18 @@ int main(int argc, char *argv[])
                     // by the assignment.
 
                     ASSERTV(i, blocks, defaultBlocks, blocks == defaultBlocks);
-                    ASSERTV(i, testBlocks, testAllocator.numBlocksTotal(),
-                            testBlocks == testAllocator.numBlocksTotal());
+                    ASSERTV(i, testBlocks, oa.numBlocksTotal(),
+                            testBlocks == oa.numBlocksTotal());
                 }
 
                 // Testing exception safety.
 
                 {
-                    Obj mX(&testAllocator); const Obj& X = mX;
-                    Obj mY(&testAllocator); const Obj& Y = mY;
+                    Obj mX(&oa);  const Obj& X = mX;
+                    Obj mY(&oa);  const Obj& Y = mY;
                     gg(&mX, SPECS[i]);
                     gg(&mY, SPECS[j]);
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                       mX = Y;
 
                       ASSERTV(i, j, X == Y);
@@ -12069,7 +12021,7 @@ int main(int argc, char *argv[])
         //   object returned (by value) from the generator function, 'g(SPEC)'
         //   with the value of a newly constructed OBJECT configured using
         //   'gg(&OBJECT, SPEC)'.  Compare the results of calling the
-        //   allocator's 'numBlocksTotal' and 'numBytesInUse' methods before
+        //   allocator's 'numBlocksTotal' and 'numBlocksInUse' methods before
         //   and after calling 'g' in order to demonstrate that 'g' has no
         //   effect on the test allocator.  Finally, compare the address of the
         //   temporary object returned by 'g' to show that 'g' returns an
@@ -12096,31 +12048,30 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P_(ti);  P(spec); }
 
-            Obj mX(&testAllocator);  gg(&mX, spec);  const Obj& X = mX;
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            Obj mX(&oa);  const Obj& X = mX;
+            gg(&mX, spec);
 
             if (veryVerbose) {
                 cout << "\t g = " << g(spec) << endl;
                 cout << "\tgg = " << X       << endl;
             }
 
-            const int TOTAL_BLOCKS_BEFORE =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-            const int IN_USE_BYTES_BEFORE =
-                              static_cast<int>(testAllocator.numBytesInUse());
+            const bsls::Types::Int64 TOTAL_BEFORE  = oa.numBlocksTotal();
+            const bsls::Types::Int64 IN_USE_BEFORE = oa.numBlocksInUse();
+
             ASSERTV(ti, X == g(spec));
-            const int TOTAL_BLOCKS_AFTER =
-                              static_cast<int>(testAllocator.numBlocksTotal());
-            const int IN_USE_BYTES_AFTER =
-                              static_cast<int>(testAllocator.numBytesInUse());
-            ASSERTV(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
-            ASSERTV(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
+
+            ASSERTV(ti, TOTAL_BEFORE  == oa.numBlocksTotal());
+            ASSERTV(ti, IN_USE_BEFORE == oa.numBlocksInUse());
         }
 
         if (verbose) cout << "\nConfirm return-by-value." << endl;
         {
             const char *spec = "K";
 
-            ASSERT(sizeof(Obj) == sizeof g(spec));      // compile-time fact
+            ASSERT(sizeof(Obj) == sizeof g(spec));  // compile-time fact
 
             const Obj& r1 = g(spec);
             const Obj& r2 = g(spec);
@@ -12167,6 +12118,8 @@ int main(int argc, char *argv[])
                           << "TESTING COPY CONSTRUCTOR" << endl
                           << "========================" << endl;
 
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
         static struct {
             int         d_lineNum;
             const char *d_input;        // input specifications
@@ -12212,11 +12165,12 @@ int main(int argc, char *argv[])
                 T_ P_(LINE); P_(INPUT); P_(TYPE_IDX); P(VALUE_IDX);
             }
 
-            Obj *pX = new Obj(&testAllocator);  // Dynamic allocation allows us
-                                                // to easily control the
-                                                // destruction of this object.
+            Obj *pX = new Obj(&scratch);  // Dynamic allocation allows us to
+                                          // easily control the destruction of
+                                          // this object.
+
             Obj& mX = *pX;  const Obj& X = mX;
-            Obj W(&testAllocator);
+            Obj W(&scratch);
 
             gg(&mX, INPUT);
             gg(&W, INPUT);
@@ -12258,11 +12212,13 @@ int main(int argc, char *argv[])
                 T_ P_(LINE); P_(INPUT); P_(TYPE_IDX); P(VALUE_IDX);
             }
 
-            Obj mX;  const Obj& X = mX;
+            Obj mX(&scratch);  const Obj& X = mX;
             gg(&mX, INPUT);
 
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const Obj Y(X, &testAllocator);  // TEST HERE
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+              const Obj Y(X, &oa);
 
               ASSERTV(LINE, X == Y);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -12397,6 +12353,8 @@ int main(int argc, char *argv[])
                           << "Testing OUTPUT (<<) OPERATOR AND 'print'" <<endl
                           << "========================================" <<endl;
 
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
         const char *F0 = "[ 123 ]";
         const char *F1 = "  [\n    123\n  ]";
 
@@ -12409,7 +12367,7 @@ int main(int argc, char *argv[])
         const char *M0 = "[ \"StringM\" ]";
         const char *M1 = "  [\n    \"StringM\"\n  ]";
 
-        static const struct {
+        static struct {
             int         d_lineNum;
             const char *d_spec;
             int         d_level;
@@ -12461,7 +12419,7 @@ int main(int argc, char *argv[])
 
             bsl::ostringstream printStream;
             bsl::ostringstream operatorStream;
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&oa);  const Obj& X = mX;
 
             gg(&mX, SPEC);
 
