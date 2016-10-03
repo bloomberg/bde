@@ -31,6 +31,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
 #include <bsl_string.h>
@@ -825,7 +826,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
-void FilesystemUtil::visitPaths(
+int FilesystemUtil::visitPaths(
                            const char                              *patternStr,
                            const bsl::function<void(const char*)>&  visitor)
 {
@@ -843,20 +844,23 @@ void FilesystemUtil::visitPaths(
         // There is no leaf, therefore there can be nothing to do (but not an
         // error)
 
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (bsl::string::npos != dirName.find_first_of("*?")) {
-
         bsl::vector<bsl::string> leaves;
         bsl::vector<bsl::string> paths, workingPaths;
         bsl::string pattern = patternStr;
         while (PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
-            int rc = PathUtil::getLeaf(&leaves.back(), pattern);
-            (void) rc;  // Used only in assert.
-            BSLS_ASSERT(0 == rc);
-            PathUtil::popLeaf(&pattern);
+            if (0 != PathUtil::getLeaf(&leaves.back(), pattern)) {
+                BSLS_ASSERT_OPT(0 && "'getLeaf' failed after"
+                                                 " 'hasLeaf' returned 'true'");
+            }
+            if (0 != PathUtil::popLeaf(&pattern)) {
+                BSLS_ASSERT_OPT(0 && "'popLeaf' failed after"
+                                                 " 'hasLeaf' returned 'true'");
+            }
         }
 
         paths.push_back(pattern);
@@ -875,10 +879,14 @@ void FilesystemUtil::visitPaths(
                 bsl::vector<bsl::string>::iterator it;
                 for (it = workingPaths.begin(); it != workingPaths.end();
                                                                         ++it) {
-                    visitPaths(it->c_str(), bdlf::BindUtil::bind(
+                    int rc = visitPaths(it->c_str(),
+                                        bdlf::BindUtil::bind(
                                                       &pushBackWrapper,
                                                       &paths,
                                                       bdlf::PlaceHolders::_1));
+                    if (0 != rc) {
+                        return -1;                                    // RETURN
+                    }
                 }
             }
             leaves.pop_back();
@@ -899,7 +907,10 @@ void FilesystemUtil::visitPaths(
         bsl::string      narrowName;
 
         if (!narrowToWide(&widePattern, patternStr)) {
-            return;                                                   // RETURN
+            // If the user passed invalid UTF-8 in 'patternStr', return
+            // failure.
+
+            return -1;                                                // RETURN
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
@@ -910,11 +921,12 @@ void FilesystemUtil::visitPaths(
                                   FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
-            return;                                                   // RETURN
+            return -1;                                                // RETURN
         }
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
+        bsl::string fullNamePath = dirNamePath;
         for (bool sts = true; sts; sts = FindNextFileW(handle, &findDataW)) {
             if (!wideToNarrow(&narrowName, findDataW.cFileName)) {
                 // Can't happen: wideToNarrow won't fail.
@@ -929,7 +941,8 @@ void FilesystemUtil::visitPaths(
                 continue;
             }
 
-            if (0 != PathUtil::appendIfValid(&dirNamePath, narrowName)) {
+            fullNamePath.resize(dirNamePath.length());
+            if (0 != PathUtil::appendIfValid(&fullNamePath, narrowName)) {
                 // Can't happen: 'findDataW.cFileName' will never be an
                 // absolute path.
 
@@ -937,10 +950,11 @@ void FilesystemUtil::visitPaths(
                                   "FindFirstFileW returned an absolute path.");
             }
 
-            visitor(dirNamePath.c_str());
-            PathUtil::popLeaf(&dirNamePath);
+            visitor(fullNamePath.c_str());
         }
     }
+
+    return 0;
 }
 
 int FilesystemUtil::visitTree(
@@ -1625,7 +1639,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
-void FilesystemUtil::visitPaths(
+int FilesystemUtil::visitPaths(
                              const char                               *pattern,
                              const bsl::function<void(const char *)>&  visitor)
 {
@@ -1636,18 +1650,27 @@ void FilesystemUtil::visitPaths(
     int rc = glob(pattern, GLOB_NOSORT, 0, &pglob);
     bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
     if (GLOB_NOMATCH == rc) {
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
     if (GLOB_NOSPACE == rc) {
         bsls::BslExceptionUtil::throwBadAlloc();
     }
+    if (0 != rc) {
+        // The only other non-zero return values listed in
+        // '/usr/include/glob.h' are 'GLOB_ABORTED' and 'GLOB_NOSYS' (where
+        // 'GLOB_NOSYS' is listed as 'not implemented').
 
-    for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
+        return -1;                                                    // RETURN
+    }
+
+    for (bsl::size_t i = 0; i < pglob.gl_pathc; ++i) {
         BSLS_ASSERT(pglob.gl_pathv[i]);
         if (!isDotOrDots(pglob.gl_pathv[i])) {
             visitor(pglob.gl_pathv[i]);
         }
     }
+
+    return 0;
 }
 
 int FilesystemUtil::visitTree(
@@ -1972,17 +1995,17 @@ int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
     return 0;
 }
 
-void FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
-                                       const char               *pattern)
+int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                      const char               *pattern)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(pattern);
 
     result->clear();
-    visitPaths(pattern,
-               bdlf::BindUtil::bind(&pushBackWrapper,
-                                    result,
-                                    bdlf::PlaceHolders::_1));
+    return visitPaths(pattern,
+                      bdlf::BindUtil::bind(&pushBackWrapper,
+                                           result,
+                                           bdlf::PlaceHolders::_1));
 }
 }  // close package namespace
 

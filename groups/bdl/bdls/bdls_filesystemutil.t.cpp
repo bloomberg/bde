@@ -21,6 +21,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
@@ -198,6 +199,9 @@ enum { e_IS_UNIX = 0 };
 // ----------------------------------------------------------------------------
 
 typedef bdls::FilesystemUtil Obj;
+typedef bsls::Types::Int64   Int64;
+
+#define INT_SIZEOF(x)    static_cast<int>(sizeof(x))
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
@@ -607,7 +611,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_INVALID_FD != fd);
 
             const char buffer[] = "testing";
-            int bytes           = sizeof buffer;
+            int bytes           = INT_SIZEOF(buffer);
 
             Obj::write(fd, buffer, bytes);
             Obj::close(fd);
@@ -894,8 +898,8 @@ int main(int argc, char *argv[])
             meowVisitor.d_vec = &meowTravVec;
 
             rc = stringFlag
-                 ? Obj::visitTree(rootStr, "meow*", meowVisitor, sortFlag)
-                 : Obj::visitTree(root,    "meow*", meowVisitor, sortFlag);
+                     ? Obj::visitTree(rootStr, "meow*", meowVisitor, sortFlag)
+                     : Obj::visitTree(root,    "meow*", meowVisitor, sortFlag);
             ASSERT(0 == rc);
             ASSERT((e_IS_UNIX ? 20 : 25) == meowTravVec.size());
 
@@ -917,13 +921,11 @@ int main(int argc, char *argv[])
             VisitTreeTestVisitor woofVisitor;
             woofVisitor.d_vec = &woofPathsVec;
 
-            if (stringFlag) {
-                Obj::visitPaths(bsl::string("woo*" PS "woo*" PS "woo*"),
-                                woofVisitor);
-            }
-            else {
-                Obj::visitPaths("woo*" PS "woo*" PS "woo*", woofVisitor);
-            }
+            int rc = stringFlag
+                   ? Obj::visitPaths(bsl::string("woo*" PS "woo*" PS "woo*"),
+                                     woofVisitor)
+                   : Obj::visitPaths("woo*" PS "woo*" PS "woo*", woofVisitor);
+            ASSERT(0 == rc);
 
             bsl::sort(woofPathsVec.begin(), woofPathsVec.end());
 
@@ -1046,7 +1048,7 @@ int main(int argc, char *argv[])
         ASSERT(prefix == fileName.substr(0, prefix.size()));
         if (fd != Obj::k_INVALID_FD) {
             static const char hello[] = "hello, world\n";
-            int wrote = Obj::write(fd, hello, sizeof(hello) - 1);
+            int wrote = Obj::write(fd, hello, INT_SIZEOF(hello) - 1);
             ASSERT(wrote == sizeof(hello) - 1);
             Obj::close(fd);
             ASSERT(Obj::isRegularFile(fileName));
@@ -1432,7 +1434,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_; cout << "Finding "; P(NAME); }
 
-            Obj::findMatchingPaths(&results, NAME);
+            int rc = Obj::findMatchingPaths(&results, NAME);
+            ASSERT(0 == rc);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             if (NAME_ANSI == i) {
@@ -2369,20 +2372,20 @@ int main(int argc, char *argv[])
         char result[16];
 
         Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
-        ASSERT(1 == Obj::read(fd, result, sizeof result));
+        ASSERT(1 == Obj::read(fd, result, INT_SIZEOF(result)));
 
         Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
         Obj::write(fd, "B", 1);
 
         Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
-        ASSERT(2 == Obj::read(fd, result, sizeof result));
+        ASSERT(2 == Obj::read(fd, result, INT_SIZEOF(result)));
 
         Obj::close(fd);
 
         fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_APPEND);
         Obj::write(fd, "C", 1);
         Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
-        ASSERT(3 == Obj::read(fd, result, sizeof result));
+        ASSERT(3 == Obj::read(fd, result, INT_SIZEOF(result)));
 
         Obj::close(fd);
 
@@ -2391,7 +2394,7 @@ int main(int argc, char *argv[])
         Obj::close(fd);
 
         fd = Obj::open(fileName, Obj::e_OPEN_OR_CREATE, Obj::e_READ_ONLY);
-        ASSERT(3 == Obj::read(fd, result, sizeof result));
+        ASSERT(3 == Obj::read(fd, result, INT_SIZEOF(result)));
         Obj::close(fd);
 
         Obj::remove(fileName);
@@ -2471,7 +2474,7 @@ int main(int argc, char *argv[])
         ASSERT(Obj::k_INVALID_FD != fd);
 
         const char buffer[] = "testing";
-        int bytes           = sizeof buffer;
+        int bytes           = INT_SIZEOF(buffer);
 
         Obj::write(fd, buffer, bytes);
         Obj::close(fd);
@@ -2556,7 +2559,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_INVALID_FD != fd);
 
             const char buffer[] = "testing";
-            int bytes           = sizeof buffer;
+            int bytes           = INT_SIZEOF(buffer);
 
             Obj::write(fd, buffer, bytes);
             Obj::close(fd);
@@ -2686,7 +2689,7 @@ int main(int argc, char *argv[])
                           Obj::e_OPEN_OR_CREATE,
                           Obj::e_READ_WRITE);
             LOOP_ASSERT(tmpFile, f != Obj::k_INVALID_FD);
-            ASSERT(sizeof(int) == Obj::write(f, &i, sizeof(int)));
+            ASSERT(INT_SIZEOF(int) == Obj::write(f, &i, INT_SIZEOF(int)));
             ASSERT(0 == Obj::close(f));
 
             // Roll the file(s).
@@ -2704,7 +2707,7 @@ int main(int argc, char *argv[])
                           Obj::e_OPEN,
                           Obj::e_READ_ONLY); // must exist
             LOOP_ASSERT(tmpFile, f != Obj::k_INVALID_FD);
-            ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
+            ASSERT(INT_SIZEOF(int) == Obj::read(f, &value, INT_SIZEOF(int)));
             ASSERT(0 == Obj::close(f));
             ASSERT(0 == Obj::remove(tmpFile));
             LOOP2_ASSERT(i, value, i == value);
@@ -2723,7 +2726,7 @@ int main(int argc, char *argv[])
                           Obj::e_OPEN_OR_CREATE,
                           Obj::e_READ_WRITE);
             ASSERT(f != Obj::k_INVALID_FD);
-            ASSERT(sizeof(int) == Obj::write(f, &i, sizeof(int)));
+            ASSERT(INT_SIZEOF(int) == Obj::write(f, &i, INT_SIZEOF(int)));
             ASSERT(0 == Obj::close(f));
 
             // Roll the file(s).
@@ -2741,7 +2744,7 @@ int main(int argc, char *argv[])
                           Obj::e_OPEN,
                           Obj::e_READ_ONLY);
             ASSERT(f != Obj::k_INVALID_FD);
-            ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
+            ASSERT(INT_SIZEOF(int) == Obj::read(f, &value, INT_SIZEOF(int)));
             ASSERT(0 == Obj::close(f));
             ASSERT(0 == Obj::remove(tmpFile, true));
             LOOP2_ASSERT(i, value, i == value);
@@ -2996,7 +2999,7 @@ int main(int argc, char *argv[])
 #endif
         };
 
-        const int numFiles = sizeof(filenames) / sizeof(*filenames);
+        const int numFiles = INT_SIZEOF(filenames) / INT_SIZEOF(*filenames);
 
         bdls::PathUtil::appendRaw(&path, "alpha");
 
@@ -3252,7 +3255,7 @@ int main(int argc, char *argv[])
                 {L_, OC,        RA,      TR,       false,   true },
                 {L_, OC,        RA,      TR,        true,   true },
             };
-            int NUM_DATA = sizeof(DATA) / sizeof(DataRow);
+            enum { NUM_DATA = sizeof(DATA) / sizeof(DataRow) };
 
             bool isCreateFileTested = false;
 
@@ -4270,7 +4273,7 @@ int main(int argc, char *argv[])
                 {L_, OC,        RA,      TR,       false  },
                 {L_, OC,        RA,      TR,        true  },
             };
-            int NUM_DATA = sizeof(DATA) / sizeof(DataRow);
+            enum { NUM_DATA = sizeof(DATA) / sizeof(DataRow) };
 
             bsl::string fileName(::tempFileName(test));
 
@@ -4422,12 +4425,12 @@ int main(int argc, char *argv[])
                 {L_, OC,        RA,      TR,       false  },
                 {L_, OC,        RA,      TR,        true  },
             };
-            int NUM_DATA = sizeof(DATA) / sizeof(DataRow);
+            enum { NUM_DATA = sizeof(DATA) / sizeof(DataRow) };
 
             const char blockA[]  = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
-            const int  numBytesA = sizeof(blockA);
+            const int  numBytesA = INT_SIZEOF(blockA);
             const char blockB[]  = { '0', '1', '2', '3', '4' };
-            const int  numBytesB = sizeof(blockB);
+            const int  numBytesB = INT_SIZEOF(blockB);
 
             bsl::string fileName(::tempFileName(test));
 
@@ -4624,12 +4627,12 @@ int main(int argc, char *argv[])
                 {L_, OC,        RA,      TR,       false,   true },
                 {L_, OC,        RA,      TR,        true,   true },
             };
-            int NUM_DATA = sizeof(DATA) / sizeof(DataRow);
+            enum { NUM_DATA = sizeof(DATA) / sizeof(DataRow) };
 
             const char blockA[]  = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
-            const int  numBytesA = sizeof(blockA);
+            const int  numBytesA = INT_SIZEOF(blockA);
             const char blockB[]  = { '0', '1', '2', '3', '4' };
-            const int  numBytesB = sizeof(blockB);
+            const int  numBytesB = INT_SIZEOF(blockB);
             char       buffer[8];
 
             bool isCreateFileTested = false;
@@ -4853,6 +4856,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Usage Example like Testing\n"
                              "==========================\n";
 
+        {
+            const char hello[] = "hello, world\n";
+            const char *pHello = hello;
+            ASSERT(INT_SIZEOF(hello) > INT_SIZEOF(pHello));
+        }
+
         for (size_t ni = 0; ni < NUM_VALID_NAMES; ++ni) {
             const char *const NAME = NAMES[ni];
 
@@ -4945,7 +4954,8 @@ int main(int argc, char *argv[])
 
             bdls::PathUtil::appendRaw(&logPath, "*.log");
             vector<bsl::string> logFiles;
-            Obj::findMatchingPaths(&logFiles, logPath.c_str());
+            rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
+            ASSERT(0 == rc);
             bdls::PathUtil::popLeaf(&logPath);
 
             bdlt::Datetime modTime;
@@ -4968,13 +4978,19 @@ int main(int argc, char *argv[])
 
             bdls::PathUtil::appendRaw(&logPath, "*");
             bdls::PathUtil::appendRaw(&logPath, "*o*.log");
-            Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            ASSERT(NUM_OLD_FILES == logFiles.size());
+            rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
+            ASSERT(0 == rc);
+            LOOP4_ASSERT(logPath, logPath.length(), NUM_OLD_FILES,
+                                                               logFiles.size(),
+                                             NUM_OLD_FILES == logFiles.size());
             bdls::PathUtil::popLeaf(&logPath);
 
             bdls::PathUtil::appendRaw(&logPath, "*n*.log");
-            Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            ASSERT(NUM_NEW_FILES == logFiles.size());
+            rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
+            ASSERT(0 == rc);
+            LOOP4_ASSERT(logPath, logPath.length(), NUM_NEW_FILES,
+                                                               logFiles.size(),
+                                             NUM_NEW_FILES == logFiles.size());
             bdls::PathUtil::popLeaf(&logPath);
             bdls::PathUtil::popLeaf(&logPath);
 
@@ -4999,7 +5015,7 @@ int main(int argc, char *argv[])
                                Obj::createTemporaryFile(&fileName, subDirName);
                 if (fd != Obj::k_INVALID_FD) {
                     static const char hello[] = "hello, world\n";
-                    Obj::write(fd, hello, sizeof(hello) - 1);
+                    Obj::write(fd, hello, INT_SIZEOF(hello) - 1);
                     Obj::close(fd);
                     int removedFile = Obj::remove(fileName);
                     ASSERT(removedFile == 0);
@@ -5074,7 +5090,7 @@ int main(int argc, char *argv[])
           ASSERT(0 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
           int buf;
           *p = i;
-          ASSERT(sizeof(int) == Obj::read(fd, &buf, sizeof(int)));
+          ASSERT(INT_SIZEOF(int) == Obj::read(fd, &buf, INT_SIZEOF(int)));
           ASSERT(i == buf);
         }
         ASSERT(0 == Obj::unmap(p, pageSize));
