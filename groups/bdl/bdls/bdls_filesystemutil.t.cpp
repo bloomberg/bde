@@ -1440,7 +1440,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != rc);
                 LOOP_ASSERT(results.size(), 0 == results.size());
                 ASSERT(0 != Obj::remove(NAME, false));
-	    }
+            }
             else {
                 ASSERT(0 == rc);
                 LOOP_ASSERT(results.size(), 1    == results.size());

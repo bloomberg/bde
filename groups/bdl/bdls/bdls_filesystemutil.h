@@ -709,7 +709,9 @@ struct FilesystemUtil {
         // an extension or *no* extension.  E.g., "file.?" matches "file.z",
         // but not "file.txt"; however, it also matches "file" (without any
         // extension).  Likewise, "*.*" matches any filename, including
-        // filenames having no extension.
+        // filenames having no extension.  Also, on Windows (but not on Unix)
+        // attempting to match a pattern that is invalid UTF-8 will result in
+        // an error.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change

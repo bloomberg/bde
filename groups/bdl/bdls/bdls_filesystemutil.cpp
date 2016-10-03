@@ -921,7 +921,7 @@ int FilesystemUtil::visitPaths(
                                   FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
-	    // No files found.
+            // No files found.
 
             return 0;                                                 // RETURN
         }
