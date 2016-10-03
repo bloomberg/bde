@@ -1432,12 +1432,6 @@ struct ManagedPtr_FactoryDeleterType
     // create a special deleter function based on the complete type of each
     // allocator, each doing the same thing (invoking the virtual function
     // 'deleteObject').
-
-    // TYPES
-    typedef typename bsl::conditional<
-             bsl::is_convertible<FACTORY_TYPE *, Allocator *>::value,
-             ManagedPtr_FactoryDeleter<TARGET_TYPE, Allocator>,
-             ManagedPtr_FactoryDeleter<TARGET_TYPE, FACTORY_TYPE> >::type type;
 };
 
               // ========================================
