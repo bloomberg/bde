@@ -35,6 +35,7 @@ BSLS_IDENT("$Id: $")
 //    UPPER      [A-Z]
 //    LOWER      [a-z]
 //    ALPHA      [A-Za-z]
+//    ODIGIT     [0-7]
 //    DIGIT      [0-9]
 //    XDIGIT     [0-9A-Fa-f]
 //    ALNUM      [0-9A-Za-z]
@@ -143,149 +144,150 @@ BSLS_IDENT("$Id: $")
 //                 UPPER
 //                 :  LOWER
 //                 :  :  ALPHA
-//                 :  :  :  DIGIT
-//                 :  :  :  :  XDIGIT
-//                 :  :  :  :  :  ALNUM
-//                 :  :  :  :  :  :  SPACE
-//                 :  :  :  :  :  :  :  PRINT
-//                 :  :  :  :  :  :  :  :  GRAPH
-//                 :  :  :  :  :  :  :  :  :  PUNCT
-//                 :  :  :  :  :  :  :  :  :  :  CNTRL
-//                 :  :  :  :  :  :  :  :  :  :  :  ASCII
-//                 :  :  :  :  :  :  :  :  :  :  :  :  IDENT
-//                 :  :  :  :  :  :  :  :  :  :  :  :  :  ALUND
-//                 :  :  :  :  :  :  :  :  :  :  :  :  :  :  ALL
-//                 :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  NONE
-//    Dec   Hex    :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  :       Char
-//    ---   ---    -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -       ----
-//      0     0    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^@
-//      1     1    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^A
-//      2     2    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^B
-//      3     3    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^C
-//      4     4    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^D
-//      5     5    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^E
-//      6     6    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^F
-//      7     7    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^G
-//      8     8    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^H
-//      9     9    _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^I
-//     10     A    _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^J
-//     11     B    _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^K
-//     12     C    _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^L
-//     13     D    _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^M
-//     14     E    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^N
-//     15     F    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^O
-//     16    10    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^P
-//     17    11    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Q
-//     18    12    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^R
-//     19    13    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^S
-//     20    14    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^T
-//     21    15    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^U
-//     22    16    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^V
-//     23    17    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^W
-//     24    18    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^X
-//     25    19    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Y
-//     26    1A    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Z
-//     27    1B    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^[
-//     28    1C    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^/
-//     29    1D    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^]
-//     30    1E    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^^
-//     31    1F    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^_
-//     32    20    _  _  _  _  _  _  S  P  _  _  _  A  _  _  A  _
-//     33    21    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        !
-//     34    22    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        "
-//     35    23    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        #
-//     36    24    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        $
-//     37    25    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        %
-//     38    26    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        &
-//     39    27    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        '
-//     40    28    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        (
-//     41    29    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        )
-//     42    2A    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        *
-//     43    2B    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        +
-//     44    2C    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ,
-//     45    2D    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        -
-//     46    2E    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        .
-//     47    2F    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        /
-//     48    30    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        0
-//     49    31    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        1
-//     50    32    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        2
-//     51    33    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        3
-//     52    34    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        4
-//     53    35    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        5
-//     54    36    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        6
-//     55    37    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        7
-//     56    38    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        8
-//     57    39    _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        9
-//     58    3A    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        :
-//     59    3B    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ;
-//     60    3C    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        <
-//     61    3D    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        =
-//     62    3E    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        >
-//     63    3F    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ?
-//     64    40    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        @
-//     65    41    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        A
-//     66    42    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        B
-//     67    43    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        C
-//     68    44    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        D
-//     69    45    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        E
-//     70    46    U  _  A  _  X  A  _  P  G  _  _  A  I  A  A  _        F
-//     71    47    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        G
-//     72    48    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        H
-//     73    49    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        I
-//     74    4A    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        J
-//     75    4B    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        K
-//     76    4C    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        L
-//     77    4D    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        M
-//     78    4E    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        N
-//     79    4F    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        O
-//     80    50    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        P
-//     81    51    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        Q
-//     82    52    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        R
-//     83    53    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        S
-//     84    54    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        T
-//     85    55    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        U
-//     86    56    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        V
-//     87    57    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        W
-//     88    58    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        X
-//     89    59    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        Y
-//     90    5A    U  _  A  _  _  A  _  P  G  _  _  A  I  A  A  _        Z
-//     91    5B    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        [
-//     92    5C    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _       '\'
-//     93    5D    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ]
-//     94    5E    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ^
-//     95    5F    _  _  _  _  _  _  _  P  G  P  _  A  I  A  A  _        _
-//     96    60    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        `
-//     97    61    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        a
-//     98    62    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        b
-//     99    63    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        c
-//    100    64    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        d
-//    101    65    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        e
-//    102    66    _  L  A  _  X  A  _  P  G  _  _  A  I  A  A  _        f
-//    103    67    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        g
-//    104    68    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        h
-//    105    69    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        i
-//    106    6A    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        j
-//    107    6B    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        k
-//    108    6C    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        l
-//    109    6D    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        m
-//    110    6E    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        n
-//    111    6F    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        o
-//    112    70    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        p
-//    113    71    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        q
-//    114    72    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        r
-//    115    73    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        s
-//    116    74    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        t
-//    117    75    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        u
-//    118    76    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        v
-//    119    77    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        w
-//    120    78    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        x
-//    121    79    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        y
-//    122    7A    _  L  A  _  _  A  _  P  G  _  _  A  I  A  A  _        z
-//    123    7B    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        {
-//    124    7C    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        |
-//    125    7D    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        }
-//    126    7E    _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ~
-//    127    7F    _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^?
+//                 :  :  :  ODIGIT
+//                 :  :  :  :  DIGIT
+//                 :  :  :  :  :  XDIGIT
+//                 :  :  :  :  :  :  ALNUM
+//                 :  :  :  :  :  :  :  SPACE
+//                 :  :  :  :  :  :  :  :  PRINT
+//                 :  :  :  :  :  :  :  :  :  GRAPH
+//                 :  :  :  :  :  :  :  :  :  :  PUNCT
+//                 :  :  :  :  :  :  :  :  :  :  :  CNTRL
+//                 :  :  :  :  :  :  :  :  :  :  :  :  ASCII
+//                 :  :  :  :  :  :  :  :  :  :  :  :  :  IDENT
+//                 :  :  :  :  :  :  :  :  :  :  :  :  :  :  ALUND
+//                 :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  ALL
+//                 :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  NONE
+//    Dec   Hex    :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  :  :       Char
+//    ---   ---    -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -       ----
+//      0     0    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^@
+//      1     1    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^A
+//      2     2    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^B
+//      3     3    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^C
+//      4     4    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^D
+//      5     5    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^E
+//      6     6    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^F
+//      7     7    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^G
+//      8     8    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^H
+//      9     9    _  _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^I
+//     10     A    _  _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^J
+//     11     B    _  _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^K
+//     12     C    _  _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^L
+//     13     D    _  _  _  _  _  _  _  S  _  _  _  C  A  _  _  A  _        ^M
+//     14     E    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^N
+//     15     F    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^O
+//     16    10    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^P
+//     17    11    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Q
+//     18    12    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^R
+//     19    13    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^S
+//     20    14    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^T
+//     21    15    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^U
+//     22    16    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^V
+//     23    17    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^W
+//     24    18    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^X
+//     25    19    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Y
+//     26    1A    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^Z
+//     27    1B    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^[
+//     28    1C    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^/
+//     29    1D    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^]
+//     30    1E    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^^
+//     31    1F    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^_
+//     32    20    _  _  _  _  _  _  _  S  P  _  _  _  A  _  _  A  _
+//     33    21    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        !
+//     34    22    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        "
+//     35    23    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        #
+//     36    24    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        $
+//     37    25    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        %
+//     38    26    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        &
+//     39    27    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        '
+//     40    28    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        (
+//     41    29    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        )
+//     42    2A    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        *
+//     43    2B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        +
+//     44    2C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ,
+//     45    2D    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        -
+//     46    2E    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        .
+//     47    2F    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        /
+//     48    30    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        0
+//     49    31    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        1
+//     50    32    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        2
+//     51    33    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        3
+//     52    34    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        4
+//     53    35    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        5
+//     54    36    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        6
+//     55    37    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        7
+//     56    38    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        8
+//     57    39    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        9
+//     58    3A    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        :
+//     59    3B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ;
+//     60    3C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        <
+//     61    3D    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        =
+//     62    3E    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        >
+//     63    3F    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ?
+//     64    40    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        @
+//     65    41    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        A
+//     66    42    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        B
+//     67    43    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        C
+//     68    44    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        D
+//     69    45    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        E
+//     70    46    U  _  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        F
+//     71    47    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        G
+//     72    48    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        H
+//     73    49    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        I
+//     74    4A    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        J
+//     75    4B    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        K
+//     76    4C    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        L
+//     77    4D    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        M
+//     78    4E    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        N
+//     79    4F    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        O
+//     80    50    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        P
+//     81    51    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        Q
+//     82    52    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        R
+//     83    53    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        S
+//     84    54    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        T
+//     85    55    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        U
+//     86    56    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        V
+//     87    57    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        W
+//     88    58    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        X
+//     89    59    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        Y
+//     90    5A    U  _  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        Z
+//     91    5B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        [
+//     92    5C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _       '\'
+//     93    5D    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ]
+//     94    5E    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ^
+//     95    5F    _  _  _  _  _  _  _  _  P  G  P  _  A  I  A  A  _        _
+//     96    60    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        `
+//     97    61    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        a
+//     98    62    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        b
+//     99    63    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        c
+//    100    64    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        d
+//    101    65    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        e
+//    102    66    _  L  A  _  _  X  A  _  P  G  _  _  A  I  A  A  _        f
+//    103    67    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        g
+//    104    68    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        h
+//    105    69    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        i
+//    106    6A    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        j
+//    107    6B    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        k
+//    108    6C    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        l
+//    109    6D    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        m
+//    110    6E    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        n
+//    111    6F    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        o
+//    112    70    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        p
+//    113    71    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        q
+//    114    72    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        r
+//    115    73    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        s
+//    116    74    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        t
+//    117    75    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        u
+//    118    76    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        v
+//    119    77    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        w
+//    120    78    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        x
+//    121    79    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        y
+//    122    7A    _  L  A  _  _  _  A  _  P  G  _  _  A  I  A  A  _        z
+//    123    7B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        {
+//    124    7C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        |
+//    125    7D    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        }
+//    126    7E    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ~
+//    127    7F    _  _  _  _  _  _  _  _  _  _  _  C  A  _  _  A  _        ^?
 //..
 //
 ///Usage
@@ -343,6 +345,7 @@ struct CharType {
         e_UPPER,          // [A-Z]
         e_LOWER,          // [a-z]
         e_ALPHA,          // [A-Za-z]
+        e_ODIGIT,         // [0-7]
         e_DIGIT,          // [0-9]
         e_XDIGIT,         // [0-9A-Fa-f]
         e_ALNUM,          // [0-9A-Za-z]
@@ -358,38 +361,39 @@ struct CharType {
         e_NONE            // []
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEU_UPPER = e_UPPER
-      , BDEU_LOWER = e_LOWER
-      , BDEU_ALPHA = e_ALPHA
-      , BDEU_DIGIT = e_DIGIT
+      , BDEU_UPPER  = e_UPPER
+      , BDEU_LOWER  = e_LOWER
+      , BDEU_ALPHA  = e_ALPHA
+      , BDEU_ODIGIT = e_ODIGIT
+      , BDEU_DIGIT  = e_DIGIT
       , BDEU_XDIGIT = e_XDIGIT
-      , BDEU_ALNUM = e_ALNUM
-      , BDEU_SPACE = e_SPACE
-      , BDEU_PRINT = e_PRINT
-      , BDEU_GRAPH = e_GRAPH
-      , BDEU_PUNCT = e_PUNCT
-      , BDEU_CNTRL = e_CNTRL
-      , BDEU_ASCII = e_ASCII
-      , BDEU_IDENT = e_IDENT
-      , BDEU_ALUND = e_ALUND
-      , BDEU_ALL = e_ALL
-      , BDEU_NONE = e_NONE
-      , UPPER  = e_UPPER
-      , LOWER  = e_LOWER
-      , ALPHA  = e_ALPHA
-      , DIGIT  = e_DIGIT
-      , XDIGIT = e_XDIGIT
-      , ALNUM  = e_ALNUM
-      , SPACE  = e_SPACE
-      , PRINT  = e_PRINT
-      , GRAPH  = e_GRAPH
-      , PUNCT  = e_PUNCT
-      , CNTRL  = e_CNTRL
-      , ASCII  = e_ASCII
-      , IDENT  = e_IDENT
-      , ALUND  = e_ALUND
-      , ALL    = e_ALL
-      , NONE   = e_NONE
+      , BDEU_ALNUM  = e_ALNUM
+      , BDEU_SPACE  = e_SPACE
+      , BDEU_PRINT  = e_PRINT
+      , BDEU_GRAPH  = e_GRAPH
+      , BDEU_PUNCT  = e_PUNCT
+      , BDEU_CNTRL  = e_CNTRL
+      , BDEU_ASCII  = e_ASCII
+      , BDEU_IDENT  = e_IDENT
+      , BDEU_ALUND  = e_ALUND
+      , BDEU_ALL    = e_ALL
+      , BDEU_NONE   = e_NONE
+      , UPPER       = e_UPPER
+      , LOWER       = e_LOWER
+      , ALPHA       = e_ALPHA
+      , DIGIT       = e_DIGIT
+      , XDIGIT      = e_XDIGIT
+      , ALNUM       = e_ALNUM
+      , SPACE       = e_SPACE
+      , PRINT       = e_PRINT
+      , GRAPH       = e_GRAPH
+      , PUNCT       = e_PUNCT
+      , CNTRL       = e_CNTRL
+      , ASCII       = e_ASCII
+      , IDENT       = e_IDENT
+      , ALUND       = e_ALUND
+      , ALL         = e_ALL
+      , NONE        = e_NONE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -406,6 +410,7 @@ struct CharType {
     static const char *const s_upperString_p;      // 'char' array indexed by
     static const char *const s_lowerString_p;      // '[char]'
     static const char *const s_alphaString_p;
+    static const char *const s_odigitString_p;
     static const char *const s_digitString_p;
     static const char *const s_xdigitString_p;
     static const char *const s_alnumString_p;
@@ -431,6 +436,7 @@ struct CharType {
     static const short int s_upperCount;         // 'int' category counts
     static const short int s_lowerCount;
     static const short int s_alphaCount;
+    static const short int s_odigitCount;
     static const short int s_digitCount;
     static const short int s_xdigitCount;
     static const short int s_alnumCount;
@@ -451,6 +457,7 @@ struct CharType {
     static const bool *const s_upperArray_p;     // 'bool' arrays indexed by
     static const bool *const s_lowerArray_p;     // '[char]'
     static const bool *const s_alphaArray_p;
+    static const bool *const s_odigitArray_p;
     static const bool *const s_digitArray_p;
     static const bool *const s_xdigitArray_p;
     static const bool *const s_alnumArray_p;
@@ -487,6 +494,10 @@ struct CharType {
     static bool isAlpha(char character);
         // Return 'true' if the specified 'character' is in the 'ALPHA'
         // category (i.e., '[A-Za-z]'), and 'false' otherwise.
+
+    static bool isOdigit(char character);
+        // Return 'true' if the specified 'character' is in the 'ODIGIT'
+        // category (i.e., '[0-7]'), and 'false' otherwise.
 
     static bool isDigit(char character);
         // Return 'true' if the specified 'character' is in the 'DIGIT'
@@ -565,6 +576,11 @@ struct CharType {
     static const char *stringAlpha();
         // Return a null-terminated string consisting of all characters in the
         // category 'ALPHA' (i.e., '[A-Za-z]'), ordered by increasing character
+        // codes.
+
+    static const char *stringOdigit();
+        // Return a null-terminated string consisting of all characters in the
+        // category 'DIGIT' (i.e., '[0-7]'), ordered by increasing character
         // codes.
 
     static const char *stringDigit();
@@ -657,6 +673,10 @@ struct CharType {
     static int numAlpha();
         // Return the number of characters in the category 'ALPHA' (i.e.,
         // '[A-Za-z]').
+
+    static int numOdigit();
+        // Return the number of characters in the category 'ODIGIT' (i.e.,
+        // '[0-7]').
 
     static int numDigit();
         // Return the number of characters in the category 'DIGIT' (i.e.,
@@ -764,6 +784,12 @@ bool CharType::isAlpha(char character)
 }
 
 inline
+bool CharType::isOdigit(char character)
+{
+    return s_odigitArray_p[static_cast<unsigned char>(character)];
+}
+
+inline
 bool CharType::isDigit(char character)
 {
     return s_digitArray_p[static_cast<unsigned char>(character)];
@@ -842,8 +868,8 @@ bool CharType::isNone(char character)
 }
 
 inline
-bool CharType::isCategory(char character,
-                               CharType::Category category)
+bool CharType::isCategory(char               character,
+                          CharType::Category category)
 {
     return s_categoryArray_p[category][static_cast<unsigned char>(character)];
 }
@@ -866,6 +892,12 @@ inline
 const char *CharType::stringAlpha()
 {
     return s_alphaString_p;
+}
+
+inline
+const char *CharType::stringOdigit()
+{
+    return s_odigitString_p;
 }
 
 inline
@@ -970,6 +1002,12 @@ inline
 int CharType::numAlpha()
 {
     return s_alphaCount;
+}
+
+inline
+int CharType::numOdigit()
+{
+    return s_odigitCount;
 }
 
 inline

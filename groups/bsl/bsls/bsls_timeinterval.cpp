@@ -177,7 +177,7 @@ native_std::ostream& TimeInterval::print(
         unsigned absSpacesPerLevel = spacesPerLevel;
 
         if (spacesPerLevel < 0) {
-            absSpacesPerLevel = -absSpacesPerLevel;
+            absSpacesPerLevel = -spacesPerLevel;
         }
 
         // Use nested loops rather than multiplication to avoid gcc warning.
