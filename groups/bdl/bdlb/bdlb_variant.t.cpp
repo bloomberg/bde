@@ -4494,6 +4494,36 @@ struct TestUtil {
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
         }
 
         if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -4671,6 +4701,42 @@ struct TestUtil {
                 ASSERT( 3 == X3.typeIndex());
                 ASSERT(      X3.is<TestArg3>());
                 ASSERT(V3 == X3.the<TestArg3>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -4872,6 +4938,48 @@ struct TestUtil {
                 ASSERT( 4 == X4.typeIndex());
                 ASSERT(      X4.is<TestArg4>());
                 ASSERT(V4 == X4.the<TestArg4>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -5095,6 +5203,54 @@ struct TestUtil {
                 ASSERT( 5 == X5.typeIndex());
                 ASSERT(      X5.is<TestArg5>());
                 ASSERT(V5 == X5.the<TestArg5>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -5339,6 +5495,60 @@ struct TestUtil {
                 ASSERT( 6 == X6.typeIndex());
                 ASSERT(      X6.is<TestArg6>());
                 ASSERT(V6 == X6.the<TestArg6>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -5604,6 +5814,66 @@ struct TestUtil {
                 ASSERT( 7 == X7.typeIndex());
                 ASSERT(      X7.is<TestArg7>());
                 ASSERT(V7 == X7.the<TestArg7>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -5890,6 +6160,72 @@ struct TestUtil {
                 ASSERT( 8 == X8.typeIndex());
                 ASSERT(      X8.is<TestArg8>());
                 ASSERT(V8 == X8.the<TestArg8>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -6198,6 +6534,78 @@ struct TestUtil {
                 ASSERT( 9 == X9.typeIndex());
                 ASSERT(      X9.is<TestArg9>());
                 ASSERT(V9 == X9.the<TestArg9>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -6527,6 +6935,84 @@ struct TestUtil {
                 ASSERT( 10 == X10.typeIndex());
                 ASSERT(       X10.is<TestArg10>());
                 ASSERT(V10 == X10.the<TestArg10>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -6877,6 +7363,90 @@ struct TestUtil {
                 ASSERT( 11 == X11.typeIndex());
                 ASSERT(       X11.is<TestArg11>());
                 ASSERT(V11 == X11.the<TestArg11>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -7249,6 +7819,96 @@ struct TestUtil {
                 ASSERT( 12 == X12.typeIndex());
                 ASSERT(       X12.is<TestArg12>());
                 ASSERT(V12 == X12.the<TestArg12>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -7642,6 +8302,102 @@ struct TestUtil {
                 ASSERT( 13 == X13.typeIndex());
                 ASSERT(       X13.is<TestArg13>());
                 ASSERT(V13 == X13.the<TestArg13>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -8056,6 +8812,108 @@ struct TestUtil {
                 ASSERT( 14 == X14.typeIndex());
                 ASSERT(       X14.is<TestArg14>());
                 ASSERT(V14 == X14.the<TestArg14>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -8491,6 +9349,114 @@ struct TestUtil {
                 ASSERT( 15 == X15.typeIndex());
                 ASSERT(       X15.is<TestArg15>());
                 ASSERT(V15 == X15.the<TestArg15>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -8948,6 +9914,120 @@ struct TestUtil {
                 ASSERT( 16 == X16.typeIndex());
                 ASSERT(       X16.is<TestArg16>());
                 ASSERT(V16 == X16.the<TestArg16>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+                const Obj Z16(V16, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = Z16;
+                ASSERT( 16 == X.typeIndex());
+                ASSERT(       X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -9429,6 +10509,126 @@ struct TestUtil {
                 ASSERT( 17 == X17.typeIndex());
                 ASSERT(       X17.is<TestArg17>());
                 ASSERT(V17 == X17.the<TestArg17>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+                const Obj Z16(V16, &scratch);
+                const Obj Z17(V17, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = Z16;
+                ASSERT( 16 == X.typeIndex());
+                ASSERT(       X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = Z17;
+                ASSERT( 17 == X.typeIndex());
+                ASSERT(       X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -9923,6 +11123,132 @@ struct TestUtil {
                 ASSERT( 18 == X18.typeIndex());
                 ASSERT(       X18.is<TestArg18>());
                 ASSERT(V18 == X18.the<TestArg18>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+                const Obj Z16(V16, &scratch);
+                const Obj Z17(V17, &scratch);
+                const Obj Z18(V18, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = Z16;
+                ASSERT( 16 == X.typeIndex());
+                ASSERT(       X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = Z17;
+                ASSERT( 17 == X.typeIndex());
+                ASSERT(       X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX = Z18;
+                ASSERT( 18 == X.typeIndex());
+                ASSERT(       X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
@@ -10441,6 +11767,138 @@ struct TestUtil {
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+                const Obj Z16(V16, &scratch);
+                const Obj Z17(V17, &scratch);
+                const Obj Z18(V18, &scratch);
+                const Obj Z19(V19, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = Z16;
+                ASSERT( 16 == X.typeIndex());
+                ASSERT(       X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = Z17;
+                ASSERT( 17 == X.typeIndex());
+                ASSERT(       X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX = Z18;
+                ASSERT( 18 == X.typeIndex());
+                ASSERT(       X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX = Z19;
+                ASSERT( 19 == X.typeIndex());
+                ASSERT(       X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
         }
 
         if (verbose)
@@ -10649,6 +12107,29 @@ struct TestUtil {
                 ASSERT( 1 == X1.typeIndex());
                 ASSERT(      X1.is<TestArg1>());
                 ASSERT(V1 == X1.the<TestArg1>());
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
 
                 ASSERT(dam.isTotalSame());
                 ASSERT(oam.isInUseUp());
@@ -11195,6 +12676,144 @@ struct TestUtil {
                 ASSERT( 20 == X20.typeIndex());
                 ASSERT(       X20.is<TestArg20>());
                 ASSERT(V20 == X20.the<TestArg20>());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(0 == oa.numBlocksInUse());
+
+            if (verbose) cout << "\tTesting copy-assignment operator."
+                              << endl;
+            {
+                const Obj Z1 (V1,  &scratch);
+                const Obj Z2 (V2,  &scratch);
+                const Obj Z3 (V3,  &scratch);
+                const Obj Z4 (V4,  &scratch);
+                const Obj Z5 (V5,  &scratch);
+                const Obj Z6 (V6,  &scratch);
+                const Obj Z7 (V7,  &scratch);
+                const Obj Z8 (V8,  &scratch);
+                const Obj Z9 (V9,  &scratch);
+                const Obj Z10(V10, &scratch);
+                const Obj Z11(V11, &scratch);
+                const Obj Z12(V12, &scratch);
+                const Obj Z13(V13, &scratch);
+                const Obj Z14(V14, &scratch);
+                const Obj Z15(V15, &scratch);
+                const Obj Z16(V16, &scratch);
+                const Obj Z17(V17, &scratch);
+                const Obj Z18(V18, &scratch);
+                const Obj Z19(V19, &scratch);
+                const Obj Z20(V20, &scratch);
+
+                dam.reset();
+                oam.reset();
+
+                Obj mX(&oa);  const Obj& X = mX;
+                ASSERT( 0 == X.typeIndex());
+
+                Obj *mR = &(mX = Z1);
+                ASSERT( 1 == X.typeIndex());
+                ASSERT(      X.is<TestArg1>());
+                ASSERT(V1 == X.the<TestArg1>());
+                ASSERT(mR == &mX);
+
+                ASSERT(dam.isTotalSame());
+                ASSERT(oam.isInUseUp());
+
+                mX = Z2;
+                ASSERT( 2 == X.typeIndex());
+                ASSERT(      X.is<TestArg2>());
+                ASSERT(V2 == X.the<TestArg2>());
+                ASSERT( 0 == oa.numBlocksInUse());
+
+                mX = Z3;
+                ASSERT( 3 == X.typeIndex());
+                ASSERT(      X.is<TestArg3>());
+                ASSERT(V3 == X.the<TestArg3>());
+
+                mX = Z4;
+                ASSERT( 4 == X.typeIndex());
+                ASSERT(      X.is<TestArg4>());
+                ASSERT(V4 == X.the<TestArg4>());
+
+                mX = Z5;
+                ASSERT( 5 == X.typeIndex());
+                ASSERT(      X.is<TestArg5>());
+                ASSERT(V5 == X.the<TestArg5>());
+
+                mX = Z6;
+                ASSERT( 6 == X.typeIndex());
+                ASSERT(      X.is<TestArg6>());
+                ASSERT(V6 == X.the<TestArg6>());
+
+                mX = Z7;
+                ASSERT( 7 == X.typeIndex());
+                ASSERT(      X.is<TestArg7>());
+                ASSERT(V7 == X.the<TestArg7>());
+
+                mX = Z8;
+                ASSERT( 8 == X.typeIndex());
+                ASSERT(      X.is<TestArg8>());
+                ASSERT(V8 == X.the<TestArg8>());
+
+                mX = Z9;
+                ASSERT( 9 == X.typeIndex());
+                ASSERT(      X.is<TestArg9>());
+                ASSERT(V9 == X.the<TestArg9>());
+
+                mX = Z10;
+                ASSERT( 10 == X.typeIndex());
+                ASSERT(       X.is<TestArg10>());
+                ASSERT(V10 == X.the<TestArg10>());
+
+                mX = Z11;
+                ASSERT( 11 == X.typeIndex());
+                ASSERT(       X.is<TestArg11>());
+                ASSERT(V11 == X.the<TestArg11>());
+
+                mX = Z12;
+                ASSERT( 12 == X.typeIndex());
+                ASSERT(       X.is<TestArg12>());
+                ASSERT(V12 == X.the<TestArg12>());
+
+                mX = Z13;
+                ASSERT( 13 == X.typeIndex());
+                ASSERT(       X.is<TestArg13>());
+                ASSERT(V13 == X.the<TestArg13>());
+
+                mX = Z14;
+                ASSERT( 14 == X.typeIndex());
+                ASSERT(       X.is<TestArg14>());
+                ASSERT(V14 == X.the<TestArg14>());
+
+                mX = Z15;
+                ASSERT( 15 == X.typeIndex());
+                ASSERT(       X.is<TestArg15>());
+                ASSERT(V15 == X.the<TestArg15>());
+
+                mX = Z16;
+                ASSERT( 16 == X.typeIndex());
+                ASSERT(       X.is<TestArg16>());
+                ASSERT(V16 == X.the<TestArg16>());
+
+                mX = Z17;
+                ASSERT( 17 == X.typeIndex());
+                ASSERT(       X.is<TestArg17>());
+                ASSERT(V17 == X.the<TestArg17>());
+
+                mX = Z18;
+                ASSERT( 18 == X.typeIndex());
+                ASSERT(       X.is<TestArg18>());
+                ASSERT(V18 == X.the<TestArg18>());
+
+                mX = Z19;
+                ASSERT( 19 == X.typeIndex());
+                ASSERT(       X.is<TestArg19>());
+                ASSERT(V19 == X.the<TestArg19>());
+
+                mX = Z20;
+                ASSERT( 20 == X.typeIndex());
+                ASSERT(       X.is<TestArg20>());
+                ASSERT(V20 == X.the<TestArg20>());
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
