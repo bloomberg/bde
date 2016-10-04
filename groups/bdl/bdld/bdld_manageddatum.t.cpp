@@ -395,11 +395,12 @@ int main(int argc, char *argv[])
       case 14: {
         //---------------------------------------------------------------------
         // CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
-        //   Test case 12 verifies the traits defined by 'ManagedDatum' are
-        //   set as expected, this test-case builds on that to verify the
-        //   traits 'ManagedDatum' defines results in the expected behavior
-        //   when a 'ManagedDatum' is loaded into a container using those
-        //   traits.
+        //   A previous test case, 12, verifies the traits defined by
+        //   'ManagedDatum' are set as the component author expected.  This
+        //   (regression) test-case extends case 12 to verify that the
+        //   intended value of the traits chosen by the component author
+        //   results in reasonable expected behavior when a 'ManagedDatum' is
+        //   loaded into a container that uses those traits.
         //
         // Concerns:
         //: 1 That a vector of 'bdld::ManagedDatum' objects correctly
@@ -407,8 +408,8 @@ int main(int argc, char *argv[])
         //:   is destroyed.
         //:
         //: 2 That a vector of 'bdld::ManagedDatum' objects correctly
-        //:   manage resources of those objects when the container is
-        //:   resized.
+        //:   manages resources of those objects when the underlying capacity
+        //:   is reallocated.
         //
         // Plan:
         //: 1 Create a vector of 'ManagedDatum' objects using a test-allocator
