@@ -7,18 +7,18 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide a basic deleter for the managed pointer class.
+//@PURPOSE: Provide a factory-based deleter for the managed pointer class.
 //
 //@CLASSES:
 //  bslma::ManagedPtr_FactoryDeleter: deduced deleter used by bslma::ManagedPtr
 //
 //@SEE_ALSO: bslma_managedptr
 //
-//@DESCRIPTION: This component provides a class,
+//@DESCRIPTION: This component provides a utility 'struct',
 // 'bslma::ManagedPtr_FactoryDeleter', used as an implementation detail by
-// 'bslma::ManagedPtr' to produce a type-erasing deleter function that will
-// destroy an object of a parameterized type, using a factory of another
-// parameterized type that provides a 'deleteObject' method.
+// 'bslma::ManagedPtr' to produce a type-erasing deleter function that destroys
+// an object of (template parameter) 'OBJECT_TYPE', using a factory of
+// (template parameter) 'FACTORY' type that provides a 'deleteObject' method.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -35,21 +35,20 @@ namespace bslma {
                    // struct ManagedPtr_FactoryDeleter
                    // ================================
 
-template <class ELEMENT_TYPE, class FACTORY>
+template <class OBJECT_TYPE, class FACTORY>
 struct ManagedPtr_FactoryDeleter {
-    // This utility provides a general deleter for objects that provide a
-    // 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdlma_Pool').
+    // This utility provides a general deleter for factories that provide a
+    // 'deleteObject' operation (e.g., 'bslma::Allocator', 'bdlma::Pool').
 
     // CLASS METHODS
     static void deleter(void *object, void *factory);
-        // Deleter function that deletes the specified 'object' by invoking
-        // 'deleteObject' on the specified 'factory', casting 'object' to
-        // 'ELEMENT_TYPE *' and 'factory' to 'FACTORY *'.  Note that the
-        // behavior is undefined if '0 == object', or if 'factory' does not
-        // point to an an object of type 'FACTORY', or 'object' does not point
-        // to a complete object of type 'ELEMENT_TYPE' unless 'ELEMENT_TYPE'
-        // has a virtual destructor and 'object' points to an object whose
-        // dynamic type derives from 'ELEMENT_TYPE.
+        // Delete the specified 'object' by invoking 'deleteObject' on the
+        // specified 'factory', casting 'object' to 'OBJECT_TYPE *' and
+        // 'factory' to 'FACTORY *'.  The behavior is undefined unless
+        // 'factory' points to an object of type 'FACTORY', and 'object' points
+        // to a complete object of type 'OBJECT_TYPE' or 'OBJECT_TYPE' has a
+        // virtual destructor and 'object' points to an object whose dynamic
+        // type derives from 'OBJECT_TYPE.
 };
 
 // ============================================================================
@@ -60,16 +59,17 @@ struct ManagedPtr_FactoryDeleter {
                     // struct ManagedPtr_FactoryDeleter
                     // --------------------------------
 
-template <class ELEMENT_TYPE, class FACTORY>
+// CLASS METHODS
+template <class OBJECT_TYPE, class FACTORY>
 inline
-void ManagedPtr_FactoryDeleter<ELEMENT_TYPE, FACTORY>::deleter(void *object,
-                                                               void *factory)
+void ManagedPtr_FactoryDeleter<OBJECT_TYPE, FACTORY>::deleter(void *object,
+                                                              void *factory)
 {
     BSLS_ASSERT_SAFE(0 != object);
     BSLS_ASSERT_SAFE(0 != factory);
 
     static_cast<FACTORY *>(factory)->deleteObject(
-                                          static_cast<ELEMENT_TYPE *>(object));
+                                           static_cast<OBJECT_TYPE *>(object));
 }
 
 }  // close package namespace
@@ -78,7 +78,7 @@ void ManagedPtr_FactoryDeleter<ELEMENT_TYPE, FACTORY>::deleter(void *object,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
