@@ -3,6 +3,7 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
 
         // Construct an object using a simple instantiation of the template.
         bslma::ManagedPtr_PairProxy<Dummy, int> x = {0, 0};
-        (void)x;  // silence usused variable warnings
+        (void)x;  // silence unused variable warnings
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -148,9 +149,8 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
