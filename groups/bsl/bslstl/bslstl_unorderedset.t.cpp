@@ -2243,7 +2243,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         Obj x;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = MovUtil::move(x)));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = MoveUtil::move(x)));
 
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.get_allocator()));
     }

@@ -7244,10 +7244,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
 }
 #endif
 
-<<<<<<< HEAD
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase35()
-=======
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
 {
@@ -7414,7 +7410,6 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
 
 template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
->>>>>>> 9373a9c... BDE-1247: 'noexcept': Added empty, but working test cases.
 {
     // ------------------------------------------------------------------------
     // BUCKET GROWTH

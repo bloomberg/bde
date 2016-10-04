@@ -269,7 +269,7 @@ using bsls::NameOf;
 // [26] CONCERN: The type provides the full interface defined by the standard.
 // [35] CONCERN: 'map' supports incomplete types.
 // [TBD] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
-// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [37] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -11611,7 +11611,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
         // --------------------------------------------------------------------
@@ -11622,7 +11622,7 @@ int main(int argc, char *argv[])
         TestDriver<int>::testCase36();
 
       } break;
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
