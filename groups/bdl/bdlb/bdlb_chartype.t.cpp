@@ -43,6 +43,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bool isUpper(char character);
 // [ 5] bool isLower(char character);
 // [ 5] bool isAlpha(char character);
+// [ 5] bool isoDigit(char character);
 // [ 5] bool isDigit(char character);
 // [ 5] bool isXdigit(char character);
 // [ 5] bool isAlnum(char character);
@@ -60,6 +61,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] const char *stringUpper();
 // [ 6] const char *stringLower();
 // [ 6] const char *stringAlpha();
+// [ 6] const char *stringoDigit();
 // [ 6] const char *stringDigit();
 // [ 6] const char *stringXdigit();
 // [ 6] const char *stringAlnum();
@@ -76,6 +78,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] int numUpper();
 // [ 6] int numLower();
 // [ 6] int numAlpha();
+// [ 6] int numoDigit();
 // [ 6] int numDigit();
 // [ 6] int numXdigit();
 // [ 6] int numAlnum();
@@ -175,6 +178,14 @@ static bool isAlpha(char c) {
         || 'a' <= c && c <= 'z';
 }
 
+static bool isOdigit(char c) {
+    return '0' <= c && c <= '7';
+}
+
+static bool isoctaldigit(int c) {
+    return isdigit(c) && !('8' == c || '9' == c);
+}
+
 static bool isDigit(char c) {
     return '0' <= c && c <= '9';
 }
@@ -253,141 +264,141 @@ static char toUpper(char c) {
 
 static const char DOC_TABLE[128][bdlb::CharType::e_NONE + 1] =
 {
-  //             X
-  // U  L  A  D  D  A  S  P  G  P  C  A  I  A
-  // P  O  L  I  I  L  P  R  R  U  N  S  D  L     N
-  // P  W  P  G  G  N  A  I  A  N  T  C  E  U  A  O      char/
-  // E  E  H  I  I  U  C  N  P  C  R  I  N  N  L  N      Octal
-  // R  R  A  T  T  M  E  T  H  T  L  I  T  D  L  E      Code
-  // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -     ------
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 000
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 001
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 002
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 003
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 004
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 005
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 006
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 007
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 010
-   { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 011
-   { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 012
-   { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 013
-   { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 014
-   { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 015
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 016
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 017
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 020
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 021
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 022
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 023
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 024
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 025
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 026
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 027
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 030
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 031
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 032
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 033
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 034
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 035
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 036
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 037
-   { 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0 },  //
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // !
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // "
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // #
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // $
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // %
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // &
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // '
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // (
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // )
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // *
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // +
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ,
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // -
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // .
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // /
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 0
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 1
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 2
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 3
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 4
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 5
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 6
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 7
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 8
-   { 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 9
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // :
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ;
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // <
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // =
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // >
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ?
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // @
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // A
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // B
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // C
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // D
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // E
-   { 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // F
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // G
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // H
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // I
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // J
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // K
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // L
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // M
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // N
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // O
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // P
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Q
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // R
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // S
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // T
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // U
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // V
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // W
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // X
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Y
-   { 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Z
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // [
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  //
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ]
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ^
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 },  // _
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // `
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // a
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // b
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // c
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // d
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // e
-   { 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // f
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // g
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // h
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // i
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // j
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // k
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // l
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // m
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // n
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // o
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // p
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // q
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // r
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // s
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // t
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // u
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // v
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // w
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // x
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // y
-   { 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // z
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // {
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // |
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // }
-   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ~
-   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 177
+  //          O     X
+  // U  L  A  D  D  D  A  S  P  G  P  C  A  I  A
+  // P  O  L  I  I  I  L  P  R  R  U  N  S  D  L     N
+  // P  W  P  G  G  G  N  A  I  A  N  T  C  E  U  A  O      char/
+  // E  E  H  I  I  I  U  C  N  P  C  R  I  N  N  L  N      Octal
+  // R  R  A  T  T  T  M  E  T  H  T  L  I  T  D  L  E      Code
+  // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -     ------
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 000
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 001
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 002
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 003
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 004
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 005
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 006
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 007
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 010
+   { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 011
+   { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 012
+   { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 013
+   { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 014
+   { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 015
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 016
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 017
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 020
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 021
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 022
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 023
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 024
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 025
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 026
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 027
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 030
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 031
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 032
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 033
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 034
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 035
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 036
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 037
+   { 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0 },  //
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // !
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // "
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // #
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // $
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // %
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // &
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // '
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // (
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // )
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // *
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // +
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ,
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // -
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // .
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // /
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 0
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 1
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 2
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 3
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 4
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 5
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 6
+   { 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 7
+   { 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 8
+   { 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0 },  // 9
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // :
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ;
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // <
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // =
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // >
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ?
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // @
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // A
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // B
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // C
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // D
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // E
+   { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // F
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // G
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // H
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // I
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // J
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // K
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // L
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // M
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // N
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // O
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // P
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Q
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // R
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // S
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // T
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // U
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // V
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // W
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // X
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Y
+   { 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // Z
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // [
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  //
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ]
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ^
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 },  // _
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // `
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // a
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // b
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // c
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // d
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // e
+   { 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // f
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // g
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // h
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // i
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // j
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // k
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // l
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // m
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // n
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // o
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // p
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // q
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // r
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // s
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // t
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // u
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // v
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // w
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // x
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // y
+   { 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0 },  // z
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // {
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // |
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // }
+   { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0 },  // ~
+   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0 },  // 177
 };
 
 // ============================================================================
@@ -578,6 +589,7 @@ int main(int argc, char *argv[])
         //   int numUpper();
         //   int numLower();
         //   int numAlpha();
+        //   int numOdigit();
         //   int numDigit();
         //   int numXdigit();
         //   int numAlnum();
@@ -596,6 +608,7 @@ int main(int argc, char *argv[])
         //   const char *stringUpper();
         //   const char *stringLower();
         //   const char *stringAlpha();
+        //   const char *stringOdigit();
         //   const char *stringDigit();
         //   const char *stringXdigit();
         //   const char *stringAlnum();
@@ -640,25 +653,23 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
                 "\tRepeat test with individual functions." << endl;
 
-            ASSERT(Util::numCategory(Util::e_UPPER) == Util::numUpper());
-            ASSERT(Util::numCategory(Util::e_LOWER) == Util::numLower());
-            ASSERT(Util::numCategory(Util::e_ALPHA) == Util::numAlpha());
-            ASSERT(Util::numCategory(Util::e_DIGIT) == Util::numDigit());
-
+            ASSERT(Util::numCategory(Util::e_UPPER)  == Util::numUpper());
+            ASSERT(Util::numCategory(Util::e_LOWER)  == Util::numLower());
+            ASSERT(Util::numCategory(Util::e_ALPHA)  == Util::numAlpha());
+            ASSERT(Util::numCategory(Util::e_ODIGIT) == Util::numOdigit());
+            ASSERT(Util::numCategory(Util::e_DIGIT)  == Util::numDigit());
             ASSERT(Util::numCategory(Util::e_XDIGIT) == Util::numXdigit());
-            ASSERT(Util::numCategory(Util::e_ALNUM) == Util::numAlnum());
-            ASSERT(Util::numCategory(Util::e_SPACE) == Util::numSpace());
-            ASSERT(Util::numCategory(Util::e_PRINT) == Util::numPrint());
-
-            ASSERT(Util::numCategory(Util::e_GRAPH) == Util::numGraph());
-            ASSERT(Util::numCategory(Util::e_PUNCT) == Util::numPunct());
-            ASSERT(Util::numCategory(Util::e_CNTRL) == Util::numCntrl());
-            ASSERT(Util::numCategory(Util::e_ASCII) == Util::numAscii());
-
-            ASSERT(Util::numCategory(Util::e_IDENT) == Util::numIdent());
-            ASSERT(Util::numCategory(Util::e_ALUND) == Util::numAlund());
-            ASSERT(Util::numCategory(Util::e_ALL)   == Util::numAll());
-            ASSERT(Util::numCategory(Util::e_NONE)  == Util::numNone());
+            ASSERT(Util::numCategory(Util::e_ALNUM)  == Util::numAlnum());
+            ASSERT(Util::numCategory(Util::e_SPACE)  == Util::numSpace());
+            ASSERT(Util::numCategory(Util::e_PRINT)  == Util::numPrint());
+            ASSERT(Util::numCategory(Util::e_GRAPH)  == Util::numGraph());
+            ASSERT(Util::numCategory(Util::e_PUNCT)  == Util::numPunct());
+            ASSERT(Util::numCategory(Util::e_CNTRL)  == Util::numCntrl());
+            ASSERT(Util::numCategory(Util::e_ASCII)  == Util::numAscii());
+            ASSERT(Util::numCategory(Util::e_IDENT)  == Util::numIdent());
+            ASSERT(Util::numCategory(Util::e_ALUND)  == Util::numAlund());
+            ASSERT(Util::numCategory(Util::e_ALL)    == Util::numAll());
+            ASSERT(Util::numCategory(Util::e_NONE)   == Util::numNone());
         }
 
         if (verbose) cout << "\nFor each character set, check string." << endl;
@@ -704,6 +715,11 @@ int main(int argc, char *argv[])
                               n = Util::numAlpha();
                            r = Util::stringAlpha();     ASSERT(0 == r[n]);
             e = Util::stringCategory(Util::e_ALPHA);      ASSERT(e == r);
+            ASSERT(0 == memcmp(r, e, n + 1));           // redundant
+
+                              n = Util::numOdigit();
+                           r = Util::stringOdigit();    ASSERT(0 == r[n]);
+            e = Util::stringCategory(Util::e_ODIGIT);     ASSERT(e == r);
             ASSERT(0 == memcmp(r, e, n + 1));           // redundant
 
                               n = Util::numDigit();
@@ -815,6 +831,7 @@ int main(int argc, char *argv[])
         //   bool isUpper(char character);
         //   bool isLower(char character);
         //   bool isAlpha(char character);
+        //   bool isOdigit(char character);
         //   bool isDigit(char character);
         //   bool isXdigit(char character);
         //   bool isAlnum(char character);
@@ -848,6 +865,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) P(i);
                 LOOP_ASSERT(i, isUpper(i)  == Util::isUpper(i));
                 LOOP_ASSERT(i, isLower(i)  == Util::isLower(i));
+                LOOP_ASSERT(i, isOdigit(i) == Util::isOdigit(i));
                 LOOP_ASSERT(i, isDigit(i)  == Util::isDigit(i));
                 LOOP_ASSERT(i, isXdigit(i) == Util::isXdigit(i));
 
@@ -872,10 +890,12 @@ int main(int argc, char *argv[])
                                                                U::e_UPPER));
                 LOOP_ASSERT(i, isLower(i)  == Util::isCategory(i,
                                                                U::e_LOWER));
+                LOOP_ASSERT(i, isOdigit(i)  == Util::isCategory(i,
+                                                               U::e_ODIGIT));
                 LOOP_ASSERT(i, isDigit(i)  == Util::isCategory(i,
                                                                U::e_DIGIT));
                 LOOP_ASSERT(i, isXdigit(i) == Util::isCategory(i,
-                                                              U::e_XDIGIT));
+                                                               U::e_XDIGIT));
 
                 LOOP_ASSERT(i, isAlpha(i)  == Util::isCategory(i,
                                                                U::e_ALPHA));
@@ -941,6 +961,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == strcmp("UPPER",  Util::toAscii(Util::e_UPPER)));
             ASSERT(0 == strcmp("LOWER",  Util::toAscii(Util::e_LOWER)));
             ASSERT(0 == strcmp("ALPHA",  Util::toAscii(Util::e_ALPHA)));
+            ASSERT(0 == strcmp("ODIGIT", Util::toAscii(Util::e_ODIGIT)));
             ASSERT(0 == strcmp("DIGIT",  Util::toAscii(Util::e_DIGIT)));
             ASSERT(0 == strcmp("XDIGIT", Util::toAscii(Util::e_XDIGIT)));
             ASSERT(0 == strcmp("ALNUM",  Util::toAscii(Util::e_ALNUM)));
@@ -968,25 +989,28 @@ int main(int argc, char *argv[])
                 //      Input             Output
                 //L#    Enumerator        Format
                 //--    --------------    ------
-                { L_,   Util::e_UPPER,    "UPPER"         },
-                { L_,   Util::e_LOWER,    "LOWER"         },
-                { L_,   Util::e_ALPHA,    "ALPHA"         },
-                { L_,   Util::e_DIGIT,    "DIGIT"         },
+                { L_,   Util::e_UPPER,    "UPPER"  },
+                { L_,   Util::e_LOWER,    "LOWER"  },
+                { L_,   Util::e_ALPHA,    "ALPHA"  },
 
-                { L_,   Util::e_XDIGIT,   "XDIGIT"        },
-                { L_,   Util::e_ALNUM,    "ALNUM"         },
-                { L_,   Util::e_SPACE,    "SPACE"         },
-                { L_,   Util::e_PRINT,    "PRINT"         },
+                { L_,   Util::e_ODIGIT,   "ODIGIT" },
+                { L_,   Util::e_DIGIT,    "DIGIT"  },
+                { L_,   Util::e_XDIGIT,   "XDIGIT" },
 
-                { L_,   Util::e_GRAPH,    "GRAPH"         },
-                { L_,   Util::e_PUNCT,    "PUNCT"         },
-                { L_,   Util::e_CNTRL,    "CNTRL"         },
-                { L_,   Util::e_ASCII,    "ASCII"         },
+                { L_,   Util::e_ALNUM,    "ALNUM"  },
+                { L_,   Util::e_SPACE,    "SPACE"  },
+                { L_,   Util::e_PRINT,    "PRINT"  },
 
-                { L_,   Util::e_IDENT,    "IDENT"         },
-                { L_,   Util::e_ALUND,    "ALUND"         },
-                { L_,   Util::e_ALL,      "ALL"           },
-                { L_,   Util::e_NONE,     "NONE"          },
+                { L_,   Util::e_GRAPH,    "GRAPH"  },
+                { L_,   Util::e_PUNCT,    "PUNCT"  },
+                { L_,   Util::e_CNTRL,    "CNTRL"  },
+
+                { L_,   Util::e_ASCII,    "ASCII"  },
+                { L_,   Util::e_IDENT,    "IDENT"  },
+                { L_,   Util::e_ALUND,    "ALUND"  },
+
+                { L_,   Util::e_ALL,      "ALL"    },
+                { L_,   Util::e_NONE,     "NONE"   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1066,28 +1090,29 @@ int main(int argc, char *argv[])
         {
             enum bdlb::CharType::Category c;
 
-            c = bdlb::CharType::e_UPPER;   ASSERT(0 == c);
-            c = bdlb::CharType::e_LOWER;   ASSERT(1 == c);
-            c = bdlb::CharType::e_ALPHA;   ASSERT(2 == c);
-            c = bdlb::CharType::e_DIGIT;   ASSERT(3 == c);
-            c = bdlb::CharType::e_XDIGIT;  ASSERT(4 == c);
-            c = bdlb::CharType::e_ALNUM;   ASSERT(5 == c);
-            c = bdlb::CharType::e_SPACE;   ASSERT(6 == c);
-            c = bdlb::CharType::e_PRINT;   ASSERT(7 == c);
-            c = bdlb::CharType::e_GRAPH;   ASSERT(8 == c);
-            c = bdlb::CharType::e_PUNCT;   ASSERT(9 == c);
-            c = bdlb::CharType::e_CNTRL;   ASSERT(10 == c);
-            c = bdlb::CharType::e_ASCII;   ASSERT(11 == c);
-            c = bdlb::CharType::e_IDENT;   ASSERT(12 == c);
-            c = bdlb::CharType::e_ALUND;   ASSERT(13 == c);
-            c = bdlb::CharType::e_ALL;     ASSERT(14 == c);
-            c = bdlb::CharType::e_NONE;    ASSERT(15 == c);
+            c = bdlb::CharType::e_UPPER;   ASSERT( 0 == c);
+            c = bdlb::CharType::e_LOWER;   ASSERT( 1 == c);
+            c = bdlb::CharType::e_ALPHA;   ASSERT( 2 == c);
+            c = bdlb::CharType::e_ODIGIT;  ASSERT( 3 == c);
+            c = bdlb::CharType::e_DIGIT;   ASSERT( 4 == c);
+            c = bdlb::CharType::e_XDIGIT;  ASSERT( 5 == c);
+            c = bdlb::CharType::e_ALNUM;   ASSERT( 6 == c);
+            c = bdlb::CharType::e_SPACE;   ASSERT( 7 == c);
+            c = bdlb::CharType::e_PRINT;   ASSERT( 8 == c);
+            c = bdlb::CharType::e_GRAPH;   ASSERT( 9 == c);
+            c = bdlb::CharType::e_PUNCT;   ASSERT(10 == c);
+            c = bdlb::CharType::e_CNTRL;   ASSERT(11 == c);
+            c = bdlb::CharType::e_ASCII;   ASSERT(12 == c);
+            c = bdlb::CharType::e_IDENT;   ASSERT(13 == c);
+            c = bdlb::CharType::e_ALUND;   ASSERT(14 == c);
+            c = bdlb::CharType::e_ALL;     ASSERT(15 == c);
+            c = bdlb::CharType::e_NONE;    ASSERT(16 == c);
         }
 
         if (verbose) cout << "\nVerify bdlb::CharType::k_NUM_CATEGORIES."
                           << endl;
         {
-            ASSERT(16 == bdlb::CharType::k_NUM_CATEGORIES);
+            ASSERT(17 == bdlb::CharType::k_NUM_CATEGORIES);
         }
 
       } break;
@@ -1102,7 +1127,7 @@ int main(int argc, char *argv[])
         //: 3 The table defining behavior for each category is correct.
         //: 4 The value returned is 0 or 1 (even though it is declared 'bool').
         //
-        // Plan: This test case uses Area Datat Selection and is implemented
+        // Plan: This test case uses Area Data Selection and is implemented
         // using the Loop-Based Technique.
         //: 1 For each of the table-based functions, verify that the test
         //:   helper produces the same results as the corresponding C-library
@@ -1124,6 +1149,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, isUpper(i)  == !!isupper(i));
                 LOOP_ASSERT(i, isLower(i)  == !!islower(i));
                 LOOP_ASSERT(i, isDigit(i)  == !!isdigit(i));
+                LOOP_ASSERT(i, isOdigit(i) == !!isoctaldigit(i));
                 LOOP_ASSERT(i, isXdigit(i) == !!isXdigit(i));
 
                 LOOP_ASSERT(i, isAlpha(i)  == !!isalpha(i));
@@ -1151,6 +1177,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) P(i);
                 LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::e_UPPER]);
                 LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::e_LOWER]);
+                LOOP_ASSERT(i, isOdigit(i) == DOC_TABLE[i][Util::e_ODIGIT]);
                 LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::e_DIGIT]);
                 LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::e_XDIGIT]);
 
