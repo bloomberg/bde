@@ -496,6 +496,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_UTILITY
+#include <utility>
+#endif
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -722,8 +726,8 @@ struct AllocatorTraits_HasConstructMethod {
   private:
     template <class U>
     static auto match(U *) ->
-        typename bsl::is_same<decltype(native_std::declval<U>().construct(
-                                  native_std::declval<Args>()...)),
+        typename bsl::is_same<decltype(std::declval<U>().construct(
+                                                     std::declval<Args>()...)),
                               Return>::type;
     template <class>
     static bsl::false_type match(...);
@@ -741,8 +745,8 @@ template <class T, class R, class... Args>
 struct AllocatorTraits_HasDestroyMethod {
     template <class U>
     static auto match(U *) ->
-        typename bsl::is_same<decltype(native_std::declval<U>().destroy(
-                                  native_std::declval<Args>()...)),
+        typename bsl::is_same<decltype(std::declval<U>().destroy(
+                                                     std::declval<Args>()...)),
                               R>::type;
     template <class>
     static bsl::false_type match(...);
