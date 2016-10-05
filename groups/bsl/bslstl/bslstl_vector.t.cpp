@@ -1113,7 +1113,7 @@ struct TestDriver {
         // semantics based on integer template parameters 'N01' ... 'N10'.
 
     // TEST CASES
-    static void testCase35();
+    static void testCase36();
         // Test 'noexcept' specifications
 
     template <class CONTAINER>
@@ -1383,7 +1383,7 @@ void TestDriver<TYPE, ALLOC>::stretchRemoveAll(Obj         *object,
                                  // ----------
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase35()
+void TestDriver<TYPE, ALLOC>::testCase36()
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -1406,6 +1406,7 @@ void TestDriver<TYPE, ALLOC>::testCase35()
     // ------------------------------------------------------------------------
 
     if (verbose) {
+        P(bsls::NameOf<Obj>())
         P(bsls::NameOf<TYPE>())
         P(bsls::NameOf<ALLOC>())
     }
@@ -1427,10 +1428,6 @@ void TestDriver<TYPE, ALLOC>::testCase35()
         ALLOC a;
         ASSERT(true
             == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
-
-        Obj* p;
-        ASSERT(true
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(new (p) Obj(a)));
     }
    
     // page 854
@@ -13283,8 +13280,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        TestDriver<int  >::testCase35();
-        TestDriver<int *>::testCase35();
+        TestDriver<int  >::testCase36();
+        TestDriver<int *>::testCase36();
 
       } break;
 #if 0
