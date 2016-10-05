@@ -6,6 +6,7 @@
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_time.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -1008,9 +1009,9 @@ int main(int argc, char *argv[])
             }
         };
 
-        const int NUM_DATA = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
+        const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-        for (int i = 0; i < NUM_DATA; ++i) {
+        for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
             if (veryVerbose) {
                 T_ P_(i) P(DATA[i].d_message)
@@ -1147,13 +1148,12 @@ int main(int argc, char *argv[])
             { L_, createMap(&ta) },
             { L_, createEmptyMap() }
             };
-            const int NUM_DATA = static_cast<int>(
-                sizeof(DATA) / sizeof(*DATA));
+            const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             // Comparing ManagedDatum objects.
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                for (int j = 0; j < NUM_DATA; ++j) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                for (bsl::size_t j = 0; j < NUM_DATA; ++j) {
                     const int LINE_I = DATA[i].d_line;
                     const int LINE_J = DATA[j].d_line;
                     Obj x(DATA[i].d_datum, &ta); const Obj& X = x;
@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
                 }
             }            
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
                 // Relase the memory allocated in 'DATA'.
 
                 Datum::destroy(DATA[i].d_datum, &ta);
