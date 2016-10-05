@@ -13284,7 +13284,6 @@ int main(int argc, char *argv[])
         TestDriver<int *>::testCase36();
 
       } break;
-#if 0
       case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -14631,7 +14630,6 @@ int main(int argc, char *argv[])
                                   CharArray<bsltf::BitwiseCopyableTestType>());
 
       } break;
-#endif // 0
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
