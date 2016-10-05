@@ -846,7 +846,7 @@ int FilesystemUtil::visitPaths(
         // There is no leaf, therefore there can be nothing to do (but not an
         // error)
 
-        return 0;                                                     // RETURN
+        return 1;                                                     // RETURN
     }
 
     if (bsl::string::npos != dirName.find_first_of("*?")) {
@@ -928,7 +928,7 @@ int FilesystemUtil::visitPaths(
         if (INVALID_HANDLE_VALUE == handle) {
             // No files found.
 
-            return 0;                                                 // RETURN
+            return 1;                                                 // RETURN
         }
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
@@ -2003,7 +2003,7 @@ int FilesystemUtil::createDirectories(const char *path,
                 return -1;                                            // RETURN
             }
         }
-        directoryStack.pop_back();
+        directoryStack.pop_back();
     }
     return 0;
 }

@@ -5015,7 +5015,7 @@ int main(int argc, char *argv[])
             logFiles.clear();
             rc = Obj::findMatchingPaths(&logFiles,
                                         "tmp.non_existent_file.txt");
-            ASSERT(1 == rc);    // no such file
+            LOOP_ASSERT(rc, 1 == rc);    // no such file
 
             // Clean up
 
