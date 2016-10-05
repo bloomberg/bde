@@ -921,10 +921,10 @@ int main(int argc, char *argv[])
             VisitTreeTestVisitor woofVisitor;
             woofVisitor.d_vec = &woofPathsVec;
 
-            int rc = stringFlag
-                   ? Obj::visitPaths(bsl::string("woo*" PS "woo*" PS "woo*"),
-                                     woofVisitor)
-                   : Obj::visitPaths("woo*" PS "woo*" PS "woo*", woofVisitor);
+            int rc;
+            const char *str = "woo*" PS "woo*" PS "woo*";
+            rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
+                            : Obj::visitPaths(str, woofVisitor);
             ASSERT(0 == rc);
 
             bsl::sort(woofPathsVec.begin(), woofPathsVec.end());
@@ -932,6 +932,28 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(woofPathsExpVec.size(), woofPathsVec.size(),
                                 woofPathsExpVec.size() == woofPathsVec.size());
             ASSERT(woofPathsExpVec == woofPathsVec);
+
+            woofPathsVec.clear();
+
+#ifndef BSLS_PLATFORM_OS_DARWIN
+            str = NAMES[NAME_ANSI];     // String containing invalid UTF-8,
+                                        // which non-Darwin Unix can handle
+                                        // but Windows can't.
+            rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
+                            : Obj::visitPaths(str, woofVisitor);
+# ifdef BSLS_PLATFORM_OS_WINDOWS
+            LOOP2_ASSERT(stringFlag, rc, -2 == rc);
+# else
+            ASSERT(1 == rc);
+# endif
+            ASSERT(woofPathsVec.empty());    // Shouldn't have found anything.
+#endif
+
+            woofPathsVec.clear();
+            str = "tmp.non_existent_file.txt";
+            rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
+                            : Obj::visitPaths(str, woofVisitor);
+            ASSERT(1 == rc);
         }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -2398,10 +2420,11 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        // Unix "glob()", which is called by Obj::visitPaths, is failing on IBM
-        // 64 bit, unfortunately the test driver has not detected or reproduced
-        // this error.  This test case is an attempt to get this test driver
-        // reproducing the problem.
+        // Unix "glob()", which is called by 'Obj::visitPaths', which is called
+        // by 'Obj::findMatchingPaths', is failing on IBM 64 bit, unfortunately
+        // the test driver has not detected or reproduced this error.  This
+        // test case is an attempt to get this test driver reproducing the
+        // problem.
         //
         // Plan:
         //   Run the usage example 1
@@ -4973,7 +4996,7 @@ int main(int argc, char *argv[])
             bdls::PathUtil::appendRaw(&logPath, "*o*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-            LOOP_ASSERT(ni, 0 == rc);
+            LOOP_ASSERT(ni, (NUM_OLD_FILES == 0 ? 1 : 0) == rc);
 #endif
             LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_OLD_FILES,
                                                                logFiles.size(),
@@ -4982,12 +5005,17 @@ int main(int argc, char *argv[])
 
             bdls::PathUtil::appendRaw(&logPath, "*n*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            LOOP_ASSERT(ni, 0 == rc);
+            LOOP_ASSERT(ni, (NUM_NEW_FILES == 0 ? 1 : 0) == rc);
             LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_NEW_FILES,
                                                                logFiles.size(),
                                              NUM_NEW_FILES == logFiles.size());
             bdls::PathUtil::popLeaf(&logPath);
             bdls::PathUtil::popLeaf(&logPath);
+
+            logFiles.clear();
+            rc = Obj::findMatchingPaths(&logFiles,
+                                        "tmp.non_existent_file.txt");
+            ASSERT(1 == rc);    // no such file
 
             // Clean up
 

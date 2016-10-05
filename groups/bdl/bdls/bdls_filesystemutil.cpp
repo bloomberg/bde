@@ -839,6 +839,8 @@ int FilesystemUtil::visitPaths(
 
     BSLS_ASSERT(patternStr);
 
+    int ret = 1;
+
     bsl::string dirName;
     if (0 != PathUtil::getDirname(&dirName, patternStr)) {
         // There is no leaf, therefore there can be nothing to do (but not an
@@ -884,21 +886,24 @@ int FilesystemUtil::visitPaths(
                                                       &pushBackWrapper,
                                                       &paths,
                                                       bdlf::PlaceHolders::_1));
-                    if (0 != rc) {
-                        return -1;                                    // RETURN
+                    if (rc < 0) {
+                        return rc;                                    // RETURN
                     }
                 }
             }
             leaves.pop_back();
         }
-        for (bsl::vector<bsl::string>::iterator it = paths.begin();
-                                                     it != paths.end(); ++it) {
+
+        ret = paths.empty() ? 1 : 0;
+
+        typedef bsl::vector<bsl::string>::const_iterator CIter;
+        CIter end = paths.end();
+        for (CIter it = paths.begin(); it != paths.end(); ++it) {
             visitor(it->c_str());
         }
     }
     else {
-        // No special characters except possibly in the leaf.  This is the BASE
-        // CASE.
+        // No wild cards except possibly in the leaf.  This is the BASE CASE.
 
         bsl::string      dirNamePath = dirName;
         WIN32_FIND_DATAW findDataW;
@@ -910,7 +915,7 @@ int FilesystemUtil::visitPaths(
             // If the user passed invalid UTF-8 in 'patternStr', return
             // failure.
 
-            return -1;                                                // RETURN
+            return -2;                                                // RETURN
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
@@ -952,11 +957,12 @@ int FilesystemUtil::visitPaths(
                                   "FindFirstFileW returned an absolute path.");
             }
 
+            ret = 0;
             visitor(fullNamePath.c_str());
         }
     }
 
-    return 0;
+    return ret;
 }
 
 int FilesystemUtil::visitTree(
@@ -1651,28 +1657,43 @@ int FilesystemUtil::visitPaths(
 
     int rc = glob(pattern, GLOB_NOSORT, 0, &pglob);
     bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
-    if (GLOB_NOMATCH == rc) {
-        return 0;                                                     // RETURN
-    }
-    if (GLOB_NOSPACE == rc) {
-        bsls::BslExceptionUtil::throwBadAlloc();
-    }
-    if (0 != rc) {
-        // The only other non-zero return values listed in
-        // '/usr/include/glob.h' are 'GLOB_ABORTED' and 'GLOB_NOSYS' (where
-        // 'GLOB_NOSYS' is listed as 'not implemented').
+    switch (rc) {
+      case 0: {
+        // matched something
 
-        return -1;                                                    // RETURN
-    }
-
-    for (bsl::size_t i = 0; i < pglob.gl_pathc; ++i) {
-        BSLS_ASSERT(pglob.gl_pathv[i]);
-        if (!isDotOrDots(pglob.gl_pathv[i])) {
-            visitor(pglob.gl_pathv[i]);
+        for (bsl::size_t i = 0; i < pglob.gl_pathc; ++i) {
+            BSLS_ASSERT(pglob.gl_pathv[i]);
+            if (!isDotOrDots(pglob.gl_pathv[i])) {
+                visitor(pglob.gl_pathv[i]);
+            }
         }
-    }
 
-    return 0;
+        return 0;                                                     // RETURN
+      } break;
+      case GLOB_NOMATCH: {
+        return 1;                                                     // RETURN
+      } break;
+      case GLOB_NOSPACE: {
+        // out of memory
+
+        bsls::BslExceptionUtil::throwBadAlloc();
+
+        // Should only get here if exceptions are disabled.
+
+        return -11;                                                   // RETURN
+      } break;
+      case GLOB_ABORTED: {
+        return -12;                                                   // RETURN
+      } break;
+      case GLOB_NOSYS: {
+        return -13;                                                   // RETURN
+      } break;
+      default: {
+        // unknown error
+
+        return -14;                                                   // RETURN
+      } break;
+    }
 }
 
 int FilesystemUtil::visitTree(

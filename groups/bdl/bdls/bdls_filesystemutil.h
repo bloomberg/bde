@@ -637,13 +637,15 @@ struct FilesystemUtil {
                         const char                                   *pattern,
                         const bsl::function<void(const char *path)>&  visitor);
         // Call the specified 'visitor' function object for each path in the
-        // filesystem matching the specified 'pattern'.  Return 0 on success
-        // and a non-zero value otherwise.  Note that if 'visitor' deletes
-        // files or directories during the search, 'visitor' may subsequently
-        // be called with paths which have already been deleted, so must be
-        // prepared for this event.  Also note that there is no guarantee as to
-        // the order in which paths will be visited.  See 'findMatchingPaths'
-        // for a discussion of how 'pattern' is interpreted.
+        // filesystem matching the specified 'pattern'.  Return 0 or 1 on
+        // success, 0 if a file or files were visited and 1 if no files were
+        // visited, and a negative value otherwise.  Note that if 'visitor'
+        // deletes files or directories during the search, 'visitor' may
+        // subsequently be called with paths which have already been deleted,
+        // so must be prepared for this event.  Also note that there is no
+        // guarantee as to the order in which paths will be visited.  See
+        // 'findMatchingPaths' for a discussion of how 'pattern' is
+        // interpreted.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
@@ -700,8 +702,9 @@ struct FilesystemUtil {
         // directories "." and ".." will not be matched against any pattern.
         // Note that any initial contents of 'result' will be erased, and that
         // the paths in 'result' will not be in any particular guaranteed
-        // order.  Return 0 on success and a non-zero value otherwise; if 0 is
-        // not returned, the contents of '*result' are undefined.
+        // order.  Return 0 or 1 on success, 0 if a file or files were matched,
+        // 1 if no files were matched, and a negative value otherwise; if a
+        // negative value is returned, the contents of '*result' are undefined.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an
