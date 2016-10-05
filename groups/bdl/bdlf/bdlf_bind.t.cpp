@@ -2213,7 +2213,7 @@ DEFINE_TEST_CASE(5) {
         }
 
         if (verbose)
-            printf("\tUsing bsl::function\n");
+            printf("\tUsing std::function\n");
         {
             struct Func { static int f(int x) { return x; } };
             native_std::function<int(int)> f = &Func::f;
