@@ -252,7 +252,7 @@ bsl::uint32_t BitMaskUtil::ge(int index)
 
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    index < static_cast<int>(k_BITS_PER_UINT32))
-           ? (~0 << index)
+           ? (~static_cast<uint32_t>(0) << index)
            : 0;
 }
 
