@@ -394,6 +394,13 @@ class MultiQueueThreadPool_Queue {
         e_DELETING             // queue is stopped pending deletion
     };
 
+    enum {
+        // Pause states
+        e_RUNNING = 0, // not paused
+        e_PAUSING,     // pause requested but not completed yet
+        e_PAUSED,      // paused
+    };
+
   private:
     bsl::deque<Job> d_list;           // queue of jobs to be executed
 
@@ -401,7 +408,7 @@ class MultiQueueThreadPool_Queue {
 
     bsls::AtomicInt d_state;          // maintains enqueue state
 
-    bool            d_paused;         // whether job processing is disabled
+    bsls::AtomicInt d_pauseState;     // whether job processing is disabled
 
     bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
                                       // queue since creation or the last time
@@ -503,16 +510,17 @@ class MultiQueueThreadPool_QueueContext {
     MultiQueueThreadPool_Queue d_queue;
     mutable bslmt::QLock       d_lock;         // protect queue and
                                                // informational members
-
-    bool                       d_pausing;      // set while pauseQueue is
-                                               // waiting for callback
-
+                                                
+    bool                       d_isChanging;   // set when pauseQueue or
+                                               // resumeQueue is waiting for
+                                               // callback. 
+                                                
     QueueProcessorCb           d_processingCb; // bound processing callback for
                                                // pool
-
+                                                
     bool                       d_destroyFlag;  // signals worker thread to
                                                // delete queue
-
+                                                
     bslmt::ThreadUtil::Handle  d_processor;    // current worker thread, or
                                                // ThreadUtil::invalidHandle()
 
@@ -631,6 +639,13 @@ class MultiQueueThreadPool {
         // Return 0 if enqueued successfully, and a non-zero value if queuing
         // is disabled.  The behavior is undefined unless 'functor' is bound.
 
+    int changePauseState(int id, bool paused);
+        // If the specified 'paused' flag is 'true', pause the queue with the
+        // specified 'id'; otherwise, resume it.  Return 0 on success, or a
+        // nonzero value if the queue does not have the opposite state or is
+        // changing state.  If 'paused' is true, wait until any currently
+        // executing job completes.
+    
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool,
@@ -850,6 +865,18 @@ void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
     *numEnqueued = d_numEnqueued.swap(0);
 }
 
+inline
+int MultiQueueThreadPool::pauseQueue(int id)
+{
+    return changePauseState(id, true);
+}
+
+inline
+int MultiQueueThreadPool::resumeQueue(int id)
+{
+    return changePauseState(id, false);
+}
+    
 // ACCESSORS
 inline
 void MultiQueueThreadPool::numProcessed(int *numDequeued,
