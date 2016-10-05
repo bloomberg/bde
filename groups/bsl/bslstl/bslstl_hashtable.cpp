@@ -76,7 +76,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
          result *= 2) {
         result = nextPrime(result);  // throws if too large
         double newCapacity = static_cast<double>(result) * maxLoadFactor;
-        if (minElements <= newCapacity) {
+        if (static_cast<double>(minElements) <= newCapacity) {
             // Set '*capacity' to the integer value corresponding to
             // 'newCapacity', or the highest unsigned value representable by
             // 'size_t' if 'newCapacity' is larger.
