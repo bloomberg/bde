@@ -25,6 +25,14 @@ BSLS_IDENT_RCSID(bslmt_threadutil_cpp,"$Id$ $CSID$")
 namespace {
 namespace u {
 
+// We can't just package a 'bslmt_ThreadFunction' and 'userData' into a simple
+// functor and pass that to one of the inline 'createWithAllocator' template
+// functions because the contract for threads created by calling with a
+// "C"-style function requires the function to be able to return a 'void *'
+// which the calling thread can access via 'join'.  The signature of the
+// functor passed to the inline 'createWithAllocator' template functions,
+// however, does not provide a way to return a value.
+
 using namespace BloombergLP;
 
 struct NamedFuncPtrRecord {
