@@ -342,6 +342,34 @@ struct MyFunctionObjectWithMultipleSignatures {
     }
 };
 
+struct MyFunctionObjectWithAlternateResultType {
+    // This stateless 'struct' declares 'result_type' rather than 'ResultType'.
+
+    // TYPES
+    typedef int result_type;
+
+    // ACCESSORS
+    int operator()(int x) const
+    {
+        return x;
+    }
+};
+
+struct MyFunctionObjectWithBothResultTypes {
+    // This stateless 'struct' declares both 'result_type' and 'ResultType'.
+    // 'ResultType' should be used.
+
+    // TYPES
+    typedef void result_type;
+    typedef int  ResultType;
+
+    // ACCESSORS
+    int operator()(int x) const
+    {
+        return x;
+    }
+};
+
 template <class Binder>
 void testMultipleSignatureBinder(Binder binder)
 {
@@ -2166,6 +2194,30 @@ DEFINE_TEST_CASE(5) {
             testMultipleSignatureBinder(bdlf::BindUtil::bind(mX, _1));
 
             testMultipleSignatureBinder(bdlf::BindUtil::bindS(Z0, mX, _1));
+        }
+
+        if (verbose)
+            printf("\tDeclaring result_type instead of ResultType\n");
+        {
+            MyFunctionObjectWithAlternateResultType mX;
+
+            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(5));
+        }
+
+        if (verbose)
+            printf("\tDeclaring result_type and ResultType\n");
+        {
+            MyFunctionObjectWithBothResultTypes mX;
+
+            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(5));
+        }
+
+        if (verbose)
+            printf("\tUsing bsl::function\n");
+        {
+            struct Func { static int f(int x) { return x; } };
+            native_std::function<int(int)> f = &Func::f;
+            ASSERT(5 == bdlf::BindUtil::bind(f, _1)(5));
         }
 
         if (verbose)

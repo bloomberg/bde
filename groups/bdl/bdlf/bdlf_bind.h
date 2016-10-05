@@ -4624,10 +4624,32 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,1> {
 };
 
 template <class FUNC>
+struct Bind_OneResultTypeOrAnother {
+    // Define the type variable 'type' to be 'FUNC::ResultType' if that exists
+    // and 'FUNC::result_type' otherwise.
+  private:
+    template <class T>
+    struct Void {
+        typedef void type;
+    };
+    template <class T, class U = void>
+    struct Result {
+        typedef typename T::result_type type;
+    };
+    template <class T>
+    struct Result<T, typename Void<typename T::ResultType>::type> {
+        typedef typename T::ResultType type;
+    };
+
+  public:
+    typedef typename Result<FUNC>::type type;
+};
+
+template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     // Function traits for function objects that are passed by value without
     // explicit result type specification.  The result type is determined to
-    // the 'typename FUNC::ResultType'.
+    // the 'typename FUNC::ResultType' or 'typename FUNC::result_type'.
 
     // ENUMERATIONS
     enum {
@@ -4636,9 +4658,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     };
 
     // PUBLIC TYPES
-    typedef FUNC                      Type;
-    typedef FUNC                      WrapperType;
-    typedef typename FUNC::ResultType ResultType;
+    typedef FUNC                                             Type;
+    typedef FUNC                                             WrapperType;
+    typedef typename Bind_OneResultTypeOrAnother<FUNC>::type ResultType;
 };
 
 template <class PROTO>
@@ -4661,7 +4683,8 @@ struct Bind_FuncTraitsImp<bslmf::Nil,bsl::function<PROTO>,0,0,0> {
 template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     // Function traits for objects passed by pointer with no explicit return
-    // type.  The object is assumed to have a 'ResultType' type definition.
+    // type.  The object is assumed to have a 'ResultType' or 'result_type'
+    // type definition.
 
     // ENUMERATIONS
     enum {
@@ -4670,9 +4693,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     };
 
     // PUBLIC TYPES
-    typedef FUNC                      Type;
-    typedef FUNC*                     WrapperType;
-    typedef typename FUNC::ResultType ResultType;
+    typedef FUNC                                              Type;
+    typedef FUNC                                             *WrapperType;
+    typedef typename Bind_OneResultTypeOrAnother<FUNC>::type  ResultType;
 };
 
 template <class PROTO>
