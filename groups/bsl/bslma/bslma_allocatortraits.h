@@ -472,6 +472,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
+#include <bslmf_addrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
@@ -718,13 +722,14 @@ struct AllocatorTraits_PropOnSwap<ALLOC, true>
 
 template <class T, class Return, class... Args>
 struct AllocatorTraits_HasConstructMethod {
-
   private:
+    // Provide our own declval to avoid include problems with <utility>.
     template <class U>
-    static auto match(U *) ->
-        typename bsl::is_same<decltype(native_std::declval<U>().construct(
-                                  native_std::declval<Args>()...)),
-                              Return>::type;
+    static typename bsl::add_rvalue_reference<U>::type declval();
+
+    template <class U>
+    static auto match(U *) -> typename bsl::is_same<
+        decltype(declval<U>().construct(declval<Args>()...)), Return>::type;
     template <class>
     static bsl::false_type match(...);
 
@@ -737,16 +742,20 @@ struct AllocatorTraits_HasConstructMethod {
                       // AllocatorTraits_HasDestroyMethod
                       // ================================
 
-template <class T, class R, class... Args>
+template <class T, class Return, class... Args>
 struct AllocatorTraits_HasDestroyMethod {
+  private:
+    // Provide our own declval to avoid include problems with <utility>.
     template <class U>
-    static auto match(U *) ->
-        typename bsl::is_same<decltype(native_std::declval<U>().destroy(
-                                  native_std::declval<Args>()...)),
-                              R>::type;
+    static typename bsl::add_rvalue_reference<U>::type declval();
+
+    template <class U>
+    static auto match(U *) -> typename bsl::is_same<
+        decltype(declval<U>().destroy(declval<Args>()...)), Return>::type;
     template <class>
     static bsl::false_type match(...);
 
+  public:
     typedef decltype(match<T>(0)) type;
     static const bool value = type::value;
 };
