@@ -3163,16 +3163,19 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     // ------------------------------------------------------------------------
     
     if (verbose) {
+        P(bsls::NameOf<Obj>())                                       
         P(bsls::NameOf<TYPE>())                                       
         P(bsls::NameOf<ALLOC>())                                       
     }
 
-    // N4594: 23.3.8.1 Class template 'deque' overview
+    // N4594: page 835: 23.3.8 Class template 'deque'
 
-    // pages 835-836
+    // page 835
     //..
-    //     deque& operator=(deque&& x)
-    //         noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //  // 23.3.8.2, construct/copy/destroy:
+    //  deque& operator=(deque&& x)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //  allocator_type get_allocator() const noexcept;
     //..
 
     {
@@ -3187,19 +3190,19 @@ void TestDriver<TYPE,ALLOC>::testCase34()
 
     // page 836
     //..
-    // // Iterators
-    //     iterator begin() noexcept;
-    //     const_iterator begin() const noexcept;
-    //     iterator end() noexcept;
-    //     const_iterator end() const noexcept;
-    //     reverse_iterator rbegin() noexcept;
-    //     const_reverse_iterator rbegin() const noexcept;
-    //     reverse_iterator rend() noexcept;
-    //     const_reverse_iterator rend() const noexcept;
-    //     const_iterator cbegin() const noexcept;
-    //     const_iterator cend() const noexcept;
-    //     const_reverse_iterator crbegin() const noexcept;
-    //     const_reverse_iterator crend() const noexcept;
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
     //..
 
     {
@@ -3221,11 +3224,11 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     }
 
     // page 836
-    // // Capacity
     //..
-    //     bool empty() const noexcept;
-    //     size_type size() const noexcept;
-    //     size_type max_size() const noexcept;
+    //  // 23.3.8.3, capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
     //..
 
     {
@@ -3236,11 +3239,12 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
     }
 
-    // page 837
+    // page 836
     //..
-    //     void swap(deque&)
-    //         noexcept(allocator_traits<Allocator>::is_always_equal::value);
-    //     void clear() noexcept;
+    //  // 23.3.8.4, modifiers:
+    //  void swap(deque&)
+    //  noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //  void clear() noexcept;
     //..
 
     {
@@ -3255,8 +3259,10 @@ void TestDriver<TYPE,ALLOC>::testCase34()
 
     // page 837
     //..
-    //     void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
-    //         noexcept(noexcept(x.swap(y)));
+    //  // 23.3.8.5, specialized algorithms:
+    //  template <class T, class Allocator>
+    //  void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
+    //      noexcept(noexcept(x.swap(y)));
     //..
 
     {
