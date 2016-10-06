@@ -7395,7 +7395,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //  template <class Key, class T, class Hash, class Pred, class Alloc>
     //  void swap(unordered_map<Key, T, Hash, Pred, Alloc>& x,
     //            unordered_map<Key, T, Hash, Pred, Alloc>& y)
-    //  noexcept(noexcept(x.swap(y)));
+    //      noexcept(noexcept(x.swap(y)));
     //..
 
     {

@@ -1395,7 +1395,7 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase36();
+    static void testCase37();
         // Test 'noexcept' specifications
 
     static void testCase34();
@@ -2193,7 +2193,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
 #endif
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -2216,14 +2216,127 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     // ------------------------------------------------------------------------
 
     if (verbose) {
+        P(bsls::NameOf<Obj>())
         P(bsls::NameOf<KEY>())
         P(bsls::NameOf<VALUE>())
         P(bsls::NameOf<COMP>())
         P(bsls::NameOf<ALLOC>())
     }
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: page 863: 23.4.4 Class template 'map' [map]
 
+    // page 864
+    //..
+    //  // 23.4.4.2, construct/copy/destroy:
+    //  map& operator=(map&& x)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //               is_nothrow_move_assignable<Compare>::value);
+    //  allocator_type get_allocator() const noexcept;
+    //..
+
+    {
+        Obj mX;  const Obj& X = mX;
+        Obj mY;  const Obj& Y = mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+                                             bslmf::MovableRefUtil::move(mY)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+    }
+
+    // page 864-865
+    //..
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rbegin()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rend()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rend()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crbegin()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
+    }
+
+    // page 865
+    //..
+    //  // capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+    }
+
+    // page 866
+    //..
+    //  // 23.4.4.4, modifiers:
+    //  void swap(map&)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //               is_nothrow_swappable_v<Compare>);
+    //  void clear() noexcept;
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+    }
+
+    // page 866
+    //..
+    //  // 23.4.4.5, specialized algorithms:
+    //  template <class Key, class T, class Compare, class Allocator>
+    //  void swap(map<Key, T, Compare, Allocator>& x,
+    //  map<Key, T, Compare, Allocator>& y)
+    //      noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+    }
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -11619,7 +11732,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        TestDriver<int>::testCase36();
+        TestDriver<int>::testCase37();
 
       } break;
       case 36: {
