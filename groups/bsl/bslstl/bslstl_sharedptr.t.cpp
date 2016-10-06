@@ -5895,7 +5895,6 @@ void Harness::testCase40(int value)
     {
         bsl::shared_ptr<Y> r;
         T                  p;
-        bsl::nullptr_t     n;
 
         ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
 
@@ -5913,10 +5912,12 @@ void Harness::testCase40(int value)
             == BSLS_CPP11_NOEXCEPT_OPERATOR(
                           bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
 
+#if 0 // Per AJM
+        bsl::nullptr_t     n;
         ASSERT(true
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
+#endif
     }
-
 
     // page 590
     //..
@@ -5928,12 +5929,34 @@ void Harness::testCase40(int value)
     //  template<class Y> shared_ptr& operator=(shared_ptr<Y>&& r) noexcept;
     //..
 
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        bsl::shared_ptr<Y> mZ; const bsl::shared_ptr<Y>& Z = mZ;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = R));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = Z));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mR)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mZ)));
+    }
+
     // page 591
     //..
     //  // 20.10.2.2.4, modifiers:
     //  void swap(shared_ptr& r) noexcept;
     //  void reset() noexcept;
     //..
+ 
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mR)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.reset()));
+    }
 
     // page 591
     //..
@@ -5945,6 +5968,16 @@ void Harness::testCase40(int value)
     //  bool unique() const noexcept;
     //  explicit operator bool() const noexcept;
     //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator*()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator->()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.unique()));
+// XXX  ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator BoolType()));
+    }
 
     // page 591 - 592
     //..
@@ -5993,12 +6026,48 @@ void Harness::testCase40(int value)
     //  bool operator>=(nullptr_t, const shared_ptr<T>& b) noexcept;
     //..
 
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
+   
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A != B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= B));
+
+        bsl::nullptr_t n;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A == n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n == B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A != n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n != B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n <  B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n >  B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n <= B));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= n));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n >= B));
+    }
+
     // page 592
     //..
     //  // 20.10.2.2.8, shared_ptr specialized algorithms:
     //  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b)
     //                                                                noexcept;
     //..
+    
+    {
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<T> mB; const bsl::shared_ptr<T>& B = mB;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mA, mB)));
+    }
 
     // page 592
     //..
@@ -6010,6 +6079,18 @@ void Harness::testCase40(int value)
     //  template<class T, class U>
     //  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
     //..
+    
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<U> mR; const bsl::shared_ptr<U>& R = mR;
+
+ //----^
+ ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+ ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+ ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
+ //----V
+    }
 
     // page 592
     //..
@@ -6018,6 +6099,21 @@ void Harness::testCase40(int value)
     //                                                                noexcept;
     //..
 
+    {
+#if 0 // TBD
+
+        bsls::Types::Int64      counter;
+        bsls::Types::Int64  copyCounter;                  
+        MyTestDerivedObject mtdo(&counter, &copyCounter);
+        MyTestDeleter       mtd;
+
+        bsl::shared_ptr<T> mP(&mtdo, &mtd);
+        const bsl::shared_ptr<T>& P = mP;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                       bsl::get_deleter<MyTestDeleter, T>(P)));
+#endif // 0 TBD
+    }
 }
 
 template <int N>
@@ -6267,6 +6363,7 @@ int main(int argc, char *argv[])
         Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
 
       } break;
+#if 0 // XXX
       case 39: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
@@ -16408,6 +16505,7 @@ int main(int argc, char *argv[])
         PerformanceTester<Obj>::test(verbose, veryVeryVerbose);
 
       } break;
+#endif // 0  XXX
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
