@@ -37,39 +37,30 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Passing Arguments of the Correct Type and Order
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to test a function that takes a variable number of
-// arguments and forwards them to another function.  Note, that the example
-// below provides separate implementations for compilers that support C++11
-// standard and those that do not.  For clarity, we define 'forwardData' in
-// line, and limit our expansion of the variadic template to 2 arguments on
-// platforms that don't support variadic templates.
+// Suppose we wanted to test a function, 'forwardData', that takes a variable
+// number of arguments and forwards them to another function (called
+// 'delegateFunction', in this example).  Note, that the example below provides
+// separate implementations for compilers that support C++11 standard and those
+// that do not.  For clarity, we define 'forwardData' in line, and limit our
+// expansion of the variadic template to 2 arguments on platforms that don't
+// support variadic templates.
 //
-// First, we provide a function, 'setData', that takes a variable number of
-// arguments:
+// First, we show the signature to the variadic function 'delegateFunction',
+// that 'forwardData' (which we wish to test) will forward to (note that the
+// implementation has been elided for simplicity):
 //..
-//  void setData()
-//  {
-//  }
-//
-//  void setData(ArgumentType<1> arg01)
-//  {
-//      (void) arg01;
-//  }
-//
-//  void setData(ArgumentType<1> arg01, ArgumentType<2> arg02)
-//  {
-//      (void) arg01;
-//      (void) arg02;
-//  }
+//  void delegateFunction();
+//  void delegateFunction(ArgumentType<1> arg01);
+//  void delegateFunction(ArgumentType<1> arg01, ArgumentType<2> arg02);
 //..
-// Then, we define a forwarding function:
+// Then, we define the forwarding function we intend to test:
 //..
 //  #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 //
 //  template <class... Args>
 //  inline
 //  void forwardData(Args&&... arguments) {
-//      setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+//      delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 //  }
 //
 //  #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -77,14 +68,14 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void forwardData()
 //  {
-//      setData();
+//      delegateFunction();
 //  }
 //
 //  template <class Args_01>
 //  inline
 //  void forwardData(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01)
 //  {
-//      setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+//      delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
 //  }
 //
 //  template <class Args_01, class Args_02>
@@ -92,8 +83,8 @@ BSLS_IDENT("$Id: $")
 //  void forwardData(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01)  arguments_01,
 //                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_02)  arguments_02)
 //  {
-//      setData(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-//              BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+//      delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+//                       BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
 //  }
 //
 //  #else
@@ -104,12 +95,14 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void forwardData(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 //  {
-//      setData(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+//      delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 //  }
 //
 //  #endif
 //..
-// Finally, we can test our forwarding function:
+// Finally, we define a test case for 'forwardData' passing 'ArgumentType' as
+// variadic arguments to the 'forwardData' function and verifying that
+// compilation succeeds:
 //..
 //  void usageExample()
 //  {
@@ -121,6 +114,11 @@ BSLS_IDENT("$Id: $")
 //      ArgumentType<1> A11(13);
 //      ArgumentType<2> A12(28);
 //      forwardData(A11, A12);
+//
+//      // Note that passing arguments in a wrong order will fail to compile:
+//      // ArgumentType<1> A21(3);
+//      // ArgumentType<2> A22(82);
+//      // forwardData(A22, A21);
 //  }
 //..
 
