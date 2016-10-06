@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 // Secondly, the 'apply' method varies based on how the method handles an unset
 // variant.  A user can choose to:
 //
-//: o Pass a default constructed 'bslmf::Nil' to the visitor.
+//: o Pass a default-constructed 'bslmf::Nil' to the visitor.
 //: o Pass a user-specified "default" value to the visitor.
 //
 // Furthermore, if the user is sure that the variant cannot be unset, the user

@@ -70,18 +70,18 @@ using namespace bsl;
 //                      // ----------------------
 //
 // CREATORS:
-// [ 2] bdlb::VariantImp();
-// [ 2] bdlb::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);  // allocator
-// [12] bdlb::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);  // type
-// [12] bdlb::VariantImp(const TYPE& value, bslma::Allocator *ba);
-// [ 7] bdlb::VariantImp(const bdlb::VariantImp& original, basicAllocator);
-// [ 2] ~bdlb::VariantImp();
+// [ 2] VariantImp();
+// [ 2] VariantImp(const TYPE_OR_ALLOCATOR& valueOrAlloc);  // allocator
+// [12] VariantImp(const TYPE_OR_ALLOCATOR& valueOrAlloc);  // value
+// [12] VariantImp(const TYPE& value, bslma::Allocator *ba);
+// [ 7] VariantImp(const VariantImp& original, basicAllocator);
+// [ 2] ~VariantImp();
 //
 // MANIPULATORS:
-// [13] bdlb::VariantImp& operator=(const TYPE& value);
-// [ 9] bdlb::VariantImp& operator=(const bdlb::VariantImp& rhs);
+// [13] VariantImp& operator=(const TYPE& value);
+// [ 9] VariantImp& operator=(const VariantImp& rhs);
 // [ 2] VariantImp& assign(const TYPE& value);
-// [11] void assignTo(SOURCE const& value);
+// [11] VariantImp& assignTo(const SOURCE& value);
 // [14] void createInPlace<TYPE>(...);                     // all 15 variations
 // [ 2] void reset();
 // [ 4] TYPE& the<TYPE>();
@@ -110,7 +110,7 @@ using namespace bsl;
 // ACCESSORS
 // [ 4] bool is<Type>() const;
 // [17] bool isUnset() const;
-// [ 5] void print(bsl::ostream& stream, int level, int spacesPerLevel) const;
+// [ 5] bsl::ostream& print(bsl::ostream& stream, int, int) const;
 // [ 4] const TYPE& the<TYPE>() const;
 // [ 4] int typeIndex() const;
 //
@@ -136,17 +136,17 @@ using namespace bsl;
 // [16] RET_TYPE applyRaw(VISITOR& visitor) const;
 //
 // FREE OPERATORS:
-// [ 6] operator==(const bdlb::VariantImp& lhs, const bdlb::VariantImp& rhs);
-// [ 6] operator!=(const bdlb::VariantImp& lhs, const bdlb::VariantImp& rhs);
-// [ 5] operator<<(bsl::ostream& stream, const bdlb::VariantImp& object);
+// [ 6] bool operator==(const VariantImp& lhs, const VariantImp& rhs);
+// [ 6] bool operator!=(const VariantImp& lhs, const VariantImp& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const VariantImp&);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [22] USAGE EXAMPLE
 // [18] CLASSES: 'bdlb::VariantN', 'bdlb::Variant'
-// [ 3] int ggg(bdlb::Variant *o, const char *s, bool verbose);
-// [ 3] bdlb::VariantImp& gg(bdlb::VariantImp *o, const char *s);
-// [ 8] bdlb::VariantImp   g(const char *spec, const T *value);
+// [ 3] int ggg(Variant *, const char *, bool = true);
+// [ 3] VariantImp& gg(VariantImp *, const char *);
+// [ 8] VariantImp   g(const char *spec);
 // [19] CONCERN: No allocator pointer in object if not necessary.
 // [19] CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
 // [19] CONCERN: 'bsl::is_trivially_copyable' trait
@@ -1071,7 +1071,7 @@ struct Convertible {
                           // =========================
 
 class my_ModifyingVisitor {
-    // This class modifies the value of the visitor according to the type of
+    // This class modifies the value of the variant according to the type of
     // object being passed in.  This visitor only supports 4 types: 'int',
     // 'TestInt', 'bsl::string', and 'TestString'.
 
@@ -1116,12 +1116,12 @@ class my_ModifyingVisitor {
 
 //-----------------------------------------------------------------------------
 
-                          // ===============================
-                          // class my_DefaultNoReturnVisitor
-                          // ===============================
+                          // ============================
+                          // class my_NonReturningVisitor
+                          // ============================
 
-class my_DefaultNoReturnVisitor {
-    // This class modifies the value of the visitor according to the type of
+class my_NonReturningVisitor {
+    // This class modifies the value of the variant according to the type of
     // object being passed in and returns the type index of the type modified.
     // This visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
     // 'TestString'.
@@ -1131,7 +1131,7 @@ class my_DefaultNoReturnVisitor {
 
   public:
     // CREATORS
-    explicit my_DefaultNoReturnVisitor(int valueIdx)
+    explicit my_NonReturningVisitor(int valueIdx)
         // Modifies the value of the variant visited to the value at the
         // specified 'valueIdx' in the test data.
     : d_visitor(valueIdx)
@@ -1176,8 +1176,8 @@ class my_DefaultNoReturnVisitor {
                           // class my_ReturningVisitor
                           // =========================
 
-class my_ReturningVisitor : public my_DefaultNoReturnVisitor {
-    // This class modifies the value of the visitor according to the type of
+class my_ReturningVisitor : public my_NonReturningVisitor {
+    // This class modifies the value of the variant according to the type of
     // object being passed in and returns the type index of the type modified.
     // Furthermore, this class specifies its 'operator()'s return type with a
     // 'typedef' of 'ResultType'.  This visitor only supports 4 types: 'int',
@@ -1188,7 +1188,7 @@ class my_ReturningVisitor : public my_DefaultNoReturnVisitor {
     typedef int ResultType;
 
     explicit my_ReturningVisitor(int valueIdx)
-    : my_DefaultNoReturnVisitor(valueIdx)
+    : my_NonReturningVisitor(valueIdx)
     {
     }
 };
@@ -1210,8 +1210,8 @@ class my_ConstVisitor {
   public:
     // CREATORS
     explicit my_ConstVisitor(int valueIdx)
-        // Modifies the value of the variant visited to the value at the
-        // specified 'valueIdx' in the test data.
+        // Verifies the value of the variant visited corresponds to the value
+        // at the specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
@@ -1251,8 +1251,10 @@ class my_ConstVisitor {
 
 class my_ConstReturningVisitor {
     // This class simply verifies the values being passed to the visitor and
-    // returns the type of the value.  This visitor only supports 4 types:
-    // 'int', 'TestInt', 'bsl::string', and 'TestString'.
+    // returns the type of the value.  Furthermore, this class specifies its
+    // 'operator()'s return type with a 'typedef' of 'ResultType'.  This
+    // visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
+    // 'TestString'.
 
   public:
     // PUBLIC TYPES
@@ -1265,8 +1267,8 @@ class my_ConstReturningVisitor {
   public:
     // CREATORS
     explicit my_ConstReturningVisitor(int valueIdx)
-        // Modifies the value of the variant visited to the value at the
-        // specified 'valueIdx' in the test data.
+        // Verifies the value of the variant visited corresponds to the value
+        // at the specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
@@ -1305,46 +1307,102 @@ class my_ConstReturningVisitor {
 
 //-----------------------------------------------------------------------------
 
-                          // ==============================
-                          // class my_ConstReturningVisitor
-                          // ==============================
+                          // ============================
+                          // class my_UnsetVariantVisitor
+                          // ============================
 
 class my_UnsetVariantVisitor {
-    // This class simply records the type being passed to the visitor.
+    // This class simply records the type of value passed to the visitor.
 
   public:
     // PUBLIC TYPES
     enum VisitType {
-        BSLMF_NIL,  // 'bslmf::Nil'
-        TEST_ARG,   // 'TestArg' being passed in
-        GENERIC     // not unset
+        BSLMF_NIL,  // variant is unset, no default value supplied
+        TEST_ARG,   // variant is unset, 'TestArg<1>' default value supplied
+        GENERIC,    // variant is set
+        NOT_VISITED
     };
 
+  private:
     // DATA
-    VisitType d_lastType;  // records the last type the variant invoked
-                           // 'operator()' with
+    mutable VisitType d_lastType;  // records last type passed to 'operator()'
 
+  public:
     // CREATORS
     my_UnsetVariantVisitor()
-    : d_lastType(GENERIC)
+    : d_lastType(NOT_VISITED)
     {
     }
 
     // MANIPULATORS
     template <class TYPE>
-    void operator()(const TYPE&)
+    int operator()(const TYPE&)
     {
         d_lastType = GENERIC;
+        return d_lastType;
     }
 
-    void operator()(bslmf::Nil)
+    int operator()(bslmf::Nil)
     {
         d_lastType = BSLMF_NIL;
+        return d_lastType;
     }
 
-    void operator()(const TestArg<1>&)
+    int operator()(const TestArg<1>&)
     {
         d_lastType = TEST_ARG;
+        return d_lastType;
+    }
+
+    void reset()
+    {
+        d_lastType = NOT_VISITED;
+    }
+
+    // ACCESSORS
+    template <class TYPE>
+    int operator()(const TYPE&) const
+    {
+        d_lastType = GENERIC;
+        return d_lastType;
+    }
+
+    int operator()(bslmf::Nil) const
+    {
+        d_lastType = BSLMF_NIL;
+        return d_lastType;
+    }
+
+    int operator()(const TestArg<1>&) const
+    {
+        d_lastType = TEST_ARG;
+        return d_lastType;
+    }
+
+    VisitType lastType() const
+    {
+        return d_lastType;
+    }
+};
+
+//-----------------------------------------------------------------------------
+
+                          // =====================================
+                          // class my_UnsetVariantReturningVisitor
+                          // =====================================
+
+class my_UnsetVariantReturningVisitor : public my_UnsetVariantVisitor {
+    // This class simply records the type of value passed to the visitor.
+    // Furthermore, this class specifies its 'operator()'s return type with a
+    // 'typedef' of 'ResultType'.
+
+  public:
+    // PUBLIC TYPES
+    typedef int ResultType;
+
+    explicit my_UnsetVariantReturningVisitor()
+    : my_UnsetVariantVisitor()
+    {
     }
 };
 
@@ -1845,8 +1903,8 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 // object of type 'TestVoid'.  A tilde ('~') indicates that the value of the
 // object is to be set to its initial, unset state (via the 'reset' method).
 //
-// LANGUAGE SPECIFICATION:
-// -----------------------
+// LANGUAGE SPECIFICATION
+// ----------------------
 //
 // <SPEC>       ::= <EMPTY>   | <LIST>
 //
@@ -1861,7 +1919,7 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 //                | 'F' | 'G' | 'H' | 'I' | 'J'   // 'TestInt'
 //                | 'K' | 'L' | 'M' | 'N' | 'O'   // 'TestString'
 //                | 'Z'                           // 'TestVoid' (unique but
-                                                  // otherwise arbitrary)
+//                                                // otherwise arbitrary)
 //
 // Spec String  Description
 // -----------  ---------------------------------------------------------------
@@ -1883,6 +1941,7 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
 {
     ASSERT(object);
     ASSERT(spec);
+
     bool continueParse = true;
     const char *input  = spec;
 
@@ -1931,15 +1990,16 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
         return idx;  // Discontinue processing this spec.             // RETURN
     }
 
-    return -1; // All input was consumed.
+    return -1;  // All input was consumed.
 }
 
-Obj gg(Obj *object, const char *spec)
+Obj& gg(Obj *object, const char *spec)
     // Return, by reference, the specified 'object' with its value adjusted
     // according to the specified 'spec' according to the custom language
     // described above.
 {
-    ASSERT(object); ASSERT(spec);
+    ASSERT(object);
+    ASSERT(spec);
     ASSERT(ggg(object, spec) < 0);
 
     return *object;
@@ -1959,7 +2019,7 @@ Obj g(const char *spec)
 //             VISITORs Without a 'bslmf::Nil' Overload (case 20)
 //-----------------------------------------------------------------------------
 
-namespace nilvisitor {
+namespace visitorsWithoutNilOverload {
 
 const int EXPECTED_VISITOR_RETURN_VALUE = 7;
 
@@ -1974,19 +2034,19 @@ struct TestVisitorWithResultType {
 
 struct TestVisitorWithoutResultType {
     // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', and has no 'ResultType'.
+    // 'bslmf::Nil', returns 'void', and has no 'ResultType'.
 
     void operator()(int) const {}
 };
 
 struct TestVisitorWithUndeclaredResultType {
     // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', and has no 'ResultType'.
+    // 'bslmf::Nil', returns 'int', and has no 'ResultType'.
 
      int operator()(int) const { return EXPECTED_VISITOR_RETURN_VALUE; }
 };
 
-}  // close namespace nilvisitor
+}  // close namespace visitorsWithoutNilOverload
 
 struct TestUtil {
     // This 'struct' defines several test cases outside of 'main' to avoid
@@ -2102,7 +2162,7 @@ struct TestUtil {
 
     static void testCase20()
     {
-        using namespace nilvisitor;
+        using namespace visitorsWithoutNilOverload;
 
         if (verbose)
             cout << endl
@@ -12828,32 +12888,38 @@ struct TestUtil {
 
         if (verbose) cout << "\nTesting 'isUnset' with 'reset'." << endl;
         {
-            typedef bdlb::VariantImp<bslmf::TypeList<int, char> > Obj;
+            typedef bdlb::Variant<int, char> Obj;
 
-            Obj variant1, variant2;
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
 
-            ASSERT(true == variant1.isUnset());
-            ASSERT(true == variant2.isUnset());
+            ASSERT(true  == X.isUnset());
+            ASSERT(true  == Y.isUnset());
 
-            variant1 = 1;
-            variant2 = 'a';
+            mX = 1;
+            mY = 'a';
 
-            ASSERT(false == variant1.isUnset());
-            ASSERT(false == variant2.isUnset());
+            ASSERT(false == X.isUnset());
+            ASSERT(false == Y.isUnset());
 
-            variant1.reset();
+            mX.reset();
+            mY.reset();
 
-            ASSERT(true  == variant1.isUnset());
-            ASSERT(false == variant2.isUnset());
+            ASSERT(true  == X.isUnset());
+            ASSERT(true  == Y.isUnset());
         }
 
         if (verbose) cout << "\nTesting 'isUnset' with 'bslmf::Nil'." << endl;
         {
-            typedef bdlb::VariantImp<bslmf::TypeList<bslmf::Nil, int> > Obj;
+            typedef bdlb::Variant<bslmf::Nil, int> Obj;
 
-            Obj variant = Obj(bslmf::Nil());
+            Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
 
-            ASSERT(false == variant.isUnset());
+            ASSERT(false == X.isUnset());
+
+            mX.reset();
+
+            ASSERT(true  == X.isUnset());
         }
     }
 
@@ -12863,56 +12929,282 @@ struct TestUtil {
                           << "TESTING VISITORS (unset variants)" << endl
                           << "=================================" << endl;
 
-        typedef bdlb::VariantImp<
-        bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
+        typedef bdlb::Variant<int, TestInt, bsl::string, TestString> Obj;
+
+        if (verbose) cout << "\nWithout a 'ResultType' available." << endl;
 
         if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
         {
-            my_UnsetVariantVisitor visitor;
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            typedef my_UnsetVariantVisitor UVV;
 
-            Obj mX;
-            mX.apply(visitor);
+            Obj mX;  const Obj& X = mX;
+            UVV mV;  const UVV& V = mV;
 
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
+            ASSERTV(X.isUnset());
 
-            visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            mX.apply(mV);
+            ASSERTV(V.lastType(), UVV::BSLMF_NIL   == V.lastType());
 
-            const Obj& X = mX;
-            X.apply(visitor);
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::BSLMF_NIL == visitor.d_lastType);
+            mX.apply(V);
+            ASSERTV(V.lastType(), UVV::BSLMF_NIL   == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(mV);
+            ASSERTV(V.lastType(), UVV::BSLMF_NIL   == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(V);
+            ASSERTV(V.lastType(), UVV::BSLMF_NIL   == V.lastType());
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::BSLMF_NIL == mX.apply<int>(mV));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::BSLMF_NIL == mX.apply<int>(V));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::BSLMF_NIL == X.apply<int>(mV));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::BSLMF_NIL == X.apply<int>(V));
         }
 
-        if (verbose) cout << "\nTesting user specified 'defaultValue'."<< endl;
+        if (verbose) cout << "\nTesting user-specified 'defaultValue'."
+                          << endl;
         {
-            my_UnsetVariantVisitor visitor;
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            typedef my_UnsetVariantVisitor UVV;
 
-            Obj mX;
-            mX.apply(visitor, TestArg<1>());
+            Obj mX;  const Obj& X = mX;
+            UVV mV;  const UVV& V = mV;
 
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+            ASSERTV(X.isUnset());
 
-            visitor.d_lastType = my_UnsetVariantVisitor::GENERIC;
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::GENERIC == visitor.d_lastType);
+            mX.apply(mV, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::TEST_ARG    == V.lastType());
 
-            const Obj& X = mX;
-            X.apply(visitor, TestArg<1>());
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
-            ASSERTV(visitor.d_lastType,
-                    my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
+            mX.apply(V, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::TEST_ARG    == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(mV, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::TEST_ARG    == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(V, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::TEST_ARG    == V.lastType());
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::TEST_ARG == mX.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::TEST_ARG == mX.apply<int>(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::TEST_ARG == X.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
         }
 
-        if (verbose) cout << "\nTesting a subtle warning case." << endl;
+        if (verbose) cout << "\nTesting set variant with 'defaultValue'."
+                          << endl;
+        {
+            typedef my_UnsetVariantVisitor UVV;
+
+            Obj mX(77);  const Obj& X = mX;
+            UVV mV;      const UVV& V = mV;
+
+            ASSERTV(!X.isUnset());
+
+            mX.apply(mV, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::GENERIC     == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            mX.apply(V, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::GENERIC     == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(mV, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::GENERIC     == V.lastType());
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            X.apply(V, TestArg<1>());
+            ASSERTV(V.lastType(), UVV::GENERIC     == V.lastType());
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::GENERIC == mX.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::GENERIC == mX.apply<int>(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::GENERIC == X.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVV::GENERIC == X.apply<int>(V, TestArg<1>()));
+        }
+
+        if (verbose) cout << "\nWith a 'ResultType' available." << endl;
+
+        if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
+        {
+            typedef my_UnsetVariantReturningVisitor UVRV;
+
+            Obj  mX;  const Obj&  X = mX;
+            UVRV mV;  const UVRV& V = mV;
+
+            ASSERTV(X.isUnset());
+
+            ASSERTV(UVRV::BSLMF_NIL == mX.apply(mV));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == mX.apply(V));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == X.apply(mV));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == X.apply(V));
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == mX.apply<int>(mV));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == mX.apply<int>(V));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == X.apply<int>(mV));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::BSLMF_NIL == X.apply<int>(V));
+        }
+
+        if (verbose) cout << "\nTesting user-specified 'defaultValue'."
+                          << endl;
+        {
+            typedef my_UnsetVariantReturningVisitor UVRV;
+
+            Obj  mX;  const Obj&  X = mX;
+            UVRV mV;  const UVRV& V = mV;
+
+            ASSERTV(X.isUnset());
+
+            ASSERTV(UVRV::TEST_ARG == mX.apply(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == mX.apply(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == X.apply(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == X.apply(V, TestArg<1>()));
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == mX.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == mX.apply<int>(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == X.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
+        }
+
+        if (verbose) cout << "\nTesting set variant with 'defaultValue'."
+                          << endl;
+        {
+            typedef my_UnsetVariantReturningVisitor UVRV;
+
+            Obj  mX(77);  const Obj&  X = mX;
+            UVRV mV;      const UVRV& V = mV;
+
+            ASSERTV(!X.isUnset());
+
+            ASSERTV(UVRV::GENERIC == mX.apply(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == mX.apply(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == X.apply(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == X.apply(V, TestArg<1>()));
+
+            // specify the return type
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == mX.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == mX.apply<int>(V, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == X.apply<int>(mV, TestArg<1>()));
+
+            mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
+
+            ASSERTV(UVRV::GENERIC == X.apply<int>(V, TestArg<1>()));
+        }
+
+        if (verbose) cout << "\nTesting a subtle warning case (on Solaris)."
+                          << endl;
         {
             bdlb::Variant<int> v(1);
             dummyConvert(0, v);
@@ -12923,11 +13215,71 @@ struct TestUtil {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj                    mX;
-            my_UnsetVariantVisitor visitor;
+            {
+                typedef my_UnsetVariantVisitor UVV;
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(visitor));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(visitor));
+                Obj mX;  const Obj& X = mX;
+                UVV mV;  const UVV& V = mV;
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(V));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(V));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(V));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(V));
+
+                // specify the return type
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+            }
+
+            {
+                typedef my_UnsetVariantReturningVisitor UVRV;
+
+                Obj  mX;  const Obj&  X = mX;
+                UVRV mV;  const UVRV& V = mV;
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(V));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(V));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(V));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(V));
+
+                // specify the return type
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
+                mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
+
+                mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
+                mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+            }
         }
     }
 
@@ -12942,7 +13294,7 @@ struct TestUtil {
         typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
 
-        if (verbose) cout << "\nTesting visitor that modifies values" << endl;
+        if (verbose) cout << "\nTesting visitor that modifies values." << endl;
         {
             enum { LENGTH = Obj::TypeList::LENGTH };
             ASSERT(4 == LENGTH);
@@ -12954,6 +13306,7 @@ struct TestUtil {
             mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
             mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
             mXs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
+
             mYs[0].createInPlace<int>(INT_DATA[0]);
             mYs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
             mYs[2].createInPlace<bsl::string>(STRING_DATA[0]);
@@ -12968,18 +13321,19 @@ struct TestUtil {
                 const bsl::string STRINGVAL     = mXs[2].the<bsl::string>();
                 const TestString  TESTSTRINGVAL = mXs[3].the<TestString>();
 
-                my_ModifyingVisitor visitor(i);
-
                 ASSERTV(i, INTVAL        == mXs[0].the<int>());
                 ASSERTV(i, TESTINTVAL    == mXs[1].the<TestInt>());
                 ASSERTV(i, STRINGVAL     == mXs[2].the<bsl::string>());
                 ASSERTV(i, TESTSTRINGVAL == mXs[3].the<TestString>());
+
                 ASSERTV(i, INTVAL        == mYs[0].the<int>());
                 ASSERTV(i, TESTINTVAL    == mYs[1].the<TestInt>());
                 ASSERTV(i, STRINGVAL     == mYs[2].the<bsl::string>());
                 ASSERTV(i, TESTSTRINGVAL == mYs[3].the<TestString>());
 
                 // Visit the values.
+
+                my_ModifyingVisitor visitor(i);
 
                 for (int j = 0; j < LENGTH; ++j) {
                     mXs[j].apply(visitor);
@@ -13001,6 +13355,7 @@ struct TestUtil {
                 ASSERTV(i, TEST_INT_DATA[i]    == mXs[1].the<TestInt>());
                 ASSERTV(i, STRING_DATA[i]      == mXs[2].the<bsl::string>());
                 ASSERTV(i, TEST_STRING_DATA[i] == mXs[3].the<TestString>());
+
                 ASSERTV(i, INT_DATA[i]         == mYs[0].the<int>());
                 ASSERTV(i, TEST_INT_DATA[i]    == mYs[1].the<TestInt>());
                 ASSERTV(i, STRING_DATA[i]      == mYs[2].the<bsl::string>());
@@ -13017,7 +13372,7 @@ struct TestUtil {
             Obj tmp(1);  // dummy used to initialize the variant
             VWrap wrappedVariant(tmp, &oa);
             VWrap wrappedVariant2(tmp, &oa);
-            my_DefaultNoReturnVisitor visitor(1);
+            my_NonReturningVisitor visitor(1);
 
             wrappedVariant.apply(visitor);
             wrappedVariant2.applyRaw(visitor);
@@ -14398,7 +14753,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void swap(bdlb::VariantImp& rhs);
+        //   void swap(VariantImp& rhs);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -14616,7 +14971,6 @@ int main(int argc, char *argv[])
         //   RET_TYPE applyRaw(VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-
         // This test case is defined outside of 'main' to avoid out-of-memory
         // errors with the XLC compiler.
 
@@ -14768,7 +15122,7 @@ int main(int argc, char *argv[])
         //   To address concern 6, we use a standard 'bslma' exception test.
         //
         // Testing:
-        //   bdlb::VariantImp& operator=(const TYPE& value);
+        //   VariantImp& operator=(const TYPE& value);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -14819,8 +15173,8 @@ int main(int argc, char *argv[])
         //   The same table is used to test this.
         //
         // Testing:
-        //   bdlb::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc);
-        //   bdlb::VariantImp(const TYPE& value, bslma::Allocator *ba);
+        //   VariantImp(const TYPE_OR_ALLOCATOR& valueOrAlloc);  // value
+        //   VariantImp(const TYPE& value, bslma::Allocator *ba);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -14844,7 +15198,7 @@ int main(int argc, char *argv[])
         //   called.
         //
         // Testing:
-        //   bdlb::VariantImp& assignTo(SOURCE& value);
+        //   VariantImp& assignTo(const SOURCE& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -15280,7 +15634,7 @@ int main(int argc, char *argv[])
         //   To address concern 6, we use a standard 'bslma' exception test.
         //
         // Testing:
-        //   bdlb::Variant& operator=(const bdlb::Variant& rhs);
+        //   VariantImp& operator=(const VariantImp& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -15411,7 +15765,7 @@ int main(int argc, char *argv[])
         //   object by value.
         //
         // Testing:
-        //   bdlb::Variant g(const char *spec);
+        //   VariantImp g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -15494,7 +15848,7 @@ int main(int argc, char *argv[])
         //  supplied test allocator.
         //
         // Testing:
-        //   bdlb::Variant(const bdlb::Variant&, bslma::Allocator *ba = 0);
+        //   VariantImp(const VariantImp&, bslma::Allocator *ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -15632,8 +15986,8 @@ int main(int argc, char *argv[])
         //   correctness.
         //
         // Testing:
-        //   bool operator==(const bdlb::Variant& l, const bdlb::Variant& r);
-        //   bool operator!=(const bdlb::Variant& l, const bdlb::Variant& r);
+        //   bool operator==(const VariantImp& lhs, const VariantImp& rhs);
+        //   bool operator!=(const VariantImp& lhs, const VariantImp& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -15728,8 +16082,8 @@ int main(int argc, char *argv[])
         //  that 'operator<<' returns the specified stream.
         //
         // Testing:
-        //   bsl::ostream& print(bsl::ostream&, int, int) const;
-        //   bsl::ostream& operator<<(bsl::ostream&, const bdlb::VariantImp&);
+        //   bsl::ostream& print(bsl::ostream& stream, int, int) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const VariantImp&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -16060,8 +16414,8 @@ int main(int argc, char *argv[])
         //  are as expected.
         //
         // Testing:
-        //   int ggg(bdlb::Variant *, const char *, bool = true);
-        //   bdlb::Variant *gg(bdlb::Variant *, const char *);
+        //   int ggg(VariantImp *, const char *, bool = true);
+        //   VariantImp& gg(VariantImp *, const char *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -16250,12 +16604,12 @@ int main(int argc, char *argv[])
         //  will, then call 'reset'; check the value and then exercise
         //  'assign' again to check consistency.
         //
-        //  Testing:
-        //    bdlb::Variant();
-        //    bdlb::Variant(const TYPEORALLOCATOR& typeOrAlloc);
-        //    ~bdlb::Variant();
-        //    VariantImp& assign(const TYPE& value);
-        //    void reset();
+        // Testing:
+        //   VariantImp();
+        //   VariantImp(const TYPEORALLOCATOR& valueOrAlloc);  // allocator
+        //   ~VariantImp();
+        //   VariantImp& assign(const TYPE& value);
+        //   void reset();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
