@@ -6,11 +6,12 @@ BSLS_IDENT_RCSID(bslx_versionfunctions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bslx {
+
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

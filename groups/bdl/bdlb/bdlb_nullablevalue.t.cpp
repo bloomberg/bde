@@ -1022,6 +1022,7 @@ const TYPE& TmvipSa_WithThrowingCtor<TYPE>::a5() const
 
 #endif // BDE_BUILD_TARGET_EXC
 
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------

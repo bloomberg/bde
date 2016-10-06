@@ -23,7 +23,7 @@ using namespace bslx;
 // component will be tested by verifying the return value of the method for a
 // variety of 'TYPE'.
 // ----------------------------------------------------------------------------
-// [ 1] int maxSupportedBdexVersion<TYPE>(const TYPE *, STREAM& stream);
+// [ 1] int maxSupportedBdexVersion<TYPE>(const TYPE *, int vs);
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -125,6 +125,7 @@ class TestClass {
             return 3;                                                 // RETURN
         }
     }
+
 };
 
 template <class TYPE>
@@ -150,6 +151,19 @@ struct TestType {
         ASSERT(maxSupportedBdexVersion(vt, sv) == version);
     }
 
+    static void testCV(int version)
+    {
+        using bslx::VersionFunctions::maxSupportedBdexVersion;
+
+        TYPE *t = 0;
+        const TYPE *ct = 0;
+        volatile TYPE *vt = 0;
+
+        ASSERT(maxSupportedBdexVersion( t) == version);
+        ASSERT(maxSupportedBdexVersion(ct) == version);
+        ASSERT(maxSupportedBdexVersion(vt) == version);
+    }
+
     template <class STREAM>
     static void test(STREAM& stream, int version, int vectorVersion)
     {
@@ -162,6 +176,8 @@ struct TestType {
 
         TestType<bsl::vector<bsl::vector<bsl::vector<TYPE> > > >::
                                                  testCV(stream, vectorVersion);
+
+
     }
 };
 
@@ -198,7 +214,7 @@ struct TestType {
             return VERSION;
         }
 
-        //...
+        // ...
 
     };
 
@@ -289,7 +305,7 @@ int main(int argc, char *argv[])
         //:   ensure correct return values for user-defined types.  (C-4)
         //
         // Testing:
-        //   int maxSupportedBdexVersion<TYPE>(const TYPE *, STREAM& stream);
+        //   int maxSupportedBdexVersion<TYPE>(const TYPE *, int vs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
