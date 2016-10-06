@@ -33,6 +33,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include <bslmf_addlvaluereference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
+#include <bslmf_addrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
 #endif
@@ -68,6 +76,17 @@ struct Util {
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
         // compilation environment.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class TYPE>
+    static typename bsl::add_rvalue_reference<TYPE>::type declval();
+#else
+    template <class TYPE>
+    static typename bsl::add_lvalue_reference<TYPE>::type declval();
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // This function has no implementation.  It exists to allow for the
+        // appearance of a temporary object of the specified type that can be
+        // used in unevaluated contexts.
 };
 
 // ============================================================================
