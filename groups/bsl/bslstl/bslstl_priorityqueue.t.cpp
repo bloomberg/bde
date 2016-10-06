@@ -1781,13 +1781,48 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
     // ------------------------------------------------------------------------
 
     if (verbose) {
+        P(bsls::NameOf<Obj>())
         P(bsls::NameOf<VALUE>())
         P(bsls::NameOf<CONTAINER>())
         P(bsls::NameOf<COMPARATOR>())
     }
 
-    // N4594: 23.5.6.1: Class template 'unordered_set' overview
+    // N4594: page 902:  23.6.5: Class template 'priority_queue'
+    //                                                         [priority.queue]
+    //
 
+    // page 903
+    //..
+    //  void swap(priority_queue& q)
+    //      noexcept(is_nothrow_swappable_v<Container> &&
+    //               is_nothrow_swappable_v<Compare>)
+    //  { using std::swap; swap(c, q.c); swap(comp, q.comp); }
+    //..
+
+    {
+        Obj x;
+        Obj q;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(q)));
+    }
+
+    // page 903
+    //..
+    //  // no equality is provided
+    //  template <class T, class Container, class Compare>
+    //  void swap(priority_queue<T, Container, Compare>& x,
+    //            priority_queue<T, Container, Compare>& y)
+    //  noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
