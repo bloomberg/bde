@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-enabled deque of items of parameterized 'TYPE'.
 //
 //@CLASSES:
-//   bdlcc_Deque: thread-safe 'bsl::deque' wrapper
+//   bdlcc::Deque: thread-safe 'bsl::deque' wrapper
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // proctor types that are nested classes.
 //
 ///Tips For Porting From 'bcec_Queue':
-///----------------------------------
+///-----------------------------------
 //: o 'InitialCapacity' has been eliminated.  Instead, construct your
 //:   'bdlcc::Deque' object and then use proctor access to call 'reserve' on
 //:   the contained 'bsl::deque' to reserve the desired initial capacity.
@@ -35,12 +35,12 @@ BSLS_IDENT("$Id: $")
 //:   condition variables as necessary.
 //
 ///Throw Guarantees:
-///----------------
+///-----------------
 // Assuming the following throw guarantees of the parametrized 'TYPE':
 //: 1 The destructor doesn't throw.
 //: 2 If copy-assignment throws, it leaves the state of the destination
 //:   unchanged.
-// We have the following guarantees:
+// We provide the following guarantees:
 //: 1 If a single-object push or pop operation throws, both the state of the
 //:   container and the state of the 'TYPE' object being assigned to is
 //:   unchanged.
@@ -59,16 +59,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: A Queue of Work Requests
 ///- - - - - - - - - - - - - - - - - -
-// First, declarer the struct 'my_WordData'.  Imagine it contains some data one
+// First, declarer the struct 'WordData'.  Imagine it contains some data one
 // wants to process:
 //..
-//  struct my_WorkData{
-//      // worrk data...
+//  struct WorkData {
+//      // work data...
 //  };
 //..
-// Then, create the function that will produce a 'mY_WorkData' object:
+// Then, create the function that will produce a 'WorkData' object:
 //..
-//  bool my_getWorkData(my_WorkData *)
+//  bool getWorkData(WorkData *)
 //      // Dummy implementation of 'getWorkData' function required by the usage
 //      // example.
 //  {
@@ -76,10 +76,10 @@ BSLS_IDENT("$Id: $")
 //      return ++i < 1000;
 //  }
 //..
-// Next, declare 'my_WorkRequest', the type of object that will be stored in
+// Next, declare 'WorkRequest', the type of object that will be stored in
 // the container:
 //..
-//  struct my_WorkRequest {
+//  struct WorkRequest {
 //      // PUBLIC TYPES
 //      enum RequestType {
 //          e_WORK = 1,
@@ -88,12 +88,12 @@ BSLS_IDENT("$Id: $")
 //
 //      // PUBLIC DATA
 //      RequestType d_type;
-//      my_WorkData d_data;
+//      WorkData d_data;
 //  };
 //..
-// Then, create the funciton that will do work on a 'my_WorkRequest' object:
+// Then, create the function that will do work on a 'WorkRequest' object:
 //..
-//  void my_doWork(my_WorkData *workData)
+//  void doWork(WorkData *workData)
 //      // Function that pretends to do work on the specified 'workData'.
 //  {
 //      // do some stuff with '*workData' ...
@@ -103,14 +103,14 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, create the functor that will be run in the consumer threads:
 //..
-//  struct my_ConsumerFunctor {
+//  struct ConsumerFunctor {
 //      // DATA
-//      bdlcc::Deque<my_WorkRequest> *d_deque_p;
+//      bdlcc::Deque<WorkRequest> *d_deque_p;
 //
 //      // CREATORS
 //      explicit
-//      my_ConsumerFunctor(bdlcc::Deque<my_WorkRequest> *container)
-//          // Create a ''my_ConsumerFunctor' object that will consumer work
+//      ConsumerFunctor(bdlcc::Deque<WorkRequest> *container)
+//          // Create a ''ConsumerFunctor' object that will consumer work
 //          // requests from the specified 'container'.
 //      : d_deque_p(container)
 //      {}
@@ -120,46 +120,46 @@ BSLS_IDENT("$Id: $")
 //          // Pop work requests off the deque and process them until an
 //          // 'e_STOP' request is encountered.
 //      {
-//          my_WorkRequest item;
+//          WorkRequest item;
 //
 //          do {
 //              item = d_deque_p->popFront();
-//              if (my_WorkRequest::e_WORK == item.d_type) {
-//                  my_doWork(&item.d_data);
+//              if (WorkRequest::e_WORK == item.d_type) {
+//                  doWork(&item.d_data);
 //              }
-//          } while (my_WorkRequest::e_STOP != item.d_type);
+//          } while (WorkRequest::e_STOP != item.d_type);
 //      }
 //  };
 //..
 // Then, create the functor that will be run in the producer threads:
 //..
-//  struct my_ProducerFunctor {
+//  struct ProducerFunctor {
 //      // DATA
-//      bdlcc::Deque<my_WorkRequest> *d_deque_p;
+//      bdlcc::Deque<WorkRequest> *d_deque_p;
 //
 //      // CREATORS
 //      explicit
-//      my_ProducerFunctor(bdlcc::Deque<my_WorkRequest> *container)
-//          // Create a 'my_ProducerFunctor' object that will enqueue work
+//      ProducerFunctor(bdlcc::Deque<WorkRequest> *container)
+//          // Create a 'ProducerFunctor' object that will enqueue work
 //          // requests into the specified 'container'.
 //      : d_deque_p(container)
 //      {}
 //
 //      // MANIPULATORS
 //      void operator()()
-//          // Enqueue work requests to the container until 'my_getWorkData'
+//          // Enqueue work requests to the container until 'getWorkData'
 //          // returns 'false', then enqueue an 'e_STOP' request.
 //      {
-//          my_WorkRequest item;
-//          my_WorkData    workData;
+//          WorkRequest item;
+//          WorkData    workData;
 //
-//          while (!my_getWorkData(&workData)) {
-//              item.d_type = my_WorkRequest::e_WORK;
+//          while (!getWorkData(&workData)) {
+//              item.d_type = WorkRequest::e_WORK;
 //              item.d_data = workData;
 //              d_deque_p->pushBack(item);
 //          }
 //
-//          item.d_type = my_WorkRequest::e_STOP;
+//          item.d_type = WorkRequest::e_STOP;
 //          d_deque_p->pushBack(item);
 //      }
 //  };
@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, create our container:
 //..
-//  bdlcc::Deque<my_WorkRequest> deque;
+//  bdlcc::Deque<WorkRequest> deque;
 //..
 // Next, create the array of thread handles for the threads we will spawn:
 //..
@@ -184,12 +184,12 @@ BSLS_IDENT("$Id: $")
 //  int ti = 0, rc;
 //  while (ti < k_NUM_CONSUMER_THREADS) {
 //      rc = bslmt::ThreadUtil::create(&handles[ti++],
-//                                     my_ConsumerFunctor(&deque));
+//                                     ConsumerFunctor(&deque));
 //      assert(0 == rc);
 //  }
 //  while (ti < k_NUM_CONSUMER_THREADS + k_NUM_PRODUCER_THREADS) {
 //      rc = bslmt::ThreadUtil::create(&handles[ti++],
-//                                     my_ProducerFunctor(&deque));
+//                                     ProducerFunctor(&deque));
 //      assert(0 == rc);
 //  }
 //..
@@ -205,10 +205,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: A Queue of Events
 /// - - - - - - - - - - - - - -
-// First, we declare the 'my_Event' type, that will be contained in our
+// First, we declare the 'Event' type, that will be contained in our
 // 'bdlcc::Deque' object.
 //
-//  struct my_Event {
+//  struct Event {
 //      enum EventType {
 //          e_IN_PROGRESS   = 1,
 //          e_TASK_COMPLETE = 2 };
@@ -223,13 +223,13 @@ BSLS_IDENT("$Id: $")
 //
 //  enum { k_NUM_TO_PUSH = 5 };
 //
-// Next, we declare our 'my_WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
+// Next, we declare our 'WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
 // events into the deque.
 //
-//  struct my_WorkerFunctor {
-//      int                     d_workerId;
-//      bdlcc::Deque<my_Event> *d_deque_p;
-//      bslmt::Barrier         *d_barrier_p;
+//  struct WorkerFunctor {
+//      int                  d_workerId;
+//      bdlcc::Deque<Event> *d_deque_p;
+//      bslmt::Barrier      *d_barrier_p;
 //
 //      void operator()()
 //          // All the threads will block on the same barrier so they all start
@@ -247,8 +247,8 @@ BSLS_IDENT("$Id: $")
 //
 //              // Create the event object.
 //
-//              my_Event ev = {
-//                  my_Event::e_IN_PROGRESS,
+//              Event ev = {
+//                  Event::e_IN_PROGRESS,
 //                  d_workerId,
 //                  evnum++,
 //                  "In-Progress Event"
@@ -261,8 +261,8 @@ BSLS_IDENT("$Id: $")
 //
 //          // Create the completing event object.
 //
-//          my_Event ev = {
-//              my_Event::e_TASK_COMPLETE,
+//          Event ev = {
+//              Event::e_TASK_COMPLETE,
 //              d_workerId,
 //              evnum,
 //              "Task Complete"
@@ -281,14 +281,14 @@ BSLS_IDENT("$Id: $")
 // Then, declare out 'bdlcc::Deque' object, the set of handles of the
 // subthreads, and our barrier object:
 //..
-//  bdlcc::Deque<my_Event>    myDeque;
+//  bdlcc::Deque<Event>       myDeque;
 //  bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
 //  bslmt::Barrier            barrier(k_NUM_THREADS + 1);
 //..
 // Next, spawn the worker threads:
 //..
 //  for (int ti = 0; ti < k_NUM_THREADS; ++ti) {
-//      my_WorkerFunctor functor = { ti, &myDeque, &barrier };
+//      WorkerFunctor functor = { ti, &myDeque, &barrier };
 //
 //      bslmt::ThreadUtil::create(&handles[ti], functor);
 //  }
@@ -298,19 +298,19 @@ BSLS_IDENT("$Id: $")
 //  barrier.wait();
 //..
 // Now, loop to pop the events off the deque, and keep track of how many
-// 'e_COMPLETE' events have been popped, when this equals the number of
+// 'e_COMPLETE' events have been popped.  When this equals the number of
 // subthreads, we are done.
 //..
 //  int numCompleted = 0, numEvents = 0;
 //  while (numCompleted < k_NUM_THREADS) {
-//      my_Event ev = myDeque.popFront();
+//      Event ev = myDeque.popFront();
 //      ++numEvents;
 //      if (verbose) {
 //          cout << "[" << ev.d_workerId << "] "
 //               << ev.d_eventNumber << ". "
 //               << ev.d_eventText_p << endl;
 //      }
-//      if (my_Event::e_TASK_COMPLETE == ev.d_type) {
+//      if (Event::e_TASK_COMPLETE == ev.d_type) {
 //          ++numCompleted;
 //          int rc = bslmt::ThreadUtil::join(handles[ev.d_workerId]);
 //          assert(!rc);
@@ -321,6 +321,65 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(k_NUM_THREADS * k_NUM_TO_PUSH == numEvents);
 //  assert(0 == myDeque.length());
+//..
+//      }
+//    } break;
+//    case 23: {
+//      // --------------------------------------------------------------------
+//      // USAGE EXAMPLE 1
+//      //
+//      // Concerns:
+//      //: 1 That the first usage example compiles and runs correctly.
+//      //
+//      // Plan:
+//      //: 1 Build the usage and run it.
+//      //
+//      // Testing:
+//      //   USAGE EXAMPLE 1
+//      // --------------------------------------------------------------------
+//
+//      using namespace USAGE_EXAMPLE_1;
+//
+//      if (verbose) cout << "USAGE EXAMPLE 1\n"
+//                           "===============\n";
+//
+// Next, in 'main', define the number of consumer and producer threads (these
+// numbers must be equal).
+//..
+//  enum { k_NUM_CONSUMER_THREADS = 10,
+//         k_NUM_PRODUCER_THREADS = k_NUM_CONSUMER_THREADS };
+//..
+// Then, create our container:
+//..
+//  bdlcc::Deque<WorkRequest> deque;
+//..
+// Next, create the array of thread handles for the threads we will spawn:
+//..
+//  bslmt::ThreadUtil::Handle handles[k_NUM_CONSUMER_THREADS +
+//                                    k_NUM_PRODUCER_THREADS];
+//..
+// Now, spawn all the consumers and producers:
+//..
+//  int ti = 0, rc;
+//  while (ti < k_NUM_CONSUMER_THREADS) {
+//      rc = bslmt::ThreadUtil::create(&handles[ti++],
+//                                     ConsumerFunctor(&deque));
+//      assert(0 == rc);
+//  }
+//  while (ti < k_NUM_CONSUMER_THREADS + k_NUM_PRODUCER_THREADS) {
+//      rc = bslmt::ThreadUtil::create(&handles[ti++],
+//                                     ProducerFunctor(&deque));
+//      assert(0 == rc);
+//  }
+//..
+// Finally, join all the threads after they finish and confirm the container is
+// empty afterward:
+//..
+//  while (ti > 0) {
+//      rc = bslmt::ThreadUtil::join(handles[--ti]);
+//      assert(0 == rc);
+//  }
+//  assert(0 == deque.length());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -542,7 +601,7 @@ class Deque {
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
-        // elements from this container to '*buffer', in the same order, then,
+        // elements from this container to '*buffer' in the same order, then,
         // regardless of whether 'buffer' is zero, clear this container.  Note
         // that the previous contents of '*buffer' are not discarded -- the
         // removed items are appended to it.
@@ -681,11 +740,6 @@ class Deque<TYPE>::Proctor {
     // This class defines a proctor type that provides direct access to the
     // underlying 'bsl::deque' contained in a 'Deque'.  Creation of a 'Proctor'
     // object locks the mutex of the 'Deque', and destruction unlocks it.
-    //
-    // Note that the idiom 'Proctor(&myDeque)->function();' may be dangerous in
-    // that the temporary 'Proctor' object may not be destroyed until the end
-    // of the block, depending upon the compiler, which means that two such
-    // expressions existing within the same block could lead to a deadlock.
 
     // PRIVATE TYPES
     typedef bsl::deque<TYPE>       MonoDeque;
@@ -753,12 +807,6 @@ template <class TYPE>
 class Deque<TYPE>::ConstProctor {
     // This class defines a proctor type that provides direct const access to
     // the underlying 'bsl::deque' contained in a 'Deque'.
-    //
-    // Note that the idiom 'ConstProctor(&myDeque)->function();' may be
-    // dangerous in that the temporary 'Proctor' object may not be destroyed
-    // until the end of the block, depending upon the compiler, which means
-    // that two such expressions existing within the same block could lead to a
-    // deadlock.
 
     // PRIVATE TYPES
     typedef bsl::deque<TYPE>       MonoDeque;
@@ -1339,6 +1387,9 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
 {
     Proctor proctor(this);
 
+    // First, calculate 'toMove', which drives how the rest of the function
+    // behaves.
+
     const size_type toMove = bsl::min(d_monoDeque.size(), maxNumItems);
 
     if (buffer) {
@@ -1378,8 +1429,8 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
 
     Proctor proctor(this);
 
-    // First, calculate 'toMove' and 'toSignal', which drive how the rest of
-    // the function behaves.
+    // First, calculate 'toMove', which drives how the rest of the function
+    // behaves.
 
     const size_type toMove     = bsl::min(d_monoDeque.size(), maxNumItems);
     const Iterator  beginRange = d_monoDeque.begin();

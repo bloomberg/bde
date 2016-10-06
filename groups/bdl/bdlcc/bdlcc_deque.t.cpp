@@ -132,8 +132,9 @@ using bsl::flush;
 // [ 5] size_t highWaterMark() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE 1
-// [23] USAGE EXAMPLE 2
+// [22] TESTING PROCTOR LIFETIME
+// [23] USAGE EXAMPLE 1
+// [24] USAGE EXAMPLE 2
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -341,10 +342,10 @@ namespace USAGE_EXAMPLE_2 {
 //
 ///Example 2: A Queue of Events
 /// - - - - - - - - - - - - - -
-// First, we declare the 'my_Event' type, that will be contained in our
+// First, we declare the 'Event' type, that will be contained in our
 // 'bdlcc::Deque' object.
 
-    struct my_Event {
+    struct Event {
         enum EventType {
             e_IN_PROGRESS   = 1,
             e_TASK_COMPLETE = 2 };
@@ -359,13 +360,13 @@ namespace USAGE_EXAMPLE_2 {
 
     enum { k_NUM_TO_PUSH = 5 };
 
-// Next, we declare our 'my_WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
+// Next, we declare our 'WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
 // events into the deque.
 
-    struct my_WorkerFunctor {
-        int                     d_workerId;
-        bdlcc::Deque<my_Event> *d_deque_p;
-        bslmt::Barrier         *d_barrier_p;
+    struct WorkerFunctor {
+        int                  d_workerId;
+        bdlcc::Deque<Event> *d_deque_p;
+        bslmt::Barrier      *d_barrier_p;
 
         void operator()()
             // All the threads will block on the same barrier so they all start
@@ -383,8 +384,8 @@ namespace USAGE_EXAMPLE_2 {
 
                 // Create the event object.
 
-                my_Event ev = {
-                    my_Event::e_IN_PROGRESS,
+                Event ev = {
+                    Event::e_IN_PROGRESS,
                     d_workerId,
                     evnum++,
                     "In-Progress Event"
@@ -397,8 +398,8 @@ namespace USAGE_EXAMPLE_2 {
 
             // Create the completing event object.
 
-            my_Event ev = {
-                my_Event::e_TASK_COMPLETE,
+            Event ev = {
+                Event::e_TASK_COMPLETE,
                 d_workerId,
                 evnum,
                 "Task Complete"
@@ -425,16 +426,16 @@ namespace USAGE_EXAMPLE_1 {
 //
 ///Example 1: A Queue of Work Requests
 ///- - - - - - - - - - - - - - - - - -
-// First, declarer the struct 'my_WordData'.  Imagine it contains some data one
+// First, declarer the struct 'WordData'.  Imagine it contains some data one
 // wants to process:
 //..
-    struct my_WorkData{
-        // worrk data...
+    struct WorkData {
+        // work data...
     };
 //..
-// Then, create the function that will produce a 'mY_WorkData' object:
+// Then, create the function that will produce a 'WorkData' object:
 //..
-    bool my_getWorkData(my_WorkData *)
+    bool getWorkData(WorkData *)
         // Dummy implementation of 'getWorkData' function required by the usage
         // example.
     {
@@ -442,10 +443,10 @@ namespace USAGE_EXAMPLE_1 {
         return ++i < 1000;
     }
 //..
-// Next, declare 'my_WorkRequest', the type of object that will be stored in
+// Next, declare 'WorkRequest', the type of object that will be stored in
 // the container:
 //..
-    struct my_WorkRequest {
+    struct WorkRequest {
         // PUBLIC TYPES
         enum RequestType {
             e_WORK = 1,
@@ -454,12 +455,12 @@ namespace USAGE_EXAMPLE_1 {
 
         // PUBLIC DATA
         RequestType d_type;
-        my_WorkData d_data;
+        WorkData d_data;
     };
 //..
-// Then, create the funciton that will do work on a 'my_WorkRequest' object:
+// Then, create the function that will do work on a 'WorkRequest' object:
 //..
-    void my_doWork(my_WorkData *workData)
+    void doWork(WorkData *workData)
         // Function that pretends to do work on the specified 'workData'.
     {
         // do some stuff with '*workData' ...
@@ -469,14 +470,14 @@ namespace USAGE_EXAMPLE_1 {
 //..
 // Next, create the functor that will be run in the consumer threads:
 //..
-    struct my_ConsumerFunctor {
+    struct ConsumerFunctor {
         // DATA
-        bdlcc::Deque<my_WorkRequest> *d_deque_p;
+        bdlcc::Deque<WorkRequest> *d_deque_p;
 
         // CREATORS
         explicit
-        my_ConsumerFunctor(bdlcc::Deque<my_WorkRequest> *container)
-            // Create a ''my_ConsumerFunctor' object that will consumer work
+        ConsumerFunctor(bdlcc::Deque<WorkRequest> *container)
+            // Create a ''ConsumerFunctor' object that will consumer work
             // requests from the specified 'container'.
         : d_deque_p(container)
         {}
@@ -486,46 +487,46 @@ namespace USAGE_EXAMPLE_1 {
             // Pop work requests off the deque and process them until an
             // 'e_STOP' request is encountered.
         {
-            my_WorkRequest item;
+            WorkRequest item;
 
             do {
                 item = d_deque_p->popFront();
-                if (my_WorkRequest::e_WORK == item.d_type) {
-                    my_doWork(&item.d_data);
+                if (WorkRequest::e_WORK == item.d_type) {
+                    doWork(&item.d_data);
                 }
-            } while (my_WorkRequest::e_STOP != item.d_type);
+            } while (WorkRequest::e_STOP != item.d_type);
         }
     };
 //..
 // Then, create the functor that will be run in the producer threads:
 //..
-    struct my_ProducerFunctor {
+    struct ProducerFunctor {
         // DATA
-        bdlcc::Deque<my_WorkRequest> *d_deque_p;
+        bdlcc::Deque<WorkRequest> *d_deque_p;
 
         // CREATORS
         explicit
-        my_ProducerFunctor(bdlcc::Deque<my_WorkRequest> *container)
-            // Create a 'my_ProducerFunctor' object that will enqueue work
+        ProducerFunctor(bdlcc::Deque<WorkRequest> *container)
+            // Create a 'ProducerFunctor' object that will enqueue work
             // requests into the specified 'container'.
         : d_deque_p(container)
         {}
 
         // MANIPULATORS
         void operator()()
-            // Enqueue work requests to the container until 'my_getWorkData'
+            // Enqueue work requests to the container until 'getWorkData'
             // returns 'false', then enqueue an 'e_STOP' request.
         {
-            my_WorkRequest item;
-            my_WorkData    workData;
+            WorkRequest item;
+            WorkData    workData;
 
-            while (!my_getWorkData(&workData)) {
-                item.d_type = my_WorkRequest::e_WORK;
+            while (!getWorkData(&workData)) {
+                item.d_type = WorkRequest::e_WORK;
                 item.d_data = workData;
                 d_deque_p->pushBack(item);
             }
 
-            item.d_type = my_WorkRequest::e_STOP;
+            item.d_type = WorkRequest::e_STOP;
             d_deque_p->pushBack(item);
         }
     };
@@ -2313,18 +2314,18 @@ int main(int argc, char *argv[])
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
         //: 1 The second usage example compiles and works as expected.
         //
         // Plan:
-        //: 1 Create a multi-threaded deque of 'my_Event's.
+        //: 1 Create a multi-threaded deque of 'Event's.
         //: 2 Create a set of an arbitrary number of 'myWorker' threads, where
         //:   each 'myWorker' thread simulates a single task.
         //: 3 Each 'myWorker' thread generates and endeques multiple
-        //:   'my_Event's.  Upon completion, each 'myWorker' thread endeques a
+        //:   'Event's.  Upon completion, each 'myWorker' thread endeques a
         //:   TASK_COMPLETE event.
         //: 4 Count the TASK_COMPLETE events until all threads are complete;
         //:   then "join" each thread.
@@ -2346,14 +2347,14 @@ int main(int argc, char *argv[])
 // Then, declare out 'bdlcc::Deque' object, the set of handles of the
 // subthreads, and our barrier object:
 //..
-    bdlcc::Deque<my_Event>    myDeque;
+    bdlcc::Deque<Event>       myDeque;
     bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
     bslmt::Barrier            barrier(k_NUM_THREADS + 1);
 //..
 // Next, spawn the worker threads:
 //..
     for (int ti = 0; ti < k_NUM_THREADS; ++ti) {
-        my_WorkerFunctor functor = { ti, &myDeque, &barrier };
+        WorkerFunctor functor = { ti, &myDeque, &barrier };
 
         bslmt::ThreadUtil::create(&handles[ti], functor);
     }
@@ -2363,19 +2364,19 @@ int main(int argc, char *argv[])
     barrier.wait();
 //..
 // Now, loop to pop the events off the deque, and keep track of how many
-// 'e_COMPLETE' events have been popped, when this equals the number of
+// 'e_COMPLETE' events have been popped.  When this equals the number of
 // subthreads, we are done.
 //..
     int numCompleted = 0, numEvents = 0;
     while (numCompleted < k_NUM_THREADS) {
-        my_Event ev = myDeque.popFront();
+        Event ev = myDeque.popFront();
         ++numEvents;
         if (verbose) {
             cout << "[" << ev.d_workerId << "] "
                  << ev.d_eventNumber << ". "
                  << ev.d_eventText_p << endl;
         }
-        if (my_Event::e_TASK_COMPLETE == ev.d_type) {
+        if (Event::e_TASK_COMPLETE == ev.d_type) {
             ++numCompleted;
             int rc = bslmt::ThreadUtil::join(handles[ev.d_workerId]);
             ASSERT(!rc);
@@ -2389,7 +2390,7 @@ int main(int argc, char *argv[])
 //..
         }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
@@ -2416,7 +2417,7 @@ int main(int argc, char *argv[])
 //..
 // Then, create our container:
 //..
-    bdlcc::Deque<my_WorkRequest> deque;
+    bdlcc::Deque<WorkRequest> deque;
 //..
 // Next, create the array of thread handles for the threads we will spawn:
 //..
@@ -2428,12 +2429,12 @@ int main(int argc, char *argv[])
     int ti = 0, rc;
     while (ti < k_NUM_CONSUMER_THREADS) {
         rc = bslmt::ThreadUtil::create(&handles[ti++],
-                                       my_ConsumerFunctor(&deque));
+                                       ConsumerFunctor(&deque));
         ASSERT(0 == rc);
     }
     while (ti < k_NUM_CONSUMER_THREADS + k_NUM_PRODUCER_THREADS) {
         rc = bslmt::ThreadUtil::create(&handles[ti++],
-                                       my_ProducerFunctor(&deque));
+                                       ProducerFunctor(&deque));
         ASSERT(0 == rc);
     }
 //..
@@ -2446,6 +2447,68 @@ int main(int argc, char *argv[])
     }
     ASSERT(0 == deque.length());
 //..
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING PROCTOR LIFETIME
+        //
+        // Concerns:
+        //: 1 The C++ language definition specifies that a temporary created
+        //:   within a statement will not outlive the statement unless bound to
+        //:   a reference.  On some old compilers, notably Solaris, temporaries
+        //:   could survive until the end of the block.  Ensure that on all
+        //:   platforms we port to, proctors are being deleted at the end of
+        //:   the statement.
+        //
+        // Plan:
+        //: 1 Create several proctors, as temporaries, within the same block.
+        //:   The fact that the mutex was able to be acquired multiple times
+        //:   will establish that old proctors were being destroyed.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PROCTOR LIFETIME\n"
+                             "========================\n";
+
+        typedef Obj::MonoDeque::const_iterator CIt;
+
+        Obj mX(&ta);
+        mX.pushBack(3);
+        mX.pushBack(4);
+        ASSERT(2 == Obj::Proctor(&mX)->size());
+        ASSERT(2 == Obj::ConstProctor(&mX)->size());
+
+        mX.pushFront(2);
+        mX.pushFront(1);
+        ASSERT(4 == Obj::Proctor(&mX)->size());
+        ASSERT(4 == Obj::ConstProctor(&mX)->size());
+
+        Obj::Proctor(&mX)->push_front(0);
+
+        {
+            Obj::ConstProctor cp(&mX);
+            double x = 0.0;
+            for (CIt cit = cp->begin(); cp->end() != cit; ++cit, x += 1) {
+                ASSERT(*cit == x);
+            }
+            ASSERT(5 == x);
+
+            for (int y = 0; y < x; ++y) {
+                ASSERT((*cp)[y] == y);
+            }
+        }
+
+        mX.pushBack(5);
+
+        ASSERT(6 == Obj::Proctor(&mX)->size());
+        ASSERT(6 == Obj::ConstProctor(&mX)->size());
+
+        int ii = 0, jj = 0;
+        ASSERT(ii++ == Obj::ConstProctor(&mX)->front());
+        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)->back());
       } break;
       case 21: {
         // --------------------------------------------------------------------
