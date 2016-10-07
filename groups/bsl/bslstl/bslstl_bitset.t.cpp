@@ -329,35 +329,35 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
         ASSERT(v.none());
         ASSERT(!v.any());
-        ASSERT(TESTSIZE==0 || !v.all());
+        ASSERT(0 == TESTSIZE || !v.all());
 
         v[0] = 1;
 
         ASSERT(1 == v.count());
         ASSERT(!v.none());
         ASSERT(v.any());
-        ASSERT(TESTSIZE==0 || TESTSIZE>1 || v.all());
+        ASSERT(0 == TESTSIZE || TESTSIZE > 1 || v.all());
 
         v[0] = 0;
 
         ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
-        ASSERT(TESTSIZE==0 || !v.all());
+        ASSERT(0 == TESTSIZE || !v.all());
 
         v[TESTSIZE - 1] = 1;
 
         ASSERT(1 == v.count());
         ASSERT(!v.none());
         ASSERT(v.any());
-        ASSERT(TESTSIZE==0 || TESTSIZE>1 || v.all());
+        ASSERT(0 == TESTSIZE || TESTSIZE > 1 || v.all());
 
         v[TESTSIZE - 1] = 0;
 
         ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
-        ASSERT(TESTSIZE==0 || !v.all());
+        ASSERT(0 == TESTSIZE || !v.all());
 
         for (int i = 0; i < TESTSIZE; ++i) {
             v[i] = 1;
