@@ -1259,7 +1259,7 @@ template <std::size_t N>
 inline
 bool bitset<N>::none() const BSLS_CPP11_NOEXCEPT
 {
-    return 0 == N || !any();
+    return !any();
 }
 
 template <std::size_t N>
