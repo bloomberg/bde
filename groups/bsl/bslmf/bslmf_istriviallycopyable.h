@@ -159,15 +159,22 @@ BSLS_IDENT("$Id: $")
 #define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 // Early implementations of C++11 type traits did not always provide the
 // necessary compiler intrinsic to detect the 'trivial' traits, so we use an
-// additonal component-level feature macro to detect whether native support is
+// additional component-level feature macro to detect whether native support is
 // truly present.  This macro is defined for Visual C++ prior to VC2015 due to
-// wrong results for certain types with the inital implemetation of that trait.
+// wrong results for certain types with the initial implementation of that
+// trait.
 
 #if (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 50000)    \
  || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 # undef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 #endif
 
+#endif
+
+#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
+#endif
 #endif
 
 namespace bsl {
@@ -259,8 +266,16 @@ struct is_trivially_copyable
 template <>
 struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : bsl::true_type{
     // This template specialization for 'is_trivially_copyable' indicates that
-    // 'Date' is a trivially copyable type.
+    // 'TimeInterval' is a trivially copyable type.
 };
+
+#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+template <>
+struct is_trivially_copyable<BloombergLP::bslmf::Nil> : bsl::true_type {
+    // This template specialization for 'is_trivially_copyable' indicates that
+    // 'Nil' is a trivially copyable type.
+};
+#endif
 
 template <class TYPE>
 struct is_trivially_copyable<const TYPE>
