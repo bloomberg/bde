@@ -193,6 +193,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 typedef bsltf::TemplateTestFacility TTF;
+typedef bsltf::MoveState            MoveState;
 typedef bslmf::MovableRefUtil       MoveUtil;
 typedef bsls::Types::Int64          Int64;
 typedef bslma::ConstructionUtil     ConstrUtil;
@@ -343,15 +344,15 @@ struct AlDerived : public AlBase {
 };
 
 template <class TYPE, int ALLOCATOR_ACCESSOR_CLASS =
-                (bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
+                (bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value
+              || bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
               || bsl::is_same<TYPE, bsltf::AllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
               || bsl::is_same<TYPE, AlBase>::value
-              || bsl::is_same<TYPE, AlDerived>::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value)
+              || bsl::is_same<TYPE, AlDerived>::value)
               ? 1    // 'allocator()'
               : 0>   // no accessor
 struct AllocatorMatchesImp {
@@ -412,7 +413,7 @@ template <class TYPE>
 inline
 bool isMovedFrom(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+    return !isMoveAware(object) || MoveState::e_MOVED ==
                                                 TTF::getMovedFromState(object);
 }
 
@@ -420,7 +421,7 @@ template <class TYPE>
 inline
 bool isNotMovedFrom(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+    return !isMoveAware(object) || MoveState::e_NOT_MOVED ==
                                                 TTF::getMovedFromState(object);
 }
 
@@ -428,7 +429,7 @@ template <class TYPE>
 inline
 bool isMovedInto(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+    return !isMoveAware(object) || MoveState::e_MOVED ==
                                                 TTF::getMovedIntoState(object);
 }
 
@@ -436,7 +437,7 @@ template <class TYPE>
 inline
 bool isNotMovedInto(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+    return !isMoveAware(object) || MoveState::e_NOT_MOVED ==
                                                 TTF::getMovedIntoState(object);
 }
 
@@ -445,9 +446,9 @@ inline
 bool isNotMovedFrom(const bsl::pair<U, V>& pr)
 {
     return (!isMoveAware(pr.first) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.first))
+            MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.first))
        && (!isMoveAware(pr.second) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.second));
+            MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.second));
 }
 
 template <class U, class V>
@@ -455,9 +456,9 @@ inline
 bool isNotMovedInto(const bsl::pair<U, V>& pr)
 {
     return (!isMoveAware(pr.first) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.first))
+            MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.first))
        && (!isMoveAware(pr.second) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.second));
+            MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.second));
 }
 
 template <class PAIR>
@@ -2304,13 +2305,19 @@ void TupleTestDriver::runTestAlloc()
         }
         u::PairGuard<Pair> pg(p);
 
-        ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
-        ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
-        ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+        ASSERTV(name, MOVE_F1, AF1.movedFrom(),
+               MOVE_F1 == (MoveState::e_MOVED == AF1.movedFrom()) || 2 == NF1);
+        ASSERTV(name, MOVE_F2, AF2.movedFrom(),
+               MOVE_F2 == (MoveState::e_MOVED == AF2.movedFrom()) || 2 == NF2);
+        ASSERTV(name, MOVE_F3, AF3.movedFrom(),
+               MOVE_F3 == (MoveState::e_MOVED == AF3.movedFrom()) || 2 == NF3);
 
-        ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
-        ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
-        ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+        ASSERTV(name, MOVE_S1, AS1.movedFrom(),
+               MOVE_S1 == (MoveState::e_MOVED == AS1.movedFrom()) || 2 == NS1);
+        ASSERTV(name, MOVE_S2, AS2.movedFrom(),
+               MOVE_S2 == (MoveState::e_MOVED == AS2.movedFrom()) || 2 == NS2);
+        ASSERTV(name, MOVE_S3, AS3.movedFrom(),
+               MOVE_S3 == (MoveState::e_MOVED == AS3.movedFrom()) || 2 == NS3);
 
         const EType& F = p->first;
 
@@ -2528,13 +2535,19 @@ void TupleTestDriver::runTestNoAlloc()
     }
     u::PairGuard<Pair> pg(p);
 
-    ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
-    ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
-    ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+    ASSERTV(name, MOVE_F1, AF1.movedFrom(),
+            MOVE_F1 == (MoveState::e_MOVED == AF1.movedFrom()) || 2 == NF1);
+    ASSERTV(name, MOVE_F2, AF2.movedFrom(),
+            MOVE_F2 == (MoveState::e_MOVED == AF2.movedFrom()) || 2 == NF2);
+    ASSERTV(name, MOVE_F3, AF3.movedFrom(),
+            MOVE_F3 == (MoveState::e_MOVED == AF3.movedFrom()) || 2 == NF3);
 
-    ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
-    ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
-    ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+    ASSERTV(name, MOVE_S1, AS1.movedFrom(),
+            MOVE_S1 == (MoveState::e_MOVED == AS1.movedFrom()) || 2 == NS1);
+    ASSERTV(name, MOVE_S2, AS2.movedFrom(),
+            MOVE_S2 == (MoveState::e_MOVED == AS2.movedFrom()) || 2 == NS2);
+    ASSERTV(name, MOVE_S3, AS3.movedFrom(),
+            MOVE_S3 == (MoveState::e_MOVED == AS3.movedFrom()) || 2 == NS3);
 
     const EType& F = p->first;
 

@@ -265,7 +265,8 @@ class TestDriver {
     // Each "testCase*" method tests a specific aspect of 'EmplacableTestType'.
 
   private:
-    // TYPES
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil         MoveUtil;
 
     // Shorthands
     typedef EmplacableTestType            Obj;
@@ -284,7 +285,6 @@ class TestDriver {
     typedef Obj::ArgType13                ArgType13;
     typedef Obj::ArgType14                ArgType14;
 
-    typedef bslmf::MovableRefUtil         MoveUtil;
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
@@ -896,7 +896,7 @@ void TestDriver::testCase9()
 void TestDriver::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR:
+    // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
     //: 1 The new object's value is the same as that of the original object
@@ -970,7 +970,8 @@ void TestDriver::testCase7()
 void TestDriver::testCase6()
 {
     // ---------------------------------------------------------------------
-    // TESTING EQUALITY OPERATORS:
+    // TESTING EQUALITY OPERATORS
+    //
     // Concerns:
     //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
     //:   the same values.
@@ -1137,8 +1138,6 @@ void TestDriver::testCase4()
         //LINE  VALUE
         //----  --------
         { L_,         0 },
-        { L_,   INT_MIN },
-        { L_,        -1 },
         { L_,         1 },
         { L_,   INT_MAX },
     };
@@ -1463,7 +1462,7 @@ void TestDriver::testCase2()
 
     switch (N_ARGS) {
       case 0: {
-        new(buffer.address()) Obj();
+        new (buffer.address()) Obj();
       } break;
       case 1: {
         new (buffer.address()) Obj(testArg(A01, MOVE_01));
@@ -1604,20 +1603,35 @@ void TestDriver::testCase2()
     }
     bslma::DestructorGuard<Obj> guard(&buffer.object());
 
-    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+                           MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+                           MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+                           MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+                           MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+                           MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+                           MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+                           MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+                           MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+                           MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+                           MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+                           MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+                           MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+                           MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+                           MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
+
 
     ASSERTV(V01, EXP.arg01(), V01 == EXP.arg01() || 2 == N01);
     ASSERTV(V02, EXP.arg02(), V02 == EXP.arg02() || 2 == N02);
