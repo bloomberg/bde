@@ -331,10 +331,14 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(!v.any());
         ASSERT(0 == TESTSIZE || !v.all());
 
+        if (0 == TESTSIZE) {
+            return;
+        }
+
         v[0] = 1;
 
         ASSERT(1 == v.count());
-        ASSERT(!v.none());
+        ASSERT(0 == TESTSIZE || !v.none());
         ASSERT(v.any());
         ASSERT(0 == TESTSIZE || TESTSIZE > 1 || v.all());
 
@@ -1088,6 +1092,7 @@ int main(int argc, char *argv[])
       if (verbose) printf("\nTESTING DEFAULT CONSTRUCTOR"
                           "\n===========================\n");
 
+      testCase2<0>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<3>(verbose, veryVerbose, veryVeryVerbose);
