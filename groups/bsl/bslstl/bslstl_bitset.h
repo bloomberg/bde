@@ -1219,12 +1219,7 @@ bool bitset<N>::operator!=(const bitset& rhs) const BSLS_CPP11_NOEXCEPT
 template <std::size_t N>
 bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
 {
-    for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
-        if (d_data[i] == 0) {
-            return false;                                             // RETURN
-        }
-    }
-    return true;
+    return count() == N;
 }
 
 template <std::size_t N>

@@ -94,11 +94,11 @@ using namespace std;    // still using iostream
 // [ 3] constexpr bool operator[](std::size_t pos) const;
 // [  ] bool operator==(std::size_t pos) const noexcept;
 // [  ] bool operator!=(std::size_t pos) const noexcept;
-// [  ] bool all() const noexcept;
+// [ 2] bool all() const noexcept;
 // [ 2] bool any() const noexcept;
 // [ 2] bool none() const noexcept;
 // [ 2] constexpr std::size_t size() const noexcept;
-// [  ] std::size_t count() const noexcept;
+// [ 2] std::size_t count() const noexcept;
 // [  ] bool test(std::size_t) const;
 // [  ] unsigned long to_ulong() const noexcept;
 //
@@ -324,28 +324,56 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         bsl::bitset<TESTSIZE> v;
 
         ASSERT(TESTSIZE == v.size());
+
+        ASSERT(0 == v.count());
+
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(TESTSIZE==0 || !v.all());
 
         v[0] = 1;
 
+        ASSERT(1 == v.count());
         ASSERT(!v.none());
         ASSERT(v.any());
+        ASSERT(TESTSIZE==0 || TESTSIZE>1 || v.all());
 
         v[0] = 0;
 
+        ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(TESTSIZE==0 || !v.all());
 
         v[TESTSIZE - 1] = 1;
 
+        ASSERT(1 == v.count());
         ASSERT(!v.none());
         ASSERT(v.any());
+        ASSERT(TESTSIZE==0 || TESTSIZE>1 || v.all());
 
         v[TESTSIZE - 1] = 0;
 
+        ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(TESTSIZE==0 || !v.all());
+
+        for (int i = 0; i < TESTSIZE; ++i) {
+            v[i] = 1;
+            ASSERT(i + 1 == v.count());
+        }
+
+        ASSERT(v.all());
+        ASSERT(TESTSIZE == v.count());
+
+        for (int i = 1; i < TESTSIZE; ++i) {
+            LOOP2_ASSERT(i, TESTSIZE, v.all());
+            v[i] = 0;
+            LOOP2_ASSERT(i, TESTSIZE, !v.all());
+            v[i] = 1;
+            LOOP2_ASSERT(i, TESTSIZE, v.all());
+        }
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     {   // constexpr test
