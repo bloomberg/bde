@@ -94,11 +94,11 @@ using namespace std;    // still using iostream
 // [ 3] constexpr bool operator[](std::size_t pos) const;
 // [  ] bool operator==(std::size_t pos) const noexcept;
 // [  ] bool operator!=(std::size_t pos) const noexcept;
-// [  ] bool all() const noexcept;
+// [ 2] bool all() const noexcept;
 // [ 2] bool any() const noexcept;
 // [ 2] bool none() const noexcept;
 // [ 2] constexpr std::size_t size() const noexcept;
-// [  ] std::size_t count() const noexcept;
+// [ 2] std::size_t count() const noexcept;
 // [  ] bool test(std::size_t) const;
 // [  ] unsigned long to_ulong() const noexcept;
 //
@@ -324,28 +324,60 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         bsl::bitset<TESTSIZE> v;
 
         ASSERT(TESTSIZE == v.size());
+
+        ASSERT(0 == v.count());
+
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(0 == TESTSIZE || !v.all());
+
+        if (0 == TESTSIZE) {
+            return;
+        }
 
         v[0] = 1;
 
-        ASSERT(!v.none());
+        ASSERT(1 == v.count());
+        ASSERT(0 == TESTSIZE || !v.none());
         ASSERT(v.any());
+        ASSERT(0 == TESTSIZE || TESTSIZE > 1 || v.all());
 
         v[0] = 0;
 
+        ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(0 == TESTSIZE || !v.all());
 
         v[TESTSIZE - 1] = 1;
 
+        ASSERT(1 == v.count());
         ASSERT(!v.none());
         ASSERT(v.any());
+        ASSERT(0 == TESTSIZE || TESTSIZE > 1 || v.all());
 
         v[TESTSIZE - 1] = 0;
 
+        ASSERT(0 == v.count());
         ASSERT(v.none());
         ASSERT(!v.any());
+        ASSERT(0 == TESTSIZE || !v.all());
+
+        for (int i = 0; i < TESTSIZE; ++i) {
+            v[i] = 1;
+            ASSERT(i + 1 == v.count());
+        }
+
+        ASSERT(v.all());
+        ASSERT(TESTSIZE == v.count());
+
+        for (int i = 1; i < TESTSIZE; ++i) {
+            LOOP2_ASSERT(i, TESTSIZE, v.all());
+            v[i] = 0;
+            LOOP2_ASSERT(i, TESTSIZE, !v.all());
+            v[i] = 1;
+            LOOP2_ASSERT(i, TESTSIZE, v.all());
+        }
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     {   // constexpr test
@@ -354,7 +386,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(v.none());
         ASSERT(!v.any());
         BSLMF_ASSERT(TESTSIZE == v.size());
-        BSLMF_ASSERT(0 == v[0]);
+        BSLMF_ASSERT(0 == TESTSIZE || 0 == v[0]);
     }
 #endif
 }
@@ -1060,6 +1092,7 @@ int main(int argc, char *argv[])
       if (verbose) printf("\nTESTING DEFAULT CONSTRUCTOR"
                           "\n===========================\n");
 
+      testCase2<0>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<3>(verbose, veryVerbose, veryVeryVerbose);
