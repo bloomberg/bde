@@ -30,6 +30,7 @@
 #include <bsltf_allocemplacabletesttype.h>
 #include <bsltf_argumenttype.h>
 #include <bsltf_emplacabletesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_stdstatefulallocator.h>
 
 // Look what the usage examples drag in...
@@ -1047,6 +1048,7 @@ struct PerformanceTester;
 // TYPEDEFS
 typedef bsltf::AllocEmplacableTestType      MyInplaceAllocatableObject;
 typedef bsltf::EmplacableTestType           MyInplaceTestObject;
+typedef bsltf::MoveState                    MoveState;
 
 typedef bsl::shared_ptr<MyTestObject>               Obj;
 typedef bsl::shared_ptr<const MyTestObject>         ConstObj;
@@ -3105,20 +3107,34 @@ void Harness::testCase23_RunTest(
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -3719,20 +3735,34 @@ void Harness::testCase32_DefaultAllocator()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -4051,20 +4081,34 @@ void Harness::testCase32_LocalAllocator()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -4806,20 +4850,34 @@ void Harness::testCase33_RunTest(ALLOCATOR basicAllocator)
     bslalg::AutoScalarDestructor<MyInplaceTestObject> proctor(
                                                              &buffer.object());
 
-    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // The next blocks is testing 'MyInplaceTestObject', and belongs in its own
     // test driver.  Retained for now.
@@ -5130,20 +5188,34 @@ void Harness::testCase34_AllocatorAware()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -7830,20 +7902,21 @@ int main(int argc, char *argv[])
             ASSERTV(VA12, EXP.arg12(), VA12 == EXP.arg12());
             ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13());
             ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14());
-            ASSERT (A01.movedFrom());
-            ASSERT (A02.movedFrom());
-            ASSERT (A03.movedFrom());
-            ASSERT (A04.movedFrom());
-            ASSERT (A05.movedFrom());
-            ASSERT (A06.movedFrom());
-            ASSERT (A07.movedFrom());
-            ASSERT (A08.movedFrom());
-            ASSERT (A09.movedFrom());
-            ASSERT (A10.movedFrom());
-            ASSERT (A11.movedFrom());
-            ASSERT (A12.movedFrom());
-            ASSERT (A13.movedFrom());
-            ASSERT (A14.movedFrom());
+
+            ASSERTV(MoveState::e_MOVED == A01.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A02.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A03.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A04.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A05.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A06.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A07.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A08.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A09.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A10.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A11.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A12.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A13.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A14.movedFrom());
 
             ASSERTV(numAllocations,   ta.numAllocations(),
                     numAllocations == ta.numAllocations());
@@ -7905,20 +7978,21 @@ int main(int argc, char *argv[])
                 ASSERT(EXP == *x);
                 ASSERT(1 == x.use_count());
                 ASSERTV(&ta, x->allocator(), &ta == x->allocator() );
-                ASSERT(B01.movedFrom());
-                ASSERT(B02.movedFrom());
-                ASSERT(B03.movedFrom());
-                ASSERT(B04.movedFrom());
-                ASSERT(B05.movedFrom());
-                ASSERT(B06.movedFrom());
-                ASSERT(B07.movedFrom());
-                ASSERT(B08.movedFrom());
-                ASSERT(B09.movedFrom());
-                ASSERT(B10.movedFrom());
-                ASSERT(B11.movedFrom());
-                ASSERT(B12.movedFrom());
-                ASSERT(B13.movedFrom());
-                ASSERT(B14.movedFrom());
+
+                ASSERTV(MoveState::e_MOVED == B01.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B02.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B03.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B04.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B05.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B06.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B07.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B08.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B09.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B10.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B11.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B12.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B13.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B14.movedFrom());
             }
 
             ASSERTV(numAllocations,   ta.numAllocations(),

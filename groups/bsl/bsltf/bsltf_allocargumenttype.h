@@ -38,9 +38,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
-// Suppose we wanted to ...
+// See 'bsltf_argumenttype' for usage example.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
