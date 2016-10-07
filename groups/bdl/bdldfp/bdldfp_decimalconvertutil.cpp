@@ -198,7 +198,7 @@ const float  k_7_DIGIT_OFR_THRESHOLD = 1e-8f;
 const double k_9_DIGIT_OFR_THRESHOLD = 1e-17;
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
-static inline
+inline
 bool isInRange(BINARY_TYPE)
     // Return true iff the non-singular argument is in the representable range
     // of 'DECIMAL_TYPE'.  Only 'isInRange<Decimal32, double>' actually needs
@@ -218,7 +218,7 @@ bool isInRange<Decimal32, double>(double value)
 }
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
-static inline
+inline
 bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
                                       BINARY_TYPE   binary)
     // If the specified 'binary' is a singular value ('Inf', 'Nan', or 0) or is
@@ -256,7 +256,7 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
     return true;
 }
 
-static inline
+inline
 int bound(int value, int low, int high)
     // Return the specified 'low' if the specified 'value' is less than 1, the
     // specified 'high' if 'value' is greater than 'high', and 'value'
@@ -265,8 +265,32 @@ int bound(int value, int low, int high)
     return value < 1 ? low : value > high ? high : value;
 }
 
+inline
+void parseDecimal(Decimal32 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal32' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal32(result, buffer);
+}
+
+inline
+void parseDecimal(Decimal64 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal64' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal64(result, buffer);
+}
+
+inline
+void parseDecimal(Decimal128 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal128' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal128(result, buffer);
+}
+
 template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
-static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
+DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
     // Return the closest decimal value with the specified 'digits' significant
     // digits to the specified 'binary'.  Singular (infinity, NaN, and -0) and
     // out-of-range 'binary' values are converted to appropriate decimal
@@ -293,7 +317,7 @@ static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
 }
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
-static DECIMAL_TYPE shortestDecimalFromBinary(BINARY_TYPE binary);
+DECIMAL_TYPE shortestDecimalFromBinary(BINARY_TYPE binary);
     // Return the DECIMAL_TYPE value with the fewest significant digits that
     // converts back exactly to the specified 'binary' if it exists, and the
     // closest value to 'binary' otherwise.
@@ -747,30 +771,6 @@ Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary, int digits)
         }
     }
     return restoreDecimalDigits<Decimal128, 6>(binary, digits);
-}
-
-static inline
-void parseDecimal(Decimal32 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal32' on the specified 'buffer'.
-{
-    DecimalUtil::parseDecimal32(result, buffer);
-}
-
-static inline
-void parseDecimal(Decimal64 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal64' on the specified 'buffer'.
-{
-    DecimalUtil::parseDecimal64(result, buffer);
-}
-
-static inline
-void parseDecimal(Decimal128 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal128' on the specified 'buffer'.
-{
-    DecimalUtil::parseDecimal128(result, buffer);
 }
 
 }  // close package namespace

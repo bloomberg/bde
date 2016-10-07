@@ -49,7 +49,7 @@ static void setThesholdIfMatchingCategoryPrefix(
                                           passLevel,
                                           triggerLevel,
                                           triggerAllLevel);
-        BSLS_ASSERT(0 == s);
+        (void)s; BSLS_ASSERT(0 == s);
         ++(*matchCount);
     }
 }
@@ -185,7 +185,7 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
                                           passLevel,
                                           triggerLevel,
                                           triggerAllLevel);
-        BSLS_ASSERT(0 == s);
+        (void)s; BSLS_ASSERT(0 == s);
         return 1;                                                     // RETURN
     }
 

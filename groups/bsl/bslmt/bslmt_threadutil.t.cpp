@@ -1553,6 +1553,13 @@ int main(int argc, char *argv[])
                   // negative test case.
 #endif
 
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+        break;    // On Darwin, thread creation will work (which was verified
+                  // in TC 13), and 'min priority < max priority', but
+                  // priorities make no observable difference in thread
+                  // performance.
+#endif
+
         TC::priorityEffectivenessTest();
       }  break;
       case 13: {

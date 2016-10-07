@@ -10415,6 +10415,7 @@ int main(int argc, char *argv[])
 
                 balber::BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
+                options.setDatetimeFractionalSecondPrecision(6);
 
                 const bdlt::Datetime VALUE(YEAR, MONTH, DAY,
                                            HOUR, MIN, SECS, MSEC, USEC);
@@ -10950,6 +10951,7 @@ int main(int argc, char *argv[])
 
                 balber::BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
+                options.setDatetimeFractionalSecondPrecision(6);
 
                 const bdlt::DatetimeTz VALUE(bdlt::Datetime(YEAR, MONTH, DAY,
                                                             HOUR, MIN, SECS,

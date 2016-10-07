@@ -92,6 +92,9 @@ using namespace bsl;
 // [ 8] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 3] bool isNull() const;
 // [ 8] int maxSupportedBdexVersion(int) const;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// [ 8] int maxSupportedBdexVersion() const;
+#endif
 // [ 4] print(bsl::ostream& s,int l=0,int spl=4) const;
 // [ 3] const TYPE& value() const;
 //
@@ -1215,6 +1218,13 @@ struct UsesBslmaAllocator<NonAssignableAllocTestType> : bsl::true_type {
 
 }  // close namespace bslma
 }  // close enterprise namespace
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+class DeprecatedBdex {
+  public:
+    static int maxSupportedBdexVersion() {  return 17;  }
+};
+#endif
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -4686,6 +4696,9 @@ int main(int argc, char *argv[])
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         //   int maxSupportedBdexVersion(int) const;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        //   int maxSupportedBdexVersion() const;
+#endif
         // --------------------------------------------------------------------
 
         typedef bslx::TestInStream  In;
@@ -4770,6 +4783,14 @@ int main(int argc, char *argv[])
 
             t.bdexStreamIn(in, VERSION);                ASSERT(X == t);
             ASSERT(in);                                 ASSERT(in.isEmpty());
+        }
+
+        {
+            typedef bdlb::NullableValue<DeprecatedBdex> Obj;
+
+            const Obj X;
+
+            ASSERT(17 == X.maxSupportedBdexVersion());
         }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;

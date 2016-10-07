@@ -7,6 +7,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_asserttestexception.h>
 #include <bsls_bsltestutil.h>   // for testing purposes only
 #include <bsls_platform.h>
+#include <bsls_log.h>
+#include <bsls_logseverity.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,11 +58,12 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    fprintf(stderr,
-            "Assertion failed: %s, file %s, line %d\n", text, file, line);
-
-    fflush(stderr);  // Not necessary for the default 'stderr', but just
-                     // in case it has been reopened as a buffered stream.
+    BloombergLP::bsls::Log::logFormattedMessage(
+        BloombergLP::bsls::LogSeverity::e_ERROR,
+        file,
+        line,
+        "Assertion failed: %s",
+        text);
 }
 
 static

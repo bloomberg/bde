@@ -5,14 +5,14 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_types.h>
 
-#include <algorithm>  // std::swap (bslalg::SwapUtil is levelized above!)
+#include <algorithm>   // 'std::swap' ('bslalg::SwapUtil' is levelized above!)
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>     // 'printf'
+#include <stdlib.h>    // 'atoi'
 
 using namespace BloombergLP;
 
@@ -37,7 +37,7 @@ using namespace BloombergLP;
 //: o 'deleter'
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BSLX streaming is not implemented for this class.
+//: o [10] -- BDEX streaming is not implemented for this class.
 //
 // Global Concerns:
 //: o ACCESSOR methods are declared 'const'.
@@ -465,13 +465,13 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING (NOT IMPLEMENTED)
-        //   bslx streaming is not implemented for this type.
+        // BDEX STREAMING (NOT IMPLEMENTED)
+        //   BDEX streaming is not implemented for this type.
         //
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBSLX STREAMING (NOT IMPLEMENTED)"
+        if (verbose) printf("\nBDEX STREAMING (NOT IMPLEMENTED)"
                             "\n================================\n");
       } break;
       case 9: {
@@ -1108,7 +1108,7 @@ int main(int argc, char *argv[])
             // Use untested functionality to help ensure the first row of the
             // table contains the default-constructed value.
             if (0 == ti) {
-                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X);
             }
 
             // -------------------------------------
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
                 // Use untested functionality to help ensure the first row of
                 // the table contains the default-constructed value.
                 if (0 == ti) {
-                    LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
+                    LOOP3_ASSERT(LINE, Obj(), X, Obj() == X);
                 }
 
                 // -------------------------------------
@@ -1527,9 +1527,8 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

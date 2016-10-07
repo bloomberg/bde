@@ -31,8 +31,12 @@ bsl::ostream& EncoderOptions::print(bsl::ostream& stream,
     printer.printAttribute("encodingStyle",      d_encodingStyle);
     printer.printAttribute("encodeEmptyArrays",  d_encodeEmptyArrays);
     printer.printAttribute("encodeNullElements", d_encodeNullElements);
+    printer.printAttribute("encodeInfAndNaNAsStrings",
+                           d_encodeInfAndNaNAsStrings);
     printer.printAttribute("datetimeFractionalSecondPrecision",
                            d_datetimeFractionalSecondPrecision);
+    printer.printAttribute("maxFloatPrecision",  d_maxFloatPrecision);
+    printer.printAttribute("maxDoublePrecision", d_maxDoublePrecision);
     printer.end();
 
     return stream;
@@ -50,7 +54,10 @@ bsl::ostream& baljsn::operator<<(bsl::ostream&         stream,
     printer.printValue(object.encodingStyle());
     printer.printValue(object.encodeEmptyArrays());
     printer.printValue(object.encodeNullElements());
+    printer.printValue(object.encodeInfAndNaNAsStrings());
     printer.printValue(object.datetimeFractionalSecondPrecision());
+    printer.printValue(object.maxFloatPrecision());
+    printer.printValue(object.maxDoublePrecision());
     printer.end();
 
     return stream;

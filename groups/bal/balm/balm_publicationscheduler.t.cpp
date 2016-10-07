@@ -13,10 +13,6 @@
 #include <balm_metricsmanager.h>
 #include <balm_metricsample.h>
 
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_severity.h>
 #include <bdlmt_timereventscheduler.h>
 #include <bslmt_threadutil.h>
 #include <bdlf_bind.h>
@@ -1234,24 +1230,6 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     const bsls::TimeInterval INVALID = invalidInterval();
-
-    ball::DefaultObserver observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager& manager =
-            ball::LoggerManager::initSingleton(&observer, configuration);
-
-    ball::Severity::Level defaultPassthrough = ball::Severity::e_OFF;
-    if (verbose)
-        defaultPassthrough = ball::Severity::e_FATAL;
-    if (veryVerbose)
-        defaultPassthrough = ball::Severity::e_ERROR;
-    if (veryVeryVerbose)
-        defaultPassthrough = ball::Severity::e_TRACE;
-
-    manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
-                                      defaultPassthrough,
-                                      ball::Severity::e_OFF,
-                                      ball::Severity::e_OFF);
 
     bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
     bslma::TestAllocator defaultAllocator;

@@ -2744,7 +2744,14 @@ ScalarPrimitives_Imp::copyConstruct(
         ::new (address) TARGET_TYPE(original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic pop
+#endif
     }
 }
 
@@ -2780,7 +2787,14 @@ ScalarPrimitives_Imp::copyConstruct(
         ::new (address) TARGET_TYPE(original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic pop
+#endif
     }
 }
 
@@ -2866,7 +2880,14 @@ ScalarPrimitives_Imp::moveConstruct(
 
         ::new (address) TARGET_TYPE(original);
     } else {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic pop
+#endif
     }
 }
 
@@ -2900,7 +2921,14 @@ ScalarPrimitives_Imp::moveConstruct(
 
         ::new (address) TARGET_TYPE(original);
     } else {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic pop
+#endif
     }
 }
 
@@ -2937,7 +2965,14 @@ ScalarPrimitives_Imp::destructiveMove(
         ::new (address) TARGET_TYPE(*original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         memcpy(address, original, sizeof *original);   // no overlap
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#pragma GCC diagnostic pop
+#endif
     }
 }
 

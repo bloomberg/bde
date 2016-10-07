@@ -34,6 +34,7 @@ using namespace bsl;
 // appropriate.
 //-----------------------------------------------------------------------------
 // [ 3] tm convertToTm(const Datetime& datetime);
+// [ 3] void convertToTm(tm *result, const Datetime& datetime);
 // [ 3] int convertFromTm(Datetime *result, const tm& timeStruct);
 //-----------------------------------------------------------------------------
 // [ 1] BOOTSTRAP: 'convertToTm'
@@ -466,6 +467,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   tm convertToTm(const Datetime& datetime);
+        //   void convertToTm(tm *result, const Datetime& datetime);
         //   int convertFromTm(Datetime *result, const tm& timeStruct);
         // --------------------------------------------------------------------
 
@@ -477,16 +479,16 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nDatetime => struct tm => Datetime." << endl;
 
-        vector<Uint64> parameters;
+        vector<unsigned> parameters;
 
         if (argc > 2) {
-            ConfigParser<Uint64>::parse(&parameters, argv[2]);
+            ConfigParser<unsigned>::parse(&parameters, argv[2]);
         }
 
-        int numTrials = 1000000;
+        unsigned numTrials = 1000000;
 
         if (parameters.size() > 0) {
-            numTrials = static_cast<int>(parameters[0]);
+            numTrials = parameters[0];
         }
 
         const Uint64 SIZE = Uint64(9999) * 12 * 31 * 24 * 60 * 60 + 1;
@@ -523,7 +525,7 @@ int main(int argc, char *argv[])
         // through the search space will not repeat until the 'SIZE'-eth
         // iteration.
 
-        double percentCovered = 100 * double(numTrials) / SIZE;
+        double percentCovered = 100.0 * numTrials / SIZE;
 
         Uint64 startingValue = 0;
 
@@ -545,10 +547,8 @@ int main(int argc, char *argv[])
 
         int numInvalid = 0;
 
-        for (Uint64 i = 0; static_cast<double>(i) < numTrials; ++i) {
-            if (veryVerbose) {
-                loopMeter(static_cast<unsigned int>(i), numTrials);
-            }
+        for (unsigned i = 0; i < numTrials; ++i) {
+            if (veryVerbose) { loopMeter(i, numTrials); }
 
             // Ensure that there is no premature repetition; ok first time.
 
@@ -597,17 +597,32 @@ int main(int argc, char *argv[])
                                                static_cast<int>(m),
                                                static_cast<int>(s));
 
-            tm tmp;
-            memset(&tmp, static_cast<int>(i), sizeof tmp);    // junk
-  //v-----------^
-    tmp = Util::convertToTm(INITIAL_VALUE);
+            {
+                tm tmp;
+                memset(&tmp, i, sizeof tmp);    // junk
 
-    bdlt::Datetime result(1, 2, 3, 4, 5, 6, 7);
+                tmp = Util::convertToTm(INITIAL_VALUE);
 
-    LOOP_ASSERT(i, 0 == Util::convertFromTm(&result, tmp));
+                bdlt::Datetime result(1, 2, 3, 4, 5, 6, 7);
 
-    LOOP_ASSERT(i, INITIAL_VALUE == result);
-  //^-------v
+                LOOP_ASSERT(i, 0 == Util::convertFromTm(&result, tmp));
+
+                LOOP_ASSERT(i, INITIAL_VALUE == result);
+            }
+            
+            {
+                tm tmp;
+                memset(&tmp, i, sizeof tmp);    // junk
+
+                Util::convertToTm(&tmp, INITIAL_VALUE);
+
+                bdlt::Datetime result(1, 2, 3, 4, 5, 6, 7);
+
+                LOOP_ASSERT(i, 0 == Util::convertFromTm(&result, tmp));
+
+                LOOP_ASSERT(i, INITIAL_VALUE == result);
+            }
+
         }
         if (verbose) { loopMeter(numTrials, numTrials); }
 
@@ -968,7 +983,7 @@ int main(int argc, char *argv[])
             bdlt::Datetime result;
             tm             in;
 
-            bsl::memset(&in, sizeof(tm), 0);
+            bsl::memset(&in, 0, sizeof(in));
 
             // For date 1/1/1, time 24:00:00 is valid.
             in.tm_sec    = 0;

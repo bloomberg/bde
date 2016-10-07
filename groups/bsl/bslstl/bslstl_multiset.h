@@ -399,7 +399,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we define the implementations methods of the 'ShoppingCart' class:
 //..
-// CREATORS
+//  // CREATORS
 //  inline
 //  ShoppingCart::ShoppingCart(bslma::Allocator *basicAllocator)
 //  : d_items(basicAllocator)

@@ -12,12 +12,6 @@
 
 #include <bslim_testutil.h>
 
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bslmt_threadutil.h>
 
 #include <bdls_processutil.h>
@@ -135,28 +129,6 @@ static int veryVeryVeryVerbose = 0;
 // ============================================================================
 //                       HELPER FUNCTIONS AND CLASSES
 // ----------------------------------------------------------------------------
-
-#define INITIALIZE_LOGGER()                                                   \
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;        \
-                                                                              \
-    ball::DefaultObserver               observer(&bsl::cout);                 \
-    ball::LoggerManagerConfiguration    configuration;                        \
-    ball::LoggerManager::initSingleton(                                       \
-                                     &observer,                               \
-                                     configuration,                           \
-                                     &bslma::NewDeleteAllocator::singleton());\
-                                                                              \
-    ball::Severity::Level passthrough = ball::Severity::e_OFF;                \
-                                                                              \
-    if (verbose) passthrough         = ball::Severity::e_WARN;                \
-    if (veryVerbose) passthrough     = ball::Severity::e_INFO;                \
-    if (veryVeryVerbose) passthrough = ball::Severity::e_TRACE;               \
-                                                                              \
-    ball::LoggerManager::singleton().setDefaultThresholdLevels(               \
-                                                        ball::Severity::e_OFF,\
-                                                        passthrough,          \
-                                                        ball::Severity::e_OFF,\
-                                                        ball::Severity::e_OFF)
 
 namespace processSupport {
 
@@ -906,8 +878,6 @@ int main(int argc, char *argv[])
         bslma::Default::setGlobalAllocator(&ta);
 
         {
-            INITIALIZE_LOGGER();
-
             balb::PerformanceMonitor perfmon(&ta);
 
             int                     bufferSize        = 0;

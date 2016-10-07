@@ -708,7 +708,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct MyCallbackObject {
 //      typedef void ResultType;
-//      void operator() (int id, MyEvent const& event)
+//      void operator() (int id, MyEvent const& event) const
 //      {
 //          myCallback(id, event);
 //      }
@@ -817,7 +817,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  typedef void GlobalResultType;
 //  struct MyCallbackObjectWithoutResultType {
-//      GlobalResultType operator() (int id, MyEvent const& event)
+//      GlobalResultType operator() (int id, MyEvent const& event) const
 //      {
 //          myCallback(id, event);
 //      }

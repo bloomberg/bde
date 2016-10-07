@@ -2855,6 +2855,18 @@ int main(int argc, char *argv[])
                 "1999-12-31+12:00"
             };
 
+            const char *expectedDateTzUseZ[] = {
+                "0001-01-01Z",
+                "2005-01-01-01:30",
+                "0123-06-15-04:00",
+                "1999-10-12-12:00",
+                "1999-10-12+01:30",
+                "1999-10-12+04:00",
+                "1999-10-12+04:00",
+                "1999-10-12+12:00",
+                "1999-12-31+12:00"
+            };
+
             const char *expectedTime[] = {
                 "00:00:00.000",
                 "00:00:00.000",
@@ -2879,6 +2891,18 @@ int main(int argc, char *argv[])
                 "23:59:59.999+12:00"
             };
 
+            const char *expectedTimeTzUseZ[] = {
+                "00:00:00.000Z",
+                "00:00:00.000-01:30",
+                "13:40:59.000-04:00",
+                "23:00:01.000-12:00",
+                "23:00:01.000+01:30",
+                "23:00:01.456+04:00",
+                "23:00:01.456+04:00",
+                "23:00:01.999+12:00",
+                "23:59:59.999+12:00"
+            };
+
             const char *expectedDatetime[] = {
                 "0001-01-01T00:00:00.000000",
                 "2005-01-01T00:00:00.000000",
@@ -2891,6 +2915,18 @@ int main(int argc, char *argv[])
                 "1999-12-31T23:59:59.999999"
             };
 
+            const char *expectedDatetimeMs[] = {
+                "0001-01-01T00:00:00.000",
+                "2005-01-01T00:00:00.000",
+                "0123-06-15T13:40:59.000",
+                "1999-10-12T23:00:01.000",
+                "1999-10-12T23:00:01.000",
+                "1999-10-12T23:00:01.456",
+                "1999-10-12T23:00:01.456",
+                "1999-10-12T23:00:01.999",
+                "1999-12-31T23:59:59.999"
+            };
+
             const char *expectedDatetimeTz[] = {
                 "0001-01-01T00:00:00.000000+00:00",
                 "2005-01-01T00:00:00.000000-01:30",
@@ -2901,6 +2937,30 @@ int main(int argc, char *argv[])
                 "1999-10-12T23:00:01.456789+04:00",
                 "1999-10-12T23:00:01.999789+12:00",
                 "1999-12-31T23:59:59.999999+12:00"
+            };
+
+            const char *expectedDatetimeTzUseZ[] = {
+                "0001-01-01T00:00:00.000000Z",
+                "2005-01-01T00:00:00.000000-01:30",
+                "0123-06-15T13:40:59.000000-04:00",
+                "1999-10-12T23:00:01.000000-12:00",
+                "1999-10-12T23:00:01.000000+01:30",
+                "1999-10-12T23:00:01.456000+04:00",
+                "1999-10-12T23:00:01.456789+04:00",
+                "1999-10-12T23:00:01.999789+12:00",
+                "1999-12-31T23:59:59.999999+12:00"
+            };
+
+            const char *expectedDatetimeTzMs[] = {
+                "0001-01-01T00:00:00.000+00:00",
+                "2005-01-01T00:00:00.000-01:30",
+                "0123-06-15T13:40:59.000-04:00",
+                "1999-10-12T23:00:01.000-12:00",
+                "1999-10-12T23:00:01.000+01:30",
+                "1999-10-12T23:00:01.456+04:00",
+                "1999-10-12T23:00:01.456+04:00",
+                "1999-10-12T23:00:01.999+12:00",
+                "1999-12-31T23:59:59.999+12:00"
             };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -2947,6 +3007,20 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
+                if (verbose) cout << "Print DateTzUseZ" << endl;
+                {
+                    const char *EXP = expectedDateTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, theDateTz, &options);
+
+                    bsl::string result = oss.str();
+                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                }
+
                 if (verbose) cout << "Print Time" << endl;
                 {
                     const char *EXP = expectedTime[ti];
@@ -2969,6 +3043,20 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
+                if (verbose) cout << "Print TimeTzUseZ" << endl;
+                {
+                    const char *EXP = expectedTimeTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, theTimeTz, &options);
+
+                    bsl::string result = oss.str();
+                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                }
+
                 if (verbose) cout << "Print Datetime" << endl;
                 {
                     const char *EXP = expectedDatetime[ti];
@@ -2980,6 +3068,19 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
+                if (verbose) cout << "Print DatetimeMs" << endl;
+                {
+                    const char *EXP = expectedDatetimeMs[ti];
+
+                    bsl::ostringstream oss;
+                    balxml::EncoderOptions options;
+                    options.setDatetimeFractionalSecondPrecision(3);
+                    Util::printDefault(oss, theDatetime, &options);
+
+                    bsl::string result = oss.str();
+                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                }
+
                 if (verbose) cout << "Print DatetimeTz" << endl;
                 {
                     const char *EXP = expectedDatetimeTz[ti];
@@ -2989,6 +3090,33 @@ int main(int argc, char *argv[])
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, result, EXP, result == EXP);
+                }
+
+                if (verbose) cout << "Print DatetimeTzUseZ" << endl;
+                {
+                    const char *EXP = expectedDatetimeTzUseZ[ti];
+
+                    balxml::EncoderOptions options;
+                    options.setUseZAbbreviationForUtc(true);
+
+                    bsl::ostringstream oss;
+                    Util::printDefault(oss, theDatetimeTz, &options);
+
+                    bsl::string result = oss.str();
+                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
+                }
+
+                if (verbose) cout << "Print DatetimeTzMs" << endl;
+                {
+                    const char *EXP = expectedDatetimeTzMs[ti];
+
+                    bsl::ostringstream oss;
+                    balxml::EncoderOptions options;
+                    options.setDatetimeFractionalSecondPrecision(3);
+                    Util::printDefault(oss, theDatetimeTz, &options);
+
+                    bsl::string result = oss.str();
+                    LOOP3_ASSERT(LINE, result, EXP, result == EXP);
                 }
             }
         }

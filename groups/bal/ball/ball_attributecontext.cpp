@@ -324,7 +324,7 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // test on the cache outside the lock, and return if there are no active
     // rules for 'category'.  We do not lock on the 'rulesetMutex' before
     // testing the cache (see implementation notes at the top).
-    RuleSet::MaskType activeAndRelevantRules;
+    RuleSet::MaskType activeAndRelevantRules = 0;
     if (d_ruleCache_p.isDataAvailable(
                                     s_categoryManager_p->ruleSequenceNumber(),
                                     relevantRuleMask)) {

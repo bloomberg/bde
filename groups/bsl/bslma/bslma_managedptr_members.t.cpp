@@ -1,11 +1,10 @@
 // bslma_managedptr_members.t.cpp                                     -*-C++-*-
 #include <bslma_managedptr_members.h>
 
-#include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_managedptr_factorydeleter.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -28,7 +27,7 @@ using namespace BloombergLP;
 // [ 4] void move(ManagedPtr_Members *other);
 // [  ] void moveAssign(ManagedPtr_Members *other);
 // [ 4] void set(void *object, void *factory, DeleterFunc deleter);
-// [ 4] void setAliasPtr(void *ptr);
+// [ 4] void setAliasPtr(void *alias);
 // [ 4] void swap(ManagedPtr_Members& other);
 // [ 4] void runDeleter() const;
 // [ 4] void *pointer() const;
@@ -359,7 +358,7 @@ int main(int argc, char *argv[])
         //    ManagedPtr_Members(ManagedPtr_Members& other);
         //    void move(ManagedPtr_Members *other);
         //    void set(void *object, void *factory, DeleterFunc deleter);
-        //    void setAliasPtr(void *ptr);
+        //    void setAliasPtr(void *alias);
         //    void swap(ManagedPtr_Members& other);
         //    void runDeleter() const;
         //    void *pointer() const;
@@ -663,7 +662,7 @@ int main(int argc, char *argv[])
             members.setAliasPtr(&alias);
             test.d_x = 13;
             members.runDeleter();
-            LOOP_ASSERT(test.d_x, 42 == test.d_x)
+            LOOP_ASSERT(test.d_x, 42 == test.d_x);
         }
         g_deleteCount = 0;
 
@@ -1017,9 +1016,8 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

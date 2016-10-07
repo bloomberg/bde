@@ -6,8 +6,10 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
@@ -80,17 +82,21 @@ using namespace BloombergLP;
 // tests will ensure that attempts to construct invalid managed pointers are
 // caught early by the compiler, ideally with a helpful error diagnostic.
 //-----------------------------------------------------------------------------
-// [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
+// [ 4] ManagedPtr();
+// [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
 // [ 8] ManagedPtr(OTHER *ptr);
 // [ 9] ManagedPtr(ManagedPtr& original);
+// [ 9] ManagedPtr(ManagedPtr&& original);
+// [ 9] ManagedPtr(MovableRef<ManagedPtr<OTHER>> original);
 // [ 9] ManagedPtr(ManagedPtr_Ref<TYPE> ref);
 // [ 6] ManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr);
+// [ 6] ManagedPtr(ManagedPtr<OTHER>&& alias, TYPE *ptr);
 // [ 8] ManagedPtr(OTHER *ptr, FACTORY *factory);
 // [  ] ManagedPtr(bsl::nullptr_t, FACTORY *factory);
 // [ 8] ManagedPtr(TYPE *ptr, void *cookie, DeleterFunc deleter);
 // [ 8] ManagedPtr(OTHER *ptr, void *cookie, DeleterFunc deleter);
-// [  ] ManagedPtr(OTHER *, void *, void (*)(OTHER_BASE*, void*));
-// [ 8] ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE*, COOKIE_BASE*))
+// [  ] ManagedPtr(OTHER *, void *, void (*)(OTHER_BASE *, void *));
+// [ 8] ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE *, COOKIE_BASE *));
 // [ 5] ~ManagedPtr();
 // [ 9] operator ManagedPtr_Ref<OTHER_TYPE>();
 // [ 5] void load(TYPE *ptr);
@@ -103,9 +109,11 @@ using namespace BloombergLP;
 // [13] void reset();
 // [11] void swap(ManagedPtr& rhs);
 // [12] ManagedPtr& operator=(ManagedPtr& rhs);
+// [12] ManagedPtr& operator=(ManagedPtr&& rhs);
+// [12] ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
 // [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
 // [13] void clear();
-// [13] bsl::pair<TYPE*, ManagedPtrDeleter> release();
+// [13] bsl::pair<TYPE *, ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
 // [ 7] operator BoolType() const;
 // [ 7] TYPE& operator*() const;
@@ -114,8 +122,6 @@ using namespace BloombergLP;
 // [ 7] TYPE *ptr() const;
 // [ 7] const ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
-// [ 4] ManagedPtr();
-// [ 4] ManagedPtr(bsl::nullptr_t);
 // [ 8] ManagedPtr(TYPE *ptr, void *cookie, void(*deleter)(TYPE*, void*));
 // [ 8] ManagedPtr(OTHER *, bsl::nullptr_t, void(*)(BASE *, void *));
 //
@@ -183,34 +189,25 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+#define ASSERT  BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-
-#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q       BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P       BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_      BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_      BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_      BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+#define ASSERT_SAFE_PASS(EXPR)     BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR)     BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)          BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)          BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 #define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
 #define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
@@ -282,13 +279,11 @@ class MyTestObject {
         // 'index' is specified.
 };
 
-
                            // =====================
                            // class MyDerivedObject
                            // =====================
 
-class MyDerivedObject : public MyTestObject
-{
+class MyDerivedObject : public MyTestObject {
     // This test-class has the same destructor-counting behavior as
     // 'MyTestObject', but offers a derived class in order to test correct
     // behavior when handling derived->base conversions.
@@ -308,13 +303,11 @@ class MyDerivedObject : public MyTestObject
         // this object.
 };
 
-
                            // ===========================
                            // class MySecondDerivedObject
                            // ===========================
 
-class MySecondDerivedObject : public MyTestObject
-{
+class MySecondDerivedObject : public MyTestObject {
     // This test-class has the same destructor-counting behavior as
     // 'MyTestObject', but offers a second, distinct, derived class in order to
     // test correct behavior when handling derived->base conversions.
@@ -427,17 +420,15 @@ namespace USAGE_EXAMPLES {
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-          case Shapes::SHAPE_CIRCLE : {
+          case Shapes::SHAPE_CIRCLE: {
             Circle *circ = new(*alloc)Circle(dimension);
             result.load(circ);
-            break;
-          }
-          case Shapes::SHAPE_SQUARE : {
+          } break;
+          case Shapes::SHAPE_SQUARE: {
             Square *sqr = new(*alloc)Square(dimension);
             result.load(sqr);
-            break;
-          }
-        };
+          } break;
+        }
         return result;
     }
 //..
@@ -473,17 +464,15 @@ namespace USAGE_EXAMPLES {
         bslma::Allocator *alloc = bslma::Default::allocator(allocator);
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-          case Shapes::SHAPE_CIRCLE : {
+          case Shapes::SHAPE_CIRCLE: {
             Circle *circ = new(*alloc)Circle(dimension);
             result.load(circ, alloc);
-            break;
-          }
-          case Shapes::SHAPE_SQUARE : {
+          } break;
+          case Shapes::SHAPE_SQUARE: {
             Square *sqr = new(*alloc)Square(dimension);
             result.load(sqr, alloc);
-            break;
-          }
-        };
+          } break;
+        }
         return result;
     }
 //..
@@ -771,7 +760,7 @@ namespace USAGE_EXAMPLES {
 //-----------------------------------------------------------------------------
 namespace TYPE_CASTING_TEST_NAMESPACE {
 
-typedef MyTestObject A;
+typedef MyTestObject    A;
 typedef MyDerivedObject B;
 
 ///Example 4: Type Casting
@@ -816,31 +805,31 @@ typedef MyDerivedObject B;
             bslma::ManagedPtr<B> b_mp2(b_p2);    // default allocator
             ASSERT(!a_mp1 && b_mp2);
 
-            a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+            a_mp1 = b_mp2;      // conversion assignment of non-nil ptr to nil
             ASSERT(a_mp1 && !b_mp2);
 
             B *b_p3 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp3(b_p3, &localTa);
             ASSERT(a_mp1 && b_mp3);
 
-            a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+            a_mp1 = b_mp3;      // conversion assignment of non-nil to non-nil
             ASSERT(a_mp1 && !b_mp3);
 
-            a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
+            a_mp1 = b_mp3;      // conversion assignment of nil to non-nil
             ASSERT(!a_mp1 && !b_mp3);
 
             // constructor conversion init with nil
             bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.get());
             ASSERT(!a_mp4 && !b_mp3);
 
-            // constructor conversion init with nonnil
+            // constructor conversion init with non-nil
             B *p_b5 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp5(p_b5, &localTa);
             bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.get());
             ASSERT(a_mp5 && !b_mp5);
             ASSERT(a_mp5.get() == p_b5);
 
-            // constructor conversion init with nonnil
+            // constructor conversion init with non-nil
             B *p_b6 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp6(p_b6, &localTa);
             bslma::ManagedPtr<A> a_mp6(b_mp6);
@@ -923,14 +912,16 @@ typedef MyDerivedObject B;
 //=============================================================================
 //                      GLOBAL TYPEDEFS FOR TESTING
 //-----------------------------------------------------------------------------
+
 namespace {
 
-typedef MyTestObject TObj;
-typedef bslma::ManagedPtr<MyTestObject> Obj;
+typedef MyTestObject                          Test;
+typedef MyDerivedObject                       Derived;
+
+typedef bslma::ManagedPtr<MyTestObject>       Obj;
 typedef bslma::ManagedPtr<const MyTestObject> CObj;
-typedef MyDerivedObject TDObj;
-typedef bslma::ManagedPtr<MyDerivedObject> DObj;
-typedef bslma::ManagedPtr<void> VObj;
+typedef bslma::ManagedPtr<MyDerivedObject>    DObj;
+typedef bslma::ManagedPtr<void>               VObj;
 
 //=============================================================================
 //                      HELPER CLASSES FOR TESTING
@@ -1187,7 +1178,6 @@ struct OverloadTest {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
                            // ------------------
                            // class MyTestObject
                            // ------------------
@@ -1205,7 +1195,7 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile int* MyTestObject::deleteCounter() const
+volatile int *MyTestObject::deleteCounter() const
 {
     return d_deleteCounter_p;
 }
@@ -1217,7 +1207,6 @@ int *MyTestObject::valuePtr(int index) const
 
     return d_value + index;
 }
-
 
                            // ---------------------
                            // class MyDerivedObject
@@ -1235,7 +1224,6 @@ MyDerivedObject::~MyDerivedObject()
 {
     (*deleteCounter()) += 99; // +1 from base -> 100
 }
-
 
                            // ---------------------------
                            // class MySecondDerivedObject
@@ -1275,13 +1263,13 @@ struct SS {
     }
 
     ~SS()
-        // Increment the held counter, and destroy this object
+        // Increment the held counter, and destroy this object.
     {
         ++*d_numDeletes_p;
     }
 };
 
-typedef bslma::ManagedPtr<SS> SSObj;
+typedef bslma::ManagedPtr<SS>   SSObj;
 typedef bslma::ManagedPtr<char> ChObj;
 
 }  // close namespace CREATORS_TEST_NAMESPACE
@@ -1296,7 +1284,7 @@ static void doNothingDeleter(void *object, void *)
 }
 
 #if 0
-static void myTestDeleter(TObj *object, bslma::TestAllocator *allocator)
+static void myTestDeleter(Test *object, bslma::TestAllocator *allocator)
 {
     allocator->deleteObject(object);
     if (g_verbose) {
@@ -1306,12 +1294,12 @@ static void myTestDeleter(TObj *object, bslma::TestAllocator *allocator)
 #else
 static void myTestDeleter(void *object, void *allocator)
     // Destroy the specified 'object' using the specified 'allocator'.  The
-    // behavior is undefined unless 'object' points to a 'TObj' and 'allocator'
+    // behavior is undefined unless 'object' points to a 'Test' and 'allocator'
     // points to a 'bslma::TestAllocator'.  Note that the parameters are
     // type-erased for use as a managed pointer deleter.
 {
     static_cast<bslma::TestAllocator *>(allocator)->deleteObject(
-                                                  static_cast<TObj *>(object));
+                                                  static_cast<Test *>(object));
     if (g_verbose) {
         printf("myTestDeleter called\n");
     }
@@ -1362,11 +1350,11 @@ void validateManagedState(unsigned int                     LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
-        LOOP_ASSERT(LINE, !obj);
-        LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.get());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, !obj);
+        ASSERTV(LINE, 0 == obj.operator->());
+        ASSERTV(LINE, 0 == obj.get());
+        ASSERTV(LINE, 0 == obj.ptr());
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
@@ -1385,19 +1373,19 @@ void validateManagedState(unsigned int                     LINE,
         ASSERT(false == !obj);
 
         TYPE *arrow = obj.operator->();
-        LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
+        ASSERTV(LINE, ptr, arrow,   ptr == arrow);
 
-        TYPE * objPtr = obj.ptr();
-        LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
+        TYPE *objPtr = obj.ptr();
+        ASSERTV(LINE, ptr, objPtr,  ptr == objPtr);
 
-        TYPE * objPtr2 = obj.get();
-        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
+        TYPE *objPtr2 = obj.get();
+        ASSERTV(LINE, ptr, objPtr2, ptr == objPtr2);
 
-        TYPE &target = *obj;
-        LOOP3_ASSERT(LINE, &target, ptr, &target == ptr);
+        TYPE& target = *obj;
+        ASSERTV(LINE, &target, ptr, &target == ptr);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
-        LOOP3_ASSERT(LINE, del, objDel, del == objDel);
+        ASSERTV(LINE, del, objDel, del == objDel);
     }
 
     ASSERT(gam.isInUseSame());
@@ -1426,11 +1414,11 @@ void validateManagedState(unsigned int                     LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
-        LOOP_ASSERT(LINE, !obj);
-        LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.get());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, !obj);
+        ASSERTV(LINE, 0 == obj.operator->());
+        ASSERTV(LINE, 0 == obj.get());
+        ASSERTV(LINE, 0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -1447,16 +1435,16 @@ void validateManagedState(unsigned int                     LINE,
         ASSERT(false == !obj);
 
         void *arrow = obj.operator->();
-        LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
+        ASSERTV(LINE, ptr, arrow,   ptr == arrow);
 
-        void * objPtr = obj.ptr();
-        LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
+        void *objPtr = obj.ptr();
+        ASSERTV(LINE, ptr, objPtr,  ptr == objPtr);
 
-        void * objPtr2 = obj.get();
-        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
+        void *objPtr2 = obj.get();
+        ASSERTV(LINE, ptr, objPtr2, ptr == objPtr2);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
-        LOOP3_ASSERT(LINE, del, objDel, del == objDel);
+        ASSERTV(LINE, del, objDel, del == objDel);
 
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_DEREFERENCE_VOID_PTR)
         *obj;
@@ -1489,11 +1477,11 @@ void validateManagedState(unsigned int                          LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
-        LOOP_ASSERT(LINE, !obj);
-        LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.get());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, !obj);
+        ASSERTV(LINE, 0 == obj.operator->());
+        ASSERTV(LINE, 0 == obj.get());
+        ASSERTV(LINE, 0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -1510,16 +1498,16 @@ void validateManagedState(unsigned int                          LINE,
         ASSERT(false == !obj);
 
         const void *arrow = obj.operator->();
-        LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
+        ASSERTV(LINE, ptr, arrow, ptr == arrow);
 
-        const void * objPtr = obj.ptr();
-        LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
+        const void *objPtr = obj.ptr();
+        ASSERTV(LINE, ptr, objPtr, ptr == objPtr);
 
-        const void * objPtr2 = obj.get();
-        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
+        const void *objPtr2 = obj.get();
+        ASSERTV(LINE, ptr, objPtr2, ptr == objPtr2);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
-        LOOP3_ASSERT(LINE, del, objDel, del == objDel);
+        ASSERTV(LINE, del, objDel, del == objDel);
 
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_DEREFERENCE_VOID_PTR)
         *obj;
@@ -1670,7 +1658,7 @@ void debugprint(const ManagedPtrDeleter& obj)
 //: yet?]
 //:
 //: Scenarios to consider:
-//: "V(V* V*)" can hide many casting opportunities inside the function body.
+//: "V(V*, V*)" can hide many casting opportunities inside the function body.
 //: This implies we may have many scenarios to test inside this one case, or
 //: we may want to pick the most representative single case.  In fact, two
 //: cases dominate our analysis, "V(bslma::Allocator, Base)", and "V(actual,
@@ -1711,7 +1699,7 @@ void debugprint(const ManagedPtrDeleter& obj)
 //:    V(T*, D*)  Dtd
 //:
 //: Deleter codes used above:
-//:     V(X* Y*) is a function type, returning 'void' taking arguments of type
+//:     V(X*, Y*) is a function type, returning 'void' taking arguments of type
 //:              'X*' and 'Y*'.
 //:
 //: Possible values of X:
@@ -1807,10 +1795,9 @@ void validateTestLoadArgs(int                               callLine,
                           const TestLoadArgs<POINTER_TYPE> *args)
 {
     // Assert pre-conditions that are appropriate for every call using 'args'.
-    LOOP3_ASSERT(callLine, testLine, args->d_deleteCount,
-                                                     0 == args->d_deleteCount);
-    LOOP3_ASSERT(callLine, testLine, args->d_p,      0 != args->d_p);
-    LOOP3_ASSERT(callLine, testLine, args->d_ta,     0 != args->d_ta);
+    ASSERTV(callLine, testLine, args->d_deleteCount, 0 == args->d_deleteCount);
+    ASSERTV(callLine, testLine, args->d_p,           0 != args->d_p);
+    ASSERTV(callLine, testLine, args->d_ta,          0 != args->d_ta);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2033,7 +2020,7 @@ struct DObjFac {
         return &doDelete;
     }
 
-    static void doDelete(ObjectType * object, FactoryType * factory)
+    static void doDelete(ObjectType *object, FactoryType *factory)
         // Destroy the specified 'object' and reclaim its memory.  If
         // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
         // specified 'factory', otherwise destroy the 'object' using the
@@ -2073,11 +2060,11 @@ struct DObjVoid {
         return &doDelete;
     }
 
-    static void doDelete(ObjectType * object, void * factory)
+    static void doDelete(ObjectType *object, void *factory)
         // Destroy the specified 'object' and reclaim its memory.  If
         // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
         // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefned unless
+        // default allocator as the factory.  The behavior is undefined unless
         // 'factory' points to an object of type 'FactoryType'.
     {
         if (DELETER_USES_FACTORY) {
@@ -2116,11 +2103,11 @@ struct DVoidFac {
         return &doDelete;
     }
 
-    static void doDelete(VoidType * object, FactoryType * factory)
+    static void doDelete(VoidType *object, FactoryType *factory)
         // Destroy the specified 'object' and reclaim its memory.  If
         // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
         // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefned unless
+        // default allocator as the factory.  The behavior is undefined unless
         // 'object' points to an object of type 'ObjectType'.
 
     {
@@ -2159,11 +2146,11 @@ struct DVoidVoid {
         return &doDelete;
     }
 
-    static void doDelete(void * object, void * factory)
+    static void doDelete(void *object, void *factory)
         // Destroy the specified 'object' and reclaim its memory.  If
         // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
         // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefned unless
+        // default allocator as the factory.  The behavior is undefined unless
         // 'object' points to an object of type 'ObjectType' and 'factory'
         // points to an object of type 'FactoryType'.
 
@@ -2218,7 +2205,6 @@ struct TestCtorArgs {
                            // bit whether to pass a null for 'factory'.
 };
 
-
 struct TestUtil {
     template <class TARGET_TYPE>
     static void *stripPointerType(TARGET_TYPE *ptr);
@@ -2227,7 +2213,6 @@ struct TestUtil {
         // behavior in later code if an attempt is made to modify the original
         // object that is being pointed to.
 };
-
 
 template <class TARGET_TYPE>
 void *TestUtil::stripPointerType(TARGET_TYPE *ptr)
@@ -2242,24 +2227,24 @@ void *TestUtil::stripPointerType(TARGET_TYPE *ptr)
 template <class POINTER_TYPE>
 void doConstruct(int callLine, int testLine, int index, TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bslma::ManagedPtr<POINTER_TYPE> testObject;
 
     POINTER_TYPE *ptr = testObject.get();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 }
 
 template <class POINTER_TYPE>
 void
 doConstructOnull(int callLine, int testLine, int index, TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0);
 
     POINTER_TYPE *ptr = testObject.get();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 }
 
 template <class POINTER_TYPE>
@@ -2268,12 +2253,12 @@ void doConstructOnullFnull(int           callLine,
                            int           index,
                            TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0, 0);
 
     POINTER_TYPE *ptr = testObject.get();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 }
 
 template <class POINTER_TYPE>
@@ -2282,14 +2267,13 @@ void doConstructOnullFnullDnull(int           callLine,
                                 int           index,
                                 TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0, 0, 0);
 
     POINTER_TYPE *ptr = testObject.get();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 }
-
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A simple object policy governs loading a single argument
@@ -2297,17 +2281,15 @@ template<class POINTER_TYPE, class OBJECT_POLICY>
 void
 doConstructObject(int callLine, int testLine, int index, TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 2 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 2 > args->d_config);
 
     typedef typename OBJECT_POLICY::ObjectType ObjectType;
 
     const bool nullObject  = args->d_config & 1;
 
-    const int expectedCount = nullObject
-                            ? 0
-                            : OBJECT_POLICY::DELETE_DELTA;
+    const int expectedCount = nullObject ? 0 : OBJECT_POLICY::DELETE_DELTA;
     int deleteCount = 0;
-    ObjectType *pO = 0;
+    ObjectType *pO  = 0;
     if (nullObject) {
         bslma::ManagedPtr<POINTER_TYPE> testObject(pO);
 
@@ -2330,8 +2312,8 @@ doConstructObject(int callLine, int testLine, int index, TestCtorArgs *args)
         validateManagedState(L_, testObject, pTarget, del);
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
-                 expectedCount == deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, deleteCount,
+            expectedCount == deleteCount);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2342,7 +2324,7 @@ template<class POINTER_TYPE, class FACTORY_POLICY>
 void
 doConstructOnullFactory(int callLine, int testLine, int, TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 1 > args->d_config);
 
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
@@ -2365,7 +2347,7 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
 {
     BSLMF_ASSERT(FACTORY_POLICY::DELETER_USES_FACTORY);
 
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 4 > args->d_config);
 
     const bool nullObject  = args->d_config & 1;
     const bool nullFactory = args->d_config & 2;
@@ -2390,15 +2372,13 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
     bslma::TestAllocator ta("Test ConstructObject", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     // Load the 'bslma::ManagedPtr' and check that the previous state is
     // correctly cleared.
     if (!negativeTesting) {
         typedef typename
-        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
+        bslma::ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::type
                                                                   DeleterClass;
 
         const bslma::ManagedPtrDeleter del;
@@ -2415,8 +2395,8 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
 
         int deleteCount = 0;
         ObjectType  *pO = nullObject
-                        ? 0
-                        : new(*pAlloc)ObjectType(&deleteCount);
+                          ? 0
+                          : new(*pAlloc)ObjectType(&deleteCount);
         if (FACTORY_POLICY::USE_DEFAULT) {
             args->d_useDefault = true;
         }
@@ -2428,7 +2408,7 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
 
         pAlloc->deleteObject(pO);
 
-        LOOP_ASSERT(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
+        ASSERTV(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
 #else
     if (g_verbose) printf("\tNegative testing disabled due to lack of "
                            "exception support\n");
@@ -2451,7 +2431,7 @@ void doConstructObjectFactoryDzero(int           callLine,
                                    int,
                                    TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -2478,10 +2458,7 @@ void doConstructObjectFactoryDzero(int           callLine,
                             g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
-
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     if (!negativeTesting) {
         ObjectType *pO = 0;
@@ -2510,8 +2487,7 @@ void doConstructObjectFactoryDzero(int           callLine,
                    bslma::ManagedPtr<POINTER_TYPE> testObject(pO,  0, nullFn));
 
         pAlloc->deleteObject(pO);
-        LOOP2_ASSERT(expectedCount,   deleteCount,
-                     expectedCount == deleteCount);
+        ASSERTV(expectedCount, deleteCount, expectedCount == deleteCount);
 #else
         if (g_verbose) printf("\tNegative testing disabled due to lack of "
                                "exception support\n");
@@ -2532,7 +2508,7 @@ void doConstructObjectFactoryDeleter(int           callLine,
                                      int           index,
                                      TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -2560,18 +2536,16 @@ void doConstructObjectFactoryDeleter(int           callLine,
                             g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     DeleterType *deleter = DELETER_POLICY::deleter();
 
     const int expectedCount = nullObject
-                            ? 0
-                            : OBJECT_POLICY::DELETE_DELTA;
+                              ? 0
+                              : OBJECT_POLICY::DELETE_DELTA;
 
     int deleteCount = 0;
-    ObjectType *pO = 0;
+    ObjectType *pO  = 0;
     if (!nullObject) {
         pO = new(*pAlloc)ObjectType(&deleteCount);
         if (FACTORY_POLICY::USE_DEFAULT) {
@@ -2590,8 +2564,8 @@ void doConstructObjectFactoryDeleter(int           callLine,
         validateManagedState(L_, testObject, pTarget, del);
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
-                 expectedCount == deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, deleteCount,
+            expectedCount == deleteCount);
 }
 
 // Next we supply the actual deleter argument, which now requires three
@@ -2606,7 +2580,7 @@ void doConstructObjectFactoryDeleter2(int           callLine,
                                       int           index,
                                       TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 8 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 8 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -2635,18 +2609,16 @@ void doConstructObjectFactoryDeleter2(int           callLine,
                             g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     DeleterType *deleter = DELETER_POLICY::deleter();
 
     const int expectedCount = nullObject
-                            ? 0
-                            : OBJECT_POLICY::DELETE_DELTA;
+                              ? 0
+                              : OBJECT_POLICY::DELETE_DELTA;
 
     int deleteCount = 0;
-    ObjectType *pO = 0;
+    ObjectType *pO  = 0;
     if (!nullObject) {
         pO = new(*pAlloc)ObjectType(&deleteCount);
         if (FACTORY_POLICY::USE_DEFAULT) {
@@ -2678,8 +2650,8 @@ void doConstructObjectFactoryDeleter2(int           callLine,
         validateManagedState(L_, testObject, pTarget, del);
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
-                 expectedCount == deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, deleteCount,
+            expectedCount == deleteCount);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2694,7 +2666,7 @@ void doConstructObjectFnullDeleter(int           callLine,
 {
     BSLMF_ASSERT(!DELETER_POLICY::DELETER_USES_FACTORY);
 
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
+    ASSERTV(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
 
@@ -2702,11 +2674,11 @@ void doConstructObjectFnullDeleter(int           callLine,
     typedef typename DELETER_POLICY::DeleterType DeleterType;
 
     const int expectedCount = nullObject
-                            ? 0
-                            : OBJECT_POLICY::DELETE_DELTA;
+                              ? 0
+                              : OBJECT_POLICY::DELETE_DELTA;
 
     int deleteCount = 0;
-    ObjectType *pO = 0;
+    ObjectType *pO  = 0;
     if (!nullObject) {
         bslma::Allocator *pA = bslma::Default::defaultAllocator();
         pO = new(*pA)ObjectType(&deleteCount);
@@ -2725,8 +2697,8 @@ void doConstructObjectFnullDeleter(int           callLine,
         validateManagedState(L_, testObject, pTarget, del);
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
-                 expectedCount == deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, deleteCount,
+            expectedCount == deleteCount);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2745,11 +2717,11 @@ void doLoad(int                         callLine,
     args->d_p->load();
     args->d_deleteDelta = 0;
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
@@ -2767,11 +2739,11 @@ void doLoadOnull(int                         callLine,
     args->d_p->load(0);
     args->d_deleteDelta = 0;
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
@@ -2789,11 +2761,11 @@ void doLoadOnullFnull(int                         callLine,
     args->d_p->load(0, 0);
     args->d_deleteDelta = 0;
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
@@ -2811,11 +2783,11 @@ void doLoadOnullFnullDnull(int                         callLine,
     args->d_p->load(0, 0, 0);
     args->d_deleteDelta = 0;
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
@@ -2851,11 +2823,11 @@ void doLoadObject(int                         callLine,
         args->d_deleteDelta = OBJECT_POLICY::DELETE_DELTA;
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
 
     // If we are feeling brave, verify that 'd_p.deleter' has the expected
     // 'object', 'factory' and 'deleter'
@@ -2890,11 +2862,11 @@ void doLoadOnullFactory(int                         callLine,
     args->d_p->load(0, pAlloc);
     args->d_deleteDelta = 0;
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+    ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
     // As 'd_p' is empty, none of its other properties have a defined state.
 }
@@ -2941,9 +2913,7 @@ void doLoadObjectFactory(int                         callLine,
     // instead of the 'args' counter.
     int deleteCount = 0;
 
-    int * counter = negativeTesting
-                  ? &deleteCount
-                  : &args->d_deleteCount;
+    int *counter = negativeTesting ? &deleteCount : &args->d_deleteCount;
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
@@ -2953,13 +2923,10 @@ void doLoadObjectFactory(int                         callLine,
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
-    ObjectType  *pO = nullObject
-                    ? 0
-                    : new(*pAlloc)ObjectType(counter);
+    ObjectType  *pO = nullObject ? 0 : new(*pAlloc)ObjectType(counter);
+
     if (FACTORY_POLICY::USE_DEFAULT) {
         args->d_useDefault = true;
     }
@@ -2970,12 +2937,11 @@ void doLoadObjectFactory(int                         callLine,
         args->d_p->load(pO, pF);
         args->d_deleteDelta = nullObject ? 0 : OBJECT_POLICY::DELETE_DELTA;
 
-        LOOP5_ASSERT(callLine, testLine, index,
-                     expectedCount,   args->d_deleteCount,
-                     expectedCount == args->d_deleteCount);
+        ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+                expectedCount == args->d_deleteCount);
 
         POINTER_TYPE *ptr = args->d_p->ptr();
-        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+        ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
     }
     else {
         bsls::AssertTestHandlerGuard guard;
@@ -2984,7 +2950,7 @@ void doLoadObjectFactory(int                         callLine,
 
         pAlloc->deleteObject(pO);
 
-        LOOP_ASSERT(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
+        ASSERTV(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
     }
 
     // If we are feeling brave, verify that 'p.deleter' has the expected
@@ -3051,9 +3017,7 @@ void doLoadObjectFactoryDzero(int                         callLine,
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     ObjectType *pO = 0;
     if (!nullObject) {
@@ -3067,12 +3031,11 @@ void doLoadObjectFactoryDzero(int                         callLine,
         args->d_p->load(pO, pF, nullFn);
         args->d_deleteDelta = 0;
 
-        LOOP5_ASSERT(callLine, testLine, index,
-                     expectedCount,   args->d_deleteCount,
-                     expectedCount == args->d_deleteCount);
+        ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+                expectedCount == args->d_deleteCount);
 
         POINTER_TYPE *ptr = args->d_p->ptr();
-        LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+        ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
     }
     else {
         bsls::AssertTestHandlerGuard guard;
@@ -3081,7 +3044,7 @@ void doLoadObjectFactoryDzero(int                         callLine,
         ASSERT_SAFE_FAIL(args->d_p->load(pO,  0, nullFn));
 
         pAlloc->deleteObject(pO);
-        LOOP_ASSERT(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
+        ASSERTV(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
     }
 }
 
@@ -3125,9 +3088,7 @@ void doLoadObjectFactoryDeleter(int                         callLine,
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     ObjectType *pO = 0;
     if (!nullObject) {
@@ -3141,11 +3102,11 @@ void doLoadObjectFactoryDeleter(int                         callLine,
     DeleterType *deleter = DELETER_POLICY::deleter();
     args->d_p->load(pO, pF, deleter);
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3189,9 +3150,7 @@ void doLoadObjectFactoryDeleter2(int                         callLine,
     // factory pointer passed to load, which is either the same as 'pAlloc' or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
-    FactoryType *pF = nullFactory
-                    ? 0
-                    : pAlloc;
+    FactoryType *pF = nullFactory ? 0 : pAlloc;
 
     ObjectType *pO = 0;
     if (!nullObject) {
@@ -3210,13 +3169,12 @@ void doLoadObjectFactoryDeleter2(int                         callLine,
         args->d_p->load(pO, static_cast<void *>(pF), deleter);
     }
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
 }
-
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Finally we test the small set of policies that combine to allow passing a
@@ -3250,11 +3208,11 @@ void doLoadObjectFnullDeleter(int                         callLine,
     DeleterType *deleter = DELETER_POLICY::deleter();
     args->d_p->load(pO, 0, deleter);
 
-    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
-                 expectedCount == args->d_deleteCount);
+    ASSERTV(callLine, testLine, index, expectedCount, args->d_deleteCount,
+            expectedCount == args->d_deleteCount);
 
     POINTER_TYPE *ptr = args->d_p->ptr();
-    LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
+    ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -3546,10 +3504,10 @@ void testConstructors(
     // those test functions that return a state indicating that they used the
     // default allocator.
 
-    bslma::TestAllocator* ga = dynamic_cast<bslma::TestAllocator *>
+    bslma::TestAllocator *ga = dynamic_cast<bslma::TestAllocator *>
                                            (bslma::Default::globalAllocator());
 
-    bslma::TestAllocator* da = dynamic_cast<bslma::TestAllocator *>
+    bslma::TestAllocator *da = dynamic_cast<bslma::TestAllocator *>
                                           (bslma::Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
@@ -3564,12 +3522,12 @@ void testConstructors(
 
             TEST_ARRAY[i].testCtor(callLine, L_, i, &args);
 
-            LOOP2_ASSERT(L_, i, gam.isInUseSame());
-            LOOP2_ASSERT(L_, i, gam.isMaxSame());
+            ASSERTV(L_, i, gam.isInUseSame());
+            ASSERTV(L_, i, gam.isMaxSame());
 
-            LOOP2_ASSERT(L_, i, dam.isInUseSame());
+            ASSERTV(L_, i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP2_ASSERT(L_, i, dam.isMaxSame());
+                ASSERTV(L_, i, dam.isMaxSame());
             }
         }
     }
@@ -3642,15 +3600,15 @@ void testLoadOps(int                             callLine,
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
             }
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
 
             for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
@@ -3688,23 +3646,23 @@ void testLoadOps(int                             callLine,
                     // Clear 'deleteCount' before 'p' is destroyed.
                     args.d_deleteCount = 0;
 
-                    LOOP_ASSERT(i, gam.isInUseSame());
-                    LOOP_ASSERT(i, gam.isMaxSame());
+                    ASSERTV(i, gam.isInUseSame());
+                    ASSERTV(i, gam.isMaxSame());
 
                     if (!args.d_useDefault) {
-                        LOOP_ASSERT(i, dam2.isInUseSame());
-                        LOOP_ASSERT(i, dam2.isMaxSame());
+                        ASSERTV(i, dam2.isInUseSame());
+                        ASSERTV(i, dam2.isMaxSame());
                     }
                 }
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, dam.isInUseSame());
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, dam.isInUseSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
         }
     }
 }
@@ -3743,7 +3701,6 @@ template <>
 struct AliasTestType2<Base2> {
     typedef Composite type;
 };
-
 
 template <class TYPE>
 struct AliasTestType2<const TYPE> : AliasTestType2<TYPE> {};
@@ -3813,8 +3770,8 @@ void testLoadAliasOps1(
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.get(),      0 == p.get());
-                    LOOP_ASSERT(pAlias.get(), 0 == pAlias.get());
+                    ASSERTV(p.get(),      0 == p.get());
+                    ASSERTV(pAlias.get(), 0 == pAlias.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -3822,40 +3779,38 @@ void testLoadAliasOps1(
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
-                    LOOP_ASSERT(p.get(),      0 == p.get());
-                    LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
+                    ASSERTV(p.get(),      0 == p.get());
+                    ASSERTV(pAlias.get(), &aliasTarget == pAlias.get());
                 }
 #else
                 TestPointer pAlias;
-                TEST_TARGET *pTarget = 0 == p.get()
-                                     ? 0
-                                     : &aliasTarget;
+                TEST_TARGET *pTarget = 0 == p.get() ? 0 : &aliasTarget;
 
                 pAlias.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.get(),  0 == p.get());
-                LOOP2_ASSERT(pTarget, pAlias.get(), pTarget == pAlias.get());
+                ASSERTV(p.get(), 0 == p.get());
+                ASSERTV(pTarget, pAlias.get(), pTarget == pAlias.get());
 #endif
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
@@ -3949,8 +3904,8 @@ void testLoadAliasOps2(
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.get(),       0 == p.get());
-                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
+                    ASSERTV(p.get(),       0 == p.get());
+                    ASSERTV(pAlias1.get(), 0 == pAlias1.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -3958,53 +3913,48 @@ void testLoadAliasOps2(
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
-                    LOOP_ASSERT(p.get(), 0 == p.get());
-                    LOOP2_ASSERT(&alias1,   pAlias1.get(),
-                                 &alias1 == pAlias1.get());
+                    ASSERTV(p.get(), 0 == p.get());
+                    ASSERTV(&alias1, pAlias1.get(), &alias1 == pAlias1.get());
 
                     ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
-                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
-                    LOOP2_ASSERT(&alias2,   pAlias2.get(),
-                                 &alias2 == pAlias2.get());
+                    ASSERTV(pAlias1.get(), 0 == pAlias1.get());
+                    ASSERTV(&alias2, pAlias2.get(), &alias2 == pAlias2.get());
                 }
 #else
                 TestPointer pAlias1;
-                TEST_TARGET *pTarget = 0 == p.get()
-                                     ? 0
-                                     : &alias1;
+                TEST_TARGET *pTarget = 0 == p.get() ? 0 : &alias1;
 
                 pAlias1.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.get(),  0 == p.get());
-                LOOP2_ASSERT(pTarget, pAlias1.get(), pTarget == pAlias1.get());
+                ASSERTV(p.get(), 0 == p.get());
+                ASSERTV(pTarget, pAlias1.get(), pTarget == pAlias1.get());
 #endif
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
 }
-
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
 void testLoadAliasOps3(
@@ -4073,16 +4023,16 @@ void testLoadAliasOps3(
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
 
-                LOOP_ASSERT(p.get(),      0 == p.get());
-                LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
+                ASSERTV(p.get(),      0 == p.get());
+                ASSERTV(pAlias.get(), &aliasTarget == pAlias.get());
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
 
                 // Next we load a fresh state into the pointer to verify the
                 // final concern for 'load'; that it correctly destroys an
@@ -4094,12 +4044,12 @@ void testLoadAliasOps3(
                 // final state.
                 TEST_ARRAY[j].testLoad(callLine, L_, j, &args);
 
-                LOOP_ASSERT(i, gam.isInUseSame());
-                LOOP_ASSERT(i, gam.isMaxSame());
+                ASSERTV(i, gam.isInUseSame());
+                ASSERTV(i, gam.isMaxSame());
 
                 if (!args.d_useDefault) {
-                    LOOP_ASSERT(i, dam.isInUseSame());
-                    LOOP_ASSERT(i, dam.isMaxSame());
+                    ASSERTV(i, dam.isInUseSame());
+                    ASSERTV(i, dam.isMaxSame());
                 }
 
                 // Nothing further to assert, but reset 'deleteCount' to verify
@@ -4108,15 +4058,15 @@ void testLoadAliasOps3(
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
@@ -4147,10 +4097,10 @@ void testConstructors(int callLine,
     // default allocator.
     typedef bslma::ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma::TestAllocator* ga = dynamic_cast<bslma::TestAllocator *>
+    bslma::TestAllocator *ga = dynamic_cast<bslma::TestAllocator *>
                                            (bslma::Default::globalAllocator());
 
-    bslma::TestAllocator* da = dynamic_cast<bslma::TestAllocator *>
+    bslma::TestAllocator *da = dynamic_cast<bslma::TestAllocator *>
                                           (bslma::Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
@@ -4165,12 +4115,12 @@ void testConstructors(int callLine,
 
             TEST_ARRAY[i](callLine, L_, i, &args);
 
-            LOOP2_ASSERT(L_, i, gam.isInUseSame());
-            LOOP2_ASSERT(L_, i, gam.isMaxSame());
+            ASSERTV(L_, i, gam.isInUseSame());
+            ASSERTV(L_, i, gam.isMaxSame());
 
-            LOOP2_ASSERT(L_, i, dam.isInUseSame());
+            ASSERTV(L_, i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP2_ASSERT(L_, i, dam.isMaxSame());
+                ASSERTV(L_, i, dam.isMaxSame());
             }
         }
     }
@@ -4238,8 +4188,8 @@ void testLoadAliasOps1(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.get(),      0 == p.get());
-                    LOOP_ASSERT(pAlias.get(), 0 == pAlias.get());
+                    ASSERTV(p.get(),      0 == p.get());
+                    ASSERTV(pAlias.get(), 0 == pAlias.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -4247,40 +4197,38 @@ void testLoadAliasOps1(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
-                    LOOP_ASSERT(p.get(),      0 == p.get());
-                    LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
+                    ASSERTV(p.get(),      0 == p.get());
+                    ASSERTV(pAlias.get(), &aliasTarget == pAlias.get());
                 }
 #else
                 TestPointer pAlias;
-                TEST_TARGET pTarget = 0 == p.get()
-                                    ? 0
-                                    : &aliasTarget;
+                TEST_TARGET pTarget = 0 == p.get() ? 0 : &aliasTarget;
 
                 pAlias.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.get(),  0 == p.get());
-                LOOP2_ASSERT(pTarget, pAlias.get(), pTarget == pAlias.get());
+                ASSERTV(p.get(),  0 == p.get());
+                ASSERTV(pTarget, pAlias.get(), pTarget == pAlias.get());
 #endif
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
@@ -4333,7 +4281,7 @@ void testLoadAliasOps2(int                        callLine,
             bslma::TestAllocatorMonitor dam(&da);
 
             args.d_useDefault = false;
-            args.d_config = configI;
+            args.d_config     = configI;
 
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
@@ -4369,8 +4317,8 @@ void testLoadAliasOps2(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.get(),       0 == p.get());
-                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
+                    ASSERTV(p.get(),       0 == p.get());
+                    ASSERTV(pAlias1.get(), 0 == pAlias1.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -4378,53 +4326,48 @@ void testLoadAliasOps2(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
-                    LOOP_ASSERT(p.get(), 0 == p.get());
-                    LOOP2_ASSERT(&alias1,   pAlias1.get(),
-                                 &alias1 == pAlias1.get());
+                    ASSERTV(p.get(), 0 == p.get());
+                    ASSERTV(&alias1, pAlias1.get(), &alias1 == pAlias1.get());
 
                     ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
-                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
-                    LOOP2_ASSERT(&alias2,   pAlias2.get(),
-                                 &alias2 == pAlias2.get());
+                    ASSERTV(pAlias1.get(), 0 == pAlias1.get());
+                    ASSERTV(&alias2, pAlias2.get(), &alias2 == pAlias2.get());
                 }
 #else
                 TestPointer pAlias1;
-                TEST_TARGET pTarget = 0 == p.get()
-                                    ? 0
-                                    : &alias1;
+                TEST_TARGET pTarget = 0 == p.get() ? 0 : &alias1;
 
                 pAlias1.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.get(),  0 == p.get());
-                LOOP2_ASSERT(pTarget, pAlias1.get(), pTarget == pAlias1.get());
+                ASSERTV(p.get(), 0 == p.get());
+                ASSERTV(pTarget, pAlias1.get(), pTarget == pAlias1.get());
 #endif
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
 }
-
 
 template<class  TEST_TARGET,
          class  TEST_FUNCTION_TYPE,
@@ -4461,7 +4404,7 @@ void testLoadAliasOps3(int                        callLine,
 
             TestLoadArgs<TEST_TARGET> args = {};
             args.d_useDefault = false;
-            args.d_config = 0;  // We need only test a fully defined pointer,
+            args.d_config = 0;  // We need only test a fully defined pointer;
                                 // there are no concerns about null arguments.
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
@@ -4475,8 +4418,8 @@ void testLoadAliasOps3(int                        callLine,
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i](callLine, L_, i, &args);
                 if (0 == p.get()) {
-                    // We have no interest in tests that create a null pointer,
-                    // this scenario is negative tested in testLoadAliasOps1.
+                    // We have no interest in tests that create a null pointer;
+                    // this scenario is negative-tested in 'testLoadAliasOps1'.
                     continue;
                 }
 
@@ -4489,16 +4432,16 @@ void testLoadAliasOps3(int                        callLine,
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
 
-                LOOP_ASSERT(p.get(),      0 == p.get());
-                LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
+                ASSERTV(p.get(),      0 == p.get());
+                ASSERTV(pAlias.get(), &aliasTarget == pAlias.get());
 
-                // Assert that no memory was allocated or freed
-                LOOP_ASSERT(i, tam2.isInUseSame());
-                LOOP_ASSERT(i, tam2.isMaxSame());
-                LOOP_ASSERT(i, dam2.isInUseSame());
-                LOOP_ASSERT(i, dam2.isMaxSame());
-                LOOP_ASSERT(i, gam2.isInUseSame());
-                LOOP_ASSERT(i, gam2.isMaxSame());
+                // Assert that no memory was allocated or freed.
+                ASSERTV(i, tam2.isInUseSame());
+                ASSERTV(i, tam2.isMaxSame());
+                ASSERTV(i, dam2.isInUseSame());
+                ASSERTV(i, dam2.isMaxSame());
+                ASSERTV(i, gam2.isInUseSame());
+                ASSERTV(i, gam2.isMaxSame());
 
                 // Next we load a fresh state into the pointer to verify the
                 // final concern for 'load'; that it correctly destroys an
@@ -4510,12 +4453,12 @@ void testLoadAliasOps3(int                        callLine,
                 // final state.
                 TEST_ARRAY[j](callLine, L_, j, &args);
 
-                LOOP_ASSERT(i, gam.isInUseSame());
-                LOOP_ASSERT(i, gam.isMaxSame());
+                ASSERTV(i, gam.isInUseSame());
+                ASSERTV(i, gam.isMaxSame());
 
                 if (!args.d_useDefault) {
-                    LOOP_ASSERT(i, dam.isInUseSame());
-                    LOOP_ASSERT(i, dam.isMaxSame());
+                    ASSERTV(i, dam.isInUseSame());
+                    ASSERTV(i, dam.isMaxSame());
                 }
 
                 // Nothing further to assert, but reset 'deleteCount' to
@@ -4524,15 +4467,15 @@ void testLoadAliasOps3(int                        callLine,
             }
 
             // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
+            ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
+                    args.d_deleteCount == args.d_deleteDelta);
 
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
+            ASSERTV(i, gam.isInUseSame());
+            ASSERTV(i, gam.isMaxSame());
 
-            LOOP_ASSERT(i, dam.isInUseSame());
+            ASSERTV(i, dam.isInUseSame());
             if (!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
+                ASSERTV(i, dam.isMaxSame());
             }
         }
     }
@@ -4542,7 +4485,6 @@ void testLoadAliasOps3(int                        callLine,
 
 // BDE_VERIFY pragma: push   // Test tables need long lines to read in 2D
 // BDE_VERIFY pragma: -LL01  // Line longer than 79 chars
-
 
 //=============================================================================
 // This is the test table for iterating constructor and load functions for
@@ -4632,7 +4574,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -4665,7 +4606,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
@@ -4721,7 +4661,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -4759,7 +4698,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
 
     // Now we test deleters that are strongly typed for the 'object' parameter,
     // but type-erase the 'factory'.
@@ -4812,7 +4750,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -4845,7 +4782,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
@@ -4899,7 +4835,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -4936,7 +4871,6 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
@@ -5036,7 +4970,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5069,7 +5002,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
     TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
@@ -5125,7 +5057,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5163,7 +5094,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
 
     // Now we test deleters that are strongly typed for the 'object' parameter,
     // but type-erase the 'factory'.
@@ -5216,7 +5146,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5249,7 +5178,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
     TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
@@ -5303,7 +5231,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5340,7 +5267,6 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
@@ -5440,7 +5366,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5473,7 +5398,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
@@ -5529,7 +5453,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5567,7 +5490,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
 
     // Now we test deleters that are strongly typed for the 'object' parameter,
     // but type-erase the 'factory'.
@@ -5619,7 +5541,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
-
 
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
@@ -5745,7 +5666,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
     //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), NullPolicy() ),
@@ -5775,7 +5695,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     // single object-pointer tests
     TestPolicy<void>( NullPolicy() ),
 
-
     TestPolicy<void>( Obase() ),
     TestPolicy<void>( Oderiv() ),
     //TestPolicy<void>( OCbase() ),
@@ -5796,7 +5715,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCbase(),  Fbsl() ),
     //TestPolicy<void>( OCderiv(), Ftst() ),
     //TestPolicy<void>( OCderiv(), Fbsl() ),
-
 
     TestPolicy<void>( Ob1(),   Ftst() ),
     TestPolicy<void>( Ob1(),   Fbsl() ),
@@ -5866,7 +5784,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5899,7 +5816,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
@@ -5955,7 +5871,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -5993,7 +5908,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
 
     // Now we test deleters that are strongly typed for the 'object' parameter,
     // but type-erase the 'factory'.
@@ -6046,7 +5960,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -6079,7 +5992,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     //TestPolicy<void>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
     //TestPolicy<void>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
@@ -6132,7 +6044,6 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
 
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
@@ -6292,7 +6203,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -6325,7 +6235,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
     TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
@@ -6381,7 +6290,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
     // argument.
@@ -6419,7 +6327,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
 
     // Now we test deleters that are strongly typed for the 'object' parameter,
     // but type-erase the 'factory'.
@@ -6505,7 +6412,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
     TestPolicy<const void>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
     // the invoking 'object' and 'factory' types.
@@ -6557,7 +6463,6 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
 
     // Also test a deleter that does not use the 'factory' argument.  These
     // tests must also validate passing a null pointer lvalue as the 'factory'
@@ -6687,7 +6592,6 @@ static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
 //-----------------------------------------------------------------------------
 namespace DRQS_30670366_NAMESPACE {
 
-
 void testDeleter(int *expectedCookieValue, void *cookie)
 {
     ASSERT(expectedCookieValue == cookie);
@@ -6769,8 +6673,8 @@ int main(int argc, char *argv[])
         {
             int cookie = 100;
             bslma::ManagedPtr<int> test(&cookie,
-                                       static_cast<void *>(&cookie),
-                                       &testDeleter);
+                                        static_cast<void *>(&cookie),
+                                        &testDeleter);
         }
         {
             int cookie = 100;
@@ -6828,7 +6732,7 @@ int main(int argc, char *argv[])
             returnSecondDerivedPtr(&numdels, &ta);
         }
 
-        LOOP_ASSERT(numdels, 20202 == numdels);
+        ASSERTV(numdels, 20202 == numdels);
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -6898,12 +6802,12 @@ int main(int argc, char *argv[])
                             "\n====================================\n");
 
         if (verbose) printf("\tConfirm the deleter does not destroy the "
-                             "passsed object\n");
+                             "passed object\n");
 
         int deleteCount = 0;
         MyTestObject t(&deleteCount);
         bslma::ManagedPtrNilDeleter<MyTestObject>::deleter(&t, 0);
-        LOOP_ASSERT(deleteCount, 0 == deleteCount);
+        ASSERTV(deleteCount, 0 == deleteCount);
 
         if (verbose) printf("\tConfirm the deleter can be registered with "
                              "a managed pointer\n");
@@ -6951,12 +6855,12 @@ int main(int argc, char *argv[])
                             "\n========================\n");
 
         if (verbose) printf("\tConfirm the deleter does not destroy the "
-                            "passsed object\n");
+                            "passed object\n");
 
         int deleteCount = 0;
         MyTestObject t(&deleteCount);
         bslma::ManagedPtrUtil::noOpDeleter(&t, 0);
-        LOOP_ASSERT(deleteCount, 0 == deleteCount);
+        ASSERTV(deleteCount, 0 == deleteCount);
 
         if (verbose) printf("\tConfirm the deleter can be registered with "
                             "a managed pointer\n");
@@ -7010,7 +6914,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void clear();
-        //   bsl::pair<TYPE*, ManagedPtrDeleter> release();
+        //   bsl::pair<TYPE *, ManagedPtrDeleter> release();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'clear', 'reset', AND 'release'"
@@ -7020,33 +6924,33 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
             Obj o(p);
 
             ASSERT(0 == numDeletes);
             o.clear();
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes, 1 == numDeletes);
 
             ASSERT(!o && !o.get());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
             Obj o(p);
 
             ASSERT(0 == numDeletes);
             o.reset();
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes, 1 == numDeletes);
 
             ASSERT(!o && !o.get());
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p;
+            Test *p;
             {
                 p = new MyTestObject(&numDeletes);
                 Obj o(p);
@@ -7060,12 +6964,12 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             delete p;
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         // testing 'release().second'
         numDeletes = 0;
         {
-            TObj *p;
+            Test *p;
             {
                 p =  new MyTestObject(&numDeletes);
                 Obj o(p);
@@ -7082,13 +6986,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             delete p;
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
 #if 0
         // testing 'deleter' accessor and 'release().second'
         numDeletes = 0;
         {
-            TObj *p;
+            Test *p;
             {
                 p =  new (da) MyTestObject(&numDeletes);
                 Obj o(p);
@@ -7105,7 +7009,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
             da.deleteObject(p);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         {
             bsls::Types::Int64 numDeallocations = da.numDeallocations();
@@ -7117,8 +7021,8 @@ int main(int argc, char *argv[])
                 SSObj s(p);
 
                 // testing * and -> references
-                ASSERT(!strcmp(&(*s).d_buf[5], "meow"));
-                ASSERT(!strcmp(&s->d_buf[5],   "meow"));
+                ASSERT(0 == strcmp(&(*s).d_buf[5], "meow"));
+                ASSERT(0 == strcmp(&s->d_buf[5],   "meow"));
             }
             ASSERT(da.numDeallocations() == numDeallocations + 1);
         }
@@ -7175,6 +7079,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr& operator=(ManagedPtr& rhs);
+        //   ManagedPtr& operator=(ManagedPtr&& rhs);
+        //   ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
         //   ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
         // --------------------------------------------------------------------
 
@@ -7194,7 +7100,22 @@ int main(int argc, char *argv[])
 
             ASSERT(!o);
             ASSERT(!o2);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            Obj o;
+            Obj o2;
+            ASSERT(!o);
+            ASSERT(!o2);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o);
+            ASSERT(!o2);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
         ASSERT(0 == numDeletes);
 
@@ -7206,13 +7127,13 @@ int main(int argc, char *argv[])
             o = 0;
 
             ASSERT(!o);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
         ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            Test *p =  new MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2;
@@ -7221,26 +7142,41 @@ int main(int argc, char *argv[])
 
             ASSERT(!o);
             ASSERT(!o2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes, 1 == numDeletes);
         }
         ASSERT(1 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            Test *p =  new MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2;
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o);
+            ASSERT(!o2);
+            ASSERTV(numDeletes, 1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            Test *p =  new MyTestObject(&numDeletes);
 
             Obj o(p);
 
             o = 0;
 
             ASSERT(!o);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes, 1 == numDeletes);
         }
         ASSERT(1 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            Test *p =  new MyTestObject(&numDeletes);
 
             Obj o;
             Obj o2(p);
@@ -7248,7 +7184,7 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             ASSERT(o.get() == p);
         }
@@ -7256,8 +7192,25 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
-            TObj *p2 = new MyTestObject(&numDeletes);
+            Test *p =  new MyTestObject(&numDeletes);
+
+            Obj o;
+            Obj o2(p);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o2);
+            ASSERTV(numDeletes, 0 == numDeletes);
+
+            ASSERT(o.get() == p);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        int numDeletes2 = 0;
+        {
+            Test *p  = new MyTestObject(&numDeletes);
+            Test *p2 = new MyTestObject(&numDeletes2);
 
             Obj o(p);
             Obj o2(p2);
@@ -7265,16 +7218,39 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes,  1 == numDeletes);
+            ASSERTV(numDeletes2, 0 == numDeletes2);
 
             ASSERT(o.get() == p2);
         }
-        ASSERT(2 == numDeletes);
+        ASSERT(1 == numDeletes);
+        ASSERT(1 == numDeletes2);
 
-        numDeletes = 0;
+        numDeletes  = 0;
+        numDeletes2 = 0;
         {
-            TObj *p =   new MyTestObject(&numDeletes);
-            TDObj *p2 = new MyDerivedObject(&numDeletes);
+            Test *p  = new MyTestObject(&numDeletes);
+            Test *p2 = new MyTestObject(&numDeletes2);
+
+            Obj o(p);
+            Obj o2(p2);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o2);
+            ASSERTV(numDeletes,  1 == numDeletes);
+            ASSERTV(numDeletes2, 0 == numDeletes2);
+
+            ASSERT(o.get() == p2);
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(1 == numDeletes2);
+
+        numDeletes  = 0;
+        numDeletes2 = 0;
+        {
+            Test    *p  = new MyTestObject(&numDeletes);
+            Derived *p2 = new MyDerivedObject(&numDeletes2);
 
             Obj o(p);
             DObj o2(p2);
@@ -7282,65 +7258,102 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes,  1 == numDeletes);
+            ASSERTV(numDeletes2, 0 == numDeletes2);
 
             ASSERT(o.get() == p2);
         }
-        ASSERT(101 == numDeletes);
+        ASSERT(  1 == numDeletes);
+        ASSERT(100 == numDeletes2);
+
+        numDeletes  = 0;
+        numDeletes2 = 0;
+        {
+            Test    *p  = new MyTestObject(&numDeletes);
+            Derived *p2 = new MyDerivedObject(&numDeletes2);
+
+            Obj o(p);
+            DObj o2(p2);
+
+            o = bslmf::MovableRefUtil::move(o2);
+
+            ASSERT(!o2);
+            ASSERTV(numDeletes,  1 == numDeletes);
+            ASSERTV(numDeletes2, 0 == numDeletes2);
+
+            ASSERT(o.get() == p2);
+        }
+        ASSERT(  1 == numDeletes);
+        ASSERT(100 == numDeletes2);
 
         numDeletes = 0;
         {
-            // this test tests creation of a ref from the same type of
-            // 'ManagedPtr', then assignment to a 'ManagedPtr'.
+            // Explicitly test move assignment from the same 'ManagedPtr'.
+
+            {
+                Test *p = new MyTestObject(&numDeletes);
+                Obj o(p);
+
+                o = bslmf::MovableRefUtil::move(o);
+
+                ASSERT(o.get() == p);
+            }
+            ASSERTV(numDeletes, 1 == numDeletes);
+        }
+
+        numDeletes = 0;
+        {
+            // Test creation of a ref from the same type of 'ManagedPtr', then
+            // assignment to another 'ManagedPtr'.
 
             Obj o2;
             {
-                TObj *p = new MyTestObject(&numDeletes);
+                Test *p = new MyTestObject(&numDeletes);
                 Obj o(p);
 
-                bslma::ManagedPtr_Ref<TObj> r = o;
+                bslma::ManagedPtr_Ref<Test> r = o;
                 o2 = r;
 
                 ASSERT(o2.get() == p);
             }
             ASSERT(0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
             Obj o(p);
             Obj o2;
 
-            bslma::ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<Test> r = o;
             o2 = r;
             ASSERT(o2);
             ASSERT(!o);
             ASSERT(0 == numDeletes);
 
-            bslma::ManagedPtr_Ref<TObj> r2 = o;
+            bslma::ManagedPtr_Ref<Test> r2 = o;
             o2 = r2;
             ASSERT(!o2);
             ASSERT(!o);
 
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes, 1 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
-            TDObj *p = new MyDerivedObject(&numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
             DObj o(p);
             Obj o2;
 
-            bslma::ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<Test> r = o;
             o2 = r;
             ASSERT(o2);
             ASSERT(!o);
             ASSERT(0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE)
@@ -7417,24 +7430,25 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
-            TObj *p2 = new MyTestObject(&numDeletes);
+            Test *p  = new MyTestObject(&numDeletes);
+            Test *p2 = new MyTestObject(&numDeletes);
 
             Obj o(p);
             Obj o2(p2);
 
             o.swap(o2);
 
-            ASSERT(o.get() == p2);
+            ASSERT(o.get()  == p2);
             ASSERT(o2.get() == p);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+        ASSERTV(numDeletes, 2 == numDeletes);
 
         if (verbose) printf("\t\tswap with empty managed pointer\n");
 
         numDeletes = 0;
         {
-            TObj *p =  new MyTestObject(&numDeletes);
+            Test *p =  new MyTestObject(&numDeletes);
             Obj o(p);
             Obj o2;
 
@@ -7442,15 +7456,15 @@ int main(int argc, char *argv[])
 
             ASSERT(!o.get());
             ASSERT(o2.get() == p);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o.swap(o2);
 
             ASSERT(o.get() == p);
             ASSERT(!o2.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\t\tswap deleters\n");
 
@@ -7459,21 +7473,22 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta1("object1", veryVeryVeryVerbose);
             bslma::TestAllocator ta2("object2", veryVeryVeryVerbose);
 
-            TObj *p =  new (ta1) MyTestObject(&numDeletes);
-            TObj *p2 = new (ta2) MyTestObject(&numDeletes);
+            Test *p  = new (ta1) MyTestObject(&numDeletes);
+            Test *p2 = new (ta2) MyTestObject(&numDeletes);
 
             Obj o(p, &ta1);
             Obj o2(p2, &ta2);
 
             o.swap(o2);
 
-            ASSERT(o.get() == p2);
+            ASSERT(o.get()  == p2);
             ASSERT(o2.get() == p);
 
             ASSERT(&ta2 == o.deleter().factory());
             ASSERT(&ta1 == o2.deleter().factory());
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+        ASSERTV(numDeletes, 2 == numDeletes);
 
         if (verbose) printf("\t\tswap aliases\n");
 
@@ -7482,10 +7497,10 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta1("object1", veryVeryVeryVerbose);
             bslma::TestAllocator ta2("object2", veryVeryVeryVerbose);
 
-            int * p3 = new (ta2) int;
+            int *p3 = new (ta2) int;
             *p3 = 42;
 
-            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            Test *p =  new (ta1) MyTestObject(&numDeletes);
             MyDerivedObject d2(&numDeletes);
 
             bslma::ManagedPtr<int> o3(p3, &ta2);
@@ -7497,12 +7512,13 @@ int main(int argc, char *argv[])
             ASSERT( o.get() == &d2);
             ASSERT(o2.get() ==   p);
 
-            ASSERT(p3 ==  o.deleter().object());
-            ASSERT( p == o2.deleter().object());
+            ASSERT(  p3 ==  o.deleter().object());
+            ASSERT(   p == o2.deleter().object());
             ASSERT(&ta2 ==  o.deleter().factory());
             ASSERT(&ta1 == o2.deleter().factory());
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
 
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
@@ -7588,6 +7604,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr(ManagedPtr& original);
+        //   ManagedPtr(ManagedPtr&& original);
+        //   ManagedPtr(MovableRef<ManagedPtr<OTHER>> original);
         //   ManagedPtr(ManagedPtr_Ref<TYPE> ref);
         //   operator ManagedPtr_Ref<OTHER_TYPE>();
         // --------------------------------------------------------------------
@@ -7604,7 +7622,7 @@ int main(int argc, char *argv[])
         if (verbose)
                     printf("\tTest operator bslma::ManagedPtr_Ref<OTHER>()\n");
 
-        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        ASSERTV(g_deleteCount, 0 == g_deleteCount);
         {
             bslma::TestAllocatorMonitor gam(&globalAllocator);
             bslma::TestAllocatorMonitor dam(&da);
@@ -7612,12 +7630,12 @@ int main(int argc, char *argv[])
             int numDeletes = 0;
 
             {
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
 
-                bslma::ManagedPtr_Ref<TObj> r = o;
+                bslma::ManagedPtr_Ref<Test> r = o;
                 // Check no memory is allocated/released and no deleters run
-                LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+                ASSERTV(g_deleteCount, 0 == g_deleteCount);
                 ASSERT(0 == numDeletes);
 
                 // check the pointer reference an object with the correct data
@@ -7633,17 +7651,17 @@ int main(int argc, char *argv[])
                 const void *p2 = reinterpret_cast<const unsigned char *>(p1) +
                                                                      sizeof(o);
                 const void *pRef = r.base();
-                LOOP3_ASSERT(p1, pRef, p2, p1 <= pRef && pRef < p2);
+                ASSERTV(p1, pRef, p2, p1 <= pRef && pRef < p2);
             }
-            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(g_deleteCount, 1 == g_deleteCount);
+            ASSERTV(numDeletes,    1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
 
             g_deleteCount = 0;
-            numDeletes = 0;
+            numDeletes    = 0;
             {
                 // To test conversion from an rvalue, we must bind the the
                 // temporary to a function argument in order to prolong the
@@ -7654,23 +7672,23 @@ int main(int argc, char *argv[])
                 // invoked.
                 struct Local {
                     static void test(void                        *px,
-                                     bslma::ManagedPtr_Ref<TObj>  r)
+                                     bslma::ManagedPtr_Ref<Test>  r)
                     {
-                        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+                        ASSERTV(g_deleteCount, 0 == g_deleteCount);
 
                         ASSERT(px == r.base()->pointer());
                         ASSERT(px == r.base()->deleter().object());
-                        ASSERT(0 == r.base()->deleter().factory());
+                        ASSERT( 0 == r.base()->deleter().factory());
                         ASSERT(&countedNilDelete ==
                                                 r.base()->deleter().deleter());
                     }
                 };
 
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 Local::test( &x, (Obj(&x, 0, countedNilDelete)));
             }
-            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(g_deleteCount, 1 == g_deleteCount);
+            ASSERTV(numDeletes,    1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -7679,11 +7697,11 @@ int main(int argc, char *argv[])
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_CONVERT_TO_REF_FROM_CONST)
             {
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 const Obj o(&x, 0, countedNilDelete);
 
-                bslma::ManagedPtr_Ref<TObj> r = o;   // should not compile
-                LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+                bslma::ManagedPtr_Ref<Test> r = o;   // should not compile
+                ASSERTV(g_deleteCount, 0 == g_deleteCount);
                 ASSERT(0 == numDeletes);
             }
 #endif
@@ -7691,16 +7709,16 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\tbslma::ManagedPtr(bslma::ManagedPtr &donor)\n");
+        if (verbose) printf("\tbslma::ManagedPtr(bslma::ManagedPtr& donor)\n");
 
         {
             bslma::TestAllocatorMonitor gam(&globalAllocator);
             bslma::TestAllocatorMonitor dam(&da);
 
-            g_deleteCount = 0;
+            g_deleteCount  = 0;
             int numDeletes = 0;
             {
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
                 ASSERT(&x == o.get());
 
@@ -7712,17 +7730,17 @@ int main(int argc, char *argv[])
                 ASSERT(&countedNilDelete == o2.deleter().deleter());
             }
 
-            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(g_deleteCount, 1 == g_deleteCount);
+            ASSERTV(numDeletes,    1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
             ASSERT(gam.isMaxSame());
 
             g_deleteCount = 0;
-            numDeletes = 0;
+            numDeletes    = 0;
             {
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 Obj  o = Obj(&x, 0, countedNilDelete);
                 ASSERT(&x == o.get());
 
@@ -7734,8 +7752,8 @@ int main(int argc, char *argv[])
                 ASSERT(&countedNilDelete == o2.deleter().deleter());
             }
 
-            LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
-            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+            ASSERTV(g_deleteCount, 1 == g_deleteCount);
+            ASSERTV(numDeletes,    1 == numDeletes);
             ASSERT(dam.isInUseSame());
             ASSERT(dam.isMaxSame());
             ASSERT(gam.isInUseSame());
@@ -7744,7 +7762,7 @@ int main(int argc, char *argv[])
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_CONSTRUCT_FROM_CONST)
             {
-                TObj x(&numDeletes);
+                Test x(&numDeletes);
                 const Obj  o(&x, 0, countedNilDelete);
                 ASSERT(&X == o.get());
 
@@ -7752,6 +7770,54 @@ int main(int argc, char *argv[])
                 ASSERT(!"The preceding line should not have compiled");
             }
 #endif
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) printf("\tManagedPtr(MovableRef<ManagedPtr> donor)\n");
+
+        {
+            bslma::TestAllocatorMonitor gam(&globalAllocator);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            g_deleteCount  = 0;
+            int numDeletes = 0;
+            {
+                Test x(&numDeletes);
+                Obj  o(&x, 0, countedNilDelete);
+                ASSERT(&x == o.get());
+
+                Obj o2(bslmf::MovableRefUtil::move(o));
+                ASSERT( 0 ==  o.get());
+                ASSERT(&x == o2.get());
+                ASSERT(&x == o2.deleter().object());
+                ASSERT( 0 == o2.deleter().factory());
+                ASSERT(&countedNilDelete == o2.deleter().deleter());
+            }
+
+            ASSERTV(g_deleteCount, 1 == g_deleteCount);
+            ASSERTV(numDeletes,    1 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
+
+            g_deleteCount = 0;
+            numDeletes    = 0;
+            {
+                Obj o;
+                ASSERT(0 == o.get());
+
+                Obj o2(bslmf::MovableRefUtil::move(o));
+                ASSERT(0 == o.get());
+                ASSERT(0 == o2.get());
+            }
+            ASSERTV(g_deleteCount, 0 == g_deleteCount);
+            ASSERTV(numDeletes,    0 == numDeletes);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isMaxSame());
+            ASSERT(gam.isInUseSame());
+            ASSERT(gam.isMaxSame());
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -7764,13 +7830,13 @@ int main(int argc, char *argv[])
             // This cast tests both a cast while creating the ref, and the
             // constructor from a ref.
 
-            TDObj *p = new MyDerivedObject(&numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
             DObj o(p);
 
             ASSERT(o);
             ASSERT(o.get() == p);
 
-            bslma::ManagedPtr_Ref<TObj> r = o;
+            bslma::ManagedPtr_Ref<Test> r = o;
             ASSERT(o);
             Obj o2(r);
 
@@ -7779,11 +7845,11 @@ int main(int argc, char *argv[])
 
             ASSERT(o2.get() == p);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         numDeletes = 0;
         {
-            TDObj *p = new MyDerivedObject(&numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
             DObj d(p);
             ASSERT(d.get() == p);
 
@@ -7791,7 +7857,19 @@ int main(int argc, char *argv[])
             ASSERT(o.get() == p);
             ASSERT(0 == d.get());
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
+
+        numDeletes = 0;
+        {
+            Derived *p = new MyDerivedObject(&numDeletes);
+            DObj d(p);
+            ASSERT(d.get() == p);
+
+            Obj o(bslmf::MovableRefUtil::move(d));
+            ASSERT(o.get() == p);
+            ASSERT(0 == d.get());
+        }
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -7804,18 +7882,18 @@ int main(int argc, char *argv[])
                                           &bslma::ManagedPtrUtil::noOpDeleter);
             int testVal  = pD->data();
             int testVal2 = pD->data2();
-            LOOP_ASSERT(testVal,  3 == testVal);  // pD->data()
-            LOOP_ASSERT(testVal2, 6 == testVal2); // pD->data2()
-            LOOP_ASSERT(pD->d_data, 3 == pD->d_data);
+            ASSERTV(testVal,    3 == testVal);  // pD->data()
+            ASSERTV(testVal2,   6 == testVal2); // pD->data2()
+            ASSERTV(pD->d_data, 3 == pD->d_data);
 
             bslma::ManagedPtr<BaseInt2> pB(pD);  // cannot use '=' form
             ASSERT(0 == pD.get());
 
             testVal  = pB->data();
             testVal2 = pB->data2();
-            LOOP_ASSERT(testVal,  3 == testVal);  // pB->data()
-            LOOP_ASSERT(testVal2, 6 == testVal2); // pB->data2()
-            LOOP_ASSERT(pB->d_data, 2 == pB->d_data);
+            ASSERTV(testVal,    3 == testVal);  // pB->data()
+            ASSERTV(testVal2,   6 == testVal2); // pB->data2()
+            ASSERTV(pB->d_data, 2 == pB->d_data);
 
             // After testing construction, test assignment
             bslma::ManagedPtr<CompositeInt3> pD2(
@@ -7825,18 +7903,18 @@ int main(int argc, char *argv[])
             // sanity checks only
             testVal  = pD2->data();
             testVal2 = pD2->data2();
-            LOOP_ASSERT(testVal,  3 == testVal);  // pD2->data()
-            LOOP_ASSERT(testVal2, 6 == testVal2); // pD2->data2()
-            LOOP_ASSERT(pD2->d_data, 3 == pD2->d_data);
+            ASSERTV(testVal,     3 == testVal);  // pD2->data()
+            ASSERTV(testVal2,    6 == testVal2); // pD2->data2()
+            ASSERTV(pD2->d_data, 3 == pD2->d_data);
 
             pB = pD2;
             ASSERT(0 == pD2.get());
 
             testVal  = pB->data();
             testVal2 = pB->data2();
-            LOOP_ASSERT(testVal,  3 == testVal);  // pB->data()
-            LOOP_ASSERT(testVal2, 6 == testVal2); // pB->data2()
-            LOOP_ASSERT(pB->d_data, 2 == pB->d_data);
+            ASSERTV(testVal,    3 == testVal);  // pB->data()
+            ASSERTV(testVal2,   6 == testVal2); // pB->data2()
+            ASSERTV(pB->d_data, 2 == pB->d_data);
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8039,15 +8117,15 @@ int main(int argc, char *argv[])
                              " void(*)(ELEMENT_TYPE *, void*));\n");
 
         numDeletes = 0;
-        LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+        ASSERTV(g_deleteCount, 0 == g_deleteCount);
         {
             bslma::TestAllocatorMonitor tam(&ta);
 
             MyTestObject obj(&numDeletes);
             Obj o(&obj, 0, &templateNilDelete<MyTestObject>);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+        ASSERTV(numDeletes,    1 == numDeletes);
+        ASSERTV(g_deleteCount, 1 == g_deleteCount);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8061,7 +8139,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting compiler diagnostics*\n");
 
-        // distint, unrelated types
+        // distinct, unrelated types
         numDeletes = 0;
         {
             double *p = new (da) double;
@@ -8069,7 +8147,7 @@ int main(int argc, char *argv[])
 
 //            ASSERT(o.ptr() == p);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         // const-conversion
         numDeletes = 0;
@@ -8079,7 +8157,7 @@ int main(int argc, char *argv[])
 
 //            ASSERT(o.ptr() == p);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -8088,7 +8166,7 @@ int main(int argc, char *argv[])
 
             ASSERT(o.get() == p);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 #endif
 
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_TEST_NULL_FACTORY
@@ -8098,7 +8176,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> x(&i, 0);
             bslma::ManagedPtr<int> y( 0, 0);
 
-            bslma::Allocator * pNullAlloc = 0;
+            bslma::Allocator *pNullAlloc = 0;
             bslma::ManagedPtr<int> z(0, pNullAlloc);
         }
 #endif
@@ -8110,7 +8188,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<const int> x(&i, 0);
             bslma::ManagedPtr<int> y( 0, 0);  // allow this?
 
-            bslma::Allocator * pNullAlloc = 0;
+            bslma::Allocator *pNullAlloc = 0;
             bslma::ManagedPtr<const int> z(0, pNullAlloc);  // allow this?
         }
 #endif
@@ -8124,7 +8202,7 @@ int main(int argc, char *argv[])
 
             // These are currently runtime (UB) failures, rather than
             // compile-time errors.
-            bslma::Allocator * pNullAlloc = 0;
+            bslma::Allocator *pNullAlloc = 0;
             bslma::ManagedPtr<const int> z( i, pNullAlloc, 0);
             bslma::ManagedPtr<const int> zz(0, pNullAlloc, 0);  // allow this?
         }
@@ -8193,7 +8271,7 @@ int main(int argc, char *argv[])
             validateManagedState(L_, o, 0, del);
         }
 
-        LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        ASSERTV(numDeletes, 0 == numDeletes);
         {
             const VObj o;
             const bslma::ManagedPtrDeleter del;
@@ -8204,7 +8282,7 @@ int main(int argc, char *argv[])
             //typeid(*o); // should parse, even if it cannot be called
         }
 
-        LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        ASSERTV(numDeletes, 0 == numDeletes);
         {
             const bslma::ManagedPtr<const void> o(0);
             const bslma::ManagedPtrDeleter del;
@@ -8219,12 +8297,12 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTest accessors on simple object\n");
 
-        typedef bslma::ManagedPtr_FactoryDeleter<TObj,bslma::Allocator>
+        typedef bslma::ManagedPtr_FactoryDeleter<Test, bslma::Allocator>
                                                         TestcaseFactoryDeleter;
-        LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        ASSERTV(numDeletes, 0 == numDeletes);
         {
             Obj o;
-            TObj *p = new (da) MyTestObject(&numDeletes);
+            Test *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8239,14 +8317,14 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
 
         numDeletes = 0;
         {
             VObj o;
-            TObj *p = new (da) MyTestObject(&numDeletes);
+            Test *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8261,14 +8339,14 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
 
         numDeletes = 0;
         {
             bslma::ManagedPtr<const void> o;
-            TObj *p = new (da) MyTestObject(&numDeletes);
+            Test *p = new (da) MyTestObject(&numDeletes);
             o.load(p);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8283,9 +8361,9 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -8296,7 +8374,7 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             Obj o;
-            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Test *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8315,17 +8393,17 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
             ASSERT(tam2.isInUseSame());
             ASSERT(tam2.isMaxSame());
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
         ASSERT(tam.isInUseSame());
 
         numDeletes = 0;
         {
             VObj o;
-            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Test *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8344,17 +8422,17 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
             ASSERT(tam2.isInUseSame());
             ASSERT(tam2.isMaxSame());
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
         ASSERT(tam.isInUseSame());
 
         numDeletes = 0;
         {
             bslma::ManagedPtr<const void> o;
-            TObj *p = new (ta) MyTestObject(&numDeletes);
+            Test *p = new (ta) MyTestObject(&numDeletes);
             o.load(p, &ta);
             const bslma::ManagedPtrDeleter del(
                                               p,
@@ -8373,11 +8451,11 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
+            ASSERTV(numDeletes, 100 == numDeletes);
             ASSERT(tam2.isInUseSame());
             ASSERT(tam2.isMaxSame());
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+        ASSERTV(numDeletes, 101 == numDeletes);
         ASSERT(tam.isInUseSame());
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8386,10 +8464,10 @@ int main(int argc, char *argv[])
          "\tTest accessors on simple object using a deleter but no factory\n");
 
         g_deleteCount = 0;
-        numDeletes = 0;
+        numDeletes    = 0;
         {
             Obj o;
-            TObj obj(&numDeletes);
+            Test obj(&numDeletes);
             o.load(&obj, 0, &countedNilDelete);
             const bslma::ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
 
@@ -8401,17 +8479,17 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            ASSERTV(numDeletes,  100 == numDeletes);
+            ASSERTV(g_deleteCount, 0 == g_deleteCount);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
-        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+        ASSERTV(numDeletes,  101 == numDeletes);
+        ASSERTV(g_deleteCount, 1 == g_deleteCount);
 
         g_deleteCount = 0;
-        numDeletes = 0;
+        numDeletes    = 0;
         {
             VObj o;
-            TObj obj(&numDeletes);
+            Test obj(&numDeletes);
             o.load(&obj, 0, &countedNilDelete);
             const bslma::ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
 
@@ -8423,17 +8501,17 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            ASSERTV(numDeletes,  100 == numDeletes);
+            ASSERTV(g_deleteCount, 0 == g_deleteCount);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
-        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+        ASSERTV(numDeletes,  101 == numDeletes);
+        ASSERTV(g_deleteCount, 1 == g_deleteCount);
 
         g_deleteCount = 0;
-        numDeletes = 0;
+        numDeletes    = 0;
         {
             bslma::ManagedPtr<const void> o;
-            TObj obj(&numDeletes);
+            Test obj(&numDeletes);
             o.load(&obj, 0, &countedNilDelete);
             const bslma::ManagedPtrDeleter del(&obj, 0, &countedNilDelete);
 
@@ -8445,17 +8523,17 @@ int main(int argc, char *argv[])
                 oD.loadAlias(o, &d);
                 validateManagedState(L_, oD, &d, del);
             }
-            LOOP_ASSERT(numDeletes, 100 == numDeletes);
-            LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
+            ASSERTV(numDeletes,  100 == numDeletes);
+            ASSERTV(g_deleteCount, 0 == g_deleteCount);
         }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
-        LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+        ASSERTV(numDeletes,  101 == numDeletes);
+        ASSERTV(g_deleteCount, 1 == g_deleteCount);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // TBD Double check that the non-deprecated form is tested, otherwise correct
-// this test to use non-deprecatd functions.
+// this test to use non-deprecated functions.
 
         if (verbose) printf(
        "\tTest accessors on simple object using both a factory and deleter\n");
@@ -8484,9 +8562,9 @@ int main(int argc, char *argv[])
                 o2.loadAlias(o, &i2);
                 validateManagedState(L_, o2, &i2, del);
             }
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -8505,9 +8583,9 @@ int main(int argc, char *argv[])
                 o2.loadAlias(o, &i2);
                 validateManagedState(L_, o2, &i2, del);
             }
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -8526,9 +8604,9 @@ int main(int argc, char *argv[])
                 o2.loadAlias(o, &i2);
                 validateManagedState(L_, o2, &i2, del);
             }
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8595,12 +8673,12 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr);
+        //   ManagedPtr(ManagedPtr<OTHER>&& alias, TYPE *ptr);
         //   void loadAlias(ManagedPtr<OTHER>& alias, TYPE *ptr);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ALIAS SUPPORT"
                             "\n=====================\n");
-
 
         if (veryVerbose)
                 printf("Testing bslma::ManagedPtr<MyTestObject>::loadAlias\n");
@@ -8682,6 +8760,9 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
+        if (verbose)
+            printf("\tManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr)\n");
+
         int numDeletes = 0;
         {
             SS *p = new SS(&numDeletes);
@@ -8690,14 +8771,31 @@ int main(int argc, char *argv[])
             SSObj s(p);
             ChObj c(s, &p->d_buf[5]);
 
-            ASSERT(!s); // should not be testing operator! until test 13
-
-            ASSERT(!strcmp(c.get(), "meow"));
-
+            ASSERT(0 == s.get());
+            ASSERT(0 == strcmp(c.get(), "meow"));
             ASSERT(0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
+        if (verbose)
+            printf("\tManagedPtr(ManagedPtr<OTHER>&& alias, TYPE *ptr)\n");
+
+        numDeletes = 0;
+        {
+            SS *p = new SS(&numDeletes);
+            strcpy(p->d_buf, "Woof meow");
+
+            SSObj s(p);
+            ChObj c(bslmf::MovableRefUtil::move(s), &p->d_buf[5]);
+
+            ASSERT(0 == s.get());
+            ASSERT(0 == strcmp(c.get(), "meow"));
+            ASSERT(0 == numDeletes);
+        }
+        ASSERTV(numDeletes, 1 == numDeletes);
+
+        if (verbose)
+            printf("\tvoid loadAlias(ManagedPtr<OTHER>& alias, TYPE *ptr)\n");
 
         bsls::Types::Int64 numDeallocations = da.numDeallocations();
         numDeletes = 0;
@@ -8714,11 +8812,11 @@ int main(int argc, char *argv[])
             c.loadAlias(s, &p->d_buf[5]);
             ASSERT(da.numDeallocations() == numDeallocations + 1);
 
-            ASSERT(!s); // should not be testing operator! until test 13
-
-            ASSERT(!strcmp(c.get(), "meow"));
+            ASSERT(0 == s.get());
+            ASSERT(0 == strcmp(c.get(), "meow"));
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -8962,10 +9060,10 @@ int main(int argc, char *argv[])
             x.load(v, 0);
             x.load(0, v); // We may consider allowing this
 
-            bslma::Allocator * pNullAlloc = 0;
+            bslma::Allocator *pNullAlloc = 0;
             x.load(0, pNullAlloc); // We may consider allowing this
 
-            MyDerivedObject * pd = 0;
+            MyDerivedObject *pd = 0;
             bslma::ManagedPtr<MyDerivedObject> md;
             md.load(pd, 0);
         }
@@ -8979,7 +9077,7 @@ int main(int argc, char *argv[])
             x.load(i, 0, 0);
             x.load(0, 0, 0); // We may consider allowing this
 
-            bslma::Allocator * pNullAlloc = 0;
+            bslma::Allocator *pNullAlloc = 0;
             x.load(i, pNullAlloc, 0);
             x.load(0, pNullAlloc, 0);  // We may consider allowing this
         }
@@ -8990,25 +9088,30 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY CREATORS
         //   Note that we will not deem the destructor to be completely tested
         //   until the next test case, which tests the range of management
-        //   strategies a bslma::ManagedPtr may hold.
+        //   strategies a 'bslma::ManagedPtr' may hold.
         //
         // Concerns:
         //: 1 A default constructed 'bslma::ManagedPtr' does not own a pointer.
+        //:
         //: 2 A default constructed 'bslma::ManagedPtr' does not allocate any
         //:   memory.
+        //:
         //: 3 A 'bslma::ManagedPtr' takes ownership of a pointer passed as a
         //:   single argument to its constructor, and destroys the pointed-to
         //:   object in its destructor using the default allocator.  It does
         //:   not allocate any memory.
+        //:
         //: 4 A 'bslma::ManagedPtr<base>' object created by passing a
-        //:   'derived*' :   pointer calls the 'derived' destructor when
+        //:   'derived *' pointer calls the 'derived' destructor when
         //:   destroying the managed object, regardless of whether the 'base'
         //:   destructor is declared as 'virtual'.  No memory is allocated by
         //:   'bslma::ManagedPtr'.
+        //:
         //: 5 A 'bslma::ManagedPtr<void>' object created by passing a
         //:   'derived*' pointer calls the 'derived' destructor when destroying
-        //    the managed object.  No memory is allocated by
-        //    'bslma::ManagedPtr'.
+        //:   the managed object.  No memory is allocated by
+        //:   'bslma::ManagedPtr'.
+        //:
         //: 6 A 'bslma::ManagedPtr' taking ownership of a null pointer passed
         //:   as a single argument is equivalent to default construction; it
         //:   does not allocate any memory.
@@ -9018,8 +9121,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr();
-        //   ManagedPtr(bsl::nullptr_t);
-        //   ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
+        //   ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMARY CREATORS"
@@ -9228,37 +9330,36 @@ int main(int argc, char *argv[])
                 if (verbose) printf("\tTest value constructor\n");
 
                 const bslma::ManagedPtr_Ref<MyTestObject> ref(&empty, 0);
-                bslma::ManagedPtr_Members * base = ref.base();
-                LOOP2_ASSERT(&empty, base, &empty == base);
+                bslma::ManagedPtr_Members *base = ref.base();
+                ASSERTV(&empty, base, &empty == base);
 
                 if (verbose) printf("\tTest copy constructor\n");
 
                 bslma::ManagedPtr_Ref<MyTestObject> other = ref;
                 base = ref.base();
-                LOOP2_ASSERT(&empty, base, &empty == base);
+                ASSERTV(&empty, base, &empty == base);
                 base = other.base();
-                LOOP2_ASSERT(&empty, base, &empty == base);
+                ASSERTV(&empty, base, &empty == base);
 
                 if (verbose) printf("\tTest assignment\n");
 
                 const bslma::ManagedPtr_Ref<MyTestObject> second(&simple, &x);
                 base = second.base();
-                LOOP2_ASSERT(&simple, base, &simple == base);
-
+                ASSERTV(&simple, base, &simple == base);
 
                 other = second;
 
                 base = ref.base();
-                LOOP2_ASSERT(&empty, base, &empty == base);
+                ASSERTV(&empty, base,  &empty  == base);
                 base = other.base();
-                LOOP2_ASSERT(&simple, base, &simple == base);
+                ASSERTV(&simple, base, &simple == base);
                 base = second.base();
-                LOOP2_ASSERT(&simple, base, &simple == base);
+                ASSERTV(&simple, base, &simple == base);
 
                 if (verbose) printf("\tTest destructor\n");
             }
 
-            LOOP_ASSERT(deleteCount, 0 == deleteCount);
+            ASSERTV(deleteCount, 0 == deleteCount);
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -9359,9 +9460,9 @@ int main(int argc, char *argv[])
         {
             MyTestObject mt(&destructorCount);
             ASSERT(&destructorCount == mt.deleteCounter());
-            LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            ASSERTV(destructorCount, 0 == destructorCount);
         }
-        LOOP_ASSERT(destructorCount, 1 == destructorCount);
+        ASSERTV(destructorCount, 1 == destructorCount);
 
         destructorCount = 0;
         {
@@ -9370,9 +9471,9 @@ int main(int argc, char *argv[])
                 MyTestObject mt2 = mt1;
                 ASSERT(&destructorCount == mt1.deleteCounter());
                 ASSERT(&destructorCount == mt2.deleteCounter());
-                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+                ASSERTV(destructorCount, 0 == destructorCount);
             }
-            LOOP_ASSERT(destructorCount, 1 == destructorCount);
+            ASSERTV(destructorCount, 1 == destructorCount);
         }
         ASSERT(2 == destructorCount);
 
@@ -9382,7 +9483,7 @@ int main(int argc, char *argv[])
         {
             MyDerivedObject dt(&destructorCount);
             ASSERT(&destructorCount == dt.deleteCounter());
-            LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERT(100 == destructorCount);
 
@@ -9393,9 +9494,9 @@ int main(int argc, char *argv[])
                 MyDerivedObject dt2 = dt1;
                 ASSERT(&destructorCount == dt1.deleteCounter());
                 ASSERT(&destructorCount == dt2.deleteCounter());
-                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+                ASSERTV(destructorCount, 0 == destructorCount);
             }
-            LOOP_ASSERT(destructorCount, 100 == destructorCount);
+            ASSERTV(destructorCount, 100 == destructorCount);
         }
         ASSERT(200 == destructorCount);
 
@@ -9405,9 +9506,9 @@ int main(int argc, char *argv[])
         {
             MySecondDerivedObject st(&destructorCount);
             ASSERT(&destructorCount == st.deleteCounter());
-            LOOP_ASSERT(destructorCount, 0 == destructorCount);
+            ASSERTV(destructorCount, 0 == destructorCount);
         }
-        LOOP_ASSERT(destructorCount, 10000 == destructorCount);
+        ASSERTV(destructorCount, 10000 == destructorCount);
 
         destructorCount = 0;
         {
@@ -9416,9 +9517,9 @@ int main(int argc, char *argv[])
                 MySecondDerivedObject st2 = st1;
                 ASSERT(&destructorCount == st1.deleteCounter());
                 ASSERT(&destructorCount == st2.deleteCounter());
-                LOOP_ASSERT(destructorCount, 0 == destructorCount);
+                ASSERTV(destructorCount, 0 == destructorCount);
             }
-            LOOP_ASSERT(destructorCount, 10000 == destructorCount);
+            ASSERTV(destructorCount, 10000 == destructorCount);
         }
         ASSERT(20000 == destructorCount);
 
@@ -9493,38 +9594,38 @@ int main(int argc, char *argv[])
 
         int numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             Obj o2(o);
 
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest assignment.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             Obj o2;
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o2  = o;
 
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest construction from an rvalue.\n");
 
@@ -9532,252 +9633,252 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocatorMonitor tam(&ta);
 
-            Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
+            Obj x(returnManagedPtr(&numDeletes, &ta)); const Obj& X = x;
 
             ASSERT(X.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest assignment from an rvalue.\n");
 
         numDeletes = 0;
         {
-            Obj x; Obj const &X = x;
+            Obj x; const Obj& X = x;
             x = returnManagedPtr(&numDeletes, &ta);
 
             ASSERT(X.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest conversion construction.\n");
 
         numDeletes = 0;
         {
-            TDObj *p = new MyDerivedObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             DObj o(p);
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o2(o); // conversion construction
 
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             CObj o3(o2); // const-conversion construction
 
             ASSERT(p == o3.get());
             ASSERT(0 == o2.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         if (verbose) printf("\tTest conversion assignment.\n");
 
         numDeletes = 0;
         {
-            TDObj *p = new MyDerivedObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             DObj o(p);
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o2;
             o2  = o; // conversion assignment
 
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             CObj o3;
             o3 = o2; // const-conversion assignment
 
             ASSERT(p == o3.get());
             ASSERT(0 == o2.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         if (verbose)
             printf("\tTest conversion construction from an rvalue.\n");
 
         numDeletes = 0;
         {
-            Obj x(returnDerivedPtr(&numDeletes, &ta)); Obj const &X = x;
+            Obj x(returnDerivedPtr(&numDeletes, &ta));  const Obj& X = x;
 
             ASSERT(X.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         if (verbose)
             printf("\tTest conversion assignment from an rvalue.\n");
 
         numDeletes = 0;
         {
-            Obj x; Obj const &X = x;
+            Obj x;  const Obj& X = x;
             x = returnDerivedPtr(&numDeletes, &ta); // conversion-assignment
                                                     // from an rvalue
 
             ASSERT(X.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         if (verbose) printf("\tTest alias construction.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
             ASSERT(0 != p);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
             ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest alias construction with conversion.\n");
 
         numDeletes = 0;
         {
-            TDObj *p = new MyDerivedObject(&numDeletes);
+            Derived *p = new MyDerivedObject(&numDeletes);
             ASSERT(0 != p);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
             ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 100 == numDeletes);
+        ASSERTV(numDeletes, 100 == numDeletes);
 
         if (verbose) printf("\tTest 'load' method.\n");
 
         numDeletes = 0;
         {
             int numDeletes2 = 0;
-            TObj *p = new MyTestObject(&numDeletes2);
+            Test *p = new MyTestObject(&numDeletes2);
             ASSERT(0 != p);
             ASSERT(0 == numDeletes2);
 
             Obj o(p);
 
-            TObj *p2 = new(da) MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p2 = new(da) MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o.load(p2);
             ASSERT(p2 == o.get());
-            ASSERT(1 == numDeletes2);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERT( 1 == numDeletes2);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest 'load' method with allocator.\n");
 
         numDeletes = 0;
         {
             int numDeletes2 = 0;
-            TObj *p = new MyTestObject(&numDeletes2);
+            Test *p = new MyTestObject(&numDeletes2);
             ASSERT(0 == numDeletes2);
 
             Obj o(p);
 
-            TObj *p2 = new(ta) MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p2 = new(ta) MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o.load(p2,&ta);
             ASSERT(p2 == o.get());
-            LOOP_ASSERT(numDeletes2, 1 == numDeletes2);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes2, 1 == numDeletes2);
+            ASSERTV(numDeletes,  0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest 'loadAlias'.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             bslma::ManagedPtr<int> o2;
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o2.loadAlias(o, o->valuePtr());
 
             ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             // Check load alias to self
             o2.loadAlias(o2, p->valuePtr(1));
             ASSERT(p->valuePtr(1) == o2.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest 'swap'.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p);
             Obj o2;
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest 'swap' with custom deleter.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new(ta) MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new(ta) MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p, &ta, &myTestDeleter);
             Obj o2;
 
             ASSERT(p == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
             ASSERT(p == o2.get());
             ASSERT(0 == o.get());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest boolean.\n");
 
         numDeletes = 0;
         {
-            TObj *p = new(ta) MyTestObject(&numDeletes);
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            Test *p = new(ta) MyTestObject(&numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
 
             Obj o(p, &ta, &myTestDeleter);
             Obj o2;
@@ -9785,35 +9886,35 @@ int main(int argc, char *argv[])
             ASSERT(o);
             ASSERT(!o2);
 
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest no-op deleter.\n");
 
         numDeletes = 0;
         {
-            TObj x(&numDeletes);
+            Test x(&numDeletes);
             {
                 Obj p(&x, 0, &bslma::ManagedPtrUtil::noOpDeleter);
             }
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest (deprecated) nil deleter.\n");
 
         numDeletes = 0;
         {
-            TObj x(&numDeletes);
+            Test x(&numDeletes);
             {
                 Obj p(&x,
                       0,
                       &bslma::ManagedPtrNilDeleter<MyTestObject>::deleter);
             }
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+            ASSERTV(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        ASSERTV(numDeletes, 1 == numDeletes);
 
         if (verbose) printf("\tTest unambiguous overloads.\n");
 
@@ -9847,7 +9948,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Two 'bslma::ManagedPtr<T>' objects should not be comparable with
         //:   the equality operator.
-        //
+        //:
         //: 2 Two objects of different instantiations of the
         //:   'bslma::ManagedPtr' class template should not be comparable with
         //:   the equality operator.
@@ -9875,7 +9976,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> x;
             bool b;
 
-            // The following six lines should fail to compile
+            // The following two lines should fail to compile.
             b = (x == x);
             b = (x != x);
         }
@@ -9886,7 +9987,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> x;
             bool b;
 
-            // The following six lines should fail to compile
+            // The following four lines should fail to compile.
             b = (x <  x);
             b = (x <= x);
             b = (x >= x);
@@ -9901,7 +10002,7 @@ int main(int argc, char *argv[])
 
             bool b;
 
-            // The following twelve lines should fail to compile
+            // The following four lines should fail to compile.
             b = (x == y);
             b = (x != y);
 
@@ -9917,7 +10018,7 @@ int main(int argc, char *argv[])
 
             bool b;
 
-            // The following twelve lines should fail to compile
+            // The following eight lines should fail to compile.
             b = (x <  y);
             b = (x <= y);
             b = (x >= y);
@@ -9938,8 +10039,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
@@ -9947,9 +10048,8 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

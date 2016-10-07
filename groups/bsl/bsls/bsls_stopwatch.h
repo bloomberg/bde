@@ -90,6 +90,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_STRING_H
+#include <string.h>
+#endif
+
 namespace BloombergLP {
 namespace bsls {
 
@@ -260,13 +264,17 @@ Types::Int64 Stopwatch::elapsedWallTime(
 // CREATORS
 inline
 Stopwatch::Stopwatch()
-: d_accumulatedSystemTime(0)
+: d_startSystemTime(0)
+, d_startUserTime(0)
+// , d_startWallTime(0)  // opaque type, no default ctor from 0.
+, d_accumulatedSystemTime(0)
 , d_accumulatedUserTime(0)
 , d_accumulatedWallTime(0)
 , d_isRunning(false)
 , d_collectCpuTimesFlag(false)
 {
     TimeUtil::initialize();
+    memset(&d_startWallTime, 0, sizeof(d_startWallTime));
 }
 
 // MANIPULATORS

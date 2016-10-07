@@ -37,9 +37,10 @@ using namespace bsl;  // automatically added by script
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+// [10] Testing copy to a blob
 // [ 9] Testing getContiguousRangeOrCopy
 // [ 8] Testing getContiguousDataBuffer
-// [ 7] Testing copy
+// [ 7] Testing copy from a blob
 // [ 6] Testing findBufferIndexAndOffset
 // [ 5] Testing erase
 // [ 4] Testing HexDump with offset and length
@@ -68,6 +69,13 @@ void aSsErT(bool condition, const char *message, int line)
 }
 
 }  // close unnamed namespace
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -148,6 +156,7 @@ class BlobBufferFactory : public btlb::BlobBufferFactory {
 // ----------------------------------------------------------------------------
 
 typedef btlb::BlobUtil Util;
+typedef btlb::Blob     Blob;
 
 int verbose;
 int veryVerbose;
@@ -332,7 +341,469 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-        case 9: {
+      case 10: {
+        // -------------------------------------------------------------------
+        // TESTING 'copy' FUNCTIONS WRITING TO BLOB
+        //
+        // Concerns:
+        //: 1 Copying to blob works as expected for different argument values.
+        //:
+        //: 2 Writing within a BlobBuffer or to multiple BlobBuffers succeeds.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table specifying various values of blob length, offset,
+        //:   and number of bytes to copy.
+        //:
+        //: 2 For each value in the table create a blob having the length as
+        //:   specified in the table entry.
+        //:
+        //: 3 Invoke the 'copy' method on that blob using as arguments a
+        //:   string buffer or another blob, and the offset and number of
+        //:   bytes values specified in the table entry.
+        //:
+        //: 4 Create an alternate blob with the expected output and confirm
+        //:   that the two blob compare equal.
+        //:
+        //: 5 Repeat steps 2 to 4 for the same table entry by creating a blob
+        //:   object having different buffer sizes.
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //
+        // Testing:
+        //   void copy(dstBlob, int, const char *, int);
+        //   void copy(dstBlob, int, srcBlob, int, int);
+        // --------------------------------------------------------------------
+
+        verbose && (cout << "\nTesting 'copy' functions writing to blob"
+                            "\n========================================\n");
+
+        const bsl::string STR = "abcdefghijklmnopqrstuvwxyz";
+
+        if (verbose) bsl::cout << "\tCopy from character buffer" << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_blobLength;
+                int d_dstOffset;
+                int d_numBytesToCopy;
+            } DATA[] = {
+            //  LINE  BLOB_LEN    OFFSET    NUM_BYTES
+            //  ----  --------    ------    ---------
+
+            // NUM BYTES = 0
+
+            {   L_,        0,        0,            0 },
+
+            {   L_,        1,        0,            0 },
+            {   L_,        3,        0,            0 },
+            {   L_,       10,        0,            0 },
+            {   L_,       25,        0,            0 },
+
+            // Copy data at OFFSET = 0
+
+            {   L_,        1,        0,            1 },
+
+            {   L_,        3,        0,            1 },
+            {   L_,        3,        0,            2 },
+            {   L_,        3,        0,            3 },
+
+            {   L_,       10,        0,            1 },
+            {   L_,       10,        0,            5 },
+            {   L_,       10,        0,           10 },
+
+            {   L_,       25,        0,            1 },
+            {   L_,       25,        0,           12 },
+            {   L_,       25,        0,           25 },
+
+            // Copy data at OFFSET = BLOB_LEN/2
+
+            {   L_,        3,        1,            1 },
+            {   L_,        3,        1,            2 },
+
+            {   L_,       10,        5,            1 },
+            {   L_,       10,        5,            3 },
+            {   L_,       10,        5,            5 },
+
+            {   L_,       25,       12,            1 },
+            {   L_,       25,       12,            7 },
+            {   L_,       25,       12,           13 },
+
+            // Copy data at OFFSET = BLOB_LEN - 1
+
+            {   L_,        3,        2,            1 },
+            {   L_,       10,        9,            1 },
+            {   L_,       25,       24,            1 },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const int   LEN  = DATA[i].d_blobLength;
+                const int   OFF  = DATA[i].d_dstOffset;
+                const int   NB   = DATA[i].d_numBytesToCopy;
+
+                if (veryVerbose) {
+                    P_(LINE) P_(LEN) P_(OFF) P(NB)
+                }
+
+                for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
+                    bsl::string initialStr(LEN, 'Z');
+                    bsl::string expStr(LEN, 'Z');
+                    expStr.replace(expStr.begin() + OFF,
+                                   expStr.begin() + OFF + NB,
+                                   STR.begin() + 0,
+                                   STR.begin() + NB);
+
+                    BlobBufferFactory factory(bufferSize);
+
+                    Blob exp(&factory);
+                    Blob source(&factory);
+
+                    copyStringToBlob(&source, initialStr);
+                    copyStringToBlob(&exp, expStr);
+
+                    if (veryVeryVerbose) {
+                        bsl::string tmp;
+                        copyBlobToString(&tmp, source);
+                        bsl::cout << "\nSource = '" << tmp << '\''
+                                  << bsl::endl;
+                        copyBlobToString(&tmp, exp);
+                        bsl::cout << "\nExp = '" << tmp << '\''
+                                  << bsl::endl;
+                    }
+
+                    bsl::string src = STR;
+
+                    Util::copy(&source, OFF, src.c_str(), NB);
+
+                    LOOP4_ASSERT(LINE, OFF, LEN, NB,
+                                 !Util::compare(exp, source));
+
+                    if (veryVeryVerbose) {
+                        bsl::string tmp;
+                        copyBlobToString(&tmp, source);
+                        bsl::cout << "\nSource = '" << tmp << '\''
+                                  << bsl::endl;
+                        copyBlobToString(&tmp, exp);
+                        bsl::cout << "\nExp = '" << tmp << '\''
+                                  << bsl::endl;
+                    }
+                }
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                BlobBufferFactory  factory(10);
+                const char        *src = "abcdef";
+
+                if (veryVerbose) cout << "\tBad Blob pointer" << endl;
+                {
+                    Blob blob(&factory);
+                    blob.setLength(3);
+
+                    ASSERT_FAIL(Util::copy(0, 0, src, 1));
+                    ASSERT_PASS(Util::copy(&blob, 0, src, 1));
+                }
+
+                if (veryVerbose) cout << "\tBad src pointer" << endl;
+                {
+                    Blob blob(&factory);
+                    blob.setLength(3);
+
+                    ASSERT_FAIL(Util::copy(&blob, 0, 0, 1));
+                    ASSERT_PASS(Util::copy(&blob, 0, src, 1));
+                }
+
+                if (veryVerbose) cout << "\tBad dstOffset" << endl;
+                {
+                    Blob blob(&factory);
+
+                    blob.setLength(3);
+
+                    // Fails '0 <= dstOffset'
+
+                    ASSERT_FAIL(Util::copy(&blob, -1, src, 0));
+                    ASSERT_PASS(Util::copy(&blob,  0, src, 0));
+
+                    ASSERT_PASS(Util::copy(&blob,  0, src, 1));
+
+                    // Fails 'dstOffset + length <= dst->length()'
+
+                    ASSERT_PASS(Util::copy(&blob,  2, src, 1));
+                    ASSERT_FAIL(Util::copy(&blob,  2, src, 2));
+                }
+
+                if (veryVerbose) cout << "\tBad length" << endl;
+                {
+                    Blob blob(&factory);
+                    blob.setLength(3);
+
+                    ASSERT_FAIL(Util::copy(&blob, 0, src, -1));
+                    ASSERT_PASS(Util::copy(&blob, 0, src, 0));
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\tCopy from from another blob" << bsl::endl;
+        {
+            static const struct {
+                int d_line;
+                int d_dstLength;
+                int d_dstOffset;
+                int d_srcLength;
+                int d_srcOffset;
+                int d_numBytes;
+            } DATA[] = {
+            //  LINE    DL    DO    SL    SO     NB
+            //  ----    --    --    --    --     --
+
+            // NUM BYTES = 0
+
+            {   L_,     0,    0,    0,    0,      0 },
+            {   L_,     0,    0,    1,    0,      0 },
+            {   L_,     1,    0,    0,    0,      0 },
+            {   L_,     1,    0,    1,    0,      0 },
+
+            {   L_,     3,    0,    1,    0,      0 },
+            {   L_,     3,    0,    5,    0,      0 },
+            {   L_,     3,    0,   10,    0,      0 },
+
+            {   L_,    10,    0,    1,    0,      0 },
+            {   L_,    10,    0,   10,    0,      0 },
+            {   L_,    10,    0,   20,    0,      0 },
+
+            {   L_,    25,    0,    1,    0,      0 },
+            {   L_,    25,    0,    5,    0,      0 },
+            {   L_,    25,    0,   10,    0,      0 },
+
+            // Copy data at DEST & SRC OFFSET = 0
+
+            {   L_,     1,    0,    1,    0,      1 },
+
+            {   L_,     3,    0,    5,    0,      1 },
+            {   L_,     3,    0,    5,    0,      2 },
+            {   L_,     3,    0,    5,    0,      3 },
+
+            {   L_,    10,    0,   10,    0,      1 },
+            {   L_,    10,    0,   10,    0,      5 },
+            {   L_,    10,    0,   10,    0,     10 },
+
+            {   L_,    25,    0,   15,    0,      1 },
+            {   L_,    25,    0,   15,    0,      8 },
+            {   L_,    25,    0,   15,    0,     15 },
+
+            // Copy data at DEST OFFSET = 0 & SRC OFFSET = SLEN/2
+
+            {   L_,     3,    0,    5,    2,      1 },
+            {   L_,     3,    0,    5,    2,      2 },
+            {   L_,     3,    0,    5,    2,      3 },
+
+            {   L_,    10,    0,   10,    5,      1 },
+            {   L_,    10,    0,   10,    5,      2 },
+            {   L_,    10,    0,   10,    5,      3 },
+
+            {   L_,    25,    0,   15,    7,      1 },
+            {   L_,    25,    0,   15,    7,      3 },
+            {   L_,    25,    0,   15,    7,      8 },
+
+            // Copy data at DEST OFFSET = DLEN/2 & SRC OFFSET = 0
+
+            {   L_,     3,    1,    5,    0,      1 },
+            {   L_,     3,    1,    5,    0,      2 },
+
+            {   L_,    10,    5,   10,    0,      1 },
+            {   L_,    10,    5,   10,    0,      3 },
+            {   L_,    10,    5,   10,    0,      5 },
+
+            {   L_,    25,   12,   15,    0,      1 },
+            {   L_,    25,   12,   15,    0,      8 },
+            {   L_,    25,   12,   15,    0,     13 },
+
+            // Copy data at DEST OFFSET & SRC OFFSET = LEN/2
+
+            {   L_,     3,    1,    5,    2,      1 },
+            {   L_,     3,    1,    5,    2,      2 },
+
+            {   L_,    10,    5,   10,    5,      1 },
+            {   L_,    10,    5,   10,    5,      3 },
+            {   L_,    10,    5,   10,    5,      5 },
+
+            {   L_,    25,   12,   15,    7,      1 },
+            {   L_,    25,   12,   15,    7,      3 },
+            {   L_,    25,   12,   15,    7,      8 },
+
+            // Copy data from SRC OFFSET = SLEN - 1
+
+            {   L_,     3,    0,    5,    4,      1 },
+            {   L_,     3,    1,    5,    4,      1 },
+            {   L_,     3,    2,    5,    4,      1 },
+
+            {   L_,    10,    0,   10,    9,      1 },
+            {   L_,    10,    5,   10,    9,      1 },
+            {   L_,    10,    9,   10,    9,      1 },
+
+            {   L_,    25,    0,   15,   14,      1 },
+            {   L_,    25,   12,   15,   14,      1 },
+            {   L_,    25,   24,   15,   14,      1 },
+
+            // Copy data at DEST OFFSET = DLEN - 1
+
+            {   L_,     3,    2,    5,    0,      1 },
+            {   L_,     3,    2,    5,    2,      1 },
+            {   L_,     3,    2,    5,    4,      1 },
+
+            {   L_,    10,    9,   10,    0,      1 },
+            {   L_,    10,    9,   10,    5,      1 },
+            {   L_,    10,    9,   10,    9,      1 },
+
+            {   L_,    25,   24,   15,    0,      1 },
+            {   L_,    25,   24,   15,    7,      1 },
+            {   L_,    25,   24,   15,   14,      1 },
+
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const int   DLEN = DATA[i].d_dstLength;
+                const int   DOFF = DATA[i].d_dstOffset;
+                const int   SLEN = DATA[i].d_srcLength;
+                const int   SOFF = DATA[i].d_srcOffset;
+                const int   NB   = DATA[i].d_numBytes;
+
+                if (veryVerbose) {
+                    P_(LINE) P_(DLEN) P_(DOFF) P_(SLEN) P_(SOFF) P(NB)
+                }
+
+                for (int dstSize = 1; dstSize < 10; ++dstSize) {
+                    for (int srcSize = 1; srcSize < 10; ++srcSize) {
+                        bsl::string dstInitialStr(DLEN, 'Z');
+                        bsl::string srcInitialStr(STR, 0, SLEN);
+
+                        bsl::string expStr(DLEN, 'Z');
+                        expStr.replace(expStr.begin() + DOFF,
+                                       expStr.begin() + DOFF + NB,
+                                       STR.begin() + SOFF,
+                                       STR.begin() + SOFF + NB);
+
+                        BlobBufferFactory dstFactory(dstSize);
+                        BlobBufferFactory srcFactory(srcSize);
+
+                        Blob dst(&dstFactory);
+                        Blob src(&srcFactory);
+                        Blob exp(&srcFactory);
+
+                        copyStringToBlob(&dst, dstInitialStr);
+                        copyStringToBlob(&src, srcInitialStr);
+                        copyStringToBlob(&exp, expStr);
+
+                        if (veryVeryVerbose) {
+                            bsl::string tmp;
+                            copyBlobToString(&tmp, dst);
+                            bsl::cout << "\nDst = '" << tmp << '\''
+                                      << bsl::endl;
+                            copyBlobToString(&tmp, src);
+                            bsl::cout << "\nSrc = '" << tmp << '\''
+                                      << bsl::endl;
+                        }
+
+                        Util::copy(&dst, DOFF, src, SOFF, NB);
+
+                        LOOP4_ASSERT(LINE, DOFF, DLEN, NB,
+                                     !Util::compare(exp, dst));
+
+                        if (veryVeryVerbose) {
+                            bsl::string tmp;
+                            copyBlobToString(&tmp, dst);
+                            bsl::cout << "\nDst = '" << tmp << '\''
+                                      << bsl::endl;
+                            copyBlobToString(&tmp, src);
+                            bsl::cout << "\nSrc = '" << tmp << '\''
+                                      << bsl::endl;
+                        }
+                    }
+                }
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                BlobBufferFactory factory(10);
+
+                if (veryVerbose) cout << "\tBad blob pointer" << endl;
+                {
+                    Blob dst(&factory);
+                    Blob src(&factory);
+                    dst.setLength(3);
+                    src.setLength(3);
+
+                    ASSERT_FAIL(Util::copy(0, 0, src, 0, 1));
+                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 1));
+                }
+
+                if (veryVerbose) cout << "\tBad dstOffset" << endl;
+                {
+                    Blob dst(&factory);
+                    Blob src(&factory);
+
+                    src.setLength(3);
+
+                    // Fails '0 <= dstOffset'
+
+                    ASSERT_FAIL(Util::copy(&dst, -1, src, 0, 0));
+                    ASSERT_PASS(Util::copy(&dst,  0, src, 0, 0));
+
+                    dst.setLength(3);
+
+                    // Fails 'dstOffset + length <= dst->length()'
+
+                    ASSERT_PASS(Util::copy(&dst,  2, src, 0, 1));
+                    ASSERT_FAIL(Util::copy(&dst,  2, src, 0, 2));
+                }
+
+                if (veryVerbose) cout << "\tBad srcOffset" << endl;
+                {
+                    Blob dst(&factory);
+                    Blob src(&factory);
+
+                    dst.setLength(3);
+
+                    // Fails '0 <= srcOffset'
+
+                    ASSERT_FAIL(Util::copy(&dst, 0, src, -1, 0));
+                    ASSERT_PASS(Util::copy(&dst, 0, src,  0, 0));
+
+                    src.setLength(3);
+
+                    // Fails 'srcOffset + length <= src->length()'
+
+                    ASSERT_PASS(Util::copy(&dst,  0, src, 2, 1));
+                    ASSERT_FAIL(Util::copy(&dst,  0, src, 2, 2));
+                }
+
+                if (veryVerbose) cout << "\tBad length" << endl;
+                {
+                    Blob dst(&factory);
+                    Blob src(&factory);
+                    dst.setLength(3);
+                    src.setLength(3);
+
+                    ASSERT_FAIL(Util::copy(&dst, 0, src, 0, -1));
+                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 0));
+                }
+            }
+        }
+      } break;
+      case 9: {
         // -------------------------------------------------------------------
         // TESTING 'getContiguousRangeOrCopy' FUNCTION
         //

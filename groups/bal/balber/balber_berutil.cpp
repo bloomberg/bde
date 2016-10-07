@@ -335,14 +335,15 @@ int getValueUsingIso8601(bsl::streambuf *streamBuf,
 template <typename TYPE>
 inline
 int putValueUsingIso8601(bsl::streambuf *streamBuf,
-                         const TYPE&     value)
+                         const TYPE&     value,
+                         int             fractionalSecondPrecision = 6)
     // Write to the specified 'streamBuf' the length and the value of the
     // specified 'value' in the ISO 8601 format.  Return 0 on success and a
     // non-zero value otherwise.
 {
     char buf[bdlt::Iso8601Util::k_MAX_STRLEN];
     bdlt::Iso8601UtilConfiguration config;
-    config.setFractionalSecondPrecision(6);
+    config.setFractionalSecondPrecision(fractionalSecondPrecision);
     int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value, config);
 
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
@@ -1479,7 +1480,9 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeValue(streamBuf, value)
-         : putValueUsingIso8601(streamBuf, value);
+         : putValueUsingIso8601(streamBuf,
+                                value,
+                                options->datetimeFractionalSecondPrecision());
 }
 
 int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
@@ -1503,7 +1506,9 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
 
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeTzValue(streamBuf, value)
-         : putValueUsingIso8601(streamBuf, value);
+         : putValueUsingIso8601(streamBuf,
+                                value,
+                                options->datetimeFractionalSecondPrecision());
 }
 
 int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,

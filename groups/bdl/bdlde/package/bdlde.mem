@@ -6,6 +6,7 @@ bdlde_charconvertucs2
 bdlde_charconvertutf16
 bdlde_charconvertutf32
 bdlde_crc32
+bdlde_crc64
 bdlde_md5
 bdlde_quotedprintabledecoder
 bdlde_quotedprintableencoder

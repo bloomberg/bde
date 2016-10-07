@@ -12,11 +12,6 @@
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_severity.h>
-
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
@@ -29,6 +24,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_defaultallocatorguard.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_c_stdio.h>
@@ -1472,24 +1468,6 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
-
-    ball::DefaultObserver observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager& manager =
-            ball::LoggerManager::initSingleton(&observer, configuration);
-
-    ball::Severity::Level defaultPassthrough = ball::Severity::e_OFF;
-    if (verbose)
-        defaultPassthrough = ball::Severity::e_FATAL;
-    if (veryVerbose)
-        defaultPassthrough = ball::Severity::e_ERROR;
-    if (veryVeryVerbose)
-        defaultPassthrough = ball::Severity::e_TRACE;
-
-    manager.setDefaultThresholdLevels(ball::Severity::e_OFF,
-                                      defaultPassthrough,
-                                      ball::Severity::e_OFF,
-                                      ball::Severity::e_OFF);
 
     bslma::TestAllocator testAlloc("Test", veryVeryVeryVerbose);
     bslma::TestAllocator *Z = &testAlloc;

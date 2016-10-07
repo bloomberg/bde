@@ -1105,6 +1105,18 @@ void TestDriver::testCase3()
     ASSERT(BDLDFP_DECIMAL_DL(-42.0) == BDEC::Decimal128(-42ll)); //longlong
     ASSERT(BDLDFP_DECIMAL_DL( 42.0) == BDEC::Decimal128(42ull)); // ulongl
 
+    BDEC::Decimal128 cDefault;
+    BDEC::Decimal128 cExpectedDefault = BDLDFP_DECIMAL_DL(0e-6176);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal128 cZero(0);
+    BDEC::Decimal128 cExpectedZero = BDLDFP_DECIMAL_DL(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -1303,6 +1315,111 @@ void TestDriver::testCase3()
         in >> d1;
         ASSERT(d1 ==
               BDLDFP_DECIMAL_DL(-1.234567890123456789012345678901234e-24));
+    }
+
+    // bdldfp does not know how to parse128("NaN") etc.
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("nan", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Inf" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Inf" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in NaNa (bad)" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaNa", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(in.fail() == true);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Infinity", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Infinity", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal128>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infin (bad)" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Infin", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(in.fail() == true);
     }
 
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;
@@ -1964,6 +2081,18 @@ void TestDriver::testCase2()
     ASSERT(BDLDFP_DECIMAL_DD(-42.0) == BDEC::Decimal64(-42ll)); // longlong
     ASSERT(BDLDFP_DECIMAL_DD( 42.0) == BDEC::Decimal64(42ull)); // ulongl
 
+    BDEC::Decimal64 cDefault;
+    BDEC::Decimal64 cExpectedDefault = BDLDFP_DECIMAL_DD(0e-398);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal64 cZero(0);
+    BDEC::Decimal64 cExpectedZero = BDLDFP_DECIMAL_DD(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2109,6 +2238,39 @@ void TestDriver::testCase2()
         BDEC::Decimal64 d1;
         in >> d1;
         ASSERT(d1 == BDLDFP_DECIMAL_DD(-1.234567890123456e-24));
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal64>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal64>::max());
     }
 
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;
@@ -2743,6 +2905,18 @@ void TestDriver::testCase1()
     ASSERT(BDLDFP_DECIMAL_DF(-42.0) == BDEC::Decimal32(-42ll)); // longlong
     ASSERT(BDLDFP_DECIMAL_DF( 42.0) == BDEC::Decimal32(42ull)); // ulongl
 
+    BDEC::Decimal32 cDefault;
+    BDEC::Decimal32 cExpectedDefault = BDLDFP_DECIMAL_DF(0e-101);
+    ASSERTV(cDefault, cExpectedDefault,
+            0 == memcmp(&cDefault, &cExpectedDefault, sizeof(cDefault)));
+
+    BDEC::Decimal32 cZero(0);
+    BDEC::Decimal32 cExpectedZero = BDLDFP_DECIMAL_DF(0e0);
+    ASSERTV(cZero, cExpectedZero,
+            0 == memcmp(&cZero, &cExpectedZero, sizeof(cZero)));
+
+    ASSERTV(cDefault, cZero, 0 != memcmp(&cDefault, &cZero, sizeof(cDefault)));
+
     if (veryVeryVerbose) bsl::cout << "Binary FP" << bsl::endl;
 
     // Note that to test binary-float taking constructors I use numbers
@@ -2845,6 +3019,39 @@ void TestDriver::testCase1()
         BDEC::Decimal32 d1;
         in >> d1;
         ASSERT(d1 == BDLDFP_DECIMAL_DF(-8.327457e-24));
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("NaN", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 != d1);
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 > bsl::numeric_limits<BDEC::Decimal32>::max());
+    }
+
+    if (veryVerbose) bsl::cout << "Test stream in -Infinity" << bsl::endl;
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-Inf", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 < -bsl::numeric_limits<BDEC::Decimal32>::max());
     }
 
     if (veryVerbose) bsl::cout << "Test wide stream out" << bsl::endl;

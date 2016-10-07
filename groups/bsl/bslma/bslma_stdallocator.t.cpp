@@ -450,7 +450,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                    ASSERT(a1 == a2);
                    ASSERT(a1.allocator() != a2.allocator());
                    ASSERT(&countingAlloc == a2.allocator());
-                   ASSERT(1 == countingAlloc.blocksOutstanding())
+                   ASSERT(1 == countingAlloc.blocksOutstanding());
     }
 //..
 

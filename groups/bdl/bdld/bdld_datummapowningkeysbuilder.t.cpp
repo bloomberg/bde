@@ -674,34 +674,49 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The 'capacity' method returns the capacity of the datum map.
+        //: 1 The 'allocator' method returns the 'basicAllocator' specified at
+        //:   construction time.
         //:
-        //: 2 The 'keysCapacity' method returns the keys capacity of the datum
+        //: 2 The 'capacity' method returns the capacity of the datum map.
+        //:
+        //: 3 The 'keysCapacity' method returns the keys capacity of the datum
         //:    map.
         //:
-        //: 3 The 'size' method returns the current size of the datum map.
+        //: 4 The 'size' method returns the current size of the datum map.
         //
         // Plan:
         //: 1 Create a 'DatumMapOwningKeysBuilder' object. Append few elements
         //:    to the map and verify that the 'capacity', 'keysCapacity' and
-        //:    'seze' methods return expected values.  (C-1..3)
+        //:    'size' methods return expected values.  (C-1..4)
         //
         // Testing:
-        //    SizeType capacity() const;
-        //    SizeType keysCapacity() const;
-        //    SizeType size() const;
+        //    bslma::Allocator *allocator() const;
+        //    SizeType          capacity() const;
+        //    SizeType          keysCapacity() const;
+        //    SizeType          size() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
         if (verbose)
-            cout << "\nTesting 'capacity', 'keysCapacity' and 'size'." << endl;
+            cout << "\nTesting 'allocator', 'capacity', 'keysCapacity'"
+                    " and 'size'." << endl;
+
+        {
+            Obj        mB(0, 0, &defaultAllocator);
+            const Obj& B = mB;
+
+            ASSERT(B.allocator() == &defaultAllocator); // C-1
+        }
+
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
             Obj        mB(0, 0, &ta);
             const Obj& B = mB;
+
+            ASSERT(B.allocator() == &ta); // C-1
 
             ASSERT(0 == B.capacity());
             ASSERT(0 == B.keysCapacity());
@@ -749,7 +764,7 @@ int main(int argc, char *argv[])
         //: 6 The destructor releases all memory, allocated during map or it's
         //:   items creation, if map hasn't been committed.
         //:
-        //: 7 The destructor doesn't affect commited map.
+        //: 7 The destructor doesn't affect committed map.
         //:
         //: 8 Asserted precondition violations are detected when enabled.
         //
@@ -821,9 +836,10 @@ int main(int argc, char *argv[])
                 Obj        mB(0, 0, &ta);
                 const Obj& B = mB;
 
-                ASSERT(0 == B.capacity());
-                ASSERT(0 == B.keysCapacity());
-                ASSERT(0 == ta.numBytesInUse());
+                ASSERT(0             == B.capacity());
+                ASSERT(0             == B.keysCapacity());
+                ASSERT(0             == ta.numBytesInUse());
+                ASSERT(B.allocator() == &ta);
             }
 
             if (verbose) cout <<

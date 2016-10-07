@@ -1024,14 +1024,12 @@ struct AtomicOperations {
         // guarantee.
 
     static void decrementInt64(AtomicTypes::Int64 *atomicInt);
-        // Atomically decrement the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the sequential consistency memory
-        // ordering guarantee.
+        // Atomically decrement the specified 'atomicInt' by 1, providing the
+        // sequential consistency memory ordering guarantee.
 
     static void decrementInt64AcqRel(AtomicTypes::Int64 *atomicInt);
-        // Atomically decrement the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the acquire/release memory ordering
-        // guarantee.
+        // Atomically decrement the specified 'atomicInt' by 1, providing the
+        // acquire/release memory ordering guarantee.
 
     static Types::Int64 decrementInt64Nv(AtomicTypes::Int64 *atomicInt);
         // Atomically decrement the specified 'atomicInt' by 1 and return the

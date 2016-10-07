@@ -515,19 +515,19 @@ BSLS_IDENT("$Id: $")
 //
 //  status = mhs.insert(10);
 //  assert( 1    ==  mhs.size());
-//  assert(10    == *status.first)
+//  assert(10    == *status.first);
 //  assert(true  ==  status.second);
 //
 //  status = mhs.insert(10);
 //  assert( 1    ==  mhs.size());
-//  assert(10    == *status.first)
+//  assert(10    == *status.first);
 //  assert(false ==  status.second);
 //..
 // We can insert a different value (20) and thereby increase the set size to 2.
 //..
 //  status = mhs.insert(20);
 //  assert( 2    ==  mhs.size());
-//  assert(20    == *status.first)
+//  assert(20    == *status.first);
 //  assert(true  ==  status.second);
 //..
 // Each of the inserted values (10, 20) can be found in the set.
@@ -7418,8 +7418,7 @@ void bslstl::swap(bslstl::HashTable_ComparatorWrapper<FUNCTOR> &a,
 //: o A HashTable uses 'bslma' allocators if the parameterized 'ALLOCATOR' is
 //:     convertible from 'bslma::Allocator*'.
 
-namespace bslma
-{
+namespace bslma {
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
@@ -7439,8 +7438,7 @@ struct UsesBslmaAllocator<bslstl::HashTable_ImplParameters<KEY_CONFIG,
 
 }  // close namespace bslma
 
-namespace bslmf
-{
+namespace bslmf {
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,

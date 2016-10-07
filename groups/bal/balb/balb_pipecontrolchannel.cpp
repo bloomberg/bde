@@ -12,8 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 
-#include <ball_log.h>
-
 #include <bdlf_bind.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
@@ -22,6 +20,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -50,8 +49,6 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #endif
 
 namespace {
-
-const char LOG_CATEGORY[] = "BALB.PIPECONTROLCHANNEL";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 bsl::string describeWin32Error(DWORD lastError)
@@ -95,22 +92,19 @@ int PipeControlChannel::sendEmptyMessage()
 
 int PipeControlChannel::readNamedPipe()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     BSLS_ASSERT(INVALID_HANDLE_VALUE != d_impl.d_windows.d_handle);
 
-    BALL_LOG_TRACE << "Accepting next pipe client connection" << BALL_LOG_END;
+    BSLS_LOG_TRACE("Accepting next pipe client connection");
 
     if (!ConnectNamedPipe(d_impl.d_windows.d_handle, NULL)) {
-        BALL_LOG_TRACE << "Connecting to named pipe '" << d_pipeName
-                       << "': "
-                       << describeWin32Error(GetLastError())
-                       << BALL_LOG_END;
+        BSLS_LOG_TRACE("Connecting to named pipe '%s': %s",
+                       d_pipeName.c_str(),
+                       describeWin32Error(GetLastError()).c_str());
 
         DWORD lastError = GetLastError();
         if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
-            BALL_LOG_TRACE << "Failed to connect to named pipe '" << d_pipeName
-                           << "'"
-                           << BALL_LOG_END;
+            BSLS_LOG_TRACE("Failed to connect to named pipe '%s'", 
+                           d_pipeName.c_str());
             return -1;
         }
     }
@@ -140,10 +134,9 @@ int PipeControlChannel::readNamedPipe()
            }
         }
         else {
-            BALL_LOG_TRACE << "Failed to read from named pipe '" << d_pipeName
-                           << "': "
-                           << describeWin32Error(GetLastError())
-                           << BALL_LOG_END;
+            BSLS_LOG_TRACE("Failed read from named pipe '%s': %s",
+                           d_pipeName.c_str(),
+                           describeWin32Error(GetLastError()).c_str());
             break;
         }
     }
@@ -156,14 +149,11 @@ int PipeControlChannel::readNamedPipe()
 int
 PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
-    BALL_LOG_TRACE << "Creating named pipe '" << pipeName << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Creating named pipe '%s'", pipeName.c_str());
 
     if (bdls::PipeUtil::isOpenForReading(pipeName)) {
-        BALL_LOG_ERROR << "Named pipe '" << pipeName << "' already exists"
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Named pipe '%s' already exists",
+                       pipeName.c_str());
         return -2;
     }
 
@@ -178,10 +168,9 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                         NULL);
 
     if (INVALID_HANDLE_VALUE == d_impl.d_windows.d_handle) {
-        BALL_LOG_TRACE << "Failed to create named pipe '" << pipeName
-                       << "': "
-                       << describeWin32Error(GetLastError())
-                       << BALL_LOG_END;
+        BSLS_LOG_TRACE("Failed to create named pipe '%s': %s",
+                       d_pipeName.c_str(),
+                       describeWin32Error(GetLastError()).c_str());
         return -1;
     }
 
@@ -190,14 +179,12 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 
 void PipeControlChannel::destroyNamedPipe()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     CloseHandle(d_impl.d_windows.d_handle);
     d_impl.d_windows.d_handle = INVALID_HANDLE_VALUE;
 
-    BALL_LOG_TRACE << "Closed named pipe '" << d_pipeName << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Closed named pipe '%s'", d_pipeName.c_str());
 }
+
 }  // close package namespace
 
 #else
@@ -209,8 +196,6 @@ namespace balb {
 
 void PipeControlChannel::destroyNamedPipe()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     close(d_impl.d_unix.d_writeFd);
     close(d_impl.d_unix.d_readFd);
 
@@ -219,8 +204,7 @@ void PipeControlChannel::destroyNamedPipe()
 
     unlink(d_pipeName.c_str());
 
-    BALL_LOG_TRACE << "Destroyed pipe '" << d_pipeName << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Destroyed pipe '%s'", d_pipeName.c_str());
 }
 
 int PipeControlChannel::readNamedPipe()
@@ -235,7 +219,6 @@ int PipeControlChannel::readNamedPipe()
     // Since we cannot reliably set the named pipe to message mode on all *nix
     // platforms, we leave the pipe in byte stream mode and emulate RMSGN in
     // the implementation.
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     // A non-discarded message, or portion of a message, is left from the
     // previous invocation of this function.
@@ -272,28 +255,26 @@ int PipeControlChannel::readNamedPipe()
 
         if (0 >= rc) {
             if (EINTR == savedErrno) {
-                BALL_LOG_DEBUG << "EINTR polling pipe '"
-                               << d_pipeName << "'" << BALL_LOG_END;
+                BSLS_LOG_DEBUG("EINTR polling pipe '%s'", d_pipeName.c_str());
                 continue;
             }
-            BALL_LOG_ERROR << "Failed to poll pipe '"
-                           << d_pipeName << "', rc = " << rc
-                           << ", errno = " << savedErrno << ": "
-                           << bsl::strerror(savedErrno) << BALL_LOG_END;
+            BSLS_LOG_ERROR("Failed to poll pipe '%s', rc = %d, errno = %d: %s",
+                           d_pipeName.c_str(), rc, savedErrno, 
+                           bsl::strerror(savedErrno));
             return -1;                                                // RETURN
         }
 
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
-            BALL_LOG_TRACE << "Polled POLLERROR or POLLINVAL from file "
-                              "descriptor of pipe '"
-                           << d_pipeName << "', errno = " << savedErrno << ": "
-                           << bsl::strerror(savedErrno) << BALL_LOG_END;
+            BSLS_LOG_TRACE("Polled POLLERROR or POLLINVAL from file "
+                           "descriptor of pipe '%s', errno = %d: %s",
+                           d_pipeName.c_str(), savedErrno, 
+                           bsl::strerror(savedErrno));
             return -1;                                                // RETURN
         }
 
         if (fds.revents & POLLIN) {
-            BALL_LOG_TRACE << "Polled POLLIN from file descriptor of pipe '"
-                           << d_pipeName << "'" << BALL_LOG_END;
+            BSLS_LOG_TRACE("Polled POLLIN from file descriptor of pipe '%s'",
+                           d_pipeName.c_str());
 
             bsls::Types::Int64 bytesRead = read(d_impl.d_unix.d_readFd,
                                                 buffer,
@@ -302,32 +283,29 @@ int PipeControlChannel::readNamedPipe()
             savedErrno    = errno;
 
             if (0 == bytesRead) {
-                BALL_LOG_TRACE << "Zero bytes read from the pipe"
-                               << BALL_LOG_END;
+                BSLS_LOG_TRACE("Zero bytes read from the pipe");
                 continue;
             }
             else if (0 > bytesRead) {
-                BALL_LOG_ERROR << "Failed to read from pipe '"
-                               << d_pipeName
-                               << "', errno = " << savedErrno << ": "
-                               << bsl::strerror(savedErrno) << BALL_LOG_END;
+                BSLS_LOG_ERROR("Failed to read from pipe '%s', errno = %d: %s",
+                               d_pipeName.c_str(), savedErrno, 
+                               bsl::strerror(savedErrno));
                 return -1;                                            // RETURN
             }
             else {
-               BALL_LOG_TRACE << "Read data from pipe: '";
-               bsl::copy(buffer,
-                         buffer + bytesRead,
-                         bsl::ostream_iterator<char>(BALL_STREAM));
-               BALL_STREAM << "'" << BALL_LOG_END;
+                if (bsls::Log::severityThreshold() >= 
+                    bsls::LogSeverity::e_TRACE) {
+                    bsl::string readBytes(buffer, buffer + bytesRead);
+                    BSLS_LOG_TRACE("Read data from pipe: '%s'",
+                                   readBytes.c_str());
+                }
+                d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
+                bsl::vector<char>::iterator it =
+                    bsl::find(d_buffer.begin(), d_buffer.end(), '\n');
 
-               d_buffer.insert(d_buffer.end(), buffer, buffer + bytesRead);
-               bsl::vector<char>::iterator it = bsl::find(d_buffer.begin(),
-                                                          d_buffer.end(),
-                                                          '\n');
-
-               if (it != d_buffer.end()) {
-                   dispatchMessageUpTo(it);
-                   return 0;                                          // RETURN
+                if (it != d_buffer.end()) {
+                    dispatchMessageUpTo(it);
+                    return 0;                                         // RETURN
                }
             }
         }
@@ -346,7 +324,6 @@ PipeControlChannel::sendEmptyMessage()
 int
 PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 //  BSLS_ASSERT(0 == d_impl.d_unix.d_readFd);
 
     if (0 != d_impl.d_unix.d_readFd) {
@@ -358,10 +335,9 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
        // previous crash.  Check whether there is a reader on the pipe, in
        // which case fail; otherwise unlink the pipe and continue.
        if (bdls::PipeUtil::isOpenForReading(pipeName)) {
-           BALL_LOG_ERROR << "Named pipe "
-                             "'" << pipeName << "' "
-                             "is already in use by another process"
-                          << BALL_LOG_END;
+           BSLS_LOG_ERROR("Named pipe '%s' is already in use by another "
+                          "process", pipeName.c_str());
+
            return -2;                                                 // RETURN
        }
        bdls::FilesystemUtil::remove(pipeName.c_str());
@@ -371,10 +347,8 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
     bsl::string dirname;
     if (0 == bdls::PathUtil::getDirname(&dirname, pipeName)) {
         if (!bdls::FilesystemUtil::exists(dirname)) {
-            BALL_LOG_ERROR << "Named pipe directory "
-                              "'" << dirname << "' "
-                              "does not exist"
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Named pipe directory '%s' does not exist",
+                           dirname.c_str());
             return -3;                                                // RETURN
         }
     }
@@ -385,12 +359,8 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 
     if (0 != rc) {
         int savedErrno = errno;
-
-        BALL_LOG_ERROR << "Unable to create pipe "
-                          "'"          << rawPipeName               << "'"
-                          ": errno = " << savedErrno                << " "
-                          "("          << bsl::strerror(savedErrno) << ")"
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Unable to create pipe '%s'. errno = %d (%s)",
+                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
         return -4;                                                    // RETURN
     }
 
@@ -398,31 +368,20 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
 
     if (-1 == d_impl.d_unix.d_readFd) {
         int savedErrno = errno;
+        BSLS_LOG_ERROR("Unable to open pipe '%s' for reading. errno = %d (%s)",
+                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
 
-        BALL_LOG_ERROR << "Cannot open pipe "
-                          "'"           << rawPipeName               << "' "
-                          "for reading"
-                          ": errno = "  << savedErrno                << " "
-                          "("           << bsl::strerror(savedErrno) << ")"
-                       << BALL_LOG_END;
         return -5;                                                    // RETURN
     }
 
     d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY);
     if (-1 == d_impl.d_unix.d_writeFd) {
         int savedErrno = errno;
-
-        BALL_LOG_ERROR << "Failed to open named pipe "
-                          "'"           << rawPipeName               << "' "
-                          "for writing"
-                          ": errno = "  << savedErrno                << " "
-                          "("           << bsl::strerror(savedErrno) << ")"
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Unable to open pipe '%s' for writing. errno = %d (%s)",
+                       rawPipeName, savedErrno, bsl::strerror(savedErrno));
         return -6;                                                    // RETURN
     }
-
-    BALL_LOG_TRACE << "Created named pipe '" << rawPipeName << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Created named pipe '%s'", rawPipeName);
 
     return 0;
 }
@@ -462,24 +421,19 @@ PipeControlChannel::~PipeControlChannel()
 
 void PipeControlChannel::backgroundProcessor()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     while (d_isRunningFlag) {
-        if (0 != readNamedPipe()) {
-            BALL_LOG_WARN << "Error processing M-trap: "
-                             "unable to read from named pipe '"
-                          << d_pipeName << "'"
-                          << BALL_LOG_END;
+        if (0 != readNamedPipe()) {          
+            BSLS_LOG_WARN("Error processing M-trap: unable to read from named"
+                          " pipe '%s'", d_pipeName.c_str());
             return;                                                   // RETURN
         }
     }
 
-    BALL_LOG_TRACE << "The background thread has stopped" << BALL_LOG_END;
+    BSLS_LOG_TRACE("The background thread has stopped");
 }
 
 int PipeControlChannel::start(const bsl::string& pipeName)
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
 // BSLS_ASSERT(!d_isRunningFlag); // TBD: DOES createNamedPipe FAIL???
     if (d_isRunningFlag) {
@@ -495,9 +449,8 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 #endif
 
     if (0 != createNamedPipe(pipeName)) {
-         BALL_LOG_ERROR << "Unable to create named pipe '" << pipeName << "'"
-                        << BALL_LOG_END;
-         return 1;                                                    // RETURN
+        BSLS_LOG_ERROR("Unable to create named pipe '%s'", pipeName.c_str());
+        return 1;                                                    // RETURN
     }
 
     d_pipeName      = pipeName;
@@ -507,8 +460,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
          &d_thread,
          bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
-        BALL_LOG_ERROR << "Cannot create processing thread, rc = " << rc
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Cannot create processing thread, rc = %d", rc);
         d_isRunningFlag = false;
         return rc;                                                    // RETURN
     }
@@ -518,8 +470,6 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 
 void PipeControlChannel::shutdown()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     if (!d_isRunningFlag) {
         return;                                                       // RETURN
     }
@@ -540,23 +490,18 @@ void PipeControlChannel::shutdown()
 
     int rc = sendEmptyMessage();
     if (0 != rc) {
-        BALL_LOG_ERROR << "Failed to properly close named pipe "
-                          "'"       << d_pipeName << "'"
-                          ": rc = " << rc
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Failed to properly close named pipe '%s': rc = ",
+                       d_pipeName.c_str(), rc);
     }
 }
 
 void PipeControlChannel::dispatchMessageUpTo(
                                        const bsl::vector<char>::iterator& iter)
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     bslstl::StringRef stringRef(&(*d_buffer.begin()),
                                 static_cast<int>(iter - d_buffer.begin()));
-    BALL_LOG_TRACE << "Assembled complete message '"
-                   << (bsl::string)stringRef << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Assembled complete message '%s'", 
+                   ((bsl::string)stringRef).c_str());
 
     if (!stringRef.isEmpty()) {
         d_callback(stringRef);

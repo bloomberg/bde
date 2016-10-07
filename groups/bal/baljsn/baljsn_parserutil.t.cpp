@@ -19,10 +19,13 @@
 #include <bsl_cstring.h>
 
 #include <bdlb_printmethods.h>
+#include <bdlb_float.h>
 
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlsb_fixedmeminstreambuf.h>
+
+#include <bdldfp_decimalutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -270,8 +273,8 @@ int main(int argc, char *argv[])
         //   static int getValue(bdldfp::Decimal64 *v, bslstl::StringRef s);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
-                               << "\n============================="
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for Decimal64"
+                               << "\n================================"
                                << bsl::endl;
         {
             typedef bdldfp::Decimal64 Type;
@@ -287,11 +290,71 @@ int main(int argc, char *argv[])
                 // line       input   exp           isValid
                 // ----       -----   ---           -------
                 {  L_,         "0",   BDLDFP_DECIMAL_DD(0.0),  true },
+                {  L_,        "-0",   BDLDFP_DECIMAL_DD(0.0),  true },
+                {  L_,        "0.0",  BDLDFP_DECIMAL_DD(0.0),  true },
+                {  L_,        "-0.0", BDLDFP_DECIMAL_DD(0.0),  true },
                 {  L_,         "1",   BDLDFP_DECIMAL_DD(1.0),  true },
                 {  L_,        "-1",   BDLDFP_DECIMAL_DD(-1.0), true },
                 {  L_,   "-9.876543210987654e307",
                    BDLDFP_DECIMAL_DD(-9.876543210987654e307),  true },
                 {  L_,      "-0.1",   BDLDFP_DECIMAL_DD(-0.1), true },
+
+                {  L_,    "\"NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NaN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-nan\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NAN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"INF\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"inf\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+INF\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+inf\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-INF\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-inf\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-infinity\"",
+                                      -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
 
                 {  L_,         "-",   ERROR_VALUE,  false },
                 {  L_,       "E-1",   ERROR_VALUE,  false },
@@ -325,7 +388,13 @@ int main(int argc, char *argv[])
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                if (bdldfp::DecimalUtil::isNan(EXP)) {
+                    LOOP_ASSERT(LINE, bdldfp::DecimalUtil::isNan(value));
+                }
+                else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
@@ -1673,7 +1742,7 @@ int main(int argc, char *argv[])
   //----    -----                    ----    ---   ---    --  ------ -------
   {  L_, "\"00:00:00.000+00:00\"",     0,     0,    0,    0,      0,  true   },
   {  L_, "\"00:00:00.000Z\"",          0,     0,    0,    0,      0,  true   },
-  {  L_, "\"00:00:00.000z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"00:00:00.000z\"",          0,     0,    0,    0,      0,  true   },
   {  L_, "\"00:00:00.000+00:45\"",     0,     0,    0,    0,     45,  true   },
   {  L_, "\"00:00:00.000+23:59\"",     0,     0,    0,    0,   1439,  true   },
   {  L_, "\"00:00:00.000-23:59\"",     0,     0,    0,    0,  -1439,  true   },
@@ -1684,13 +1753,13 @@ int main(int argc, char *argv[])
 
   {  L_, "\"00:00:01.000+00:00\"",     0,     0,    1,    0,      0,  true   },
   {  L_, "\"00:00:01.000Z\"",          0,     0,    1,    0,      0,  true   },
-  {  L_, "\"00:00:01.000z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"00:00:01.000z\"",          0,     0,    1,    0,      0,  true   },
   {  L_, "\"00:00:01.000+23:59\"",     0,     0,    1,    0,   1439,  true   },
   {  L_, "\"00:00:01.000-23:59\"",     0,     0,    1,    0,  -1439,  true   },
 
   {  L_, "\"00:00:59.000+00:00\"",     0,     0,   59,    0,      0,  true   },
   {  L_, "\"00:00:59.000Z\"",          0,     0,   59,    0,      0,  true   },
-  {  L_, "\"00:00:59.000z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"00:00:59.000z\"",          0,     0,   59,    0,      0,  true   },
   {  L_, "\"00:00:59.000+23:59\"",     0,     0,   59,    0,   1439,  true   },
   {  L_, "\"00:00:59.000-23:59\"",     0,     0,   59,    0,  -1439,  true   },
 
@@ -1699,7 +1768,7 @@ int main(int argc, char *argv[])
 
   {  L_, "\"01:23:59.059+00:00\"",     1,    23,   59,   59,      0,  true   },
   {  L_, "\"01:23:59.059Z\"",          1,    23,   59,   59,      0,  true   },
-  {  L_, "\"01:23:59.059z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"01:23:59.059z\"",          1,    23,   59,   59,      0,  true   },
   {  L_, "\"01:23:59.059+23:59\"",     1,    23,   59,   59,   1439,  true   },
   {  L_, "\"01:23:59.059-23:59\"",     1,    23,   59,   59,  -1439,  true   },
 
@@ -1708,13 +1777,13 @@ int main(int argc, char *argv[])
 
   {  L_, "\"23:59:59.999+00:00\"",    23,    59,   59,  999,      0,  true   },
   {  L_, "\"23:59:59.999Z\"",         23,    59,   59,  999,      0,  true   },
-  {  L_, "\"23:59:59.999z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"23:59:59.999z\"",         23,    59,   59,  999,      0,  true   },
   {  L_, "\"23:59:59.999+23:59\"",    23,    59,   59,  999,   1439,  true   },
   {  L_, "\"23:59:59.999-23:59\"",    23,    59,   59,  999,  -1439,  true   },
 
   {  L_, "\"24:00:00.000+00:00\"",    24,     0,    0,    0,      0,  true   },
   {  L_, "\"24:00:00.000Z\"",         24,     0,    0,    0,      0,  true   },
-  {  L_, "\"24:00:00.000z\"",         24,     0,    0,    0,      0,  false  },
+  {  L_, "\"24:00:00.000z\"",         24,     0,    0,    0,      0,  true   },
 
   {  L_, "\"GARBAGE\"",               24,     0,    0,    0,      0,  false  },
   {  L_, "\".9999\"",                 24,     0,    0,    0,      0,  false  },
@@ -2083,6 +2152,9 @@ int main(int argc, char *argv[])
                 //line    input                       exp    isValid
                 //----    -----                       ---    -------
                 {  L_,      "0",                      0.0,     true    },
+                {  L_,     "-0",                      0.0,     true    },
+                {  L_,     "0.0",                     0.0,     true    },
+                {  L_,     "-0.0",                    0.0,     true    },
                 {  L_,      "1",                      1.0,     true    },
                 {  L_,     "-1",                     -1.0,     true    },
                 {  L_,     "0.1",                     0.1,     true    },
@@ -2141,6 +2213,63 @@ int main(int argc, char *argv[])
                 {  L_,    "1E+1",                     10,       true    },
                 {  L_,    "1e-1",                    0.1,       true    },
                 {  L_,    "1E-1",                    0.1,       true    },
+
+                {  L_,    "\"NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NaN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-nan\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NAN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"INF\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"inf\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+INF\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+inf\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-INF\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-inf\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-infinity\"",
+                                      -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
 
                 {  L_,  "-",          ERROR_VALUE,   false   },
                 {  L_,  ".5",         ERROR_VALUE,   false   },
@@ -2201,7 +2330,13 @@ int main(int argc, char *argv[])
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                if (bdlb::Float::isNan(EXP)) {
+                    LOOP_ASSERT(LINE, bdlb::Float::isNan(value));
+                }
+                else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
@@ -2257,6 +2392,9 @@ int main(int argc, char *argv[])
                 //line    input                        exp    isValid
                 //----    -----                        ---    -------
                 {  L_,      "0",                      0.0f,     true    },
+                {  L_,     "-0",                      0.0f,     true    },
+                {  L_,     "0.0",                     0.0f,     true    },
+                {  L_,     "-0.0",                    0.0f,     true    },
                 {  L_,      "1",                      1.0f,     true    },
                 {  L_,     "-1",                     -1.0f,     true    },
                 {  L_,     "0.1",                     0.1f,     true    },
@@ -2316,6 +2454,63 @@ int main(int argc, char *argv[])
                 {  L_,    "1e-1",                   0.1f,       true    },
                 {  L_,    "1E-1",                   0.1f,       true    },
 
+                {  L_,    "\"NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"+NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NaN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-nan\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"-NAN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
+                                                                true    },
+
+                {  L_,    "\"INF\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"inf\"",  bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+INF\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+inf\"", bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"+infinity\"",
+                                      bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-INF\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-inf\"", -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
+                {  L_,    "\"-infinity\"",
+                                      -bsl::numeric_limits<Type>::infinity(),
+                                                                true    },
+
                 {  L_,  "-",          ERROR_VALUE,   false   },
                 {  L_,  ".5",         ERROR_VALUE,   false   },
                 {  L_,  "-.5",        ERROR_VALUE,   false   },
@@ -2368,7 +2563,13 @@ int main(int argc, char *argv[])
                 else {
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                if (bdlb::Float::isNan(EXP)) {
+                    LOOP_ASSERT(LINE, bdlb::Float::isNan(value));
+                }
+                else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
