@@ -671,11 +671,11 @@ void testCase16()
         bsl::pair<int, long> p;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                           x = bslmf::MovableRefUtil::move(p)));
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_SPECIFICATION(x.swap(p)));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(p)));
     }
 }
 
