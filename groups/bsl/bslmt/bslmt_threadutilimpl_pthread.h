@@ -68,6 +68,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadattributes.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -76,12 +80,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_PTHREAD
@@ -194,6 +198,11 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // platform / policy combinations, 'getMinSchedulingPriority(policy)'
         // and 'getMaxSchedulingPriority(policy)' return the same value.
 
+    static void getThreadName(bsl::string *threadName);
+        // Load the name of the current thread into the specified 'threadName'.
+        // Note that this method clears '*threadName' on all platforms other
+        // than Linux and Darwin.
+
     static int join(Handle& threadHandle, void **status = (void**)0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
@@ -214,6 +223,13 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // and system timer resolution.  Note that the actual time suspended
         // depends on many factors including system scheduling, and system
         // timer resolution.
+
+    static void setThreadName(const bslstl::StringRef& threadName);
+        // Set the name of the current thread to the specified 'threadName'.
+        // On all platforms other than Linux and Darwin this method has no
+        // effect.  Note that on those two platforms 'threadName' will be
+        // truncated to a length of 15 bytes, not including the terminating
+        // '\0'.
 
     static int sleep(const bsls::TimeInterval&  sleepTime,
                      bsls::TimeInterval        *unsleptTime = 0);
@@ -248,12 +264,12 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // Suspend execution of the current thread until the specified
         // 'absoluteTime'.  Optionally specify 'retryOnSignalInterrupt'
         // indicating whether to put this thread to sleep again if the
-        // operating system interupts the sleep because of a signal.
+        // operating system interrupts the sleep because of a signal.
         // Optionally specify 'clockType' which determines the epoch from which
         // the interval 'absoluteTime' is measured (see {'Supported
         // Clock-Types'} in the component documentation).  Return 0 on success,
         // and a non-zero value otherwise.  If 'retryOnSignalInterrupt' is
-        // 'true', an interupt from a signal will be ignored and the current
+        // 'true', an interrupt from a signal will be ignored and the current
         // the thread will be put back to sleep until 'absoluteTime', otherwise
         // this call will return 0 to the calling thread immediately.  The
         // behavior is undefined unless 'absoluteTime' represents a time after

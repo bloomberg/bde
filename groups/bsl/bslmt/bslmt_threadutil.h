@@ -248,9 +248,9 @@ BSLS_IDENT("$Id: $")
 //
 //      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
 //      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
-//                                                MostUrgentThreadFunction,
-//                                                FairlyUrgentThreadFunction,
-//                                                LeastUrgentThreadFunction };
+//                                                MostUrgentThreadFunctor,
+//                                                FairlyUrgentThreadFunctor,
+//                                                LeastUrgentThreadFunctor };
 //      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
 //
 //      bslmt::ThreadAttributes attributes;
@@ -284,6 +284,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_entrypointfunctoradapter.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
 #endif
@@ -296,8 +300,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutilimpl_win32.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
-#include <bslmt_platform.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -312,16 +320,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -354,10 +358,13 @@ struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
     // managing threads.
 
-    // TYPES
+  private:
+    // PRIVATE TYPES
     typedef ThreadUtilImpl<Platform::ThreadPolicy> Imp;
-        // Platform-specific implementation type.  Do not use directly.
+        // Platform-specific implementation type.
 
+  public:
+    // PUBLIC TYPES
     typedef Imp::Handle                            Handle;
         // Thread handle type.  Use this type to refer to a thread in a
         // platform-independent way.
@@ -403,17 +410,18 @@ struct ThreadUtil {
                       ThreadFunction           function,
                       void                    *userData);
         // Create a new thread of program control whose entry point will be the
-        // specified 'function', and which will be passed 'userData' as its
-        // sole argument, and load into the specified 'handle' an identifier
-        // that may be used to refer to this thread in calls to other
-        // 'ThreadUtil' methods.  Optionally specify 'attributes' describing
-        // the properties for the new thread to create.  If 'attributes' is not
-        // supplied, a default 'ThreadAttributes' object is used.  Return 0 on
+        // specified 'function', and which will be passed the specified
+        // 'userData' as its sole argument, and load into the specified
+        // 'handle' an identifier that may be used to refer to this thread in
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Use the global allocator to supply memory.  Return 0 on
         // success, and a non-zero value otherwise.  'bslmt::Configuration' is
         // used to determine the created thread's default stack-size if either
         // 'attributes' is not supplied or if 'attributes.stackSize()' has the
-        // unset value.  The behavior is undefined unless unless 'attributes',
-        // if specified, has a 'stackSize' that is either greater than 0 or
+        // unset value.  The behavior is undefined unless 'attributes', if
+        // specified, has a 'stackSize' that is either greater than 0 or
         // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
         // explicitly "detached" (by invoking the 'detach' class method with
         // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
@@ -422,7 +430,6 @@ struct ThreadUtil {
         // to either explicitly provide a stack size attribute, or configure a
         // 'bslmt'-wide default using 'bslmt::Configuration', because the
         // default stack size is surprisingly small on some platforms.
-
 
     template <class INVOKABLE>
     static int create(Handle                  *handle,
@@ -435,25 +442,56 @@ struct ThreadUtil {
         // the the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
-        // 'attributes' describing the properties for the new thread to create.
-        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
-        // is used.  Return 0 on success, and a non-zero value otherwise.
-        // 'function' shall be a reference to a type, 'INVOKABLE', that can be
-        // copy-constructed, and where the expression '(void)function()' will
-        // execute a function call (i.e., either a 'void()()' function, or a
-        // functor object implementing 'void operator()()').
-        // 'bslmt::Configuration' is used to determine the created thread's
-        // default stack-size if either 'attributes' is not supplied or if
-        // 'attributes.stackSize()' has the unset value.  The behavior is
-        // undefined unless unless 'attributes', if specified, has a
-        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
-        // Note that unless the created thread is explicitly "detached" (by
-        // invoking the 'detach' class method with 'handle') or the
-        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
-        // made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that users are encouraged to either
-        // explicitly provide a stack size attribute, or configure a
-        // 'bslmt'-wide default using 'bslmt::Configuration',  because the
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Use the global allocator to supply memory.  Return 0 on
+        // success, and a non-zero value otherwise.  'function' shall be a
+        // reference to a type, 'INVOKABLE', that can be copy-constructed, and
+        // where the expression '(void)function()' will execute a function call
+        // (i.e., either a 'void()()' function, or a functor object
+        // implementing 'void operator()()').  'bslmt::Configuration' is used
+        // to determine the created thread's default stack-size if either
+        // 'attributes' is not supplied or if 'attributes.stackSize()' has the
+        // unset value.  The behavior is undefined unless 'attributes', if
+        // specified, has a 'stackSize' that is either greater than 0 or
+        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
+        // explicitly "detached" (by invoking the 'detach' class method with
+        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
+        // to 'join' must be made to reclaim any system resources associated
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
+        // default stack size is surprisingly small on some platforms.
+
+    static int createWithAllocator(Handle                  *handle,
+                                   ThreadFunction           function,
+                                   void                    *userData,
+                                   bslma::Allocator        *allocator);
+    static int createWithAllocator(Handle                  *handle,
+                                   const ThreadAttributes&  attributes,
+                                   ThreadFunction           function,
+                                   void                    *userData,
+                                   bslma::Allocator        *allocator);
+        // Create a new thread of program control whose entry point will be the
+        // specified 'function', and which will be passed the specified
+        // 'userData' as its sole argument, and load into the specified
+        // 'handle' an identifier that may be used to refer to this thread in
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Use the specified 'allocator' to supply memory.  Return 0 on
+        // success, and a non-zero value otherwise.  'bslmt::Configuration' is
+        // used to determine the created thread's default stack-size if either
+        // 'attributes' is not supplied or if 'attributes.stackSize()' has the
+        // unset value.  The behavior is undefined unless 'attributes', if
+        // specified, has a 'stackSize' that is either greater than 0 or
+        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
+        // explicitly "detached" (by invoking the 'detach' class method with
+        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
+        // to 'join' must be made to reclaim any system resources associated
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
         // default stack size is surprisingly small on some platforms.
 
     template <class INVOKABLE>
@@ -470,9 +508,9 @@ struct ThreadUtil {
         // to supply memory to copy 'function'), and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
-        // 'attributes' describing the properties for the new thread to create.
-        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
-        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // 'attributes' describing the properties for the new thread.  If
+        // 'attributes' is not supplied, a default 'ThreadAttributes' object is
+        // used.  Return 0 on success, and a non-zero value otherwise.
         // 'function' shall be a reference to a type, 'INVOKABLE', that can be
         // copy-constructed, and where the expression '(void)function()' will
         // execute a function call (i.e., either a 'void()()' function, or a
@@ -480,18 +518,17 @@ struct ThreadUtil {
         // 'bslmt::Configuration' is used to determine the created thread's
         // default stack-size if either 'attributes' is not supplied or if
         // 'attributes.stackSize()' has the unset value.  The behavior is
-        // undefined unless unless 'attributes', if specified, has a
-        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
-        // Note that unless the created thread is explicitly "detached" (by
-        // invoking the 'detach' class method with 'handle') or the
-        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
-        // made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the lifetime of 'allocator'
-        // must exceed the lifetime of the thread.  Also note that users are
-        // encouraged to either explicitly provide a stack size attribute, or
-        // configure a 'bslmt'-wide default using 'bslmt::Configuration',
-        // because the default stack size is surprisingly small on some
-        // platforms.
+        // undefined unless 'attributes', if specified, has a 'stackSize' that
+        // is either greater than 0 or 'e_UNSET_STACK_SIZE'.  Note that unless
+        // the created thread is explicitly "detached" (by invoking the
+        // 'detach' class method with 'handle') or the 'k_CREATE_DETACHED'
+        // attribute is specified, a call to 'join' must be made to reclaim any
+        // system resources associated with the newly-created thread.  Also
+        // note that the lifetime of 'allocator' must exceed the lifetime of
+        // the thread.  Also note that users are encouraged to either
+        // explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
+        // default stack size is surprisingly small on some platforms.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
@@ -526,6 +563,11 @@ struct ThreadUtil {
         // platform / policy combinations, 'getMinSchedulingPriority(policy)'
         // and 'getMaxSchedulingPriority(policy)' return the same value.
 
+    static void getThreadName(bsl::string *threadName);
+        // Load the name of the current thread into the specified
+        // '*threadName'.  Note that this method clears '*threadName' on all
+        // platforms other than Linux and Darwin.
+
     static int join(Handle& threadHandle, void **status = 0);
         // Suspend execution of the current thread until the thread referred to
         // by the specified 'threadHandle' terminates, and reclaim any system
@@ -541,6 +583,13 @@ struct ThreadUtil {
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
         // resolution, and may be significantly longer than the time requested.
+
+    static void setThreadName(const bslstl::StringRef& threadName);
+        // Set the name of the current thread to the specified 'threadName'.
+        // On all platforms other than Linux and Darwin this method has no
+        // effect.  Note that on those two platforms 'threadName' will be
+        // truncated to a length of 15 bytes, not including the terminating
+        // '\0'.
 
     static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
@@ -655,6 +704,8 @@ struct ThreadUtil {
         // note that this value is valid only until the thread terminates, and
         // may be reused thereafter.
 
+
+
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
     static int createKey(Key *key, Destructor threadKeyCleanupFunction);
@@ -714,19 +765,12 @@ struct ThreadUtil {
 
 // CLASS METHODS
 inline
-int bslmt::ThreadUtil::create(Handle                  *handle,
-                              const ThreadAttributes&  attributes,
-                              ThreadFunction           function,
-                              void                    *userData)
-{
-    return Imp::create(handle, attributes, function, userData);
-}
-
-inline
 int bslmt::ThreadUtil::create(Handle         *handle,
                               ThreadFunction  function,
                               void           *userData)
 {
+    BSLS_ASSERT_SAFE(handle);
+
     return Imp::create(handle, function, userData);
 }
 
@@ -735,6 +779,8 @@ inline
 int bslmt::ThreadUtil::create(Handle           *handle,
                               const INVOKABLE&  function)
 {
+    BSLS_ASSERT_SAFE(handle);
+
     return createWithAllocator(handle,
                                function,
                                bslma::Default::globalAllocator());
@@ -746,10 +792,28 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
                               const INVOKABLE&         function)
 {
+    BSLS_ASSERT_SAFE(handle);
+
     return createWithAllocator(handle,
                                attributes,
                                function,
                                bslma::Default::globalAllocator());
+}
+
+inline
+int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
+                                           ThreadFunction           function,
+                                           void                    *userData,
+                                           bslma::Allocator        *allocator)
+{
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_OPT(allocator);
+
+    // 'allocator' is unused in this function, which is provided for symmetry
+    // and in case this function comes to need an allocator at sometime in the
+    // future.
+
+    return Imp::create(handle, function, userData);
 }
 
 template <class INVOKABLE>
@@ -759,14 +823,19 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            const INVOKABLE&         function,
                                            bslma::Allocator        *allocator)
 {
-    bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
-    EntryPointFunctorAdapterUtil::allocateAdapter(
-                                   &threadData,
-                                   function,
-                                   bslma::Default::globalAllocator(allocator));
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_OPT(allocator);
 
-    int rc = create(handle, attributes, bslmt_EntryPointFunctorAdapter_invoker,
-                    threadData.ptr());
+    bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
+    EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                                                  function,
+                                                  attributes.threadName(),
+                                                  allocator);
+
+    int rc = Imp::create(handle,
+                         attributes,
+                         bslmt_EntryPointFunctorAdapter_invoker,
+                         threadData.ptr());
     if (0 == rc) {
         threadData.release();
     }
@@ -779,14 +848,17 @@ int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
                                            const INVOKABLE&  function,
                                            bslma::Allocator *allocator)
 {
-    bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
-    EntryPointFunctorAdapterUtil::allocateAdapter(
-                                   &threadData,
-                                   function,
-                                   bslma::Default::globalAllocator(allocator));
+    BSLS_ASSERT_SAFE(handle);
+    BSLS_ASSERT_OPT(allocator);
 
-    int rc = create(handle, bslmt_EntryPointFunctorAdapter_invoker,
-                    threadData.ptr());
+    bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
+    EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+                                                  function,
+                                                  bslstl::StringRef(),
+                                                  allocator);
+
+    int rc = Imp::create(handle, bslmt_EntryPointFunctorAdapter_invoker,
+                         threadData.ptr());
     if (0 == rc) {
         threadData.release();
     }
@@ -820,6 +892,14 @@ int bslmt::ThreadUtil::getMaxSchedulingPriority(
 }
 
 inline
+void bslmt::ThreadUtil::getThreadName(bsl::string *threadName)
+{
+    BSLS_ASSERT_SAFE(threadName);
+
+    return Imp::getThreadName(threadName);
+}
+
+inline
 int bslmt::ThreadUtil::join(Handle& threadHandle, void **status)
 {
     return Imp::join(threadHandle, status);
@@ -829,6 +909,12 @@ inline
 void bslmt::ThreadUtil::microSleep(int microseconds, int seconds)
 {
     Imp::microSleep(microseconds, seconds);
+}
+
+inline
+void bslmt::ThreadUtil::setThreadName(const bslstl::StringRef& threadName)
+{
+    Imp::setThreadName(threadName);
 }
 
 inline
@@ -842,7 +928,7 @@ void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
                                    bsls::SystemClockType::Enum clockType)
 {
     int status = Imp::sleepUntil(absoluteTime, clockType);
-    (void) status;  // Suppress a unused variable error.
+    (void) status;  // Suppress an unused variable error.
     BSLS_ASSERT(0 == status);
 }
 
