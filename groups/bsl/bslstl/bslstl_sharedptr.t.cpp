@@ -5878,7 +5878,11 @@ void Harness::testCase40(int value)
         P(value)
     }
 
-    // N4594: page 590: 20.10.2.2 Class template shared_ptr
+    if (verbose) {
+        printf("bsl::shared_ptr<T>\n");
+    }
+
+    // N4594: page 590: 20.10.2.2 Class template 'shared_ptr'
 
     // page 590
     //..
@@ -5916,7 +5920,7 @@ void Harness::testCase40(int value)
         bsl::nullptr_t     n;
         ASSERT(true
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
-#endif
+#endif // Per AJM
     }
 
     // page 590
@@ -5972,11 +5976,11 @@ void Harness::testCase40(int value)
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator*()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator->()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.unique()));
-// XXX  ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.operator BoolType()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.get()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator*()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator->()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.unique()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(static_cast<bool>(X)));
     }
 
     // page 591 - 592
@@ -6100,19 +6104,148 @@ void Harness::testCase40(int value)
     //..
 
     {
-#if 0 // TBD
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
 
-        bsls::Types::Int64      counter;
-        bsls::Types::Int64  copyCounter;                  
-        MyTestDerivedObject mtdo(&counter, &copyCounter);
-        MyTestDeleter       mtd;
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
+    }
+   
+    if (verbose) {
+        printf("bsl::weak_ptr<T>\n");
+    }
 
-        bsl::shared_ptr<T> mP(&mtdo, &mtd);
-        const bsl::shared_ptr<T>& P = mP;
+    // N4594: page 598: 20.10.2.3 Class template weak_ptr [util.smartptr.weak]
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
-                                       bsl::get_deleter<MyTestDeleter, T>(P)));
-#endif // 0 TBD
+    // page 599
+    //..
+    //  // 20.10.2.3.1, constructors
+    //  constexpr weak_ptr() noexcept;
+    //  template<class Y> weak_ptr(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y>&& r) noexcept;
+    //..
+    
+    {
+        {
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
+        }
+        {
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> r;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+        {
+            bsl::weak_ptr<Y> r;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.3, assignment
+    //  weak_ptr& operator=(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y> const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr& operator=(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y>&& r) noexcept;
+    //..
+
+    {   
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T>   mX;
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T>  r;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y>  r;
+
+            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.4, modifiers
+    //  void swap(weak_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> x;
+        bsl::weak_ptr<T> r;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(r)));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reset()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.5, observers
+    //  long use_count() const noexcept;
+    //  bool expired() const noexcept;
+    //  shared_ptr<T> lock() const noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& R = mR;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.use_count()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.expired()));
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.lock()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.6, specialized algorithms
+    //  template<class T> void swap(weak_ptr<T>& a, weak_ptr<T>& b) noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> a;
+        bsl::weak_ptr<T> b;
+
+        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(a, b)));
     }
 }
 
@@ -11977,7 +12110,7 @@ int main(int argc, char *argv[])
 
             // COMPARISON SHR PTR TO SHR PTR
         ASSERT(!(ptrNil == ptr1));
-        ASSERT(ptrNil != ptr1);
+        ASSERT(  ptrNil != ptr1);
 
             // COMPARISON SHR PTR TO BOOL
         ASSERT(static_cast<bool>(ptrNil) == false);
