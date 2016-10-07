@@ -1220,7 +1220,7 @@ template <std::size_t N>
 bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
 {
     for (std::size_t i = 0; i < N / k_BITS_PER_INT; ++i) {
-        if (d_data[i] != 0xFFFFFFFFu) {
+        if (d_data[i] != ~0u) {
             return false;
         }
     }
