@@ -271,10 +271,11 @@ class NullableValue {
                   bslma::Allocator                 *basicAllocator);
         // Create a nullable object having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  The contents of 'original' are moved to the newly-created
-        // object.  'original' is left in a valid but unspecified state.
-        // Note that this method will fail to compile if 'TYPE' does not take
-        // an optional allocator at construction.
+        // memory.  If 'basicAllocator' is 0, the default allocator is used.
+        // The contents of 'original' are moved to the newly-created object.
+        // 'original' is left in a valid but unspecified state.  Note that this
+        // method will fail to compile if 'TYPE' does not take an optional
+        // allocator at construction.
 
     template <class BDE_OTHER_TYPE>
     NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
