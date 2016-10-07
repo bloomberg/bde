@@ -1225,10 +1225,11 @@ bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
         }
     }
 
-    for (std::size_t i = N - (N % k_BITS_PER_INT); i < N; ++i) {
-        if (!operator[](i)) {
-            return false;
-        }
+    const std::size_t modulo = N % k_BITS_PER_INT;
+
+    if (modulo) {
+        const std::size_t mask = ((1u << modulo) - 1);
+        return d_data[k_BITSETSIZE - 1] == mask;
     }
 
     return true;
