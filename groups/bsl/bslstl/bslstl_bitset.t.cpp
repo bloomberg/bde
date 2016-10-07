@@ -386,7 +386,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(v.none());
         ASSERT(!v.any());
         BSLMF_ASSERT(TESTSIZE == v.size());
-        BSLMF_ASSERT(0 == v[0]);
+        BSLMF_ASSERT(0 == TESTSIZE || 0 == v[0]);
     }
 #endif
 }
