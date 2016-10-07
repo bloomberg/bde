@@ -1219,7 +1219,19 @@ bool bitset<N>::operator!=(const bitset& rhs) const BSLS_CPP11_NOEXCEPT
 template <std::size_t N>
 bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
 {
-    return count() == N;
+    for (std::size_t i = 0; i < N / k_BITS_PER_INT; ++i) {
+        if (d_data[i] != 0xFFFFFFFFu) {
+            return false;
+        }
+    }
+
+    for (std::size_t i = N - (N % k_BITS_PER_INT); i < N; ++i) {
+        if (!operator[](i)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 template <std::size_t N>
@@ -1247,7 +1259,7 @@ template <std::size_t N>
 inline
 bool bitset<N>::none() const BSLS_CPP11_NOEXCEPT
 {
-    return !any();
+    return 0 == N || !any();
 }
 
 template <std::size_t N>
