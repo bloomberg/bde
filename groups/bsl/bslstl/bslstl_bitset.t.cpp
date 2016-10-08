@@ -477,9 +477,12 @@ void testCase13()
         bsl::bitset<32> lhs;
         bsl::bitset<32> rhs;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
     }
 
     // page 557
@@ -502,21 +505,28 @@ void testCase13()
         size_t          j = 0;
         bool            x = true;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
                                                      // 'reference()' (private)
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
                                                               // '~reference()'
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
                                                            // 'operator=(bool)'
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
                                                // 'operator=(const reference&)'
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
     }
 
     // page 557: 20.8.1 constructors:
@@ -527,8 +537,10 @@ void testCase13()
     {
         unsigned long long val = 1;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
     }
 
     // page 557: 20.8.2 bitset operations:
@@ -548,17 +560,26 @@ void testCase13()
         bsl::bitset<32> rhs;
         size_t          pos;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
     }
    
     // page 557-558: element access:
@@ -579,18 +600,27 @@ void testCase13()
         bsl::bitset<32> rhs;
         size_t          pos;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
     }
 }
 

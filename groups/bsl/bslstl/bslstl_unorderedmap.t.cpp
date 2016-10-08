@@ -7295,7 +7295,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
 
     // page 883:
@@ -7312,14 +7313,20 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
     }
 
     // page 883:
@@ -7333,9 +7340,12 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
     }
 
     // page 883:
@@ -7355,7 +7365,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
     }
   
     // page 884:
@@ -7368,8 +7379,10 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
     }
 
     // page 884:
@@ -7385,8 +7398,10 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
     }
 
     // page 884:

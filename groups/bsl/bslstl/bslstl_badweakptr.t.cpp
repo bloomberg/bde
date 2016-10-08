@@ -136,7 +136,8 @@ int main(int argc, char *argv[])
         //     } // namespace std
         //..
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bslstl::BadWeakPtr()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bslstl::BadWeakPtr()));
 
       } break;
       case 1: {

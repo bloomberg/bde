@@ -3185,7 +3185,8 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(d = MoveUtil::move(x)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
     }
 
     // page 836
@@ -3208,19 +3209,32 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     {
         Obj d; const Obj& D = d;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.begin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.end()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.end()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rend()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rend()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cend()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
     }
 
     // page 836
@@ -3234,9 +3248,12 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     {
         Obj d;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
     }
 
     // page 836
@@ -3254,7 +3271,8 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(d.swap(x)));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
     }
 
     // page 837

@@ -1458,11 +1458,12 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         // Not implemented: 'basic_string()'
 
         ALLOC a;
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
 
         Obj str;
-        ASSERT(true == 
-               BSLS_CPP11_NOEXCEPT_OPERATOR(
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                        Obj(bslmf::MovableRefUtil::move(str))));
         Obj s;
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
@@ -1490,23 +1491,35 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     {
         Obj s;  const Obj& S = s;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.begin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.begin()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.end()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.end()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.rend()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rend()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crbegin()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crend()));
     }
 
     // page 704 - 705
@@ -1523,12 +1536,18 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     {
         Obj s;  const Obj& S = s;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.size()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.length()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.max_size()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.capacity()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.length()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.capacity()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.empty()));
     }
 
     // page 705 - 706
@@ -1569,23 +1588,32 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     {
         Obj s;  const Obj& S = s;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.c_str()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.data()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(s.data()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.get_allocator()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.c_str()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.data()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.data()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.get_allocator()));
 
         Obj    str;
         size_t pos;
 
-   //---^
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find             (str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rfind            (str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_of    (str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_of     (str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_not_of(str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_not_of (str, pos)));
-   ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(S.compare(str)));
-   //---V
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find             (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rfind            (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_of    (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_of     (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_not_of(str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_not_of (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.compare(str)));
     }
 
     // page 725
@@ -1630,12 +1658,18 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         const Obj lhs;
         const Obj rhs;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs == rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs != rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <  rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >  rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <= rhs));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs == rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs != rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <  rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >  rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <= rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
             == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(lhs, rhs)));

@@ -5900,7 +5900,8 @@ void Harness::testCase40(int value)
         bsl::shared_ptr<Y> r;
         T                  p;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
 
         ASSERT(true
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r, &p)));
@@ -5939,11 +5940,15 @@ void Harness::testCase40(int value)
 
         bsl::shared_ptr<Y> mZ; const bsl::shared_ptr<Y>& Z = mZ;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = R));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = Z));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = R));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = Z));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                         mX = bslmf::MovableRefUtil::move(mR)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                         mX = bslmf::MovableRefUtil::move(mZ)));
     }
 
@@ -5958,8 +5963,10 @@ void Harness::testCase40(int value)
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
         bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mR)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.reset()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mR)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.reset()));
     }
 
     // page 591
@@ -5976,11 +5983,16 @@ void Harness::testCase40(int value)
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.get()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator*()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator->()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(X.unique()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(static_cast<bool>(X)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.get()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator*()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator->()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.unique()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(static_cast<bool>(X)));
     }
 
     // page 591 - 592
@@ -6036,27 +6048,45 @@ void Harness::testCase40(int value)
         bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
         bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
    
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A != B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= B));
 
         bsl::nullptr_t n;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A == n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n == B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A != n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n != B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n <  B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n >  B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n <= B));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= n));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(n >= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= n));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(n >= B));
     }
 
     // page 592
@@ -6070,7 +6100,8 @@ void Harness::testCase40(int value)
         bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
         bsl::shared_ptr<T> mB; const bsl::shared_ptr<T>& B = mB;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mA, mB)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mA, mB)));
     }
 
     // page 592
@@ -6106,7 +6137,8 @@ void Harness::testCase40(int value)
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
     }
    
     if (verbose) {
@@ -6215,8 +6247,10 @@ void Harness::testCase40(int value)
         bsl::weak_ptr<T> x;
         bsl::weak_ptr<T> r;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(r)));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reset()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(r)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reset()));
     }
 
     // page 599
@@ -6230,9 +6264,12 @@ void Harness::testCase40(int value)
     {
         bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& R = mR;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.use_count()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.expired()));
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(R.lock()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.use_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.expired()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.lock()));
     }
 
     // page 599
@@ -6245,7 +6282,8 @@ void Harness::testCase40(int value)
         bsl::weak_ptr<T> a;
         bsl::weak_ptr<T> b;
 
-        ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(a, b)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(a, b)));
     }
 }
 
