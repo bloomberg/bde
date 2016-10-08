@@ -1129,7 +1129,7 @@ int main(int argc, char *argv[]) {
             int id1;
             {
                 if (veryVerbose) {
-                    cout << "Tight pause/resume loop\n";
+                    cout << "\tTight pause/resume loop" << endl;
                 }
                 {
                     int id = mX.createQueue();
