@@ -1128,6 +1128,9 @@ int main(int argc, char *argv[]) {
             bsls::AtomicInt count(0);
             int id1;
             {
+                if (veryVerbose) {
+                    cout << "Tight pause/resume loop\n";
+                }
                 {
                     int id = mX.createQueue();
                     const int N = 100000;
@@ -1139,6 +1142,7 @@ int main(int argc, char *argv[]) {
                         mX.resumeQueue(id);
                     }
                 }
+                
                 if (veryVerbose) {
                     cout << "\tPause blocks until job finishes" << endl;
                 }
