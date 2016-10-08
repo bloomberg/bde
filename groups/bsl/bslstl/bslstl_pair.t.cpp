@@ -30,7 +30,7 @@
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
-#include <bslmf_movableref.h>                                                   
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocatorargt.h>
 
@@ -659,7 +659,7 @@ void testCase16()
     // ------------------------------------------------------------------------
 
     // N4594: 20.4: Pairs
- 
+
     // pages 526-527: Class template pair
     //..
     //  pair& operator=(pair&& p) noexcept (see below);

@@ -581,7 +581,7 @@ void testCase13()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
     }
-   
+
     // page 557-558: element access:
     //..
     // size_t count() const noexcept;

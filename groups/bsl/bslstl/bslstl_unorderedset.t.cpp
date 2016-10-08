@@ -2226,7 +2226,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34()
         P(bsls::NameOf<EQUAL>())
         P(bsls::NameOf<ALLOC>())
     }
-   
+
     // N4594: 23.5.6.1: Class template 'unordered_set' overview
 
     // page 892

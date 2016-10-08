@@ -3161,11 +3161,11 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     // Testing:
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
-    
+
     if (verbose) {
-        P(bsls::NameOf<Obj>())                                       
-        P(bsls::NameOf<TYPE>())                                       
-        P(bsls::NameOf<ALLOC>())                                       
+        P(bsls::NameOf<Obj>())
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<ALLOC>())
     }
 
     // N4594: page 835: 23.3.8 Class template 'deque'

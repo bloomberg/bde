@@ -7357,7 +7357,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //              is_nothrow_swappable_v<Pred>);
     //  void clear() noexcept;
     //..
- 
+
     {
         Obj x;
         Obj y;
@@ -7368,7 +7368,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
     }
-  
+
     // page 884:
     //..
     //  // bucket interface:
@@ -7417,8 +7417,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
         Obj mX;
         Obj mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
-           == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));   
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
     }
 }
 

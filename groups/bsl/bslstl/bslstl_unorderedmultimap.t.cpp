@@ -2018,7 +2018,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
     }
-    
+
     // page 889
     // 23.5.5.3, modifiers:
     //..
@@ -2039,7 +2039,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
     }
-    
+
     // page 889
     //..
     //  // bucket interface:
@@ -2071,7 +2071,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
     }
-    
+
     // page 890
     //..
     //  // 23.5.5.4, swap:
@@ -2085,8 +2085,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
         Obj mX;
         Obj mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
-           == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));   
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
     }
 }
 

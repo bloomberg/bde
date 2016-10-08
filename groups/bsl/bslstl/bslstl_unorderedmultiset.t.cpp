@@ -2210,7 +2210,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
     //                          is_nothrow_move_assignable<Pred>::value);
     //  allocator_type get_allocator() const noexcept;
     //..
- 
+
     {
         Obj mX;  const Obj& X = mX;
         Obj mY;  const Obj& Y = mY;
@@ -2233,7 +2233,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
     //  const_iterator cbegin() const noexcept;
     //  const_iterator cend() const noexcept;
     //..
-    
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -2252,7 +2252,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
     }
-    
+
     // page 896
     //..
     //  // capacity:
@@ -2260,7 +2260,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
     //  size_type size() const noexcept;
     //  size_type max_size() const noexcept;
     //..
-   
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -2281,7 +2281,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
     //          is_nothrow_swappable_v<Pred>);
     //  void clear() noexcept;
     //..
-   
+
     {
         Obj x;
         Obj y;
@@ -2308,14 +2308,14 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
     }
-    
+
     // page 897
     //..
     // // hash policy:
     // float load_factor() const noexcept;
     // float max_load_factor() const noexcept;
     //..
-    
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -2324,7 +2324,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
     }
- 
+
     // page 897
     //..
     //  // 23.5.7.3, swap:
@@ -2338,8 +2338,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase36()
         Obj mX;
         Obj mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
-           == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));   
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
     }
 
 }

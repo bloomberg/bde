@@ -1453,7 +1453,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //                         propagate_on_container_move_assignment::value ||
     //      allocator_traits<Allocator>::is_always_equal::value);
     //..
-   
+
     {
         // Not implemented: 'basic_string()'
 
@@ -1532,7 +1532,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //  void clear() noexcept;
     //  bool empty() const noexcept;
     //..
-    
+
     {
         Obj s;  const Obj& S = s;
 
@@ -1671,7 +1671,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE                                   
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
     }
 }

@@ -5958,7 +5958,7 @@ void Harness::testCase40(int value)
     //  void swap(shared_ptr& r) noexcept;
     //  void reset() noexcept;
     //..
- 
+
     {
         bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
         bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
@@ -6047,7 +6047,7 @@ void Harness::testCase40(int value)
 
         bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
         bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
-   
+
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
@@ -6095,7 +6095,7 @@ void Harness::testCase40(int value)
     //  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b)
     //                                                                noexcept;
     //..
-    
+
     {
         bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
         bsl::shared_ptr<T> mB; const bsl::shared_ptr<T>& B = mB;
@@ -6114,7 +6114,7 @@ void Harness::testCase40(int value)
     //  template<class T, class U>
     //  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
     //..
-    
+
     {
         typedef Y U;
 
@@ -6140,7 +6140,7 @@ void Harness::testCase40(int value)
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
     }
-   
+
     if (verbose) {
         printf("bsl::weak_ptr<T>\n");
     }
@@ -6157,7 +6157,7 @@ void Harness::testCase40(int value)
     //  weak_ptr(weak_ptr&& r) noexcept;
     //  template<class Y> weak_ptr(weak_ptr<Y>&& r) noexcept;
     //..
-    
+
     {
         {
             ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
@@ -6201,7 +6201,7 @@ void Harness::testCase40(int value)
     //  template<class Y> weak_ptr& operator=(weak_ptr<Y>&& r) noexcept;
     //..
 
-    {   
+    {
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;

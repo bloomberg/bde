@@ -2841,7 +2841,8 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
         P(bsls::NameOf<ALLOC>())
     }
 
-    // N4594: page 846: 23.3.10 Class template 'list' [list]                           
+    // N4594: page 846: 23.3.10 Class template 'list' [list]
+
     // page 847
     //..
     //  // 23.3.10.2, construct/copy/destroy:
@@ -2849,7 +2850,7 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
     //      noexcept(allocator_traits<Allocator>::is_always_equal::value);
     //  allocator_type get_allocator() const noexcept;
     //..
-    
+
     {
         Obj mX;  const Obj& X = mX;
         Obj mY;  const Obj& Y = mY;
@@ -2861,7 +2862,7 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
-    
+
     // page 847
     //..
     //  // iterators:
@@ -2878,7 +2879,7 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
     //  const_reverse_iterator crbegin() const noexcept;
     //  const_reverse_iterator crend() const noexcept;
     //..
-    
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -2912,7 +2913,7 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
     }
-   
+
     // page 848
     //..
     //  // 23.3.10.3, capacity:
@@ -2920,7 +2921,7 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
     //  size_type size() const noexcept;
     //  size_type max_size() const noexcept;
     //..
-    
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -2950,13 +2951,13 @@ void TestDriver<TYPE, ALLOC>::testCase35_noexcept()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
     }
-    
+
     // page 848-849
     //..
     //  // 23.3.10.5, list operations:
     //  void reverse() noexcept;
     //..
-    
+
     {
         Obj x;
 

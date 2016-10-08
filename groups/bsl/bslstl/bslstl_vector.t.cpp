@@ -16,13 +16,13 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bslmf_issame.h>
-#include <bslmf_movableref.h>                                                   
+#include <bslmf_movableref.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_cpp11.h>                                                         
+#include <bsls_cpp11.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
@@ -1413,7 +1413,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
 
     // N4594: 23.3.11 Class template vector
 
-    // page 853 
+    // page 853
     //..
     //  // 23.3.11.2, construct/copy/destroy:
     //  vector() noexcept(noexcept(Allocator())) : vector(Allocator()) { }
@@ -1429,7 +1429,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
     }
-   
+
     // page 854
     //..
     //  vector(vector&&) noexcept;
@@ -1440,7 +1440,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
     //
     //  allocator_type get_allocator() const noexcept;
     //..
-   
+
     {
         Obj x;
         Obj y;
@@ -1473,7 +1473,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
     //  const_reverse_iterator crbegin() const noexcept;
     //  const_reverse_iterator crend() const noexcept;
     //..
-    
+
     {
         Obj mX; const Obj& X = mX;
 
@@ -1507,7 +1507,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
     }
-    
+
     // page 854
     //..
     //  // 23.3.11.3, capacity:
@@ -1528,7 +1528,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.capacity()));
     }
-   
+
     // page 854-855
     //..
     //  // 23.3.11.4, data access
@@ -1544,7 +1544,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR( X.data()));
     }
-    
+
     // page 855
     //..
     //  // 23.3.11.5, modifiers:
@@ -1553,7 +1553,7 @@ void TestDriver<TYPE, ALLOC>::testCase36()
     //       allocator_traits<Allocator>::is_always_equal::value);
     //  void clear() noexcept;
     //..
-    
+
     {
         Obj mX;
         Obj mY;
