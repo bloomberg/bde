@@ -667,11 +667,11 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
     bslmt::QLockGuard stateChangeGuard(&context->mutex());
 
     // If pausing, additionally wait for the state to change from e_PAUSING to
-    // e_PAUSED; this prevents another thread from enqueing a job before
-    // processQueueCb() has decided not to resubmit the processing
-    // callback.  It is safe to spin here as we're only waiting for the
-    // few instructions in processQueueCb() between posting the semaphore
-    // and updating the pause state.
+    // e_PAUSED; this prevents a thread executing resumeQueue() from enqueing
+    // the processing callback before processQueueCb() has decided not to
+    // resubmit the processing callback.  It is safe to spin here because we're
+    // only waiting for the few instructions in processQueueCb() between
+    // posting the semaphore and updating the pause state.
     while (paused && MultiQueueThreadPool_Queue::e_PAUSED !=
            context->d_queue.d_pauseState) ;
     

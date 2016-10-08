@@ -398,7 +398,7 @@ class MultiQueueThreadPool_Queue {
         // Pause states
         e_RUNNING = 0, // not paused
         e_PAUSING,     // pause requested but not completed yet
-        e_PAUSED,      // paused
+        e_PAUSED       // paused
     };
 
   private:
