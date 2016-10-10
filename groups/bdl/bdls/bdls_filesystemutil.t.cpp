@@ -64,7 +64,7 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
-// [ 3] void findMatchingPaths(bsl::vector<bsl::string> *,const char *)
+// [ 3] int findMatchingPaths(bsl::vector<bsl::string> *,const char *)
 // [ 4] bool isRegularFile(const bsl::string&, bool)
 // [ 4] bool isRegularFile(const char *, bool)
 // [ 4] bool isDirectory(const bsl::string&, bool)
@@ -87,8 +87,8 @@ using namespace bsl;
 // [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
 // [21] int visitTree(const char *, const string&, const Func&, bool);
 // [21] int visitTree(const string&, const string&, const Func&, bool);
-// [21] void visitPaths(const string&, const Func&);
-// [21] void visitPaths(const char *, const Func&);
+// [21] int visitPaths(const string&, const Func&);
+// [21] int visitPaths(const char *, const Func&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -200,6 +200,7 @@ enum { e_IS_UNIX = 0 };
 
 typedef bdls::FilesystemUtil Obj;
 typedef bsls::Types::Int64   Int64;
+typedef bsls::Types::UintPtr UintPtr;
 
 #define INT_SIZEOF(x)    static_cast<int>(sizeof(x))
 
@@ -799,8 +800,8 @@ int main(int argc, char *argv[])
         //
         //   int visitTree(const char *, const string&, const Func&, bool);
         //   int visitTree(const string&, const string&, const Func&, bool);
-        //   void visitPaths(const string&, const Func&);
-        //   void visitPaths(const char *, const Func&);
+        //   int visitPaths(const string&, const Func&);
+        //   int visitPaths(const char *, const Func&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'visitTree'\n"
@@ -925,7 +926,7 @@ int main(int argc, char *argv[])
             const char *str = "woo*" PS "woo*" PS "woo*";
             rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
                             : Obj::visitPaths(str, woofVisitor);
-            ASSERT(0 == rc);
+            ASSERT(static_cast<int>(woofPathsExpVec.size()) == rc);
 
             bsl::sort(woofPathsVec.begin(), woofPathsVec.end());
 
@@ -944,7 +945,7 @@ int main(int argc, char *argv[])
 # ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP2_ASSERT(stringFlag, rc, -2 == rc);
 # else
-            ASSERT(1 == rc);
+            ASSERT(0 == rc);
 # endif
             ASSERT(woofPathsVec.empty());    // Shouldn't have found anything.
 #endif
@@ -953,7 +954,7 @@ int main(int argc, char *argv[])
             str = "tmp.non_existent_file.txt";
             rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
                             : Obj::visitPaths(str, woofVisitor);
-            ASSERT(1 == rc);
+            ASSERT(0 == rc);
         }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -1459,12 +1460,12 @@ int main(int argc, char *argv[])
             int rc = Obj::findMatchingPaths(&results, NAME);
 
             if (!e_IS_UNIX && NAME_ANSI == i) {
-                ASSERT(0 != rc);
+                ASSERT(rc < 0);
                 LOOP_ASSERT(results.size(), 0 == results.size());
                 ASSERT(0 != Obj::remove(NAME, false));
             }
             else {
-                ASSERT(0 == rc);
+                ASSERT(1 == rc);
                 LOOP_ASSERT(results.size(), 1    == results.size());
                 LOOP_ASSERT(results[0],     NAME == results[0]);
 
@@ -4971,7 +4972,7 @@ int main(int argc, char *argv[])
             bdls::PathUtil::appendRaw(&logPath, "*.log");
             vector<bsl::string> logFiles;
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            ASSERT(0 == rc);
+            ASSERT(static_cast<int>(logFiles.size()) == rc);
             bdls::PathUtil::popLeaf(&logPath);
 
             bdlt::Datetime modTime;
@@ -4995,9 +4996,7 @@ int main(int argc, char *argv[])
             bdls::PathUtil::appendRaw(&logPath, "*");
             bdls::PathUtil::appendRaw(&logPath, "*o*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            LOOP_ASSERT(ni, (NUM_OLD_FILES == 0 ? 1 : 0) == rc);
-#endif
+            LOOP_ASSERT(ni, NUM_OLD_FILES == rc);
             LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_OLD_FILES,
                                                                logFiles.size(),
                                              NUM_OLD_FILES == logFiles.size());
@@ -5005,7 +5004,7 @@ int main(int argc, char *argv[])
 
             bdls::PathUtil::appendRaw(&logPath, "*n*.log");
             rc = Obj::findMatchingPaths(&logFiles, logPath.c_str());
-            LOOP_ASSERT(ni, (NUM_NEW_FILES == 0 ? 1 : 0) == rc);
+            LOOP_ASSERT(ni, NUM_NEW_FILES == rc);
             LOOP5_ASSERT(ni, logPath, logPath.length(), NUM_NEW_FILES,
                                                                logFiles.size(),
                                              NUM_NEW_FILES == logFiles.size());
@@ -5015,7 +5014,7 @@ int main(int argc, char *argv[])
             logFiles.clear();
             rc = Obj::findMatchingPaths(&logFiles,
                                         "tmp.non_existent_file.txt");
-            LOOP_ASSERT(rc, 1 == rc);    // no such file
+            LOOP_ASSERT(rc, 0 == rc);    // no such file
 
             // Clean up
 

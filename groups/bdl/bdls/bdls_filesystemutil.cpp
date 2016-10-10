@@ -839,14 +839,15 @@ int FilesystemUtil::visitPaths(
 
     BSLS_ASSERT(patternStr);
 
-    int ret = 1;
+    int numFiles = 0;   // Count # of files visited to be returned if
+                        // successful.
 
     bsl::string dirName;
     if (0 != PathUtil::getDirname(&dirName, patternStr)) {
         // There is no leaf, therefore there can be nothing to do (but not an
-        // error)
+        // error).  Return # of files found.
 
-        return 1;                                                     // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (bsl::string::npos != dirName.find_first_of("*?")) {
@@ -894,7 +895,7 @@ int FilesystemUtil::visitPaths(
             leaves.pop_back();
         }
 
-        ret = paths.empty() ? 1 : 0;
+        numFiles += static_cast<int>(paths.size());
 
         typedef bsl::vector<bsl::string>::const_iterator CIter;
         CIter end = paths.end();
@@ -926,9 +927,9 @@ int FilesystemUtil::visitPaths(
                                   FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
-            // No files found.
+            // No files found, but not an error.
 
-            return 1;                                                 // RETURN
+            return 0;                                                 // RETURN
         }
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
@@ -957,12 +958,12 @@ int FilesystemUtil::visitPaths(
                                   "FindFirstFileW returned an absolute path.");
             }
 
-            ret = 0;
+            ++numFiles;
             visitor(fullNamePath.c_str());
         }
     }
 
-    return ret;
+    return numFiles;
 }
 
 int FilesystemUtil::visitTree(
@@ -1661,17 +1662,26 @@ int FilesystemUtil::visitPaths(
       case 0: {
         // matched something
 
-        for (bsl::size_t i = 0; i < pglob.gl_pathc; ++i) {
-            BSLS_ASSERT(pglob.gl_pathv[i]);
-            if (!isDotOrDots(pglob.gl_pathv[i])) {
-                visitor(pglob.gl_pathv[i]);
+        BSLS_ASSERT(0 < pglob.gl_pathc);
+
+        unsigned numFiles = 0;
+        for (unsigned ii = 0; ii < pglob.gl_pathc; ++ii) {
+            BSLS_ASSERT(pglob.gl_pathv[ii]);
+            if (!isDotOrDots(pglob.gl_pathv[ii])) {
+                ++numFiles;
+                visitor(pglob.gl_pathv[ii]);
             }
         }
 
-        return 0;                                                     // RETURN
+        // Note that if we only matched '.' and/or '..', 'numFiles' is 0.  Not
+        // an error.
+
+        return numFiles;                                              // RETURN
       } break;
       case GLOB_NOMATCH: {
-        return 1;                                                     // RETURN
+        // No files matched, not an error, return the # of files matched.
+
+        return 0;                                                     // RETURN
       } break;
       case GLOB_NOSPACE: {
         // out of memory
@@ -2003,7 +2013,7 @@ int FilesystemUtil::createDirectories(const char *path,
                 return -1;                                            // RETURN
             }
         }
-        directoryStack.pop_back();
+        directoryStack.pop_back();
     }
     return 0;
 }
