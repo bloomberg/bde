@@ -15,12 +15,16 @@
 
 #include <bslh_hash.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
@@ -28,21 +32,20 @@
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
-
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_exception.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_typeinfo.h>                                                       
+#include <bsl_typeinfo.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // This component implements a wrapper for a value-semantic type, and itself
@@ -50,7 +53,7 @@ using namespace bsl;
 //
 // Global Concerns:
 //   o No memory is allocated from the global-allocator.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // TYPEDEFS
 // [ 3] typedef TYPE ValueType;
 //
@@ -59,6 +62,8 @@ using namespace bsl;
 // [ 3] bdlb::NullableValue(bslma::Allocator *basicAllocator);
 // [ 6] bdlb::NullableValue(const bdlb::NullableValue& original);
 // [ 6] bdlb::NullableValue(const bdlb::NullableValue& original, *ba);
+// [21] bdlb::NullableValue(bdlb::NullableValue&& original);
+// [21] bdlb::NullableValue(bdlb::NullableValue&& original, *ba);
 // [ 9] bdlb::NullableValue(const TYPE& value);
 // [ 9] bdlb::NullableValue(const TYPE& value, *ba);
 // [11] bdlb::NullableValue(const bdlb::NullableValue<ORIGINAL>&o);
@@ -68,6 +73,7 @@ using namespace bsl;
 // MANIPULATORS
 // [ 7] operator=(const bdlb::NullableValue& rhs);
 // [12] operator=(const bdlb::NullableValue<OTHER_TYPE>& rhs);
+// [22] operator=(bdlb::NullableValue&& rhs);
 // [10] operator=(const TYPE& rhs);
 // [12] operator=(const OTHER_TYPE& rhs);
 // [13] void swap(bdlb::NullableValue<TYPE>& other);
@@ -101,10 +107,11 @@ using namespace bsl;
 // [17] operator!=(const TYPE&,const bdlb::NullableValue<TYPE>&,);
 // [ 4] operator<<(bsl::ostream&,const bdlb::NullableValue<TYPE>&);
 // [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [21] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
+// [23] Concern: Types that are not copy-assignable can be used.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -178,7 +185,7 @@ static bool     veryVerbose;
 static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
-const int   MAX_NUM_PARAMS = 5; // max in simulation of variadic templates      
+const int   MAX_NUM_PARAMS = 5; // max in simulation of variadic templates
 
 // ============================================================================
 //                      GLOBAL HELPER CLASSES FOR TESTING
@@ -482,49 +489,51 @@ class TmvipAa
         // recent call to the 'resetDtorCount' class method.
 
     // CREATORS
-    explicit TmvipAa(bslma::Allocator *bA = 0);
+    explicit TmvipAa(bslma::Allocator *basicAllocator = 0);
     explicit TmvipAa(const TYPE&       a1,
-                     bslma::Allocator *bA = 0);
+                     bslma::Allocator *basicAllocator = 0);
              TmvipAa(const TYPE&       a1,
                      const TYPE&       a2,
-                     bslma::Allocator *bA = 0);
+                     bslma::Allocator *basicAllocator = 0);
              TmvipAa(const TYPE&       a1,
                      const TYPE&       a2,
                      const TYPE&       a3,
-                     bslma::Allocator *bA = 0);
+                     bslma::Allocator *basicAllocator = 0);
              TmvipAa(const TYPE&       a1,
                      const TYPE&       a2,
                      const TYPE&       a3,
                      const TYPE&       a4,
-                     bslma::Allocator *bA = 0);
+                     bslma::Allocator *basicAllocator = 0);
              TmvipAa(const TYPE&       a1,
                      const TYPE&       a2,
                      const TYPE&       a3,
                      const TYPE&       a4,
                      const TYPE&       a5,
-                     bslma::Allocator *bA = 0);
+                     bslma::Allocator *basicAllocator = 0);
         // Create a test object having the default value (i.e., 'TYPE()') for
         // attributes 1 to N, where N is the maximum number of parameters we
         // are supporting in our simulation of C++11 variadic templates.
         // Optionally specify values for attributes 1, 1 and 2, 1 to 3, ..., or
-        // 1 to N.  Optionally specify a 'bA' used to supply memory.  If 'bA'
-        // is 0, the currently installed default allocator is used.  Set the
-        // value returned by the 'ctorCalled' class method to the number of
-        // parameters -- not counting the optional allocator argument -- in the
-        // overload called.  Use 'bA' to allocate a single 'TYPE()' object so
-        // the behavior of 'bdetu_NullableValue' after an exception can be
-        // checked for each constructor (including the default constructor).
-        // The allocated object is destroyed by '~TmvipAa()'.
+        // 1 to N.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Set the value returned by the 'ctorCalled' class
+        // method to the number of parameters -- not counting the optional
+        // allocator argument -- in the overload called.  Use 'basicAllocator'
+        // to allocate a single 'TYPE()' object so the behavior of
+        // 'bdlb::NullableValue' after an exception can be checked for each
+        // constructor (including the default constructor).  The allocated
+        // object is destroyed by '~TmvipAa()'.
 
-    explicit TmvipAa(const TmvipAa& original, bslma::Allocator *bA = 0);
+    TmvipAa(const TmvipAa& original, bslma::Allocator *basicAllocator = 0);
         // Create an object having the same attribute values as the specified
-        // 'original'.  Optionally specify a 'bA' used to supply memory.  If
-        // 'bA' is 0, the currently installed default allocator is used.
+        // 'original'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'bbasicAllocator' is 0, the currently installed default
+        // allocator is used.
 
     ~TmvipAa();
         // Destroy this object and increment the value reported by the
-        // 'dtorCount()' class method and the value reported the
-        // 'TmvipSA::dTorCount()' class method (in the base class).
+        // 'dtorCount' class method and the value reported by the
+        // 'TmvipSA::dtorCount' class method (in the base class).
 
     // ACCESSORS
     const TYPE& a1() const;
@@ -587,13 +596,13 @@ void TmvipAa<TYPE>::destroyData() const
 
 // CREATORS
 template <class TYPE>
-TmvipAa<TYPE>::TmvipAa(bslma::Allocator *bA)
-: d_a1(bA)
-, d_a2(bA)
-, d_a3(bA)
-, d_a4(bA)
-, d_a5(bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+TmvipAa<TYPE>::TmvipAa(bslma::Allocator *basicAllocator)
+: d_a1(basicAllocator)
+, d_a2(basicAllocator)
+, d_a3(basicAllocator)
+, d_a4(basicAllocator)
+, d_a5(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 0;
@@ -601,13 +610,13 @@ TmvipAa<TYPE>::TmvipAa(bslma::Allocator *bA)
 
 template <class TYPE>
 TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
-                       bslma::Allocator *bA)
-: d_a1(a1, bA)
-, d_a2(bA)
-, d_a3(bA)
-, d_a4(bA)
-, d_a5(bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+                       bslma::Allocator *basicAllocator)
+: d_a1(a1, basicAllocator)
+, d_a2(basicAllocator)
+, d_a3(basicAllocator)
+, d_a4(basicAllocator)
+, d_a5(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 1;
@@ -616,13 +625,13 @@ TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
 template <class TYPE>
 TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
                        const TYPE&       a2,
-                       bslma::Allocator *bA)
-: d_a1(a1, bA)
-, d_a2(a2, bA)
-, d_a3(bA)
-, d_a4(bA)
-, d_a5(bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+                       bslma::Allocator *basicAllocator)
+: d_a1(a1, basicAllocator)
+, d_a2(a2, basicAllocator)
+, d_a3(basicAllocator)
+, d_a4(basicAllocator)
+, d_a5(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 2;
@@ -632,13 +641,13 @@ template <class TYPE>
 TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
                        const TYPE&       a2,
                        const TYPE&       a3,
-                       bslma::Allocator *bA)
-: d_a1(a1, bA)
-, d_a2(a2, bA)
-, d_a3(a3, bA)
-, d_a4(bA)
-, d_a5(bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+                       bslma::Allocator *basicAllocator)
+: d_a1(a1, basicAllocator)
+, d_a2(a2, basicAllocator)
+, d_a3(a3, basicAllocator)
+, d_a4(basicAllocator)
+, d_a5(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 3;
@@ -649,13 +658,13 @@ TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
                        const TYPE&       a2,
                        const TYPE&       a3,
                        const TYPE&       a4,
-                       bslma::Allocator *bA)
-: d_a1(a1, bA)
-, d_a2(a2, bA)
-, d_a3(a3, bA)
-, d_a4(a4, bA)
-, d_a5(bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+                       bslma::Allocator *basicAllocator)
+: d_a1(a1, basicAllocator)
+, d_a2(a2, basicAllocator)
+, d_a3(a3, basicAllocator)
+, d_a4(a4, basicAllocator)
+, d_a5(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 4;
@@ -667,26 +676,27 @@ TmvipAa<TYPE>::TmvipAa(const TYPE&       a1,
                        const TYPE&       a3,
                        const TYPE&       a4,
                        const TYPE&       a5,
-                       bslma::Allocator *bA)
-: d_a1(a1, bA)
-, d_a2(a2, bA)
-, d_a3(a3, bA)
-, d_a4(a4, bA)
-, d_a5(a5, bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+                       bslma::Allocator *basicAllocator)
+: d_a1(a1, basicAllocator)
+, d_a2(a2, basicAllocator)
+, d_a3(a3, basicAllocator)
+, d_a4(a4, basicAllocator)
+, d_a5(a5, basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p     = new (*d_allocator_p) TYPE(d_allocator_p);
     s_ctorCalled = 5;
 }
 
 template <class TYPE>
-TmvipAa<TYPE>::TmvipAa(const TmvipAa& original, bslma::Allocator *bA)
-: d_a1(original.d_a1, bA)
-, d_a2(original.d_a2, bA)
-, d_a3(original.d_a3, bA)
-, d_a4(original.d_a3, bA)
-, d_a5(original.d_a3, bA)
-, d_allocator_p(bslma::Default::allocator(bA))
+TmvipAa<TYPE>::TmvipAa(const TmvipAa&    original,
+                       bslma::Allocator *basicAllocator)
+: d_a1(original.d_a1, basicAllocator)
+, d_a2(original.d_a2, basicAllocator)
+, d_a3(original.d_a3, basicAllocator)
+, d_a4(original.d_a3, basicAllocator)
+, d_a5(original.d_a3, basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_data_p = new (*d_allocator_p) TYPE(d_allocator_p);
 }
@@ -745,7 +755,7 @@ bslma::Allocator *TmvipAa<TYPE>::allocator() const
 template <class TYPE>
 class TmvipSa_WithThrowingCtor
 {
-    // Test Make Value In Place Sans (without) Allocator with Thowing Ctor
+    // Test Make Value In Place Sans (without) Allocator with Throwing Ctor
 
     // CLASS DATA
     static int s_ctorCalled;
@@ -1025,6 +1035,190 @@ const TYPE& TmvipSa_WithThrowingCtor<TYPE>::a5() const
 
 #endif // BDE_BUILD_TARGET_EXC
 
+                        // ================================
+                        // class NonAssignableAllocTestType
+                        // ================================
+
+class NonAssignableAllocTestType {
+    // This unconstrained (value-semantic) attribute class that uses a
+    // 'bslma::Allocator' to allocate memory and defines the type trait
+    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
+    // to facilitate testing of templates by defining a simple type
+    // representative of user-defined types having an allocator.  See the
+    // Attributes section under @DESCRIPTION in the component-level
+    // documentation for information on the class attributes.
+
+    // DATA
+    int              *d_data_p;       // pointer to the data value
+
+    bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
+                                      // not owned)
+
+    NonAssignableAllocTestType
+                     *d_self_p;       // pointer to self (to verify this object
+                                      // is not bitwise moved)
+
+  private:
+    // NOT IMPLEMENTED
+    NonAssignableAllocTestType& operator=(const NonAssignableAllocTestType&);
+
+  public:
+    // CREATORS
+    explicit NonAssignableAllocTestType(bslma::Allocator *basicAllocator = 0);
+        // Create a 'NonAssignableAllocTestType' object having the (default)
+        // attribute values:
+        //..
+        //  data() == 0
+        //..
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    explicit NonAssignableAllocTestType(int               data,
+                                        bslma::Allocator *basicAllocator = 0);
+        // Create a 'NonAssignableAllocTestType' object having the specified
+        // 'data' attribute value.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    NonAssignableAllocTestType(
+                        const NonAssignableAllocTestType&  original,
+                        bslma::Allocator                  *basicAllocator = 0);
+        // Create a 'NonAssignableAllocTestType' object having the same value
+        // as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    ~NonAssignableAllocTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    void setData(int value);
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const;
+        // Return the value of the 'data' attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+};
+
+// FREE OPERATORS
+bool operator==(const NonAssignableAllocTestType& lhs,
+                const NonAssignableAllocTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'NonAssignableAllocTestType' objects
+    // have the same if their 'data' attributes are the same.
+
+bool operator!=(const NonAssignableAllocTestType& lhs,
+                const NonAssignableAllocTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'NonAssignableAllocTestType'
+    // objects do not have the same value if their 'data' attributes are not
+    // the same.
+
+                        // --------------------------------
+                        // class NonAssignableAllocTestType
+                        // --------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable:4355) // ctor uses 'this' used in member-initializer
+#endif
+
+// CREATORS
+inline
+NonAssignableAllocTestType::NonAssignableAllocTestType(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
+inline
+NonAssignableAllocTestType::NonAssignableAllocTestType(
+                                              int               data,
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = data;
+}
+
+inline
+NonAssignableAllocTestType::NonAssignableAllocTestType(
+                             const NonAssignableAllocTestType&  original,
+                             bslma::Allocator                  *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_self_p(this)
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = *original.d_data_p;
+}
+
+inline
+NonAssignableAllocTestType::~NonAssignableAllocTestType()
+{
+    d_allocator_p->deallocate(d_data_p);
+
+    // Ensure that this object has not been bitwise moved.
+
+    BSLS_ASSERT_OPT(this == d_self_p);
+}
+
+// MANIPULATORS
+inline
+void NonAssignableAllocTestType::setData(int value)
+{
+    *d_data_p = value;
+}
+
+// ACCESSORS
+inline
+int NonAssignableAllocTestType::data() const
+{
+    return *d_data_p;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *NonAssignableAllocTestType::allocator() const
+{
+    return d_allocator_p;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const NonAssignableAllocTestType& lhs,
+                const NonAssignableAllocTestType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const NonAssignableAllocTestType& lhs,
+                const NonAssignableAllocTestType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<NonAssignableAllocTestType> : bsl::true_type {
+};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 class DeprecatedBdex {
   public:
@@ -1032,9 +1226,9 @@ class DeprecatedBdex {
 };
 #endif
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 enum MessageType {
     // Type used for testing 'makeValue' in case 12.
@@ -1156,10 +1350,13 @@ void hashAppend(HASHALG& hashAlg, RETURN (CLASS::*member)() const)
         bsltf::EnumeratedTestType::Enum,                                      \
         bsltf::UnionTestType,                                                 \
         bsltf::SimpleTestType,                                                \
+        bsltf::MovableTestType,                                               \
         bsltf::BitwiseMoveableTestType
+
 
 #define TEST_TYPES_ALLOCATOR_ENABLED                                          \
         bsltf::AllocTestType,                                                 \
+        bsltf::MovableAllocTestType,                                          \
         bsltf::AllocBitwiseMoveableTestType
 
 #define TEST_TYPES                                                            \
@@ -1178,14 +1375,64 @@ class TestDriver {
 
   private:
     // PRIVATE TYPES
-    typedef bdlb::NullableValue<TEST_TYPE> Obj;
+    typedef bdlb::NullableValue<TEST_TYPE>    Obj;
         // Type under test.
 
-    typedef bslalg::ConstructorProxy<Obj> ObjWithAllocator;
+    typedef bslalg::ConstructorProxy<Obj>     ObjWithAllocator;
         // Wrapper for 'Obj' whose constructor takes an allocator.
 
     typedef bsltf::TestValuesArray<TEST_TYPE> TestValues;
         // Array of test values of 'TEST_TYPE'.
+
+    typedef bsltf::TemplateTestFacility       Util;
+    typedef bslmf::MovableRefUtil             MoveUtil;
+    typedef bsltf::MoveState                  MoveState;
+
+    // TEST APPARATUS
+    // ------------------------------------------------------------------------
+    // The generating functions interpret the given 'spec' in order from left
+    // to right to configure the object according to a custom language.
+    // Uppercase letters [A..Z] correspond to arbitrary (but unique) 'char'
+    // values to assign to the 'bdlb::NullableValue<TEST_TYPE>' object.
+    //
+    // LANGUAGE SPECIFICATION
+    // ----------------------
+    //
+    // <SPEC>       ::= <VALUE-SPEC> | <NULL-SPEC>
+    //
+    // <VALUE-SPEC> ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'Z'
+    //                                      // unique but otherwise arbitrary
+    //
+    // <NULL-SPEC>  ::= '~'
+    //
+    // Spec String  Description
+    // -----------  -----------------------------------------------------------
+    // "~"          Make the object null.
+    // "A"          Set the object to have the value corresponding to 'A'.
+    // ------------------------------------------------------------------------
+
+    static int ggg(Obj *object, const char *spec, int verbose = 1);
+        // Configure the specified 'object' according to the specified 'spec',
+        // using only the primary manipulator function 'makeValue' and
+        // white-box manipulator 'reset'.  Optionally specify a zero 'verbose'
+        // to suppress 'spec' syntax error messages.  Return the index of the
+        // first invalid character, and a negative value otherwise.  Note that
+        // this function is used to implement 'gg' as well as allow for
+        // verification of syntax error detection.
+
+    static Obj& gg(Obj *object, const char *spec);
+        // Return, by reference, the specified object with its value adjusted
+        // according to the specified 'spec'.
+
+    static void primaryManipulator(Obj              *object,
+                                   int               identifier,
+                                   bslma::Allocator *basicAllocator = 0);
+        // Assign to the specified 'object' the value indicated by the
+        // specified 'identifier', ensuring that the overload of the primary
+        // manipulator taking a modifiable rvalue is invoked (rather than the
+        // one taking an lvalue).  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
   public:
     static void testCase14();
@@ -1201,16 +1448,895 @@ class TestDriver {
         // Test comparisons with the contained 'TYPE'.
 
     static void testCase19_withoutAllocator();
-        // Test 'makeValueInplace' methods using the contained 'TYPE' which
-        // does not have the 'bslma::UsesBslmaAllocator' trait.
+        // Test 'makeValueInplace' methods using a contained 'TYPE' that does
+        // not have the 'bslma::UsesBslmaAllocator' trait.
 
     static void testCase19_withAllocator();
-        // Test 'makeValueInplace' methods using the contained 'TYPE' which
-        // has the 'bslma::UsesBslmaAllocator' trait.
+        // Test 'makeValueInplace' methods using a contained 'TYPE' that has
+        // the 'bslma::UsesBslmaAllocator' trait.
 
     static void testCase20();
         // Test 'hashAppend' on 'nullableValue' objects.
+
+    static void testCase21_withoutAllocator();
+        // Test move constructor using a contained 'TYPE' that does not have
+        // the 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase21_withAllocator();
+        // Test move constructor using a contained 'TYPE' that has the
+        // 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase22_withoutAllocator();
+        // Test move assignment using a contained 'TYPE' that does not have the
+        // 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase22_withAllocator();
+        // Test move assignment using a contained 'TYPE' that has the
+        // 'bslma::UsesBslmaAllocator' trait.
 };
+
+template <class TEST_TYPE>
+int TestDriver<TEST_TYPE>::ggg(Obj *object, const char *spec, int verbose)
+{
+    enum { POSITION = 0, SUCCESS = -1 };
+
+    if ('~' == *spec) {
+        object->reset();
+    }
+    else if (*spec >= 'A' && *spec <= 'Z') {
+        primaryManipulator(object, *spec);
+    }
+    else {
+        if (verbose) {
+            printf("Error, bad character ('%c') "
+                   "in spec \"%s\" at position %d.\n", *spec, spec, POSITION);
+        }
+        return POSITION;
+    }
+    return SUCCESS;
+}
+
+template <class TEST_TYPE>
+bdlb::NullableValue<TEST_TYPE>& TestDriver<TEST_TYPE>::gg(Obj        *object,
+                                                          const char *spec)
+{
+    ASSERTV(ggg(object, spec) < 0);
+    return *object;
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::primaryManipulator(
+                                              Obj              *object,
+                                              int               identifier,
+                                              bslma::Allocator *basicAllocator)
+{
+    bslma::TestAllocator da("default");
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    bsls::ObjectBuffer<TEST_TYPE> buffer;
+    Util::emplace(buffer.address(), identifier, basicAllocator);
+    bslma::DestructorGuard<TEST_TYPE> guard(buffer.address());
+
+    object->makeValue(MoveUtil::move(buffer.object()));
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase22_withAllocator()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT (with allocator)
+    //
+    // Concerns:
+    //: 1 The signature and return type are standard.
+    //:
+    //: 2 The reference returned is to the target object (i.e., '*this').
+    //:
+    //: 3 The move-assignment operator can change the value of a modifiable
+    //:   target object to that of any source object.
+    //:
+    //: 4 The object has its internal memory management system hooked up
+    //:   properly so that *all* internally allocated memory draws from a
+    //:   user-supplied allocator whenever one is specified.
+    //:
+    //: 5 The allocator address held by the target object is unchanged.
+    //:
+    //: 6 The move-assignment operator is called on the contained value if the
+    //:   target is not null; otherwise, the move constructor is called.
+    //:
+    //: 7 The source object is left in a valid but unspecified state and the
+    //:   allocator address held by the original object is unchanged.
+    //:
+    //: 8 Subsequent changes to or destruction of the original object have no
+    //:   effect on the move-assigned object and vice-versa.
+    //:
+    //: 9 Every object releases any allocated memory at destruction.
+    //:
+    //:10 Any memory allocation is exception neutral.
+    //:
+    //:11 Assigning an object to itself behaves as expected (alias-safety).
+    //
+    // Plan:
+    //: 1 Use the address of 'operator=' to initialize a member-function
+    //:   pointer having the appropriate signature and return type for the
+    //:   move-assignment operator defined in this component.             (C-1)
+    //:
+    //: 2 Iterate over a set of object values with substantial and varied
+    //:   differences, ordered by increasing length, and create for each a
+    //:   control object representing the source of the assignment, with its
+    //:   own scratch allocator.
+    //:
+    //: 3 Iterate again over the same set of object values and create an object
+    //:   representing the target of the assignment, with its own unique object
+    //:   allocator.
+    //:
+    //: 4 In a loop consisting of two iterations, create a source object (a
+    //:   copy of the control object in P-1) with 1) a different allocator than
+    //:   that of target, and 2) the same allocator as that of the target.
+    //:
+    //: 5 Call the move-assignment operator in the presence of exceptions
+    //:   during memory allocations (using a 'bslma::TestAllocator' and varying
+    //:   its allocation limit) and verify the following:                (C-12)
+    //:
+    //:   1 The address of the return value is the same as that of the target
+    //:     object.                                                       (C-2)
+    //:
+    //:   2 The object being assigned to has the same value as that of the
+    //:     source object before assignment (i.e., the control object).   (C-3)
+    //:
+    //:   3 Ensure that the source, target, and control objects continue to
+    //:     have the correct allocator and that all memory allocations come
+    //:     from the appropriate allocators.                              (C-4)
+    //:
+    //:   4 Manipulate the source object (after assignment) to ensure that it
+    //:     is in a valid state, destroy it, and then manipulate the target
+    //:     object to ensure that it is in a valid state.                 (C-8)
+    //:
+    //:   5 Verify all memory is released when the source and target objects
+    //:     are destroyed.                                               (C-11)
+    //:
+    //: 6 Use a test allocator installed as the default allocator to verify
+    //:   that no memory is ever allocated from the default allocator.
+    //
+    // Testing:
+    //   NullableValue& operator=(bslmf::MovableRef<NullableValue> original);
+    // ------------------------------------------------------------------------
+
+    static const char *SPECS[] = {
+        "~",
+        "A",
+        "B",
+        "C"
+    };
+    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+    Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
+    (void) operatorMAg;  // quash potential compiler warning
+
+    if (verbose) printf("\nTesting move-assignment (no allocator).\n");
+    {
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC1 = SPECS[ti];
+            const char *const SET1  = '~' == *SPEC1 ? "null" : "set";
+
+            if (verbose) {
+                printf("\nFor a source object that is %s.\n", SET1);
+                P(SPEC1);
+            }
+
+            // Create control object 'W' and alternate value 'Z'.
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mW(&scratch);  const Obj& W = gg(&mW, SPEC1);
+            Obj mZ(&scratch);  const Obj& Z = gg(&mZ, "Z");
+
+            for (int tj = 0; tj < NUM_SPECS; ++tj) {
+                const char *const SPEC2 = SPECS[tj];
+                const char *const SET2  = '~' == *SPEC2 ? "null" : "set";
+
+                if (verbose) {
+                    printf("\n\tFor a target object that is %s.\n", SET2);
+                    P(SPEC2);
+                }
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator oa(   "object", veryVeryVeryVerbose);
+                    bslma::TestAllocator za("different", veryVeryVeryVerbose);
+
+                    // Create source object 'Y'.
+                    Obj *srcPtr = 0;
+                    bslma::TestAllocator *srcAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        srcPtr = new (fa) Obj(&za); gg(srcPtr, SPEC1);
+                        srcAllocatorPtr = &za;
+                      } break;
+                      case 'b': {
+                        srcPtr = new (fa) Obj(&oa); gg(srcPtr, SPEC1);
+                        srcAllocatorPtr = &oa;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad allocator config.");
+                      } return;                                       // RETURN
+                    }
+                    bslma::TestAllocator& sa = *srcAllocatorPtr;
+                    Obj& mY = *srcPtr;  const Obj& Y = mY;
+
+                    ASSERTV(SPEC1, SPEC2, Y == W);
+
+                    // Create target object 'X'.
+                    Obj *objPtr = new (fa) Obj(&oa);
+                    Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC2);
+
+                    ASSERTV(SPEC1, SPEC2, (X == Y) == (ti == tj));
+
+                    // Verify initial move state is correct.
+                    MoveState::Enum mState = Util::getMovedFromState(mY);
+                    ASSERTV(mState, MoveState::e_UNKNOWN   == mState
+                                 || MoveState::e_NOT_MOVED == mState);
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                    ASSERTV(SPEC1, SPEC2, mR, &mX, mR == &mX);
+
+                    // Verify the value of the object.
+                    ASSERTV(SPEC1, SPEC2, X == W);
+
+                    // Verify the move state is correct.
+                    mState = Util::getMovedFromState(mY);
+                    ASSERTV(mState, MoveState::e_UNKNOWN == mState
+                                 || MoveState::e_MOVED   == mState);
+
+                    // Manipulate source object 'Y' to ensure it is in a valid
+                    // state and is independent of 'X'.
+                    primaryManipulator(&mY, 'Z');
+                    ASSERTV(SPEC1, SPEC2, Y != W);
+                    ASSERTV(SPEC1, SPEC2, X == W);
+                    ASSERTV(SPEC1, SPEC2, Y == Z);
+
+                    fa.deleteObject(srcPtr);
+
+                    // Verify subsequent manipulation of new object 'X'.
+                    ASSERTV(SPEC1, SPEC2, X == W);
+
+                    primaryManipulator(&mX, 'Z');
+                    ASSERTV(SPEC1, SPEC2, X != W);
+                    ASSERTV(SPEC1, SPEC2, X == Z);
+
+                    fa.deleteObject(objPtr);
+
+                    ASSERTV(SPEC1, SPEC2, 0 == oa.numBlocksInUse());
+                    ASSERTV(SPEC1, SPEC2, 0 == sa.numBlocksInUse());
+                }
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                Obj mZ(&scratch);  const Obj& Z = gg(&mZ,  SPEC1);
+
+                // Create target object.
+                Obj mX(&oa);  const Obj& X = gg(&mX,  SPEC1);
+
+                // Alias source object to target object.
+                const Obj& Y = mX;
+
+                ASSERTV(SPEC1, X == Z);
+
+                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mX));
+                    ASSERTV(SPEC1, X == Z);
+                    ASSERTV(SPEC1, mR == &X);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(SPEC1, sam.isTotalSame());
+                ASSERTV(SPEC1, oam.isTotalSame());
+            }
+        }
+        // Verify no memory was ever allocated from the default allocator.
+        ASSERTV(0 == da.numBlocksTotal());
+    }
+#if defined(BDE_BUILD_TARGET_EXC)
+    if (verbose)
+        printf("\nTesting move assignment (no allocator) with exceptions\n");
+    {
+
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC1 = SPECS[ti];
+            const char *const SET1  = '~' == *SPEC1 ? "null" : "set";
+
+            if (verbose) {
+                printf("\nFor a source object that is %s.\n", SET1);
+                P(SPEC1);
+            }
+
+            // Create control object 'W' and alternate value 'Z'.
+            Obj mW;  const Obj& W = gg(&mW, SPEC1);
+            Obj mZ;  const Obj& Z = gg(&mZ, "Z");
+
+            for (int tj = 0; tj < NUM_SPECS; ++tj) {
+                const char *const SPEC2 = SPECS[tj];
+                const char *const SET2  = '~' == *SPEC2 ? "null" : "set";
+
+                if (verbose) {
+                    printf("\n\tFor a target object that is %s.\n", SET2);
+                    P(SPEC2);
+                }
+
+                for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator oa(   "object", veryVeryVeryVerbose);
+                    bslma::TestAllocator za("different", veryVeryVeryVerbose);
+
+                    int numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        ++numPasses;
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        // Create source object 'Y'.
+                        bslma::TestAllocator *srcAllocatorPtr;
+
+                        switch (CONFIG) {
+                          case 'a': {
+                            srcAllocatorPtr = &za;
+                          } break;
+                          case 'b': {
+                            srcAllocatorPtr = &oa;
+                          } break;
+                          default: {
+                            ASSERTV(CONFIG, !"Bad allocator config.");
+                          } return;                                   // RETURN
+                        }
+                        bslma::TestAllocator& sa = *srcAllocatorPtr;
+
+                        Obj mY(&sa);  const Obj& Y = gg(&mY, SPEC1);
+
+                        ASSERTV(SPEC1, SPEC2, Y == W);
+
+                        // Create target object 'X'.
+                        Obj mX(&oa);  const Obj& X = gg(&mX, SPEC2);
+
+                        ASSERTV(SPEC1, SPEC2, (X == Y) == (ti == tj));
+
+                        // Verify initial move state is correct.
+                        MoveState::Enum mState = Util::getMovedFromState(mY);
+                        ASSERTV(mState, MoveState::e_UNKNOWN   == mState
+                                     || MoveState::e_NOT_MOVED == mState);
+
+                        Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                        ASSERTV(SPEC1, SPEC2, mR, &mX, mR == &mX);
+
+                        // Verify the value of the object.
+                        ASSERTV(SPEC1, SPEC2, X == W);
+
+                        // Verify the move state is correct.
+                        mState = Util::getMovedFromState(mY);
+                        ASSERTV(mState, MoveState::e_UNKNOWN == mState
+                                     || MoveState::e_MOVED   == mState);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    ASSERTV(ti == 0 || numPasses > 1);
+                }
+            }
+        }
+    }
+#endif
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT (without allocator)
+    //
+    // Concerns:
+    //: 1 The signature and return type are standard.
+    //:
+    //: 2 The reference returned is to the target object (i.e., '*this').
+    //:
+    //: 3 The move-assignment operator can change the value of a modifiable
+    //:   target object to that of any source object.
+    //:
+    //: 4 The move-assignment operator is called on the contained value if the
+    //:   target is not null; otherwise, the move constructor is called.
+    //:
+    //: 5 The source object is left in a valid but unspecified state.
+    //:
+    //: 6 Subsequent changes to or destruction of the original object have no
+    //:   effect on the move-constructed object and vice-versa.
+    //:
+    //: 7 There is no memory allocated.
+    //:
+    //: 8 Assigning an object to itself behaves as expected (alias-safety).
+    //
+    // Plan:
+    //: 1 Use the address of 'operator=' to initialize a member-function
+    //:   pointer having the appropriate signature and return type for the
+    //:   move-assignment operator defined in this component.             (C-1)
+    //:
+    //: 2 Iterate over a set of object values with substantial and varied
+    //:   differences, ordered by increasing length, and create for each a
+    //:   control object representing the source of the assignment.       (C-3)
+    //:
+    //: 3 Iterate again over the same set of object values and create an object
+    //:   representing the target of the assignment.                      (C-8)
+    //:
+    //: 4 Create a source object (a copy of the control object in P-2).
+    //:
+    //: 5 Call the move-assignment operator and verify the following:
+    //:
+    //:   1 The address of the return value is the same as that of the target
+    //:     object.                                                       (C-2)
+    //:
+    //:   2 The object being assigned to has the same value as that of the
+    //:     source object before assignment (i.e., the control object).   (C-3)
+    //:
+    //:   3 The move constructor or move-assignment operator is called on the
+    //:     contained value according to whether or not the source value is
+    //:     null.                                                         (C-4)
+    //:
+    //:   4 Manipulate the source object (after assignment) to ensure that it
+    //:     is in a valid state, destroy it, and then manipulate the target
+    //:     object to ensure that it is in a valid state.               (C-5,6)
+    //:
+    //:   5 Verify no memory is allocated using the default allocator.    (C-7)
+    //
+    // Testing:
+    //   NullableValue& operator=(bslmf::MovableRef<NullableValue> original);
+    // ------------------------------------------------------------------------
+
+    static const char *SPECS[] = {
+        "~",
+        "A",
+        "B",
+        "C"
+    };
+    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+    Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
+    (void) operatorMAg;  // quash potential compiler warning
+
+    if (verbose) printf("\nTesting move assignment (no allocator).\n");
+    {
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC1 = SPECS[ti];
+            const char *const SET1  = '~' == *SPEC1 ? "null" : "set";
+
+            if (verbose) {
+                printf("\nFor a source object that is %s.\n", SET1);
+                P(SPEC1);
+            }
+
+            // Create control object 'W' and alternate value 'Z'.
+            Obj mW;  const Obj& W = gg(&mW, SPEC1);
+            Obj mZ;  const Obj& Z = gg(&mZ, "Z");
+
+            for (int tj = 0; tj < NUM_SPECS; ++tj) {
+                const char *const SPEC2 = SPECS[tj];
+                const char *const SET2  = '~' == *SPEC2 ? "null" : "set";
+
+                if (verbose) {
+                    printf("\n\tFor a target object that is %s.\n", SET2);
+                    P(SPEC2);
+                }
+
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                // Create source object 'Y'.
+                Obj *srcPtr = new (fa) Obj();
+                Obj& mY = *srcPtr;  const Obj& Y = gg(&mY, SPEC1);
+
+                ASSERTV(SPEC1, SPEC2, Y == W);
+
+                // Create target object 'X'
+                Obj *objPtr = new (fa) Obj();
+                Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC2);
+
+                ASSERTV(SPEC1, SPEC2, (X == Y) == (ti == tj));
+
+                // Verify initial move state is correct.
+                MoveState::Enum mState = Util::getMovedFromState(mY);
+                ASSERTV(mState, MoveState::e_UNKNOWN   == mState
+                             || MoveState::e_NOT_MOVED == mState);
+
+                Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                ASSERTV(SPEC1, SPEC2, mR, &mX, mR == &mX);
+
+                // Verify the value of the object.
+                ASSERTV(SPEC1, SPEC2, X == W);
+
+                // Verify the move state is correct.
+                mState = Util::getMovedFromState(mY);
+                ASSERTV(mState, MoveState::e_UNKNOWN == mState
+                             || MoveState::e_MOVED   == mState);
+
+
+                // Manipulate source object 'Y' to ensure it is in a valid
+                // state and is independent of 'X'.
+                primaryManipulator(&mY, 'Z');
+                ASSERTV(SPEC1, SPEC2, Y != W);
+                ASSERTV(SPEC1, SPEC2, X == W);
+                ASSERTV(SPEC1, SPEC2, Y == Z);
+
+                fa.deleteObject(srcPtr);
+
+                // Verify subsequent manipulation of new object 'X'.
+                ASSERTV(SPEC1, SPEC2, X == W);
+
+                primaryManipulator(&mX, 'Z');
+                ASSERTV(SPEC1, SPEC2, X != W);
+                ASSERTV(SPEC1, SPEC2, X == Z);
+
+                fa.deleteObject(objPtr);
+
+                // Verify no memory was ever allocated.
+                ASSERTV(SPEC1, SPEC2, 0 == da.numBlocksTotal());
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            {
+                Obj mZ;  const Obj& Z = gg(&mZ, SPEC1);
+
+                // Create target object.
+                Obj mX;  const Obj& X = gg(&mX, SPEC1);
+
+                // Alias source object to target object.
+                const Obj& Y = mX;
+
+                ASSERTV(SPEC1, X == Z);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mX));
+                    ASSERTV(SPEC1, X == Z);
+                    ASSERTV(SPEC1, mR == &X);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
+        }
+    }
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase21_withoutAllocator()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE CONSTRUCTOR (without allocator)
+    //
+    // Concerns:
+    //: 1 The newly created object has the same value (using the equality
+    //:   operator) as that of the original object before the call.
+    //:
+    //: 2 All internal representations of a given value can be used to create a
+    //:   new object of equivalent value, including the null state.
+    //:
+    //: 3 The move constructor is called on the contained value if the source
+    //:   value is not null.
+    //:
+    //: 4 The original object is left in a valid state.
+    //:
+    //: 5 Subsequent changes to or destruction of the original object have no
+    //:   effect on the move-constructed object and vice-versa.
+    //
+    // Plan:
+    //: 1 Specify a set 'S' of object values with substantial and varied
+    //:   differences, ordered by increasing length, to be used sequentially in
+    //:   the following tests; for each entry, create a control object.   (C-2)
+    //:
+    //: 2 For each of the object values (P-1), verify the following:
+    //:
+    //:   1 Verify the newly created object has the same value as that of the
+    //:     original object before the call to the move constructor (control
+    //:     value).                                                       (C-1)
+    //:
+    //:   2 Ensure that the move state reflects a call to the move constructor
+    //:     for the contained value if the source value was not null.     (C-3)
+    //:
+    //:   3 Manipulate the original object (after the move construction) to
+    //:     ensure it is in a valid state.                                (C-4)
+    //:
+    //:   4 Destroy the original object, and then manipulate the newly created
+    //:     object to ensure that it is in a valid state.                 (C-5)
+    //
+    // Testing:
+    //   NullableValue(bslmf::MovableRef<NullableValue> original);
+    // ------------------------------------------------------------------------
+
+    static const char *SPECS[] = {
+        "~",
+        "A",
+        "B",
+        "C"
+    };
+    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+    if (verbose)
+        printf("\nTesting move constructor (no allocator).\n");
+    {
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC = SPECS[ti];
+            const char *const SET  = '~' == *SPEC ? "null" : "set";
+
+            if (verbose) {
+                printf("\nFor an object that is %s.\n", SET);
+                P(SPEC);
+            }
+
+            // Create control object 'W' and alternate value 'Z'.
+            Obj mW;  const Obj& W = gg(&mW, SPEC);
+            Obj mZ;  const Obj& Z = gg(&mZ, "Z");
+
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            // Create source object 'Y'.
+            Obj *srcPtr = new (fa) Obj();
+            Obj& mY = *srcPtr;  const Obj& Y = gg(&mY, SPEC);
+
+            ASSERTV(SPEC, Y == W);
+
+            // Verify initial move state is correct.
+            MoveState::Enum mState = Util::getMovedFromState(mY);
+            ASSERTV(mState, MoveState::e_UNKNOWN   == mState
+                         || MoveState::e_NOT_MOVED == mState);
+
+            Obj *objPtr = new (fa) Obj(MoveUtil::move(mY));
+            Obj& mX = *objPtr;  const Obj& X = mX;
+
+            // Verify the value of the object.
+            ASSERTV(SPEC, X == W);
+
+            // Verify the move state is correct.
+            mState = Util::getMovedFromState(mY);
+            ASSERTV(mState, MoveState::e_UNKNOWN == mState
+                         || MoveState::e_MOVED   == mState);
+
+            // Manipulate source object 'Y' to ensure it is in a valid
+            // state and is independent of 'X'.
+            primaryManipulator(&mY, 'Z');
+            ASSERTV(SPEC, Y != W);
+            ASSERTV(SPEC, X == W);
+            ASSERTV(SPEC, Y == Z);
+
+            fa.deleteObject(srcPtr);
+
+            // Verify subsequent manipulation of new object 'X'.
+            ASSERTV(SPEC, X == W);
+
+            primaryManipulator(&mX, 'Z');
+            ASSERTV(SPEC, X != W);
+            ASSERTV(SPEC, X == Z);
+
+            fa.deleteObject(objPtr);
+
+            // Verify no memory was ever allocated.
+            ASSERTV(SPEC, 0 == da.numBlocksTotal());
+        }
+    }
+}
+
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase21_withAllocator()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE CONSTRUCTOR (with allocator)
+    //
+    // Concerns:
+    //: 1 The newly created object has the same value (using the equality
+    //:   operator) as that of the original object before the call.
+    //:
+    //: 2 All internal representations of a given value can be used to create a
+    //:   new object of equivalent value.
+    //:
+    //: 3 The allocator is propagated to the newly created object if (and only
+    //:   if) no allocator is specified in the call to the move constructor.
+    //:
+    //: 4 The move constructor is called on the contained value if the source
+    //:   value is not null.
+    //:
+    //: 5 The original object is always left in a valid state and the allocator
+    //:   address held by the original object is unchanged.
+    //:
+    //: 6 Subsequent changes to or destruction of the original object have no
+    //:   effect on the move-constructed object and vice-versa.
+    //:
+    //: 7 The object has its internal memory management system hooked up
+    //:   properly so that *all* internally allocated memory draws from a
+    //:   user-supplied allocator whenever one is specified.
+    //:
+    //: 8 Every object releases any allocated memory at destruction.
+    //
+    //: 9 Any memory allocation is exception neutral.
+    //
+    // Plan:
+    //: 1 Specify a set 'S' of object values with substantial and varied
+    //:   differences, ordered by increasing length, to be used sequentially in
+    //:   the following tests; for each entry, create a control object.   (C-2)
+    //:
+    //: 2 Call the move constructor to create the container in all relevant use
+    //:   cases involving the allocator: 1) no allocator passed in, 2) a '0' is
+    //    explicitly passed in as the allocator argument, 3) the same allocator
+    //:   as that of the original object is explicitly passed in, and 4) a
+    //:   different allocator than that of the original object is passed in.
+    //:
+    //: 3 For each of the object values (P-1) and for each configuration (P-2),
+    //:   verify the following:
+    //:
+    //:   1 Verify the newly created object has the same value as that of the
+    //:     original object before the call to the move constructor (control
+    //:     value).                                                       (C-1)
+    //:
+    //:   2 Ensure that the move state reflects a call to the move constructor
+    //:     for the contained value if the source value was not null.     (C-4)
+    //:
+    //:   3 Ensure that the new original, and control object continue to have
+    //:     the correct allocator and that all memory allocations come from the
+    //:     appropriate allocator.                                      (C-3,7)
+    //:
+    //:   7 Manipulate the original object (after the move construction) to
+    //:     ensure it is in a valid state, destroy it, and then manipulate the
+    //:     newly created object to ensure that it is in a valid state. (C-5,6)
+    //:
+    //:   8 Verify all memory is released when the object is destroyed.   (C-8)
+    //:
+    //: 4 Perform tests in the presence of exceptions during memory allocations
+    //:   using a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //:                                                                   (C-9)
+    //
+    // Testing:
+    //   NullableValue(bslmf::MovableRef<NullableValue> original);
+    //   NullableValue(bslmf::MovableRef<NullableValue> original, const A& a);
+    // ------------------------------------------------------------------------
+
+    static const char *SPECS[] = {
+        "~",
+        "A",
+        "B",
+        "C"
+    };
+    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+
+    if (verbose)
+        printf("\nTesting both versions of move constructor (with alloc).\n");
+    {
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC = SPECS[ti];
+            const char *const SET  = '~' == *SPEC ? "null" : "set";
+
+            if (verbose) {
+                printf("\nFor an object that is %s.\n", SET);
+                P(SPEC);
+            }
+
+            // Create control object 'W' and alternate value 'Z' with a scratch
+            // allocator.
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mW(&scratch);  const Obj& W = gg(&mW, SPEC);
+            Obj mZ(&scratch);  const Obj& Z = gg(&mZ, "Z");
+
+            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator za("different", veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                // Create source object 'Y'.
+                Obj *srcPtr = new (fa) Obj(&sa);
+                Obj& mY = *srcPtr;  const Obj& Y = gg(&mY, SPEC);
+
+                ASSERTV(SPEC, CONFIG, Y == W);
+
+                // Verify initial move state is correct.
+                MoveState::Enum mState = Util::getMovedFromState(mY);
+                ASSERTV(mState, MoveState::e_UNKNOWN   == mState
+                             || MoveState::e_NOT_MOVED == mState);
+
+                bslma::TestAllocatorMonitor oam(&da), sam(&sa);
+
+                Obj                  *objPtr;
+                bslma::TestAllocator *objAllocatorPtr;
+                bslma::TestAllocator *othAllocatorPtr;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    oam.reset(&sa);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY));
+                    objAllocatorPtr = &sa;
+                    othAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    oam.reset(&da);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY), 0);
+                    objAllocatorPtr = &da;
+                    othAllocatorPtr = &za;
+                  } break;
+                  case 'c': {
+                    oam.reset(&sa);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY), &sa);
+                    objAllocatorPtr = &sa;
+                    othAllocatorPtr = &da;
+                  } break;
+                  case 'd': {
+                    oam.reset(&za);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY), &za);
+                    objAllocatorPtr = &za;
+                    othAllocatorPtr = &da;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } return;                                           // RETURN
+                }
+
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = *othAllocatorPtr;
+
+                Obj& mX = *objPtr;  const Obj& X = mX;
+
+                // Verify the value of the object.
+                ASSERTV(SPEC, CONFIG, X == W);
+
+                // Verify the move state is correct.
+                mState = Util::getMovedFromState(mY);
+                ASSERTV(mState, MoveState::e_UNKNOWN == mState
+                             || MoveState::e_MOVED   == mState);
+
+                // Verify that 'X', 'Y', and 'Z' have the correct allocator.
+                // (which we can't, since its not exposed by the interface)
+
+                // Verify no allocation from the non-object allocator and that
+                // the object allocator is hooked up.
+                ASSERTV(SPEC, CONFIG, 0 == noa.numBlocksTotal());
+                ASSERTV(SPEC, CONFIG, 0 < oa.numBlocksTotal() || '~' == *SPEC);
+
+                // Manipulate source object 'Y' to ensure it is in a valid
+                // state and is independent of 'X'.
+                primaryManipulator(&mY, 'Z');
+                ASSERTV(SPEC, CONFIG, Y != W);
+                ASSERTV(SPEC, CONFIG, Y == Z);
+                ASSERTV(SPEC, CONFIG, X == W);
+
+                fa.deleteObject(srcPtr);
+
+                ASSERTV(SPEC, CONFIG, X == W);
+
+                // Verify subsequent manipulation of new object 'X'.
+                primaryManipulator(&mX, 'Z');
+                ASSERTV(SPEC, X != W);
+                ASSERTV(SPEC, X == Z);
+
+                fa.deleteObject(objPtr);
+
+                // Verify all memory is released on object destruction.
+                ASSERTV(SPEC, 0 == fa.numBlocksInUse());
+                ASSERTV(SPEC, 0 == da.numBlocksInUse());
+                ASSERTV(SPEC, 0 == sa.numBlocksInUse());
+                ASSERTV(SPEC, 0 == za.numBlocksInUse());
+            }
+        }
+    }
+}
 
 template <class TEST_TYPE>
 void TestDriver<TEST_TYPE>::testCase20()
@@ -1219,9 +2345,11 @@ void TestDriver<TEST_TYPE>::testCase20()
     // TESTING: Hashing
     //
     // Concerns:
-    //: 1 Hashing a value with a null value is equivalent to appending 'false'      //:   to the hash.
+    //: 1 Hashing a value with a null value is equivalent to appending 'false'
+    //:   to the hash.
     //:
-    //: 2 Hashing a value with a nullable value is equivalent to appending          //:   'true' to the hash followed by the value.
+    //: 2 Hashing a value with a nullable value is equivalent to appending
+    //:   'true' to the hash followed by the value.
     //
     // Plan:
     //: 1 Create a null nullable value and verify that hashing it yields the
@@ -1229,7 +2357,7 @@ void TestDriver<TEST_TYPE>::testCase20()
     //:
     //: 2 Create a non-null nullable value for a series of test values and
     //:   verify that hashing it produces the same result as hashing 'true' and
-    //:   then the test values themseleves.
+    //:   then the test values themselves.
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
@@ -1239,16 +2367,17 @@ void TestDriver<TEST_TYPE>::testCase20()
     const int        NUM_VALUES = static_cast<int>(VALUES.size());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (veryVerbose) {
-        cout << "\tVerify hashing null nullable values is equivalent to\n"                      "\tappending 'false' to the hash\n";
+        cout << "\tVerify hashing null nullable values is equivalent to\n"
+                "\tappending 'false' to the hash\n";
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
@@ -1259,11 +2388,12 @@ void TestDriver<TEST_TYPE>::testCase20()
     }
 
     if (veryVerbose) {
-        cout << "\tVerify hashing non-null nullable values is equivalent to\n"                  "\tappending 'true' to the hash followed by the value\n";
+        cout << "\tVerify hashing non-null nullable values is equivalent to\n"
+                "\tappending 'true' to the hash followed by the value\n";
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             for (int j = 0; j < NUM_VALUES; ++j) {
@@ -1353,7 +2483,7 @@ void TestDriver<TEST_TYPE>::testCase19_withoutAllocator()
 
         if (veryVeryVerbose) { T_ T_ P_(numParams) Q(Null Object) }
 
-        Obj mX; const Obj& X = mX;
+        Obj mX;  const Obj& X = mX;
         Helper *addr;
 
         ASSERT(X.isNull());
@@ -1462,7 +2592,7 @@ void TestDriver<TEST_TYPE>::testCase19_withAllocator()
 
     for (int numParams = 0; numParams <= MAX_NUM_PARAMS; ++numParams) {
 
-        Obj mX(&ta); const Obj& X = mX;
+        Obj mX(&ta);  const Obj& X = mX;
         Helper *addr;
 
         if (veryVeryVerbose) { T_ T_ P_(numParams)
@@ -1514,7 +2644,7 @@ void TestDriver<TEST_TYPE>::testCase19_withAllocator()
         ASSERT(1         == Helper::dtorCount());
 
         if (veryVeryVerbose) { T_ T_ P_(numParams)
-                                              Q(Null Object w & wo exception) }
+                                             Q(Null Object w & w/o exception) }
 
         mX.reset();
 
@@ -1553,7 +2683,7 @@ void TestDriver<TEST_TYPE>::testCase19_withAllocator()
         ASSERT(addr      == &X.value());
 
         if (veryVeryVerbose) { T_ T_ P_(numParams)
-                                          Q(non-Null Object w & wo exception) }
+                                         Q(non-Null Object w & w/o exception) }
 
         ASSERT(!X.isNull());
         Helper::resetDtorCount();
@@ -1650,7 +2780,7 @@ void TestDriver<TEST_TYPE>::testCase14()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
@@ -1671,7 +2801,7 @@ void TestDriver<TEST_TYPE>::testCase14()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == oa.numBlocksInUse());
@@ -1742,7 +2872,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     const int        NUM_VALUES = static_cast<int>(VALUES.size());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
     bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1761,7 +2891,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
@@ -1785,7 +2915,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == oa.numBlocksInUse());
@@ -1860,7 +2990,7 @@ void TestDriver<TEST_TYPE>::testCase16()
     const int        NUM_VALUES = static_cast<int>(VALUES.size());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
     bslma::DefaultAllocatorGuard dag(&da);
     if (veryVerbose) {
@@ -1868,7 +2998,7 @@ void TestDriver<TEST_TYPE>::testCase16()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         ASSERT(0 == x.valueOrNull());
         ASSERT(0 == X.valueOrNull());
@@ -1895,7 +3025,7 @@ void TestDriver<TEST_TYPE>::testCase16()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             ASSERT(0 == x.valueOrNull());
@@ -1966,7 +3096,7 @@ void TestDriver<TEST_TYPE>::testCase17()
     const int        NUM_VALUES = static_cast<int>(VALUES.size());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
     bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1975,7 +3105,7 @@ void TestDriver<TEST_TYPE>::testCase17()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         ASSERT(0 == oa.numBlocksInUse());
         ASSERT(0 == da.numBlocksInUse());
@@ -1996,7 +3126,7 @@ void TestDriver<TEST_TYPE>::testCase17()
     }
     {
         ObjWithAllocator object(&oa);
-        Obj& x = object.object(); const Obj& X = x;
+        Obj& x = object.object();  const Obj& X = x;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             for (int j = 0; j < NUM_VALUES; ++j) {
@@ -2027,9 +3157,9 @@ void TestDriver<TEST_TYPE>::testCase17()
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -2042,14 +3172,16 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
-    bslma::TestAllocator *ALLOC = &testAllocator;
-    bslma::TestAllocator globalAllocator(veryVeryVeryVerbose);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2092,6 +3224,139 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING WITH NON-COPY-ASSIGNABLE TYPES
+        //
+        // Concerns:
+        //: 1 That nullable values of non-assignable types can be created.
+        //
+        // Plan:
+        //: 1 Using ad hoc testing, verify that nullable values of
+        //:   non-assignable (allocating and non-allocating) test types can be
+        //:   created with the value and copy constructors.  (C-1)
+        //
+        // Testing:
+        //   Concern: Types that are not copy-assignable can be used.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING WITH NON-COPY-ASSIGNABLE TYPES"
+                          << "\n======================================"
+                          << endl;
+
+        if (verbose) cout << "\tNon-allocating non-assignable test type."
+                          << endl;
+        {
+            typedef bsltf::NonAssignableTestType   ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const ValueType VALUE(29);
+
+            const Obj X(VALUE);
+
+            ASSERT(        !X.isNull());
+            ASSERT(VALUE == X.value());
+
+            const Obj Y(X);
+
+            ASSERT(        !X.isNull());
+            ASSERT(VALUE == X.value());
+
+            ASSERT(        !Y.isNull());
+            ASSERT(VALUE == Y.value());
+        }
+
+        if (verbose) cout << "\tAllocating non-assignable test type." << endl;
+        {
+            typedef NonAssignableAllocTestType     ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            bslma::TestAllocator da     ("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa     ("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            const ValueType VALUE(37, &scratch);
+
+            {
+                const Obj X(VALUE);
+
+                ASSERT(        !X.isNull());
+                ASSERT(VALUE == X.value());
+
+                const Obj Y(X);
+
+                ASSERT(        !Y.isNull());
+                ASSERT(VALUE == Y.value());
+            }
+            ASSERT(0 == da.numBlocksInUse());
+
+            {
+                bslma::TestAllocatorMonitor dam(&da);
+
+                const Obj X(VALUE, &oa);
+
+                ASSERT(        !X.isNull());
+                ASSERT(VALUE == X.value());
+
+                const Obj Y(X, &oa);
+
+                ASSERT(        !Y.isNull());
+                ASSERT(VALUE == Y.value());
+
+                ASSERT(dam.isTotalSame());
+            }
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE-ASSIGNMENT OPERATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Move-Assignment"
+                          << "\n=======================" << endl;
+
+        if (verbose) cout << "\nRun Each Test Type"
+                          << "\n==================" << endl;
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase22_withoutAllocator,
+                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase22_withAllocator,
+                      TEST_TYPES_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase22_withAllocator,
+                      bsltf::MoveOnlyAllocTestType);
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Move Constructor"
+                          << "\n========================" << endl;
+
+        if (verbose) cout << "\nRun Each Test Type"
+                          << "\n==================" << endl;
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase21_withoutAllocator,
+                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase21_withAllocator,
+                      TEST_TYPES_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase21_withAllocator,
+                      bsltf::MoveOnlyAllocTestType);
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -2161,7 +3426,7 @@ int main(int argc, char *argv[])
         //: 7 Exception guarantee: Exceptions during construction of the
         //:   object, both allocator-enabled types and non-allocator-enabled
         //:   types, leave the nullable object in a null state.
-        //
+        //:
         //: 8 Nullable nullable objects can be constructed.
         //
         // Plan:
@@ -2197,12 +3462,12 @@ int main(int argc, char *argv[])
         //:   works as expected for a type with heterogeneous constructor
         //:   parameters.  'bsl::vector<double>' is used.
         //:
-        //: 5 Ad-hoc Test: In P-2, excecption guarantees were tested for the
+        //: 5 Ad-hoc Test: In P-2, exception guarantees were tested for the
         //:   allocating types; however, thought it is not BDE practice,
         //:   arbitrary non-allocating types can also throw exceptions.  Thus,
         //:   we define and test a helper class, 'TmvipSa_WithThrowingCtor',
-        //:   and use it to show that 'bdeu_NullableValue' objects are left in
-        //:   a null state when they execute the codepath for an non-allocating
+        //:   and use it to show that 'bdlb::NullableValue' objects are left in
+        //:   a null state when they execute the code path for a non-allocating
         //:   'TEST_TYPE'.
         //
         // Testing:
@@ -2317,8 +3582,8 @@ int main(int argc, char *argv[])
              << "\n==============================================" << endl;
 
         {
-            TmvipSa<int> objX(1, 2, 3, 4, 5); const TmvipSa<int>& X = objX;
-            TmvipSa<int> objY(X);             const TmvipSa<int>& Y = objY;
+            TmvipSa<int> objX(1, 2, 3, 4, 5);  const TmvipSa<int>& X = objX;
+            TmvipSa<int> objY(X);              const TmvipSa<int>& Y = objY;
             ASSERT(Y.a1() == X.a1());
             ASSERT(Y.a2() == X.a2());
             ASSERT(Y.a3() == X.a3());
@@ -2477,8 +3742,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator taX;
             bslma::TestAllocator taY;
-            TmvipAa<Str> objX("1", "2", &taX); const TmvipAa<Str>& X = objX;
-            TmvipAa<Str> objY(X,        &taY); const TmvipAa<Str>& Y = objY;
+            TmvipAa<Str> objX("1", "2", &taX);  const TmvipAa<Str>& X = objX;
+            TmvipAa<Str> objY(X,        &taY);  const TmvipAa<Str>& Y = objY;
             ASSERT(Y.a1() == X.a1());
             ASSERT(Y.a2() == X.a2());
             ASSERT(Y.a3() == X.a3());
@@ -2512,9 +3777,8 @@ int main(int argc, char *argv[])
             ASSERT(&va      == v.front().allocator());
         }
 
-        if (verbose) cout
-             << "\nRun Each Test Type"
-             << "\n=================="  << endl;
+        if (verbose) cout << "\nRun Each Test Type"
+                          << "\n==================" << endl;
 
         RUN_EACH_TYPE(TestDriver,
                      testCase19_withoutAllocator,
@@ -2531,7 +3795,7 @@ int main(int argc, char *argv[])
              << "\n==================================" << endl;
         {
             typedef bdlb::NullableValue<bsl::vector<double> > Obj;
-            Obj mX; const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
 
             const bsl::vector<double> value(5, 1.0);
 
@@ -2744,11 +4008,11 @@ int main(int argc, char *argv[])
 
         ASSERT(X1.isNull());
 
-        ASSERT_SAFE_FAIL(0 == X1.value());
+        ASSERT_SAFE_FAIL(X1.value());
 
         mX1 = 5;
 
-        ASSERT_SAFE_PASS(5 == X1.value());
+        ASSERT_SAFE_PASS(X1.value());
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -3017,6 +4281,8 @@ int main(int argc, char *argv[])
                 << "\nUsing 'bsl::string' and 'char *' + ALLOC." << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef const char *ValueType1;
             typedef bsl::string ValueType2;
 
@@ -3029,7 +4295,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tcopy assignment" << endl;
 
             const ObjType1 OBJ1(VALUE1);
-                  ObjType2 obj2(VALUE2, ALLOC);
+                  ObjType2 obj2(VALUE2, &oa);
 
             ASSERT(VALUE1 == OBJ1.value());
             ASSERT(VALUE2 == obj2.value());
@@ -3135,7 +4401,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tcopy assignment" << endl;
 
             const ObjType1 OBJ1(VALUE1);
-                  ObjType2 obj2(VALUE2, ALLOC);
+                  ObjType2 obj2(VALUE2, &oa);
 
             ASSERT(VALUE1 == OBJ1.value());
             ASSERT(VALUE2 == obj2.value());
@@ -3237,6 +4503,8 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef char *                          ValueType1;
             typedef bsl::string                     ValueType2;
 
@@ -3248,7 +4516,7 @@ int main(int argc, char *argv[])
             const ValueType1 VALUE1 = p;
 
             const ObjType1 OBJ1(VALUE1);
-            const ObjType2 OBJ2(OBJ1, ALLOC);  // <<<=== ALLOC !!!
+            const ObjType2 OBJ2(OBJ1, &oa);  // <<<=== ALLOC !!!
 
             ASSERT(VALUE1             == OBJ1.value());
             ASSERT(ValueType2(VALUE1) == OBJ2.value());
@@ -3270,7 +4538,7 @@ int main(int argc, char *argv[])
 
             const ObjType1 OBJ1(VALUE1);
             const ObjType2 OBJ2(OBJ1);
-            const ObjType2 OBJ3(OBJ1, ALLOC);
+            const ObjType2 OBJ3(OBJ1, &oa);
 
             ASSERT(VALUE1             == OBJ1.value());
             //ASSERT(ValueType2(VALUE1) == OBJ2.value());
@@ -3398,16 +4666,18 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef bsl::string                    ValueType;
             typedef bdlb::NullableValue<ValueType> Obj;
 
             const ValueType VALUE1 = "abc";
             const ValueType VALUE2 = "def";
 
-            const Obj A(VALUE1, ALLOC);
+            const Obj A(VALUE1, &oa);
             ASSERT(VALUE1 == A.value());
 
-            const Obj B(VALUE2, ALLOC);
+            const Obj B(VALUE2, &oa);
             ASSERT(VALUE2 == B.value());
         }
 
@@ -3519,7 +4789,7 @@ int main(int argc, char *argv[])
             typedef bdlb::NullableValue<DeprecatedBdex> Obj;
 
             const Obj X;
-            
+
             ASSERT(17 == X.maxSupportedBdexVersion());
         }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -3550,6 +4820,8 @@ int main(int argc, char *argv[])
                           << "\n================================" << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef bsl::string                    ValueType;
             typedef bdlb::NullableValue<ValueType> Obj;
 
@@ -3564,12 +4836,12 @@ int main(int argc, char *argv[])
             mX[2].makeValue(VALUE2);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
+                Obj mU(mX[i], &oa);  const Obj& U = mU;
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
-                    Obj mV(mX[j], ALLOC);  const Obj& V = mV;
+                    Obj mV(mX[j], &oa);  const Obj& V = mV;
 
-                    Obj mW(V, ALLOC);  const Obj& W = mW;
+                    Obj mW(V, &oa);  const Obj& W = mW;
 
                     mU = V;
 
@@ -3579,8 +4851,8 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                Obj mU(mX[i], ALLOC);  const Obj& U = mU;
-                Obj mW(U,     ALLOC);  const Obj& W = mW;
+                Obj mU(mX[i], &oa);  const Obj& U = mU;
+                Obj mW(U,     &oa);  const Obj& W = mW;
 
                 mU = U;
 
@@ -3654,6 +4926,8 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef bsl::string                    ValueType;
             typedef bdlb::NullableValue<ValueType> Obj;
 
@@ -3675,7 +4949,7 @@ int main(int argc, char *argv[])
                 const Obj& X = mX[i];
                 const Obj& W = mW[i];
 
-                Obj mY(X, ALLOC);  const Obj& Y = mY;
+                Obj mY(X, &oa);  const Obj& Y = mY;
 
                 if (veryVerbose) {
                     T_ P_(i) P_(W) P_(X) P(Y)
@@ -4025,6 +5299,8 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
             typedef bsl::string                    ValueType;
             typedef bdlb::NullableValue<ValueType> Obj;
 
@@ -4033,7 +5309,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTesting default constructor." << endl;
 
             {
-                Obj mX(ALLOC);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 ASSERT(X.isNull());
             }
@@ -4041,7 +5317,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTesting 'makeValue'." << endl;
 
             {
-                Obj mX(ALLOC);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
 
                 mX.makeValue();
                 if (veryVeryVerbose) { T_ T_ P(X) }
@@ -4050,7 +5326,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                Obj mX(ALLOC);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
 
                 mX.makeValue("3");  // set some random value
                 mX.makeValue();     // reset to default
@@ -4060,7 +5336,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                Obj mX(ALLOC);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
 
                 const ValueType VALUE1 = "123";
 
@@ -4071,7 +5347,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                Obj mX(ALLOC);  const Obj& X = mX;
+                Obj mX(&oa);  const Obj& X = mX;
 
                 const ValueType VALUE1 = "123";
                 const ValueType VALUE2 = "456";
@@ -4511,10 +5787,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
 
       } break;
-      default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
-      }
       case -1: {
         // --------------------------------------------------------------------
         // TESTING: 'makeValueInplace'
@@ -4525,7 +5797,7 @@ int main(int argc, char *argv[])
         //
         // Plans:
         //: 1 Depending on a preprocessor flag, this test case specifies, or
-        //:   not, a disallowed allocator agrument to the 'makeValueinPlace'
+        //:   not, a disallowed allocator argument to the 'makeValueInplace'
         //:   method.  This allows manual checking for this compile-time
         //:   failure.
         //
@@ -4533,11 +5805,11 @@ int main(int argc, char *argv[])
         //   Expected compile-time failure for 'makeValueInplace'
         // --------------------------------------------------------------------
 
-        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-        bslma::TestAllocator sa("string",  veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("string", veryVeryVeryVerbose);
 
         typedef bsl::string                    ValueType;
-        typedef bdlb::NullableValue<ValueType>   ObjType;
+        typedef bdlb::NullableValue<ValueType> ObjType;
 
         ObjType obj(&oa);  ASSERT(obj.isNull());
 
@@ -4547,8 +5819,13 @@ int main(int argc, char *argv[])
         obj.makeValueInplace();
 #endif
       } break;
+      default: {
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        testStatus = -1;
+      }
     }
 
+    ASSERT(0 == defaultAllocator.numBlocksInUse());
     ASSERT(0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
