@@ -5903,23 +5903,23 @@ void Harness::testCase40(int value)
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
 
-        ASSERT(true
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r, &p)));
 
-        ASSERT(true
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r)));
 
-        ASSERT(true
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(
                           bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
 
-        ASSERT(true
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(
                           bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
 
 #if 0 // Per AJM
         bsl::nullptr_t     n;
-        ASSERT(true
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
 #endif // Per AJM
     }
@@ -6120,11 +6120,12 @@ void Harness::testCase40(int value)
 
         bsl::shared_ptr<U> mR; const bsl::shared_ptr<U>& R = mR;
 
- //----^
- ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
- ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
- ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
- //----V
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
     }
 
     // page 592
@@ -6160,33 +6161,39 @@ void Harness::testCase40(int value)
 
     {
         {
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
         }
         {
             bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
         }
         {
             bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
         }
         {
             bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
         }
         {
             bsl::weak_ptr<T> r;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
                                              bslmf::MovableRefUtil::move(r))));
         }
         {
             bsl::weak_ptr<Y> r;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
                                              bslmf::MovableRefUtil::move(r))));
         }
     }
@@ -6206,32 +6213,37 @@ void Harness::testCase40(int value)
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
         }
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
         }
         {
             bsl::weak_ptr<T>   mX;
             bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
         }
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<T>  r;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                          mX = bslmf::MovableRefUtil::move(r)));
         }
         {
             bsl::weak_ptr<T> mX;
             bsl::weak_ptr<Y>  r;
 
-            ASSERT(true == BSLS_CPP11_NOEXCEPT_OPERATOR(
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                          mX = bslmf::MovableRefUtil::move(r)));
         }
     }
@@ -6534,7 +6546,6 @@ int main(int argc, char *argv[])
         Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
 
       } break;
-#if 0 // XXX
       case 39: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
@@ -16676,7 +16687,6 @@ int main(int argc, char *argv[])
         PerformanceTester<Obj>::test(verbose, veryVeryVerbose);
 
       } break;
-#endif // 0  XXX
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
