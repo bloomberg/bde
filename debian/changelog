@@ -1,11 +1,24 @@
-bsl-internal (3.0.5.0) unstable; urgency=low
+bsl-internal (3.0.6.0) unstable; urgency=low
 
+  * 76307d2 Merge pull request #778 from mgiroux/review/fix-bitset-all-drqs-90339397
+  * bcfed76 Merge pull request #773 from hversche/pr/768-rebased-releases/3.0.x
+  * 98a47e0 Merge pull request #771 from hrosen4/allocatortraits-declval-3.0.6-drqs-90075227
+  * b851bc8 Merge pull request #769 from hversche/pr/764-rebased-releases/3.0.x
+  * 75cbc42 Merge pull request #766 from afeher/bdlb_chartype-octal-digit-support
+  * 3e57b82 Merge pull request #763 from mgiroux/review/bump-version-to-3.0.6
+  * b7bd685 Bump patchversion for 3.0.6
+
+ -- mgiroux <mgiroux@bloomberg.net>  Fri, 7 Oct 2016 15:54:34 -0400
+
+bsl-internal (3.0.5.0) git; urgency=low
+
+  * 0b5489b Changelog for version 3.0.5.0
   * 0cde5e9 Merge pull request #757 from mgiroux/review/bump-version-to-3.0.5
   * 74f43fd bump version to 3.0.5
   * e0f1bb5 Merge pull request #755 from hversche/pr/753-rebased-releases/3.0.x
   * 7e4c245 Merge pull request #751 from hversche/pr/750-rebased-releases/3.0.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 26 Sep 2016 10:59:16 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 27 Sep 2016 11:06:50 -0400
 
 bsl-internal (3.0.4.1) git; urgency=low
 
