@@ -64,7 +64,8 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
-// [ 3] int findMatchingPaths(bsl::vector<bsl::string> *,const char *)
+// [ 3] int Obj::findMatchingPaths(const char *)
+// [ 3] int Obj::findMatchingPaths(vector<string>*, const char *)
 // [ 4] bool isRegularFile(const bsl::string&, bool)
 // [ 4] bool isRegularFile(const char *, bool)
 // [ 4] bool isDirectory(const bsl::string&, bool)
@@ -2445,7 +2446,8 @@ int main(int argc, char *argv[])
         }
 
         vector<string> vs;
-        Obj::findMatchingPaths(&vs, "woof.a.?");
+        int rc = Obj::findMatchingPaths(&vs, "woof.a.?");
+        ASSERT(4 == rc);
         sort(vs.begin(), vs.end());
 
         ASSERT(vs.size() == 4);
@@ -2959,6 +2961,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Make sure both '*' and '?' characters are supported with
         //   'findMatchingPath'
+        //
+        // Testing:
+        //   int Obj::findMatchingPaths(const char *)
+        //   int Obj::findMatchingPaths(vector<string>*, const char *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing pattern matching\n"
@@ -3037,7 +3043,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; T_; cout << "Looking up file "; P(path); }
 
             vector<bsl::string> lookup;
-            Obj::findMatchingPaths(&lookup, path.c_str());
+            int rc = Obj::findMatchingPaths(&lookup, path.c_str());
+            ASSERT(static_cast<int>(lookup.size()) == rc);
             string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
@@ -3067,7 +3074,12 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; T_; cout << "Looking up "; P(path); }
 
             vector<bsl::string> lookup;
-            Obj::findMatchingPaths(&lookup, path.c_str());
+            int rc = Obj::findMatchingPaths(&lookup, path.c_str());
+            ASSERT(static_cast<int>(lookup.size()) == rc);
+
+            rc = Obj::findMatchingPaths(path.c_str());
+            ASSERT(static_cast<int>(lookup.size()) == rc);
+
             string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
@@ -3091,7 +3103,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_; T_; cout << "Looking up "; P(path); }
 
-            Obj::findMatchingPaths(&resultPaths, pattern.c_str());
+            int rc = Obj::findMatchingPaths(&resultPaths, pattern.c_str());
+            ASSERT(static_cast<int>(resultPaths.size()) == rc);
+
             string rollup = ::rollupPaths(resultPaths);
             LOOP3_ASSERT(LINE, p.result, rollup, string(p.result) == rollup);
         }

@@ -691,6 +691,7 @@ struct FilesystemUtil {
         // the working directory of the entire program, casuing attempts in
         // other threads to open files with relative path names to fail.
 
+    static int findMatchingPaths(const char               *pattern);
     static int findMatchingPaths(bsl::vector<bsl::string> *result,
                                  const char               *pattern);
         // Load into the specified 'result' vector all paths in the filesystem
@@ -703,8 +704,10 @@ struct FilesystemUtil {
         // Note that any initial contents of 'result' will be erased, and that
         // the paths in 'result' will not be in any particular guaranteed
         // order.  Return the number of paths matched on success, and a
-        // negative value otherwise; if a negative value is returned, the
-        // contents of '*result' are undefined.
+        // negative value otherwise; if 'result' is specified and a negative
+        // value is returned, the contents of '*result' are undefined.  If
+        // 'result' is not specified the function merely returns the number of
+        // paths matched.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an

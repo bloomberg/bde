@@ -211,6 +211,13 @@ void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
     vector->push_back(item);
 }
 
+static
+void nullWrapper(const char *item)
+    // A no-op 'thunk' to visit the path specified by 'item' and do nothing.
+{
+    (void) item;
+}
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 static inline
 void invokeFindClose(void *handle, void *)
@@ -2028,6 +2035,13 @@ int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
     return 0;
 }
 
+int FilesystemUtil::findMatchingPaths(const char *pattern)
+{
+    BSLS_ASSERT(pattern);
+
+    return visitPaths(pattern, &nullWrapper);
+}
+
 int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                       const char               *pattern)
 {
@@ -2040,6 +2054,7 @@ int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                            result,
                                            bdlf::PlaceHolders::_1));
 }
+
 }  // close package namespace
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
