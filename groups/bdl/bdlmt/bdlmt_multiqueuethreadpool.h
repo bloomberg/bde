@@ -391,7 +391,7 @@ class MultiQueueThreadPool_Queue {
 
         e_ENQUEUING_ENABLED,  // enqueueing is enabled
         e_ENQUEUING_DISABLED, // enqueueing is disabled
-        e_DELETING             // queue is stopped pending deletion
+        e_DELETING            // queue is stopped pending deletion
     };
 
     enum {
