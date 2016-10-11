@@ -310,12 +310,12 @@ void MultiQueueThreadPool::processQueueCb(
         int pauseState = context->d_queue.d_pauseState.loadRelaxed();
 
         // If the queue is pausing, mark it paused now. We will not resubmit
-        // the processing callback.  Note that it is critical we first update
-        // pauseState and then update the atomic state variable.
+        // the processing callback.
         
         if (MultiQueueThreadPool_Queue::e_PAUSING == pauseState) {
-            context->d_queue.d_pauseState = pauseState =
-                MultiQueueThreadPool_Queue::e_PAUSED;
+            pauseState =               MultiQueueThreadPool_Queue::e_PAUSED;
+            context->d_queue.d_pauseState =
+                                       MultiQueueThreadPool_Queue::e_PAUSED;
         }
             
         // Reduce the number of pending jobs; if it reaches 0, or the 
