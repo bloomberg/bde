@@ -14,11 +14,11 @@ BSLS_IDENT_RCSID(bdlde_quotedprintableencoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bsl_cstring.h>   // strlen()
+#include <bsl_cstring.h>   // 'strlen'
 
-                        // ======================
-                        // FILE-SCOPE STATIC DATA
-                        // ======================
+                          // ======================
+                          // FILE-SCOPE STATIC DATA
+                          // ======================
 
 namespace {
 
@@ -40,10 +40,10 @@ static const char *bdeHex = "0123456789ABCDEF";
 static const char equivalenceClassMap[] = {
 //  0   1   2   3   4   5   6   7
     CC, CC, CC, CC, CC, CC, CC, CC,  // 000
-    CC, WS, CC, CC, CC, CR, CC, CC,  // 010  '\t', '\n', '\r'
+    CC, WS, LF, CC, CC, CR, CC, CC,  // 010  '\t', '\n', '\r'
     CC, CC, CC, CC, CC, CC, CC, CC,  // 020
     CC, CC, CC, CC, CC, CC, CC, CC,  // 030
-    WS, PC, PC, PC, PC, PC, PC, PC,  // 040  ' ', '!' (decimal 33)
+    WS, PC, PC, PC, PC, PC, PC, PC,  // 040  ' ', '!' is first PC
     PC, PC, PC, PC, PC, PC, PC, PC,  // 050
     PC, PC, PC, PC, PC, PC, PC, PC,  // 060
     PC, PC, PC, PC, PC, CC, PC, PC,  // 070  '='
@@ -54,7 +54,7 @@ static const char equivalenceClassMap[] = {
     PC, PC, PC, PC, PC, PC, PC, PC,  // 140
     PC, PC, PC, PC, PC, PC, PC, PC,  // 150
     PC, PC, PC, PC, PC, PC, PC, PC,  // 160
-    PC, PC, PC, PC, PC, PC, PC, CC,  // 170  '~' (decimal 126)
+    PC, PC, PC, PC, PC, PC, PC, CC,  // 170  '~' is last PC
     CC, CC, CC, CC, CC, CC, CC, CC,  // 200
     CC, CC, CC, CC, CC, CC, CC, CC,  // 210
     CC, CC, CC, CC, CC, CC, CC, CC,  // 220
@@ -90,6 +90,80 @@ const char *QuotedPrintableEncoder::s_defaultEquivClass_p =
                                                            equivalenceClassMap;
 const int bdlde::QuotedPrintableEncoder::s_defaultMaxLineLength = 76;
 
+// PRIVATE MANIPULATORS
+void QuotedPrintableEncoder::appendSoftLineBreak(char *out) {
+    BSLS_ASSERT(0 == d_bufferLength);
+
+    *out = '=';
+    ++d_outputLength;
+
+    d_buffer[d_bufferLength++] = '\n';
+    d_buffer[d_bufferLength++] = '\r';
+
+    d_lineStart = d_outputLength + 2;
+
+    d_lastWasWS = false;
+}
+
+void QuotedPrintableEncoder::appendHardLineBreak(char *out) {
+    BSLS_ASSERT(0 == d_bufferLength);
+
+    if (d_lastWasWS) {
+        *out = '=';
+        ++d_outputLength;
+
+        d_buffer[d_bufferLength++] = '\n';
+        d_buffer[d_bufferLength++] = '\r';
+        d_buffer[d_bufferLength++] = '\n';
+        d_buffer[d_bufferLength++] = '\r';
+
+        d_lineStart = d_outputLength + 4;
+    }
+    else {
+        *out = '\r';
+        ++d_outputLength;
+
+        d_buffer[d_bufferLength++] = '\n';
+
+        d_lineStart = d_outputLength + 1;
+    }
+
+    d_lastWasWS = false;
+}
+
+void QuotedPrintableEncoder::appendPrintable(char *out, char ch) {
+    BSLS_ASSERT(0 == d_bufferLength);
+
+    if (d_outputLength - d_lineStart >= d_maxLineLength - 1) {
+        d_buffer[d_bufferLength++] = ch;
+        appendSoftLineBreak(out);
+    }
+    else {
+        *out = ch;
+        ++d_outputLength;
+    }
+
+    d_lastWasWS = (WS == d_equivClass_p[static_cast<unsigned char>(ch)]);
+}
+
+void QuotedPrintableEncoder::appendAsHex(char *out, char ch, bool isFinal) {
+    BSLS_ASSERT(0 == d_bufferLength);
+
+    d_buffer[d_bufferLength++] = bdeHex[ch & 0xf];
+    d_buffer[d_bufferLength++] = bdeHex[(ch >> 4) & 0xf];
+
+    if (d_outputLength - d_lineStart >= d_maxLineLength - (isFinal ? 2 : 3)) {
+        d_buffer[d_bufferLength++] = '=';
+        appendSoftLineBreak(out);
+    }
+    else {
+        *out = '=';
+        ++d_outputLength;
+    }
+
+    d_lastWasWS = false;
+}
+
 // CREATORS
 QuotedPrintableEncoder::QuotedPrintableEncoder(
                            QuotedPrintableEncoder::LineBreakMode lineBreakMode,
@@ -101,6 +175,8 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
+, d_deffered(0)
+, d_lastWasWS(false)
 {
     if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
         d_maxLineLength = s_defaultMaxLineLength;
@@ -111,26 +187,17 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 
     BSLS_ASSERT(4 <= d_maxLineLength);
 
-    if (e_CRLF_MODE == lineBreakMode) {
-        // Use the default opcode table.
-
-        d_equivClass_p = const_cast<char*>(s_defaultEquivClass_p);
-            // Encoder will not change d_equivClass_p outside constructor.
+    if (e_CRLF_MODE == d_lineBreakMode || e_MIXED_MODE == d_lineBreakMode) {
+        d_equivClass_p = const_cast<char *>(s_defaultEquivClass_p);
     }
     else {
-        // Copy the table and change the opcodes for '\r' for both
-        // LF_MODE and BDEDE_MIXED_MODE.
-
         int len = sizeof(equivalenceClassMap);
         d_equivClass_p = new char[len];
         bsl::memcpy(d_equivClass_p, s_defaultEquivClass_p, len);
-        d_equivClass_p['\n'] = LF;
-    }
-
-    if (e_LF_MODE == lineBreakMode) {
-        // In addition, change the opcode for '\n' for BDEDE_LF_MODE.
-
         d_equivClass_p['\r'] = CC;
+        if (e_BINARY_MODE == d_lineBreakMode) {
+            d_equivClass_p['\n'] = CC;
+        }
     }
 }
 
@@ -145,6 +212,8 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
+, d_deffered(0)
+, d_lastWasWS(false)
 {
     if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
         d_maxLineLength = s_defaultMaxLineLength;
@@ -166,53 +235,33 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
     if (extraCharsToEncode) {
         len = static_cast<int>(bsl::strlen(extraCharsToEncode));
         for (int i = 0; i < len; ++i) {
-            d_equivClass_p[(unsigned char) (extraCharsToEncode[i])] = CC;
+            int index = static_cast<unsigned char>(extraCharsToEncode[i]);
+            if (PC == d_equivClass_p[index] || WS == d_equivClass_p[index]) {
+                d_equivClass_p[index] = CC;
+            }
         }
     }
 
-    // Put CRLF mapping last as it will override the caller's mistake of
-    // including '\r' or '\n' in the 'extraCharsToEncode' array.
-
-    switch (lineBreakMode) {
-      case e_CRLF_MODE: {
-        d_equivClass_p['\r'] = CR;
-        d_equivClass_p['\n'] = CC;  // Stand-alone '\n' is encoded.
-      } break;
-      case e_LF_MODE: {
-        d_equivClass_p['\r'] = CC;  // Stand-alone '\r' is encoded.
-        d_equivClass_p['\n'] = LF;
-      } break;
-      case e_MIXED_MODE: {
+    if (e_CRLF_MODE == d_lineBreakMode || e_MIXED_MODE == d_lineBreakMode) {
         d_equivClass_p['\r'] = CR;
         d_equivClass_p['\n'] = LF;
-      } break;
-      default: {
-      }
+    }
+    else if (e_LF_MODE == d_lineBreakMode) {
+        d_equivClass_p['\r'] = CC;
+        d_equivClass_p['\n'] = LF;
+    }
+    else {
+        d_equivClass_p['\r'] = CC;
+        d_equivClass_p['\n'] = CC;
     }
 }
 
 QuotedPrintableEncoder::~QuotedPrintableEncoder()
 {
-    BSLS_ASSERT(e_ERROR_STATE <= d_state);
-    BSLS_ASSERT(d_state <= e_SAW_CR_STATE);
-    BSLS_ASSERT(4 <= d_maxLineLength);
-    BSLS_ASSERT(0 <= d_outputLength);
-    BSLS_ASSERT(0 <= d_lineLength);
-    BSLS_ASSERT(e_CRLF_MODE  == d_lineBreakMode
-             || e_LF_MODE    == d_lineBreakMode
-             || e_MIXED_MODE == d_lineBreakMode);
-    BSLS_ASSERT(d_lineBreakMode <= 2);
-
     if (d_equivClass_p != s_defaultEquivClass_p) {
         delete[] d_equivClass_p;
     }
-
-    while (!d_outBuf.empty()) {
-        d_outBuf.pop();
-    }
 }
-
-
 
 // MANIPULATORS
 int QuotedPrintableEncoder::convert(char       *out,
@@ -229,216 +278,128 @@ int QuotedPrintableEncoder::convert(char       *out,
     BSLS_ASSERT(end);
 
     if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state) {
-        int rv = e_DONE_STATE == d_state ? -2 : -1;
         d_state = e_ERROR_STATE;
         *numOut = 0;
         *numIn = 0;
-        return rv;                                                    // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (0 == maxNumOut) {
         *numOut = 0;
         *numIn = 0;
-        return 0;                                                     // RETURN
+        return numOutputPending();                                    // RETURN
     }
 
-    const int originalOutputLength = d_outputLength;
-    const char *originalBegin = begin;
-    int maxOutLen = d_outputLength + maxNumOut;
+    if (begin < end) {
+        d_state = e_INPUT_STATE;
+    }
 
-    while (begin < end && d_outputLength != maxOutLen) {
-        if (d_outputLength - d_lineStart == 75) {
-            // insert soft newline
+    const int   originalOutputLength = d_outputLength;
+    const char *originalBegin        = begin;
+    int         maxOutLen            = d_outputLength + maxNumOut;
 
-            BSLS_ASSERT(0 == d_bufferLength);
-            *out++ = '=';
+    while (   d_outputLength != maxOutLen
+           && (begin < end || d_bufferLength)) {
+
+        while (d_bufferLength && d_outputLength != maxOutLen) {
+            *out++ = d_buffer[--d_bufferLength];
             ++d_outputLength;
-            d_lineStart = d_outputLength + 2;
-            d_buffer[0] = '\r';
-            d_buffer[1] = '\n';
-            d_bufferLength = 2;
         }
-        else if (d_bufferLength) {
-            // flush buffer
 
-            BSLS_ASSERT(d_bufferLength <= 3);
-            if (('\r' == *begin || '\n' == *begin) &&
-                                 (' ' == d_buffer[0] || '\t' == d_buffer[0])) {
-                BSLS_ASSERT(1 == d_bufferLength);
-                if (d_outputLength - d_lineStart > 72) {
-                    // insert soft newline
-
-                    *out++ = '=';
-                    ++d_outputLength;
-                    d_lineStart = d_outputLength + 2;
-                    d_buffer[2] = d_buffer[0];
-                    d_buffer[0] = '\r';
-                    d_buffer[1] = '\n';
-                    d_bufferLength = 3;
+        if (d_deffered && d_outputLength != maxOutLen && begin < end) {
+            if (d_deffered == '\r') {
+                if (LF == d_equivClass_p[static_cast<unsigned char>(*begin)]) {
+                    appendHardLineBreak(out++);
+                    ++begin;
                 }
                 else {
-                    *out++ = '=';
-                    ++d_outputLength;
-                    const char ch = d_buffer[0];
-                    d_buffer[0] = bdeHex[ch >> 4];
-                    d_buffer[1] = bdeHex[ch & 0xf];
-                    d_bufferLength = 2;
+                    appendAsHex(out++, d_deffered);
                 }
             }
             else {
-                *out++ = d_buffer[0];
-                ++d_outputLength;
-                d_buffer[0] = d_buffer[1];
-                d_buffer[1] = d_buffer[2];
-                --d_bufferLength;
-            }
-        }
-        else if (e_SAW_CR_STATE == d_state) {
-            const char ch = *begin;
-            if ('\n' == ch) {
-                // TBD fix
-
-                *out++ = '\r';
-                ++d_outputLength;
-                d_lineStart = d_outputLength + 1;
-                d_buffer[0] = '\n';
-                d_bufferLength = 1;
-                d_state = e_INPUT_STATE;
-                ++begin;
-            }
-            else if (d_outputLength - d_lineStart > 72) {
-                // insert soft newline
-
-                BSLS_ASSERT(0 == d_bufferLength);
-                *out++ = '=';
-                ++d_outputLength;
-                d_lineStart = d_outputLength + 2;
-                d_buffer[0] = '\r';
-                d_buffer[1] = '\n';
-                d_bufferLength = 2;
-            }
-            else {
-                // insert bdeHex representation
-
-                BSLS_ASSERT(0 == d_bufferLength);
-                *out++ = '=';
-                ++d_outputLength;
-
-                // buffer two hex characters
-
-                d_buffer[0] = '0';
-                d_buffer[1] = 'D';
-                d_bufferLength = 2;
-                d_state = e_INPUT_STATE;
-            }
-        }
-        else {
-            const char ch = *begin;
-            if (' ' == ch || '\t' == ch) {
-                d_buffer[0] = ch;
-                d_bufferLength = 1;
-                ++begin;
-            }
-            else if ('=' == ch || ch < 33 || ch > 126) {
-                if ('\r' == ch && QuotedPrintableEncoder::e_LF_MODE !=
-                                                             d_lineBreakMode) {
-                    d_state = e_SAW_CR_STATE;
-                    ++begin;
-                }
-                else if ('\n' == ch &&
-                                     QuotedPrintableEncoder::e_CRLF_MODE !=
-                                                             d_lineBreakMode) {
-                    d_state = e_SAW_CR_STATE;
-                    ++begin;
-                }
-                else if (d_outputLength - d_lineStart > 72) {
-                    *out++ = '=';
-                    ++d_outputLength;
-                    d_lineStart = d_outputLength + 2;
-                    d_buffer[0] = '\r';
-                    d_buffer[1] = '\n';
-                    d_bufferLength = 2;
+                if (LF == d_equivClass_p[static_cast<unsigned char>(*begin)]
+                 || CR == d_equivClass_p[static_cast<unsigned char>(*begin)]) {
+                    appendAsHex(out++, d_deffered);
                 }
                 else {
-                    *out++ = '=';
-                    ++d_outputLength;
-
-                    // buffer two hex characters
-
-                    d_buffer[0] = bdeHex[ch >> 4];
-                    d_buffer[1] = bdeHex[ch & 0xf];
-                    d_bufferLength = 2;
-                    ++begin;
+                    appendPrintable(out++, d_deffered);
                 }
             }
-            else {
-                *out++ = ch;
-                ++d_outputLength;
-                ++begin;
+            d_deffered = 0;
+        }
+
+        while (   d_outputLength != maxOutLen
+               && begin < end
+               && 0 == d_deffered
+               && 0 == d_bufferLength) {
+            switch (d_equivClass_p[static_cast<unsigned char>(*begin)]) {
+              case PC: {
+                appendPrintable(out++, *begin++);
+              } break;
+              case CC: {
+                appendAsHex(out++, *begin++);
+              } break;
+              case WS: {
+                d_deffered = *begin++;
+              } break;
+              case CR: {
+                d_deffered = *begin++;
+              } break;
+              case LF: {
+                if (   e_LF_MODE    == d_lineBreakMode
+                    || e_MIXED_MODE == d_lineBreakMode) {
+                    appendHardLineBreak(out++);
+                    ++begin;
+                }
+                else {
+                    appendAsHex(out++, *begin++);
+                }
+              } break;
             }
         }
     }
 
     *numOut = d_outputLength - originalOutputLength;
     *numIn = static_cast<int>(begin - originalBegin);
-    return d_bufferLength;
+
+    return numOutputPending();
 }
 
-int QuotedPrintableEncoder::endConvert(char *out,
-                                       int  *numOut,
-                                       int   maxNumOut)
+int QuotedPrintableEncoder::endConvert(char *out, int *numOut, int maxNumOut)
 {
-    enum { BDEDE_ERR = -1 };
+    enum { e_ERROR = -1 };
 
     if (d_state == e_ERROR_STATE || isDone()) {
         d_state = e_ERROR_STATE;
         *numOut = 0;
-        return BDEDE_ERR;                                             // RETURN
+        return e_ERROR;                                               // RETURN
     }
 
-    BSLS_ASSERT(d_bufferLength <= 3);
+    d_state = e_DONE_STATE;
 
     const int originalOutputLength = d_outputLength;
     int maxOutLen = d_outputLength + maxNumOut;
-    while (d_bufferLength && d_outputLength != maxOutLen) {
-        if (' ' == d_buffer[0] || '\t' == d_buffer[0]) {
-            if (d_outputLength - d_lineStart > 72) {
-                // insert soft newline
 
-                *out++ = '=';
-                ++d_outputLength;
-                d_lineStart = d_outputLength + 2;
-                d_buffer[2] = d_buffer[0];
-                d_buffer[0] = '\r';
-                d_buffer[1] = '\n';
-                d_bufferLength = 3;
-            }
-            else {
-                *out++ = '=';
-                ++d_outputLength;
-                const char ch = d_buffer[0];
-                d_buffer[0] = bdeHex[ch >> 4];
-                d_buffer[1] = bdeHex[ch & 0xf];
-                d_bufferLength = 2;
-            }
-        }
-        else {
-            *out++ = d_buffer[0];
-            ++d_outputLength;
-            d_buffer[0] = d_buffer[1];
-            d_buffer[1] = d_buffer[2];
-            --d_bufferLength;
-        }
+    if (d_deffered && d_outputLength != maxOutLen) {
+        appendAsHex(out++, d_deffered, true);
+        d_deffered = 0;
     }
+
+    while (d_bufferLength && d_outputLength != maxOutLen) {
+        *out++ = d_buffer[--d_bufferLength];
+        ++d_outputLength;
+    }
+
     *numOut = d_outputLength - originalOutputLength;
-    return d_bufferLength;
+
+    return numOutputPending();
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
