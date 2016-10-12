@@ -231,6 +231,13 @@ class Tokenizer {
                                                                  // stand alone
                                                                  // values
 
+    bool                                 d_allowHeterogenousArrays;
+                                                                // option for
+                                                                // allowing
+                                                                // arrays of
+                                                                // heterogenous
+                                                                // values
+
     // PRIVATE MANIPULATORS
     int extractStringValue();
         // Extract the string value starting at the current data cursor and
@@ -313,7 +320,15 @@ class Tokenizer {
         // option's value is 'false' then the tokenizer will only tokenize
         // complete JSON documents (JSON objects and arrays) and return an
         // error for stand alone JSON values.  By default, the value of the
-        // 'allowStandAloneValues' is 'true'.
+        // 'allowStandAloneValues' option is 'true'.
+
+    void setAllowHeterogenousArrays(bool value);
+        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
+        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
+        // successfully tokenize heterogenous values within an array.  If the
+        // option's value is 'false' then the tokenizer will return an error
+        // for arrays having heterogenous values.  By default, the value of the
+        // 'allowHeterogenousArrays' option is 'true'.
 
     // ACCESSORS
     TokenType tokenType() const;
@@ -321,6 +336,10 @@ class Tokenizer {
 
     bool allowStandAloneValues() const;
         // Return the value of the 'allowStandAloneValues' option of this
+        // tokenizer.
+
+    bool allowHeterogenousArrays() const;
+        // Return the value of the 'allowHeterogenousArrays' option of this
         // tokenizer.
 
     int value(bslstl::StringRef *data) const;
@@ -347,6 +366,7 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_tokenType(e_BEGIN)
 , d_context(e_OBJECT_CONTEXT)
 , d_allowStandAloneValues(true)
+, d_allowHeterogenousArrays(true)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
 }
@@ -375,6 +395,12 @@ void Tokenizer::setAllowStandAloneValues(bool value)
     d_allowStandAloneValues = value;
 }
 
+inline
+void Tokenizer::setAllowHeterogenousArrays(bool value)
+{
+    d_allowHeterogenousArrays = value;
+}
+
 // ACCESSORS
 inline
 Tokenizer::TokenType Tokenizer::tokenType() const
@@ -387,6 +413,13 @@ bool Tokenizer::allowStandAloneValues() const
 {
     return d_allowStandAloneValues;
 }
+
+inline
+bool Tokenizer::allowHeterogenousArrays() const
+{
+    return d_allowHeterogenousArrays;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
