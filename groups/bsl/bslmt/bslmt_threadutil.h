@@ -358,12 +358,11 @@ struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
     // managing threads.
 
+  public:
     // PUBLIC TYPES
     typedef ThreadUtilImpl<Platform::ThreadPolicy> Imp;
         // Platform-specific implementation type.
 
-  public:
-    // PUBLIC TYPES
     typedef Imp::Handle                            Handle;
         // Thread handle type.  Use this type to refer to a thread in a
         // platform-independent way.
