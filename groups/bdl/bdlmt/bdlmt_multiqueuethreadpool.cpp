@@ -308,8 +308,9 @@ void MultiQueueThreadPool::processQueueCb(
     }
     else {
         // Reduce the number of pending jobs.
+
         int numPending = --context->d_queue.d_numPendingJobs;
-        
+
         int pauseState = context->d_queue.d_pauseState.loadRelaxed();
 
         // If the queue is pausing, mark it paused now. We will not resubmit
