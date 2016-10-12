@@ -136,8 +136,7 @@ using namespace bsl;
 // [12] inequality comparisons: '<', '>', '<=', '>='
 // [ 6] equality comparisons: '==', '!='
 // [ 5] operator<< (N/A)
-//
-// OTHER
+// ----------------------------------------------------------------------------
 // [16] Usage Example
 // [14] testing simple container that does not support allocators
 // [13] testing container override of specified 'VALUE'
@@ -145,6 +144,8 @@ using namespace bsl;
 // [10] allocator
 // [ 3] Primary generator functions 'gg' and 'ggg'
 // [ 1] Breathing Test
+// [19] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+//
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
@@ -2234,7 +2235,9 @@ class TestDriver {
         // object doesn't use 'ta'.
 
   public:
-                                  // test cases
+    // TEST CASES
+    static void testCase19();
+        // Test 'noexcept' specifications
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     static void testCase18MoveOnlyType();
@@ -2396,6 +2399,65 @@ void TestDriver<CONTAINER>::emptyAndVerify(Obj               *obj,
     ASSERTV(LINE, obj->size(), 0 == obj->size());
 }
 
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase19()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<CONTAINER>())
+    }
+
+    // N4594: 23.6.6.1 'stack' definition
+
+    // page 905:
+    //..
+    //    void swap(stack& s) noexcept(is_nothrow_swappable_v<Container>)
+    //        { using std::swap; swap(c, s.c); }
+    //..
+
+    {
+        Obj c;
+        Obj s;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(c.swap(s)));
+    }
+
+    // page 905
+    //..
+    //    template <class T, class Container>
+    //    void swap(stack<T, Container>& x, stack<T, Container>& y)
+    //        noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
+}
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class CONTAINER>
 void TestDriver<CONTAINER>::testCase18MoveOnlyType()
@@ -2413,7 +2475,7 @@ void TestDriver<CONTAINER>::testCase18MoveOnlyType()
     //:   class, 'MovableVector', using 'bsltf::MoveOnlyAllocTestType' for the
     //:   contained value type.
     //:
-    //: 2 Recast the tests of 'testCase19' so there is no reliance on copy
+    //: 2 Recast the tests of 'testCase18' so there is no reliance on copy
     //:   construction or copy assignment.
     //
     // Testing:
@@ -5501,6 +5563,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 19: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "------------------------" "\n");
+
+        TestDriver<bsl::vector<int> >::testCase19();
+
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // MOVE MANIPULATORS

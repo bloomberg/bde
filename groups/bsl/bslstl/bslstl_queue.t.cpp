@@ -125,7 +125,8 @@ using namespace bsl;
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
 // [**] CONCERN: The object is compatible with STL allocator.
-
+// [20] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+//
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
@@ -1955,8 +1956,10 @@ class TestDriver {
                                    size_t            length);
 
   public:
-
     // TEST CASES
+    static void testCase20();
+        // Test 'noexcept' specifications
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     static void testCase19MoveOnlyType();
         // Test move manipulators on move-only types
@@ -2137,6 +2140,66 @@ TestDriver<VALUE, CONTAINER>::gg(Obj *object, const char *spec)
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class VALUE, class CONTAINER>
+void TestDriver<VALUE, CONTAINER>::testCase20()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<CONTAINER>())
+    }
+
+    // N4594: 23.6.4.1 'queue' definition
+
+    // page 900
+    //..
+    //     void swap(queue& q) noexcept(is_nothrow_swappable_v<Container>)
+    //         { using std::swap; swap(c, q.c); }
+    //..
+
+    {
+        Obj x;
+        Obj q;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(q)));
+    }
+
+    // page 900
+    //..
+    //     template <class T, class Container>
+    //     void swap(queue<T, Container>& x, queue<T, Container>& y)
+    //         noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
+}
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class CONTAINER>
@@ -5298,6 +5361,17 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 20: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "------------------------" "\n");
+
+        TestDriver<int, bsl::vector<int> >::testCase20();
+
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // MOVE MANIPULATORS

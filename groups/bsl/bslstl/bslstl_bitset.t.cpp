@@ -3,7 +3,10 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
+
+#include <bsls_cpp11.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
@@ -112,6 +115,7 @@ using namespace std;    // still using iostream
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
+// [13] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -433,6 +437,193 @@ void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 
 }
 
+void testCase13()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    // N4594: 20.8 Class template bitset
+
+    // page 556: 20.8.4 bitset operators
+    //..
+    //  template <size_t N>
+    //          bitset<N> operator&(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //  template <size_t N>
+    //          bitset<N> operator|(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //  template <size_t N>
+    //          bitset<N> operator^(const bitset<N>&, const bitset<N>&)
+    //                                                                noexcept;
+    //..
+    {
+        bsl::bitset<32> lhs;
+        bsl::bitset<32> rhs;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
+    }
+
+    // page 557
+    //..
+    //  class reference {
+    //    friend class bitset;
+    //    reference() noexcept;
+    //  public:
+    //    ~reference() noexcept;
+    //    reference& operator=(bool x) noexcept;           // for b[i] = x;
+    //    reference& operator=(const reference&) noexcept; // for b[i] = b[j];
+    //    bool operator~() const noexcept;                 // flips the bit
+    //    operator bool() const noexcept;                  // for x = b[i];
+    //    reference& flip() noexcept;                      // for b[i].flip();
+    //  }
+    //..
+    {
+        bsl::bitset<32> b;
+        size_t          i = 0;
+        size_t          j = 0;
+        bool            x = true;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
+                                                     // 'reference()' (private)
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
+                                                              // '~reference()'
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
+                                                           // 'operator=(bool)'
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
+                                               // 'operator=(const reference&)'
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
+    }
+
+    // page 557: 20.8.1 constructors:
+    //..
+    //  constexpr bitset() noexcept;
+    //  constexpr bitset(unsigned long long val) noexcept;
+    //..
+    {
+        unsigned long long val = 1;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
+    }
+
+    // page 557: 20.8.2 bitset operations:
+    //..
+    //  bitset<N>& operator&=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator|=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator^=(const bitset<N>& rhs) noexcept;
+    //  bitset<N>& operator<<=(size_t pos) noexcept;
+    //  bitset<N>& operator>>=(size_t pos) noexcept;
+    //  bitset<N>& set() noexcept;
+    //  bitset<N>& reset() noexcept;
+    //  bitset<N> operator~() const noexcept;
+    //  bitset<N>& flip() noexcept;
+    //..
+    {
+        bsl::bitset<32> b;
+        bsl::bitset<32> rhs;
+        size_t          pos;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
+    }
+
+    // page 557-558: element access:
+    //..
+    // size_t count() const noexcept;
+    // constexpr size_t size() const noexcept;
+    //
+    // bool operator==(const bitset<N>& rhs) const noexcept;
+    // bool operator!=(const bitset<N>& rhs) const noexcept;
+    // bool all() const noexcept;
+    // bool any() const noexcept;
+    // bool none() const noexcept;
+    // bitset<N> operator<<(size_t pos) const noexcept;
+    // bitset<N> operator>>(size_t pos) const noexcept;
+    //..
+    {
+        bsl::bitset<32> b;
+        bsl::bitset<32> rhs;
+        size_t          pos;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
+    }
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -570,6 +761,17 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        testCase13();
+
+      } break;
     case 12: {
       // --------------------------------------------------------------------
       // USAGE EXAMPLE TEST

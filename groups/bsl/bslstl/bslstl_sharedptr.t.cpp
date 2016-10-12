@@ -22,6 +22,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -296,6 +297,7 @@ using namespace BloombergLP;
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
+// [40] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [-1] PERFORMANCE
 //-----------------------------------------------------------------------------
 //
@@ -3173,13 +3175,16 @@ struct Harness {
         // 'ALLOCATOR'.  See the test case function for documented concerns and
         // test plan.
 
+    template <class T, class Y>
+    static void testCase40(int value);
+        // Test 'noexcept' specifications
+
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
     template <class T>
     static const T&             testArg(T& t, bsl::false_type);
         // TBD write a contract for these overloads
 };
-
 
 // Inline methods are defined before the remaining class methods.
 
@@ -5844,6 +5849,455 @@ void Harness::testCase34_AllocatorAware()
     ASSERT(dam.isInUseSame());
 }
 
+template <class T, class Y>
+void Harness::testCase40(int value)
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<T>())
+        P(bsls::NameOf<Y>())
+        P(value)
+    }
+
+    if (verbose) {
+        printf("bsl::shared_ptr<T>\n");
+    }
+
+    // N4594: page 590: 20.10.2.2 Class template 'shared_ptr'
+
+    // page 590
+    //..
+    //  // 20.10.2.2.1, constructors:
+    //  constexpr shared_ptr() noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r, T* p) noexcept;
+    //  shared_ptr(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r) noexcept;
+    //  shared_ptr(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr(shared_ptr<Y>&& r) noexcept;
+    //  constexpr shared_ptr(nullptr_t) noexcept : shared_ptr() { }
+    //..
+
+    {
+        bsl::shared_ptr<Y> r;
+        T                  p;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r, &p)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+#if 0 // Per AJM
+        bsl::nullptr_t     n;
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
+#endif // Per AJM
+    }
+
+    // page 590
+    //..
+    //  // 20.10.2.2.3, assignment:
+    //  shared_ptr& operator=(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r)
+    //                                                                noexcept;
+    //  shared_ptr& operator=(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(shared_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        bsl::shared_ptr<Y> mZ; const bsl::shared_ptr<Y>& Z = mZ;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = R));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = Z));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mR)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mZ)));
+    }
+
+    // page 591
+    //..
+    //  // 20.10.2.2.4, modifiers:
+    //  void swap(shared_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mR)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.reset()));
+    }
+
+    // page 591
+    //..
+    //  // 20.10.2.2.5, observers:
+    //  T* get() const noexcept;
+    //  T& operator*() const noexcept;
+    //  T* operator->() const noexcept;
+    //  long use_count() const noexcept;
+    //  bool unique() const noexcept;
+    //  explicit operator bool() const noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.get()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator*()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator->()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.unique()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(static_cast<bool>(X)));
+    }
+
+    // page 591 - 592
+    //..
+    //  // 20.10.2.2.7, shared_ptr comparisons:
+    //  template<class T, class U>
+    //  bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator!=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template <class T>
+    //  bool operator==(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator==(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator!=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator!=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //..
+
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= B));
+
+        // Test 'bsl::nullptr_t' overloads
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 >= B));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.8, shared_ptr specialized algorithms:
+    //  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b)
+    //                                                                noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<T> mB; const bsl::shared_ptr<T>& B = mB;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mA, mB)));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.9, shared_ptr casts:
+    //  template<class T, class U>
+    //  shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //..
+
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<U> mR; const bsl::shared_ptr<U>& R = mR;
+
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.10, shared_ptr get_deleter:
+    //  template<class D, class T> D* get_deleter(const shared_ptr<T>& p)
+    //                                                                noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
+    }
+
+    if (verbose) {
+        printf("bsl::weak_ptr<T>\n");
+    }
+
+    // N4594: page 598: 20.10.2.3 Class template weak_ptr [util.smartptr.weak]
+
+    // page 599
+    //..
+    //  // 20.10.2.3.1, constructors
+    //  constexpr weak_ptr() noexcept;
+    //  template<class Y> weak_ptr(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        {
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
+        }
+        {
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+        {
+            bsl::weak_ptr<Y> r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.3, assignment
+    //  weak_ptr& operator=(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y> const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr& operator=(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T>   mX;
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T>  r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y>  r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.4, modifiers
+    //  void swap(weak_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> x;
+        bsl::weak_ptr<T> r;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(r)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reset()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.5, observers
+    //  long use_count() const noexcept;
+    //  bool expired() const noexcept;
+    //  shared_ptr<T> lock() const noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& R = mR;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.use_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.expired()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.lock()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.6, specialized algorithms
+    //  template<class T> void swap(weak_ptr<T>& a, weak_ptr<T>& b) noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> a;
+        bsl::weak_ptr<T> b;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(a, b)));
+    }
+}
 
 template <int N>
 void testMyTestArg()
@@ -6081,6 +6535,17 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 40: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
+
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
@@ -11694,7 +12159,7 @@ int main(int argc, char *argv[])
 
             // COMPARISON SHR PTR TO SHR PTR
         ASSERT(!(ptrNil == ptr1));
-        ASSERT(ptrNil != ptr1);
+        ASSERT(  ptrNil != ptr1);
 
             // COMPARISON SHR PTR TO BOOL
         ASSERT(static_cast<bool>(ptrNil) == false);

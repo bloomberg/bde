@@ -2986,7 +2986,7 @@ int main(int argc, char *argv[])
       case 18: {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
-        // CONVERSION TO/FROM 'bdef_Function' 
+        // CONVERSION TO/FROM 'bdef_Function'
         //
         // Concerns:
         //: 1 An object of 'bsl::function<F*>' type can be implicitly converted
