@@ -64,8 +64,8 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
-// [ 3] int Obj::findMatchingPaths(const char *)
 // [ 3] int Obj::findMatchingPaths(vector<string>*, const char *)
+// [ 3] int Obj::numMatchingPaths(const char *)
 // [ 4] bool isRegularFile(const bsl::string&, bool)
 // [ 4] bool isRegularFile(const char *, bool)
 // [ 4] bool isDirectory(const bsl::string&, bool)
@@ -1308,10 +1308,15 @@ int main(int argc, char *argv[])
         bsl::string              pattern = logPath;
 
         bdls::PathUtil::appendRaw(&pattern, "*.log");
-        Obj::findMatchingPaths(&results, pattern.c_str());
-
+        int rc = Obj::findMatchingPaths(&results, pattern.c_str());
         LOOP_ASSERT(results.size(),
                                 NUM_FILES + NUM_VALID_NAMES == results.size());
+        ASSERT(NUM_FILES + NUM_VALID_NAMES == rc);
+
+        rc = Obj::findMatchingPaths(&results, pattern);
+        LOOP_ASSERT(results.size(),
+                                NUM_FILES + NUM_VALID_NAMES == results.size());
+        ASSERT(NUM_FILES + NUM_VALID_NAMES == rc);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         // Use the Windows 'wchar_t' interface to find the files, showing that
@@ -2955,16 +2960,28 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING pattern matching
         //
-        // Concern: Both '*' and '?' characters are supported, and
-        //          can appear in multiple directories in the path.
+        // Concerns:
+        //: 1 Both '*' and '?' characters are supported, and can appear in
+        //:   multiple directories in the path.
+        //:
+        //: 2 Paths can be specified either as a 'const char *' or a
+        //:   'bsl::string'.
+        //:
+        //: 3 The return value properly returns the number of files matched,
+        //:   including 0 in the case where no files are matched.
         //
         // Plan:
-        //   Make sure both '*' and '?' characters are supported with
-        //   'findMatchingPath'
+        //: 1 Make sure both '*' and '?' characters are supported with
+        //:   'findMatchingPath'.
+        //:
+        //: 2 Always loop to test both the 'bsl::string' and 'const char *'
+        //:   pattern cases.
+        //:
+        //: 3 Test with a pattern that matches nothing.
         //
         // Testing:
-        //   int Obj::findMatchingPaths(const char *)
         //   int Obj::findMatchingPaths(vector<string>*, const char *)
+        //   int Obj::numMatchingPaths(const char *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing pattern matching\n"
@@ -3043,13 +3060,26 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; T_; cout << "Looking up file "; P(path); }
 
             vector<bsl::string> lookup;
-            int rc = Obj::findMatchingPaths(&lookup, path.c_str());
-            ASSERT(static_cast<int>(lookup.size()) == rc);
-            string rollup = ::rollupPaths(lookup);
+
+            for (int jj = 0; jj < 2; ++jj) {
+                lookup.resize(1);
+                lookup.front() = "woof";
+
+                int rc = jj ? Obj::findMatchingPaths(&lookup, path.c_str())
+                            : Obj::findMatchingPaths(&lookup, path);
+                ASSERT(1 == rc);
+                ASSERT(1 == lookup.size());
+                ASSERT(path == lookup.front());
+                string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
+                replace_if(rollup.begin(), rollup.end(), ::isForwardSlash,*PS);
 #endif
-            LOOP2_ASSERT(path, rollup, path == rollup);
+                LOOP2_ASSERT(path, rollup, path == rollup);
+
+                rc = jj ? Obj::numMatchingPaths(path.c_str())
+                        : Obj::numMatchingPaths(path);
+                ASSERT(1 == rc);
+            }
 
             bdls::PathUtil::popLeaf(&path);
         }
@@ -3074,17 +3104,26 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_; T_; cout << "Looking up "; P(path); }
 
             vector<bsl::string> lookup;
-            int rc = Obj::findMatchingPaths(&lookup, path.c_str());
-            ASSERT(static_cast<int>(lookup.size()) == rc);
 
-            rc = Obj::findMatchingPaths(path.c_str());
-            ASSERT(static_cast<int>(lookup.size()) == rc);
+            for (int jj = 0; jj < 2; ++jj) {
+                lookup.resize(1);
+                lookup.front() = "woof";
 
-            string rollup = ::rollupPaths(lookup);
+                int rc = jj ? Obj::findMatchingPaths(&lookup, path.c_str())
+                            : Obj::findMatchingPaths(&lookup, path);
+                ASSERT(1 == rc);
+                ASSERT(1 == lookup.size());
+                ASSERT(path == lookup.front());
+                string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
+                replace_if(rollup.begin(), rollup.end(), ::isForwardSlash,*PS);
 #endif
-            LOOP2_ASSERT(path, rollup, path == rollup);
+                LOOP2_ASSERT(path, rollup, path == rollup);
+
+                rc = jj ? Obj::numMatchingPaths(path.c_str())
+                        : Obj::numMatchingPaths(path);
+                ASSERT(1 == rc);
+            }
 
             bdls::PathUtil::popLeaf(&path);
         }
@@ -3103,14 +3142,43 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_; T_; cout << "Looking up "; P(path); }
 
-            int rc = Obj::findMatchingPaths(&resultPaths, pattern.c_str());
-            ASSERT(static_cast<int>(resultPaths.size()) == rc);
+            for (int jj = 0; jj < 2; ++jj) {
+                resultPaths.resize(1);
+                resultPaths.front() = "woof";
 
-            string rollup = ::rollupPaths(resultPaths);
-            LOOP3_ASSERT(LINE, p.result, rollup, string(p.result) == rollup);
+                int rc = jj ? Obj::findMatchingPaths(&resultPaths, pattern)
+                            : Obj::findMatchingPaths(&resultPaths,
+                                                     pattern.c_str());
+                const int np = static_cast<int>(resultPaths.size());
+                ASSERT(np == rc);
+
+                string rollup = ::rollupPaths(resultPaths);
+                LOOP3_ASSERT(LINE, p.result, rollup, 
+                                                   string(p.result) == rollup);
+
+                rc = jj ? Obj::numMatchingPaths(pattern)
+                        : Obj::numMatchingPaths(pattern.c_str());
+                ASSERT(np == rc);
+            }
         }
 
-        ASSERT(0 == Obj::remove(path.c_str(), true));
+        // non-existent file
+
+        for (int jj = 0; jj < 2; ++jj) {
+            resultPaths.push_back(bsl::string("meow"));
+
+            int rc = jj ? Obj::findMatchingPaths(&resultPaths,
+                                                 bsl::string("idontexist*"))
+                        : Obj::findMatchingPaths(&resultPaths, "idontexist*");
+            ASSERT(0 == rc);
+            ASSERT(resultPaths.empty());
+
+            rc = jj ? Obj::numMatchingPaths(bsl::string("idontexist*"))
+                    : Obj::numMatchingPaths("idontexist*");
+            ASSERT(0 == rc);
+        }
+
+        ASSERT(0 == Obj::remove(path, true));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5027,7 +5095,9 @@ int main(int argc, char *argv[])
 
             logFiles.clear();
             rc = Obj::findMatchingPaths(&logFiles,
-                                        "tmp.non_existent_file.txt");
+                                       "tmp.non_existent_file.txt");
+            LOOP_ASSERT(rc, 0 == rc);    // no such file
+            rc = Obj::numMatchingPaths("tmp.non_existent_file.txt");
             LOOP_ASSERT(rc, 0 == rc);    // no such file
 
             // Clean up

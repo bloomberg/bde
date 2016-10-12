@@ -2035,13 +2035,6 @@ int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
     return 0;
 }
 
-int FilesystemUtil::findMatchingPaths(const char *pattern)
-{
-    BSLS_ASSERT(pattern);
-
-    return visitPaths(pattern, &nullWrapper);
-}
-
 int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                       const char               *pattern)
 {
@@ -2053,6 +2046,13 @@ int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                       bdlf::BindUtil::bind(&pushBackWrapper,
                                            result,
                                            bdlf::PlaceHolders::_1));
+}
+
+int FilesystemUtil::numMatchingPaths(const char *pattern)
+{
+    BSLS_ASSERT(pattern);
+
+    return visitPaths(pattern, &nullWrapper);
 }
 
 }  // close package namespace

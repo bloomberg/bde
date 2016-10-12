@@ -691,9 +691,10 @@ struct FilesystemUtil {
         // the working directory of the entire program, casuing attempts in
         // other threads to open files with relative path names to fail.
 
-    static int findMatchingPaths(const char               *pattern);
     static int findMatchingPaths(bsl::vector<bsl::string> *result,
                                  const char               *pattern);
+    static int findMatchingPaths(bsl::vector<bsl::string> *result,
+                                 const bsl::string&        pattern);
         // Load into the specified 'result' vector all paths in the filesystem
         // matching the specified 'pattern'.  The '*' character will match any
         // number of characters in a filename; however, this matching will not
@@ -708,6 +709,31 @@ struct FilesystemUtil {
         // value is returned, the contents of '*result' are undefined.  If
         // 'result' is not specified the function merely returns the number of
         // paths matched.
+        //
+        // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
+        // function has behavior that we have chosen not to work around: an
+        // extension consisting of wild-card characters ('?', '*') can match
+        // an extension or *no* extension.  E.g., "file.?" matches "file.z",
+        // but not "file.txt"; however, it also matches "file" (without any
+        // extension).  Likewise, "*.*" matches any filename, including
+        // filenames having no extension.  Also, on Windows (but not on Unix)
+        // attempting to match a pattern that is invalid UTF-8 will result in
+        // an error.
+        //
+        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+        // implementation of the system 'glob' function can temporarily change
+        // the working directory of the entire program, casuing attempts in
+        // other threads to open files with relative path names to fail.
+
+    static int numMatchingPaths(const bsl::string&  pattern);
+    static int numMatchingPaths(const char         *pattern);
+        // Return the number of paths matched on success, and a negative value
+        // otherwise.  The '*' character will match any number of characters in
+        // a filename; however, this matching will not span a directory
+        // separator (e.g., "logs/m*.txt" will not match "logs/march/001.txt").
+        // '?' will match any one character.  '*' and '?' may be used any
+        // number of times in the pattern.  The special directories "." and
+        // ".." will not be matched against any pattern.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an
@@ -936,6 +962,19 @@ int FilesystemUtil::visitTree(
     BSLS_ASSERT_SAFE(0 != root);
 
     return visitTree(bsl::string(root), pattern, visitor, sortFlag);
+}
+
+inline
+int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                      const bsl::string&        pattern)
+{
+    return findMatchingPaths(result, pattern.c_str());
+}
+
+inline
+int FilesystemUtil::numMatchingPaths(const bsl::string& pattern)
+{
+    return numMatchingPaths(pattern.c_str());
 }
 
 inline
