@@ -9,6 +9,7 @@
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_movabletesttype.h>
 #include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
@@ -5795,9 +5796,9 @@ bool operator!=(const StatefulStlAllocator<VALUE>& lhs,
     return lhs.id() != rhs.id();
 }
 
-                            // ==================
-                            // class CompareGuard
-                            // ==================
+                            // ====================
+                            // class CompareProctor
+                            // ====================
 
 template <class OBJECT>
 struct CompareProctor {
@@ -6499,6 +6500,12 @@ class TestDriver {
     static void testCase29();
         // Test insert on movable value.
 
+    template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase28_propagate_on_container_move_assignment_dispatch();
+    static void testCase28_propagate_on_container_move_assignment();
+        // Test 'propagate_on_container_move_assignment'.
+
     static void testCase28();
         // Test move-assignment operator.
 
@@ -6553,20 +6560,29 @@ class TestDriver {
 //   static void testCase10();
 //      // bslx streaming -- N/A
 
-    static void testCase9_1();
-        // operator= with allocator propagation
+    template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase9_propagate_on_container_copy_assignment_dispatch();
+    static void testCase9_propagate_on_container_copy_assignment();
+        // Test 'propagate_on_container_copy_assignment'.
 
     static void testCase9();
         // operator=
 
-    static void testCase8_1();
-        // Swap with allocator propagation
+    template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase8_propagate_on_container_swap_dispatch();
+    static void testCase8_propagate_on_container_swap();
+        // Test 'propagate_on_container_swap'.
 
     static void testCase8();
         // Swap
 
-    static void testCase7_1();
-        // Copy c'tor with allocator propagation
+    template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase7_select_on_container_copy_construction_dispatch();
+    static void testCase7_select_on_container_copy_construction();
+        // Test 'select_on_container_copy_construction'.
 
     static void testCase7();
         // Copy c'tor
@@ -9732,6 +9748,184 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                   testCase28_propagate_on_container_move_assignment_dispatch()
+{
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
+
+    typedef bsltf::StdStatefulAllocator<
+                                   KEY,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG>
+                                                                  StdAlloc;
+
+    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, StdAlloc> Obj;
+
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG;
+
+    static const char *SPECS[] = {
+        "",
+        "A",
+        "BC",
+        "CDE",
+    };
+    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    // Create control and source objects.
+    for (int ti = 0; ti < NUM_SPECS; ++ti) {
+        const char *const ISPEC   = SPECS[ti];
+        const size_t      ILENGTH = strlen(ISPEC);
+
+        TestValues IVALUES(ISPEC);
+
+        bslma::TestAllocator oas("source", veryVeryVeryVerbose);
+        bslma::TestAllocator oat("target", veryVeryVeryVerbose);
+
+        StdAlloc mas(&oas);
+        StdAlloc mat(&oat);
+
+        StdAlloc scratch(&da);
+
+        Obj mW(IVALUES.begin(), IVALUES.end(), 1, HASH(), EQUAL(), scratch);
+                                                                     // control
+        const Obj& W = mW;
+
+        // Create target object.
+        for (int tj = 0; tj < NUM_SPECS; ++tj) {
+            const char *const JSPEC   = SPECS[tj];
+            const size_t      JLENGTH = strlen(JSPEC);
+
+            TestValues JVALUES(JSPEC);
+
+            {
+                IVALUES.resetIterators();
+
+                Obj mY(IVALUES.begin(), IVALUES.end(),
+                       1, HASH(), EQUAL(), mas);
+                const Obj& Y = mY;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(Y) P(W) }
+
+                Obj mX(JVALUES.begin(), JVALUES.end(),
+                       1, HASH(), EQUAL(), mat);
+                const Obj& X = mX;
+
+                bslma::TestAllocatorMonitor oasm(&oas);
+                bslma::TestAllocatorMonitor oatm(&oat);
+
+                Obj *mR = &(mX = MoveUtil::move(mY));
+
+                ASSERTV(ISPEC, JSPEC,  W,   X,  W == X);
+                ASSERTV(ISPEC, JSPEC, mR, &mX, mR == &mX);
+
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                       !PROPAGATE == (mat == X.get_allocator()));
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                        PROPAGATE == (mas == X.get_allocator()));
+
+                ASSERTV(ISPEC, JSPEC, mas == Y.get_allocator());
+
+                if (PROPAGATE) {
+                    ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
+                }
+                else {
+                    ASSERTV(ISPEC, JSPEC, !oasm.isInUseUp());
+                }
+            }
+            ASSERTV(ISPEC, 0 == oas.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == oat.numBlocksInUse());
+        }
+    }
+    ASSERTV(0 == da.numBlocksInUse());
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                            testCase28_propagate_on_container_move_assignment()
+{
+    // ------------------------------------------------------------------------
+    // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_move_assignment' trait is 'false', the
+    //:   allocator used by the target object remains unchanged (i.e., the
+    //:   source object's allocator is *not* propagated).
+    //:
+    //: 2 If the 'propagate_on_container_move_assignment' trait is 'true', the
+    //:   allocator used by the target object is updated to be a copy of that
+    //:   used by the source object (i.e., the source object's allocator *is*
+    //:   propagated).
+    //:
+    //: 3 The allocator used by the source object remains unchanged whether or
+    //;   not it is propagated to the target object.
+    //:
+    //: 4 If the allocator is propagated from the source object to the target
+    //:   object, all memory allocated from the target object's original
+    //:   allocator is released.
+    //:
+    //: 5 The effect of the 'propagate_on_container_move_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_move_assignment' property configured to
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize an object 'X' from 'x' using one of the allocators from
+    //:     P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'W' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Move-assign 'Y' to 'X' and use 'operator==' to verify that 'X'
+    //:     subsequently has the same value as 'W'.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:     is *not* propagated to 'X' and that the allocator used by 'Y'
+    //:     remains unchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocator of 'Y' *is*
+    //:   propagated to 'X'.  Also verify that all memory is released to the
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_move_assignment
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nMOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION"
+                        "\n===============================================\n");
+
+    if (verbose)
+        printf("\n'propagate_on_container_move_assignment::value == false'\n");
+
+    testCase28_propagate_on_container_move_assignment_dispatch<false, false>();
+    testCase28_propagate_on_container_move_assignment_dispatch<false, true>();
+
+    if (verbose)
+        printf("\n'propagate_on_container_move_assignment::value == true'\n");
+
+    testCase28_propagate_on_container_move_assignment_dispatch<true, false>();
+    testCase28_propagate_on_container_move_assignment_dispatch<true, true>();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 {
     // ------------------------------------------------------------------------
@@ -12670,166 +12864,181 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase11()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9_1()
+template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                    testCase9_propagate_on_container_copy_assignment_dispatch()
 {
-    // ------------------------------------------------------------------------
-    // TESTING OPERATOR= WITH ALLOCATOR PROPAGATION
-    //
-    // TBD: THIS TEST IS NOT CALLED!!!!!!!!!!  This test can be enabled and
-    // finished once allocator traits supports 'propagate_on_container_swap'.
-    //
-    // CONCERNS:
-    //: 1 Test that the allocator, if it is the appropriate type, is propagated
-    //:   when appropriate.
-    //
-    // PLAN:
-    //: 1 Use 'StatefulStlAllocator'.  'bslma::AllocatorTraits' has
-    //:   'propagate_on_container_swap' hard-wired to false for the present, so
-    //:   this test will always dump core.  Once allocator traits and
-    //:   'opeater=' are enhanced this test can be made to work.
-    //: 2 Currently, the aspects of this test that won't work until the
-    //:   functionality is working properly are guarded by 'veryVerbose'.  TBD:
-    //:   get the functionality working properly and unguard those tests.
-    //: 3 Because we need copy assign, we can't use the moveonly type.  Also,
-    //:   because we're using strange allocators, we can't use 'ggg' or
-    //:   'primaryManipulator' as those call 'TTF', which only works with
-    //:   'bslma' allocators.  So only use types that are constructible from
-    //:   'char'.
-    // ------------------------------------------------------------------------
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
 
-    if (verbose) printf("TESTING OPERATOR= WITH ALLOCATOR PROPAGATION: %s\n"
-                        "--------------------------------------------\n",
-                        NameOf<KEY>().name());
+    typedef bsltf::StdStatefulAllocator<
+                                   KEY,
+                                   OTHER_FLAGS,
+                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS>                   StdAlloc;
 
-    typedef u::StatefulStlAllocator<KEY>                            Allocator;
-    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, Allocator> StlObj;
-    typedef bsl::allocator_traits<Allocator>                        Traits;
+    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, StdAlloc> Obj;
 
-    ASSERT(0 == Allocator().id());
-
-    Allocator oa, ob;
-    oa.setId(7);
-    ASSERT(7 == oa.id());
-    ASSERT(0 == ob.id());
-    ASSERT(oa != ob);
-
-    if (veryVerbose) {
-        // TBD: enhance allocator traits so that this test will succeed.
-
-        ASSERT(Traits::propagate_on_container_swap::value);
-    }
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG;
 
     static const char *SPECS[] = {
         "",
         "A",
         "BC",
         "CDE",
-        "DEAB",
-        "EABCD",
-        "ABCDEFG",
-        "HFGEDCBA",
-        "CFHEBIDGA",
-        "BENCKHGMALJDFOI",
-        "IDMLNEFHOPKGBCJA",
-        "OIQGDNPMLKBACHFEJ"
     };
+    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
 
-    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
-    bool done = false;
+    // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
-        const char *const SPEC1   = SPECS[ti];
-        const size_t      LENGTH1 = strlen(SPEC1);
+        const char *const ISPEC   = SPECS[ti];
+        const size_t      ILENGTH = strlen(ISPEC);
 
-        const int id = ti + 71;    // never 0
-        oa.setId(id);
-        ob.setId(id + 10);         // never 0
+        TestValues IVALUES(ISPEC);
 
-        ASSERT(oa != ob);
-        ASSERT(oa.id() == id);
-        ASSERT(ob.id() == id + 10);
+        bslma::TestAllocator oas("source", veryVeryVeryVerbose);
+        bslma::TestAllocator oat("target", veryVeryVeryVerbose);
 
-        // Create control object W.
+        StdAlloc mas(&oas);
+        StdAlloc mat(&oat);
 
-        StlObj mWX(oa);   const StlObj& WX = mWX;
+        StdAlloc scratch(&da);
 
-        for (const char *pc = SPEC1; *pc; ++pc) {
-            // We know 'KEY' and 'VALUE' have copy c'tors, so this will work.
+        Obj mW(IVALUES.begin(), IVALUES.end(), 1, HASH(), EQUAL(), scratch);
+                                                                     // control
+        const Obj& W = mW;
 
-            mWX.insert(TValueType(KEY(*pc), VALUE(*pc + u::k_CHAR_SHIFT)));
-        }
-
-        ASSERTV(ti, LENGTH1 == WX.size());
-
+        // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
-            const char *const SPEC2   = SPECS[tj];
-            const size_t      LENGTH2 = strlen(SPEC2);
+            const char *const JSPEC   = SPECS[tj];
+            const size_t      JLENGTH = strlen(JSPEC);
 
-            if (veryVerbose) {
-                printf("\nFor an objects of lengths " ZU " and " ZU ":\n",
-                                                             LENGTH1, LENGTH2);
+            TestValues JVALUES(JSPEC);
 
-                P_(SPEC1);    P(SPEC2);
+            {
+                IVALUES.resetIterators();
+
+                Obj mY(IVALUES.begin(), IVALUES.end(),
+                       1, HASH(), EQUAL(), mas);
+                const Obj& Y = mY;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(Y) P(W) }
+
+                Obj mX(JVALUES.begin(), JVALUES.end(),
+                       1, HASH(), EQUAL(), mat);
+                const Obj& X = mX;
+
+                bslma::TestAllocatorMonitor oasm(&oas);
+                bslma::TestAllocatorMonitor oatm(&oat);
+
+                Obj *mR = &(mX = Y);
+
+                ASSERTV(ISPEC, JSPEC,  W,   X,  W == X);
+                ASSERTV(ISPEC, JSPEC,  W,   Y,  W == Y);
+                ASSERTV(ISPEC, JSPEC, mR, &mX, mR == &mX);
+
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                       !PROPAGATE == (mat == X.get_allocator()));
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                        PROPAGATE == (mas == X.get_allocator()));
+
+                ASSERTV(ISPEC, JSPEC, mas == Y.get_allocator());
+
+                if (PROPAGATE) {
+                    ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
+                }
+                else {
+                    ASSERTV(ISPEC, JSPEC, oasm.isInUseSame());
+                }
             }
-
-            StlObj mWY(ob);       const StlObj& WY = mWY;
-
-            for (const char *pc = SPEC2; *pc; ++pc) {
-                // We know 'KEY' and 'VALUE' have copy c'tors, so this will
-                // work.
-
-                mWY.insert(TValueType(KEY(*pc), VALUE(*pc+u::k_CHAR_SHIFT)));
-            }
-
-            ASSERTV(ti, LENGTH2 == WY.size());
-
-            StlObj mX(WX, oa);    const StlObj& X = mX;
-            ASSERTV(ti, LENGTH1 == WX.size());
-            ASSERTV(ti, LENGTH1 == X. size());
-
-            StlObj mY(WY, ob);    const StlObj& Y = mY;
-            ASSERTV(ti, LENGTH2 == Y. size());
-            ASSERTV(ti, LENGTH2 == WY.size());
-
-            ASSERT(X == WX);
-            ASSERT(Y == WY);
-
-            ASSERT((ti == tj) == (X == Y));
-            ASSERT((ti != tj) == (X != Y));
-
-            ASSERT(X.get_allocator()      != Y.get_allocator());
-            ASSERT(X.get_allocator().id() != Y.get_allocator().id());
-            ASSERT(id      == X.get_allocator().id());
-            ASSERT(id + 10 == Y.get_allocator().id());
-            ASSERT(oa == X.get_allocator());
-            ASSERT(ob == Y.get_allocator());
-
-            StlObj *mR = &(mY = X);
-
-            ASSERT(&Y == mR);
-            ASSERT(LENGTH1 == Y.size());
-            ASSERT(WX == Y);
-            ASSERT(WX == X);
-
-            ASSERT(ob != X.get_allocator());
-            ASSERT(oa == X.get_allocator());
-            ASSERT(id == X.get_allocator().id());
-
-            if (veryVerbose) {
-                // TBD: enhance operator= so that these tests will succeed.
-
-                ASSERT(X.get_allocator()      == Y.get_allocator());
-                ASSERT(X.get_allocator().id() == Y.get_allocator().id());
-                ASSERT(id == Y.get_allocator().id());
-                ASSERT(oa == Y.get_allocator());
-            }
-
-            ASSERT(!done);
-            done |= 17 == LENGTH1 && 17 == LENGTH2;
+            ASSERTV(ISPEC, 0 == oas.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == oat.numBlocksInUse());
         }
     }
+    ASSERTV(0 == da.numBlocksInUse());
+}
 
-    ASSERT(done);
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                             testCase9_propagate_on_container_copy_assignment()
+{
+    // ------------------------------------------------------------------------
+    // COPY-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_copy_assignment' trait is 'false', the
+    //:   allocator used by the target object remains unchanged (i.e., the
+    //:   source object's allocator is *not* propagated).
+    //:
+    //: 2 If the 'propagate_on_container_copy_assignment' trait is 'true', the
+    //:   allocator used by the target object is updated to be a copy of that
+    //:   used by the source object (i.e., the source object's allocator *is*
+    //:   propagated).
+    //:
+    //: 3 The allocator used by the source object remains unchanged whether or
+    //;   not it is propagated to the target object.
+    //:
+    //: 4 If the allocator is propagated from the source object to the target
+    //:   object, all memory allocated from the target object's original
+    //:   allocator is released.
+    //:
+    //: 5 The effect of the 'propagate_on_container_copy_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_copy_assignment' property configured to
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize an object 'X' from 'x' using one of the allocators from
+    //:     P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'W' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Copy-assign 'Y' to 'X' and use 'operator==' to verify that both
+    //:     'X' and 'Y' subsequently have the same value as 'W'.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:     is *not* propagated to 'X' and that the allocator used by 'Y'
+    //:     remains unchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocator of 'Y' *is*
+    //:   propagated to 'X'.  Also verify that all memory is released to the
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_copy_assignment
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION"
+                        "\n===============================================\n");
+
+    if (verbose)
+        printf("\n'propagate_on_container_copy_assignment::value == false'\n");
+
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, true>();
+
+    if (verbose)
+        printf("\n'propagate_on_container_copy_assignment::value == true'\n");
+
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, true>();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -13087,152 +13296,211 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8_1()
+template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                               testCase8_propagate_on_container_swap_dispatch()
 {
-    // ------------------------------------------------------------------------
-    // TESTING SWAP WITH ALLOCATOR PROPAGATION
-    //
-    // Concerns:
-    //: 1 Test that the allocator, if it is the appropriate type, is propagated
-    //:   when appropriate.
-    //
-    // Plan:
-    //: 1 Use 'StatefulStlAllocator'.  'bslma::AllocatorTraits' has
-    //:   'propagate_on_container_swap' hard-wired to false for the present, so
-    //:   this test will always dump core.  Once allocator traits and 'swap'
-    //:   are enhanced this test can be made to work.  TBD: enable this test.
-    //
-    // Note that our allocators don't support 'propagate_on_container_swap', so
-    // this test cannot be run.
-    // ------------------------------------------------------------------------
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
 
-    typedef u::StatefulStlAllocator<KEY>                            Allocator;
-    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, Allocator> StlObj;
-    typedef bsl::allocator_traits<Allocator>                        Traits;
+    typedef bsltf::StdStatefulAllocator<KEY,
+                                        OTHER_FLAGS,
+                                        OTHER_FLAGS,
+                                        PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+                                        OTHER_FLAGS>              StdAlloc;
 
-    ASSERT(0 == Allocator().id());
+    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, StdAlloc> Obj;
 
-    Allocator oa, ob;
-    oa.setId(7);
-    ASSERT(7 == oa.id());
-    ASSERT(0 == ob.id());
-    ASSERT(oa != ob);
-
-    ASSERT(Traits::propagate_on_container_swap::value);
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_SWAP_FLAG;
 
     static const char *SPECS[] = {
         "",
         "A",
         "BC",
         "CDE",
-        "DEAB",
-        "EABCD",
-        "ABCDEFG",
-        "HFGEDCBA",
-        "CFHEBIDGA",
-        "BENCKHGMALJDFOI",
-        "IDMLNEFHOPKGBCJA",
-        "OIQGDNPMLKBACHFEJ"
     };
+    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
 
-    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
-    bool done = false;
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
-        const char *const SPEC1   = SPECS[ti];
-        const size_t      LENGTH1 = strlen(SPEC1);
+        const char *const ISPEC   = SPECS[ti];
+        const size_t      ILENGTH = strlen(ISPEC);
 
-        const int id = ti + 71;    // never 0
-        oa.setId(id);
-        ob.setId(id + 10);         // never 0
+        TestValues IVALUES(ISPEC);
 
-        ASSERT(oa != ob);
-        ASSERT(oa.id() == id);
-        ASSERT(ob.id() == id + 10);
+        bslma::TestAllocator xoa("x-original", veryVeryVeryVerbose);
+        bslma::TestAllocator yoa("y-original", veryVeryVeryVerbose);
 
-        // Create control object W.
+        // if 'false == PROPAGATE', the allocators must compare equal
 
-        StlObj mWX;    const StlObj& WX = mWX;
+        StdAlloc xma(&xoa);
+        StdAlloc yma(PROPAGATE ? &yoa : &xoa);
 
-        for (const char *pc = SPEC1; *pc; ++pc) {
-            // We know 'KEY' and 'VALUE' have copy c'tors, so this will work.
+        StdAlloc scratch(&da);
 
-            mWX.insert(TValueType(KEY(*pc), VALUE(*pc + u::k_CHAR_SHIFT)));
-        }
-
-        ASSERTV(ti, LENGTH1 == WX.size());
+        // control
+        Obj mZZ(IVALUES.begin(), IVALUES.end(), 1, HASH(), EQUAL(), scratch);
+        const Obj& ZZ = mZZ;
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
-            const char *const SPEC2   = SPECS[tj];
-            const size_t      LENGTH2 = strlen(SPEC2);
+            const char *const JSPEC   = SPECS[tj];
+            const size_t      JLENGTH = strlen(JSPEC);
 
-            if (veryVerbose) {
-                printf("\nFor an objects of lengths " ZU " and " ZU ":\n",
-                                                             LENGTH1, LENGTH2);
+            TestValues JVALUES(JSPEC);
 
-                P_(SPEC1);    P(SPEC2);
+            // control
+            Obj mWW(JVALUES.begin(), JVALUES.end(),
+                    1, HASH(), EQUAL(), scratch);
+            const Obj& WW = mWW;
+
+            {
+                IVALUES.resetIterators();
+
+                Obj mX(IVALUES.begin(), IVALUES.end(),
+                        1, HASH(), EQUAL(), xma);
+                const Obj& X = mX;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(X) P(ZZ) }
+
+                JVALUES.resetIterators();
+
+                Obj mY(JVALUES.begin(), JVALUES.end(),
+                       1, HASH(), EQUAL(), yma);
+                const Obj& Y = mY;
+
+                ASSERTV(ISPEC, JSPEC, ZZ, X, ZZ == X);
+                ASSERTV(ISPEC, JSPEC, WW, Y, WW == Y);
+
+                // member 'swap'
+                {
+                    bslma::TestAllocatorMonitor dam(&da);
+                    bslma::TestAllocatorMonitor xoam(&xoa);
+                    bslma::TestAllocatorMonitor yoam(&yoa);
+
+                    mX.swap(mY);
+
+                    ASSERTV(ISPEC, JSPEC, WW, X, WW == X);
+                    ASSERTV(ISPEC, JSPEC, ZZ, Y, ZZ == Y);
+
+                    if (PROPAGATE) {
+                        ASSERTV(ISPEC, JSPEC, yma == X.get_allocator());
+                        ASSERTV(ISPEC, JSPEC, xma == Y.get_allocator());
+
+                        ASSERTV(ISPEC, JSPEC, dam.isTotalSame());
+                        ASSERTV(ISPEC, JSPEC, xoam.isTotalSame());
+                        ASSERTV(ISPEC, JSPEC, yoam.isTotalSame());
+                    }
+                    else {
+                        ASSERTV(ISPEC, JSPEC, xma == X.get_allocator());
+                        ASSERTV(ISPEC, JSPEC, yma == Y.get_allocator());
+                    }
+                }
+
+                // free function 'swap'
+                {
+                    bslma::TestAllocatorMonitor dam(&da);
+                    bslma::TestAllocatorMonitor xoam(&xoa);
+                    bslma::TestAllocatorMonitor yoam(&yoa);
+
+                    swap(mX, mY);
+
+                    ASSERTV(ISPEC, JSPEC, ZZ, X, ZZ == X);
+                    ASSERTV(ISPEC, JSPEC, WW, Y, WW == Y);
+
+                    ASSERTV(ISPEC, JSPEC, xma == X.get_allocator());
+                    ASSERTV(ISPEC, JSPEC, yma == Y.get_allocator());
+
+                    if (PROPAGATE) {
+                        ASSERTV(ISPEC, JSPEC, dam.isTotalSame());
+                        ASSERTV(ISPEC, JSPEC, xoam.isTotalSame());
+                        ASSERTV(ISPEC, JSPEC, yoam.isTotalSame());
+                    }
+                }
             }
-
-            StlObj mWY;       const StlObj& WY = mWY;
-
-            for (const char *pc = SPEC2; *pc; ++pc) {
-                // We know 'KEY' and 'VALUE' have copy c'tors, so this will
-                // work.
-
-                mWY.insert(TValueType(KEY(*pc), VALUE(*pc+u::k_CHAR_SHIFT)));
-            }
-
-            ASSERTV(ti, LENGTH2 == WY.size());
-
-            StlObj mX(WX, oa);    const StlObj& X = mX;
-            ASSERTV(ti, LENGTH1 == X.size());
-
-            StlObj mY(WY, ob);    const StlObj& Y = mY;
-            ASSERTV(ti, LENGTH2 == Y.size());
-
-            ASSERT(X == WX);
-            ASSERT(Y == WY);
-
-            ASSERT((ti == tj) == (X == Y));
-            ASSERT((ti != tj) == (X != Y));
-
-            ASSERT(X.get_allocator()      != Y.get_allocator());
-            ASSERT(X.get_allocator().id() != Y.get_allocator().id());
-            ASSERT(id      == X.get_allocator().id());
-            ASSERT(id + 10 == Y.get_allocator().id());
-            ASSERT(oa == X.get_allocator());
-            ASSERT(ob == Y.get_allocator());
-
-            swap(mX, mY);
-
-            ASSERT(WX == Y);
-            ASSERT(WY == X);
-
-            ASSERT(X.get_allocator()      != Y.get_allocator());
-            ASSERT(X.get_allocator().id() != Y.get_allocator().id());
-            ASSERT(id      == Y.get_allocator().id());
-            ASSERT(id + 10 == X.get_allocator().id());
-            ASSERT(oa == Y.get_allocator());
-            ASSERT(ob == X.get_allocator());
-
-            mX.swap(mY);
-
-            ASSERT(WX == X);
-            ASSERT(WY == Y);
-
-            ASSERT(X.get_allocator()      != Y.get_allocator());
-            ASSERT(X.get_allocator().id() != Y.get_allocator().id());
-            ASSERT(id      == X.get_allocator().id());
-            ASSERT(id + 10 == Y.get_allocator().id());
-            ASSERT(oa == X.get_allocator());
-            ASSERT(ob == Y.get_allocator());
-
-            ASSERT(!done);
-            done |= 17 == LENGTH1 && 17 == LENGTH2;
+            ASSERTV(ISPEC, 0 == xoa.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == yoa.numBlocksInUse());
         }
     }
+    ASSERTV(0 == da.numBlocksInUse());
+}
 
-    ASSERT(done);
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                                        testCase8_propagate_on_container_swap()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_swap' trait is 'false', the
+    //:   allocators used by the source and target objects remain unchanged
+    //:   (i.e., the allocators are *not* exchanged).
+    //:
+    //: 2 If the 'propagate_on_container_swap' trait is 'true', the
+    //:   allocator used by the target (source) object is updated to be a copy
+    //:   of that used by the source (target) object (i.e., the allocators
+    //:   *are* exchanged).
+    //:
+    //: 3 If the allocators are propagated (i.e., exchanged), there is no
+    //:   additional allocation from any allocator.
+    //:
+    //: 4 The effect of the 'propagate_on_container_swap' trait is independent
+    //:   of the other three allocator propagation traits.
+    //:
+    //: 5 Following the swap operation, neither object holds on to memory
+    //:   allocated from the other object's allocator.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_swap' property configured to 'false'.  In two
+    //:   successive iterations of P-3, first configure the three properties
+    //:   not under test to be 'false', then configure them all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize two objects from 'x', a control object 'ZZ' using a
+    //:     scratch allocator and an object 'X' using one of the allocators
+    //:     from P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'WW' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Using both member 'swap' and free function 'swap', swap 'X' with
+    //:     'Y' and use 'operator==' to verify that 'X' and 'Y' have the
+    //:     expected values.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocators of 'X'
+    //:     and 'Y' are *not* exchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
+    //:   *are* exchanged.  Also verify that there is no additional allocation
+    //:   from any allocator.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_swap
+    // ------------------------------------------------------------------------
+
+    if (verbose)
+        printf("\nSWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION"
+               "\n=====================================================\n");
+
+    if (verbose) printf("\n'propagate_on_container_swap::value == false'\n");
+
+    testCase8_propagate_on_container_swap_dispatch<false, false>();
+    testCase8_propagate_on_container_swap_dispatch<false, true>();
+
+    if (verbose) printf("\n'propagate_on_container_swap::value == true'\n");
+
+    testCase8_propagate_on_container_swap_dispatch<true, false>();
+    testCase8_propagate_on_container_swap_dispatch<true, true>();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -13604,125 +13872,199 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase7_1()
+template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                     testCase7_select_on_container_copy_construction_dispatch()
 {
-    // ------------------------------------------------------------------------
-    // TESTING COPY CONSTRUCTOR WITH ALLOCATOR PROPAGATION
-    //
-    // CONCERNS:
-    //: 1 Test that the allocator, if it is the appropriate type, is propagated
-    //:   when appropriate.
-    //
-    // PLAN:
-    //: 1 Use 'StatefulStlAllocator'.  'bslma::AllocatorTraits' has
-    //:   'select_on_container_copy_construction' enabled for all non-'bslma'
-    //:   allocator types, so it will be turned on.  We have already tested
-    //:   in 'testCase7' that with 'bslma' allocator types, allocators are
-    //:   not propagated and the default allocator is used.
-    // ------------------------------------------------------------------------
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value +
+                           bslma::UsesBslmaAllocator<VALUE>::value;
 
-    typedef u::StatefulStlAllocator<KEY>                           Allocator;
-    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, Allocator> StlObj;
-    typedef bsl::allocator_traits<Allocator>                       Traits;
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
 
-    ASSERT(0 == Allocator().id());
+    typedef bsltf::StdStatefulAllocator<
+                                    KEY,
+                                    SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
+                                    OTHER_FLAGS,
+                                    OTHER_FLAGS,
+                                    OTHER_FLAGS>                  StdAlloc;
 
-    Allocator oa, ob;
-    oa.setId(7);
-    ASSERT(7 == oa.id());
-    ASSERT(0 == ob.id());
-    ASSERT(oa != ob);
+    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, StdAlloc> Obj;
 
-    ASSERT(oa == Traits::select_on_container_copy_construction(oa));
+    const bool PROPAGATE = SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG;
 
     static const char *SPECS[] = {
         "",
         "A",
         "BC",
         "CDE",
-        "DEAB",
-        "EABCD",
-        "ABCDEFG",
-        "HFGEDCBA",
-        "CFHEBIDGA",
-        "BENCKHGMALJDFOI",
-        "IDMLNEFHOPKGBCJA",
-        "OIQGDNPMLKBACHFEJ"
     };
+    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
 
-    const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
-
-    bool done = false;
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const SPEC   = SPECS[ti];
         const size_t      LENGTH = strlen(SPEC);
 
-        const int id = ti + 71;    // never 0
-        oa.setId(id);
-        ob.setId(id + 10);         // never 0
+        TestValues VALUES(SPEC);
 
-        ASSERT(oa != ob);
-        ASSERT(oa.id() == id);
-        ASSERT(ob.id() == id + 10);
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        if (verbose) {
-            printf("\nFor an object of length " ZU ":\n", LENGTH);
-            P(SPEC);
-        }
+        bslma::DefaultAllocatorGuard dag(&da);
 
-        // Create control object W.
-
-        StlObj mW;    const StlObj& W = mW;
-
-        for (const char *pc = SPEC; *pc; ++pc) {
-            // We know 'KEY' and 'VALUE' have copy c'tors, so this will work.
-
-            mW.insert(TValueType(KEY(*pc), VALUE(*pc + u::k_CHAR_SHIFT)));
-        }
-
-        ASSERTV(ti, LENGTH == W.size());                        // same lengths
-        if (veryVerbose) { printf("\tControl Obj: "); P(W); }
-
-        const StlObj X(W, oa);
-        ASSERTV(ti, LENGTH == X.size());                        // same lengths
-
-        ASSERT(X == W);
-        ASSERT(X.get_allocator() == oa);
-        ASSERT(X.get_allocator().id() == id);
-        ASSERT(W.get_allocator() != oa);
-        ASSERT(W.get_allocator() == Allocator());
-        ASSERT(W.get_allocator().id() == 0);
+        StdAlloc ma(&oa);
 
         {
-            const StlObj Y(X);
+            // Create control object 'W'.
+            Obj mW(VALUES.begin(), VALUES.end(), 1, HASH(), EQUAL(), ma);
+            const Obj& W = mW;
 
-            ASSERTV(Y == W);
-            ASSERTV(X == W);
-            ASSERTV(Y.get_allocator().id() != 0);
-            ASSERTV(Y.get_allocator().id() == id);
-            ASSERTV(X.get_allocator().id() == id);
-            ASSERTV(Y.get_allocator() == oa);
-            ASSERTV(X.get_allocator() == oa);
-            ASSERTV(Y == W);
+            ASSERTV(ti, LENGTH == W.size());  // same lengths
+            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
+
+            VALUES.resetIterators();
+
+            Obj mX(VALUES.begin(), VALUES.end(), 1, HASH(), EQUAL(), ma);
+            const Obj& X = mX;
+
+            if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
+
+            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            const Obj Y(X);
+
+            ASSERTV(SPEC, W == Y);
+            ASSERTV(SPEC, W == X);
+            ASSERTV(SPEC, PROPAGATE, PROPAGATE == (ma == Y.get_allocator()));
+            ASSERTV(SPEC, PROPAGATE,               ma == X.get_allocator());
+
+            if (PROPAGATE) {
+                ASSERTV(SPEC, 0 != TYPE_ALLOC || dam.isInUseSame());
+                ASSERTV(SPEC, 0 == LENGTH || oam.isInUseUp());
+            }
+            else {
+                ASSERTV(SPEC, 0 == LENGTH || dam.isInUseUp());
+                ASSERTV(SPEC, oam.isTotalSame());
+            }
         }
-
-        {
-            const StlObj Y(X, ob);    // should not propagate 'oa'
-
-            ASSERTV(Y == W);
-            ASSERTV(X == W);
-            ASSERTV(Y.get_allocator().id() == id + 10);
-            ASSERTV(X.get_allocator().id() == id);
-            ASSERTV(Y.get_allocator() == ob);
-            ASSERTV(X.get_allocator() == oa);
-            ASSERTV(Y == W);
-        }
-
-        ASSERT(!done);
-        done |= 17 == LENGTH;
+        ASSERTV(SPEC, 0 == da.numBlocksInUse());
+        ASSERTV(SPEC, 0 == oa.numBlocksInUse());
     }
+}
 
-    ASSERT(done);
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                              testCase7_select_on_container_copy_construction()
+{
+    // ------------------------------------------------------------------------
+    // COPY CONSTRUCTOR: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 The allocator of a source object using a standard allocator is
+    //:   propagated to the newly constructed object according to the
+    //:   'select_on_container_copy_construction' method of the allocator.
+    //:
+    //: 2 In the absence of a 'select_on_container_copy_construction' method,
+    //:   the allocator of a source object using a standard allocator is always
+    //:   propagated to the newly constructed object (C++03 semantics).
+    //:
+    //: 3 The effect of the 'select_on_container_copy_construction' trait is
+    //:   independent of the other three allocator propagation traits.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create a 'bsltf::StdStatefulAllocator' with its
+    //:   'select_on_container_copy_construction' property configured to
+    //:   'false'.  In two successive iterations of P-3..5, first configure the
+    //:   three properties not under test to be 'false', then confgiure them
+    //:   all to be 'true'.
+    //:
+    //: 3 For each value in S, initialize objects 'W' (a control) and 'X' using
+    //:   the allocator from P-2.
+    //:
+    //: 4 Copy construct 'Y' from 'X' and use 'operator==' to verify that both
+    //:   'X' and 'Y' subsequently have the same value as 'W'.
+    //:
+    //: 5 Use the 'get_allocator' method to verify that the allocator of 'X'
+    //:   is *not* propagated to 'Y'.
+    //:
+    //: 6 Repeat P-2..5 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocator of 'X' *is*
+    //:   propagated to 'Y'.  (C-1)
+    //:
+    //: 7 Repeat P-2..5 except that this time use a 'StatefulStlAllocator',
+    //:   which does not define a 'select_on_container_copy_construction'
+    //:   method, and verify that the allocator of 'X' is *always* propagated
+    //:   to 'Y'.  (C-2..3)
+    //
+    // Testing:
+    //   select_on_container_copy_construction
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\n'select_on_container_copy_construction' "
+                        "propagates *default* allocator.\n");
+
+    testCase7_select_on_container_copy_construction_dispatch<false, false>();
+    testCase7_select_on_container_copy_construction_dispatch<false, true>();
+
+    if (verbose) printf("\n'select_on_container_copy_construction' "
+                        "propagates allocator of source object.\n");
+
+    testCase7_select_on_container_copy_construction_dispatch<true, false>();
+    testCase7_select_on_container_copy_construction_dispatch<true, true>();
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (verbose) printf("\nVerify C++03 semantics (allocator has no "
+                        "'select_on_container_copy_construction' method).\n");
+
+    typedef u::StatefulStlAllocator<KEY>                           Allocator;
+    typedef bsl::unordered_map<KEY, VALUE, HASH, EQUAL, Allocator> Obj;
+
+    {
+        static const char *SPECS[] = {
+            "",
+            "A",
+            "BC",
+            "CDE",
+        };
+        const int NUM_SPECS =
+                          static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = strlen(SPEC);
+            TestValues VALUES(SPEC);
+
+            const int ALLOC_ID = ti + 73;
+
+            Allocator a;  a.setId(ALLOC_ID);
+
+            // Create control object 'W'.
+            Obj mW(VALUES.begin(), VALUES.end(), 1, HASH(), EQUAL(), a);
+            const Obj& W = mW;
+
+            ASSERTV(ti, LENGTH == W.size());  // same lengths
+            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
+
+            VALUES.resetIterators();
+
+            Obj mX(VALUES.begin(), VALUES.end(), 1, HASH(), EQUAL(), a);
+            const Obj& X = mX;
+
+            if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
+
+            const Obj Y(X);
+
+            ASSERTV(SPEC,        W == Y);
+            ASSERTV(SPEC,        W == X);
+            ASSERTV(SPEC, ALLOC_ID == Y.get_allocator().id());
+        }
+    }
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -16429,6 +16771,30 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase28();
 #endif
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase28_propagate_on_container_move_assignment,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase28_propagate_on_container_move_assignment,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+// TBD get this working?
+#if 0
+        TestDriver<signed char, bsltf::MoveOnlyAllocTestType>::
+                           testCase28_propagate_on_container_move_assignment();
+
+        TestDriver<bsltf::MovableAllocTestType,
+                   bsltf::MoveOnlyAllocTestType>::
+                           testCase28_propagate_on_container_move_assignment();
+#endif
+
+        TestDriver<TestKeyType, TestValueType>::
+                           testCase28_propagate_on_container_move_assignment();
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -16578,7 +16944,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #if 0
-        // Operators such as '<', '<=', '>', etc exist for 'bsl::map', not for
+        // Operators such as '<', '<=', '>', etc. exist for 'bsl::map', not for
         // 'bsl::unordered_map'.
 
         RUN_EACH_TYPE(TestDriver, testCase19, int, char);
@@ -16755,31 +17121,19 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase9();
 
-        // Test 9_1 must only be run on copy constructible test types that can
-        // be constructed from a char or int.  First do everything in
-        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' except union, object
-        // ptr, func ptr, and method ptr.
+        // 'propagate_on_container_copy_assignment' testing
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase9_1,
-                      signed char,
-                      size_t,
-                      bsltf::EnumeratedTestType::Enum,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType);
-
-        // Then the movable types with copy c'tors.
+                      testCase9_propagate_on_container_copy_assignment,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase9_1,
+                      testCase9_propagate_on_container_copy_assignment,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-        TestDriver<TestKeyType, TestValueType>::testCase9_1();
+        TestDriver<TestKeyType, TestValueType>::
+                            testCase9_propagate_on_container_copy_assignment();
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -16803,37 +17157,21 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase8();
 
-#if 0
-        // Test 8_1 involves swapping two objects that use different
-        // allocators, which is forbidden by the current imp of 'swap'.  TBD:
-        // once allocator traits is enhanced to provide the propagate allocator
-        // on swap trait and our 'swap' is enhanced to support it, this test
-        // can be made to work.
-
-        // Test 8_1 must only be run on copy constructible test types that
-        // can be constructed from a char or int.  First do everything in
-        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' except union,
-        // object ptr, func ptr, and method ptr.
+        // 'propagate_on_container_swap' testing
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase8_1,
-                      signed char,
-                      size_t,
-                      bsltf::EnumeratedTestType::Enum,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType);
-
-        // Then the movable types with copy c'tors.
+                      testCase8_propagate_on_container_swap,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase8_1,
+                      testCase8_propagate_on_container_swap,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
-#endif
+
+        // TBD test 'bsltf::MoveOnlyAllocTestType' here
+
+        TestDriver<TestKeyType, TestValueType>::
+                                       testCase8_propagate_on_container_swap();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -16856,31 +17194,22 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase7();
 
-        // Test 7_1 must only be run on copy constructible test types that can
-        // be constructed from a char or int.  First do everything in
-        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' except union, object
-        // ptr, func ptr, and method ptr.
+        // 'select_on_container_copy_construction' testing
+
+        if (verbose) printf("\nCOPY CONSTRUCTOR: ALLOCATOR PROPAGATION"
+                            "\n=======================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase7_1,
-                      signed char,
-                      size_t,
-                      bsltf::EnumeratedTestType::Enum,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType);
-
-        // Then the movable types with copy c'tors.
+                      testCase7_select_on_container_copy_construction,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase7_1,
+                      testCase7_select_on_container_copy_construction,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-        TestDriver<TestKeyType, TestValueType>::testCase7_1();
+        TestDriver<TestKeyType, TestValueType>::
+                             testCase7_select_on_container_copy_construction();
       } break;
       case 6: {
         // --------------------------------------------------------------------

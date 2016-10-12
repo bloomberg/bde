@@ -465,6 +465,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_stdallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -623,7 +627,7 @@ class Deque_Base {
   public:
     // PUBLIC TYPES
     typedef VALUE_TYPE&                             reference;
-    typedef const VALUE_TYPE &                      const_reference;
+    typedef const VALUE_TYPE&                       const_reference;
     typedef Iterator                                iterator;
     typedef ConstIterator                           const_iterator;
     typedef std::size_t                             size_type;
@@ -837,13 +841,14 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // PUBLIC TYPES
-    typedef typename ALLOCATOR::reference           reference;
-    typedef typename ALLOCATOR::const_reference     const_reference;
+    typedef VALUE_TYPE&                             reference;
+    typedef const VALUE_TYPE&                       const_reference;
     typedef Iterator                                iterator;
     typedef ConstIterator                           const_iterator;
     typedef std::size_t                             size_type;
     typedef std::ptrdiff_t                          difference_type;
     typedef VALUE_TYPE                              value_type;
+
     typedef ALLOCATOR                               allocator_type;
     typedef typename ALLOCATOR::pointer             pointer;
     typedef typename ALLOCATOR::const_pointer       const_pointer;
@@ -1146,7 +1151,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_copy_assignment', and return
+        // type has trait 'propagate_on_container_move_assignment', and return
         // a reference providing modifiable access to this object.  The
         // contents of 'rhs' are moved (in constant time) to this deque if
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the

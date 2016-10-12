@@ -2881,7 +2881,7 @@ list<VALUE, ALLOCATOR>::list(
     // '*this' is in an invalid but destructible state (size == -1).
 
     list& lvalue = original;
-    if (basicAllocator == lvalue.allocatorImp()) {
+    if (this->allocatorImp() == lvalue.allocatorImp()) {
         // An rvalue must be left in a valid state after a move.
 
         createSentinel();      // '*this' is now in a valid state.
@@ -3009,12 +3009,13 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
         // C++11 standard, which requires that the allocator type not throw on
         // copy or assign).
 
+        list other(MoveUtil::move(lvalue));
+
         using std::swap;
 
-        swap(allocatorImp(), lvalue.allocatorImp()); // won't throw
-        swap(d_sentinel,     lvalue.d_sentinel);     // swap of pointer type
-        swap(sizeRef(),      lvalue.sizeRef());      // swap of fundamental
-                                                     // type
+        swap(allocatorImp(), other.allocatorImp()); // won't throw
+        swap(d_sentinel,     other.d_sentinel);     // swap of pointer type
+        swap(sizeRef(),      other.sizeRef());      // swap of fundamental type
     }
     else {
         // Unequal allocators and the allocator of the destination is to remain
