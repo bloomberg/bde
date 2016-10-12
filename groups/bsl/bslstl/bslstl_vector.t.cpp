@@ -16,12 +16,15 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -187,6 +190,7 @@ using namespace bsl;
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
+// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -929,7 +933,7 @@ struct TestDriver {
     // indicates that the logical (but not necessarily physical) state of the
     // object is to be set to its initial, empty state (via the 'clear'
     // method).
-    //
+    //..
     // LANGUAGE SPECIFICATION:
     // -----------------------
     //
@@ -959,6 +963,7 @@ struct TestDriver {
     // "ABC~DE"     Append three values corresponding to A, B, and C; empty
     //              the object; and append values corresponding to D and E.
     //-------------------------------------------------------------------------
+    //..
 
     // TYPES
     typedef bsl::vector<TYPE,ALLOC>               Obj;
@@ -1108,6 +1113,9 @@ struct TestDriver {
         // semantics based on integer template parameters 'N01' ... 'N10'.
 
     // TEST CASES
+    static void testCase36();
+        // Test 'noexcept' specifications
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for operators that take a range of inputs.
@@ -1373,6 +1381,206 @@ void TestDriver<TYPE, ALLOC>::stretchRemoveAll(Obj         *object,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE, ALLOC>::testCase36()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<Obj>())
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.3.11 Class template vector
+
+    // page 853
+    //..
+    //  // 23.3.11.2, construct/copy/destroy:
+    //  vector() noexcept(noexcept(Allocator())) : vector(Allocator()) { }
+    //  explicit vector(const Allocator&) noexcept;
+    //..
+
+    {
+        // not implemented
+        // ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+        //     == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj()));
+
+        ALLOC a;
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
+    }
+
+    // page 854
+    //..
+    //  vector(vector&&) noexcept;
+    //  vector& operator=(vector&& x) noexcept(
+    //         allocator_traits<Allocator>::
+    //                    propagate_on_container_move_assignment::value ||
+    //         allocator_traits<Allocator>::is_always_equal::value);
+    //
+    //  allocator_type get_allocator() const noexcept;
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         Obj(bslmf::MovableRefUtil::move(y))));
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                          x = bslmf::MovableRefUtil::move(y)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.get_allocator()));
+    }
+
+    // page 854
+    //..
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rbegin()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rend()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
+    }
+
+    // page 854
+    //..
+    //  // 23.3.11.3, capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
+    //  size_type capacity() const noexcept;
+    //..
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.capacity()));
+    }
+
+    // page 854-855
+    //..
+    //  // 23.3.11.4, data access
+    //  T* data() noexcept;
+    //  const T* data() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.data()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.data()));
+    }
+
+    // page 855
+    //..
+    //  // 23.3.11.5, modifiers:
+    //  void swap(vector&) noexcept(
+    //       allocator_traits<Allocator>::propagate_on_container_swap::value ||
+    //       allocator_traits<Allocator>::is_always_equal::value);
+    //  void clear() noexcept;
+    //..
+
+    {
+        Obj mX;
+        Obj mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mY)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.clear()));
+     }
+
+    // page 855
+    //..
+    //  // 23.3.11.6, specialized algorithms:
+    //  template <class T, class Allocator>
+    //  void swap(vector<T, Allocator>& x, vector<T, Allocator>& y)
+    //                                           noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj mX;
+        Obj mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
+     }
+}
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
@@ -13084,6 +13292,18 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int  >::testCase36();
+        TestDriver<int *>::testCase36();
+
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
