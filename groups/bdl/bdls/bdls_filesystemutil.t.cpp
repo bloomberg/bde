@@ -3153,7 +3153,7 @@ int main(int argc, char *argv[])
                 ASSERT(np == rc);
 
                 string rollup = ::rollupPaths(resultPaths);
-                LOOP3_ASSERT(LINE, p.result, rollup, 
+                LOOP3_ASSERT(LINE, p.result, rollup,
                                                    string(p.result) == rollup);
 
                 rc = jj ? Obj::numMatchingPaths(pattern)
