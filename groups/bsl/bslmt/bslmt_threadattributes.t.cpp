@@ -13,6 +13,11 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
+
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
@@ -68,6 +73,20 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+int verbose;
+int veryVerbose;
+
+typedef bsls::Types::Int64      Int64;
+typedef bslmt::ThreadAttributes Obj;
+
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -107,6 +126,8 @@ void aSsErT(bool condition, const char *message, int line)
 
         // Perform some calculation that involves no subroutine calls or
         // additional automatic variables.
+
+        (void) bufferLocal;    // silence unused warnings
     }
 //..
 // Then, we define our main function, in which we demonstrate configuring a
@@ -183,8 +204,13 @@ void aSsErT(bool condition, const char *message, int line)
         int policy = attributes.schedulingPolicy();
         int priority = attributes.schedulingPriority();
 
+        (void) policy;          // silence unused warnings
+        (void) priority;        // silence unused warnings
+        (void) threadHandle;    // silence unused warnings
+        (void) function;        // silence unused warnings
+
         // the following is pseudo-code for actually creating the thread
-        /*
+#if 0
         if (bslmt::ThreadAttributes::e_UNSET_PRIORITY == priority) {
             priority = operatingSystemDefaultPriority(policy);
         }
@@ -197,20 +223,11 @@ void aSsErT(bool condition, const char *message, int line)
                                     priority,
                                     attributes.detachedState()
                                     function);
-        */
+#endif
     }
 //..
 // Notice that a new value derived from the 'stackSize' attribute is used so
 // that the meaning of the attribute is platform neutral.
-
-// ============================================================================
-//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-
-int verbose;
-int veryVerbose;
-
-typedef bslmt::ThreadAttributes Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -282,90 +299,148 @@ int main(int argc, char *argv[])
         // newly constructed object, copy the object, and use the accessor for
         // that attribute to verify the value.
         // ------------------------------------------------------------------
+
         if (verbose) {
-            cout << "PRIMARY METHOD TEST" << endl;
-            cout << "==============" << endl;
+            cout << "PRIMARY METHOD TEST\n"
+                    "===================\n";
         }
 
+        bslma::TestAllocator ta;
+        bslma::TestAllocator da;
+        bslma::DefaultAllocatorGuard dag(&da);
+
         struct Parameters {
-            int                   d_line;
+            int                    d_line;
 
-            Obj::DetachedState    d_detachedState;
-            Obj::SchedulingPolicy d_schedulingPolicy;
-            int                   d_schedulingPriority;
-            bool                  d_inheritSchedule;
-            int                   d_stackSize;
-            int                   d_guardSize;
-
-            int                   d_whichVerify;
+            Obj::DetachedState     d_detachedState;
+            Obj::SchedulingPolicy  d_schedulingPolicy;
+            int                    d_schedulingPriority;
+            bool                   d_inheritSchedule;
+            int                    d_stackSize;
+            int                    d_guardSize;
+            const char            *d_threadName;
         } PARAM[] = {
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER,
-                0, 0, 0, 0, 1 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                0, 0, 0, 0, 2 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                5, 0, 0, 0, 3 },
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                4, true, 0, 0, 4 },
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 300000, 0, 5 },
-#else
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 80000, 0, 5 },
-#endif
-           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, 6 }
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0, "" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0, "x" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
+                                                                "short name" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER, 0, 0, 0, 0,
+                               "How long is your thread name? I wanna know." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 0, 0, 0, 0,
+                                      "incredibly terribly long thread name" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 5, 0, 0, 0,
+                            "My thread name is sooooooooooooooooooooo long." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 4, true, 0, 0,
+                   "My thread name got lost and couldn't find its way home." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 300000, 0,
+                                "My thread name goes to the next time zone." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 3, 0, 80000, 0,
+                                                                "short name" },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
+                              "My thread name goes to Nova Scotia and back." },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO, 2, 0, 0, 2000,
+                 "That's nothing!"
+                         "  The other end of my thread name is in Timbuktu." }
         };
 
-        int numParams = sizeof(PARAM) / sizeof(Parameters);
-        for (int i = 0; i < numParams; ++i) {
-            Obj mX;
+        size_t numParams = sizeof(PARAM) / sizeof(Parameters);
+        for (unsigned i = 0; i < numParams; ++i) {
+            const Int64 numTaPreAlloc = ta.numAllocations();
+            const Int64 numDaPreAlloc = da.numAllocations();
+
+            Obj mX(&ta);    const Obj& X = mX;
             mX.setDetachedState(PARAM[i].d_detachedState);
             mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
             mX.setSchedulingPriority(PARAM[i].d_schedulingPriority);
             mX.setInheritSchedule(PARAM[i].d_inheritSchedule);
             mX.setStackSize(PARAM[i].d_stackSize);
             mX.setGuardSize(PARAM[i].d_guardSize);
+            mX.setThreadName(PARAM[i].d_threadName);
 
-            const Obj& X = mX;
+            ASSERT(da.numAllocations() == numDaPreAlloc);
+            ASSERTV(X.threadName(), (X.threadName().length() > 15) ==
+                                        (ta.numAllocations() > numTaPreAlloc));
 
-            Obj mY;
+            Obj mY(&ta);
             LOOP_ASSERT(i, X != mY);
             mY = X;
             LOOP_ASSERT(i, X == mY);
 
+            const Obj Z(X, &ta);
+
             const Obj& Y = mY;
-            switch (PARAM[i].d_whichVerify) {
-            case 1:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_detachedState == Y.detachedState());
-                break;
-            case 2:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPolicy ==
-                            Y.schedulingPolicy());
-                break;
-            case 3:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_schedulingPriority ==
-                            Y.schedulingPriority());
-                break;
-            case 4:
-                LOOP_ASSERT(PARAM[i].d_line,
-                            PARAM[i].d_inheritSchedule ==
-                            Y.inheritSchedule());
-                break;
-            case 5:
-                LOOP2_ASSERT(PARAM[i].d_line,
-                             Y.stackSize(), PARAM[i].d_stackSize ==
-                             Y.stackSize());
-                break;
-            case 6:
-                LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
-                            Y.guardSize());
-                break;
-            }
+
+            ASSERT(da.numAllocations() == numDaPreAlloc);
+
+            const Obj ZD(X);
+            Obj mA;    const Obj& A = mA;
+
+            ASSERT(A != X);
+
+            mA = X;
+
+            ASSERT(&ta == X.allocator());
+            ASSERT(&ta == Y.allocator());
+            ASSERT(&ta == Z.allocator());
+            ASSERT(&da == ZD.allocator());
+            ASSERT(&da == A.allocator());
+
+            ASSERT(X  == Y);
+            ASSERT(Z  == X);
+            ASSERT(ZD == X)
+            ASSERT(A  == X);
+
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == X.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == Y.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_detachedState == Z.detachedState());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        X.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        Y.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPolicy ==
+                        Z.schedulingPolicy());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPriority ==
+                        X.schedulingPriority());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_schedulingPriority ==
+                        Y.schedulingPriority());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        X.inheritSchedule());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        Y.inheritSchedule());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_inheritSchedule ==
+                        Z.inheritSchedule());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         X.stackSize(), PARAM[i].d_stackSize ==
+                         X.stackSize());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         Y.stackSize(), PARAM[i].d_stackSize ==
+                         Y.stackSize());
+            LOOP2_ASSERT(PARAM[i].d_line,
+                         Z.stackSize(), PARAM[i].d_stackSize ==
+                         Z.stackSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        X.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        Y.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
+                        Z.guardSize());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == X.threadName());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == Y.threadName());
+            LOOP_ASSERT(PARAM[i].d_line,
+                        PARAM[i].d_threadName == Z.threadName());
         }
       } break;
       case 1: {
@@ -389,24 +464,7 @@ int main(int argc, char *argv[])
         ASSERT(Obj::e_SCHED_DEFAULT == X.schedulingPolicy());
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
-
-#if 0
-        // 'Imp has been eliminated
-
-        typedef bslmt::ThreadAttributes::Imp Imp;
-
-        ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
-                                                   Imp::e_CREATE_JOINABLE);
-        ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
-                                                   Imp::e_CREATE_DETACHED);
-
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_OTHER ==
-                                                   Imp::e_SCHED_OTHER);
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_FIFO  ==
-                                                   Imp::e_SCHED_FIFO);
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_RR    ==
-                                                   Imp::e_SCHED_RR);
-#endif
+        ASSERT("" == X.threadName());
       } break;
       case -1: {
         // --------------------------------------------------------------------

@@ -229,6 +229,7 @@ using bsl::pair;
 // [ 3] Obj& gg(Obj *, const char *);
 // [11] Obj  g(const char *);
 // [ 3] bool verifySpec(const Obj&, const char *, bool = false);
+// [38] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // [22] CONCERN: 'unordered_map' is compatible with standard allocators.
 // [23] CONCERN: 'unordered_map' has the necessary type traits.
@@ -6476,6 +6477,8 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase38();
+        // Test 'noexcept' specifications
 
     static void testCase35();
         // Bucket Growth
@@ -7257,8 +7260,187 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(
 }
 #endif
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase35()
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<KEY>())
+        P(bsls::NameOf<MAPPED>())
+        P(bsls::NameOf<HASH>())
+        P(bsls::NameOf<EQUAL>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: 23.5.4 Class template 'unordered_map' [unord.map]
+
+    // page 882 - 883:
+    //..
+    //  // 23.5.4.2, construct/copy/destroy:
+    //  unordered_map& operator=(unordered_map&&)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //               is_nothrow_move_assignable<Hash>::value &&
+    //               is_nothrow_move_assignable<Pred>::value);
+    //  allocator_type get_allocator() const noexcept;
+    //..
+
+    {
+        Obj mX;  const Obj& X = mX;
+        Obj mY;  const Obj& Y = mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+                                             bslmf::MovableRefUtil::move(mY)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+    }
+
+    // page 883:
+    //..
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+    }
+
+    // page 883:
+    //..
+    //  // capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+    }
+
+    // page 883:
+    //..
+    //  // 23.5.4.4, modifiers:
+    //  void swap(unordered_map&)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
+    //              is_nothrow_swappable_v<Hash> &&
+    //              is_nothrow_swappable_v<Pred>);
+    //  void clear() noexcept;
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+    }
+
+    // page 884:
+    //..
+    //  // bucket interface:
+    //  size_type bucket_count() const noexcept;
+    //  size_type max_bucket_count() const noexcept;
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
+    }
+
+    // page 884:
+    //..
+    //  // hash policy:
+    //  float load_factor() const noexcept;
+    //  float max_load_factor() const noexcept;
+    //  void max_load_factor(float z);
+    //  void rehash(size_type n);
+    //  void reserve(size_type n);
+    //..
+
+    {
+        Obj mX; const Obj& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
+    }
+
+    // page 884:
+    //..
+    //  // 23.5.4.5, swap:
+    //  template <class Key, class T, class Hash, class Pred, class Alloc>
+    //  void swap(unordered_map<Key, T, Hash, Pred, Alloc>& x,
+    //            unordered_map<Key, T, Hash, Pred, Alloc>& y)
+    //      noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj mX;
+        Obj mY;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
+    }
+}
+
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
 {
     // ------------------------------------------------------------------------
     // BUCKET GROWTH
@@ -16548,6 +16730,17 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
+      case 38: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase38();
+
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

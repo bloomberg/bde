@@ -2895,6 +2895,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
                       // *** construct/copy/destroy ***
 
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
+                                                            BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
     {
     }
@@ -2925,7 +2926,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original)
+    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }

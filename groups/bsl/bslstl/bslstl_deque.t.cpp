@@ -1,4 +1,5 @@
 // bslstl_deque.t.cpp                                                 -*-C++-*-
+
 #include <bslstl_deque.h>
 
 #include <bslstl_forwarditerator.h>        // for testing only
@@ -24,6 +25,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -206,9 +208,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [32] USAGE EXAMPLE
+// [32] USAGE EXAMPLE 1
+// [33] USAGE EXAMPLE 2
 // [23] CONCERN: 'std::length_error' is used properly.
 // [ *] CONCERN: In no case does memory come from the global allocator.
+// [34] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(Obj *object, const char *spec, bool vF = true);
@@ -1974,6 +1978,9 @@ struct TestDriver {
         // semantics based on integer template parameters '[N01 .. N10]'.
 
     // TEST CASES
+    static void testCase34();
+        // Test 'noexcept' specifications
+
     template <class CONTAINER>
     static void testCaseM1Range(const CONTAINER&);
         // Performance test for methods that take a range of inputs.
@@ -3221,6 +3228,159 @@ TestDriver<TYPE, ALLOC>::testCase29a_RunTest(Obj *target, const_iterator pos)
                                  // ----------
                                  // TEST CASES
                                  // ----------
+
+template <class TYPE, class ALLOC>
+void TestDriver<TYPE,ALLOC>::testCase34()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<Obj>())
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: page 835: 23.3.8 Class template 'deque'
+
+    // page 835
+    //..
+    //  // 23.3.8.2, construct/copy/destroy:
+    //  deque& operator=(deque&& x)
+    //      noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //  allocator_type get_allocator() const noexcept;
+    //..
+
+    {
+        Obj d;
+        Obj x;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d = MoveUtil::move(x)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
+    }
+
+    // page 836
+    //..
+    //  // iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
+    //..
+
+    {
+        Obj d; const Obj& D = d;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
+    }
+
+    // page 836
+    //..
+    //  // 23.3.8.3, capacity:
+    //  bool empty() const noexcept;
+    //  size_type size() const noexcept;
+    //  size_type max_size() const noexcept;
+    //..
+
+    {
+        Obj d;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
+    }
+
+    // page 836
+    //..
+    //  // 23.3.8.4, modifiers:
+    //  void swap(deque&)
+    //  noexcept(allocator_traits<Allocator>::is_always_equal::value);
+    //  void clear() noexcept;
+    //..
+
+    {
+        Obj d;
+        Obj x;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.swap(x)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
+    }
+
+    // page 837
+    //..
+    //  // 23.3.8.5, specialized algorithms:
+    //  template <class T, class Allocator>
+    //  void swap(deque<T, Allocator>& x, deque<T, Allocator>& y)
+    //      noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
+}
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
@@ -14903,6 +15063,17 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase34();
+
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2

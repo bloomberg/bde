@@ -30,13 +30,20 @@
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocatorargt.h>
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
+
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movestate.h>
+#include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <stddef.h>
 #include <stdio.h>      // 'printf'
@@ -136,6 +143,7 @@ using bsls::NameOf;
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
+// [16] Concern: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -193,6 +201,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 typedef bsltf::TemplateTestFacility TTF;
+typedef bsltf::MoveState            MoveState;
 typedef bslmf::MovableRefUtil       MoveUtil;
 typedef bsls::Types::Int64          Int64;
 typedef bslma::ConstructionUtil     ConstrUtil;
@@ -343,15 +352,15 @@ struct AlDerived : public AlBase {
 };
 
 template <class TYPE, int ALLOCATOR_ACCESSOR_CLASS =
-                (bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
+                (bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
+              || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value
+              || bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
               || bsl::is_same<TYPE, bsltf::AllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
               || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value
               || bsl::is_same<TYPE, AlBase>::value
-              || bsl::is_same<TYPE, AlDerived>::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<1> >::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<2> >::value
-              || bsl::is_same<TYPE, bsltf::AllocArgumentType<3> >::value)
+              || bsl::is_same<TYPE, AlDerived>::value)
               ? 1    // 'allocator()'
               : 0>   // no accessor
 struct AllocatorMatchesImp {
@@ -412,7 +421,7 @@ template <class TYPE>
 inline
 bool isMovedFrom(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+    return !isMoveAware(object) || MoveState::e_MOVED ==
                                                 TTF::getMovedFromState(object);
 }
 
@@ -420,7 +429,7 @@ template <class TYPE>
 inline
 bool isNotMovedFrom(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+    return !isMoveAware(object) || MoveState::e_NOT_MOVED ==
                                                 TTF::getMovedFromState(object);
 }
 
@@ -428,7 +437,7 @@ template <class TYPE>
 inline
 bool isMovedInto(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+    return !isMoveAware(object) || MoveState::e_MOVED ==
                                                 TTF::getMovedIntoState(object);
 }
 
@@ -436,7 +445,7 @@ template <class TYPE>
 inline
 bool isNotMovedInto(const TYPE& object)
 {
-    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+    return !isMoveAware(object) || MoveState::e_NOT_MOVED ==
                                                 TTF::getMovedIntoState(object);
 }
 
@@ -445,9 +454,9 @@ inline
 bool isNotMovedFrom(const bsl::pair<U, V>& pr)
 {
     return (!isMoveAware(pr.first) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.first))
+            MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.first))
        && (!isMoveAware(pr.second) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.second));
+            MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.second));
 }
 
 template <class U, class V>
@@ -455,9 +464,9 @@ inline
 bool isNotMovedInto(const bsl::pair<U, V>& pr)
 {
     return (!isMoveAware(pr.first) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.first))
+            MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.first))
        && (!isMoveAware(pr.second) ||
-            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.second));
+            MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.second));
 }
 
 template <class PAIR>
@@ -626,6 +635,49 @@ void debugprint(const u::Base& base)
 }
 
 }  // close namespace bsl
+
+void testCase16()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    // N4594: 20.4: Pairs
+
+    // pages 526-527: Class template pair
+    //..
+    //  pair& operator=(pair&& p) noexcept (see below);
+    //  void swap(pair& p) noexcept (see below);
+    //..
+
+    {
+        bsl::pair<int, long> x;
+        bsl::pair<int, long> p;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                          x = bslmf::MovableRefUtil::move(p)));
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(p)));
+    }
+}
 
                 // ===========================================
                 // class my_String (supplied by Usage example)
@@ -2304,13 +2356,19 @@ void TupleTestDriver::runTestAlloc()
         }
         u::PairGuard<Pair> pg(p);
 
-        ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
-        ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
-        ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+        ASSERTV(name, MOVE_F1, AF1.movedFrom(),
+               MOVE_F1 == (MoveState::e_MOVED == AF1.movedFrom()) || 2 == NF1);
+        ASSERTV(name, MOVE_F2, AF2.movedFrom(),
+               MOVE_F2 == (MoveState::e_MOVED == AF2.movedFrom()) || 2 == NF2);
+        ASSERTV(name, MOVE_F3, AF3.movedFrom(),
+               MOVE_F3 == (MoveState::e_MOVED == AF3.movedFrom()) || 2 == NF3);
 
-        ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
-        ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
-        ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+        ASSERTV(name, MOVE_S1, AS1.movedFrom(),
+               MOVE_S1 == (MoveState::e_MOVED == AS1.movedFrom()) || 2 == NS1);
+        ASSERTV(name, MOVE_S2, AS2.movedFrom(),
+               MOVE_S2 == (MoveState::e_MOVED == AS2.movedFrom()) || 2 == NS2);
+        ASSERTV(name, MOVE_S3, AS3.movedFrom(),
+               MOVE_S3 == (MoveState::e_MOVED == AS3.movedFrom()) || 2 == NS3);
 
         const EType& F = p->first;
 
@@ -2528,13 +2586,19 @@ void TupleTestDriver::runTestNoAlloc()
     }
     u::PairGuard<Pair> pg(p);
 
-    ASSERTV(name, MOVE_F1 == AF1.movedFrom() || 2 == NF1);
-    ASSERTV(name, MOVE_F2 == AF2.movedFrom() || 2 == NF2);
-    ASSERTV(name, MOVE_F3 == AF3.movedFrom() || 2 == NF3);
+    ASSERTV(name, MOVE_F1, AF1.movedFrom(),
+            MOVE_F1 == (MoveState::e_MOVED == AF1.movedFrom()) || 2 == NF1);
+    ASSERTV(name, MOVE_F2, AF2.movedFrom(),
+            MOVE_F2 == (MoveState::e_MOVED == AF2.movedFrom()) || 2 == NF2);
+    ASSERTV(name, MOVE_F3, AF3.movedFrom(),
+            MOVE_F3 == (MoveState::e_MOVED == AF3.movedFrom()) || 2 == NF3);
 
-    ASSERTV(name, MOVE_S1 == AS1.movedFrom() || 2 == NS1);
-    ASSERTV(name, MOVE_S2 == AS2.movedFrom() || 2 == NS2);
-    ASSERTV(name, MOVE_S3 == AS3.movedFrom() || 2 == NS3);
+    ASSERTV(name, MOVE_S1, AS1.movedFrom(),
+            MOVE_S1 == (MoveState::e_MOVED == AS1.movedFrom()) || 2 == NS1);
+    ASSERTV(name, MOVE_S2, AS2.movedFrom(),
+            MOVE_S2 == (MoveState::e_MOVED == AS2.movedFrom()) || 2 == NS2);
+    ASSERTV(name, MOVE_S3, AS3.movedFrom(),
+            MOVE_S3 == (MoveState::e_MOVED == AS3.movedFrom()) || 2 == NS3);
 
     const EType& F = p->first;
 
@@ -3785,6 +3849,17 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 16: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        testCase16();
+
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

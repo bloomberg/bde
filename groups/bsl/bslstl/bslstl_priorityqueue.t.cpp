@@ -18,6 +18,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
@@ -136,6 +137,7 @@ using namespace bsl;
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
 // [**] CONCERN: The object is compatible with STL allocator.
+// [22] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -1515,6 +1517,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase22();
+        // Test 'noexcept' specifications
+
     static void testCase19a();
         // Test 'emplace' forwarding parameters.
 
@@ -1751,6 +1756,74 @@ bool TestDriver<VALUE, CONTAINER, COMPARATOR>::use_same_comparator(Obj& a,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<Obj>())
+        P(bsls::NameOf<VALUE>())
+        P(bsls::NameOf<CONTAINER>())
+        P(bsls::NameOf<COMPARATOR>())
+    }
+
+    // N4594: page 902:  23.6.5: Class template 'priority_queue'
+    //                                                         [priority.queue]
+    //
+
+    // page 903
+    //..
+    //  void swap(priority_queue& q)
+    //      noexcept(is_nothrow_swappable_v<Container> &&
+    //               is_nothrow_swappable_v<Compare>)
+    //  { using std::swap; swap(c, q.c); swap(comp, q.comp); }
+    //..
+
+    {
+        Obj x;
+        Obj q;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(q)));
+    }
+
+    // page 903
+    //..
+    //  // no equality is provided
+    //  template <class T, class Container, class Compare>
+    //  void swap(priority_queue<T, Container, Compare>& x,
+    //            priority_queue<T, Container, Compare>& y)
+    //  noexcept(noexcept(x.swap(y)));
+    //..
+
+    {
+        Obj x;
+        Obj y;
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+    }
+}
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase19a()
@@ -5060,6 +5133,17 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase22();
+
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

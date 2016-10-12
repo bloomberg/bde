@@ -24,14 +24,44 @@ BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CREATORS
-bslmt::ThreadAttributes::ThreadAttributes()
+bslmt::ThreadAttributes::ThreadAttributes(bslma::Allocator *basicAllocator)
 : d_detachedState(e_CREATE_JOINABLE)
 , d_guardSize(e_UNSET_GUARD_SIZE)
 , d_inheritScheduleFlag(true)
 , d_schedulingPolicy(e_SCHED_DEFAULT)
 , d_schedulingPriority(e_UNSET_PRIORITY)
 , d_stackSize(e_UNSET_STACK_SIZE)
+, d_threadName(basicAllocator)
 {
+}
+
+bslmt::ThreadAttributes::ThreadAttributes(
+                                const bslmt::ThreadAttributes&  original,
+                                bslma::Allocator               *basicAllocator)
+
+: d_detachedState(original.d_detachedState)
+, d_guardSize(original.d_guardSize)
+, d_inheritScheduleFlag(original.d_inheritScheduleFlag)
+, d_schedulingPolicy(original.d_schedulingPolicy)
+, d_schedulingPriority(original.d_schedulingPriority)
+, d_stackSize(original.d_stackSize)
+, d_threadName(original.d_threadName, basicAllocator)
+{
+}
+
+// MANIPULATORS
+bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
+                                            const bslmt::ThreadAttributes& rhs)
+{
+    d_detachedState       = rhs.d_detachedState;
+    d_guardSize           = rhs.d_guardSize;
+    d_inheritScheduleFlag = rhs.d_inheritScheduleFlag;
+    d_schedulingPolicy    = rhs.d_schedulingPolicy;
+    d_schedulingPriority  = rhs.d_schedulingPriority;
+    d_stackSize           = rhs.d_stackSize;
+    d_threadName          = rhs.d_threadName;
+
+    return *this;
 }
 
 // FREE OPERATORS
@@ -43,7 +73,8 @@ bool bslmt::operator==(const ThreadAttributes& lhs,
            lhs.inheritSchedule()    == rhs.inheritSchedule()    &&
            lhs.schedulingPolicy()   == rhs.schedulingPolicy()   &&
            lhs.schedulingPriority() == rhs.schedulingPriority() &&
-           lhs.stackSize()          == rhs.stackSize();
+           lhs.stackSize()          == rhs.stackSize()          &&
+           lhs.threadName()         == rhs.threadName();
 }
 
 bool bslmt::operator!=(const ThreadAttributes& lhs,
@@ -54,7 +85,8 @@ bool bslmt::operator!=(const ThreadAttributes& lhs,
            lhs.inheritSchedule()    != rhs.inheritSchedule()    ||
            lhs.schedulingPolicy()   != rhs.schedulingPolicy()   ||
            lhs.schedulingPriority() != rhs.schedulingPriority() ||
-           lhs.stackSize()          != rhs.stackSize();
+           lhs.stackSize()          != rhs.stackSize()          ||
+           lhs.threadName()         != rhs.threadName();
 }
 
 }  // close enterprise namespace
