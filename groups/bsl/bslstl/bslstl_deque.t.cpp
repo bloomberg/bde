@@ -6544,8 +6544,7 @@ void TestDriver<TYPE, ALLOC>::
 
         StdAlloc scratch(&da);
 
-        Obj mW(IVALUES.begin(), IVALUES.end(), scratch);  // control
-        const Obj& W = mW;
+        const Obj W(IVALUES.begin(), IVALUES.end(), scratch);  // control
 
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
@@ -8054,9 +8053,7 @@ void TestDriver<TYPE, ALLOC>::testCase21_propagate_on_container_swap_dispatch()
 
         StdAlloc scratch(&da);
 
-        // control
-        Obj mZZ(IVALUES.begin(), IVALUES.end(), scratch);
-        const Obj& ZZ = mZZ;
+        const Obj ZZ(IVALUES.begin(), IVALUES.end(), scratch);  // control
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
@@ -8064,9 +8061,7 @@ void TestDriver<TYPE, ALLOC>::testCase21_propagate_on_container_swap_dispatch()
 
             TestValues JVALUES(JSPEC);
 
-            // control
-            Obj mWW(JVALUES.begin(), JVALUES.end(), scratch);
-            const Obj& WW = mWW;
+            const Obj WW(JVALUES.begin(), JVALUES.end(), scratch);  // control
 
             {
                 IVALUES.resetIterators();
@@ -11861,8 +11856,7 @@ void TestDriver<TYPE, ALLOC>::
 
         StdAlloc scratch(&da);
 
-        Obj mW(IVALUES.begin(), IVALUES.end(), scratch);  // control
-        const Obj& W = mW;
+        const Obj W(IVALUES.begin(), IVALUES.end(), scratch);  // control
 
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
@@ -12360,9 +12354,7 @@ void TestDriver<TYPE, ALLOC>::
         StdAlloc ma(&oa);
 
         {
-            // Create control object 'W'.
-            Obj mW(VALUES.begin(), VALUES.end(), ma);
-            const Obj& W = mW;
+            const Obj W(VALUES.begin(), VALUES.end(), ma);  // control
 
             ASSERTV(ti, LENGTH == W.size());  // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
@@ -12386,10 +12378,10 @@ void TestDriver<TYPE, ALLOC>::
 
             if (PROPAGATE) {
                 ASSERTV(SPEC, 0 != TYPE_ALLOC || dam.isInUseSame());
-                ASSERTV(SPEC, 0 == LENGTH || oam.isInUseUp());
+                ASSERTV(SPEC, 0 ==     LENGTH || oam.isInUseUp());
             }
             else {
-                ASSERTV(SPEC, 0 == LENGTH || dam.isInUseUp());
+                ASSERTV(SPEC, 0 ==     LENGTH || dam.isInUseUp());
                 ASSERTV(SPEC, oam.isTotalSame());
             }
         }
@@ -12487,8 +12479,7 @@ void TestDriver<TYPE, ALLOC>::testCase7_select_on_container_copy_construction()
 
             Allocator a;  a.setId(ALLOC_ID);
 
-            // Create control object 'W'.
-            Obj mW(VALUES.begin(), VALUES.end(), a);  const Obj& W = mW;
+            const Obj W(VALUES.begin(), VALUES.end(), a);  // control
 
             ASSERTV(ti, LENGTH == W.size());  // same lengths
             if (veryVerbose) { printf("\tControl Obj: "); P(W); }
@@ -12611,7 +12602,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
             LOOP_ASSERT(SPEC, oldLen < (int) LENGTH); // strictly increasing
             oldLen = LENGTH;
 
-            // Create control object w.
+            // Create control object 'W'.
             Obj mW;  const Obj& W = gg(&mW, SPEC);
 
             LOOP_ASSERT(ti, LENGTH == (int) W.size()); // same lengths
