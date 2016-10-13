@@ -4,13 +4,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>       // for testing only
 #include <bsls_atomicoperations.h> // Atomic pointers
 #include <bsls_bsltestutil.h>      // for testing only
 #include <bsls_platform.h>         // 'BSLS_PLATFORM_OS_WINDOWS'
 #include <bsls_types.h>            // IntPtr
 
+#include <assert.h> // 'assert'
 #include <stdarg.h> // 'va_list', 'va_start', 'va_end', 'va_copy'
 #include <stdio.h>  // 'puts', 'snprintf', 'vsnprintf'
 #include <stdlib.h> // 'malloc', 'free'
@@ -137,8 +136,8 @@ int vsnprintf_alwaysCount(char       *buffer,
     // To solve the BSD / other inconsistency, we simply specify in our
     // contract that the output string is undefined unless there is enough room
     // to hold the additional zero byte.
-    BSLS_ASSERT_OPT(buffer);
-    BSLS_ASSERT(format);
+    assert(buffer);
+    assert(format);
 
     int count;
 
@@ -190,10 +189,10 @@ int vsnprintf_allocate(char                 *originalBuffer,
     // 'format' is a valid 'printf'-style format string with all expected
     // substitutions present in 'substitutions'.
 {
-    BSLS_ASSERT_OPT(originalBuffer);
-    BSLS_ASSERT_OPT(outputBuffer);
-    BSLS_ASSERT_OPT(outputBufferSize);
-    BSLS_ASSERT_OPT(format);
+    assert(originalBuffer);
+    assert(outputBuffer);
+    assert(outputBufferSize);
+    assert(format);
 
     size_t  bufferSize = originalBufferSize;
     char   *buffer     = originalBuffer;
@@ -373,9 +372,9 @@ void Log::platformDefaultMessageHandler(const char *file,
         // to be safe, we also check for 'GetConsoleWindow'.  Checking both
         // cases ensures the safest behavior.
 
-        BSLS_ASSERT_OPT(file);
-        BSLS_ASSERT(line >= 0);
-        BSLS_ASSERT_OPT(message);
+        assert(file);
+        assert(line >= 0);
+        assert(message);
         // To avoid the multi-threaded interlacing of messages, we need to
         // pre-format a buffer and then pass that to 'OutputDebugStringA'.
 
@@ -431,9 +430,9 @@ void Log::stderrMessageHandler(const char *file,
                                int         line,
                                const char *message)
 {
-    BSLS_ASSERT_OPT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT_OPT(message);
+    assert(file);
+    assert(line >= 0);
+    assert(message);
 
     fprintf(stderr, "%s:%d %s\n", file, line, message);
     fflush(stderr);
@@ -443,9 +442,9 @@ void Log::stdoutMessageHandler(const char *file,
                                int         line,
                                const char *message)
 {
-    BSLS_ASSERT_OPT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT_OPT(message);
+    assert(file);
+    assert(line >= 0);
+    assert(message);
 
     fprintf(stdout, "%s:%d %s\n", file, line, message);
     fflush(stdout);
