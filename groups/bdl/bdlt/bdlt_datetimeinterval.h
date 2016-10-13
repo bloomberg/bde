@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------
 // A time interval has a value that is independent of its representation.
 // Conceptually, the interval between two points in time could be described
-// using a (signed) real number of seconds (or minutes, or hours, etc.). A
+// using a (signed) real number of seconds (or minutes, or hours, etc.).  A
 // 'bdlt::DatetimeInterval' represents this value as five fields: days, hours,
 // minutes, seconds, and milliseconds.  In the "canonical representation" of a
 // time interval, the days field may have any 32-bit integer value, with the
