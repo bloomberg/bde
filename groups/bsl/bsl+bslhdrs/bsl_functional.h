@@ -25,8 +25,7 @@ BSLS_IDENT("$Id: $")
 
 #include <functional>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::binary_function;
     using native_std::binary_negate;

@@ -103,8 +103,7 @@ BSLS_IDENT("$Id: $")
 #  endif
 #endif
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     // 20.10.4.1, primary type categories:
