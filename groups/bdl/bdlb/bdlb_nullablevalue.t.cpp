@@ -4860,6 +4860,45 @@ int main(int argc, char *argv[])
             }
         }
 
+        {
+            typedef int                            ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const int NUM_VALUES = 3;
+
+            Obj mX[NUM_VALUES];
+
+            const ValueType VALUE1 = 123;
+            const ValueType VALUE2 = 456;
+
+            mX[1].makeValue(VALUE1);
+            mX[2].makeValue(VALUE2);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i]);  const Obj& U = mU;
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    Obj mV(mX[j]);  const Obj& V = mV;
+
+                    Obj mW(V);  const Obj& W = mW;
+
+                    mU = V;
+
+                    LOOP2_ASSERT(U, W, U == W);
+                    LOOP2_ASSERT(V, W, V == W);
+                }
+            }
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                Obj mU(mX[i]);  const Obj& U = mU;
+                Obj mW(U    );  const Obj& W = mW;
+
+                mU = U;
+
+                LOOP2_ASSERT(U, W, U == W);
+            }
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
