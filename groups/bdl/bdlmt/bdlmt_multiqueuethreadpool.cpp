@@ -307,6 +307,10 @@ void MultiQueueThreadPool::processQueueCb(
         d_queuePool.releaseObject(context);
     }
     else {
+        // Reduce the number of pending jobs.
+
+        int numPending = --context->d_queue.d_numPendingJobs;
+
         int pauseState = context->d_queue.d_pauseState.loadRelaxed();
 
         // If the queue is pausing, mark it paused now. We will not resubmit
@@ -318,12 +322,11 @@ void MultiQueueThreadPool::processQueueCb(
                                        MultiQueueThreadPool_Queue::e_PAUSED;
         }
             
-        // Reduce the number of pending jobs; if it reaches 0, or the 
-        // queue was paused during the execution of the user callback, mark
-        // the queue deactivated.   Otherwise, re-enqueue the processing
-        // callback.
+        // If there are now 0 pending jobs, or the queue was paused during the
+        // execution of the user callback, mark the queue deactivated.
+        // Otherwise, re-enqueue the processing callback.
         
-        if (0 == --context->d_queue.d_numPendingJobs ||
+        if (0 == numPending ||
             MultiQueueThreadPool_Queue::e_PAUSED == pauseState) {
             --d_numActiveQueues;
         }
