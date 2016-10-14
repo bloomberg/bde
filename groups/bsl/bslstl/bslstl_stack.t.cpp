@@ -6524,6 +6524,8 @@ int main(int argc, char *argv[])
 
         // 'propagate_on_container_move_assignment' testing
 
+// TBD enable this
+#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase18_propagate_on_container_move_assignment,
                       TEST_TYPES_REGULAR(deque));
@@ -6531,6 +6533,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase18_propagate_on_container_move_assignment,
                       TEST_TYPES_MOVABLE(deque));
+#endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -6852,6 +6855,8 @@ int main(int argc, char *argv[])
 
         // 'propagate_on_container_copy_assignment' testing
 
+// TBD enable this
+#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
                       TEST_TYPES_REGULAR(deque));
@@ -6859,6 +6864,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
                       TEST_TYPES_MOVABLE(deque));
+#endif
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -6875,6 +6881,8 @@ int main(int argc, char *argv[])
 
         // 'propagate_on_container_swap' testing
 
+// TBD enable this
+#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase8_propagate_on_container_swap,
                       TEST_TYPES_REGULAR(deque));
@@ -6882,6 +6890,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase8_propagate_on_container_swap,
                       TEST_TYPES_MOVABLE(deque));
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -6901,6 +6910,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCOPY CONSTRUCTOR: ALLOCATOR PROPAGATION"
                             "\n=======================================\n");
 
+// TBD enable this
+#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
                       TEST_TYPES_REGULAR(deque));
@@ -6908,6 +6919,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
                       TEST_TYPES_MOVABLE(deque));
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
