@@ -22,6 +22,67 @@ BSLS_IDENT("$Id: $")
 // wrapper for 'bsl::deque', whose interface is also made available through
 // proctor types that are nested classes.
 //
+///Thread-Enabled Idioms in the 'bdlcc::Deque' Interface
+///-----------------------------------------------------
+// The thread-enabled 'bdlcc::Queue' is similar to 'bsl::deque' in many
+// regards, but there are several differences in method behavior and signature
+// that arise due to the thread-enabled nature of the queue and its anticipated
+// usage pattern.
+//
+// A user of 'bsl::deque' is expected to consult the 'size' or 'empty'
+// accessors before reading or popping to determine whether elements are
+// available in the container to be read or popped.  This won't work in a
+// multithreaded context since reading the accessor is a separate operation
+// than the read or pop, and another thread may have altered the state of the
+// container in between.
+//
+// So we have eliminated the 'front', 'back' and random-access methods.
+// Reading is done from the ends of the container via the 'popFront' and
+// 'popBack' methods, which return a 'TYPE' object *by* *value*, rather than
+// returning 'void', as 'pop_front' and 'pop_back' in 'bsl::deque' do.
+// Moreover, if a 'bdlcc::Deque' object is empty, 'popFront' and 'popBack' will
+// block indefinitely until an item is added to the queue.
+//
+// As a corollary to this behavior choice, 'bdlcc::Deque' also provides
+// 'timedPopFront' and 'timedPopBack' methods.  These methods wait until a
+// specified timeout expires if the queue is empty, returning an item if one
+// becomes available before the specified timeout; otherwise, they return a
+// non-zero value to indicate that the specified timeout expired before an item
+// was available.  Note that *all* timeouts are expressed as values of type
+// 'bsls::TimeInterval' that represent !ABSOLUTE! times.  Timeout times are
+// influenced by the optional 'clockType' argument to the constructor, which is
+// described below under Supported Clock-Types.
+//
+// We also provide 'tryPopFront' and 'tryPopBack' methods, of two types:
+//: 1 Single-value, which return 0 on success to indicate that the queue wasn't
+//:   empty and an item was copied out, and a non-zero value if the container
+//:   was empty.
+//: 2 Pop-to-vector, which copy multiple items, if present, to a vector.
+//
+// The behavior of the 'push' methods differs in a similar manner.
+// 'bdlcc::Queue' supports the notion of a suggested maximum queue size, called
+// the "high-water mark", a value supplied at construction.  The 'pushFront'
+// and 'pushBack' methods will block indefinitely if the queue contains (at
+// least) the high-water mark number of items, until the number of items falls
+// below the high-water mark.  The 'timedPushFront' and 'timedPushBack' are
+// provided to limit the duration of blocking; note, however, that these
+// methods can fail to add an item to the queue.  For this reason,
+// 'bdlcc::Deque' also provides 'forcePushBack' and 'forcePushFront' methods
+// that will override the high-water mark, if needed, in order to succeed
+// without blocking.  Note that this design decision makes the high-water mark
+// concept a suggestion and not an invariant.  If no high-water mark is
+// specified, the capacity of the container can keep growing until process
+// memory is exhausted.  The high-water mark is set at construction and cannot
+// be changed afterward.
+//
+// We also provide two types of 'tryPushBack' and 'tryPushFront' methods:
+//: 1 Single-value, which return non-zero without effect if the container
+//:   contained at least as many items as indicated by the high-water mark, and
+//:   push the item and return 0 otherwise.
+//: 2 Range-based, which will attempt to push as many items from a range until
+//:   the high water mark is reached (or all of the range if no high water mark
+//:   is set), returning the number of items pushed.
+//
 ///Tips For Porting From 'bcec_Queue':
 ///-----------------------------------
 //: o 'InitialCapacity' has been eliminated.  Instead, construct your
@@ -37,21 +98,32 @@ BSLS_IDENT("$Id: $")
 ///Throw Guarantees:
 ///-----------------
 // Assuming the following throw guarantees of the parametrized 'TYPE':
-//: 1 The destructor doesn't throw.
-//: 2 If copy-assignment throws, it leaves the state of the destination
-//:   unchanged.
-// We provide the following guarantees:
-//: 1 If a single-object push or pop operation throws, both the state of the
-//:   container and the state of the 'TYPE' object being assigned to is
-//:   unchanged.
-//: 2 If a 'tryPop*' operation to a vector, or a 'removeAll' to a vector
-//:   throws:
-//:   o The state of the 'bdlcc::Deque<TYPE>' container is unchanged.
+//: 1 The destructor provides the no-throw guarantee.
+//: 2 Copy-assignment provides the strong guarantee.
+// then 'bdlcc::Deque' provide the following throw guarantees:
+//: 1 All single-object push and pop operations provide the strong guarantee.
+//: 2 If the 'tryPop*' operation to a vector, the 'removeAll' operator to a
+//:   vector throw:
+//:   o The strong guarantee with regard to the 'bdlcc::Deque' container is
+//:     provided.
 //:   o The previous contents of the vector will remain at the front of the
 //:     vector.
 //:   o The rest of the vector will be in a valid but unknown state -- the
 //:     capacity may have grown, and it may contain copies of some of the
-//:     elements that were in the 'bdlcc::Deque<TYPE>' container.
+//:     elements that were in the 'bdlcc::Deque' container.
+//
+///Supported Clock-Types
+///---------------------
+// The component 'bsls::SystemClockType' supplies the enumeration indicating
+// the system clock on which the 'timedPush*' and 'timedPop*' methods should be
+// based.  If the clock type indicated at construction is
+// 'bsls::SystemClockType::e_REALTIME', time should be expressed as an absolute
+// offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
+// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
+// should be expressed as an absolute offset since the epoch of this clock
+// (which matches the epoch used in
+// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -322,65 +394,6 @@ BSLS_IDENT("$Id: $")
 //  assert(k_NUM_THREADS * k_NUM_TO_PUSH == numEvents);
 //  assert(0 == myDeque.length());
 //..
-//      }
-//    } break;
-//    case 23: {
-//      // --------------------------------------------------------------------
-//      // USAGE EXAMPLE 1
-//      //
-//      // Concerns:
-//      //: 1 That the first usage example compiles and runs correctly.
-//      //
-//      // Plan:
-//      //: 1 Build the usage and run it.
-//      //
-//      // Testing:
-//      //   USAGE EXAMPLE 1
-//      // --------------------------------------------------------------------
-//
-//      using namespace USAGE_EXAMPLE_1;
-//
-//      if (verbose) cout << "USAGE EXAMPLE 1\n"
-//                           "===============\n";
-//
-// Next, in 'main', define the number of consumer and producer threads (these
-// numbers must be equal).
-//..
-//  enum { k_NUM_CONSUMER_THREADS = 10,
-//         k_NUM_PRODUCER_THREADS = k_NUM_CONSUMER_THREADS };
-//..
-// Then, create our container:
-//..
-//  bdlcc::Deque<WorkRequest> deque;
-//..
-// Next, create the array of thread handles for the threads we will spawn:
-//..
-//  bslmt::ThreadUtil::Handle handles[k_NUM_CONSUMER_THREADS +
-//                                    k_NUM_PRODUCER_THREADS];
-//..
-// Now, spawn all the consumers and producers:
-//..
-//  int ti = 0, rc;
-//  while (ti < k_NUM_CONSUMER_THREADS) {
-//      rc = bslmt::ThreadUtil::create(&handles[ti++],
-//                                     ConsumerFunctor(&deque));
-//      assert(0 == rc);
-//  }
-//  while (ti < k_NUM_CONSUMER_THREADS + k_NUM_PRODUCER_THREADS) {
-//      rc = bslmt::ThreadUtil::create(&handles[ti++],
-//                                     ProducerFunctor(&deque));
-//      assert(0 == rc);
-//  }
-//..
-// Finally, join all the threads after they finish and confirm the container is
-// empty afterward:
-//..
-//  while (ti > 0) {
-//      rc = bslmt::ThreadUtil::join(handles[--ti]);
-//      assert(0 == rc);
-//  }
-//  assert(0 == deque.length());
-//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -408,6 +421,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include <bsls_systemclocktype.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
@@ -483,6 +500,9 @@ class Deque {
                                              // items that can be queued before
                                              // insertions will be blocked.
 
+    bsls::SystemClockType::Enum
+                       d_clockType;          // clock type used
+
   private:
     // NOT IMPLEMENTED
     Deque(const Deque<TYPE>&);
@@ -497,45 +517,70 @@ class Deque {
 
     // CREATORS
     explicit
-    Deque(bslma::Allocator *basicAllocator = 0);
+    Deque(bslma::Allocator            *basicAllocator = 0);
+    explicit
+    Deque(bsls::SystemClockType::Enum  clockType,
+          bslma::Allocator            *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE', with no high
-        // water mark.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // water mark.  Optionally specify a 'clockType' to govern timed
+        // operations, if none is specified, a clock type of
+        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     explicit
-    Deque(bsl::size_t       highWaterMark,
-          bslma::Allocator *basicAllocator = 0);
+    Deque(bsl::size_t                  highWaterMark,
+          bslma::Allocator            *basicAllocator = 0);
+    Deque(bsl::size_t                  highWaterMark,
+          bsls::SystemClockType::Enum  clockType,
+          bslma::Allocator            *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE', with the
-        // specified 'highWaterMark'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless 'highWaterMark > 0'.
+        // specified 'highWaterMark'.  Optionally specify a 'clockType' to
+        // govern timed operations, if none is specified, a clock type of
+        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless 'highWaterMark > 0'.
 
     template <class INPUT_ITER>
-    Deque(INPUT_ITER        begin,
-          INPUT_ITER        end,
-          bslma::Allocator *basicAllocator = 0);
+    Deque(INPUT_ITER                   begin,
+          INPUT_ITER                   end,
+          bslma::Allocator            *basicAllocator = 0);
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                   begin,
+          INPUT_ITER                   end,
+          bsls::SystemClockType::Enum  clockType,
+          bslma::Allocator            *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of elements in the specified range '[ begin, end )' and
-        // having no high water mark.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // having no high water mark.  Optionally specify a 'clockType' to
+        // govern timed operations, if none is specified, a clock type of
+        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     template <class INPUT_ITER>
-    Deque(INPUT_ITER        begin,
-          INPUT_ITER        end,
-          bsl::size_t       highWaterMark,
-          bslma::Allocator *basicAllocator = 0);
+    Deque(INPUT_ITER                   begin,
+          INPUT_ITER                   end,
+          bsl::size_t                  highWaterMark,
+          bslma::Allocator            *basicAllocator = 0);
+    template <class INPUT_ITER>
+    Deque(INPUT_ITER                   begin,
+          INPUT_ITER                   end,
+          bsl::size_t                  highWaterMark,
+          bsls::SystemClockType::Enum  clockType,
+          bslma::Allocator            *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values in the specified range '[ begin, end )'
         // and having the specified 'highWaterMark'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless 'highWaterMark > 0'.  Note that if the number of
-        // elements in the range '[begin, end)' exceeds 'highWaterMark', the
-        // effect will be the same as if the extra elements were added by
-        // forced pushes.
+        // 'clockType' to govern timed operations, if none is specified, a
+        // clock type of 'bsls::SystemClockType::e_REALTIME' is used.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'highWaterMark > 0'.  Note
+        // that if the number of elements in the range '[begin, end)' exceeds
+        // 'highWaterMark', the effect will be the same as if the extra
+        // elements were added by forced pushes.
 
     ~Deque();
         // Destroy this queue.
@@ -718,6 +763,13 @@ class Deque {
         // mark is reached.  Return the number of items pushed.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this container for allocating memory.
+
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the system clock type used for timing 'timed*' operations on
+        // this object.
+
     size_type highWaterMark() const;
         // Return the high-water mark value for this queue.
 
@@ -1071,6 +1123,20 @@ Deque<TYPE>::Deque(bslma::Allocator *basicAllocator)
 , d_notFullCondition()
 , d_monoDeque(basicAllocator)
 , d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(bsls::SystemClockType::Enum  clockType,
+                   bslma::Allocator            *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(clockType)
+, d_notFullCondition(clockType)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(clockType)
 {
 }
 
@@ -1083,6 +1149,22 @@ Deque<TYPE>::Deque(bsl::size_t       highWaterMark,
 , d_notFullCondition()
 , d_monoDeque(basicAllocator)
 , d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::Deque(bsl::size_t                  highWaterMark,
+                   bsls::SystemClockType::Enum  clockType,
+                   bslma::Allocator            *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(clockType)
+, d_notFullCondition(clockType)
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(clockType)
 {
     BSLS_ASSERT(highWaterMark > 0);
 }
@@ -1098,6 +1180,23 @@ Deque<TYPE>::Deque(INPUT_ITER        begin,
 , d_notFullCondition()
 , d_monoDeque(begin, end, basicAllocator)
 , d_highWaterMark(maxSizeT())
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                   begin,
+                   INPUT_ITER                   end,
+                   bsls::SystemClockType::Enum  clockType,
+                   bslma::Allocator            *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(clockType)
+, d_notFullCondition(clockType)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(clockType)
 {
 }
 
@@ -1113,6 +1212,25 @@ Deque<TYPE>::Deque(INPUT_ITER        begin,
 , d_notFullCondition()
 , d_monoDeque(begin, end, basicAllocator)
 , d_highWaterMark(highWaterMark)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+    BSLS_ASSERT(highWaterMark > 0);
+}
+
+template <class TYPE>
+template <class INPUT_ITER>
+inline
+Deque<TYPE>::Deque(INPUT_ITER                   begin,
+                   INPUT_ITER                   end,
+                   bsl::size_t                  highWaterMark,
+                   bsls::SystemClockType::Enum  clockType,
+                   bslma::Allocator            *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition(clockType)
+, d_notFullCondition(clockType)
+, d_monoDeque(begin, end, basicAllocator)
+, d_highWaterMark(highWaterMark)
+, d_clockType(clockType)
 {
     BSLS_ASSERT(highWaterMark > 0);
 }
@@ -1516,6 +1634,20 @@ Deque<TYPE>::tryPushFront(INPUT_ITER begin,
 }
 
 // ACCESSORS
+template <class TYPE>
+inline
+bslma::Allocator *Deque<TYPE>::allocator() const
+{
+    return d_monoDeque.get_allocator().mechanism();
+}
+
+template <class TYPE>
+inline
+bsls::SystemClockType::Enum Deque<TYPE>::clockType() const
+{
+    return d_clockType;
+}
+
 template <class TYPE>
 inline
 typename Deque<TYPE>::size_type Deque<TYPE>::highWaterMark() const

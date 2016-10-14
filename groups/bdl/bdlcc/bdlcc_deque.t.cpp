@@ -31,6 +31,7 @@
 #include <bsl_cstring.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 
 using namespace BloombergLP;
@@ -62,16 +63,32 @@ using bsl::flush;
 // TYPES
 // [ 7] ConstProctor
 // [ 7] Proctor
-
+//
 // CLASS METHODS
-// [ 2] size_t maxSizeT();
+// [ 2] static size_t maxSizeT();
 //
 // CREATORS
-// [ 2] bdlcc::Deque(bslma::Allocator *basicAllocator = 0);
-// [ 5] bdlcc::Deque(int highWaterMark, Alloc *alloc = 0);
-// [20] bdlcc::Deque(INPUT_ITER, INPUT_ITER, Alloc *);
-// [16] bdlcc::Deque(INPUT_ITER, INPUT_ITER, size_t, Alloc *);
-// [ 2] ~bdlcc::Deque();
+// [ 2] Deque(bslma::Allocator *basicAllocator = 0);
+// [ 5] Deque(int highWaterMark, Alloc *alloc = 0);
+// [20] Deque(INPUT_ITER, INPUT_ITER, Alloc *);
+// [16] Deque(INPUT_ITER, INPUT_ITER, size_t, Alloc *);
+// [22] Deque();
+// [22] Deque(alloc);
+// [22] Deque(clock);
+// [22] Deque(clock, alloc);
+// [22] Deque(hwm);
+// [22] Deque(hwm, alloc);
+// [22] Deque(hwm, clock);
+// [22] Deque(hwm, clock, alloc);
+// [22] Deque(ITER, ITER);
+// [22] Deque(ITER, ITER, alloc);
+// [22] Deque(ITER, ITER, clock);
+// [22] Deque(ITER, ITER, clock, alloc);
+// [22] Deque(ITER, ITER, hwm);
+// [22] Deque(ITER, ITER, hwm, alloc);
+// [22] Deque(ITER, ITER, hwm, clock);
+// [22] Deque(ITER, ITER, hwm, clock, alloc);
+// [ 2] ~Deque();
 //
 // MANIPULATORS
 // [16] void forcePushBack(const T&); - st
@@ -88,7 +105,6 @@ using bsl::flush;
 // [ 2] void popFront(TYPE *); - st
 // [ 2] TYPE popBack(); - st
 // [ 2] void popBack(TYPE *); - st
-// [ 2] size_t length(); - st
 // [ 3] T popBack(); - mt
 // [ 3] void popBack(TYPE *); - mt
 // [ 3] T popFront(); - mt
@@ -99,8 +115,10 @@ using bsl::flush;
 // [15] void popBack(T *); - mt
 // [15] T popFront(); - mt
 // [15] void popFront(T *); - mt
-// [15] pushBack(const T&); - mt
-// [15] pushFront(const T&); - mt
+// [15] void pushFront(const TYPE&); - mt
+// [15] void pushBack(const TYPE&); - mt
+// [11] void pushFront(const TYPE&); - mt
+// [11] void pushBack(const TYPE&); - mt
 // [ 4] int timedPopBack(TYPE *, const TimeInterval&); - mt
 // [ 6] int timedPopBack(TYPE *, const bsls::TimeInterval&);
 // [10] int timedPopBack(TYPE *, const bsls::TimeInterval&);
@@ -109,7 +127,8 @@ using bsl::flush;
 // [10] int timedPopFront(TYPE *, const bsls::TimeInterval&);
 // [ 5] int timedPushBack(const T&, const TimeInterval &);
 // [ 5] int timedPushFront(const T&,  const TimeInterval &);
-// [ 8] void removeAll(bsl::vector<T>& buffer);
+// [ 8] removeAll();
+// [ 8] removeAll(bsl::vector<T>& buffer);
 // [ 9] int tryPopFront(TYPE *); - st
 // [ 9] void tryPopFront(size_t, vector<TYPE> *); - st
 // [ 9] int tryPopBack(TYPE *); - st
@@ -119,9 +138,9 @@ using bsl::flush;
 // [12] int tryPopBack(TYPE *); - mt
 // [12] void tryPopBack(size_t, vector<TYPE> *); - mt
 // [16] int tryPushBack(const T&); - st
-// [16] int tryPushFont(const T&); - st
+// [16] int tryPushFront(const T&); - st
 // [16] int tryPushBack(const T&); - mt
-// [16] int tryPushFont(const T&); - mt
+// [16] int tryPushFront(const T&); - mt
 // [18] void tryPushBack(INPUT_ITER, INPUT_ITER); - st
 // [18] void tryPushFront(INPUT_ITER, INPUT_ITER); - st
 // [19] void tryPushBack(INPUT_ITER, INPUT_ITER); - mt
@@ -129,12 +148,15 @@ using bsl::flush;
 // [21] bslma::UsesBslmaAllocator
 //
 // ACCESSORS
+// [22] bslma::Allocator *allocator() const;
+// [22] bsls::SystemClockType::Enum clockType() const;
 // [ 5] size_t highWaterMark() const;
+// [ 2] size_t length() const; - st
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] TESTING PROCTOR LIFETIME
-// [23] USAGE EXAMPLE 1
-// [24] USAGE EXAMPLE 2
+// [23] PROCTOR LIFETIME
+// [24] USAGE EXAMPLE 1
+// [25] USAGE EXAMPLE 2
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -202,6 +224,9 @@ typedef bdlcc::Deque<Element> Obj;
 typedef bsl::size_t           size_t;
 typedef Obj::Proctor          Proctor;
 typedef Obj::ConstProctor     ConstProctor;
+typedef bsls::Types::Int64    Int64;
+
+static const bsl::size_t      maxSizeT = ~static_cast<bsl::size_t>(0);
 
 static const double DECI_SEC      = 0.1;
                                     // 1 deci second (i.e., 1/10th of a second)
@@ -1010,7 +1035,7 @@ typedef bdlcc::Deque<Item>::Proctor Proctor;
 // it should, the numbers will be equal.
 
 bsls::AtomicInt64           popperTotalsByPusher[NUM_PUSHERS];    // default 0
-volatile bsls::Types::Int64 pusherTotals[        NUM_PUSHERS];
+volatile Int64              pusherTotals[        NUM_PUSHERS];
 
 bslma::TestAllocator        localAllocator;
 
@@ -1028,9 +1053,9 @@ struct PusherThread {
 
 void PusherThread::operator()()
 {
-    RandGen            randGenerator(seedMaster += 987654321);
-    Item               item       = { pusherIdxMaster++, 0 };
-    bsls::Types::Int64 localTotal = 0;
+    RandGen   randGenerator(seedMaster += 987654321);
+    Item      item       = { pusherIdxMaster++, 0 };
+    Int64     localTotal = 0;
 
     barrier.wait();
 
@@ -1073,7 +1098,7 @@ void PopperThread::operator()()
     int     seed = seedMaster += 987654321;
     RandGen randGen(seed);
 
-    bsls::Types::Int64 localTotalsByPusher[NUM_PUSHERS] = { 0 };
+    Int64 localTotalsByPusher[NUM_PUSHERS] = { 0 };
 
     barrier.wait();
 
@@ -2314,7 +2339,7 @@ int main(int argc, char *argv[])
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
@@ -2390,7 +2415,7 @@ int main(int argc, char *argv[])
 //..
         }
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
@@ -2448,7 +2473,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == deque.length());
 //..
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING PROCTOR LIFETIME
         //
@@ -2463,7 +2488,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create several proctors, as temporaries, within the same block.
         //:   The fact that the mutex was able to be acquired multiple times
-        //:   will establish that old proctors were being destroyed.
+        //:   will establish that old proctors were being destroyed (C-1).
+        //
+        // Testing:
+        //    PROCTOR LIFETIME
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING PROCTOR LIFETIME\n"
@@ -2510,6 +2538,157 @@ int main(int argc, char *argv[])
         ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
         ASSERT(ii++ == Obj::ConstProctor(&mX)->back());
       } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING ALL C'TORS
+        //
+        // Concerns:
+        //: 1 That all c'tors work as specced.
+        //
+        // Plan:
+        //: 1 Iterate through a loop, create 'bdlcc::Deque' objects with
+        //:   varying c'tors and arguments.
+        //: 2 After creation, set 'bool's to indicate which arguments were
+        //:   passed to the c'tor.
+        //: 3 Determine, through accessors and minor manipulation, that the
+        //:   object was correctly created (C-1).
+        //
+        // Testing:
+        //   Deque();
+        //   Deque(alloc);
+        //   Deque(clock);
+        //   Deque(clock, alloc);
+        //   Deque(hwm);
+        //   Deque(hwm, alloc);
+        //   Deque(hwm, clock);
+        //   Deque(hwm, clock, alloc);
+        //   Deque(ITER, ITER);
+        //   Deque(ITER, ITER, alloc);
+        //   Deque(ITER, ITER, clock);
+        //   Deque(ITER, ITER, clock, alloc);
+        //   Deque(ITER, ITER, hwm);
+        //   Deque(ITER, ITER, hwm, alloc);
+        //   Deque(ITER, ITER, hwm, clock);
+        //   Deque(ITER, ITER, hwm, clock, alloc);
+        //   bslma::Allocator *allocator() const;
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ALL C'TORS\n"
+                             "==================\n";
+
+        bslma::TestAllocator fa;
+
+        const int hwm = 4;
+        const Element range[] = { 1.0, 2.0 };
+        const Element * const b = range, * const e = range + 2;
+
+        bool done = false;
+        for (char ctor = 'a'; ctor <= 'p' ; ++ctor) {
+            for (int sctInt = 0; sctInt < 2; ++sctInt) {
+                const bsls::SystemClockType::Enum sct =
+                                    sctInt ? bsls::SystemClockType::e_MONOTONIC
+                                           : bsls::SystemClockType::e_REALTIME;
+
+                Obj *pMX = 0;
+
+                const Int64 daStart = da.numBlocksTotal();
+                const Int64 taStart = ta.numBlocksTotal();
+
+                switch (ctor) {
+                  case 'a': {
+                    pMX = new (fa) Obj();
+                  } break;
+                  case 'b': {
+                    pMX = new (fa) Obj(&ta);
+                  } break;
+                  case 'c': {
+                    pMX = new (fa) Obj(sct);
+                  } break;
+                  case 'd': {
+                    pMX = new (fa) Obj(sct, &ta);
+                  } break;
+                  case 'e': {
+                    pMX = new (fa) Obj(hwm);
+                  } break;
+                  case 'f': {
+                    pMX = new (fa) Obj(hwm, &ta);
+                  } break;
+                  case 'g': {
+                    pMX = new (fa) Obj(hwm, sct);
+                  } break;
+                  case 'h': {
+                    pMX = new (fa) Obj(hwm, sct, &ta);
+                  } break;
+                  case 'i': {
+                    pMX = new (fa) Obj(b, e);
+                  } break;
+                  case 'j': {
+                    pMX = new (fa) Obj(b, e, &ta);
+                  } break;
+                  case 'k': {
+                    pMX = new (fa) Obj(b, e, sct);
+                  } break;
+                  case 'l': {
+                    pMX = new (fa) Obj(b, e, sct, &ta);
+                  } break;
+                  case 'm': {
+                    pMX = new (fa) Obj(b, e, hwm);
+                  } break;
+                  case 'n': {
+                    pMX = new (fa) Obj(b, e, hwm, &ta);
+                  } break;
+                  case 'o': {
+                    pMX = new (fa) Obj(b, e, hwm, sct);
+                  } break;
+                  case 'p': {
+                    pMX = new (fa) Obj(b, e, hwm, sct, &ta);
+                    done = true;
+                  } break;
+                }
+
+                ASSERTV(ctor, pMX && "unrecognized c'tor");
+
+                const bool isRange =  ctor > 'h';
+                const bool isHwm   = (ctor - 'a') % 8 >= 4;
+                const bool isSct   = (ctor - 'a') % 4 >= 2;
+                const bool isTa    = (ctor - 'a') % 2;
+
+                Obj& mX = *pMX;    const Obj& X = mX;
+
+                ASSERTV(ctor, X.length() == (isRange ? 2 : 0));
+                ASSERTV(ctor, X.highWaterMark() == (isHwm ? hwm : maxSizeT));
+                ASSERTV(ctor, X.clockType() ==
+                            (isSct ? sct : bsls::SystemClockType::e_REALTIME));
+                ASSERTV(ctor, X.allocator() == (isTa ? &ta : &da));
+
+                if (!isRange) {
+                    mX.pushBack(1.0);
+                    mX.pushBack(2.0);
+                }
+
+                const bool daUsed = da.numBlocksTotal() > daStart;
+                const bool taUsed = ta.numBlocksTotal() > taStart;
+
+                ASSERTV(ctor, isTa ? !daUsed : !taUsed);
+                ASSERTV(ctor, isTa ?  taUsed :  daUsed);
+
+                mX.pushBack(3.0);
+                mX.pushBack(4.0);
+
+                ASSERTV(ctor, 4 == X.length());
+
+                for (int ii = 0; ii < 4; ++ii) {
+                    ASSERTV(ctor, Obj::ConstProctor(&X)->at(ii) == ii + 1);
+                }
+
+                ASSERTV(ctor, isHwm == (0 != mX.tryPushBack(5.0)));
+
+                fa.deleteObjectRaw(pMX);
+            }
+        }
+        ASSERT(done);
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
@@ -2524,7 +2703,8 @@ int main(int argc, char *argv[])
         //   bslma::UsesBslmaAllocator
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING TYPE TRAITS\n";
+        if (verbose) cout << "TESTING TYPE TRAITS\n"
+                             "===================\n";
 
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::VALUE);
@@ -2549,7 +2729,7 @@ int main(int argc, char *argv[])
         //: 1 Construct a container with that c'tor and verify its contents.
         //
         // Testing:
-        //   bdlcc::Deque(INPUT_ITER, INPUT_ITER, Alloc *);
+        //   Deque(INPUT_ITER, INPUT_ITER, Alloc *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST SIMPLE RANGE C'TOR\n"
@@ -2594,7 +2774,7 @@ int main(int argc, char *argv[])
         //:   thread pops off the other end.
         //:
         //: 2 The items pushed are of type 'unsigned'.  The high-order bits of
-        //:   of an item identify which pusher thread pushed it, where pusher
+        //:   of an item identify that pusher thread pushed it, where pusher
         //:   threads have an 'id' in the range '[0 .. NUM_THREADS - 1]'.  The
         //:   low-order 16 bits are incremented between successive items.
         //:
@@ -2852,7 +3032,7 @@ int main(int argc, char *argv[])
         //:   o The next lowest bit (bit 29), that indicates that the item is
         //:     the first or last of a sequence of at least 2 items pushed by a
         //:     single range push.  This is the 'start-end' bit.
-        //:   o The low-order 16 bits, that are the 'sequence' bits which
+        //:   o The low-order 16 bits, that are the 'sequence' bits that
         //:     represent a number.  For any pusher thread, the number
         //:     represented by the sequence bits is incremented with every
         //:     object that is pushed.
@@ -3022,13 +3202,15 @@ int main(int argc, char *argv[])
         //:   (C-5)
         //
         // Testing
-        //   bdlcc::Deque(INPUT_ITER, INPUT_ITER, size_t, Alloc *);
+        //   Deque(INPUT_ITER, INPUT_ITER, size_t, Alloc *);
         //   void forcePushBack(const T&); - st
         //   void forcePushFront(const T&); - st
         //   void forcePushBack(INPUT_ITER, INPUT_ITER); - st
         //   void forcePushFront(INPUT_ITER, INPUT_ITER); - st
+        //   int tryPushBack(const T&); - st
+        //   int tryPushFront(const T&); - st
         //   int tryPushBack(const T&); - mt
-        //   int tryPushFont(const T&); - mt
+        //   int tryPushFront(const T&); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "STRESS-TEST HIGH WATER MARK WITH FORCING\n"
@@ -3052,11 +3234,11 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) P(startLength);
 
-            Obj           mX(startArray + 0,
-                             startArray + startLength,
-                             HIGH_WATER_MARK,
-                             &ta);
-            const Obj&    X = mX;
+            Obj mX(startArray + 0,
+                   startArray + startLength,
+                   HIGH_WATER_MARK,
+                   &ta);
+            const Obj& X = mX;
             bslmt::Barrier barrier(2);
 
             ASSERT(X.length() == startLength);
@@ -3200,9 +3382,8 @@ int main(int argc, char *argv[])
         //:   high water mark is never violated.  (C-1)
         //
         // Testing
-        //   bdlcc::Deque(size_t, Alloc *);
-        //   pushBack(const T&); - mt
-        //   pushFront(const T&); - mt
+        //   void pushFront(const TYPE&); - mt
+        //   void pushBack(const TYPE&); - mt
         //   T popBack(); - mt
         //   void popBack(T *); - mt
         //   T popFront(); - mt
@@ -3308,7 +3489,7 @@ int main(int argc, char *argv[])
         //:   aggregate their sums for each pusher into the global
         //:   'popperTotalsByPusher' array, and after the threads are joined
         //:   this array is compared to the sums aggregated by the pushers
-        //:   themselves.
+        //:   themselves (C-1).
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3349,17 +3530,19 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 The whole test always tests the container under heavy contention.
-        //:   (C-1)
+        //:   (C-1).
         //: 2 Have a boolean 'backwards' to determine whether the container is
-        //:   run forward or backward.
+        //:   run forward or backward (C-2).
         //: 3 Have a boolean 'popThroughPtr' to determine whether pops through
-        //:   a pointer occur, or pops that return by value.
+        //:   a pointer occur, or pops that return by value (C-3)
         //: 4 Iterate through all 4 possible states of 'backwards' and
         //:   'popThroughPtr'.
         //: 5 Vary through all cominations of 1-8 pushers and 1-8 poppers.
         //: 6 Each pusher is to push thousands of elements into the container,
         //:   each popper is to pop from it until the expected number of
         //:   elements have been popped.
+        //: 7 Both the pusher and popper, periodically, access the container
+        //:   through proctors (C-4).
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SEQUENCE CONSTRAINT TEST\n"
@@ -3427,10 +3610,10 @@ int main(int argc, char *argv[])
         //:   the sequence of values to the deque, frequently pausing.
         //
         // Testing:
-        //   int tryPopFront(TYPE *);
-        //   void tryPopFront(int, vector<TYPE> *);
-        //   int tryPopBack(TYPE *);
-        //   void tryPopBack(int, vector<TYPE> *);
+        //   [12] int tryPopFront(TYPE *); - mt
+        //   [12] void tryPopFront(size_t, vector<TYPE> *); - mt
+        //   [12] int tryPopBack(TYPE *); - mt
+        //   [12] void tryPopBack(size_t, vector<TYPE> *); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "MULTITHREADED TEST OF TRYPOPFRONT, TRYPOPBACK\n"
@@ -3491,8 +3674,8 @@ int main(int argc, char *argv[])
         //:   states and observe the results.
         //
         // Testing:
-        //   pushFront
-        //   pushBack
+        //   void pushFront(const TYPE&); - mt
+        //   void pushBack(const TYPE&); - mt
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST HIGH WATER MARK BLOCKING\n"
@@ -3565,6 +3748,9 @@ int main(int argc, char *argv[])
         //   int timedPopBack(TYPE *, const bsls::TimeInterval&);
         //   int timedPopFront(TYPE *, const bsls::TimeInterval&);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST BLOCKING ON EMPTY DEQUE\n"
+                             "============================\n";
 
         namespace TC = TEST_CASE_10;
 
@@ -3803,16 +3989,15 @@ int main(int argc, char *argv[])
         //:   thread is unblocked.
         //
         // Testing:
-        //    removeAll();
-        //    removeAll(bsl::vector<T>& buffer);
+        //   removeAll();
+        //   removeAll(bsl::vector<T>& buffer);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'removeAll'" << endl
-                          << "===================" << endl;
+        if (verbose) cout << "TESTING REMOVEALL\n"
+                             "=================\n";
 
         Element VA = 1.2;
-        Element VB =- 5.7;
+        Element VB = -5.7;
         Element VC = 1234.99;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -3848,27 +4033,27 @@ int main(int argc, char *argv[])
         // TESTING PROCTORS
         //
         // Concerns:
-        //   That proctors work as specified, and that they operate correctly
-        //   under heavy multi-threaded contention.
+        //: 1 That proctors work as specified, and that they operate correctly
+        //:   under heavy multi-threaded contention.
         //
         // Plan:
-        //: o Create a 'bdlcc::Deque' object and populate it with a few values.
-        //: o Single-Threaded 'ConstProctor'.
-        //:   1 Lock our 'bdlcc::Deque' with a 'ConstProctor' 'PR' and access
+        //: 1 Create a 'bdlcc::Deque' object and populate it with a few values.
+        //: 2 Single-Threaded 'ConstProctor'.
+        //:   o Lock our 'bdlcc::Deque' with a 'ConstProctor' 'PR' and access
         //:     it through 'PR'.
-        //: o Single-Threaded 'Proctor'.
-        //:   1 Lock our 'Bdlcc::Deque' with a 'Proctor' 'pr', access it, and
+        //: 3 Single-Threaded 'Proctor'.
+        //:   o Lock our 'Bdlcc::Deque' with a 'Proctor' 'pr', access it, and
         //:     modify it thourhg 'pr'.
-        //:   2 Destroy the proctor.
-        //:   3 Pop the remaining elements out of the container and observe the
+        //:   o Destroy the proctor.
+        //:   o Pop the remaining elements out of the container and observe the
         //:     state is as expected, using thrad-safe modificrs and
         //:     accesssors.
-        //: o Multi-threaded Proctor Testing
-        //:   1 Create 2 'bdlcc::Deque' objects, a source and a destination,
+        //: 4 Multi-threaded Proctor Testing
+        //:   o Create 2 'bdlcc::Deque' objects, a source and a destination,
         //:     both with high water marks.
-        //:   2 Create 5 popper threads, that will pop elements from the dest
+        //:   o Create 5 popper threads, that will pop elements from the dest
         //:     deque.
-        //:   3 Create 1 transferrer thread, that will use 3 proctors, one of
+        //:   o Create 1 transferrer thread, that will use 3 proctors, one of
         //:     which is a const proctor, that will use proctor access to
         //:     transfer elements from the source deque to the dest deque, then
         //:     erase them from the source deque.  Note this transfer will
@@ -3877,14 +4062,14 @@ int main(int argc, char *argv[])
         //:     confused) and we will observe that no deadlock happens in spite
         //:     of heavy contention on the dest deque while the high water mark
         //:     is sometimes being violated.
-        //:   4 Create 5 direct pusher threads, that will push elements to the
+        //:   o Create 5 direct pusher threads, that will push elements to the
         //:     dest deque, blocking when they reach the high water mark.
-        //:   5 Create 5 source pusher threads, that will push elements to the
+        //:   o Create 5 source pusher threads, that will push elements to the
         //:     dest deque, blocking when they reach the high water mark.
-        //:   6 Join all the threads (all of the threads are set up to process
+        //:   o Join all the threads (all of the threads are set up to process
         //:     a specefic number of elements, so after they have processed
         //:     their respective numbers of elements, they will just exit.
-        //:   7 Observe that both deques are empty after the threads are
+        //:   o Observe that both deques are empty after the threads are
         //:     joined.
         //
         // Testing:
@@ -4478,7 +4663,7 @@ int main(int argc, char *argv[])
         //:   water mark, many insertions should never block.
         //
         // Testing:
-        //   bdlcc::Deque(int highWaterMark, Alloc *alloc = 0);
+        //   Deque(int highWaterMark, Alloc *alloc = 0);
         //   size_t highWaterMark() const;
         //   int timedPushBack(const T&, const TimeInterval &);
         //   int timedPushFront(const T&,  const TimeInterval &);
@@ -4899,16 +5084,16 @@ int main(int argc, char *argv[])
         //:     three lengths match with the expected value.
         //
         // Testing:
-        //   bdlcc::Deque(bslma::Allocator *basicAllocator = 0);
-        //   ~bdlcc::Deque();
+        //   Deque(bslma::Allocator *basicAllocator = 0);
+        //   ~Deque();
         //   void pushFront(const TYPE&); - st
         //   void pushBack(const TYPE&); - st
         //   TYPE popFront(); - st
         //   void popFront(TYPE *); - st
         //   TYPE popBack(); - st
         //   void popBack(TYPE *); - st
-        //   size_t length(); - st
-        //   size_t maxSizeT();
+        //   size_t length() const; - st
+        //   static size_t maxSizeT();
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
