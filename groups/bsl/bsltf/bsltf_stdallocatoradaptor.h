@@ -7,38 +7,82 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a mechanism to propagate standard allocator state
-//
-//@REVIEW_FOR_MASTER: doc, usage, test driver
+//@PURPOSE: Provide a mechanism to propagate standard allocator state.
 //
 //@CLASSES:
 // bsltf::StdAllocatorAdaptor: adaptor that propagates allocator state
 //
 //@DESCRIPTION: This component provides an allocator adaptor class template,
-// 'StdAllocatorAdaptor' that mostly delegates operations to an allocator
-// object of a (template parameter) allocator type, except that it enables the
-// propagation of the (stateful) allocator object to constructed elements, if
-// appropriate.  'StdAllocatorAdaptor' defines the minimal interface needed in
-// order to comply with section 17.6.3.5 ([allocator.requirements]) of the
-// C++11 standard.
+// 'bsltf::StdAllocatorAdaptor', that mostly delegates operations to an
+// allocator object of a (template parameter) allocator type, except that it
+// enables the propagation of the (stateful) allocator object to constructed
+// elements, if appropriate.  This class template enables reuse of test cases
+// in higher level components (e.g., containers) written first using
+// 'bslma::Allocator' and 'bslma::TestAllocator' to also test correct
+// allocation using a C++ standard style allocator.
 //
-// This class template enables reuse of test cases in higher level components
-// (e.g., containers) to test with both 'bslma::Allocator' as well as standard
-// allocators; indeed, enabling the propagation of a container's stateful
-// allocator to the constructor of contained elements, if appropriate, mimics
-// closely what we do with 'bslma'-style allocators.  This class is similar to
-// the 'scoped_allocator_adaptor' class template that is part of the C++11
-// standard, except that this adaptor does not support multiple levels of
-// allocators (i.e., it is equivalent to the 'scoped_allocator_adaptor' with a
-// single allocator).
+// StdAllocatorAdaptor' defines the minimal interface needed in order to comply
+// with section 17.6.3.5 ([allocator.requirements]) of the C++11 standard. This
+// class is similar to the 'scoped_allocator_adaptor' class template that is
+// part of the C++11 standard, except that this adaptor does not support
+// multiple levels of allocators (i.e., it is equivalent to the
+// 'scoped_allocator_adaptor' with a single allocator).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-// TBD: fill in text
 //
+///Example 1: Allocator Propagation
+/// - - - - - - - - - - - - - - - -
+// 'bslma::ConstructionUtil' propagates 'bslma::Allocator', wrapped by C++
+// standard style allocator, to the constructor, if type, being constructed,
+// supports 'UsesBslmaAllocator' trait.  'bsltf::StdAllocatorAdaptor' is used
+// in test drivers to get the same behavior for the types that do not support
+// that trait.
+//
+// Suppose, we want to adopt a test for a component that uses 'bslma'-style
+// allocation to test that this component correctly works with standard
+// allocators.  For simplicity the test below constructs an object of the
+// (template parameter) type 'TYPE' by calling allocator's 'construct' method.
+// We want to test that allocator is correctly propagated to the object
+// constructor.  First, we define the test implementation:
 //..
+//  template<class TYPE, class ALLOC = bsl::allocator<TYPE> >
+//  class TestDriver
+//  {
+//    public:
+//      static void testCase()
+//      {
+//          bslma::TestAllocator oa("object");
+//          ALLOC                xoa(&oa);
 //
+//          bsls::ObjectBuffer<TYPE> buffer;
+//
+//          xoa.construct(buffer.address(), 1);
+//
+//          bslma::DestructorGuard<TYPE> guard(&buffer.object());
+//
+//          const TYPE& X = buffer.object();
+//
+//          assert(1   == X.data());
+//          assert(&oa == X.allocator());
+//      }
+//  };
+//..
+// Now, parametrize 'TestDriver' class with 'StdAllocatorAdaptor' explicitly
+// to expand 'testCase' behavior for types, that don't support bslma
+// allocators:
+//..
+//  template<class TYPE>
+//  class StdBslmaTestDriver : public TestDriver<TYPE,
+//                          bsltf::StdAllocatorAdaptor<bsl::allocator<TYPE> > >
+//  {
+//  };
+//..
+// Finally, run the test for types that use 'bslma' and standard allocators:
+//..
+//  TestDriver<AllocTestType>::testCase();
+//  StdBslmaTestDriver<StdAllocTestType<bsl::allocator<int> > >::testCase();
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -93,14 +137,16 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     // type) it adapts, except that it enables the propagation of the
     // (stateful) allocator object to constructed elements, if appropriate.
 
+    // PRIVATE TYPES
     typedef bsl::allocator_traits<ALLOCATOR> AllocatorTraits;
 
+    // PRIVATE MANIPULATORS
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>
     void privateConstruct(bsl::true_type,
                           ELEMENT_TYPE *elemAddr,
                           Args&&...     arguments);
-        // Create an object of (template parameter) 'ELEMENT_TYPE' at the
+        // Create an object of the (template parameter) 'ELEMENT_TYPE' at the
         // specified 'elemAddr', forwarding the allocator managed by this
         // adaptor and the specified (variable number of) 'arguments' to the
         // corresponding constructor of 'ELEMENT_TYPE'.
@@ -109,7 +155,7 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     void privateConstruct(bsl::false_type,
                           ELEMENT_TYPE *elemAddr,
                           Args&&...     arguments);
-        // Create an object of (template parameter) 'ELEMENT_TYPE' at the
+        // Create an object of the (template parameter) 'ELEMENT_TYPE' at the
         // specified 'elemAddr', forwarding the specified (variable number of)
         // 'arguments' to the corresponding constructor of 'ELEMENT_TYPE'.
 
@@ -673,37 +719,31 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     // CREATORS
     StdAllocatorAdaptor();
         // Create a standard allocator adaptor object for a default-constructed
-        // allocator object of (template parameter) type 'ALLOCATOR'.
+        // allocator object of the (template parameter) type 'ALLOCATOR'.
 
-    StdAllocatorAdaptor(const ALLOCATOR& basicAllocator);
+    StdAllocatorAdaptor(const ALLOCATOR& allocator);
         // Create a standard allocator adaptor object for the specified
-        // 'basicAllocator' of (template parameter) type 'ALLOCATOR'.
+        // 'allocator' of the (template parameter) type 'ALLOCATOR'.
 
     template <class ANY_TYPE>
     StdAllocatorAdaptor(const StdAllocatorAdaptor<ANY_TYPE>& other);
         // Create a copy of the specified 'other' allocator adaptor.
 
-    // StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
+    //! StdAllocatorAdaptor(const StdAllocatorAdaptor& original) = default;
         // Create a copy of the specified 'original' allocator adaptor.
 
-    // ~StdAllocatorAdaptor() = default;
+    //! ~StdAllocatorAdaptor() = default;
         // Destroy this object.
 
     // MANIPULATORS
-#if 0
-    ALLOCATOR& allocator();
-        // Return a reference to the allocator instance associated with this
-        // adaptor.
-#endif
-
-    // StdAllocatorAdaptor& operator=(const StdAllocatorAdaptor& rhs) = default;
+    //! StdAllocatorAdaptor& operator=(const StdAllocatorAdaptor& rhs) =
+    //!                                                                default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
-
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>
     void construct(ELEMENT_TYPE *address, Args&&... arguments);
-        // Construct an object of (template parameter) 'ELEMENT_TYPE', by
+        // Construct an object of the (template parameter) 'ELEMENT_TYPE', by
         // forwarding the allocator instance associated with this allocator
         // adaptor, if appropriate, and the specified (variable number of)
         // 'arguments' to the corresponding constructor of 'ELEMENT_TYPE', at
@@ -971,52 +1011,49 @@ class StdAllocatorAdaptor : public ALLOCATOR {
 
     StdAllocatorAdaptor<ALLOCATOR>
                                  select_on_container_copy_construction() const;
-        // TBD: improve comment
-        // Return an allocator adaptor for the allocator object returned by
-        // the 'select_on_constainer_copy_construction' class method in the
-        // 'allocator_traits' class template for the allocator object, of
-        // of (template parameter) type 'ALLOCATOR', associated with this
-        // adaptor.  The 'allocator_traits' class template presumably delegates
-        // this call to the allocator object if such an operation is supported
-        // by the 'ALLOCATOR' type, or provides a suitable default behavior if
-        // such an operation is not supported.
+        // Return an allocator adaptor for the allocator object returned by the
+        // 'select_on_container_copy_construction' class method in the
+        // 'allocator_traits' class template for the allocator object, of the
+        // (template parameter) type 'ALLOCATOR', associated with this adaptor.
+        // The 'allocator_traits' class template presumably delegates this call
+        // to the allocator object if such an operation is supported by the
+        // 'ALLOCATOR' type, or provides a suitable default behavior if such an
+        // operation is not supported.
 };
 
 // FREE OPERATORS
 template <class TYPE1, class TYPE2>
 bool operator==(const StdAllocatorAdaptor<TYPE1>& lhs,
                 const StdAllocatorAdaptor<TYPE2>& rhs);
-    // Return 'true' if the allocators associated with the specified 'lhs' and
-    // 'rhs' adaptors are equal and 'false' otherwise.  Two allocator adaptor
-    // instances are equal if their associated allocator instances are equal.
+    // Return 'true' if the specified 'lhs' and 'rhs' adaptors are equal and
+    // 'false' otherwise.  Two allocator adaptor instances are equal if their
+    // associated allocator instances are equal.
 
 template <class TYPE1, class TYPE2>
 bool operator!=(const StdAllocatorAdaptor<TYPE1>& lhs,
                 const StdAllocatorAdaptor<TYPE2>& rhs);
-    // Return 'true' if the allocators associated with the specified 'lhs' and
-    // 'rhs' adaptors are not equal and 'false' otherwise.  Two allocator
-    // adaptor instances are not equal if their associated allocator instances
-    // are not equal.
+    // Return 'true' if the specified 'lhs' and 'rhs' adaptors are not equal
+    // and 'false' otherwise.  Two allocator adaptor instances are not equal if
+    // their associated allocator instances are not equal.
 
 // ============================================================================
-//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                         // -------------------------
                         // class StdAllocatorAdaptor
                         // -------------------------
 
-// PRIVATE METHODS
-
+// PRIVATE MANIPULATORS
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 template <class ALLOCATOR>
 template <class ELEMENT_TYPE, class... Args>
 inline
-void StdAllocatorAdaptor<ALLOCATOR>::privateConstruct(bsl::true_type,
-                                                      ELEMENT_TYPE *address,
-                                                      Args&&... arguments)
+void StdAllocatorAdaptor<ALLOCATOR>::privateConstruct(
+                                                     bsl::true_type,
+                                                     ELEMENT_TYPE   *address,
+                                                     Args&&...       arguments)
 {
-    // TBD: need to handle allocator_arg_t.
     AllocatorTraits::construct(
         *this,
         address,
@@ -1027,13 +1064,15 @@ void StdAllocatorAdaptor<ALLOCATOR>::privateConstruct(bsl::true_type,
 template <class ALLOCATOR>
 template <class ELEMENT_TYPE, class... Args>
 inline
-void StdAllocatorAdaptor<ALLOCATOR>::privateConstruct(bsl::false_type,
-                                                      ELEMENT_TYPE *address,
-                                                      Args&&... arguments)
+void StdAllocatorAdaptor<ALLOCATOR>::privateConstruct(
+                                                    bsl::false_type,
+                                                    ELEMENT_TYPE    *address,
+                                                    Args&&...        arguments)
 {
     AllocatorTraits::construct(
         *this, address, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
 }
+
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1997,8 +2036,8 @@ StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor()
 
 template <class ALLOCATOR>
 inline
-StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(const ALLOCATOR& alloc)
-: ALLOCATOR(alloc)
+StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(const ALLOCATOR& allocator)
+: ALLOCATOR(allocator)
 {
 }
 
@@ -2006,26 +2045,18 @@ template <class ALLOCATOR>
 template <class ANY_TYPE>
 inline
 StdAllocatorAdaptor<ALLOCATOR>::StdAllocatorAdaptor(
-                                      const StdAllocatorAdaptor<ANY_TYPE>& rhs)
-: ALLOCATOR(rhs)
+                                    const StdAllocatorAdaptor<ANY_TYPE>& other)
+: ALLOCATOR(other)
 {
 }
 
 // MANIPULATORS
-#if 0
-template <class ALLOCATOR>
-inline
-ALLOCATOR& StdAllocatorAdaptor<ALLOCATOR>::allocator()
-{
-    return *this;
-}
-#endif
-
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 template <class ALLOCATOR>
 template <class ELEMENT_TYPE, class... Args>
 inline void
-StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address, Args&&... arguments)
+StdAllocatorAdaptor<ALLOCATOR>::construct(ELEMENT_TYPE *address,
+                                          Args&&...     arguments)
 {
     privateConstruct(
         typename bsl::uses_allocator<

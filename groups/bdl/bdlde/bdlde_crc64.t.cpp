@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
             obj.update(&j, 1);
 
             bsls::Types::Uint64 result = obj.checksum();
-            result ^= 0xff00000000000000;
+            result ^= 0xff00000000000000ULL;
             if (veryVerbose) {
                 T_ P_(i);
                 cout << hex;
@@ -1896,20 +1896,20 @@ int main(int argc, char *argv[])
             bsls::Types::Uint64 d_crc;      // expected CRC-64 value
             const char         *d_fmt_p;    // expected output format
         } DATA[] = {
-            //line source  length crc value           output format
-            //---- ------  ------ ---------           -------------
+            //line source  len crc value              output format
+            //---- ------  --- ---------              -------------
             { L_,  "",
-                           0,     0,                  "0x0000000000000000" },
+                           0,  0ULL,                  "0x0000000000000000" },
             { L_,  "\x00",
-                           1,     0x1fada17364673f59, "0x1fada17364673f59" },
+                           1,  0x1fada17364673f59ULL, "0x1fada17364673f59" },
             { L_,  "\x01\x02",
-                           2,     0xe27d0252a5da0bd1, "0xe27d0252a5da0bd1" },
+                           2,  0xe27d0252a5da0bd1ULL, "0xe27d0252a5da0bd1" },
             { L_,  "\x01\x02\x03",
-                           3,     0x3b8a3741f3f5aba3, "0x3b8a3741f3f5aba3" },
+                           3,  0x3b8a3741f3f5aba3ULL, "0x3b8a3741f3f5aba3" },
             { L_,  "\x01\x02\x03\x04",
-                           4,     0x11b787cc041da825, "0x11b787cc041da825" },
+                           4,  0x11b787cc041da825ULL, "0x11b787cc041da825" },
             { L_,  "\x00\x01\x02\x03\x04",
-                           5,     0x2ef6d326f445d75b, "0x2ef6d326f445d75b" },
+                           5,  0x2ef6d326f445d75bULL, "0x2ef6d326f445d75b" },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const int SIZE     = 128;
