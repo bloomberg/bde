@@ -2067,7 +2067,13 @@ int main(int argc, char *argv[])
                                           HOUR, MIN, SECS, MSEC, USEC);
 
                 bdlsb::MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                if (i % 3 == 0 && !BIN) {
+                    // Test the default options for some of the values.
+                    ASSERT(0 == Util::putValue(&osb, VALUE));
+                }
+                else {
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                }
                 LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
@@ -2619,7 +2625,13 @@ int main(int argc, char *argv[])
                                              OFF);
 
                 bdlsb::MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                if (i % 3 == 0 && !BIN) {
+                    // Test the default options for some of the values.
+                    ASSERT(0 == Util::putValue(&osb, VALUE));
+                }
+                else {
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                }
                 LOOP2_ASSERT(LEN, (int)osb.length(), LEN == (int)osb.length());
                 LOOP3_ASSERT(LINE, osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
