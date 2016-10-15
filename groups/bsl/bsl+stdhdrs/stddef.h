@@ -74,8 +74,7 @@ BSLS_IDENT("$Id: $")
 // 'extern "C++"' block.
 extern "C++" {
 
-    namespace bsl
-    {
+    namespace bsl {
         // Import selected symbols into bsl namespace
         using native_std::size_t;
     }

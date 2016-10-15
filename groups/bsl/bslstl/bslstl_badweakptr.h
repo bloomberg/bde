@@ -54,7 +54,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 namespace BloombergLP {
-namespace bslstl {  class BadWeakPtr; }  // close namespace bslalg
+namespace bslstl { class BadWeakPtr; }
 }  // close enterprise namespace
 
 namespace bsl {

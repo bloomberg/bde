@@ -24,8 +24,7 @@ BSLS_IDENT("$Id: $")
 #include <typeinfo>
 
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::bad_cast;
     using native_std::bad_typeid;

@@ -23,8 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #include <iosfwd>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
 

@@ -250,9 +250,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace balm {
 
-
-namespace balm {class MetricFormat;
+class MetricFormat;
 class MetricFormatSpec;
 class MetricsManager;
 

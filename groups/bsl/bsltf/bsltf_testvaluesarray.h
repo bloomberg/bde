@@ -578,8 +578,7 @@ bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
     return !(lhs == rhs);
 }
 
-namespace bsltf
-{
+namespace bsltf {
                        // ---------------------
                        // class TestValuesArray
                        // ---------------------

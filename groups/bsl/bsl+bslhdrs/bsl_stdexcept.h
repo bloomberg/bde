@@ -27,8 +27,7 @@ BSLS_IDENT("$Id: $")
 
 #include <stdexcept>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::domain_error;
     using native_std::invalid_argument;

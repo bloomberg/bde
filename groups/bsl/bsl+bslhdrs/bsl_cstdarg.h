@@ -23,8 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #include <cstdarg>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::va_list;
 }  // close package namespace

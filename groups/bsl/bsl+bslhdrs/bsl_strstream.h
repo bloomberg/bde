@@ -27,8 +27,7 @@ BSLS_IDENT("$Id: $")
 
 #include <strstream>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::istrstream;
     using native_std::ostrstream;

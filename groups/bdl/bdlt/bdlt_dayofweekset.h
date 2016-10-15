@@ -909,8 +909,7 @@ void bdlt::hashAppend(HASHALG& hashAlg, const DayOfWeekSet& object)
 }
 
 // TRAITS SPECIALIZATIONS
-namespace bslmf
-{
+namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bdlt::DayOfWeekSet> : ::bsl::true_type {};
 }

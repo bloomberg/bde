@@ -455,7 +455,9 @@ namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
-namespace btlsos {class TcpCbAcceptor_Reg; // component-local class declaration
+namespace btlsos {
+
+class TcpCbAcceptor_Reg; // component-local class declaration
 
                            // ===================
                            // class TcpCbAcceptor

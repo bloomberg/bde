@@ -52,12 +52,11 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
+
 namespace bslma { class Allocator; }
 
-namespace bsltf
-{
+namespace bsltf {
 
                          // =============================
                          // class AllocEmplacableTestType

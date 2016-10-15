@@ -24,8 +24,7 @@ BSLS_IDENT("$Id: $")
 #include <cmath>
 
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::abs;
     using native_std::acos;

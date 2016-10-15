@@ -156,10 +156,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace balm {
 
-
-namespace balm {class Category;
-
+class Category;
 class CollectorRepository_MetricCollectors;  // defined in implementation
 
                          // =========================

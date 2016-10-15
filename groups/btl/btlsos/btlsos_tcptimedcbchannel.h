@@ -100,10 +100,9 @@ namespace BloombergLP {
 namespace btlso { class IPv4Address; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
-namespace btlsos {class TcpTimedCbChannel_RReg;  // Component local class
+namespace btlsos {
 
-                                                 // declaration
-
+class TcpTimedCbChannel_RReg;  // Component local class declaration
 class TcpTimedCbChannel_WReg;  // Component local class declaration
 
                          // =======================

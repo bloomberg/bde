@@ -93,13 +93,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
-namespace bsltf
-{
+namespace bsltf {
 
                         // ==========================
                         // class MovableAllocTestType

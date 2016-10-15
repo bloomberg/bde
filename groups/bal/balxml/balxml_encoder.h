@@ -213,9 +213,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace balxml {
 
-
-namespace balxml {class Encoder_Context;
+class Encoder_Context;
 
                                // =============
                                // class Encoder

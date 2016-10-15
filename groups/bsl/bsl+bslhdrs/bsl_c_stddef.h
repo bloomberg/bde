@@ -38,8 +38,7 @@ BSLS_IDENT("$Id: $")
 extern "C++" {
 
 // On Sun, 'std::size_t' is defined in 'stddef.h'.
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::size_t;
 }

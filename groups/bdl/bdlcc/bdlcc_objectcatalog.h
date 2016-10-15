@@ -320,8 +320,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlcc {template <class TYPE> class ObjectCatalog_AutoCleanup;
+namespace bdlcc {
 
+template <class TYPE> class ObjectCatalog_AutoCleanup;
 template <class TYPE> class ObjectCatalogIter;
 template <class TYPE> class ObjectCatalog;
 

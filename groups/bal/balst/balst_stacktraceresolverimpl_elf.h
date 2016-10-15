@@ -75,7 +75,9 @@ namespace BloombergLP {
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 
-namespace balst {template <class RESOLVER_POLICY>
+namespace balst {
+
+template <class RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
             // ===================================================
