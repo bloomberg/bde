@@ -661,8 +661,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlcc {template <class DATA>
+namespace bdlcc {
 
+template <class DATA>
 class TimeQueueItem;
 
                               // ===============
@@ -1796,8 +1797,8 @@ DATA& TimeQueueItem<DATA>::data()
 
 #if 0
 
-namespace bdlcc {// this definition was moved into the class declaration
-
+namespace bdlcc {
+// this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
 inline
@@ -1837,8 +1838,8 @@ const DATA& TimeQueueItem<DATA>::data() const
 
 #if 0
 
-namespace bdlcc {// this definition was moved into the class declaration
-
+namespace bdlcc {
+// this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
 inline

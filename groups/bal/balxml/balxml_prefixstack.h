@@ -106,8 +106,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace balxml {
 
-namespace balxml {class NamespaceRegistry;
+class NamespaceRegistry;
 
                              // =================
                              // class PrefixStack

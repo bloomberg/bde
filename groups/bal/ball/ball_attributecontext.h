@@ -312,9 +312,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace ball {
 
-
-namespace ball {class Category;
+class Category;
 class CategoryManager;
 
              // ===============================================

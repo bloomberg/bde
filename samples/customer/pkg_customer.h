@@ -97,7 +97,9 @@
 #include <bsl_vector.h>
 #endif
 
-namespace BloombergLP { namespace bslma { class Allocator; } }
+namespace BloombergLP {
+namespace bslma { class Allocator; }
+}
 
 namespace Enterprise {
 namespace pkg {

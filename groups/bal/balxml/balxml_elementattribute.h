@@ -234,9 +234,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
-namespace balxml {class PrefixStack;
+namespace balxml {
+        
+class PrefixStack;
 
                            // ======================
                            // class ElementAttribute

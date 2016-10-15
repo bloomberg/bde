@@ -44,8 +44,7 @@ BSLS_IDENT("$Id: $")
 #define BSL_MEMORY_SUPPORT_UNIQUE_PTR
 #endif
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     // These are declared in bslstl_iosfwd.h (so cannot be using declarations):

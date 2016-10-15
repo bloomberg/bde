@@ -123,11 +123,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace ball {
 
-
-namespace ball {class Attribute;
-class AttributeContainer;
-
+class  Attribute;
+class  AttributeContainer;
 struct AttributeContainerList_Node;
 
               // ====================================

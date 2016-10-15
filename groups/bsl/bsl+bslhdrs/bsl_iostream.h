@@ -41,8 +41,7 @@ BSLS_IDENT("$Id: $")
 
 #include <iostream>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     using native_std::cerr;

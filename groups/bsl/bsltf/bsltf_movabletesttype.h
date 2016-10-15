@@ -93,11 +93,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_cpp11.h>
 #endif
 
-namespace BloombergLP
-{
-
-namespace bsltf
-{
+namespace BloombergLP {
+namespace bsltf {
 
                         // =====================
                         // class MovableTestType
