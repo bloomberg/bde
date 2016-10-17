@@ -372,7 +372,7 @@ BSLS_IDENT("$Id: $")
 // Next, we create a 'ball::LoggerManagerConfiguration' object,
 // 'configuration', and set the logging "pass-through" level -- the level at
 // which log records are published to registered observers -- to 'WARN' (see
-// {'Categories, Severities, and Threshold Levels'}):
+// {Categories, Severities, and Threshold Levels}):
 //..
 //        ball::LoggerManagerConfiguration configuration;
 //        configuration.setDefaultThresholdLevelsIfValid(

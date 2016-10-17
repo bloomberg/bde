@@ -203,7 +203,7 @@ class Sluice {
         // Wait for the specified 'token' to be signaled, or until the
         // specified 'timeout' expires.  The 'timeout' is an absolute time
         // represented as an interval from some epoch, which is determined by
-        // the clock indicated at construction (see {'Supported Clock-Types'}
+        // the clock indicated at construction (see {Supported Clock-Types}
         // in the component documentation).  Return 0 on success, and a
         // non-zero value on timeout.  The 'token' is released whether or not a
         // timeout occurred.  The behavior is undefined unless 'token' was

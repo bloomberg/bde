@@ -361,7 +361,7 @@ class Barrier {
         // of threads waiting.  Return a non-zero value if a timeout or error
         // occurs.  The 'timeout' is an absolute time represented as an
         // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {'Supported Clock-Types'} in the component
+        // at construction (see {Supported Clock-Types} in the component
         // documentation).  Note that 'timedWait' and 'wait' should not
         // generally be used together; if one or more threads called 'wait'
         // while others called 'timedWait', then if the thread(s) that called

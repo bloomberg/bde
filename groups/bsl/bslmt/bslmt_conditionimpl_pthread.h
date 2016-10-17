@@ -145,7 +145,7 @@ class ConditionImpl<Platform::PosixThreads> {
         // until the specified 'timeout', then re-acquire a lock on the
         // 'mutex'.  The 'timeout' is an absolute time represented as an
         // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {'Supported Clock-Types'} in the component
+        // at construction (see {Supported Clock-Types} in the component
         // documentation).  Return 0 on success, -1 on timeout, and a non-zero
         // value different from -1 if an error occurs.  The behavior is
         // undefined unless 'mutex' is locked by the calling thread prior to
