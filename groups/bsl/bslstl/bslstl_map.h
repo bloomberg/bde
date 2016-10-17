@@ -988,7 +988,7 @@ class map {
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
-        // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
+        // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
         // and return a reference providing modifiable access to this object.
         // The contents of 'rhs' are moved (in constant time) to this map if
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the

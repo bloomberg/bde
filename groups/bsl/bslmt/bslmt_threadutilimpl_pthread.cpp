@@ -25,7 +25,7 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
 
-#include <bsl_algorithm.h>
+#include <bsl_algorithm.h>   // 'bsl::min'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_ctime.h>

@@ -1679,9 +1679,8 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        d_impl = rhs.d_impl;
-    }
+    d_impl = rhs.d_impl;
+
     return *this;
 }
 
@@ -1696,9 +1695,9 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
     // allocator propagation to the 'HashTable' implementation.
 
     unordered_multimap& lvalue = rhs;
-    if (this != &lvalue) {
-        d_impl = MoveUtil::move(lvalue.d_impl);
-    }
+
+    d_impl = MoveUtil::move(lvalue.d_impl);
+
     return *this;
 }
 

@@ -2093,15 +2093,11 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
                                                       const unordered_map& rhs)
 {
-    // We don't have access to assign to the 'allocator' field of 'd_impl'.
-    // When this trait is no longer always hard-wired to be 'false', we will
-    // have to change 'bslstl::HashTable' to give us such access and change
-    // this function.
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
 
-    BSLMF_ASSERT(
-              !AllocatorTraits::propagate_on_container_copy_assignment::value);
+    d_impl = rhs.d_impl;
 
-    unordered_map(rhs, this->get_allocator()).swap(*this);
     return *this;
 }
 
@@ -2112,6 +2108,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_map> rhs)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
+
     unordered_map& lvalue = rhs;
 
     d_impl = MoveUtil::move(lvalue.d_impl);
@@ -2579,14 +2578,6 @@ void
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
-
-    // 'bslstl::HashTable' does not expose its allocator field for write
-    // access after construction.  When this trait is no longer hard wired to
-    // false, both 'bslstl::HashTable' and this method will need to change.
-
-    BSLMF_ASSERT(!AllocatorTraits::propagate_on_container_swap::value);
-
     d_impl.swap(other.d_impl);
 }
 
