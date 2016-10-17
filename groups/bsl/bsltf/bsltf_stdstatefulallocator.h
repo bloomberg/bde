@@ -224,6 +224,12 @@ class StdStatefulAllocator {
     typedef const TYPE     *const_pointer;
 #endif
 
+    // TBD The following two 'typedef's are required for testing 'bslstl_deque'
+    // and 'bslstl_vector' (because 'bslalg::ContainerBase', which is used by
+    // both of those containers, expects these to exist).
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+
     typedef bsl::integral_constant<bool,
                                    PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT>
                                         propagate_on_container_copy_assignment;

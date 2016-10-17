@@ -1908,12 +1908,11 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                                  const unordered_multiset& rhs)
 {
-    // Note that we are delegating responsibility for getting the allocator
-    // traits behavior correct down to the HashTable component.
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        d_impl = rhs.d_impl;
-    }
+    d_impl = rhs.d_impl;
+
     return *this;
 }
 
@@ -1924,13 +1923,13 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                         BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    // Note that we are delegating responsibility for getting the allocator
-    // traits behavior correct down to the HashTable component.
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
 
     unordered_multiset& lvalue = rhs;
-    if (this != &lvalue) {
-        d_impl = MoveUtil::move(lvalue.d_impl);
-    }
+
+    d_impl = MoveUtil::move(lvalue.d_impl);
+
     return *this;
 }
 

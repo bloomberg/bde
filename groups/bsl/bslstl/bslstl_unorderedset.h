@@ -735,9 +735,8 @@ class unordered_set
     typedef HASH                                       hasher;
     typedef EQUAL                                      key_equal;
     typedef ALLOCATOR                                  allocator_type;
-
-    typedef typename allocator_type::reference         reference;
-    typedef typename allocator_type::const_reference   const_reference;
+    typedef value_type&                                reference;
+    typedef const value_type&                          const_reference;
 
     typedef typename AllocatorTraits::size_type        size_type;
     typedef typename AllocatorTraits::difference_type  difference_type;
@@ -1861,7 +1860,11 @@ inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(const unordered_set& rhs)
 {
-    unordered_set(rhs, get_allocator()).swap(*this);
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
+
+    d_impl = rhs.d_impl;
+
     return *this;
 }
 
@@ -1872,10 +1875,13 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                              BloombergLP::bslmf::MovableRef<unordered_set> rhs)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
+    // Note that we have delegated responsibility for correct handling of
+    // allocator propagation to the 'HashTable' implementation.
+
     unordered_set& lvalue = rhs;
-    if (this != &lvalue) {
-        d_impl = MoveUtil::move(lvalue.d_impl);
-    }
+
+    d_impl = MoveUtil::move(lvalue.d_impl);
+
     return *this;
 }
 
@@ -2814,8 +2820,6 @@ inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::swap(unordered_set& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
-
     d_impl.swap(other.d_impl);
 }
 

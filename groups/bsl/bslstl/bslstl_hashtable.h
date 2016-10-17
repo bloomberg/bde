@@ -4485,7 +4485,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
 
-        if (AllocatorTraits::propagate_on_container_copy_assignment::VALUE) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             HashTable other(rhs, rhs.allocator());
             quickSwapExchangeAllocators(&other);
         }
@@ -6977,7 +6977,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 {
     // This trait should perform 'if' at compile-time.
 
-    if (AllocatorTraits::propagate_on_container_swap::VALUE) {
+    if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(&other);
     }
     else {
@@ -7355,7 +7355,7 @@ bslstl::swap(bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& a,
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
                                                                      TableType;
 
-    if (::bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::VALUE
+    if (::bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
         || a.allocator() == b.allocator()) {
         a.swap(b);
     }
