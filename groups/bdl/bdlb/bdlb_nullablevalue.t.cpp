@@ -4155,6 +4155,7 @@ int main(int argc, char *argv[])
         //   - That convertible underlying types convert.
         //   - That types with an explicit conversion constructor will properly
         //     compile and work with 'bdlb::NullableValue'.
+        //   - That no unnecessary temporaries are created.
         //   - That types for which there is no conversion do not compile
         //     (we will do this test by hand for now, but could use template
         //     magic later, perhaps, to ensure that non-compile is enforced
@@ -4328,6 +4329,23 @@ int main(int argc, char *argv[])
 
             ASSERT(VALUE1 == OBJ1.value());
             ASSERT(VALUE1 == obj2.value());
+        }
+
+        {
+            // verify that no unnecessary temporaries are created
+
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            bdlb::NullableValue<bsl::string> x("Hello world", &oa);
+
+            x = "Hello to a world that is longer than the short string "
+                "optimization!  It really is.  Count the characters if you "
+                "don't believe me.";
+
+            ASSERT(0 == da.numBlocksTotal());
         }
 
         // Making sure 'makeValue' works with explicit constructors.
@@ -4897,6 +4915,48 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(U, W, U == W);
             }
+        }
+
+        // In the following, 'mY = mX' failed to compile in C++11 with an
+        // earlier version of the overload set for 'operator='.
+
+        {
+            typedef int                            ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const ValueType N = 77;
+
+            Obj mX;  const Obj& X = mX;  mX.makeValue(N);
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(     Y.isNull());
+
+            mY = X;
+            ASSERT(N == Y.value());
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = mX;
+            ASSERT(N == Y.value());
+        }
+
+        {
+            typedef bsl::string                    ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const ValueType S = "abc";
+
+            Obj mX;  const Obj& X = mX;  mX.makeValue(S);
+            Obj mY;  const Obj& Y = mY;
+
+            mY = X;
+            ASSERT(S == Y.value());
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = mX;
+            ASSERT(S == Y.value());
         }
 
       } break;
