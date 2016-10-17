@@ -15,11 +15,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provies a metafunction that converts a type
-// into the used for pass-by-value by applying array-to-pointer and
-// function-to-pointer conversion and cv-qualification removal. 'bsl::decay'
-// provides identical functionality to the C++11 standard metafunction
-// 'std::decay'. From the C++14, standard description of 'std::decay':
+//@DESCRIPTION: This component provies a metafunction that applies
+// array-to-pointer and function-to-pointer conversion and cv-qualification
+// removal to a type, thus modeling the decay of an argument type when passed
+// by-value into a function. 'bsl::decay' provides identical functionality to
+// the C++11 standard metafunction 'std::decay'. From the C++14, standard
+// description of 'std::decay':
 //
 // Let 'U' be 'remove_reference_t<T>'. If 'is_array<U>::value' is 'true', the
 // member typedef 'type' shall equal 'remove_extent_t<U>*'. If
@@ -36,35 +37,51 @@ BSLS_IDENT("$Id: $")
 //
 /// Usage Example 1
 /// - - - - - - - -
-// When an array is passed as a function argument, it decays to a
-// pointer to its element type. The result of 'bsl::decay' applied
-// to array types is, therefore, a pointer to the element type of the
-// array:
+// A class template needs to cache a value of type 'T'. There is
+// nothing in the definition of the class that would prevent it from
+// working for 'T' of function type or array-of-unknown bound, but
+// one cannot simply declare a member of either of those types.
+// Instead, we use 'bsl::decay<T>::type', which can be stored, copied,
+// and compared as needed:
 //..
-//  typedef const int A1[];
-//  typedef double A2[3][4];
-//  assert((bsl::is_same<const int*,   bsl::decay<A1>::type>::value));
-//  assert((bsl::is_same<double(*)[4], bsl::decay<A2>::type>::value));
-//..
+//  #ifndef INCLUDED_BSLMF_DECAY
+//  #include <bslmf_decay.h>
+//  #endif
 //
-/// Usage Example 2
-/// - - - - - - - -
-// When an function is passed as a function argument, it decays to a
-// pointer to the function type. This transformation is reflected in
-// result of 'bsl::decay', when applied to function types
+//  template <class T>
+//  class Thing {
+//  public:
+//      typedef typename bsl::decay<T>::type CacheType;
+//
+//  private:
+//      CacheType d_cache;
+//      // ...
+//
+//  public:
+//      CacheType cache() const { return d_cache; }
+//  };
 //..
-//  typedef void F1(int);
-//  typedef int (&F2)();
-//  assert((bsl::is_same<void (*)(int), bsl::decay<F1>::type>::value));
-//  assert((bsl::is_same<int (*)(),     bsl::decay<F2>::type>::value));
+// Now verify that for function and array types, 'cache()' will return
+// a simple pointer:
+//..
+//  int main()
+//  {
+//      typedef const int A1[];
+//      typedef double A2[3][4];
+//      typedef void F1(int);
+//      typedef int (&F2)();
+//
+//      assert((bsl::is_same<const int*,    Thing<A1>::CacheType>::value));
+//      assert((bsl::is_same<double(*)[4],  Thing<A2>::CacheType>::value));
+//      assert((bsl::is_same<void (*)(int), Thing<F1>::CacheType>::value));
+//      assert((bsl::is_same<int (*)(),     Thing<F2>::CacheType>::value));
+//
+//      return 0;
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDPOINTER
-#include <bslmf_addpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -77,10 +94,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
-#include <bslmf_issame.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECV
@@ -113,8 +126,8 @@ class decay
 
     typedef typename bsl::remove_reference<TYPE>::type U;
     enum {
-        ISARRAY = is_array<typename bsl::remove_reference<U>::type>::value,
-        ISFUNC  = is_function<typename bsl::remove_reference<U>::type>::value
+        ISARRAY = is_array<U>::value,
+        ISFUNC  = is_function<U>::value
     };
 
   public:
@@ -140,7 +153,7 @@ struct decay_imp<TYPE, true /* ISARRAY */, false /* ISFUNC */>
 template <class TYPE>
 struct decay_imp<TYPE, false /* ISARRAY */, true /* ISFUNC */>
 {
-    typedef typename add_pointer<TYPE>::type type;
+    typedef TYPE *type;
 };
 
 }  // close namespace bsl

@@ -94,7 +94,7 @@ struct T14 {};
 typedef T0 (T0::*TestFunc0)();
 typedef T1 (T1::*TestFunc1)(T1);
 typedef T2 (T2::*TestFunc2)(T1, T2);
-typedef T3 (T3::*TestFunc3)(T1, T2, T3); //
+typedef T3 (T3::*TestFunc3)(T1, T2, T3);
 typedef T4 (T4::*TestFunc4)(T1, T2, T3, T4);
 typedef T5 (T5::*TestFunc5)(T1, T2, T3,T4, T5);
 typedef T6 (T6::*TestFunc6)(T1, T2, T3, T4, T5, T6);

@@ -20,34 +20,43 @@ BSLS_IDENT("$Id: $")
 // to be identical to the C++11 metafunction 'std::remove_extent'.  From the
 // C++14 standard:
 //
-// If 'T' names a type “array of 'U'”, the member typedef 'type' shall be 'U',
+// If 'T' names a type "array of 'U'", the member typedef 'type' shall be 'U',
 // otherwise 'T'. [ *Note:* For multidimensional arrays, only the first array
-// dimension is removed. For a type “array of 'const U'”, the resulting type
+// dimension is removed. For a type "array of 'const U'", the resulting type
 // is 'const U'. -- *end note* ]
-//
 //
 ///Usage
 ///-----
-// For 'T' being a scalar, one-dimentional array of either known and
-// unknown bounds, or two-dimentional array where the lower bound is
-// known, we see that 'bsl::remove_extent<T>::type' is 'T' but with
-// the high-order array dimension (if any), stripped:
+// The class template 'Traverser' is used to traverse an array and perform
+// some operation. In order to do its job in the case of two-dimensional
+// arrays, 'Traverser' must hold on to an entire row of the array at a time in
+// order to process it correctly.  The row type is determined from the array
+// type using 'remove_extent':
 //..
-//  assert((bsl::is_same<int, bsl::remove_extent<int>::type>::value));
-//  assert((bsl::is_same<int, bsl::remove_extent<int[]>::type>::value));
-//  assert((bsl::is_same<int, bsl::remove_extent<int[5]>::type>::value));
-//  typedef const int iarray2[][6];
-//  assert((bsl::is_same<const int[6],
-//                       bsl::remove_extent<iarray2>::type>::value));
-//  assert((bsl::is_same<int[6],
-//                       bsl::remove_extent<int[7][6]>::type>::value));
+//  template <class ARRAY_TYPE>
+//  class Traverser {
+//  public:
+//      typedef typename bsl::remove_extent<ARRAY_TYPE>::type RowType;
+//
+//  private:
+//      RowType d_row;  // Might be scalar
+//      // ...
+//  };
 //..
-// Note that if 'T' is a reference-to-array, then
-// 'bsl::remove_extent<T>::type' is simply 'T', i.e., the reference
-// suppresses the transformation:
+// Now we can see that the row type is the type of the array after having
+// striped off the high-order dimension:
 //..
-//  assert((bsl::is_same<int(&)[],
-//                       bsl::remove_extent<int(&)[]>::type>::value));
+//  int main()
+//  {
+//      assert((bsl::is_same<int, Traverser<int>::RowType>::value));
+//      assert((bsl::is_same<int, Traverser<int[]>::RowType>::value));
+//      assert((bsl::is_same<int, Traverser<int[5]>::RowType>::value));
+//      typedef const int MyRow[6];
+//      assert((bsl::is_same<MyRow, Traverser<MyRow[]>::RowType>::value));
+//      assert((bsl::is_same<int[6], Traverser<int[7][6]>::RowType>::value));
+//
+//      return 0;
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -70,7 +79,7 @@ struct remove_extent {
     // From the C++14 standard: If 'T' names a type "array of 'U'", the member
     // typedef 'type' shall be 'U', otherwise 'T'. [ *Note:* For
     // multidimensional arrays, only the first array dimension is removed. For
-    // a type “array of 'const U'”, the resulting type is 'const U'. --
+    // a type "array of 'const U'", the resulting type is 'const U'. --
     // *end note* ]
 
     typedef TYPE type;

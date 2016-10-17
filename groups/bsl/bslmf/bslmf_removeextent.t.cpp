@@ -5,6 +5,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -68,23 +69,50 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                                VERBOSITY
-//-----------------------------------------------------------------------------
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0; // For test allocators
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+struct MyClass
+{
+    int d_value;
+};
 
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
+///Usage
+///-----
+// The class template 'Traverser' is used to traverse an array and perform
+// some operation. In order to do its job in the case of two-dimensional
+// arrays, 'Traverser' must hold on to an entire row of the array at a time in
+// order to process it correctly.  The row type is determined from the array
+// type using 'remove_extent':
+//..
+    template <class ARRAY_TYPE>
+    class Traverser {
+    public:
+        typedef typename bsl::remove_extent<ARRAY_TYPE>::type RowType;
+
+    private:
+        RowType d_row;  // Might be scalar
+        // ...
+    };
+//..
+// Now we can see that the row type is the type of the array after having
+// striped off the high-order dimension:
+    int usageExample()
+    {
+        ASSERT((bsl::is_same<int, Traverser<int>::RowType>::value));
+        ASSERT((bsl::is_same<int, Traverser<int[]>::RowType>::value));
+        ASSERT((bsl::is_same<int, Traverser<int[5]>::RowType>::value));
+        typedef const int MyRow[6];
+        ASSERT((bsl::is_same<MyRow, Traverser<MyRow[]>::RowType>::value));
+        ASSERT((bsl::is_same<int[6], Traverser<int[7][6]>::RowType>::value));
+
+        return 0;
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -93,10 +121,10 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int verbose = argc > 2;
+    // int veryVerbose = argc > 3;
+    // int veryVeryVerbose = argc > 4;
+    // int veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -106,12 +134,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //    The usage example from the component documentation compiles and
-        //    runs correctly.
+        //: 1 The usage example from the component documentation compiles and
+        //:   runs correctly.
         //
         // Plan:
-        //    Copy the usage example from the component documentation,
-        //    replacing 'assert' with 'ASSERT'.
+        //: 1 For concern 1, copy the usage example from the component
+        //:   documentation, replacing 'assert' with 'ASSERT'.
         //
         // Testing:
         //     Usage example
@@ -120,28 +148,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-
-        // For 'T' being a scalar, one-dimentional array of either known and
-        // unknown bounds, or two-dimentional array where the lower bound is
-        // known, we see that 'bsl::remove_extent<T>::type' is 'T' but with
-        // the high-order array dimension (if any), stripped:
-        //..
-        ASSERT((bsl::is_same<int, bsl::remove_extent<int>::type>::value));
-        ASSERT((bsl::is_same<int, bsl::remove_extent<int[]>::type>::value));
-        ASSERT((bsl::is_same<int, bsl::remove_extent<int[5]>::type>::value));
-        typedef const int iarray2[][6];
-        ASSERT((bsl::is_same<const int[6],
-                             bsl::remove_extent<iarray2>::type>::value));
-        ASSERT((bsl::is_same<int[6],
-                             bsl::remove_extent<int[7][6]>::type>::value));
-        //..
-        // Note that if 'T' is a reference-to-array, then
-        // 'bsl::remove_extent<T>::type' is simply 'T', i.e., the reference
-        // suppresses the transformation:
-        //..
-        ASSERT((bsl::is_same<int(&)[],
-                             bsl::remove_extent<int(&)[]>::type>::value));
-        //..
+        usageExample();
 
       } break;
       case 1: {
@@ -149,19 +156,27 @@ int main(int argc, char *argv[])
         // COMPLETE TEST
         //
         // Concerns:
-        //: 1 If 'TYPE' is a scalar, function, or pointer-to-function type,
+        //: 1 If 'TYPE' is a scalar, function, pointer, pointer-to-function,
+        //:   pointer-to-member, or void type,
         //:   'bsl::remove_extent<TYPE>::type' is exactly 'TYPE'.
-        //: 2 If 'TYPE' is a one-dimentional array of unknown bound, 'U[]',
+        //: 2 If 'TYPE' is a one-dimensional array of unknown bound, 'U[]',
         //:   then 'bsl::remove_extent<TYPE>::type' is 'U'
-        //: 3 If 'TYPE' is a one-dimentional array of known bound, 'U[N]',
+        //: 3 If 'TYPE' is a one-dimensional array of known bound, 'U[N]',
         //:   then 'bsl::remove_extent<TYPE>::type' is 'U'
-        //: 4 If 'TYPE' is a multi-dimentional array of unknown bound,
-        //:   'U[][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'
-        //: 5 If 'TYPE' is a multi-dimentional array of known bound,
-        //:   'U[N][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'
+        //: 4 If 'TYPE' is a two-dimensional array of unknown bound,
+        //:   'U[][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'.
+        //:   Similarly for a three-dimensional array of unknown high-order
+        //:   bound.
+        //: 5 If 'TYPE' is a two-dimensional array of known bound,
+        //:   'U[N][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'.
+        //:   Similarly for a three-dimensional array of known high-order
+        //:   bound.
         //: 6 Cv-qualification on scalars or array elements is preserved.
-        //: 7 If 'TYPE&' is a reference type 'U&', then
+        //: 7 If 'TYPE' is a lvalue reference type 'U&', then
         //:   'bsl::remove_extent<TYPE>::type' is exactly 'U&', even if 'U' is
+        //:   an array type.
+        //: 8 If 'TYPE' is a rvalue reference type 'U&&', then
+        //:   'bsl::remove_extent<TYPE>::type' is exactly 'U&&', even if 'U' is
         //:   an array type.
         //
         // Plan:
@@ -179,23 +194,48 @@ int main(int argc, char *argv[])
 
 #define TEST(a,b) ASSERT((bsl::is_same<bsl::remove_extent<a>::type, b>::value))
 
-        //   TYPE                 remove_extent<TYPE>::type
-        //   ===================  =========================
-        TEST(int                , int                );
-        TEST(const int          , const int          );
-        TEST(void (*)(int)      , void (*)(int)      );
-        TEST(void (double)      , void (double)      );
-        TEST(short[]            , short              );
-        TEST(double[10]         , double             );
-        TEST(volatile char[][20], volatile char[20]  );
-        TEST(long[10][30]       , long[30]           );
-
-        TEST(int&               , int&               );
-        TEST(const int&         , const int&         );
-        TEST(short(&)[]         , short(&)[]         );
-        TEST(double(&)[10]      , double(&)[10]      );
-        TEST(const char(&)[][20], const char(&)[][20]);
-        TEST(long(&)[10][30]    , long(&)[10][30]    );
+        //   TYPE                     remove_extent<TYPE>::type Concern #
+        //   =======================  ========================= =========
+        TEST(int                    , int                  );   // 1
+        TEST(const int              , const int            );
+        TEST(MyClass                , MyClass              );
+        TEST(void (double)          , void (double)        );
+        TEST(char *                 , char *               );
+        TEST(void (*)(int)          , void (*)(int)        );
+        TEST(int MyClass::*         , int MyClass::*       );
+        TEST(short[]                , short                );   // 2
+        TEST(int*[]                 , int*                 );
+        TEST(double[10]             , double               );   // 3
+        TEST(short*[10]             , short*               );
+        TEST(char[][20]             , char[20]             );   // 4
+        TEST(int*[][20]             , int*[20]             );
+        TEST(char[][20][30]         , char[20][30]         );
+        TEST(int*[][20][30]         , int*[20][30]         );
+        TEST(long[10][40]           , long[40]             );   // 5
+        TEST(const char*[10][40]    , const char*[40]      );
+        TEST(long[10][40][50]       , long[40][50]         );
+        TEST(char*[10][40][50]      , char*[40][50]        );
+        TEST(volatile short[]       , volatile short       );   // 6
+        TEST(const double[10]       , const double         );
+        TEST(double *const[10]      , double *const        );
+        TEST(volatile char[][20]    , volatile char[20]    );
+        TEST(volatile char[][20][30], volatile char[20][30]);
+        TEST(const long[10][40]     , const long[40]       );
+        TEST(const long[10][40][50] , const long[40][50]   );
+        TEST(int&                   , int&                 );   // 7
+        TEST(const int&             , const int&           );
+        TEST(short(&)[]             , short(&)[]           );
+        TEST(double(&)[10]          , double(&)[10]        );
+        TEST(const char(&)[][20]    , const char(&)[][20]  );
+        TEST(long(&)[10][30]        , long(&)[10][30]      );
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        TEST(int&&                  , int&&                );   // 8
+        TEST(const int&&            , const int&&          );
+        TEST(short(&&)[]            , short(&&)[]          );
+        TEST(double(&&)[10]         , double(&&)[10]       );
+        TEST(const char(&&)[][20]   , const char(&&)[][20] );
+        TEST(long(&&)[10][30]       , long(&&)[10][30]     );
+#endif
 
 #undef TEST
 

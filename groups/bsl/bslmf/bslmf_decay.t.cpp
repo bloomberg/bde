@@ -2,8 +2,10 @@
 
 #include "bslmf_decay.h"
 
+#include <bslmf_issame.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -67,15 +69,6 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                                VERBOSITY
-//-----------------------------------------------------------------------------
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0; // For test allocators
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -88,6 +81,50 @@ struct MyClass
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
+/// Usage Example 1
+/// - - - - - - - -
+// A class template needs to cache a value of type 'T'. There is
+// nothing in the definition of the class that would prevent it from
+// working for 'T' of function type or array-of-unknown bound, but
+// one cannot simply declare a member of either of those types.
+// Instead, we use 'bsl::decay<T>::type', which can be stored, copied,
+// and compared as needed:
+//..
+    #ifndef INCLUDED_BSLMF_DECAY
+    #include <bslmf_decay.h>
+    #endif
+
+    template <class T>
+    class Thing {
+    public:
+        typedef typename bsl::decay<T>::type CacheType;
+
+    private:
+        CacheType d_cache;
+        // ...
+
+    public:
+        CacheType cache() const { return d_cache; }
+    };
+//..
+// Now verify that for function and array types, 'cache()' will return
+// a simple pointer:
+//..
+    int usageExample1()
+    {
+        typedef const int A1[];
+        typedef double A2[3][4];
+        typedef void F1(int);
+        typedef int (&F2)();
+
+        ASSERT((bsl::is_same<const int*,    Thing<A1>::CacheType>::value));
+        ASSERT((bsl::is_same<double(*)[4],  Thing<A2>::CacheType>::value));
+        ASSERT((bsl::is_same<void (*)(int), Thing<F1>::CacheType>::value));
+        ASSERT((bsl::is_same<int (*)(),     Thing<F2>::CacheType>::value));
+
+        return 0;
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -96,10 +133,10 @@ struct MyClass
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int verbose = argc > 2;
+    // int veryVerbose = argc > 3;
+    // int veryVeryVerbose = argc > 4;
+    // int veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -108,13 +145,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concern:
-        //    The usage example from the component documentation compiles and
-        //    runs correctly.
+        // Concerns:
+        //: 1 The usage example from the component documentation compiles and
+        //:   runs correctly.
         //
         // Plan:
-        //    Copy the usage example from the component documentation,
-        //    replacing 'assert' with 'ASSERT'.
+        //: 1 For concern 1, copy the usage example from the component
+        //:   documentation, replacing 'assert' with 'ASSERT'.
         //
         // Testing:
         //     Usage example
@@ -123,30 +160,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        /// Usage Example 1
-        /// - - - - - - - -
-        // When an array is passed as a function argument, it decays to a
-        // pointer to its element type. The result of 'bsl::decay' applied
-        // to array types is, therefore, a pointer to the element type of the
-        // array:
-        //..
-        typedef const int A1[];
-        typedef double A2[3][4];
-        ASSERT((bsl::is_same<const int*,   bsl::decay<A1>::type>::value));
-        ASSERT((bsl::is_same<double(*)[4], bsl::decay<A2>::type>::value));
-        //..
-        //
-        /// Usage Example 2
-        /// - - - - - - - -
-        // When an function is passed as a function argument, it decays to a
-        // pointer to the function type. This transformation is reflected in
-        // result of 'bsl::decay', when applied to function types
-        //..
-        typedef void F1(int);
-        typedef int (&F2)();
-        ASSERT((bsl::is_same<void (*)(int), bsl::decay<F1>::type>::value));
-        ASSERT((bsl::is_same<int (*)(),     bsl::decay<F2>::type>::value));
-        //..
+        usageExample1();
 
       } break;
       case 1: {
@@ -154,32 +168,37 @@ int main(int argc, char *argv[])
         // COMPLETE TEST
         //
         // Concerns:
-        //: 1 If 'TYPE' is a scalar, class, or pointer type
-        //:   'bsl::decay<TYPE>::type' is 'TYPE' except with top-level
-        //:   cv-qualifiers removed.
-        //: 2 If 'TYPE' is a one-dimentional array of unknown bound, 'U[]',
+        //: 1 If 'TYPE' is a scalar, class, pointer type, pointer-to-member
+        //:   type, or void, 'bsl::decay<TYPE>::type' is 'TYPE' except with
+        //:   top-level cv-qualifiers removed.
+        //: 2 If 'TYPE' is a pointer to cv-qualified type or pointer to
+        //:   cv-qualified member, 'bsl::decay<TYPE>::type' retains the
+        //:   cv-qualification on the pointed-to type.
+        //: 3 If 'TYPE' is a one-dimentional array of unknown bound, 'U[]',
         //:   then 'bsl::decay<TYPE>::type' is 'U*'
-        //: 3 If 'TYPE' is a one-dimentional array of known bound, 'U[N]',
+        //: 4 If 'TYPE' is a one-dimentional array of known bound, 'U[N]',
         //:   then 'bsl::decay<TYPE>::type' is 'U*'
-        //: 4 If 'TYPE' is a multi-dimentional array of unknown bound,
+        //: 5 If 'TYPE' is a multi-dimentional array of unknown bound,
         //:   'U[][M]', then 'bsl::decay<TYPE>::type' is 'U(*)[M]'
-        //: 5 If 'TYPE' is a multi-dimentional array of known bound,
+        //: 6 If 'TYPE' is a multi-dimentional array of known bound,
         //:   'U[N][M]', then 'bsl::decay<TYPE>::type' is 'U(*)[M]'
-        //: 6 Cv-qualification on array elements is preserved.
-        //: 7 If 'TYPE' is a function type 'F', then 'bsl::decay<TYPE>::type'
+        //: 7 Cv-qualification on array elements is preserved.
+        //: 8 If 'TYPE' is a function type 'F', then 'bsl::decay<TYPE>::type'
         //:   is 'F*'.
-        //: 8 if 'TYPE' is a pointer-to-function type or pointer-to-array type
+        //: 9 if 'TYPE' is a pointer-to-function type or pointer-to-array type
         //:   then 'bsl::decay<TYPE>::type' is 'TYPE' except with top-level
         //:   cv-qualifiers removed (i.e., 'TYPE' is treated as a normal
         //:   pointer).
-        //: 9 If 'TYPE&' is a reference type 'U&', then
+        //: 10 If 'TYPE' is an lvalue reference type 'U&', then
+        //:   'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
+        //: 12 If 'TYPE' is an rvalue reference (C++11) type 'U&&', then
         //:   'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
         //
         // Plan:
-        //    For each of the above concerns, instantiate
-        //    'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'. Use
-        //    'bsl::is_same' to verify that 'bsl::remove_extent<TYPE>::type'
-        //    is as expected.
+        //: 1 For each of the above concerns, instantiate
+        //:   'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'. Use
+        //:   'bsl::is_same' to verify that 'bsl::remove_extent<TYPE>::type'
+        //:   is as expected.
 	//
         // Testing:
         //     bsl::decay<TYPE>::type
@@ -190,24 +209,35 @@ int main(int argc, char *argv[])
 
 #define TEST(a,b) ASSERT((bsl::is_same<bsl::decay<a>::type, b>::value))
 
-        //   TYPE                     decay<TYPE>::type
-        //   =======================  ====================
-        TEST(int                    , int                 );
+        //   TYPE                     decay<TYPE>::type      Concern #
+        //   =======================  ====================   =========
+        TEST(int                    , int                 ); // 1
         TEST(MyClass                , MyClass             );
         TEST(MyClass *              , MyClass *           );
-        TEST(const int              , int                 );
-        TEST(const MyClass *        , const MyClass *     );
+        TEST(char MyClass::*        , char MyClass::*     );
+        TEST(void                   , void                );
+        TEST(const volatile int     , int                 );
+        TEST(const MyClass          , MyClass             );
+        TEST(char MyClass::* const  , char MyClass::*     );
         TEST(MyClass *volatile      , MyClass *           );
-        TEST(short[]                , short *             );
+        TEST(volatile void          , void                );
+        TEST(const MyClass *volatile, const MyClass *     ); // 2
+        TEST(const int MyClass::*   , const int MyClass::*);
+        TEST(short[]                , short *             ); // 3
+        TEST(MyClass[10]            , MyClass *           ); // 4
+        TEST(char[][20]             , char(*)[20]         ); // 5
+        TEST(long[10][30]           , long(*)[30]         ); // 6
+        TEST(volatile short[]       , volatile short *    ); // 7
         TEST(const MyClass[10]      , const MyClass *     );
         TEST(volatile char[][20]    , volatile char(*)[20]);
-        TEST(long[10][30]           , long(*)[30]         );
-        TEST(void (double)          , void (*)(double)    );
-        TEST(short (* const)(int)   , short (*)(int)      );
-
-        TEST(int&                   , int                 );
+        TEST(const long[10][30]     , const long(*)[30]   );
+        TEST(void (double)          , void (*)(double)    ); // 8
+        TEST(short (* const)(int)   , short (*)(int)      ); // 9
+        TEST(char (* volatile)[2]   , char (*)[2]         );
+        TEST(int&                   , int                 ); // 10
         TEST(MyClass&               , MyClass             );
         TEST(MyClass *&             , MyClass *           );
+        TEST(int MyClass::*&        , int MyClass::*      );
         TEST(const int&             , int                 );
         TEST(const MyClass *&       , const MyClass *     );
         TEST(MyClass *volatile &    , MyClass *           );
@@ -217,6 +247,21 @@ int main(int argc, char *argv[])
         TEST(long(&)[10][30]        , long(*)[30]         );
         TEST(void (&)(double)       , void (*)(double)    );
         TEST(short (* const&)(int)  , short (*)(int)      );
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        TEST(int&&                  , int                 ); // 11
+        TEST(MyClass&&              , MyClass             );
+        TEST(MyClass *&&            , MyClass *           );
+        TEST(int MyClass::*&&       , int MyClass::*      );
+        TEST(const int&&            , int                 );
+        TEST(const MyClass *&&      , const MyClass *     );
+        TEST(MyClass *volatile &&   , MyClass *           );
+        TEST(short(&&)[]            , short *             );
+        TEST(const MyClass(&&)[10]  , const MyClass *     );
+        TEST(volatile char(&&)[][20], volatile char(*)[20]);
+        TEST(long(&&)[10][30]       , long(*)[30]         );
+        TEST(void (&&)(double)      , void (*)(double)    );
+        TEST(short (* const&&)(int) , short (*)(int)      );
+#endif
 
 #undef TEST
       } break;
