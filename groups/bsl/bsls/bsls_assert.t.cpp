@@ -2,6 +2,8 @@
 #include <bsls_assert.h>
 
 #include <bsls_asserttestexception.h>
+#include <bsls_log.h>
+#include <bsls_logseverity.h>
 #include <bsls_platform.h>
 
 // Include 'cassert' to make sure no macros conflict between 'bsls_assert.h'
@@ -199,6 +201,61 @@ static bool globalReturnOnTestAssert = false;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#if    !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)               \
+    || !defined(BSLS_PLATFORM_CMP_MSVC)
+
+// 'invokeHandler' cannot return if we are building on Windows with the
+// '...ENABLE_NORETURN...' flag turned on.
+
+struct HandlerReturnLoggingTest {
+
+    static int s_countingViolationHandlerInvocations;
+    static int s_countingLogHandlerInvocations;
+
+    static void countingViolationHandler(const char *text,
+                                         const char *file,
+                                         int line);
+        // Increment the 's_countingViolationHandlerInvocations' counter.
+
+    static void countingLogMessageHandler(bsls::LogSeverity::Enum  severity,
+                                          const char              *file,
+                                          int                      line,
+                                          const char              *message);
+        // Increment the 's_countingLogHandlerInvocations' counter.
+
+};
+
+int HandlerReturnLoggingTest::s_countingViolationHandlerInvocations = 0;
+int HandlerReturnLoggingTest::s_countingLogHandlerInvocations = 0;
+
+void HandlerReturnLoggingTest::countingViolationHandler(const char *text,
+                                                        const char *file,
+                                                        int         line)
+{
+    (void) text;
+    (void) file;
+    (void) line;
+
+    ++s_countingViolationHandlerInvocations;
+}
+
+void HandlerReturnLoggingTest::countingLogMessageHandler(
+                                             bsls::LogSeverity::Enum  severity,
+                                             const char              *file,
+                                             int                      line,
+                                             const char              *message)
+{
+    (void) file;
+    (void) line;
+    (void) message;
+
+    ASSERT(bsls::LogSeverity::e_FATAL == severity);
+
+    ++s_countingLogHandlerInvocations;
+}
+
+#endif
 
 static void globalReset()
 {
@@ -855,7 +912,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:  // zero is always the leading case
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6:
         //
@@ -907,7 +964,7 @@ int main(int argc, char *argv[])
 #endif  // BDE_BUILD_TARGET_EXC
 #endif  // BDE_BUILD_TARGET_SAFE_2
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #5:
         //
@@ -949,7 +1006,7 @@ int main(int argc, char *argv[])
         ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #4:
         //
@@ -989,7 +1046,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
 #endif
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #3:
         //
@@ -1018,7 +1075,7 @@ int main(int argc, char *argv[])
         myMain();
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2:
         //
@@ -1058,7 +1115,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1:
         //
@@ -1083,6 +1140,57 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // LOG WHEN HANDLER RETURNS
+        //
+        // Concerns:
+        //:  1 'invokeHandler' should log a message via 'bsls_log' if the
+        //:    currently-installed handler returns.
+        //:
+        //:  2 The log message should identify the file and line where the
+        //:    failed assertion occured.
+        //:
+        //:  3 The log message should be severity 'fatal'.
+        //:
+        //:  4 Log messages should back off exponentially.
+        //
+        // Plan:
+        //:  1 In build configurations that allow handlers to return, install a
+        //:    violation handler that increments a counter and returns, and an
+        //:    instrumented log callback that captures log messages instead of
+        //:    printing them.
+        //:
+        //:  2 Call 'invokeHandler' repeatedly, and confirm that messages are
+        //:    emitted, and at the appropriate rate.  (C-1..4)
+        //
+        // Testing:
+        //   static void invokeHandler(const char *t, const char *f, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "LOG WHEN HANDLER RETURNS" << endl
+                          << "========================" << endl;
+
+#if    !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)               \
+    || !defined(BSLS_PLATFORM_CMP_MSVC)
+
+// 'invokeHandler' cannot return if we are building on Windows with the
+// '...ENABLE_NORETURN...' flag turned on.
+
+        typedef HandlerReturnLoggingTest Test;
+
+        bsls::AssertFailureHandlerGuard guard(Test::countingViolationHandler);
+        bsls::Log::setLogMessageHandler(Test::countingLogMessageHandler);
+
+        ASSERT(0 == Test::s_countingLogHandlerInvocations);
+        bsls::Assert::invokeHandler("MeSsAgE", "fileA", 42);
+
+        ASSERT(1 == Test::s_countingViolationHandlerInvocations);
+        ASSERT(Test::s_countingLogHandlerInvocations ==
+                   2 * Test::s_countingViolationHandlerInvocations);
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------

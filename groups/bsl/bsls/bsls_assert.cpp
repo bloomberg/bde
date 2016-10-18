@@ -128,6 +128,20 @@ BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
     failureHandler()(text, file, line);
+
+    // The failure handler should not return.  If a returning failure handler
+    // has been installed, alert the user that the program is continuing to
+    // run.
+
+    Log::logFormattedMessage(LogSeverity::e_FATAL,
+                             file,
+                             line,
+                             "BSLS_ASSERT failure: '%s'",
+                             text);
+
+    BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
+                   "violation handler failed to prevent program from "
+                   "continuing.");
 }
 
                      // Standard Assertion-Failure Handlers
