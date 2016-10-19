@@ -168,6 +168,10 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
                        "from continuing.",
                        currentHandlerAddress);
     }
+
+#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
+    std::abort();
+#endif
 }
 
                      // Standard Assertion-Failure Handlers
@@ -229,6 +233,11 @@ void Assert::failSleep(const char *text, const char *file, int line)
 #endif
 
     }
+
+    // We will never reach this line, but it is needed to let the compiler know
+    // that this function does not return.
+
+    std::abort();
 }
 
 BSLS_ASSERT_NORETURN
