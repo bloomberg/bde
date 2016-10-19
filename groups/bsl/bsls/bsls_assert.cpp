@@ -165,8 +165,7 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
                                  text);
 
         BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
-                       "violation handler at %p failed to prevent program "
-                       "from continuing.",
+                       "violation handler at %p must not return.",
                        currentHandlerAddress);
     }
 
