@@ -47,9 +47,6 @@ extern "C" {
 #   define BSLS_ASSERT_NORETURN
 #endif
 
-static
-BloombergLP::bsls::AtomicOperations_Imp::AtomicTypes::Int g_failureReturnCount;
-
 namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -135,6 +132,8 @@ Assert::Handler Assert::failureHandler()
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
+    static AtomicOperations::AtomicTypes::Int failureReturnCount = {0};
+
     Assert::Handler currentHandlerAddress = failureHandler();
 
     currentHandlerAddress(text, file, line);
@@ -144,7 +143,7 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
     // run.
 
     unsigned count = static_cast<unsigned>(
-                AtomicOperations::incrementIntNvAcqRel(&g_failureReturnCount));
+                AtomicOperations::incrementIntNvAcqRel(&failureReturnCount));
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == (count & (count - 1)))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -154,7 +153,7 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
         if (count == (1 << 30)) {
             // Avoid undefined behavior by resetting the counter.
 
-            AtomicOperations::setInt(&g_failureReturnCount, 1 << 29);
+            AtomicOperations::setInt(&failureReturnCount, 1 << 29);
         }
 
         Log::logFormattedMessage(LogSeverity::e_FATAL,
