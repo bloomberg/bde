@@ -1187,6 +1187,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -1293,11 +1297,9 @@ BSLS_IDENT("$Id: $")
 #error BSLS_ASSERT_NORETURN must be a macro scoped locally to this header file
 #endif
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLS_ASSERT_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLS_ASSERT_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
