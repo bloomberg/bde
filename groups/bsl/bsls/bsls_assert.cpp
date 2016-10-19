@@ -5,7 +5,6 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
-#include <bsls_platform.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
 
@@ -47,6 +46,9 @@ extern "C" {
 #else
 #   define BSLS_ASSERT_NORETURN
 #endif
+
+static
+BloombergLP::bsls::AtomicOperations_Imp::AtomicTypes::Int g_failureReturnCount;
 
 namespace BloombergLP {
 
@@ -133,21 +135,39 @@ Assert::Handler Assert::failureHandler()
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    failureHandler()(text, file, line);
+    Assert::Handler currentHandlerAddress = failureHandler();
+
+    currentHandlerAddress(text, file, line);
 
     // The failure handler should not return.  If a returning failure handler
     // has been installed, alert the user that the program is continuing to
     // run.
 
-    Log::logFormattedMessage(LogSeverity::e_FATAL,
-                             file,
-                             line,
-                             "BSLS_ASSERT failure: '%s'",
-                             text);
+    unsigned count = static_cast<unsigned>(
+                AtomicOperations::incrementIntNvAcqRel(&g_failureReturnCount));
 
-    BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
-                   "violation handler failed to prevent program from "
-                   "continuing.");
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == (count & (count - 1)))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Log when 'count' is a power of 2.
+
+        if (count == (1 << 30)) {
+            // Avoid undefined behavior by resetting the counter.
+
+            AtomicOperations::setInt(&g_failureReturnCount, 1 << 29);
+        }
+
+        Log::logFormattedMessage(LogSeverity::e_FATAL,
+                                 file,
+                                 line,
+                                 "BSLS_ASSERT failure: '%s'",
+                                 text);
+
+        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
+                       "violation handler at %p failed to prevent program "
+                       "from continuing.",
+                       currentHandlerAddress);
+    }
 }
 
                      // Standard Assertion-Failure Handlers

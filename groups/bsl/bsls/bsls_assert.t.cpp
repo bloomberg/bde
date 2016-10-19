@@ -5,6 +5,7 @@
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 // Include 'cassert' to make sure no macros conflict between 'bsls_assert.h'
 // and 'cassert'.  This test driver does *not* invoke 'assert(expression)'.
@@ -70,14 +71,16 @@ using namespace std;
 // [ 5] class bsls::AssertFailureHandlerGuard
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 7] CONCERN: Returning handler log: behavior
+// [-4] CONCERN: Returning handler log: limits
 //
-// [ 7] USAGE EXAMPLE: Using Assert Macros
-// [ 8] USAGE EXAMPLE: Invoking an assert handler directly
-// [ 9] USAGE EXAMPLE: Using Administration Functions
-// [ 9] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
-// [10] USAGE EXAMPLE: Creating Your Own Assert-Handler
-// [11] USAGE EXAMPLE: Using Scoped Guard
-// [12] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
+// [ 8] USAGE EXAMPLE: Using Assert Macros
+// [ 9] USAGE EXAMPLE: Invoking an assert handler directly
+// [10] USAGE EXAMPLE: Using Administration Functions
+// [10] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
+// [11] USAGE EXAMPLE: Creating Your Own Assert-Handler
+// [12] USAGE EXAMPLE: Using Scoped Guard
+// [13] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
 //
 // [ 1] CONCERN: By default, the 'bsls_assert::failAbort' is used
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
@@ -208,28 +211,28 @@ static bool globalReturnOnTestAssert = false;
 // 'invokeHandler' cannot return if we are building on Windows with the
 // '...ENABLE_NORETURN...' flag turned on.
 
-struct HandlerReturnLoggingTest {
+struct HandlerReturnTest {
 
-    static int s_countingViolationHandlerInvocations;
-    static int s_countingLogHandlerInvocations;
+    static bsls::Types::Int64 s_handlerInvocationCount;
+    static bsls::Types::Int64 s_loggerInvocationCount;
 
     static void countingViolationHandler(const char *text,
                                          const char *file,
                                          int line);
-        // Increment the 's_countingViolationHandlerInvocations' counter.
+        // Increment the 's_handlerInvocationCount' counter.
 
     static void countingLogMessageHandler(bsls::LogSeverity::Enum  severity,
                                           const char              *file,
                                           int                      line,
                                           const char              *message);
-        // Increment the 's_countingLogHandlerInvocations' counter.
+        // Increment the 's_loggerInvocationCount' counter.
 
 };
 
-int HandlerReturnLoggingTest::s_countingViolationHandlerInvocations = 0;
-int HandlerReturnLoggingTest::s_countingLogHandlerInvocations = 0;
+bsls::Types::Int64 HandlerReturnTest::s_handlerInvocationCount = 0;
+bsls::Types::Int64 HandlerReturnTest::s_loggerInvocationCount = 0;
 
-void HandlerReturnLoggingTest::countingViolationHandler(const char *text,
+void HandlerReturnTest::countingViolationHandler(const char *text,
                                                         const char *file,
                                                         int         line)
 {
@@ -237,10 +240,10 @@ void HandlerReturnLoggingTest::countingViolationHandler(const char *text,
     (void) file;
     (void) line;
 
-    ++s_countingViolationHandlerInvocations;
+    ++s_handlerInvocationCount;
 }
 
-void HandlerReturnLoggingTest::countingLogMessageHandler(
+void HandlerReturnTest::countingLogMessageHandler(
                                              bsls::LogSeverity::Enum  severity,
                                              const char              *file,
                                              int                      line,
@@ -252,7 +255,7 @@ void HandlerReturnLoggingTest::countingLogMessageHandler(
 
     ASSERT(bsls::LogSeverity::e_FATAL == severity);
 
-    ++s_countingLogHandlerInvocations;
+    ++s_loggerInvocationCount;
 }
 
 #endif
@@ -1166,30 +1169,45 @@ int main(int argc, char *argv[])
         //:    emitted, and at the appropriate rate.  (C-1..4)
         //
         // Testing:
-        //   static void invokeHandler(const char *t, const char *f, int);
+        //   CONCERN: Returning handler log: behavior
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "LOG WHEN HANDLER RETURNS" << endl
                           << "========================" << endl;
 
-#if    !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)               \
-    || !defined(BSLS_PLATFORM_CMP_MSVC)
+#if        !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)           \
+        || !defined(BSLS_PLATFORM_CMP_MSVC)
 
-// 'invokeHandler' cannot return if we are building on Windows with the
-// '...ENABLE_NORETURN...' flag turned on.
+        // 'invokeHandler' cannot return if we are building on Windows with the
+        // '...ENABLE_NORETURN...' flag turned on.
 
-        typedef HandlerReturnLoggingTest Test;
+        typedef HandlerReturnTest Test;
 
         bsls::AssertFailureHandlerGuard guard(Test::countingViolationHandler);
         bsls::Log::setLogMessageHandler(Test::countingLogMessageHandler);
 
-        ASSERT(0 == Test::s_countingLogHandlerInvocations);
-        bsls::Assert::invokeHandler("MeSsAgE", "fileA", 42);
+        bsls::Types::Int64 iterations = 0;
+        for (int triggerCount = 1; triggerCount < 7; ++triggerCount) {
+            while (Test::s_loggerInvocationCount < 2 * triggerCount) {
+                bsls::Assert::invokeHandler("maxAllowed < value",
+                                            __FILE__,
+                                            __LINE__);
 
-        ASSERT(1 == Test::s_countingViolationHandlerInvocations);
-        ASSERT(Test::s_countingLogHandlerInvocations ==
-                   2 * Test::s_countingViolationHandlerInvocations);
+                ++iterations;
+            }
+
+            if (veryVerbose) {
+                P_(iterations)
+                P_(triggerCount)
+                P_(Test::s_handlerInvocationCount)
+                P(Test::s_loggerInvocationCount)
+            }
+
+            ASSERT(Test::s_loggerInvocationCount == 2 * triggerCount);
+            ASSERT(iterations == Test::s_handlerInvocationCount);
+            ASSERT(1 << (triggerCount - 1) == iterations);
+        }
 #endif
       } break;
       case 6: {
@@ -2094,6 +2112,88 @@ int main(int argc, char *argv[])
         bsls::Assert::failSleep("0 != 0", "myfile.cpp", 123);
 
         ASSERT(0 && "Should not be reached");
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // RETURNING HANDLER LOG: LIMITS
+        //
+        // Concerns:
+        //:  1 Log messages should stabilize at a period of 2^29.
+        //
+        // Plan:
+        //:  1 In build configurations that allow handlers to return, install a
+        //:    violation handler that increments a counter and returns, and an
+        //:    instrumented log callback that captures log messages instead of
+        //:    printing them.
+        //:
+        //:  2 Call 'invokeHandler' 2^29 times.  Observe that the logger is
+        //called once every 2^29 times after that.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Returning handler log: limits
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "RETURNING HANDLER LOG: LIMITS" << endl
+                          << "=============================" << endl;
+
+#if        !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)           \
+        || !defined(BSLS_PLATFORM_CMP_MSVC)
+
+        // 'invokeHandler' cannot return if we are building on Windows with the
+        // '...ENABLE_NORETURN...' flag turned on.
+
+        typedef HandlerReturnTest Test;
+
+        bsls::AssertFailureHandlerGuard guard(Test::countingViolationHandler);
+        bsls::Log::setLogMessageHandler(Test::countingLogMessageHandler);
+
+        bsls::Types::Int64 iterations = 0;
+        for (int triggerCount = 1; triggerCount <= 30; ++triggerCount) {
+            while (Test::s_loggerInvocationCount < 2 * triggerCount) {
+                bsls::Assert::invokeHandler("maxAllowed < value",
+                                            __FILE__,
+                                            __LINE__);
+
+                ++iterations;
+            }
+
+            if (veryVerbose) {
+                P_(iterations)
+                P_(triggerCount)
+                P_(Test::s_handlerInvocationCount)
+                P(Test::s_loggerInvocationCount)
+            }
+
+            ASSERT(Test::s_loggerInvocationCount == 2 * triggerCount);
+            ASSERT(iterations == Test::s_handlerInvocationCount);
+            ASSERT(1 << (triggerCount - 1) == iterations);
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            iterations = 0;
+            bsls::Types::Int64 lastCount = Test::s_loggerInvocationCount;
+
+            while (Test::s_loggerInvocationCount == lastCount) {
+                bsls::Assert::invokeHandler("maxAllowed < value",
+                                            __FILE__,
+                                            __LINE__);
+
+                ++iterations;
+
+                if (veryVerbose && 0 == (iterations & (iterations - 1))) {
+                    P_(i)
+                    P_(iterations)
+                    P_(Test::s_handlerInvocationCount)
+                    P(Test::s_loggerInvocationCount)
+                }
+
+            }
+            LOOP2_ASSERT(lastCount, Test::s_loggerInvocationCount,
+                         lastCount + 2 == Test::s_loggerInvocationCount);
+            LOOP2_ASSERT(iterations, (1 << 29), iterations == (1 << 29));
+        }
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
