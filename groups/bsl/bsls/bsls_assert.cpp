@@ -123,6 +123,8 @@ Assert::Handler Assert::failureHandler()
 
                        // Macro Dispatcher Method
 
+#define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
+
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
@@ -139,7 +141,7 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
     unsigned count = static_cast<unsigned>(
                 AtomicOperations::incrementIntNvAcqRel(&failureReturnCount));
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == (count & (count - 1)))) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(IS_POWER_OF_TWO(count))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
         // Log when 'count' is a power of 2.
