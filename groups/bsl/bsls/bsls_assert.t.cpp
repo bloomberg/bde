@@ -1336,11 +1336,12 @@ int main(int argc, char *argv[])
             char d_text[LogProfile::k_TEXT_BUFFER_SIZE];
             char d_expected[LogProfile::k_TEXT_BUFFER_SIZE];
         } DATA[] = {
-            //LN FILE       L TEXT        EXPECTED
-            //-- --------- -- ----------- --------
-            {L_, "",      99, "",         "BSLS_ASSERT failure: ''"         },
-            {L_, "FileA",  1, "messageA", "BSLS_ASSERT failure: 'messageA'" },
-            {L_, "FB",     2, "MB",       "BSLS_ASSERT failure: 'MB'"       },
+            //LN FILE       L  TEXT        EXPECTED
+            //-- --------- --  ----------- --------
+            {L_, "",       99, "",         "BSLS_ASSERT failure: ''"         },
+            {L_, "FB",      2, "MB",       "BSLS_ASSERT failure: 'MB'"       },
+            {L_, "FileA",   1, "messageA", "BSLS_ASSERT failure: 'messageA'" },
+            {L_, "foo.cpp",42, "0 != ptr", "BSLS_ASSERT failure: '0 != ptr'" },
         };
         enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
