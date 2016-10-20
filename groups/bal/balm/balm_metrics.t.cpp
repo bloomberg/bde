@@ -21,8 +21,10 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslim_testutil.h>
 #include <bsls_assert.h>
-
+#include <bsls_log.h>
+#include <bsls_logseverity.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
@@ -31,12 +33,6 @@
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-#include <ball_observer.h>
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_severity.h>
 
 #include <bslim_testutil.h>
 
@@ -251,35 +247,105 @@ bool balmMetricsIfCategoryEnabledTest(const char *category)
     return false;
 }
 
-class MessageObserver : public Corp::ball::Observer {
-    // Custom observer to verify logged message.
 
+// ============================================================================
+//                     BSLS_LOG TEST MACHINERY
+// ----------------------------------------------------------------------------
+
+namespace {
+
+typedef BloombergLP::bsls::Log         Log;
+typedef BloombergLP::bsls::LogSeverity Severity;
+
+struct LogTestMessageHandler {
+    // This struct provides a namespace for a utility function,
+    // 'testMessageHandler', which is a valid log message handler
+    // ('bsls::Log::LogMessageHandler') that will simply copy all arguments
+    // into a set of 'public' 'static' data members.
+
+    // This class is designed as fully static (instead of using a singleton) in
+    // order to more easily support registration of the log message handler.
   public:
-    MessageObserver() : d_message() {}
+    // PUBLIC CONSTANTS
+    static const size_t k_BUFFER_SIZE = 4096;
 
-    virtual ~MessageObserver() {}
+    // PUBLIC CLASS DATA
+    static bool           s_hasBeenCalled;  // have we been called
+                                            // since the last
+                                            // reset?
 
-    virtual void publish(const Corp::ball::Record& record,
-                         const Corp::ball::Context&);
-        // This function is called when a message is logged.  It will store the
-        // message so that it can be retrieved and verified.  Any new messages
-        // are concatenated to the message stored in the class.
+    static Severity::Enum s_severity;       // severity of message
 
-    const bsl::string& getLastMessage() { return d_message; }
-        // Retrieve the messages that was logged.
+    static char           s_file[k_BUFFER_SIZE];
+                                            // file name buffer
 
-    void clearMessage() {d_message = "";}
-        // Clear the message stored in the class.
+    static int            s_line;           // line number
 
-  private:
-    bsl::string d_message;
+    static char           s_message[k_BUFFER_SIZE];
+                                            // message buffer
+
+    // CLASS METHODS
+    static const char *message();
+        // Return the last message logged through 'testMessage'.
+
+    static void reset();
+        // Set 's_hasBeenCalled' to 'false', write a null byte to the beginning
+        // of 's_file', set 's_line' to 0, and write a null byte to the
+        // beginning of 's_message'.
+
+    static void testMessageHandler(Severity::Enum  severity,
+                                   const char     *file,
+                                   int             line,
+                                   const char     *message);
+        // Copy the specified 'severity', 'file', 'line', and 'message' to the
+        // correspondng public data members of this 'struct'.  The behavior is
+        // undefined unless 'line >= 0'.
 };
 
-void MessageObserver::publish(const Corp::ball::Record& record,
-                              const Corp::ball::Context&)
+// PUBLIC CLASS DATA
+bool           LogTestMessageHandler::s_hasBeenCalled          = false;
+char           LogTestMessageHandler::s_file[k_BUFFER_SIZE]    = {'\0'};
+int            LogTestMessageHandler::s_line                   = 0;
+char           LogTestMessageHandler::s_message[k_BUFFER_SIZE] = {'\0'};
+Severity::Enum LogTestMessageHandler::s_severity               =
+                                                             Severity::e_FATAL;
+
+// CLASS METHODS
+const char *LogTestMessageHandler::message()
 {
-    const Corp::ball::RecordAttributes& fixedFields = record.fixedFields();
-    d_message += fixedFields.message();
+    return s_message;
+}
+
+void LogTestMessageHandler::reset()
+{
+    s_hasBeenCalled = false;
+    s_severity      = Severity::e_FATAL;
+    s_file[0]       = '\0';
+    s_line          = 0;
+    s_message[0]    = '\0';
+}
+
+void LogTestMessageHandler::testMessageHandler(Severity::Enum  severity,
+                                               const char     *file,
+                                               int             line,
+                                               const char     *message)
+{
+    ASSERT(file);
+    ASSERT(line >= 0);
+    ASSERT(message);
+
+    s_hasBeenCalled = true;
+    s_severity = severity;
+    strncpy(s_file, file, k_BUFFER_SIZE);
+    s_line = line;
+    strncpy(s_message, message, k_BUFFER_SIZE);
+
+
+    // Just to be safe.
+    s_file   [k_BUFFER_SIZE - 1] = '\0';
+    s_message[k_BUFFER_SIZE - 1] = '\0';
+}
+
 }
 
 // ------------------- case 11 StandardMacroConcurrencyTest -----------------
@@ -1408,18 +1474,12 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        MessageObserver observer;
-        Corp::ball::LoggerManagerConfiguration configuration;
-        Corp::ball::LoggerManager& manager =
-            Corp::ball::LoggerManager::initSingleton(&observer, configuration);
-
-        manager.setDefaultThresholdLevels(Corp::ball::Severity::e_OFF,
-                                          Corp::ball::Severity::e_WARN,
-                                          Corp::ball::Severity::e_OFF,
-                                          Corp::ball::Severity::e_OFF);
-
         if (verbose) cout << endl <<
             "Test BALM_METRICS_UPDATE warning messages" << endl;
+
+        typedef Corp::bslim::TestUtil TU;
+
+        Log::setLogMessageHandler(LogTestMessageHandler::testMessageHandler);
 
         Corp::bslma::TestAllocator defaultAllocator;
         Corp::bslma::DefaultAllocatorGuard guard(&defaultAllocator);
@@ -1430,7 +1490,7 @@ int main(int argc, char *argv[])
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
 
         // Get the line number of the next line.  Must be followed by the
         // BALM_METRICS_UPDATE for the ASSERT to work correctly.
@@ -1442,85 +1502,86 @@ int main(int argc, char *argv[])
 
         bsl::stringstream message;
         message << "Empty category \" \" added at " << __FILE__ << ":"
-            << line_number;
+                << line_number;
 
-        ASSERT(observer.getLastMessage() == message.str());
+        ASSERT(
+            TU::compareText(LogTestMessageHandler::message(), message.str()));
 
         // Just check whether a warning message is created for the rest of the
         // test case.
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE("A", "B", 0.0);
-        ASSERT(observer.getLastMessage() == "");
+        ASSERT(TU::compareText(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE("", "B", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE("A", "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE2("A", "B", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE3("A", "B", 0.0, "C", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE4("A", "B", 0.0, "C", 0.0, "D", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE5("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
                 "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_UPDATE6("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
                 "F", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
         // Test BALM_METRICS_INT_UPDATE
 
         if (verbose) cout << endl <<
             "Test BALM_METRICS_INT_UPDATE warning messages" << endl;
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE("A", "B", 0.0);
-        ASSERT(observer.getLastMessage() == "");
+        ASSERT(TU::compareText(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE("", "B", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE("A", "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE2("A", "B", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE3("A", "B", 0.0, "C", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE4("A", "B", 0.0, "C", 0.0, "D", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE5("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
                 "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
 
-        observer.clearMessage();
+        LogTestMessageHandler::reset();
         BALM_METRICS_INT_UPDATE6("A", "B", 0.0, "C", 0.0, "D", 0.0, "E", 0.0,
                 "F", 0.0, "", 0.0);
-        ASSERT(observer.getLastMessage() != "");
+        ASSERT(0 != strcmp(LogTestMessageHandler::message(), ""));
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -1544,21 +1605,12 @@ int main(int argc, char *argv[])
         //                                           int         line);
         //
         // --------------------------------------------------------------------
-
-        MessageObserver observer;
-        Corp::ball::LoggerManagerConfiguration configuration;
-        Corp::ball::LoggerManager& manager =
-            Corp::ball::LoggerManager::initSingleton(&observer, configuration);
-
-        manager.setDefaultThresholdLevels(Corp::ball::Severity::e_OFF,
-                                          Corp::ball::Severity::e_WARN,
-                                          Corp::ball::Severity::e_OFF,
-                                          Corp::ball::Severity::e_OFF);
-
+         
         if (verbose) cout << endl
             << "Test logEmptyName" << endl
             << "=================" << endl;
-
+        
+        Log::setLogMessageHandler(&LogTestMessageHandler::testMessageHandler);
 
         struct {
             const char                           *d_name;
@@ -1581,22 +1633,21 @@ int main(int argc, char *argv[])
 
             typedef BALM::Metrics_Helper Helper;
             const int line_number = L_;
-            observer.clearMessage();
-            Helper::logEmptyName(NAME_TEST[i].d_name, NAME_TEST[i].d_type,
-                            __FILE__, line_number);
+            LogTestMessageHandler::reset();
+            Helper::logEmptyName(NAME_TEST[i].d_name,
+                                 NAME_TEST[i].d_type,
+                                 __FILE__,
+                                 line_number);
+            bsl::stringstream message;
             if (NAME_TEST[i].d_expect_warning) {
-
                 // Construct expected warning message.
-
-                bsl::stringstream message;
                 message << "Empty " << type_string[NAME_TEST[i].d_type]
                     << " \"" << NAME_TEST[i].d_name <<  "\" added at "
                     << __FILE__ << ":" << line_number;
-
-                ASSERT(observer.getLastMessage() == message.str());
-            } else {
-                ASSERT(observer.getLastMessage() == "");
             }
+
+            ASSERT(Corp::bslim::TestUtil::compareText(
+                       LogTestMessageHandler::message(), message.str()));
         }
 
     } break;

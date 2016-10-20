@@ -20,18 +20,22 @@ BSLS_IDENT_RCSID(bdls_pipeutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #include <windows.h>
 #include <winerror.h>
+#include <bdlde_charconvertutf16.h>
 #else
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <bdlde_utf8util.h>
 #endif
 
 #include <bsl_cstdlib.h>
@@ -104,11 +108,18 @@ namespace bdls {
 int PipeUtil::send(const bslstl::StringRef& pipeName,
                    const bslstl::StringRef& message)
 {
+    bsl::wstring wPipeName;
+
+    if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
+        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        return -1;                                                    // RETURN
+    }
+
     HANDLE pipe;
     do {
-        WaitNamedPipe(pipeName.data(), NMPWAIT_WAIT_FOREVER);
-        pipe = CreateFile(pipeName.data(), GENERIC_WRITE, 0, NULL,
-                          OPEN_EXISTING, 0, NULL);
+        WaitNamedPipeW(wPipeName.data(), NMPWAIT_WAIT_FOREVER);
+        pipe = CreateFileW(wPipeName.data(), GENERIC_WRITE, 0, NULL,
+                           OPEN_EXISTING, 0, NULL);
     }
     while (INVALID_HANDLE_VALUE == pipe);
 
@@ -124,9 +135,16 @@ int PipeUtil::send(const bslstl::StringRef& pipeName,
 bool
 PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 {
-    HANDLE pipe = CreateFile(pipeName.data(),
-                             GENERIC_WRITE, 0, NULL,
-                             OPEN_EXISTING, 0, NULL);
+    bsl::wstring wPipeName;
+
+    if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
+        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        return false;                                                 // RETURN
+    }
+
+    HANDLE pipe = CreateFileW(wPipeName.data(),
+                              GENERIC_WRITE, 0, NULL,
+                              OPEN_EXISTING, 0, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
         return false;                                                 // RETURN
     }
@@ -155,7 +173,10 @@ namespace bdls {
 int PipeUtil::send(const bslstl::StringRef& pipeName,
                    const bslstl::StringRef& message)
 {
-    int pipe = open(pipeName.data(), O_WRONLY);
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(pipeName.data(), pipeName.length()));
+
+    bsl::string safeName(pipeName);
+    int pipe = open(safeName.c_str(), O_WRONLY);
     if (-1 == pipe) {
         return -1;                                                    // RETURN
     }
@@ -171,7 +192,10 @@ int PipeUtil::send(const bslstl::StringRef& pipeName,
 bool
 PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 {
-    int fd = open(pipeName.data(), O_WRONLY | O_NONBLOCK);
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(pipeName.data(), pipeName.length()));
+
+    bsl::string safeName(pipeName);
+    int fd = open(safeName.c_str(), O_WRONLY | O_NONBLOCK);
     if (-1 != fd) {
         close(fd);
         return true;                                                  // RETURN

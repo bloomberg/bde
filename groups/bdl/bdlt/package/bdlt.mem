@@ -2,6 +2,7 @@ bdlt_calendar
 bdlt_calendarcache
 bdlt_calendarloader
 bdlt_calendarreverseiteratoradapter
+bdlt_calendarutil
 bdlt_currenttime
 bdlt_date
 bdlt_datetime

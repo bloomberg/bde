@@ -391,7 +391,14 @@ class MultiQueueThreadPool_Queue {
 
         e_ENQUEUING_ENABLED,  // enqueueing is enabled
         e_ENQUEUING_DISABLED, // enqueueing is disabled
-        e_DELETING             // queue is stopped pending deletion
+        e_DELETING            // queue is stopped pending deletion
+    };
+
+    enum {
+        // Pause states
+        e_RUNNING = 0, // not paused
+        e_PAUSING,     // pause requested but not completed yet
+        e_PAUSED       // paused
     };
 
   private:
@@ -401,7 +408,7 @@ class MultiQueueThreadPool_Queue {
 
     bsls::AtomicInt d_state;          // maintains enqueue state
 
-    bool            d_paused;         // whether job processing is disabled
+    bsls::AtomicInt d_pauseState;     // whether job processing is disabled
 
     bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
                                       // queue since creation or the last time
@@ -435,7 +442,7 @@ class MultiQueueThreadPool_Queue {
     // MANIPULATORS
     Job popFront();
         // Dequeue and return the element at the front of this queue.  The
-        // behavior is undefined if the queue is empty.
+        // behavior is undefined unless the queue is not empty.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -478,6 +485,10 @@ class MultiQueueThreadPool_Queue {
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset.
+
+    bool isEnabled() const;
+        // Report whether enqueuing to this object is enabled.  This object is
+        // constructed with enqueuing enabled.
 };
 
                   // =======================================
@@ -499,16 +510,17 @@ class MultiQueueThreadPool_QueueContext {
     MultiQueueThreadPool_Queue d_queue;
     mutable bslmt::QLock       d_lock;         // protect queue and
                                                // informational members
-
-    bool                       d_pausing;      // set while pauseQueue is
-                                               // waiting for callback
-
+                                                
+    bool                       d_isChanging;   // set when pauseQueue or
+                                               // resumeQueue is waiting for
+                                               // callback. 
+                                                
     QueueProcessorCb           d_processingCb; // bound processing callback for
                                                // pool
-
+                                                
     bool                       d_destroyFlag;  // signals worker thread to
                                                // delete queue
-
+                                                
     bslmt::ThreadUtil::Handle  d_processor;    // current worker thread, or
                                                // ThreadUtil::invalidHandle()
 
@@ -627,6 +639,13 @@ class MultiQueueThreadPool {
         // Return 0 if enqueued successfully, and a non-zero value if queuing
         // is disabled.  The behavior is undefined unless 'functor' is bound.
 
+    int changePauseState(int id, bool paused);
+        // If the specified 'paused' flag is 'true', pause the queue with the
+        // specified 'id'; otherwise, resume it.  Return 0 on success, or a
+        // nonzero value if the queue does not have the opposite state or is
+        // changing state.  If 'paused' is true, wait until any currently
+        // executing job completes.
+    
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool,
@@ -783,7 +802,14 @@ class MultiQueueThreadPool {
     // ACCESSORS
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
-        // currently paused, or 'false' otherwise.
+        // currently paused, or 'false' otherwise.  The behavior is undefined
+        // unless 'id' is a valid queue identifier returned by this object.
+
+    bool isEnabled(int id) const;
+        // Report whether the queue identified by the specified 'id' is
+        // enabled.  A queue's initial state is enabled.  The behavior is
+        // undefined unless 'id' is a valid queue identifier returned by this
+        // object.
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
@@ -839,6 +865,18 @@ void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
     *numEnqueued = d_numEnqueued.swap(0);
 }
 
+inline
+int MultiQueueThreadPool::pauseQueue(int id)
+{
+    return changePauseState(id, true);
+}
+
+inline
+int MultiQueueThreadPool::resumeQueue(int id)
+{
+    return changePauseState(id, false);
+}
+    
 // ACCESSORS
 inline
 void MultiQueueThreadPool::numProcessed(int *numDequeued,

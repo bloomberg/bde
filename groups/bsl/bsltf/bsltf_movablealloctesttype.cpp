@@ -61,7 +61,7 @@ MovableAllocTestType::MovableAllocTestType(
     }
     else {
         d_data_p =
-            reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
         *d_data_p = 0;
     }
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
@@ -85,14 +85,18 @@ MovableAllocTestType::MovableAllocTestType(
         }
         else {
             d_data_p =
-                reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
             *d_data_p = 0;
         }
     }
     else {
         d_data_p =
-            reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-        *d_data_p = lvalue.d_data_p ? *lvalue.d_data_p : 0;
+                 reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+        *d_data_p = lvalue.data();
+        if (lvalue.d_data_p) {
+            lvalue.d_allocator_p->deallocate(lvalue.d_data_p);
+            lvalue.d_data_p = 0;
+        }
     }
     lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
 }
@@ -107,12 +111,15 @@ MovableAllocTestType::MovableAllocTestType(
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
     d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
-    *d_data_p = original.d_data_p ? *original.d_data_p : 0;
+    *d_data_p = original.data();
 }
 
 MovableAllocTestType::~MovableAllocTestType()
 {
     d_allocator_p->deallocate(d_data_p);
+
+    BSLS_ASSERT_OPT(!!d_data_p ==
+                               (bsltf::MoveState::e_NOT_MOVED == d_movedFrom));
 
     // Ensure that this objects has not been bitwise moved.
 
@@ -129,7 +136,10 @@ MovableAllocTestType::operator=(const MovableAllocTestType& rhs)
                                          d_allocator_p->allocate(sizeof(int)));
         d_allocator_p->deallocate(d_data_p);
         d_data_p = newData;
-        *d_data_p = rhs.d_data_p ? *rhs.d_data_p : 0;
+        *d_data_p = rhs.data();
+
+        d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+        d_movedInto = bsltf::MoveState::e_NOT_MOVED;
     }
     return *this;
 }
@@ -140,22 +150,39 @@ MovableAllocTestType::operator=(bslmf::MovableRef<MovableAllocTestType> rhs)
     MovableAllocTestType& lvalue = rhs;
     if (&lvalue != this)
     {
-        BSLS_ASSERT_SAFE(bsltf::MoveState::e_MOVED != lvalue.d_movedFrom);
-        BSLS_ASSERT_SAFE(lvalue.d_data_p);
-
         if (d_allocator_p == lvalue.d_allocator_p) {
-            d_allocator_p->deallocate(d_data_p);
-            d_data_p = lvalue.d_data_p;
-            lvalue.d_data_p = 0;
+            if (lvalue.d_data_p) {
+                if (d_data_p) {
+                    d_allocator_p->deallocate(d_data_p);
+                }
+                d_data_p = lvalue.d_data_p;
+                lvalue.d_data_p = 0;
+            }
+            else {
+                int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+                if (d_data_p) {
+                    d_allocator_p->deallocate(d_data_p);
+                }
 
+                d_data_p = newData;
+                *d_data_p = 0;
+            }
         }
         else {
             int *newData = reinterpret_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
-            d_allocator_p->deallocate(d_data_p);
+            if (d_data_p) {
+                d_allocator_p->deallocate(d_data_p);
+            }
             d_data_p = newData;
-            *d_data_p = lvalue.d_data_p ? *lvalue.d_data_p : 0;
+            *d_data_p = lvalue.data();
+            if (lvalue.d_data_p) {
+                lvalue.d_allocator_p->deallocate(lvalue.d_data_p);
+                lvalue.d_data_p = 0;
+            }
         }
+        d_movedFrom        = bsltf::MoveState::e_NOT_MOVED;
         d_movedInto        = bsltf::MoveState::e_MOVED;
         lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
     }
@@ -170,6 +197,9 @@ void MovableAllocTestType::setData(int value)
         d_data_p = newData;
     }
     *d_data_p = value;
+
+    d_movedFrom = bsltf::MoveState::e_NOT_MOVED;
+    d_movedInto = bsltf::MoveState::e_NOT_MOVED;
 }
 
 }  // close package namespace

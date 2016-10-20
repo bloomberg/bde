@@ -36,8 +36,7 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::abs;
     using native_std::acos;

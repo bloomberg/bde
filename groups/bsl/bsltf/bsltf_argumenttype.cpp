@@ -11,7 +11,6 @@ namespace bsltf {
                         // class ArgumentType<int>
                         // -----------------------
 
-
 }  // close package namespace
 }  // close enterprise namespace
 

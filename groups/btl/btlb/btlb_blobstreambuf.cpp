@@ -119,6 +119,7 @@ int InBlobStreamBuf::checkInvariant() const
     else {
         BSLS_ASSERT(0 == eback());
         BSLS_ASSERT(0 == egptr());
+        (void)numBuffers;
         BSLS_ASSERT((unsigned)d_getBufferIndex <= numBuffers);
     }
 
@@ -420,6 +421,7 @@ int OutBlobStreamBuf::checkInvariant() const
     else {
         BSLS_ASSERT(0 == pbase());
         BSLS_ASSERT(0 == epptr());
+        (void)numBuffers;
         BSLS_ASSERT((unsigned)d_putBufferIndex == numBuffers);
     }
 

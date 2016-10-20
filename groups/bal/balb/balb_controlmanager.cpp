@@ -9,14 +9,14 @@
 
 #include <balb_controlmanager.h>
 
-#include <ball_log.h>
-
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
 
+#include <bdlb_string.h>
+
 #include <bslma_default.h>
 #include <bsls_assert.h>
-#include <bdlb_string.h>
+#include <bsls_log.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_functional.h>
@@ -48,8 +48,6 @@ bool isLessThanCaseless(const bsl::string& lhsString,
 {
    return -1 == bdlb::String::lowerCaseCmp(lhsString, rhsString);
 }
-
-const char LOG_CATEGORY[] = "BALB.CONTROLMANAGER";
 
 }  // close unnamed namespace
 
@@ -101,9 +99,7 @@ int ControlManager::deregisterHandler(const bsl::string& prefix)
 
 int ControlManager::dispatchMessage(const bsl::string& message) const
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    BALL_LOG_TRACE << "Dispatching control message '" << message << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Dispatching control message '%s'", message.c_str());
 
     bsl::string token;
     bsl::istringstream messageStream(message);
@@ -126,9 +122,7 @@ int ControlManager::dispatchMessage(const bsl::string& message) const
 int ControlManager::dispatchMessage(const bsl::string& prefix,
                                     bsl::istream&      stream) const
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    BALL_LOG_TRACE << "Dispatching control message '" << prefix << "'"
-                   << BALL_LOG_END;
+    BSLS_LOG_TRACE("Dispatching control message '%s'", prefix.c_str());
 
     bslmt::ReadLockGuard<bslmt::RWMutex> registryGuard(&d_registryMutex);
     Registry::const_iterator it = d_registry.find(prefix);

@@ -683,7 +683,7 @@ int main(int argc, char *argv[])
         {
             reverse_iterator it2(testData + numElements);
             ASSERT(it2 == it1);
-            
+
             new(pit4) reverse_iterator(it2); // construct '*pit4' from 'it2'.
 
             ASSERT( *pit4 == it2);

@@ -66,10 +66,17 @@ BSLS_IDENT("$Id: $")
 #       include <bsl_stdhdrs_epilogue.h>
 #     endif
 #   else
+//    BSLMF_INCLUDE_ONLY_NATIVE_TRAITS is a one-shot, so clear it
+#     undef BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 #     undef INCLUDED_NATIVE_TYPE_TRAITS
 #     ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
 #       undef BSL_STDHDRS_RUN_EPILOGUE
 #       undef BSL_STDHDRS_EPILOGUE_RUN_BY_type_traits
+//      Incorporate the parts of bsl_stdhdrs_epilogue.h that clean up the
+//      temporary undefining of std to bsl.
+#       define std bsl
+#       define BSL_STDHDRS_DEFINED_STD_MACRO
+#       undef  BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #     endif
 #   endif
 

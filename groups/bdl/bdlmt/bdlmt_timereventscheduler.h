@@ -684,7 +684,7 @@ class TimerEventScheduler {
         // (by invoking 'cancelEvent').  Optionally specify 'key' to uniquely
         // identify the event.  The 'time' is an absolute time represented as
         // an interval from some epoch, which is detemined by the clock
-        // indicated at construction (see {'Supported Clock-Types'} in the
+        // indicated at construction (see {Supported Clock-Types} in the
         // component documentation).
 
     int rescheduleEvent(Handle                    handle,
@@ -707,7 +707,7 @@ class TimerEventScheduler {
         // dispatcher thread then the 'wait' is ignored to avoid deadlock.  The
         // 'newTime' is an absolute time represented as an interval from some
         // epoch, which is detemined by the clock indicated at construction
-        // (see {'Supported Clock-Types'} in the component documentation).
+        // (see {Supported Clock-Types} in the component documentation).
 
     int cancelEvent(Handle          handle,
                     bool            wait = false);
@@ -741,7 +741,7 @@ class TimerEventScheduler {
         // it is assumed to be the 'interval' time from now.  The 'startTime'
         // is an absolute time represented as an interval from some epoch,
         // which is detemined by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).
+        // {Supported Clock-Types} in the component documentation).
 
     int cancelClock(Handle handle, bool wait = false);
         // Cancel the clock having the specified 'handle'.  If the optionally

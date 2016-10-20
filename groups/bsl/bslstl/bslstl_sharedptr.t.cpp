@@ -22,6 +22,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -30,6 +31,7 @@
 #include <bsltf_allocemplacabletesttype.h>
 #include <bsltf_argumenttype.h>
 #include <bsltf_emplacabletesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_stdstatefulallocator.h>
 
 // Look what the usage examples drag in...
@@ -295,6 +297,7 @@ using namespace BloombergLP;
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
+// [40] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [-1] PERFORMANCE
 //-----------------------------------------------------------------------------
 //
@@ -1444,6 +1447,7 @@ struct PerformanceTester;
 // TYPEDEFS
 typedef bsltf::AllocEmplacableTestType      MyInplaceAllocatableObject;
 typedef bsltf::EmplacableTestType           MyInplaceTestObject;
+typedef bsltf::MoveState                    MoveState;
 
 typedef bsl::shared_ptr<MyTestObject>               Obj;
 typedef bsl::shared_ptr<const MyTestObject>         ConstObj;
@@ -3171,13 +3175,16 @@ struct Harness {
         // 'ALLOCATOR'.  See the test case function for documented concerns and
         // test plan.
 
+    template <class T, class Y>
+    static void testCase40(int value);
+        // Test 'noexcept' specifications
+
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type );
     template <class T>
     static const T&             testArg(T& t, bsl::false_type);
         // TBD write a contract for these overloads
 };
-
 
 // Inline methods are defined before the remaining class methods.
 
@@ -3408,20 +3415,20 @@ void Harness::prepareObject(MyInplaceAllocatableObject *target,
     ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13() || 2 == N13);
     ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14() || 2 == N14);
 
-    ASSERTV(da, EXP.arg01().getAllocator(), da == EXP.arg01().getAllocator());
-    ASSERTV(da, EXP.arg02().getAllocator(), da == EXP.arg02().getAllocator());
-    ASSERTV(da, EXP.arg03().getAllocator(), da == EXP.arg03().getAllocator());
-    ASSERTV(da, EXP.arg04().getAllocator(), da == EXP.arg04().getAllocator());
-    ASSERTV(da, EXP.arg05().getAllocator(), da == EXP.arg05().getAllocator());
-    ASSERTV(da, EXP.arg06().getAllocator(), da == EXP.arg06().getAllocator());
-    ASSERTV(da, EXP.arg07().getAllocator(), da == EXP.arg07().getAllocator());
-    ASSERTV(da, EXP.arg08().getAllocator(), da == EXP.arg08().getAllocator());
-    ASSERTV(da, EXP.arg09().getAllocator(), da == EXP.arg09().getAllocator());
-    ASSERTV(da, EXP.arg10().getAllocator(), da == EXP.arg10().getAllocator());
-    ASSERTV(da, EXP.arg11().getAllocator(), da == EXP.arg11().getAllocator());
-    ASSERTV(da, EXP.arg12().getAllocator(), da == EXP.arg12().getAllocator());
-    ASSERTV(da, EXP.arg13().getAllocator(), da == EXP.arg13().getAllocator());
-    ASSERTV(da, EXP.arg14().getAllocator(), da == EXP.arg14().getAllocator());
+    ASSERTV(da, EXP.arg01().allocator(), da == EXP.arg01().allocator());
+    ASSERTV(da, EXP.arg02().allocator(), da == EXP.arg02().allocator());
+    ASSERTV(da, EXP.arg03().allocator(), da == EXP.arg03().allocator());
+    ASSERTV(da, EXP.arg04().allocator(), da == EXP.arg04().allocator());
+    ASSERTV(da, EXP.arg05().allocator(), da == EXP.arg05().allocator());
+    ASSERTV(da, EXP.arg06().allocator(), da == EXP.arg06().allocator());
+    ASSERTV(da, EXP.arg07().allocator(), da == EXP.arg07().allocator());
+    ASSERTV(da, EXP.arg08().allocator(), da == EXP.arg08().allocator());
+    ASSERTV(da, EXP.arg09().allocator(), da == EXP.arg09().allocator());
+    ASSERTV(da, EXP.arg10().allocator(), da == EXP.arg10().allocator());
+    ASSERTV(da, EXP.arg11().allocator(), da == EXP.arg11().allocator());
+    ASSERTV(da, EXP.arg12().allocator(), da == EXP.arg12().allocator());
+    ASSERTV(da, EXP.arg13().allocator(), da == EXP.arg13().allocator());
+    ASSERTV(da, EXP.arg14().allocator(), da == EXP.arg14().allocator());
 }
 
 template <int N_ARGS,
@@ -3502,20 +3509,34 @@ void Harness::testCase23_RunTest(
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -3708,7 +3729,7 @@ void Harness::testCase23_RunTest(
         ASSERT(1 == X.use_count());
         ASSERT(X.get());
         ASSERT(EXP == *X);
-        ASSERTV(da, X->getAllocator(), da == X->getAllocator() );
+        ASSERTV(da, X->allocator(), da == X->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -4116,20 +4137,34 @@ void Harness::testCase32_DefaultAllocator()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -4351,7 +4386,7 @@ void Harness::testCase32_DefaultAllocator()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+        ASSERTV(da, x->allocator(), da == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -4448,20 +4483,34 @@ void Harness::testCase32_LocalAllocator()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -4665,7 +4714,7 @@ void Harness::testCase32_LocalAllocator()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(da, x->getAllocator(), da == x->getAllocator() );
+        ASSERTV(da, x->allocator(), da == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -5203,20 +5252,34 @@ void Harness::testCase33_RunTest(ALLOCATOR basicAllocator)
     bslalg::AutoScalarDestructor<MyInplaceTestObject> proctor(
                                                              &buffer.object());
 
-    ASSERTV(MOVE_01, A01.movedFrom(), MOVE_01 == A01.movedFrom());
-    ASSERTV(MOVE_02, A02.movedFrom(), MOVE_02 == A02.movedFrom());
-    ASSERTV(MOVE_03, A03.movedFrom(), MOVE_03 == A03.movedFrom());
-    ASSERTV(MOVE_04, A04.movedFrom(), MOVE_04 == A04.movedFrom());
-    ASSERTV(MOVE_05, A05.movedFrom(), MOVE_05 == A05.movedFrom());
-    ASSERTV(MOVE_06, A06.movedFrom(), MOVE_06 == A06.movedFrom());
-    ASSERTV(MOVE_07, A07.movedFrom(), MOVE_07 == A07.movedFrom());
-    ASSERTV(MOVE_08, A08.movedFrom(), MOVE_08 == A08.movedFrom());
-    ASSERTV(MOVE_09, A09.movedFrom(), MOVE_09 == A09.movedFrom());
-    ASSERTV(MOVE_10, A10.movedFrom(), MOVE_10 == A10.movedFrom());
-    ASSERTV(MOVE_11, A11.movedFrom(), MOVE_11 == A11.movedFrom());
-    ASSERTV(MOVE_12, A12.movedFrom(), MOVE_12 == A12.movedFrom());
-    ASSERTV(MOVE_13, A13.movedFrom(), MOVE_13 == A13.movedFrom());
-    ASSERTV(MOVE_14, A14.movedFrom(), MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // The next blocks is testing 'MyInplaceTestObject', and belongs in its own
     // test driver.  Retained for now.
@@ -5527,20 +5590,34 @@ void Harness::testCase34_AllocatorAware()
                                                              &buffer.object());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
-    ASSERT(MOVE_01 == A01.movedFrom());
-    ASSERT(MOVE_02 == A02.movedFrom());
-    ASSERT(MOVE_03 == A03.movedFrom());
-    ASSERT(MOVE_04 == A04.movedFrom());
-    ASSERT(MOVE_05 == A05.movedFrom());
-    ASSERT(MOVE_06 == A06.movedFrom());
-    ASSERT(MOVE_07 == A07.movedFrom());
-    ASSERT(MOVE_08 == A08.movedFrom());
-    ASSERT(MOVE_09 == A09.movedFrom());
-    ASSERT(MOVE_10 == A10.movedFrom());
-    ASSERT(MOVE_11 == A11.movedFrom());
-    ASSERT(MOVE_12 == A12.movedFrom());
-    ASSERT(MOVE_13 == A13.movedFrom());
-    ASSERT(MOVE_14 == A14.movedFrom());
+    ASSERTV(MOVE_01, A01.movedFrom(),
+            MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()));
+    ASSERTV(MOVE_02, A02.movedFrom(),
+            MOVE_02 == (MoveState::e_MOVED == A02.movedFrom()));
+    ASSERTV(MOVE_03, A03.movedFrom(),
+            MOVE_03 == (MoveState::e_MOVED == A03.movedFrom()));
+    ASSERTV(MOVE_04, A04.movedFrom(),
+            MOVE_04 == (MoveState::e_MOVED == A04.movedFrom()));
+    ASSERTV(MOVE_05, A05.movedFrom(),
+            MOVE_05 == (MoveState::e_MOVED == A05.movedFrom()));
+    ASSERTV(MOVE_06, A06.movedFrom(),
+            MOVE_06 == (MoveState::e_MOVED == A06.movedFrom()));
+    ASSERTV(MOVE_07, A07.movedFrom(),
+            MOVE_07 == (MoveState::e_MOVED == A07.movedFrom()));
+    ASSERTV(MOVE_08, A08.movedFrom(),
+            MOVE_08 == (MoveState::e_MOVED == A08.movedFrom()));
+    ASSERTV(MOVE_09, A09.movedFrom(),
+            MOVE_09 == (MoveState::e_MOVED == A09.movedFrom()));
+    ASSERTV(MOVE_10, A10.movedFrom(),
+            MOVE_10 == (MoveState::e_MOVED == A10.movedFrom()));
+    ASSERTV(MOVE_11, A11.movedFrom(),
+            MOVE_11 == (MoveState::e_MOVED == A11.movedFrom()));
+    ASSERTV(MOVE_12, A12.movedFrom(),
+            MOVE_12 == (MoveState::e_MOVED == A12.movedFrom()));
+    ASSERTV(MOVE_13, A13.movedFrom(),
+            MOVE_13 == (MoveState::e_MOVED == A13.movedFrom()));
+    ASSERTV(MOVE_14, A14.movedFrom(),
+            MOVE_14 == (MoveState::e_MOVED == A14.movedFrom()));
 
     // Here starts the actual test case
     bslma::TestAllocatorMonitor dam(da);
@@ -5747,7 +5824,7 @@ void Harness::testCase34_AllocatorAware()
 
         ASSERT(1 == x.use_count());
         ASSERT(EXP == *x);
-        ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
+        ASSERTV(&ta, x->allocator(), &ta == x->allocator() );
 
         ASSERT(A01.movedFrom() == B01.movedFrom());
         ASSERT(A02.movedFrom() == B02.movedFrom());
@@ -5772,6 +5849,455 @@ void Harness::testCase34_AllocatorAware()
     ASSERT(dam.isInUseSame());
 }
 
+template <class T, class Y>
+void Harness::testCase40(int value)
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<T>())
+        P(bsls::NameOf<Y>())
+        P(value)
+    }
+
+    if (verbose) {
+        printf("bsl::shared_ptr<T>\n");
+    }
+
+    // N4594: page 590: 20.10.2.2 Class template 'shared_ptr'
+
+    // page 590
+    //..
+    //  // 20.10.2.2.1, constructors:
+    //  constexpr shared_ptr() noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r, T* p) noexcept;
+    //  shared_ptr(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr(const shared_ptr<Y>& r) noexcept;
+    //  shared_ptr(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr(shared_ptr<Y>&& r) noexcept;
+    //  constexpr shared_ptr(nullptr_t) noexcept : shared_ptr() { }
+    //..
+
+    {
+        bsl::shared_ptr<Y> r;
+        T                  p;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r, &p)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(r)));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                          bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
+
+#if 0 // Per AJM
+        bsl::nullptr_t     n;
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
+#endif // Per AJM
+    }
+
+    // page 590
+    //..
+    //  // 20.10.2.2.3, assignment:
+    //  shared_ptr& operator=(const shared_ptr& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r)
+    //                                                                noexcept;
+    //  shared_ptr& operator=(shared_ptr&& r) noexcept;
+    //  template<class Y> shared_ptr& operator=(shared_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        bsl::shared_ptr<Y> mZ; const bsl::shared_ptr<Y>& Z = mZ;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = R));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = Z));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mR)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        mX = bslmf::MovableRefUtil::move(mZ)));
+    }
+
+    // page 591
+    //..
+    //  // 20.10.2.2.4, modifiers:
+    //  void swap(shared_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+        bsl::shared_ptr<T> mR; const bsl::shared_ptr<T>& R = mR;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.swap(mR)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.reset()));
+    }
+
+    // page 591
+    //..
+    //  // 20.10.2.2.5, observers:
+    //  T* get() const noexcept;
+    //  T& operator*() const noexcept;
+    //  T* operator->() const noexcept;
+    //  long use_count() const noexcept;
+    //  bool unique() const noexcept;
+    //  explicit operator bool() const noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.get()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator*()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.operator->()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.unique()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(static_cast<bool>(X)));
+    }
+
+    // page 591 - 592
+    //..
+    //  // 20.10.2.2.7, shared_ptr comparisons:
+    //  template<class T, class U>
+    //  bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator!=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator<=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template<class T, class U>
+    //  bool operator>=(const shared_ptr<T>& a, const shared_ptr<U>& b)
+    //                                                                noexcept;
+    //  template <class T>
+    //  bool operator==(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator==(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator!=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator!=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator<=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator<=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //  template <class T>
+    //  bool operator>=(const shared_ptr<T>& a, nullptr_t) noexcept;
+    //  template <class T>
+    //  bool operator>=(nullptr_t, const shared_ptr<T>& b) noexcept;
+    //..
+
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<U> mB; const bsl::shared_ptr<U>& B = mB;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= B));
+
+        // Test 'bsl::nullptr_t' overloads
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A == 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 == B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A != 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 != B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <  0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 <  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >  0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 >  B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A <= 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 <= B));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(A >= 0));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(0 >= B));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.8, shared_ptr specialized algorithms:
+    //  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b)
+    //                                                                noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mA; const bsl::shared_ptr<T>& A = mA;
+        bsl::shared_ptr<T> mB; const bsl::shared_ptr<T>& B = mB;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mA, mB)));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.9, shared_ptr casts:
+    //  template<class T, class U>
+    //  shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //  template<class T, class U>
+    //  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
+    //..
+
+    {
+        typedef Y U;
+
+        bsl::shared_ptr<U> mR; const bsl::shared_ptr<U>& R = mR;
+
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl:: static_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::dynamic_pointer_cast<T>(R)));
+       ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::  const_pointer_cast<T>(R)));
+    }
+
+    // page 592
+    //..
+    //  // 20.10.2.2.10, shared_ptr get_deleter:
+    //  template<class D, class T> D* get_deleter(const shared_ptr<T>& p)
+    //                                                                noexcept;
+    //..
+
+    {
+        bsl::shared_ptr<T> mX; const bsl::shared_ptr<T>& X = mX;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::get_deleter<T>(X)));
+    }
+
+    if (verbose) {
+        printf("bsl::weak_ptr<T>\n");
+    }
+
+    // N4594: page 598: 20.10.2.3 Class template weak_ptr [util.smartptr.weak]
+
+    // page 599
+    //..
+    //  // 20.10.2.3.1, constructors
+    //  constexpr weak_ptr() noexcept;
+    //  template<class Y> weak_ptr(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y> const& r) noexcept;
+    //  weak_ptr(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr(weak_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        {
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>()));
+        }
+        {
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(r)));
+        }
+        {
+            bsl::weak_ptr<T> r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+        {
+            bsl::weak_ptr<Y> r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::weak_ptr<T>(
+                                             bslmf::MovableRefUtil::move(r))));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.3, assignment
+    //  weak_ptr& operator=(weak_ptr const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y> const& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(shared_ptr<Y> const& r) noexcept;
+    //  weak_ptr& operator=(weak_ptr&& r) noexcept;
+    //  template<class Y> weak_ptr& operator=(weak_ptr<Y>&& r) noexcept;
+    //..
+
+    {
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y> mR; const bsl::weak_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T>   mX;
+            bsl::shared_ptr<Y> mR; const bsl::shared_ptr<Y>& r = mR;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(mX = r));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<T>  r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+        {
+            bsl::weak_ptr<T> mX;
+            bsl::weak_ptr<Y>  r;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                         mX = bslmf::MovableRefUtil::move(r)));
+        }
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.4, modifiers
+    //  void swap(weak_ptr& r) noexcept;
+    //  void reset() noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> x;
+        bsl::weak_ptr<T> r;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(r)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reset()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.5, observers
+    //  long use_count() const noexcept;
+    //  bool expired() const noexcept;
+    //  shared_ptr<T> lock() const noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> mR; const bsl::weak_ptr<T>& R = mR;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.use_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.expired()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(R.lock()));
+    }
+
+    // page 599
+    //..
+    //  // 20.10.2.3.6, specialized algorithms
+    //  template<class T> void swap(weak_ptr<T>& a, weak_ptr<T>& b) noexcept;
+    //..
+
+    {
+        bsl::weak_ptr<T> a;
+        bsl::weak_ptr<T> b;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(a, b)));
+    }
+}
 
 template <int N>
 void testMyTestArg()
@@ -6009,6 +6535,17 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      case 40: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
+
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
@@ -8225,7 +8762,7 @@ int main(int argc, char *argv[])
                 ASSERTV(numAllocations,   ta.numAllocations(),
                         numAllocations == ta.numAllocations());
                 ASSERT(EXP == *x);
-                ASSERT(&sa == x->getAllocator());
+                ASSERT(&sa == x->allocator());
                 ASSERT(1 == x.use_count());
                 ASSERTV(sa.numAllocations(), 0 == sa.numAllocations());
             }
@@ -8334,7 +8871,7 @@ int main(int argc, char *argv[])
                                                  MovUtil::move(A13),
                                                  MovUtil::move(A14),
                                                 &ta);
-            ASSERTV( &ta, EXP.getAllocator(),   &ta == EXP.getAllocator() );
+            ASSERTV( &ta, EXP.allocator(), &ta == EXP.allocator() );
             ASSERTV(VA01, EXP.arg01(), VA01 == EXP.arg01());
             ASSERTV(VA02, EXP.arg02(), VA02 == EXP.arg02());
             ASSERTV(VA03, EXP.arg03(), VA03 == EXP.arg03());
@@ -8349,20 +8886,21 @@ int main(int argc, char *argv[])
             ASSERTV(VA12, EXP.arg12(), VA12 == EXP.arg12());
             ASSERTV(VA13, EXP.arg13(), VA13 == EXP.arg13());
             ASSERTV(VA14, EXP.arg14(), VA14 == EXP.arg14());
-            ASSERT (A01.movedFrom());
-            ASSERT (A02.movedFrom());
-            ASSERT (A03.movedFrom());
-            ASSERT (A04.movedFrom());
-            ASSERT (A05.movedFrom());
-            ASSERT (A06.movedFrom());
-            ASSERT (A07.movedFrom());
-            ASSERT (A08.movedFrom());
-            ASSERT (A09.movedFrom());
-            ASSERT (A10.movedFrom());
-            ASSERT (A11.movedFrom());
-            ASSERT (A12.movedFrom());
-            ASSERT (A13.movedFrom());
-            ASSERT (A14.movedFrom());
+
+            ASSERTV(MoveState::e_MOVED == A01.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A02.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A03.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A04.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A05.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A06.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A07.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A08.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A09.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A10.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A11.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A12.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A13.movedFrom());
+            ASSERTV(MoveState::e_MOVED == A14.movedFrom());
 
             ASSERTV(numAllocations,   ta.numAllocations(),
                     numAllocations == ta.numAllocations());
@@ -8423,21 +8961,22 @@ int main(int argc, char *argv[])
 
                 ASSERT(EXP == *x);
                 ASSERT(1 == x.use_count());
-                ASSERTV(&ta, x->getAllocator(), &ta == x->getAllocator() );
-                ASSERT(B01.movedFrom());
-                ASSERT(B02.movedFrom());
-                ASSERT(B03.movedFrom());
-                ASSERT(B04.movedFrom());
-                ASSERT(B05.movedFrom());
-                ASSERT(B06.movedFrom());
-                ASSERT(B07.movedFrom());
-                ASSERT(B08.movedFrom());
-                ASSERT(B09.movedFrom());
-                ASSERT(B10.movedFrom());
-                ASSERT(B11.movedFrom());
-                ASSERT(B12.movedFrom());
-                ASSERT(B13.movedFrom());
-                ASSERT(B14.movedFrom());
+                ASSERTV(&ta, x->allocator(), &ta == x->allocator() );
+
+                ASSERTV(MoveState::e_MOVED == B01.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B02.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B03.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B04.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B05.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B06.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B07.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B08.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B09.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B10.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B11.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B12.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B13.movedFrom());
+                ASSERTV(MoveState::e_MOVED == B14.movedFrom());
             }
 
             ASSERTV(numAllocations,   ta.numAllocations(),
@@ -11620,7 +12159,7 @@ int main(int argc, char *argv[])
 
             // COMPARISON SHR PTR TO SHR PTR
         ASSERT(!(ptrNil == ptr1));
-        ASSERT(ptrNil != ptr1);
+        ASSERT(  ptrNil != ptr1);
 
             // COMPARISON SHR PTR TO BOOL
         ASSERT(static_cast<bool>(ptrNil) == false);

@@ -48,9 +48,9 @@
 
    7. bslstl
 
-   6. bsltf
+   6. bslalg
 
-   5. bslalg
+   5. bsltf
 
    4. bslh
       bslma

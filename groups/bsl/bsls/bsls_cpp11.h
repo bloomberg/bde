@@ -13,11 +13,12 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
-//  BSLS_CPP11_CONSTEXPR: C++11 '= delete' function definition
+//  BSLS_CPP11_DELETED: C++11 '= delete' function definition
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword
-//  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 'noexcept' function qualifier
+//  BSLS_CPP11_NOEXCEPT_AVAILABLE: 'C++11' 'noexcept' flag
+//  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): C++11 'noexcept' function qualifier
 //  BSLS_CPP11_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
 //  BSLS_CPP11_OVERRIDE: C++11 'override' keyword
 //  BSLS_CPP11_PROVISIONALLY_FALSE: C++11 specification placeholder
@@ -52,6 +53,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_CPP11_NOEXCEPT':
 //:     This macro inserts the keyword 'noexcept' when compiling with C++11
 //:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_NOEXCEPT_AVAILABLE':
+//:     This macro expands to 'true' when the 'noexcept' feature is available
+//:     and 'false' otherwise.
 //:
 //: 'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)':
 //:     This macro inserts the exception specification
@@ -247,14 +252,16 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define BSLS_CPP11_NOEXCEPT noexcept
+#define BSLS_CPP11_NOEXCEPT_AVAILABLE true
 #define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
 #define BSLS_CPP11_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
 #define BSLS_CPP11_PROVISIONALLY_FALSE false
 #else
 #define BSLS_CPP11_NOEXCEPT
+#define BSLS_CPP11_NOEXCEPT_AVAILABLE false
 #define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)
 #define BSLS_CPP11_NOEXCEPT_OPERATOR(...) false
-#define BSLS_CPP11_PROVISIONALLY_FALSE
+#define BSLS_CPP11_PROVISIONALLY_FALSE false
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT

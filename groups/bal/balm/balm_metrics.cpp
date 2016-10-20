@@ -10,11 +10,11 @@
 #include <balm_metrics.h>
 
 #include <bsls_ident.h>
+#include <bsls_log.h>
+
 #include <bsl_ostream.h>
 
 BSLS_IDENT_RCSID(balm_metrics_cpp,"$Id$ $CSID$")
-
-#include <ball_log.h>
 
 namespace BloombergLP {
 
@@ -23,7 +23,6 @@ namespace balm {
 // STATIC DATA
 namespace {
 
-const char k_LOG_CATEGORY[] = "BALM.METRICS";
 const char *k_TYPE_STRING[] = { "category", "metric", };
 
 }  // close unnamed namespace
@@ -50,10 +49,8 @@ void Metrics_Helper::logEmptyName(const char *name,
 
     // Log the problem.
 
-    BALL_LOG_SET_CATEGORY(k_LOG_CATEGORY);
-
-    BALL_LOG_WARN << "Empty " << k_TYPE_STRING[type] << " \"" << name
-                  << "\" added at " << file << ":" << line << BALL_LOG_END;
+    BSLS_LOG_WARN("Empty %s \"%s\" added at %s:%d",
+                  k_TYPE_STRING[type], name, file, line);
 }
 
 }  // close package namespace

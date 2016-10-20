@@ -4,16 +4,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_allocator.h>                  // for testing only
-#include <bslma_default.h>                    // for testing only
-#include <bslma_managedptr_factorydeleter.h>  // for testing only
-#include <bslma_testallocator.h>              // for testing only
-#include <bslma_testallocatormonitor.h>       // for testing only
+#include <bslma_default.h>               // for testing only
+#include <bslma_testallocator.h>         // for testing only
+#include <bslma_testallocatormonitor.h>  // for testing only
 
 namespace BloombergLP {
 namespace bslma {
 
-void ManagedPtr_Members::swap(ManagedPtr_Members & other)
+                    // ------------------------
+                    // class ManagedPtr_Members
+                    // ------------------------
+
+// MANIPULATORS
+void ManagedPtr_Members::swap(ManagedPtr_Members& other) BSLS_CPP11_NOEXCEPT
 {
     if (!d_obj_p) {
         d_obj_p       = other.d_obj_p;
@@ -39,9 +42,8 @@ void ManagedPtr_Members::swap(ManagedPtr_Members & other)
 }  // close package namespace
 }  // close enterprise namespace
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

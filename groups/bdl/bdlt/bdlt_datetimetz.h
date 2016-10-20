@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DatetimeTz dt2(dt1);
 //  assert(offset1   == dt2.offset());
 //  assert(datetime1 == dt2.localDatetime());
-//  assert(datetime2 != dt2.utcDatetime());
+//  assert(datetime2 == dt2.utcDatetime());
 //..
 // Now, create a third object, 'dt3', representing the time 10:33:25.000 on
 // 01/01/2001 in the PST time zone (UTC-8):
@@ -240,6 +240,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -457,10 +461,10 @@ class DatetimeTz {
 
 // FREE OPERATORS
 bool operator==(const DatetimeTz& lhs, const DatetimeTz& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects
-    // have the same value, and 'false' otherwise.  Two 'DatetimeTz' objects
-    // have the same value if they have the same local datetime value and the
-    // same time zone offset value.
+    // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects have
+    // the same value, and 'false' otherwise.  Two 'DatetimeTz' objects have
+    // the same value if they have the same local datetime value and the same
+    // time zone offset value.
 
 bool operator!=(const DatetimeTz& lhs, const DatetimeTz& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'DatetimeTz' objects do
@@ -477,8 +481,17 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeTz& rhs);
     // method has the same behavior as 'object.print(stream, 0, -1)', but with
     // the attribute names elided.
 
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const DatetimeTz& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DatetimeTz'.  Note that two
+    // objects which represent the same UTC time but have different offsets
+    // will not (necessarily) hash to the same value.
+
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                              // ----------------
@@ -551,8 +564,7 @@ void DatetimeTz::setDatetimeTz(const Datetime& localDatetime, int offset)
 }
 
 inline
-int DatetimeTz::setDatetimeTzIfValid(const Datetime& localDatetime,
-                                     int             offset)
+int DatetimeTz::setDatetimeTzIfValid(const Datetime& localDatetime, int offset)
 {
     if (isValid(localDatetime, offset)) {
         setDatetimeTz(localDatetime, offset);
@@ -568,9 +580,10 @@ STREAM& DatetimeTz::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
             Datetime localDatetime;
-            localDatetime.bdexStreamIn(stream, 1);
+            localDatetime.bdexStreamIn(stream, version);
 
             int offset;
             stream.getInt32(offset);
@@ -633,8 +646,9 @@ STREAM& DatetimeTz::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
-            d_localDatetime.bdexStreamOut(stream, 1);
+            d_localDatetime.bdexStreamOut(stream, version);
             stream.putInt32(d_offset);
           } break;
           default: {
@@ -691,6 +705,16 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const DatetimeTz& rhs)
     return rhs.print(stream, 0, -1);
 }
 
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const DatetimeTz& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.localDatetime());
+    hashAppend(hashAlg, object.offset());
+}
+
 }  // close enterprise namespace
 
 namespace bsl {
@@ -707,7 +731,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::DatetimeTz> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

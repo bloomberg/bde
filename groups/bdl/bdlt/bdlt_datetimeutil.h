@@ -208,13 +208,14 @@ struct DatetimeUtil {
         // of next minute.  Note that time zones are irrelevant for this
         // conversion.
 
-    static bsl::tm convertToTm(const Datetime& datetime);
-        // Return the value of the specified 'datetime' expressed as a
-        // 'bsl::tm'.  Each field in the result is set to its proper value
-        // except 'tm_isdst', which is set to '-1' to indicate that no
-        // information on daylight saving time is available.  A time value of
-        // 24:00:00:00 will be converted to 0:00:00.  Note that time zones are
-        // irrelevant for this conversion.
+    static bsl::tm convertToTm(                 const Datetime& datetime);
+    static void    convertToTm(bsl::tm *result, const Datetime& datetime);
+        // Return or load into the specified 'result' the value of the
+        // specified 'datetime' expressed as a 'bsl::tm'.  Each field in the
+        // result is set to its proper value except 'tm_isdst', which is set to
+        // '-1' to indicate that no information on daylight saving time is
+        // available.  A time value of 24:00:00:00 will be converted to
+        // 0:00:00.  Note that time zones are irrelevant for this conversion.
 };
 
 // ============================================================================
@@ -283,6 +284,14 @@ bsl::tm DatetimeUtil::convertToTm(const Datetime& datetime)
     result.tm_isdst = -1;  // This information is unavailable.
 
     return result;
+}
+
+inline
+void DatetimeUtil::convertToTm(bsl::tm *result, const Datetime& datetime)
+{
+    BSLS_ASSERT_SAFE(result);
+
+    *result = convertToTm(datetime);
 }
 
 }  // close package namespace

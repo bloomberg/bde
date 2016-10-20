@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Querying BDEX Version
-/// - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - -
 // This component may be used by clients to query the version number for types
 // in a convenient manner.  First, define an 'enum', 'my_Enum':
 //..
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //          return VERSION;
 //      }
 //
-//      //...
+//      // ...
 //
 //  };
 //..
@@ -121,9 +121,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                 // =============================================
-                 // class VersionFunctions_DoesNotHaveBdexVersion
-                 // =============================================
+              // =============================================
+              // class VersionFunctions_DoesNotHaveBdexVersion
+              // =============================================
 
 class VersionFunctions_DoesNotHaveBdexVersion {
     // This class is used to perform function overload resolution for types
@@ -131,9 +131,9 @@ class VersionFunctions_DoesNotHaveBdexVersion {
     // implementation by design.
 };
 
-                 // =====================================
-                 // class VersionFunctions_HasBdexVersion
-                 // =====================================
+                  // =====================================
+                  // class VersionFunctions_HasBdexVersion
+                  // =====================================
 
 class VersionFunctions_HasBdexVersion {
     // This class is used to perform function overload resolution for types
@@ -141,9 +141,9 @@ class VersionFunctions_HasBdexVersion {
     // implementation by design.
 };
 
-                 // ==========================================
-                 // struct VersionFunctions_NonFundamentalImpl
-                 // ==========================================
+                // ==========================================
+                // struct VersionFunctions_NonFundamentalImpl
+                // ==========================================
 
 template <class TYPE>
 struct VersionFunctions_NonFundamentalImpl {
@@ -163,6 +163,18 @@ struct VersionFunctions_NonFundamentalImpl {
         // unexternalizer.  See the 'bslx' package-level documentation for more
         // information on BDEX streaming of value-semantic types and
         // containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    // DEPRECATED METHODS
+    static int maxSupportedBdexVersion();
+        // Return the maximum valid BDEX format version to be passed to the
+        // 'bdexStreamOut' method while streaming an object of the (template
+        // parameter) type 'TYPE'.  See the 'bslx' package-level documentation
+        // for more information on BDEX streaming of value-semantic types and
+        // containers.
+
+#endif
 };
 
 template <class TYPE, class ALLOC>
@@ -178,13 +190,26 @@ struct VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> > {
         // and unexternalizer.  See the 'bslx' package-level documentation for
         // more information on BDEX streaming of value-semantic types and
         // containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    // DEPRECATED METHODS
+    static int maxSupportedBdexVersion();
+        // Return the maximum valid BDEX format version to be passed to the
+        // 'bdexStreamOut' method while streaming an object of the (template
+        // parameter) type 'bsl::vector<TYPE, ALLOC>'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
+
+#endif
 };
 
-                         // ===============================
-                         // namespace VersionFunctions_Impl
-                         // ===============================
+                     // ===============================
+                     // namespace VersionFunctions_Impl
+                     // ===============================
 
 namespace VersionFunctions_Impl {
+
     // This namespace contains functions that allow the computation of version
     // information for a (template parameter) type 'TYPE' as per the BDEX
     // protocol (see the 'bslx' package-level documentation).  These functions
@@ -233,13 +258,47 @@ namespace VersionFunctions_Impl {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    // DEPRECATED METHODS
+    template <class TYPE>
+    int maxSupportedBdexVersion(
+                               const VersionFunctions_DoesNotHaveBdexVersion&);
+        // Return 'k_NO_VERSION'.  Note that this function is called only for
+        // enumerations, fundamental types, and 'bsl::string', which do not
+        // require versioning as per the BDEX protocol.
+
+    template <class TYPE>
+    int maxSupportedBdexVersion(const VersionFunctions_HasBdexVersion&);
+        // Return the maximum valid BDEX format version to be passed to the
+        // 'bdexStreamOut' method while streaming an object of the (template
+        // parameter) type 'TYPE'.  Note that this function assumes the 'TYPE'
+        // is neither 'const' nor 'volatile' and that this function is called
+        // only for types which are not enumerations, not fundamental types,
+        // and not 'bsl::string' (vectors and other BDEX-compliant types will
+        // use this function).  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
+
+    template <class TYPE>
+    int maxSupportedBdexVersion();
+        // Return the maximum valid BDEX format version to be passed to the
+        // 'bdexStreamOut' method while streaming an object of the (template
+        // parameter) type 'TYPE'.  Note that this function assumes the 'TYPE'
+        // is neither 'const' nor 'volatile'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+#endif
+
 }  // close namespace VersionFunctions_Impl
 
-                         // ==========================
-                         // namespace VersionFunctions
-                         // ==========================
+                        // ==========================
+                        // namespace VersionFunctions
+                        // ==========================
 
 namespace VersionFunctions {
+
     // This namespace contains functions that allow the computation of version
     // information for a (template parameter) type 'TYPE' as per the BDEX
     // protocol (see the 'bslx' package-level documentation).
@@ -263,15 +322,32 @@ namespace VersionFunctions {
         // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    // DEPRECATED METHODS
+    template <class TYPE>
+    int maxSupportedBdexVersion(const TYPE *);
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(const TYPE *, int)'
+        // instead.
+        //
+        // Return the maximum valid BDEX format version to be passed to the
+        // 'bdexStreamOut' method while streaming an object of the (template
+        // parameter) type 'TYPE'.  Note that this function ignores any 'const'
+        // and 'volatile' qualifiers on the 'TYPE'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
+
+#endif
+
 }  // close namespace VersionFunctions
 
 // ============================================================================
-//                          INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                 // ------------------------------------------
-                 // struct VersionFunctions_NonFundamentalImpl
-                 // ------------------------------------------
+                // ------------------------------------------
+                // struct VersionFunctions_NonFundamentalImpl
+                // ------------------------------------------
 
 // CLASS METHODS
 template <class TYPE>
@@ -284,6 +360,21 @@ int VersionFunctions_NonFundamentalImpl<TYPE>::
 
     return TYPE::maxSupportedBdexVersion(versionSelector);
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+// DEPRECATED METHODS
+template <class TYPE>
+inline
+int VersionFunctions_NonFundamentalImpl<TYPE>::maxSupportedBdexVersion()
+{
+    // A compilation error indicating the next line of code implies the class
+    // of 'TYPE' does not support the 'maxSupportedBdexVersion' method.
+
+    return TYPE::maxSupportedBdexVersion();
+}
+
+#endif
 
 template <class TYPE, class ALLOC>
 inline
@@ -298,10 +389,28 @@ int VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> >::
     return version != VersionFunctions::k_NO_VERSION ? version : 1;
 }
 
-                        // -------------------------------
-                        // namespace VersionFunctions_Impl
-                        // -------------------------------
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
+// DEPRECATED METHODS
+template <class TYPE, class ALLOC>
+inline
+int VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> >::
+                                                      maxSupportedBdexVersion()
+{
+    using VersionFunctions::maxSupportedBdexVersion;
+
+    const int version = maxSupportedBdexVersion(reinterpret_cast<TYPE *>(0));
+
+    return version != VersionFunctions::k_NO_VERSION ? version : 1;
+}
+
+#endif
+
+                     // -------------------------------
+                     // namespace VersionFunctions_Impl
+                     // -------------------------------
+
+// CLASS METHODS
 template <class TYPE>
 inline
 int VersionFunctions_Impl::maxSupportedBdexVersion(
@@ -336,10 +445,46 @@ int VersionFunctions_Impl::maxSupportedBdexVersion(int versionSelector)
                    maxSupportedBdexVersion<TYPE>(versionSelector, dummyType());
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+// DEPRECATED METHODS
+template <class TYPE>
+inline
+int VersionFunctions_Impl::maxSupportedBdexVersion(
+                                const VersionFunctions_DoesNotHaveBdexVersion&)
+{
+    return VersionFunctions::k_NO_VERSION;
+}
+
+template <class TYPE>
+inline
+int VersionFunctions_Impl::maxSupportedBdexVersion(
+                                        const VersionFunctions_HasBdexVersion&)
+{
+    return VersionFunctions_NonFundamentalImpl<TYPE>::
+                                                     maxSupportedBdexVersion();
+}
+
+template <class TYPE>
+inline
+int VersionFunctions_Impl::maxSupportedBdexVersion()
+{
+    typedef typename bslmf::If<bslmf::IsFundamental<TYPE>::value
+                               || bslmf::IsEnum<TYPE>::value
+                               || bsl::is_same<TYPE, bsl::string>::value,
+                               VersionFunctions_DoesNotHaveBdexVersion,
+                               VersionFunctions_HasBdexVersion>::Type
+                                                                     dummyType;
+
+    return VersionFunctions_Impl::maxSupportedBdexVersion<TYPE>(dummyType());
+}
+
+#endif
                         // --------------------------
                         // namespace VersionFunctions
                         // --------------------------
 
+// CLASS METHODS
 template <class TYPE>
 inline
 int VersionFunctions::maxSupportedBdexVersion(const TYPE *,
@@ -350,13 +495,26 @@ int VersionFunctions::maxSupportedBdexVersion(const TYPE *,
                                                               versionSelector);
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+// DEPRECATED METHODS
+template <class TYPE>
+inline
+int VersionFunctions::maxSupportedBdexVersion(const TYPE *)
+{
+    return VersionFunctions_Impl::
+                maxSupportedBdexVersion<typename bsl::remove_cv<TYPE>::type>();
+}
+
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

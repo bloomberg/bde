@@ -21,6 +21,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
+// [ 2] CONCERN: Methods qualifed 'noexcept' in standard are so.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -99,6 +100,46 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        //
+        // Concerns:
+        //: 1 The 'noexcept' specification has been applied to all class
+        //:   interfaces required by the standard.
+        //
+        // Plan:
+        //: 1 Apply the uniary 'noexcept' operator to expressions that mimic
+        //:   those appearing in the standard and confirm that calculated
+        //:   boolean value matches the expected value.
+        //:
+        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+        //:   of the container, we need test for just one general type and any
+        //:   'TYPE' specializations.
+        //
+        // Testing:
+        //   CONCERN: Methods qualifed 'noexcept' in standard are so.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        // N4594: 20.10.2.1 Class 'bad_weak_ptr'
+
+        // page 590
+        //..
+        //     namespace std {
+        //       class bad_weak_ptr: public std::exception {
+        //       public:
+        //         bad_weak_ptr() noexcept;
+        //       };
+        //     } // namespace std
+        //..
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bslstl::BadWeakPtr()));
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

@@ -141,8 +141,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-namespace balst {                        // ============================
+namespace balst {
+                        // ============================
                         // struct AssertionLogger
                         // ============================
 

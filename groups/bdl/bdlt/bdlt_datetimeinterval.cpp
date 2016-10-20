@@ -38,7 +38,7 @@ void DatetimeInterval::logProposedRangeViolation()
         bdlb::BitUtil::uint64_t count =
                     static_cast<bdlb::BitUtil::uint64_t>(++s_minSentinelCount);
         if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_SIMPLE(
+            BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR,
                       "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MIN'");
         }
     }
@@ -46,7 +46,7 @@ void DatetimeInterval::logProposedRangeViolation()
         bdlb::BitUtil::uint64_t count =
                     static_cast<bdlb::BitUtil::uint64_t>(++s_maxSentinelCount);
         if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_SIMPLE(
+            BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR,
                       "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MAX'");
         }
     }
@@ -54,7 +54,7 @@ void DatetimeInterval::logProposedRangeViolation()
         bdlb::BitUtil::uint64_t count = static_cast<bdlb::BitUtil::uint64_t>(
                                          ++s_otherProposedRangeViolationCount);
         if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG("detected 'bdlt::DatetimeInterval' "
+            BSLS_LOG_ERROR("detected 'bdlt::DatetimeInterval' "
                                           "proposed range violation (%lld ms)",
                      d_milliseconds);
         }

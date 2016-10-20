@@ -105,12 +105,13 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslmt::ThreadUtil       Obj;
 typedef bslmt::ThreadAttributes Attr;
+typedef bsls::Types::IntPtr     IntPtr;
 
 int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-bool isPost_5_10;    // On Solairis, is OS post-Solaris 5.0
+bool isPost_5_10;    // On Solaris, is OS post-Solaris 5.0
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -127,161 +128,11 @@ bool isPost_5_10;    // On Solairis, is OS post-Solaris 5.0
     const int MIN_GUARD_SIZE = 1;
 #endif
 
-///Usage
-///-----
-// This section illustrates the intended use of this component.
-//
-///Example 1: Creating a Simple Thread with Default Attributes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we create a thread using the default attribute settings.
-// Upon creation, the thread executes the user-supplied C-linkage function
-// 'myThreadFunction' that counts 5 seconds before terminating:
-//
-// First, we create a function that will run in the spawned thread:
-//..
-//  extern "C" void *myThreadFunction(void *)
-//      // Print to standard output "Another second has passed" every second
-//      // for five seconds, and return 0.
-//  {
-//      for (int i = 0; i < 3; ++i) {
-//          bslmt::ThreadUtil::microSleep(0, 1);
-//          bsl::cout << "Another second has passed." << bsl::endl;
-//      }
-//      return 0;
-//  }
-//..
-// Now, we show how to create and join the thread.
-//
-// After creating the thread, the 'main' routine *joins* the thread, which, in
-// effect, causes 'main' to wait for execution of 'myThreadFunction' to
-// complete, and guarantees that the output from 'main' will follow the last
-// output from the user-supplied function:
-//..
-//  int main()
-//  {
-//      bslmt::Configuration::setDefaultThreadStackSize(
-//                  bslmt::Configuration::recommendedDefaultThreadStackSize());
-//
-//      bslmt::ThreadUtil::Handle handle;
-//
-//      bslmt::ThreadAttributes attr;
-//      attr.setStackSize(1024 * 1024);
-//
-//      int rc = bslmt::ThreadUtil::create(&handle, attr, myThreadFunction, 0);
-//      ASSERT(0 == rc);
-//
-//      bslmt::ThreadUtil::yield();
-//
-//      rc = bslmt::ThreadUtil::join(handle);
-//      ASSERT(0 == rc);
-//
-//      bsl::cout << "A three second interval has elapsed\n";
-//
-//      return 0;
-//  }
-//..
-// Finally, the output of this program is:
-//..
-//  Another second has passed.
-//  Another second has passed.
-//  Another second has passed.
-//  A three second interval has elapsed.
-//..
-///Example 2: Creating a Simple Thread with User-Specified Attributes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will choose to override the default thread attribute
-// values.
-//
-// The attributes of a thread can be specified explicitly by supplying a
-// 'bslmt::ThreadAttributes' object to the 'create' method.  For instance, we
-// could specify a smaller stack size for a thread to conserve system resources
-// if we know that we will require not require the platform's default stack
-// size.
-//
-// First, we define our thread function, noting that it doesn't need much stack
-// space:
-//..
-//  extern "C" void *mySmallStackThreadFunction(void *threadArg)
-//      // Initialize a small object on the stack and do some work.
-//  {
-//      char *initValue = (char *)threadArg;
-//      char Small[8];
-//      bsl::memset(&Small[0], *initValue, 8);
-//      // do some work ...
-//      return 0;
-//  }
-//..
-// Finally, we show how to create a detached thread running the function just
-// created with a small stack size:
-//..
-//  void createSmallStackSizeThread()
-//      // Create a detached thread with a small stack size and perform some
-//      // work.
-//  {
-//      enum { k_STACK_SIZE = 16384 };
-//      bslmt::ThreadAttributes attributes;
-//      attributes.setDetachedState(
-//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
-//      attributes.setStackSize(k_STACK_SIZE);
-//
-//      char initValue = 1;
-//      bslmt::ThreadUtil::Handle handle;
-//      int status = bslmt::ThreadUtil::create(&handle,
-//                                            attributes,
-//                                            mySmallStackThreadFunction,
-//                                            &initValue);
-//  }
-//..
-//
-///Example 3: Setting Thread Priorities
-/// - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate creating 3 threads with different priorities.
-// We use the 'convertToSchedulingPriority' function to translate a normalized,
-// floating-point priority in the range '[ 0.0, 1.0 ]' to an integer priority
-// in the range '[ getMinSchedulingPriority, getMaxSchedulingPriority ]' to set
-// the 'schedulingPriority' attribute.
-//..
-//  void runSeveralThreads()
-//      // Create 3 threads with different priorities and then wait for them
-//      // all to finish.
-//  {
-//      enum { k_NUM_THREADS = 3 };
-//
-//      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
-//      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
-//                                                MostUrgentThreadFunction,
-//                                                FairlyUrgentThreadFunction,
-//                                                LeastUrgentThreadFunction };
-//      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
-//
-//      bslmt::ThreadAttributes attributes;
-//      attributes.setInheritSchedule(false);
-//      const bslmt::ThreadAttributes::SchedulingPolicy policy =
-//                                  bslmt::ThreadAttributes::e_SCHED_OTHER;
-//      attributes.setSchedulingPolicy(policy);
-//
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          attributes.setSchedulingPriority(
-//               bslmt::ThreadUtil::convertToSchedulingPriority(policy,
-//                                                             priorities[i]));
-//          int rc = bslmt::ThreadUtil::create(&handles[i],
-//                                             attributes,
-//                                             functions[i], 0);
-//          ASSERT(0 == rc);
-//      }
-//
-//      for (int i = 0; i < k_NUM_THREADS; ++i) {
-//          int rc = bslmt::ThreadUtil::join(handles[i]);
-//          ASSERT(0 == rc);
-//      }
-//  }
-//..
-
 // ============================================================================
 //                       GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-bsls::Types::IntPtr intPtrAbs(bsls::Types::IntPtr a)
+IntPtr intPtrAbs(IntPtr a)
 {
     return a >= 0 ? a : -a;
 }
@@ -304,6 +155,267 @@ bsl::ostream& operator<<(bsl::ostream&                             stream,
 }
 
 //=============================================================================
+
+namespace {
+namespace u {
+
+                                // local Mutex
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+// Platform-specific implementation starts here.
+
+// Rather than setting 'WINVER' or 'NTDDI_VERSION', just forward declare the
+// Windows 2000 functions that are used.
+
+struct _RTL_CRITICAL_SECTION;
+
+typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION, *LPCRITICAL_SECTION;
+typedef int BOOL;
+typedef unsigned long DWORD;
+
+extern "C" {
+    __declspec(dllimport) BOOL __stdcall InitializeCriticalSectionAndSpinCount(
+                                    LPCRITICAL_SECTION lpCriticalSection,
+                                    DWORD dwSpinCount);
+
+    __declspec(dllimport) void __stdcall DeleteCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall EnterCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall LeaveCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+}  // extern "C"
+
+class Mutex {
+    // It provides an efficient proxy for Windows critical sections, and
+    // related operations.  Note that the Mutex implemented in this class is
+    // *not* error checking, and is non-recursive.
+
+  public:
+    enum {
+        // Size of the buffer allocated for the critical section, in
+        // pointer-sized elements.  We have to make it public so we could
+        // access it in a .cpp file to verify the size.
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+        // 5*8 = 40 bytes
+        k_CRITICAL_SECTION_BUFFER_SIZE = 5
+#else
+        // 6*4 = 24 bytes
+        k_CRITICAL_SECTION_BUFFER_SIZE = 6
+#endif
+    };
+
+  private:
+    enum {
+        // A Windows critical section has a configurable spin count.  A lock
+        // operation spins this many iterations (on, presumably, some atomic
+        // integer) before sleeping on the underlying primitive.
+
+        k_SPIN_COUNT = 30
+    };
+
+    // DATA
+    void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
+
+  private:
+    // NOT IMPLEMENTED
+    Mutex(const Mutex&);
+    Mutex& operator=(const Mutex&);
+
+  public:
+    // CREATORS
+    Mutex()
+        // Create a mutex initialized to an unlocked state.
+    {
+        InitializeCriticalSectionAndSpinCount(
+          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), k_SPIN_COUNT);
+    }
+
+    ~Mutex()
+        // Destroy this mutex object.
+    {
+        DeleteCriticalSection(
+                             reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
+    }
+
+    // MANIPULATORS
+    void lock()
+        // Acquire a lock on this mutex object.  If this object is currently
+        // locked, then suspend execution of the current thread until a lock
+        // can be acquired.  Note that the behavior is undefined if the calling
+        // thread already owns the lock on this mutex, and will likely result
+        // in a deadlock.
+    {
+        EnterCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
+    }
+
+    void unlock()
+        // Release a lock on this mutex that was previously acquired through a
+        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
+    {
+        LeaveCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
+    }
+};
+
+#else
+// Unix -- pthreads
+
+class Mutex {
+    // This class provides a full specialization of 'Mutex' for pthreads.  It
+    // provides a efficient proxy for the 'pthread_mutex_t' pthreads type, and
+    // related operations.  Note that the mutex implemented in this class is
+    // *not* error checking, and is non-recursive.
+
+    // DATA
+    pthread_mutex_t d_lock;
+
+    // NOT IMPLEMENTED
+    Mutex(const Mutex&);
+    Mutex& operator=(const Mutex&);
+
+  public:
+    // CREATORS
+    Mutex() { pthread_mutex_init(&d_lock, 0); }
+
+    ~Mutex() { pthread_mutex_destroy(&d_lock); }
+
+    // MANIPULATORS
+    void lock() { pthread_mutex_lock(&d_lock); }
+
+    void unlock() { pthread_mutex_unlock(&d_lock); }
+};
+
+#endif
+
+}  // close namespace u
+}  // close unnamed namespace
+
+//-----------------------------------------------------------------------------
+//                               All Create Test
+//-----------------------------------------------------------------------------
+
+namespace BSLMT_THREADUTIL_ALL_CREATE_TEST {
+
+enum CreateMode {
+    e_CREATE_MODE_START,
+
+    e_NO_ALLOC_FUNCTOR_NO_ATTR = e_CREATE_MODE_START,
+    e_NO_ALLOC_FUNCTOR_ATTR,
+    e_NO_ALLOC_NO_ATTR,
+    e_NO_ALLOC_ATTR,
+
+    e_ALLOC_FUNCTOR_NO_ATTR,
+    e_ALLOC_FUNCTOR_ATTR,
+    e_ALLOC_NO_ATTR,
+    e_ALLOC_ATTR,
+
+    e_NO_ALLOC_FUNCTOR_ATTR_NAME,
+    e_NO_ALLOC_ATTR_NAME,
+
+    e_ALLOC_FUNCTOR_ATTR_NAME,
+    e_ALLOC_ATTR_NAME,
+
+    e_NUM_CREATE_MODES
+};
+
+const char *toAscii(CreateMode cm)
+{
+#undef  CASE
+#define CASE(x)    case x:    return #x
+
+    switch (cm) {
+      CASE(e_NO_ALLOC_FUNCTOR_NO_ATTR);
+      CASE(e_NO_ALLOC_FUNCTOR_ATTR);
+      CASE(e_NO_ALLOC_NO_ATTR);
+      CASE(e_NO_ALLOC_ATTR);
+      CASE(e_ALLOC_FUNCTOR_NO_ATTR);
+      CASE(e_ALLOC_FUNCTOR_ATTR);
+      CASE(e_ALLOC_NO_ATTR);
+      CASE(e_ALLOC_ATTR);
+      CASE(e_NO_ALLOC_FUNCTOR_ATTR_NAME);
+      CASE(e_NO_ALLOC_ATTR_NAME);
+      CASE(e_ALLOC_FUNCTOR_ATTR_NAME);
+      CASE(e_ALLOC_ATTR_NAME);
+      CASE(e_NUM_CREATE_MODES);
+      default: {
+        LOOP_ASSERT(static_cast<int>(cm), 0);
+        return "";                                                    // RETURN
+      }
+   }
+
+#undef CASE
+}
+
+bsl::ostream& operator<<(bsl::ostream& stream, CreateMode cm)
+{
+    stream << toAscii(cm);
+
+    return stream;
+}
+
+class AllCreateTestFunctor {
+    // This 'class' is used in the allocator test.
+
+    enum { k_BUFFER_SIZE = 20 << 10 };
+
+    // DATA
+    char                    d_buffer[k_BUFFER_SIZE];
+    bool                    d_created;
+    u::Mutex        * const d_mutex;
+    bsls::AtomicInt * const d_numToInc;
+    bsl::string     * const d_name;
+
+  public:
+    // CREATORS
+    AllCreateTestFunctor(u::Mutex        *mutex,
+                         bsls::AtomicInt *numToInc,
+                         bsl::string     *name)
+    : d_created(true)
+    , d_mutex(mutex)
+    , d_numToInc(numToInc)
+    , d_name(name)
+    {
+        (void) d_buffer;    // suppress 'unused' warnings
+    }
+
+    // MANIPULATORS
+    void operator()()
+    {
+        ++*d_numToInc;
+        d_mutex->lock();
+        BSLS_ASSERT(d_created);
+        d_mutex->unlock();
+        ++*d_numToInc;
+
+        Obj::getThreadName(d_name);
+    }
+
+    ~AllCreateTestFunctor()
+    {
+        d_created = false;
+    }
+};
+
+extern "C"
+void *allCreateTestFunction(void *arg)
+{
+    AllCreateTestFunctor *p = static_cast<AllCreateTestFunctor *>(arg);
+    (*p)();
+
+    return p;
+}
+
+}  // close namespace BSLMT_THREADUTIL_ALL_CREATE_TEST
+
+//-----------------------------------------------------------------------------
+//                             Unnamed Namespace
+//-----------------------------------------------------------------------------
 
 namespace {
 
@@ -471,150 +583,18 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 
 namespace MULTIPRIORITY_EFFECTIVENESS_TEST_CASE {
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-
-// Platform-specific implementation starts here.
-
-// Rather than setting 'WINVER' or 'NTDDI_VERSION', just forward declare the
-// Windows 2000 functions that are used.
-
-struct _RTL_CRITICAL_SECTION;
-
-typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION, *LPCRITICAL_SECTION;
-typedef int BOOL;
-typedef unsigned long DWORD;
-
-extern "C" {
-    __declspec(dllimport) BOOL __stdcall InitializeCriticalSectionAndSpinCount(
-                                    LPCRITICAL_SECTION lpCriticalSection,
-                                    DWORD dwSpinCount);
-
-    __declspec(dllimport) void __stdcall DeleteCriticalSection(
-                                LPCRITICAL_SECTION lpCriticalSection);
-
-    __declspec(dllimport) void __stdcall EnterCriticalSection(
-                                LPCRITICAL_SECTION lpCriticalSection);
-
-    __declspec(dllimport) void __stdcall LeaveCriticalSection(
-                                LPCRITICAL_SECTION lpCriticalSection);
-
-}  // extern "C"
-
-class MyMutex {
-    // It provides an efficient proxy for Windows critical sections, and
-    // related operations.  Note that the MyMutex implemented in this class is
-    // *not* error checking, and is non-recursive.
-
-  public:
-    enum {
-        // Size of the buffer allocated for the critical section, in
-        // pointer-sized elements.  We have to make it public so we could
-        // access it in a .cpp file to verify the size.
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        // 5*8 = 40 bytes
-        k_CRITICAL_SECTION_BUFFER_SIZE = 5
-#else
-        // 6*4 = 24 bytes
-        k_CRITICAL_SECTION_BUFFER_SIZE = 6
-#endif
-    };
-
-  private:
-    enum {
-        // A Windows critical section has a configurable spin count.  A lock
-        // operation spins this many iterations (on, presumably, some atomic
-        // integer) before sleeping on the underlying primitive.
-
-        k_SPIN_COUNT = 30
-    };
-
-    // DATA
-    void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
-
-  private:
-    // NOT IMPLEMENTED
-    MyMutex(const MyMutex&);
-    MyMutex& operator=(const MyMutex&);
-
-  public:
-    // CREATORS
-    MyMutex()
-        // Create a mutex initialized to an unlocked state.
-    {
-        InitializeCriticalSectionAndSpinCount(
-          reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), k_SPIN_COUNT);
-    }
-
-    ~MyMutex()
-        // Destroy this mutex object.
-    {
-        DeleteCriticalSection(
-                             reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
-    }
-
-    // MANIPULATORS
-    void lock()
-        // Acquire a lock on this mutex object.  If this object is currently
-        // locked, then suspend execution of the current thread until a lock
-        // can be acquired.  Note that the behavior is undefined if the calling
-        // thread already owns the lock on this mutex, and will likely result
-        // in a deadlock.
-    {
-        EnterCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
-    }
-
-    void unlock()
-        // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
-        // unless the calling thread currently owns the lock on this mutex.
-    {
-        LeaveCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
-    }
-};
-
-#else
-// Unix -- pthreads
-
-class MyMutex {
-    // This class provides a full specialization of 'MyMutex' for pthreads.  It
-    // provides a efficient proxy for the 'pthread_mutex_t' pthreads type, and
-    // related operations.  Note that the mutex implemented in this class is
-    // *not* error checking, and is non-recursive.
-
-    // DATA
-    pthread_mutex_t d_lock;
-
-    // NOT IMPLEMENTED
-    MyMutex(const MyMutex&);
-    MyMutex& operator=(const MyMutex&);
-
-  public:
-    // CREATORS
-    MyMutex() { pthread_mutex_init(&d_lock, 0); }
-
-    ~MyMutex() { pthread_mutex_destroy(&d_lock); }
-
-    // MANIPULATORS
-    void lock() { pthread_mutex_lock(&d_lock); }
-
-    void unlock() { pthread_mutex_unlock(&d_lock); }
-};
-
-#endif
-
 enum { k_NUM_NOT_URGENT_THREADS = 128,
        k_NUM_THREADS            = k_NUM_NOT_URGENT_THREADS + 1,
        k_URGENT_THREAD          = k_NUM_THREADS / 2 };
 
 struct Functor {
-    bool                  d_urgent;
-    static int            s_urgentPlace;
-    static bool           s_firstThread;
+    bool                   d_urgent;
+    static int             s_urgentPlace;
+    static bool            s_firstThread;
     static bsls::AtomicInt s_lockCount;
     static bsls::AtomicInt s_finished;
     static bsls::AtomicInt s_timerCounter;
-    static MyMutex        s_mutex;
+    static u::Mutex        s_mutex;
 
     // CREATORS
     Functor() : d_urgent(false) {}
@@ -622,12 +602,12 @@ struct Functor {
     // ACCESSORS
     void operator()();
 };
-int            Functor::s_urgentPlace;
-bool           Functor::s_firstThread = 1;
+int             Functor::s_urgentPlace;
+bool            Functor::s_firstThread = 1;
 bsls::AtomicInt Functor::s_finished(0);
 bsls::AtomicInt Functor::s_lockCount(0);
 bsls::AtomicInt Functor::s_timerCounter(0);
-MyMutex        Functor::s_mutex;
+u::Mutex        Functor::s_mutex;
 
 void Functor::operator()()
 {
@@ -926,7 +906,7 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 // any effect of the different priorities in this case.
 
 extern "C"
-void *MostUrgentThreadFunctor(void* arg)
+void *MostUrgentThreadFunctor(void*)
 {
     if (verbose) {
         bsl::printf("Most urgent\n");
@@ -935,7 +915,7 @@ void *MostUrgentThreadFunctor(void* arg)
 }
 
 extern "C"
-void *FairlyUrgentThreadFunctor(void* arg)
+void *FairlyUrgentThreadFunctor(void*)
 {
     if (verbose) {
         bsl::printf("Fairly urgent\n");
@@ -944,7 +924,7 @@ void *FairlyUrgentThreadFunctor(void* arg)
 }
 
 extern "C"
-void *LeastUrgentThreadFunctor(void* arg)
+void *LeastUrgentThreadFunctor(void*)
 {
     if (verbose) {
         bsl::printf("Least urgent\n");
@@ -1011,12 +991,12 @@ void *configurationTestFunction(void *stackToUse)
 {
     BSLMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
-    func.d_stackToUse = (int) (bsls::Types::IntPtr) stackToUse;
+    func.d_stackToUse = (int) (IntPtr) stackToUse;
     func.s_success   = false;
 
     func();
 
-    ASSERT(func.d_stackToUse == (int) (bsls::Types::IntPtr) stackToUse);
+    ASSERT(func.d_stackToUse == (int) (IntPtr) stackToUse);
     ASSERT(func.s_success);
 
     return 0;
@@ -1132,7 +1112,7 @@ bsls::AtomicInt terminations1;
 bsls::AtomicInt terminations2;
 
 struct TlsKeyTestFunctor {
-    int d_seed;
+    IntPtr d_seed;
 
     // CREATOR
     explicit
@@ -1221,6 +1201,8 @@ void CreateKeyTestFunctor::operator()() const
 {
     namespace TC = BSLMT_THREADUTIL_CREATEKEY_TEST5;
 
+    const IntPtr one = 1, zero = 0;
+
     TC::childId = Obj::selfId();
 
     int rc = Obj::createKey(&TC::childKey1,
@@ -1240,10 +1222,11 @@ void CreateKeyTestFunctor::operator()() const
     ASSERT(TC::childKey2 != TC::parentKey);
     ASSERT(0 == Obj::getSpecific(TC::childKey2));
 
-    rc = Obj::setSpecific(TC::childKey2, (void *) (d_doDestructor ? 1 : 0));
+    rc = Obj::setSpecific(TC::childKey2,
+                                       (void *) (d_doDestructor ? one : zero));
     ASSERT(0 == rc);
 
-    ASSERT((void *) (d_doDestructor ? 1 : 0) ==
+    ASSERT((void *) (d_doDestructor ? one : zero) ==
                                               Obj::getSpecific(TC::childKey2));
 
     return;
@@ -1378,7 +1361,7 @@ extern "C" void *secondClearanceTest(void *vStackSize)
     growth = stackGrowthIsNegative(&c) ? -10 : 10;
 
     static int stackSize;
-    stackSize = (int) (bsls::Types::IntPtr) vStackSize;
+    stackSize = (int) (IntPtr) vStackSize;
 
     static char *pc;
     pc = &c;
@@ -1426,6 +1409,272 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 16: {
+        // --------------------------------------------------------------------
+        // ALL THREAD CREATE TEST
+        //   Ensure that all the functions that create threads work properly.
+        //
+        // Concerns:
+        //: 1 That all overloads of 'create' and 'createWithAllocator'
+        //:   successfully spawn threads, whether any 'attribute' used
+        //:   specifies a name or not.
+        //:
+        //: 2 If a name is specified on the attribute, the thread is named
+        //:   correctly (on platforms supporting thread naming).
+        //:
+        //: 3 That the return 'status' returned by 'join' is as expected.
+        //:
+        //: 4 That the global allocator is not used if a different allocator
+        //:   was passed to 'createWithAllocator' (except on Windows) and
+        //:   the default allocator was not used.
+        //
+        // Plan:
+        //: 1 Specify an enum, 'CreateMode', outlining the 1 possibilities
+        //:   of calling the 8 overloads of 'create*', with or without a name
+        //:   specified in a passed attribute object.
+        //:
+        //: 2 Iterate through all values of 'CreateMode', doing the appropriate
+        //:   'create*' call.
+        //:   1 After joining the created thread, observe that the thread
+        //:     modified a variable, proving it ran.  (C-1)
+        //:
+        //:   2 Observe the value of a string the thread assigned to from
+        //:     'bslmt::ThreadUtil::threadName()', observing that the thread
+        //:     name was as expected.  (C-2)
+        //:
+        //:   3 Observe that the value returned in the 'status' field of 'join'
+        //:     was as expected.  (C-3)
+        //:
+        //:   4 Observe that the default allocator and global allocator weren't
+        //:     used.  (C-4)
+        //
+        // Testing:
+        //   int create(Hdl *, const Inv&);
+        //   int create(Hdl *, const Attr&, const Inv&);
+        //   int create(Hdl *, Func, void *);
+        //   int create(Hdl *, const Attr&, Func, void *);
+        //   int createWithAllocator(Hdl *, const Inv&, All *);
+        //   int createWithAllocator(Hdl *, const Attr&, const Inv&, All *);
+        //   int createWithAllocator(Hdl *, Func, void *, All *);
+        //   int createWithAllocator(Hdl *, const Attr&, Func, void *, All *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "ALL THREAD CREATE TEST\n"
+                             "======================\n";
+
+        using namespace BSLMT_THREADUTIL_ALL_CREATE_TEST;
+
+        typedef bsls::Types::Int64 Int64;
+
+        bslma::TestAllocator oa;
+        bslma::TestAllocator da;
+        bslma::TestAllocator ga;
+        bslma::TestAllocator ta;
+
+        bslma::Default::setDefaultAllocator(&da);
+        bslma::Default::setGlobalAllocator(&ga);
+
+        // Only Linux and Darwin support thread names.  On Linux, the default
+        // thread name is the (truncated) task name.  On Darwin, it's the empty
+        // string.  On platforms that don't support thread names, the thread
+        // name will always have a value of the empty string.
+
+#if defined(BSLS_PLATFORM_OS_LINUX)
+        bsl::string defaultThreadName("bslmt_threadutil.t", &oa);
+                                                         // basename of process
+
+        // Crop it down to 15 chars as that is max thread name length that
+        // Linux and Darwin supports.
+
+        defaultThreadName.resize(
+                        bsl::min<bsl::size_t>(defaultThreadName.length(), 15));
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+        const bsl::string defaultThreadName;    // empty string
+#endif
+
+        u::Mutex mutex;
+        bsls::AtomicInt numToInc;
+        bsl::string threadName(&oa);
+
+        for (int ii = e_CREATE_MODE_START; ii < e_NUM_CREATE_MODES; ++ii) {
+            CreateMode cm = static_cast<CreateMode>(ii);
+            if (veryVerbose) {
+                P(cm);
+            }
+
+            bslmt::ThreadAttributes attr;
+            attr.setStackSize(10 << 10);    // smaller than the functor object
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_NO_ALLOC_ATTR_NAME:
+              case e_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_ALLOC_ATTR_NAME: {
+                attr.setThreadName("woof");
+              } break;
+              default: {
+                ; // do nothing
+              }
+            }
+
+            bslmt::ThreadUtil::Handle handle;
+            int rc;
+
+            AllCreateTestFunctor functor(&mutex, &numToInc, &threadName);
+
+            // The purpose of this mutex is so that we can block the thread
+            // and view it in the debugger to observe thread names.
+
+            mutex.lock();
+            numToInc = 0;
+            threadName = "";
+
+            const Int64 daNumAllocations = da.numAllocations();
+            const Int64 oaNumAllocations = oa.numAllocations();
+            const Int64 gaNumAllocations = ga.numAllocations();
+            const Int64 taNumAllocations = ta.numAllocations();
+
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_NO_ATTR: {
+                rc = Obj::create(&handle, functor);
+              } break;
+              case e_NO_ALLOC_FUNCTOR_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME: {
+                rc = Obj::create(&handle, attr, functor);
+              } break;
+              case e_NO_ALLOC_NO_ATTR: {
+                rc = Obj::create(&handle, &allCreateTestFunction, &functor);
+              } break;
+              case e_NO_ALLOC_ATTR:
+              case e_NO_ALLOC_ATTR_NAME: {
+                rc = Obj::create(&handle,
+                                 attr,
+                                 &allCreateTestFunction,
+                                 &functor);
+              } break;
+              case e_ALLOC_FUNCTOR_NO_ATTR: {
+                rc = Obj::createWithAllocator(&handle, functor, &ta);
+              } break;
+              case e_ALLOC_FUNCTOR_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR_NAME: {
+                rc = Obj::createWithAllocator(&handle, attr, functor, &ta);
+              } break;
+              case e_ALLOC_NO_ATTR: {
+                rc = Obj::createWithAllocator(&handle,
+                                              &allCreateTestFunction,
+                                              &functor,
+                                              &ta);
+              } break;
+              case e_ALLOC_ATTR:
+              case e_ALLOC_ATTR_NAME: {
+                rc = Obj::createWithAllocator(&handle,
+                                              attr,
+                                              &allCreateTestFunction,
+                                              &functor,
+                                              &ta);
+              } break;
+              default: {
+                ASSERT(0);
+              }
+            }
+            LOOP_ASSERT(cm, 0 == rc);
+
+            while (!rc && !numToInc) {
+                Obj::microSleep(10 * 1000);    // wait for thread
+            };
+            mutex.unlock();
+
+            void *status = 0;
+            rc = Obj::join(handle, &status);
+            LOOP_ASSERT(cm, 0 == rc);
+
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_NO_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR:
+              case e_ALLOC_FUNCTOR_NO_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_ALLOC_FUNCTOR_ATTR_NAME: {
+                LOOP_ASSERT(cm, 0 == status);
+              } break;
+              case e_NO_ALLOC_NO_ATTR:
+              case e_NO_ALLOC_ATTR:
+              case e_ALLOC_NO_ATTR:
+              case e_ALLOC_ATTR:
+              case e_NO_ALLOC_ATTR_NAME:
+              case e_ALLOC_ATTR_NAME: {
+                LOOP_ASSERT(cm, &functor == status);
+              } break;
+              default: {
+                LOOP_ASSERT(cm, 0);
+              }
+            }
+
+            LOOP_ASSERT(cm, 2 == numToInc);
+
+            switch (cm) {
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_NO_ALLOC_ATTR_NAME:
+              case e_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_ALLOC_ATTR_NAME: {
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+                LOOP2_ASSERT(cm, threadName, "woof" == threadName);
+#else
+                LOOP2_ASSERT(cm, threadName, threadName.empty());
+#endif
+              } break;
+              default: {
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+                // All platforms that support thread names.
+
+                LOOP2_ASSERT(cm, threadName, defaultThreadName == threadName);
+#else
+                // Platforms that don't support thread names.
+
+                LOOP2_ASSERT(cm, threadName, threadName.empty());
+#endif
+              }
+            }
+
+            LOOP_ASSERT(cm, 0 == da.numAllocations() - daNumAllocations);
+            LOOP_ASSERT(cm, 0 == oa.numAllocations() - oaNumAllocations);
+            switch (cm) {
+              case e_ALLOC_FUNCTOR_NO_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR:
+              case e_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_ALLOC_ATTR_NAME: {
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) || !defined(BSLS_PLATFORM_CPU_64_BIT)
+                // Note that 64 bit windows uses the global allocator for an
+                // internal map of threads, which we don't plan to fix.
+
+                LOOP_ASSERT(cm, 0 == ga.numAllocations() - gaNumAllocations);
+#endif
+                LOOP_ASSERT(cm, 0 != ta.numAllocations() - taNumAllocations);
+              } break;
+              case e_NO_ALLOC_FUNCTOR_NO_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR:
+              case e_NO_ALLOC_FUNCTOR_ATTR_NAME:
+              case e_NO_ALLOC_ATTR_NAME: {
+                LOOP_ASSERT(cm, 0 != ga.numAllocations() - gaNumAllocations);
+                LOOP_ASSERT(cm, 0 == ta.numAllocations() - taNumAllocations);
+              } break;
+              case e_ALLOC_NO_ATTR:
+              case e_ALLOC_ATTR:
+              case e_NO_ALLOC_NO_ATTR:
+              case e_NO_ALLOC_ATTR: {
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) || !defined(BSLS_PLATFORM_CPU_64_BIT)
+                // Note that 64 bit windows uses the global allocator for an
+                // internal map of threads, which we don't plan to fix.
+
+                LOOP_ASSERT(cm, 0 == ga.numAllocations() - gaNumAllocations);
+#endif
+                LOOP_ASSERT(cm, 0 == ta.numAllocations() - taNumAllocations);
+              } break;
+              default: {
+                ASSERT(0);
+              }
+            }
+        }
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // CREATE ALLOCATION TEST
@@ -1553,6 +1802,13 @@ int main(int argc, char *argv[])
                   // negative test case.
 #endif
 
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+        break;    // On Darwin, thread creation will work (which was verified
+                  // in TC 13), and 'min priority < max priority', but
+                  // priorities make no observable difference in thread
+                  // performance.
+#endif
+
         TC::priorityEffectivenessTest();
       }  break;
       case 13: {
@@ -1671,7 +1927,7 @@ int main(int argc, char *argv[])
         //
         // Note that this is a system-call wrapper, and this test is intended
         // to ensure the system call is correctly called by the
-        // 'bcem_threadutil'.  This test specifically does *not* test the
+        // 'bslmt_threadutil'.  This test specifically does *not* test the
         // accuracy of the underlying system call.  Also note that due to the
         // nature of the system call, testing values at the upper bound of the
         // valid range is not reasonable.  Test case -5, has been created and
@@ -1845,12 +2101,12 @@ int main(int argc, char *argv[])
             int rc = bslmt::ThreadUtil::create(&handles[i],
                                                attributes,
                                                functions[i], 0);
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == rc);
         }
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::join(handles[i]);
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == rc);
         }
 #endif
       }  break;
@@ -1915,10 +2171,9 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Test C function with no attributes);
         {
-            int rc = bslmt::ThreadUtil::create(
-                                    &handle,
-                                    &configurationTestFunction,
-                                    (void *) (bsls::Types::IntPtr) stackToUse);
+            int rc = bslmt::ThreadUtil::create(&handle,
+                                               &configurationTestFunction,
+                                               (void *) (IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bslmt::ThreadUtil::join(handle);
@@ -1928,11 +2183,10 @@ int main(int argc, char *argv[])
         if (verbose) Q(Test C function with default attributes object);
         {
             bslmt::ThreadAttributes attr;
-            int rc = bslmt::ThreadUtil::create(
-                                    &handle,
-                                    attr,
-                                    &configurationTestFunction,
-                                    (void *) (bsls::Types::IntPtr) stackToUse);
+            int rc = bslmt::ThreadUtil::create(&handle,
+                                               attr,
+                                               &configurationTestFunction,
+                                               (void *) (IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bslmt::ThreadUtil::join(handle);
@@ -2582,7 +2836,7 @@ int main(int argc, char *argv[])
         ASSERT(verbose);
 
 #ifdef PTHREAD_STACK_MIN
-        int stackSize = (int) PTHREAD_STACK_MIN;
+        int stackSize = (IntPtr) PTHREAD_STACK_MIN;
 #else
         int stackSize = 1 << 17;
 #endif
@@ -2596,9 +2850,9 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadUtil::Handle handle;
         int rc = bslmt::ThreadUtil::create(&handle,
-                                          attr,
-                                          &secondClearanceTest,
-                                          (void *)stackSize);
+                                           attr,
+                                           &secondClearanceTest,
+                                           (void *) (IntPtr) stackSize);
         ASSERT(0 == rc);
         rc = bslmt::ThreadUtil::join(handle);
       }  break;
@@ -2659,7 +2913,7 @@ int main(int argc, char *argv[])
         // PRIORITY EFFECTIVENESS TEST
         //
         // Concerns:
-        //: 1 The priority effectiveness test cannot be run nightly on Solairs
+        //: 1 The priority effectiveness test cannot be run nightly on Solaris
         //:   since it takes prohibitive time on that platform, so we enable
         //:   its running as a negative test case here.
         //

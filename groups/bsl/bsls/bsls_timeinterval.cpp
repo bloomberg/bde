@@ -174,14 +174,14 @@ native_std::ostream& TimeInterval::print(
         // If 'level <= 0' the value will not be indented, otherwise the
         // indentation is 'level * abs(spacesPerLevel)'.
 
-        int absSpacesPerLevel = spacesPerLevel;
+        unsigned absSpacesPerLevel = spacesPerLevel;
 
-        if (absSpacesPerLevel < 0) {
-            absSpacesPerLevel = -absSpacesPerLevel;
+        if (spacesPerLevel < 0) {
+            absSpacesPerLevel = -spacesPerLevel;
         }
 
         // Use nested loops rather than multiplication to avoid gcc warning.
-        for (int i = 0; i < absSpacesPerLevel; ++i) {
+        for (unsigned i = 0; i < absSpacesPerLevel; ++i) {
             for (int j = 0; j < level; ++j) {
                 stream << ' ';
             }

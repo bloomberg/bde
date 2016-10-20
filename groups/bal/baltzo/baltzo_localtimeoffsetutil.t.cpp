@@ -8,12 +8,6 @@
 #include <baltzo_zoneinfocache.h>         // for testing only
 #include <baltzo_zoneinfoutil.h>          // for testing only
 
-#include <ball_administration.h>
-#include <ball_defaultobserver.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bslmt_barrier.h>       // case -1
 #include <bslmt_configuration.h> // case -1
 #include <bslmt_threadutil.h>    // case -1
@@ -1034,30 +1028,21 @@ struct LogVerbosityGuard {
     // logged output for intentional errors when the test driver is run in
     // non-verbose mode.
 
-    bool d_verbose;             // verbose mode does not disable logging
-    int  d_defaultPassthrough;  // default passthrough log level
+    bool                    d_verbose;             // verbose mode does not
+                                                   // disable logging
+
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+                                                   // log level
 
     explicit LogVerbosityGuard(bool verbose = false)
         // If the optionally specified 'verbose' is 'false' disable logging
         // until this guard is destroyed.
     {
-        d_verbose = verbose;
+        d_verbose            = verbose;
+        d_defaultPassthrough = bsls::Log::severityThreshold();
+
         if (!d_verbose) {
-            d_defaultPassthrough =
-                  ball::LoggerManager::singleton().defaultPassThresholdLevel();
-
-            ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-            ball::Administration::setThresholdLevels(
-                                              "*",
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-
+            bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_FATAL);
         }
     }
 
@@ -1065,17 +1050,7 @@ struct LogVerbosityGuard {
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
-            ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::e_OFF,
-                                              d_defaultPassthrough,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-            ball::Administration::setThresholdLevels(
-                                              "*",
-                                              ball::Severity::e_OFF,
-                                              d_defaultPassthrough,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
+            bsls::Log::setSeverityThreshold(d_defaultPassthrough);
         }
     }
 };
@@ -1312,12 +1287,6 @@ int main(int argc, char *argv[])
                          sizeof(EUROPE_BERLIN_DATA)));
 
     baltzo::DefaultZoneinfoCache::setDefaultCache(&testCache);
-
-    ball::DefaultObserver            observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager&             manager =
-                  ball::LoggerManager::initSingleton(&observer, configuration);
-    (void)manager;
 
     switch (test) { case 0:
       case 7: {
@@ -2279,7 +2248,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-    ball::LoggerManager::shutDownSingleton();
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

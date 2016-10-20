@@ -50,7 +50,9 @@ extern "C" {
 # include <unistd.h>
 }  // extern "C"
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
-# define WIN32_LEAN_AND_MEAN
+# ifndef WIN32_LEAN_AND_MEAN
+#   define WIN32_LEAN_AND_MEAN
+# endif
 # include <windows.h>
 extern "C" {
 # include <fcntl.h>

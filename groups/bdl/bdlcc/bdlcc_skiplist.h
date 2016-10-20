@@ -395,7 +395,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlcc {template <class KEY, class DATA> class SkipList;
+namespace bdlcc {
+
+template <class KEY, class DATA>
+class SkipList;
 
 template <class KEY, class DATA>
 bool operator==(const SkipList<KEY, DATA>& lhs,
@@ -527,7 +530,9 @@ class SkipList_RandomLevelGenerator {
                     // local class bdlcc::SkipList_PoolUtil
                     // ====================================
 
-namespace bdlcc {class SkipList_PoolManager;
+namespace bdlcc {
+
+class SkipList_PoolManager;
 
 struct SkipList_PoolUtil {
     // This component-private utility handles the lock-free pool of list nodes.

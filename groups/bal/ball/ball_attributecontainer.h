@@ -329,9 +329,9 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
+namespace ball {
 
-
-namespace ball {class Attribute;
+class Attribute;
 
                     // ========================
                     // class AttributeContainer

@@ -7,20 +7,17 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 #include <baltzo_datafileloader.h>
 #include <baltzo_testloader.h>  // for testing only
 
-#include <ball_log.h>
-
 #include <bslmt_once.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>    // 'getenv'
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-static const char LOG_CATEGORY[] = "BALTZO.DEFAULTZONEINFOCACHE";
 
 // Potential locations of TZ Database time-zone information.
 static const char *BALTZO_DATA_LOCATIONS[] = {
@@ -81,42 +78,35 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()
 // CLASS METHODS
 const char *baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 {
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     const char *envValue = getenv("BDE_ZONEINFO_ROOT_PATH");
 
     if (0 != envValue) {
         if (!DataFileLoader::isPlausibleZoneinfoRootPath(envValue)) {
-            BALL_LOG_ERROR << "Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
-                           << "does not refer to a directory containing "
-                           << "time-zone information data ("
-                           << envValue << ")."
-                           << BALL_LOG_END;
+            BSLS_LOG_ERROR("Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
+                           "does not refer to a directory containing "
+                           "time-zone information data (%s).",
+                           envValue);
         }
         else {
-            BALL_LOG_INFO <<"Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
-                          <<"set to ' " << envValue << "'."
-                          << BALL_LOG_END;
+            BSLS_LOG_INFO("Environment variable 'BDE_ZONEINFO_ROOT_PATH' "
+                          "set to '%s'.", envValue);
         }
         return envValue;                                              // RETURN
     }
 
     for (const char **pathPtr = BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
         if (DataFileLoader::isPlausibleZoneinfoRootPath(*pathPtr)) {
-            BALL_LOG_INFO << "The environment variable "
-                          << "'BDE_ZONEINFO_ROOT_PATH' has not been set. "
-                          << "falling back on default location: "
-                          << *pathPtr
-                          << BALL_LOG_END;
+            BSLS_LOG_INFO("The environment variable "
+                          "'BDE_ZONEINFO_ROOT_PATH' has not been set. "
+                          "falling back on default location: %s", *pathPtr);
             return *pathPtr;                                          // RETURN
          }
     }
 
-    BALL_LOG_INFO
-               << "The environment variable 'BDE_ZONEINFO_ROOT_PATH' is unset "
-               << "and time-zone information files are not available in "
-               << "any default location.  Falling back on the current "
-               << "working directory of the task."
-               << BALL_LOG_END;
+    BSLS_LOG_INFO("The environment variable 'BDE_ZONEINFO_ROOT_PATH' is unset "
+                  "and time-zone information files are not available in "
+                  "any default location.  Falling back on the current "
+                  "working directory of the task.");
     return ".";
 }
 

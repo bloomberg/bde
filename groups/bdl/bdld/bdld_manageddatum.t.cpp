@@ -6,12 +6,14 @@
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_time.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <bslim_testutil.h>
 #include <bslma_default.h>
@@ -79,7 +81,8 @@ using namespace bdld;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [14] USAGE EXAMPLE
+// [14] CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -249,7 +252,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -390,6 +393,83 @@ int main(int argc, char *argv[])
     Datum::destroy(internalObj, obj.allocator());
 //..
       } break;
+      case 14: {
+        //---------------------------------------------------------------------
+        // CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+        //   A previous test case, 12, verifies the traits defined by
+        //   'ManagedDatum' are set as the component author expected.  This
+        //   (regression) test-case extends case 12 to verify that the
+        //   intended value of the traits chosen by the component author
+        //   results in reasonable expected behavior when a 'ManagedDatum' is
+        //   loaded into a container that uses those traits.
+        //
+        // Concerns:
+        //: 1 That a vector of 'bdld::ManagedDatum' objects correctly
+        //:   releases the resources of those objects when the container
+        //:   is destroyed.
+        //:
+        //: 2 That a vector of 'bdld::ManagedDatum' objects correctly
+        //:   manages resources of those objects when the underlying capacity
+        //:   is reallocated.
+        //
+        // Plan:
+        //: 1 Create a vector of 'ManagedDatum' objects using a test-allocator
+        //:   and insert a series of 'ManagedDatum' objects requiring memory
+        //:   allocation.  Observe that the 'ManagedDatum' objects use
+        //:   the test allocator (and not the default allocator), and
+        //:   that no memory is leaked upon the vector's destructor. (C-1,2)
+        //
+        // Testing:
+        //   CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+        //---------------------------------------------------------------------
+        if (verbose)
+            cout << "CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)\n"
+                 << "==================================================\n";
+
+        if (verbose)
+            cout << "\nCreate a vector of managed datum objects" << endl;
+
+        {
+            const char *DATA = "0123456789012345678901234567890123456789"
+                               "0123456789012345678901234567890123456789";
+
+            bslma::TestAllocator        testAllocator;
+            bsl::vector<Obj>            x(&testAllocator);
+            bslma::TestAllocatorMonitor dam(&defaultAllocator);
+            for (int i = 0; i < 100; ++i) {
+                bdld::Datum datum;
+                if (veryVerbose) {
+                    P(i);
+                }
+
+                {
+                    bslma::TestAllocatorMonitor tam(&testAllocator);
+                    datum = bdld::Datum::copyString(bslstl::StringRef(DATA),
+                                                    &testAllocator);
+                    ASSERT(true  == tam.isInUseUp());
+                    ASSERT(false == dam.isInUseUp());
+                }
+                {
+                    bslma::TestAllocatorMonitor tam(&testAllocator);
+
+                    Obj newElement(datum, &testAllocator);
+
+                    ASSERT(false == tam.isInUseUp());
+                    ASSERT(false == dam.isInUseUp());
+
+                    x.push_back(newElement);
+
+                    ASSERT(false == dam.isInUseUp());
+                }
+                ASSERT(false == dam.isTotalUp());
+                ASSERT(false == dam.isInUseUp());
+                ASSERT(false == dam.isMaxUp());
+            }
+            ASSERT(false == dam.isTotalUp());
+            ASSERT(false == dam.isInUseUp());
+            ASSERT(false == dam.isMaxUp());
+        }
+      } break;
       case 13: {
         //---------------------------------------------------------------------
         // TESTING FREE FUNCTION 'swap'
@@ -488,9 +568,9 @@ int main(int argc, char *argv[])
                           << "TESTING TRAITS" << endl
                           << "==============" << endl;
 
-        ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
-        ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-        ASSERT(bsl::is_trivially_copyable<Obj>::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<Obj>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<Obj>::value);
+        ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
       } break;
       case 11: {
         //---------------------------------------------------------------------
@@ -929,9 +1009,9 @@ int main(int argc, char *argv[])
             }
         };
 
-        const int NUM_DATA = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
+        const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-        for (int i = 0; i < NUM_DATA; ++i) {
+        for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
             if (veryVerbose) {
                 T_ P_(i) P(DATA[i].d_message)
@@ -1015,86 +1095,91 @@ int main(int argc, char *argv[])
             bdlt::Date udt;
             bdlt::Date udt1;
 
-            const Obj datumArray[] = {
-                Obj(),
-                Obj(Datum::createInteger(0), &ta),
-                Obj(Datum::createInteger(1), &ta),
-                Obj(Datum::createBoolean(true), &ta),
-                Obj(Datum::createBoolean(false), &ta),
-                Obj(Datum::createError(0), &ta),
-                Obj(Datum::createError(1, "some error", &ta), &ta),
-                Obj(Datum::createDate(bdlt::Date(2010, 1, 5)), &ta),
-                Obj(Datum::createDate(bdlt::Date(1, 1, 1)), &ta),
-                Obj(Datum::createTime(bdlt::Time(16, 45, 32, 12)), &ta),
-                Obj(Datum::createTime(bdlt::Time(1, 1, 1, 1)), &ta),
-                Obj(Datum::createDatetime(
-                        bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta),
-                Obj(Datum::createDatetime(
-                            bdlt::Datetime(1, 1, 1, 1, 1, 1, 1), &ta), &ta),
-                Obj(Datum::createDatetimeInterval(
-                        bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta), &ta),
-                Obj(Datum::createDatetimeInterval(
-                            bdlt::DatetimeInterval(1, 1, 1, 1, 1), &ta), &ta),
-                Obj(Datum::createInteger64(9223372036854775807LL, &ta), &ta),
-                Obj(Datum::createInteger64(1229782938247303441LL, &ta), &ta),
-                Obj(Datum::copyString("A long string", &ta), &ta),
-                Obj(Datum::copyString("A very long string", &ta), &ta),
-                Obj(Datum::copyString("abc", &ta), &ta),
-                Obj(Datum::copyString("Abc", &ta), &ta),
-                Obj(Datum::createDouble(1.0), &ta),
-                Obj(Datum::createDouble(1.2345), &ta),
-                Obj(Datum::createDouble(-1.2346), &ta),
-                Obj(Datum::createDouble(k_DBL_MIN2), &ta),
-                Obj(Datum::createDouble(k_DBL_MAX2), &ta),
-                Obj(Datum::createDouble(k_DBL_INF), &ta),
-                Obj(Datum::createDouble(k_DBL_NEGINF), &ta),
+            struct {
+                int         d_line;
+                bdld::Datum d_datum;
+            } DATA[] = {
+            { L_, Datum::createNull() },
+            { L_, Datum::createInteger(0) },
+            { L_, Datum::createInteger(1) },
+            { L_, Datum::createBoolean(true) },
+            { L_, Datum::createBoolean(false) },
+            { L_, Datum::createError(0) },
+            { L_, Datum::createError(1, "some error", &ta) },
+            { L_, Datum::createDate(bdlt::Date(2010, 1, 5)) },
+            { L_, Datum::createDate(bdlt::Date(1, 1, 1)) },
+            { L_, Datum::createTime(bdlt::Time(16, 45, 32, 12)) },
+            { L_, Datum::createTime(bdlt::Time(1, 1, 1, 1)) },
+            { L_, Datum::createDatetime(
+                bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta) },
+            { L_, Datum::createDatetime(
+                   bdlt::Datetime(1, 1, 1, 1, 1, 1, 1), &ta) },
+            { L_, Datum::createDatetimeInterval(
+                        bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta) },
+            { L_, Datum::createDatetimeInterval(
+                            bdlt::DatetimeInterval(1, 1, 1, 1, 1), &ta) },
+            { L_, Datum::createInteger64(9223372036854775807LL, &ta) },
+            { L_, Datum::createInteger64(1229782938247303441LL, &ta) },
+            { L_, Datum::copyString("A long string", &ta) },
+            { L_, Datum::copyString("A very long string", &ta) },
+            { L_, Datum::copyString("abc", &ta) },
+            { L_, Datum::copyString("Abc", &ta) },
+            { L_, Datum::createDouble(1.0) },
+            { L_, Datum::createDouble(1.2345) },
+            { L_, Datum::createDouble(-1.2346) },
+            { L_, Datum::createDouble(k_DBL_MIN2) },
+            { L_, Datum::createDouble(k_DBL_MAX2) },
+            { L_, Datum::createDouble(k_DBL_INF) },
+            { L_, Datum::createDouble(k_DBL_NEGINF) },
 
-                // This test will take care of 0.0 as -0.0 == 0.0.
+            // This test will take care of 0.0 as -0.0 == 0.0.
 
-                Obj(Datum::createDouble(k_DBL_NEGZERO), &ta),
-                Obj(Datum::createUdt(&udt, UDT_TYPE), &ta),
-                Obj(Datum::createUdt(&udt, 1), &ta),
-                Obj(Datum::createUdt(&udt1, UDT_TYPE), &ta),
+            { L_, Datum::createDouble(k_DBL_NEGZERO) },
+            { L_, Datum::createUdt(&udt, UDT_TYPE) },
+            { L_, Datum::createUdt(&udt, 1) },
+            { L_, Datum::createUdt(&udt1, UDT_TYPE) },
 
-                // Treat NaNs specially as value == value is false for NaN.
+            // Treat NaNs specially as value == value is false for NaN.
 
-                Obj(Datum::createDouble(k_DBL_QNAN2), &ta),
-                Obj(Datum::createDouble(k_DBL_SNAN), &ta),
-                Obj(createArray(&ta), &ta),
-                Obj(createEmptyArray(), &ta),
-                Obj(createMap(&ta), &ta),
-                Obj(createEmptyMap(), &ta)
+            { L_, Datum::createDouble(k_DBL_QNAN2) },
+            { L_, Datum::createDouble(k_DBL_SNAN) },
+            { L_, createArray(&ta) },
+            { L_, createEmptyArray() },
+            { L_, createMap(&ta) },
+            { L_, createEmptyMap() }
             };
-
-            const int datumArraySize = static_cast<int>(
-                                     sizeof(datumArray) / sizeof(*datumArray));
+            const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             // Comparing ManagedDatum objects.
 
-            for (int i = 0; i < datumArraySize; ++i) {
-                for (int j = 0; j < datumArraySize; ++j) {
-                    if (i == j) {
-                        if (datumArray[i]->isDouble() &&
-                                datumArray[i]->theDouble() !=
-                                    datumArray[i]->theDouble()) {
-                            // Treat NaNs specially.
-
-                            ASSERTV(i, j, datumArray[i] != datumArray[j]);
-                            ASSERTV(i, j, datumArray[j] != datumArray[i]);
-
-                        }
-                        else {
-                            ASSERTV(i, j, datumArray[i] == datumArray[j]);
-                            ASSERTV(i, j, datumArray[j] == datumArray[i]);
-                        }
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                for (bsl::size_t j = 0; j < NUM_DATA; ++j) {
+                    const int LINE_I = DATA[i].d_line;
+                    const int LINE_J = DATA[j].d_line;
+                    Obj x(DATA[i].d_datum, &ta); const Obj& X = x;
+                    Obj y(DATA[j].d_datum, &ta); const Obj& Y = y;
+                    if (i != j ||
+                        (X->isDouble() && X->theDouble() != X->theDouble())) {
+                        // Treat NaNs specially.
+                        ASSERTV(LINE_I, LINE_J, X, Y, !(X == Y));
+                        ASSERTV(LINE_I, LINE_J, X, Y, X != Y);
                     }
                     else {
-                        ASSERTV(i, j, datumArray[i] != datumArray[j]);
-                        ASSERTV(i, j, datumArray[j] != datumArray[i]);
+                        ASSERTV(LINE_I, LINE_J, X, Y, (X == Y));
+                        ASSERTV(LINE_I, LINE_J, X, Y, !(X != Y));
                     }
+                    x.release();
+                    y.release();
                 }
+            }            
+
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                // Relase the memory allocated in 'DATA'.
+
+                Datum::destroy(DATA[i].d_datum, &ta);
             }
         }
+
         if (verbose) cout << "\nTesting operators format." << endl;
         {
             typedef bool (*operatorPtr)(const Obj&, const Obj&);

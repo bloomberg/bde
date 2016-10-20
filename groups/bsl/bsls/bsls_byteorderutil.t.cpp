@@ -911,7 +911,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
-                LOOP_ASSERT(line, uSwapped == Util::swapBytes32(uValue))
+                LOOP_ASSERT(line, uSwapped == Util::swapBytes32(uValue));
                 LOOP_ASSERT(line, iSwapped == (int) Util::swapBytes32(iValue));
 
 #if 4 == BYTEORDERUTIL_SIZEOF_WCHAR_T

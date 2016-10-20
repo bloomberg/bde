@@ -453,6 +453,70 @@ void Blob::removeBuffer(int index)
     d_buffers.erase(d_buffers.begin() + index);
 }
 
+void Blob::removeBuffers(int index, int numBuffers)
+{
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(0 <= numBuffers);
+    BSLS_ASSERT(index + numBuffers <= this->numBuffers());
+
+    // As we iterate through the buffers the values of the class data members
+    // will change constantly making it difficult to iterate correctly.  Make a
+    // local copy of the variables so we can iterate through the blob and
+    // update the data members at the end.
+
+    int dataIndex          = d_dataIndex;
+    int dataLength         = d_dataLength;
+    int totalSize          = d_totalSize;
+    int preDataIndexLength = d_preDataIndexLength;
+
+    for (int i = 0; i < numBuffers; ++i) {
+        const int currIdx = index + i;
+        const int bufSize = d_buffers[currIdx].size();
+
+        totalSize -= bufSize;
+        if (currIdx < d_dataIndex) {
+            preDataIndexLength -= bufSize;
+            dataLength -= bufSize;
+            --dataIndex;
+        }
+        else if (currIdx == d_dataIndex) {
+            dataLength = preDataIndexLength;
+
+            if (preDataIndexLength != 0) {
+                BSLS_ASSERT(0 != currIdx);
+
+                preDataIndexLength -= d_buffers[currIdx - 1].size();
+            }
+
+            // In the case of an empty blob, dataIndex is 0.
+
+            if (dataLength > 0) {
+                --dataIndex;
+            }
+        }
+    }
+
+    d_buffers.erase(d_buffers.begin() + index,
+                    d_buffers.begin() + index + numBuffers);
+
+    d_dataIndex          = dataIndex;
+    d_dataLength         = dataLength;
+    d_totalSize          = totalSize;
+    d_preDataIndexLength = preDataIndexLength;
+}
+
+void Blob::removeUnusedBuffers()
+{
+    if (numDataBuffers() < numBuffers()) {
+        d_totalSize = d_dataLength > 0
+                      ? d_preDataIndexLength + d_buffers[d_dataIndex].size()
+                      : 0;
+
+        d_buffers.erase(d_buffers.begin() + numDataBuffers(),
+                        d_buffers.end());
+    }
+}
+
 void Blob::setLength(int length)
 {
     BSLS_ASSERT(0 <= length);

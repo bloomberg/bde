@@ -40,43 +40,70 @@ BSLS_IDENT("$Id: $")
 // requests.
 
 // Our default implementation assumes that a full set of C++11-conformant
-// traits are available.
+// traits are not available; some standard library implementations omit them
+// silently, with no indicator macros.
 
-#define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
+// BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
     // C++11 renamed a variety of 'has_trivial_*' traits to 'is_trivially_*'
     // to provide a more consistent naming convention for the standard traits.
     // Several standard library implementations took a while to catch up, after
-    // initially promoting their TR1 traits implementation into 'std'.
+    // initially promoting their TR1 traits implementation into 'std'.  This
+    // macro tracks whether a given library version provides these traits.
 
-#define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION 1
+// BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
     // The 'aligned_union' type was added, removed, and then restored, over the
     // evolution of C++11.  This macro tracks whether a given library version
     // provides the type.
 
-// We then detect specific platforms that may lack some elements of support,
-// and undefine the support-macro for just those cases.
+// BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
+    // This macro is defined for a version of the standard library on Windows
+    // that has very few of the standard traits.
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1600
-#  define BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
-#  undef BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-#  undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+// We then detect specific platforms that may have some elements of support,
+// and define the support macro for just those cases.  We do not redefine the
+// support macros if they are already defined, so that it is possible to define
+// them on the compiler command line to 0 or 1 regardless of platform.
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#  if BSLS_PLATFORM_CMP_VERSION == 1600
+#    ifndef   BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
+#      define BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS   1
+#    endif
+#  else
+#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
+#    endif
+#    ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
+#    endif
+#  endif
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 50000
-#  undef BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#if defined(BSLS_PLATFORM_CMP_GNU)
+#  if BSLS_PLATFORM_CMP_VERSION >= 50000
+#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
+#    endif
+#    ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
+#    endif
+#  endif
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 50000
-#  undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#  if defined(__APPLE_CC__) && __APPLE_CC__ >= 6000
+#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
+#    endif
+#    if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#      ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#        define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION     1
+#      endif
+#    endif
+#  endif
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__APPLE_CC__) \
-    && __APPLE_CC__ <= 6000
-#    undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#endif
-
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     // 20.10.4.1, primary type categories:
@@ -91,13 +118,13 @@ namespace bsl
     using native_std::is_trivial;
     using native_std::is_standard_layout;
     using native_std::is_pod;
-#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
+#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_literal_type;
 #endif
     using native_std::is_abstract;
     using native_std::is_signed;
     using native_std::is_unsigned;
-#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
+#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_constructible;
     using native_std::is_default_constructible;
     using native_std::is_move_constructible;
@@ -106,7 +133,7 @@ namespace bsl
     using native_std::is_move_assignable;
     using native_std::is_destructible;
 #endif
-#if defined(BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS)
+#if BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
     using native_std::is_trivially_constructible;
     using native_std::is_trivially_copy_constructible;
     using native_std::is_trivially_move_constructible;
@@ -114,7 +141,7 @@ namespace bsl
     using native_std::is_trivially_copy_assignable;
     using native_std::is_trivially_move_assignable;
 #endif
-#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
+#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_trivially_destructible;
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
@@ -141,12 +168,12 @@ namespace bsl
 
     // 20.10.7.6, other transformations:
     using native_std::aligned_storage;
-#if defined(BSL_TYPE_TRAITS_HAS_ALIGNED_UNION)
+#if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
     using native_std::aligned_union;
 #endif
     using native_std::decay;
     using native_std::common_type;
-#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
+#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::underlying_type;
     using native_std::result_of;
 #endif
@@ -259,7 +286,7 @@ namespace bsl
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
 
-#endif  // defined(BSL_OVERRIDES_STD)
+#endif  // BSL_OVERRIDES_STD
 
 #endif
 

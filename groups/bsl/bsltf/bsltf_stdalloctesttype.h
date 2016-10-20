@@ -86,11 +86,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocatortraits.h>
 #endif
 
-namespace BloombergLP
-{
-
-namespace bsltf
-{
+namespace BloombergLP {
+namespace bsltf {
 
                         // ======================
                         // class StdAllocTestType
