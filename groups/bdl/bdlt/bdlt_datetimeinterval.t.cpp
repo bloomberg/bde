@@ -258,11 +258,13 @@ BSLMF_ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
 // ----------------------------------------------------------------------------
 
 static int s_countingLogMessageHandlerCount = 0;
+static std::string s_lastLogMessage;
 
-static void countingLogMessageHandler(const char *, const int, const char *)
+static void countingLogMessageHandler(const char *, const int, const char *msg)
     // Increment 's_countingLogMessageHandlerCount'.
 {
     ++s_countingLogMessageHandlerCount;
+    s_lastLogMessage = msg;
 }
 
 static
@@ -564,6 +566,46 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF PROPOSED INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
+      case 40: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
+        const Obj& X = mX;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+
+        -X;
+
+        ASSERT(2 == s_countingLogMessageHandlerCount);
+      } break;
+      case 39: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN);
+        const Obj& X = mX;
+
+        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
+
+        ASSERT(0 == s_countingLogMessageHandlerCount);
+
+        X - Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 38: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
+        const Obj& X = mX;
+
+        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
+
+        ASSERT(0 == s_countingLogMessageHandlerCount);
+
+        X + Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
       case 37: {
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
 
@@ -756,12 +798,20 @@ int main(int argc, char *argv[])
             Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date() + 1);
 
             ASSERT(++EXP == s_countingLogMessageHandlerCount);
+
+            ASSERT(s_lastLogMessage ==
+                            "detected 'bdlt::DatetimeInterval' proposed range "
+                                             "violation (315538070400000 ms)");
         }
 
         {
             Obj mX(bdlt::Date() - bdlt::Date(9999, 12, 31) - 1);
 
             ASSERT(++EXP == s_countingLogMessageHandlerCount);
+
+            ASSERT(s_lastLogMessage ==
+                            "detected 'bdlt::DatetimeInterval' proposed range "
+                                            "violation (-315538070400000 ms)");
         }
 
         for (int i = 0, j = 2; i < 8; ++i, j *= 2) {

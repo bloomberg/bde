@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
+#include <bdlb_bitutil.h>
+
 #include <bslim_printer.h>
 
 #include <bslmf_assert.h>
@@ -52,8 +54,9 @@ void DatetimeInterval::logProposedRangeViolation()
         bdlb::BitUtil::uint64_t count = static_cast<bdlb::BitUtil::uint64_t>(
                                          ++s_otherProposedRangeViolationCount);
         if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_SIMPLE(
-                 "detected 'bdlt::DatetimeInterval' proposed range violation");
+            BSLS_LOG("detected 'bdlt::DatetimeInterval' "
+                                          "proposed range violation (%lld ms)",
+                     d_milliseconds);
         }
     }
 }

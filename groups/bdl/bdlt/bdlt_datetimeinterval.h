@@ -128,10 +128,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timeunitratio.h>
 #endif
 
-#ifndef INCLUDED_BDLB_BITUTIL
-#include <bdlb_bitutil.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -150,6 +146,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_LOG
 #include <bsls_log.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -184,6 +184,7 @@ class DatetimeInterval {
     // DATA
     bsls::Types::Int64 d_milliseconds;  // interval in (signed) milliseconds
 
+  private:
     // PRIVATE MANIPULATORS
     void logProposedRangeViolation();
         // Log a message indicating the type of range violation detected.
@@ -202,7 +203,7 @@ class DatetimeInterval {
     static const bsls::Types::Int64 k_MILLISECONDS_MIN =
                    -k_MILLISECONDS_MAX - TimeUnitRatio::k_MILLISECONDS_PER_DAY;
         // The minimum interval that is representable by a
-        // 'DatetimeInterval, in milliseconds'.
+        // 'DatetimeInterval', in milliseconds.
 
     static const bsls::Types::Int64 k_PROPOSED_MILLISECONDS_MAX =
                                                              315538070399999LL;
@@ -550,8 +551,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeInterval& object);
 inline
 void DatetimeInterval::verifyProposedRange()
 {
-    if (   k_PROPOSED_MILLISECONDS_MIN > d_milliseconds
-        || k_PROPOSED_MILLISECONDS_MAX < d_milliseconds) {
+    if (   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  k_PROPOSED_MILLISECONDS_MIN > d_milliseconds)
+        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                               k_PROPOSED_MILLISECONDS_MAX < d_milliseconds)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         logProposedRangeViolation();
     }
 }
