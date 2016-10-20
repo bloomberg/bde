@@ -162,10 +162,6 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
                        "violation handler at %p must not return.",
                        failureHandlerPtr);
     }
-
-#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-    std::abort();
-#endif
 }
 
                      // Standard Assertion-Failure Handlers
