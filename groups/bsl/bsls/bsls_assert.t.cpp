@@ -21,9 +21,11 @@
 #include <signal.h>
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERT_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
+// Note that a portable syntax for 'noreturn' will be available once we have
+// access to conforming C++0x compilers.
+//# define BSLS_ASSERT_NORETURN [[noreturn]]
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERT_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERT_NORETURN
