@@ -140,6 +140,18 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LOG
+#include <bsls_log.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -164,8 +176,23 @@ class DatetimeInterval {
     // millisecond resolution.  See {The Representation of a Time Interval} for
     // details.
 
+    // CLASS DATA
+    static bsls::AtomicInt64 s_maxSentinelCount;
+    static bsls::AtomicInt64 s_minSentinelCount;
+    static bsls::AtomicInt64 s_otherProposedRangeViolationCount;
+
     // DATA
     bsls::Types::Int64 d_milliseconds;  // interval in (signed) milliseconds
+
+  private:
+    // PRIVATE MANIPULATORS
+    void logProposedRangeViolation();
+        // Log a message indicating the type of range violation detected.
+
+    void verifyProposedRange();
+        // If 'k_PROPOSED_MILLISECONDS_MIN > d_milliseconds' or
+        // 'k_PROPOSED_MILLISECONDS_MAX < d_milliseconds', log a message
+        // indicating the type of range violation detected.
 
   public:
     // PUBLIC CLASS DATA
@@ -175,9 +202,20 @@ class DatetimeInterval {
 
     static const bsls::Types::Int64 k_MILLISECONDS_MIN =
                    -k_MILLISECONDS_MAX - TimeUnitRatio::k_MILLISECONDS_PER_DAY;
-        // The minimum interval that is representable by a 'DatetimeInterval,
-        // in milliseconds'.
+        // The minimum interval that is representable by a
+        // 'DatetimeInterval', in milliseconds.
 
+    static const bsls::Types::Int64 k_PROPOSED_MILLISECONDS_MAX =
+                                                             315538070399999LL;
+        // The proposed maximum interval that is representable by a
+        // 'DatetimeInterval', in milliseconds.  Note that this value should
+        // not be used outside of this component.
+
+    static const bsls::Types::Int64 k_PROPOSED_MILLISECONDS_MIN =
+                                                            -315538070399999LL;
+        // The proposed minimum interval that is representable by a
+        // 'DatetimeInterval', in milliseconds.  Note that this value should
+        // not be used outside of this component.
 
     // CLASS METHODS
 
@@ -200,9 +238,9 @@ class DatetimeInterval {
 
     explicit
     DatetimeInterval(int                days,
-                     bsls::Types::Int64 hours        = 0,
-                     bsls::Types::Int64 minutes      = 0,
-                     bsls::Types::Int64 seconds      = 0,
+                     bsls::Types::Int64 hours = 0,
+                     bsls::Types::Int64 minutes = 0,
+                     bsls::Types::Int64 seconds = 0,
                      bsls::Types::Int64 milliseconds = 0);
         // Create a time interval object having the value given by the
         // specified 'days', and the optionally specified 'hours', 'minutes',
@@ -243,9 +281,9 @@ class DatetimeInterval {
         // 32-bit integer).
 
     void setInterval(int                days,
-                     bsls::Types::Int64 hours        = 0,
-                     bsls::Types::Int64 minutes      = 0,
-                     bsls::Types::Int64 seconds      = 0,
+                     bsls::Types::Int64 hours = 0,
+                     bsls::Types::Int64 minutes = 0,
+                     bsls::Types::Int64 seconds = 0,
                      bsls::Types::Int64 milliseconds = 0);
         // Set the time interval represented by this object to the value given
         // by the specified 'days', and the optionally specified 'hours',
@@ -286,9 +324,9 @@ class DatetimeInterval {
         // not overflow a 32-bit integer).
 
     void addInterval(int                days,
-                     bsls::Types::Int64 hours        = 0,
-                     bsls::Types::Int64 minutes      = 0,
-                     bsls::Types::Int64 seconds      = 0,
+                     bsls::Types::Int64 hours = 0,
+                     bsls::Types::Int64 minutes = 0,
+                     bsls::Types::Int64 seconds = 0,
                      bsls::Types::Int64 milliseconds = 0);
         // Add to this time interval the specified number of 'days', and the
         // optionally specified number of 'hours', 'minutes', 'seconds', and
@@ -407,10 +445,10 @@ class DatetimeInterval {
         // containers.
 
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level          = 0,
+                        int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
         // Optionally specify an initial indentation 'level', whose absolute
         // value is incremented recursively for nested objects.  If 'level' is
         // specified, optionally specify 'spacesPerLevel', whose absolute value
@@ -509,6 +547,19 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeInterval& object);
                           // class DatetimeInterval
                           // ----------------------
 
+// PRIVATE MANIPULATORS
+inline
+void DatetimeInterval::verifyProposedRange()
+{
+    if (   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  k_PROPOSED_MILLISECONDS_MIN > d_milliseconds)
+        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                               k_PROPOSED_MILLISECONDS_MAX < d_milliseconds)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        logProposedRangeViolation();
+    }
+}
+
 // CLASS METHODS
 
                                   // Aspects
@@ -538,6 +589,8 @@ DatetimeInterval::DatetimeInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D)
 {
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -561,6 +614,8 @@ DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 {
     d_milliseconds += rhs.d_milliseconds;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 
@@ -571,6 +626,8 @@ inline
 DatetimeInterval& DatetimeInterval::operator-=(const DatetimeInterval& rhs)
 {
     d_milliseconds -= rhs.d_milliseconds;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -591,6 +648,8 @@ void DatetimeInterval::setInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -600,12 +659,16 @@ void DatetimeInterval::setTotalDays(int days)
 {
     d_milliseconds =
              static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
+
+    verifyProposedRange();
 }
 
 inline
 void DatetimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
     d_milliseconds = hours * TimeUnitRatio::k_MS_PER_H;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -616,6 +679,8 @@ void DatetimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds = minutes * TimeUnitRatio::k_MS_PER_M;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -625,6 +690,8 @@ void DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds = seconds * TimeUnitRatio::k_MS_PER_S;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -633,6 +700,8 @@ inline
 void DatetimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_milliseconds = milliseconds;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -651,6 +720,8 @@ void DatetimeInterval::addInterval(int                days,
            + hours   * TimeUnitRatio::k_MS_PER_H
            + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -661,6 +732,8 @@ void DatetimeInterval::addDays(int days)
     d_milliseconds +=
              static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -669,6 +742,8 @@ inline
 void DatetimeInterval::addHours(bsls::Types::Int64 hours)
 {
     d_milliseconds += hours * TimeUnitRatio::k_MS_PER_H;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -679,6 +754,8 @@ void DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
     d_milliseconds += minutes * TimeUnitRatio::k_MS_PER_M;
 
+    verifyProposedRange();
+
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
 }
@@ -687,6 +764,8 @@ inline
 void DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
     d_milliseconds += seconds * TimeUnitRatio::k_MS_PER_S;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -697,6 +776,8 @@ void
 DatetimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     d_milliseconds += milliseconds;
+
+    verifyProposedRange();
 
     BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
     BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
@@ -716,6 +797,8 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
             if (stream
              && k_MILLISECONDS_MIN <= tmp && k_MILLISECONDS_MAX >= tmp) {
                 d_milliseconds = tmp;
+
+                verifyProposedRange();
             }
             else {
                 stream.invalidate();
@@ -877,15 +960,13 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& value)
 }
 
 inline
-bool bdlt::operator==(const DatetimeInterval& lhs,
-                      const DatetimeInterval& rhs)
+bool bdlt::operator==(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
     return lhs.totalMilliseconds() == rhs.totalMilliseconds();
 }
 
 inline
-bool bdlt::operator!=(const DatetimeInterval& lhs,
-                      const DatetimeInterval& rhs)
+bool bdlt::operator!=(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
     return lhs.totalMilliseconds() != rhs.totalMilliseconds();
 }
@@ -905,15 +986,13 @@ bool bdlt::operator<=(const DatetimeInterval& lhs,
 }
 
 inline
-bool bdlt::operator> (const DatetimeInterval& lhs,
-                      const DatetimeInterval& rhs)
+bool bdlt::operator> (const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
     return lhs.totalMilliseconds() > rhs.totalMilliseconds();
 }
 
 inline
-bool bdlt::operator>=(const DatetimeInterval& lhs,
-                      const DatetimeInterval& rhs)
+bool bdlt::operator>=(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
     return lhs.totalMilliseconds() >= rhs.totalMilliseconds();
 }
@@ -942,7 +1021,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::DatetimeInterval> :
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
+#include <bdlb_bitutil.h>
+
 #include <bslim_printer.h>
 
 #include <bslmf_assert.h>
@@ -23,6 +25,41 @@ namespace bdlt {
                           // ----------------------
                           // class DatetimeInterval
                           // ----------------------
+
+// CLASS DATA
+bsls::AtomicInt64 DatetimeInterval::s_maxSentinelCount(0);
+bsls::AtomicInt64 DatetimeInterval::s_minSentinelCount(0);
+bsls::AtomicInt64 DatetimeInterval::s_otherProposedRangeViolationCount(0);
+
+// PRIVATE MANIPULATORS
+void DatetimeInterval::logProposedRangeViolation()
+{
+    if (k_MILLISECONDS_MIN == d_milliseconds) {
+        bdlb::BitUtil::uint64_t count =
+                    static_cast<bdlb::BitUtil::uint64_t>(++s_minSentinelCount);
+        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+            BSLS_LOG_SIMPLE(
+                      "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MIN'");
+        }
+    }
+    else if (k_MILLISECONDS_MAX == d_milliseconds) {
+        bdlb::BitUtil::uint64_t count =
+                    static_cast<bdlb::BitUtil::uint64_t>(++s_maxSentinelCount);
+        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+            BSLS_LOG_SIMPLE(
+                      "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MAX'");
+        }
+    }
+    else {
+        bdlb::BitUtil::uint64_t count = static_cast<bdlb::BitUtil::uint64_t>(
+                                         ++s_otherProposedRangeViolationCount);
+        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+            BSLS_LOG("detected 'bdlt::DatetimeInterval' "
+                                          "proposed range violation (%lld ms)",
+                     d_milliseconds);
+        }
+    }
+}
 
 // ACCESSORS
 
@@ -77,7 +114,7 @@ bsl::ostream& DatetimeInterval::streamOut(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
