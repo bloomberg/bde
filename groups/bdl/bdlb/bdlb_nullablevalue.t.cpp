@@ -2237,7 +2237,8 @@ void TestDriver<TEST_TYPE>::testCase23_withAllocator()
                   } break;
                   case 'b': {
                     oam.reset(&da);
-                    objPtr = new (fa) Obj(MoveUtil::move(mY), 0);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY),
+                                          (bslma::Allocator *)0);
                     objAllocatorPtr = &da;
                     othAllocatorPtr = &za;
                   } break;
@@ -3041,7 +3042,8 @@ void TestDriver<TEST_TYPE>::testCase21_withAllocator()
                   } break;
                   case 'b': {
                     oam.reset(&da);
-                    objPtr = new (fa) Obj(MoveUtil::move(mY), 0);
+                    objPtr = new (fa) Obj(MoveUtil::move(mY),
+                                          (bslma::Allocator *)0);
                     objAllocatorPtr = &da;
                     othAllocatorPtr = &za;
                   } break;
