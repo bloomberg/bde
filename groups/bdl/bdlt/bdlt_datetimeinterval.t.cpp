@@ -32,6 +32,7 @@
 #include <bsl_cstring.h>     // 'memcmp'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 #include <cmath>
 
