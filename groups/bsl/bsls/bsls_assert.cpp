@@ -136,9 +136,9 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
 {
     static AtomicOperations::AtomicTypes::Int failureReturnCount = {0};
 
-    Assert::Handler currentHandlerAddress = failureHandler();
+    Assert::Handler failureHandlerPtr = failureHandler();
 
-    currentHandlerAddress(text, file, line);
+    failureHandlerPtr(text, file, line);
 
     // The failure handler should not return.  If a returning failure handler
     // has been installed, alert the user that the program is continuing to
@@ -166,7 +166,7 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
 
         BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
                        "violation handler at %p must not return.",
-                       currentHandlerAddress);
+                       failureHandlerPtr);
     }
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
