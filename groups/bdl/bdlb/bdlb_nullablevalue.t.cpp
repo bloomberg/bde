@@ -27,6 +27,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
@@ -1790,7 +1791,7 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
     Obj& (Obj::*operatorMAg) (bslmf::MovableRef<TEST_TYPE>) = &Obj::operator=;
     (void) operatorMAg;  // quash potential compiler warning
 
-    if (verbose) printf("\nTesting move-assignment (no allocator).\n");
+    if (verbose) printf("\nTesting move-assignment (with allocator).\n");
     {
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -1891,7 +1892,7 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
 
 #if defined(BDE_BUILD_TARGET_EXC)
     if (verbose)
-        printf("\nTesting move assignment (no allocator) with exceptions.\n");
+        printf("\nTesting move assignment (w/allocator) with exceptions.\n");
     {
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC1 = SPECS[ti];
@@ -1925,6 +1926,8 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
+                    if (veryVerbose) { P(CONFIG); }
+
                     bslma::TestAllocator oa(   "object", veryVeryVeryVerbose);
                     bslma::TestAllocator za("different", veryVeryVeryVerbose);
 
@@ -1949,11 +1952,17 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
                         }
                         bslma::TestAllocator& sa = *srcAllocatorPtr;
 
+                        const bsls::Types::Int64 taLimit =
+                                                          oa.allocationLimit();
+                        oa.setAllocationLimit(-1);
+
                         bsls::ObjectBuffer<TEST_TYPE> bufferY;
                         TEST_TYPE *pY = bufferY.address();
                         Util::emplace(pY, *SPEC1, &sa);
                         bslma::DestructorGuard<TEST_TYPE> guard(pY);
                         TEST_TYPE& mY = *pY;  const TEST_TYPE& Y = mY;
+
+                        oa.setAllocationLimit(taLimit);
 
                         ASSERTV(SPEC1, SPEC2, Y == W);
 
@@ -1981,7 +1990,7 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
                         ASSERTV(mState, MoveState::e_UNKNOWN == mState
                                      || MoveState::e_MOVED   == mState);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    ASSERTV(ti == 0 || numPasses > 1);
+                    ASSERTV(0 == tj || numPasses > 1);
                 }
             }
         }
@@ -2563,7 +2572,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
     Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
     (void) operatorMAg;  // quash potential compiler warning
 
-    if (verbose) printf("\nTesting move-assignment (no allocator).\n");
+    if (verbose) printf("\nTesting move-assignment (with allocator).\n");
     {
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -2701,7 +2710,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 
 #if defined(BDE_BUILD_TARGET_EXC)
     if (verbose)
-        printf("\nTesting move assignment (no allocator) with exceptions.\n");
+        printf("\nTesting move assignment (w/allocator) with exceptions.\n");
     {
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC1 = SPECS[ti];
@@ -2778,7 +2787,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
                         ASSERTV(mState, MoveState::e_UNKNOWN == mState
                                      || MoveState::e_MOVED   == mState);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    ASSERTV(ti == 0 || numPasses > 1);
+                    ASSERTV(0 == ti || numPasses > 1);
                 }
             }
         }
