@@ -3464,11 +3464,18 @@ void u::StackTraceResolver::setFrameSymbolName(
     int rc = -1;
 
     if (d_demangle) {
+#if 0
+        // Calling the demangler with the Solaris CC compiler requires linking
+        // with '-ldemangle', which results in unresolved symbols in Robo.
+        // someday this should be redone loading the appropriate library via
+        // 'dlopen', until then, just use the mangled symbol.
+
         rc = ::cplus_demangle(frame->mangledSymbolName().c_str(),
                               buffer,
                               bufferLen);
 
         u_TRACES && 0 != rc && u_zprintf("Demangling failed, rc:%d\n", rc);
+#endif
     }
 
     frame->setSymbolName(0 == rc ? buffer
