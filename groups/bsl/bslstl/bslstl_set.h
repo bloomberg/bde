@@ -677,11 +677,12 @@ class set {
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+      private:
         // NOT IMPLEMENTED
         DataWrapper(const DataWrapper&);
         DataWrapper& operator=(const DataWrapper&);
 
-    public:
+      public:
         // CREATORS
         explicit DataWrapper(const COMPARATOR& comparator,
                              const ALLOCATOR&  basicAllocator);
@@ -689,7 +690,8 @@ class set {
             // to order keys and a copy of the specified 'basicAllocator' to
             // supply memory.
 
-        DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
+        DataWrapper(
+              BloombergLP::bslmf::MovableRef<DataWrapper> original);// IMPLICIT
             // Create a data wrapper initialized to the contents of the 'pool'
             // associated with the specified 'original' data wrapper.  The
             // comparator and allocator associated with 'original' are
@@ -816,7 +818,7 @@ class set {
         // type 'KEY' be 'copy-insertable' into this set (see {Requirements on
         // 'KEY'}).
 
-    set(BloombergLP::bslmf::MovableRef<set> original);
+    set(BloombergLP::bslmf::MovableRef<set> original);              // IMPLICIT
         // Create a set having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new set.  Use a copy of 'original.key_comp()' to order the keys
@@ -3280,11 +3282,12 @@ void set<KEY, COMPARATOR, ALLOCATOR>::swap(set& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            set thisCopy(*this, other.nodeFactory().allocator());
-            set otherCopy(other, nodeFactory().allocator());
+            set toOtherCopy(MoveUtil::move(*this),
+                            other.nodeFactory().allocator());
+            set toThisCopy(MoveUtil::move(other), nodeFactory().allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            this->quickSwapRetainAllocators(toThisCopy);
+            other.quickSwapRetainAllocators(toOtherCopy);
         }
     }
 }
@@ -3294,6 +3297,7 @@ inline
 void set<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
+
     if (d_tree.rootNode()) {
         BSLS_ASSERT_SAFE(0 < d_tree.numNodes());
         BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());
