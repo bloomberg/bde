@@ -1,6 +1,9 @@
 // bdlt_datetimeinterval.t.cpp                                        -*-C++-*-
 #include <bdlt_datetimeinterval.h>
 
+#include <bdlt_date.h>
+#include <bdlt_timeunitratio.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -11,6 +14,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -28,6 +32,7 @@
 #include <bsl_cstring.h>     // 'memcmp'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 #include <cmath>
 
@@ -250,9 +255,22 @@ BSLMF_ASSERT(k_MSECS_MIN == Obj::k_MILLISECONDS_MIN);
 
 BSLMF_ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
 
-//=============================================================================
-//                      HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+static int s_countingLogMessageHandlerCount = 0;
+static std::string s_lastLogMessage;
+
+static void countingLogMessageHandler(bsls::LogSeverity::Enum,
+                                      const char *,
+                                      const int,
+                                      const char              *msg)
+    // Increment 's_countingLogMessageHandlerCount'.
+{
+    ++s_countingLogMessageHandlerCount;
+    s_lastLogMessage = msg;
+}
 
 static
 Int64 flds2Msecs(int d, Int64 h = 0, Int64 m = 0, Int64 s = 0, Int64 ms = 0)
@@ -376,7 +394,6 @@ const AltDataRow ALT_DATA[] =
           k_DAYS_MAX - 1,          47,         0,         0,               0 },
 
     { L_,  2, k_DAYS_MAX,          23,         0,         0,               0 },
-
 
     { L_,  2,          0,          -1,         0,         0,               0 },
     { L_,  2,          0,         -24,         0,         0,               0 },
@@ -551,6 +568,288 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
+      // --------------------------------------------------------------------
+      // VERIFYING HANDLING OF PROPOSED INVALID INTERNAL REPRESENTATIONS
+      // --------------------------------------------------------------------
+      case 41: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
+        const Obj& X = mX;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+
+        -X;
+
+        ASSERT(2 == s_countingLogMessageHandlerCount);
+      } break;
+      case 40: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN);
+        const Obj& X = mX;
+
+        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
+
+        ASSERT(0 == s_countingLogMessageHandlerCount);
+
+        X - Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 39: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
+        const Obj& X = mX;
+
+        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
+
+        ASSERT(0 == s_countingLogMessageHandlerCount);
+
+        X + Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 38: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
+
+        Out out(VERSION_SELECTOR, &allocator);
+
+        out.putInt64(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
+
+        const char *const OD  = out.data();
+        const int         LOD = static_cast<int>(out.length());
+
+        In in(OD, LOD);
+
+        Obj mX;
+
+        mX.bdexStreamIn(in, 1);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 37: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addMilliseconds(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 36: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addSeconds((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_S);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 35: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addMinutes((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_M);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 34: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addHours((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_H);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 33: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addDays((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_D);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 32: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.addInterval(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN - 1);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 31: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setTotalMilliseconds(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 30: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setTotalSeconds((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_S);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 29: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setTotalMinutes((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_M);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 28: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setTotalHours((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_H);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 27: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setTotalDays((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
+                                            / bdlt::TimeUnitRatio::k_MS_PER_D);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 26: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;
+
+        mX.setInterval(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN - 1);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 25: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, -1);
+        Obj mY(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
+
+        const Obj& Y = mY;
+
+        mX -= Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 24: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX(0, 0, 0, 0, 1);
+        Obj mY(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
+
+        const Obj& Y = mY;
+
+        mX += Y;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 23: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        {
+            Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date(),
+                   23,
+                   59,
+                   59,
+                   999);
+            const Obj& X = mX;
+
+            ASSERT(Obj::k_PROPOSED_MILLISECONDS_MAX == X.totalMilliseconds());
+        }
+        {
+            Obj mX(bdlt::Date() - bdlt::Date(9999, 12, 31),
+                   -23,
+                   -59,
+                   -59,
+                   -999);
+            const Obj& X = mX;
+
+            ASSERT(Obj::k_PROPOSED_MILLISECONDS_MIN == X.totalMilliseconds());
+        }
+
+        ASSERT(0 == s_countingLogMessageHandlerCount);
+
+        int EXP = 0;
+
+        {
+            Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date() + 1);
+
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+
+            ASSERT(s_lastLogMessage ==
+                            "detected 'bdlt::DatetimeInterval' proposed range "
+                                             "violation (315538070400000 ms)");
+        }
+
+        {
+            Obj mX(bdlt::Date() - bdlt::Date(9999, 12, 31) - 1);
+
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+
+            ASSERT(s_lastLogMessage ==
+                            "detected 'bdlt::DatetimeInterval' proposed range "
+                                            "violation (-315538070400000 ms)");
+        }
+
+        for (int i = 0, j = 2; i < 8; ++i, j *= 2) {
+            for (int k = 0; k < j; ++k) {
+                Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date() + 1);
+            }
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+        }
+
+        {
+            Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MIN);
+
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+        }
+        for (int i = 0, j = 1; i < 8; ++i, j *= 2) {
+            for (int k = 0; k < j; ++k) {
+                Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MIN);
+            }
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+        }
+
+        {
+            Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MAX);
+
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+        }
+        for (int i = 1, j = 1; i < 8; ++i, j *= 2) {
+            for (int k = 0; k < j; ++k) {
+                Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MAX);
+            }
+            ASSERT(++EXP == s_countingLogMessageHandlerCount);
+        }
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -2754,9 +3053,9 @@ if (veryVerbose)
     // The last 'LOOP_ASSERT' is commented out due to a precision problem when
     // casting from 'double' to 'Int64'.  For example:
 
-    // const double T = (double)TOTAL_MSECS / (1.0 * 1000);     // if 0.999
-    // P((Int64)(((double)TOTAL_MSECS / (1.0 * 1000)) * 1000))  // prints 999
-    // P((Int64)(T * 1000))                                     // prints 998
+    // const double T = (double)TOTAL_MSECS / (1.0 * 1000); // if 0.999
+    // P((Int64)(((double)TOTAL_MSECS / (1.0 * 1000)) * 1000)) // prints 999
+    // P((Int64)(T * 1000)) // prints 998
 
             if (abs64(TOTAL_MSECS) < static_cast<Int64>(1) << 53) {
                 LOOP_ASSERT(LINE, static_cast<Int64>(DBL_SECS) ==
@@ -3520,7 +3819,8 @@ if (veryVerbose)
 
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
 
-            Obj *XPtr, *YPtr;
+            Obj *XPtr = 0;
+            Obj *YPtr = 0;
 
             switch (NARGS) {
               case 1: {
@@ -3824,7 +4124,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -3865,7 +4165,7 @@ if (veryVerbose)
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -3901,7 +4201,7 @@ if (veryVerbose)
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3947,7 +4247,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3996,15 +4296,15 @@ if (veryVerbose)
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -4099,7 +4399,7 @@ if (veryVerbose)
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt64(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4125,7 +4425,7 @@ if (veryVerbose)
             out.putInt64(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4148,7 +4448,7 @@ if (veryVerbose)
             out.putInt64(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4173,7 +4473,7 @@ if (veryVerbose)
             out.putInt64(k_MSECS_MIN - 1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4198,7 +4498,7 @@ if (veryVerbose)
             out.putInt64(k_MSECS_MAX + 1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4907,7 +5207,7 @@ if (veryVerbose)
 #define NL "\n"
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL   D   H   M   S   MS  EXP
@@ -4922,7 +5222,7 @@ if (veryVerbose)
         { L_,  0, -8,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
 
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL   D   H   M   S   MS  EXP
@@ -4946,7 +5246,7 @@ if (veryVerbose)
         { L_, -3, -8,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
 
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
         // -----------------------------------------------------------------
 
         //LINE L SPL   D   H   M   S   MS  EXP
@@ -4955,7 +5255,7 @@ if (veryVerbose)
         { L_,  2,  3, -2, -3, -9, -9, -99, "      -2_03:09:09.099"        NL },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL   D   H   M   S   MS  EXP
@@ -4966,7 +5266,7 @@ if (veryVerbose)
         { L_, -8, -8, -2, -3, -9, -9, -99, "-2_03:09:09.099"              NL },
 
         // -----------------------------------------------------------------
-        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL   D   H   M   S   MS  EXP
@@ -5370,7 +5670,6 @@ if (veryVerbose)
                   k_DAYS_MAX - 1,          47 },
 
                 { L_, k_DAYS_MAX,          23 },
-
 
                 { L_,          0,          -1 },
                 { L_,          0,         -24 },
@@ -6171,7 +6470,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
