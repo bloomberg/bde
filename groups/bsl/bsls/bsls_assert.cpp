@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
+#include <bsls_log.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
 
@@ -158,15 +159,14 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
             AtomicOperations::setInt(&failureReturnCount, 1 << 29);
         }
 
-        Log::logFormattedMessage(LogSeverity::e_FATAL,
-                                 file,
+        Log::logFormattedMessage(file,
                                  line,
                                  "BSLS_ASSERT failure: '%s'",
                                  text);
 
-        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
-                       "violation handler at %p must not return.",
-                       failureHandlerPtr);
+        BSLS_LOG("Bad 'bsls_assert' configuration: "
+                 "violation handler at %p must not return.",
+                 failureHandlerPtr);
     }
 }
 

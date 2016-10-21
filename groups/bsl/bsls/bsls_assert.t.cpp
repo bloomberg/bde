@@ -3,7 +3,6 @@
 
 #include <bsls_asserttestexception.h>
 #include <bsls_log.h>
-#include <bsls_logseverity.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -240,20 +239,17 @@ struct HandlerReturnTest {
                                          int line);
         // Increment the 's_handlerInvocationCount' counter.
 
-    static void recordingLogMessageHandler(bsls::LogSeverity::Enum  severity,
-                                           const char              *file,
+    static void recordingLogMessageHandler(const char              *file,
                                            int                      line,
                                            const char              *message);
-        // Register a test failure if the 'specfied' specified 'severity' is
-        // not fatal, and store the specified 'file', 'line' and 'message' into
-        // the corresponding fields of either 's_firstProfile' (on the first
+        // Store the specified 'file', 'line' and 'message' into the
+        // corresponding fields of either 's_firstProfile' (on the first
         // invocation of this function) or 's_secondProfile' (on the second
         // invocation of this function).  Additionally, register a test failure
         // if this function is called more than twice without an intervening
         // call to 'clear'.
 
-    static void countingLogMessageHandler(bsls::LogSeverity::Enum  severity,
-                                          const char              *file,
+    static void countingLogMessageHandler(const char              *file,
                                           int                      line,
                                           const char              *message);
         // Increment the 's_loggerInvocationCount' counter.
@@ -298,17 +294,14 @@ void HandlerReturnTest::countingViolationHandler(const char *text,
     ++s_handlerInvocationCount;
 }
 
-void HandlerReturnTest::recordingLogMessageHandler(
-                                             bsls::LogSeverity::Enum  severity,
-                                             const char              *file,
-                                             int                      line,
-                                             const char              *message)
+void HandlerReturnTest::recordingLogMessageHandler(const char *file,
+                                                   int         line,
+                                                   const char *message)
 {
-    ASSERT(bsls::LogSeverity::e_FATAL == severity);
     ASSERT(s_loggerInvocationCount < 2);
 
     if (globalVeryVeryVerbose) {
-        bsls::Log::stdoutMessageHandler(severity, file, line, message);
+        bsls::Log::stdoutMessageHandler(file, line, message);
     }
 
     if (0 == s_loggerInvocationCount) {
@@ -337,18 +330,14 @@ void HandlerReturnTest::recordingLogMessageHandler(
     ++s_loggerInvocationCount;
 }
 
-void HandlerReturnTest::countingLogMessageHandler(
-                                             bsls::LogSeverity::Enum  severity,
-                                             const char              *file,
-                                             int                      line,
-                                             const char              *message)
+void HandlerReturnTest::countingLogMessageHandler(const char *file,
+                                                  int         line,
+                                                  const char *message)
 {
-    ASSERT(bsls::LogSeverity::e_FATAL == severity);
-
     ++s_loggerInvocationCount;
 
     if (globalVeryVeryVerbose) {
-        bsls::Log::stdoutMessageHandler(severity, file, line, message);
+        bsls::Log::stdoutMessageHandler(file, line, message);
     }
 }
 
@@ -1306,8 +1295,6 @@ int main(int argc, char *argv[])
         //:  2 The log message should identify the file and line where the
         //:    failed assertion occured.
         //:
-        //:  3 The log message should be severity 'fatal'.
-        //
         // Plan:
         //:  1 In build configurations that allow handlers to return, install a
         //:    violation handler that does nothing but return, and an
