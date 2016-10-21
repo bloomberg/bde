@@ -153,8 +153,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_ASSERT_H
-#define INCLUDED_ASSERT_H
 #include <assert.h>
+#define INCLUDED_ASSERT_H
 #endif
 
                          // ==========================

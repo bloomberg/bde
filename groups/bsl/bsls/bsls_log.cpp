@@ -9,7 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_platform.h>         // 'BSLS_PLATFORM_OS_WINDOWS'
 #include <bsls_types.h>            // IntPtr
 
-#include <assert.h> // 'assert'
 #include <stdarg.h> // 'va_list', 'va_start', 'va_end', 'va_copy'
 #include <stdio.h>  // 'puts', 'snprintf', 'vsnprintf'
 #include <stdlib.h> // 'malloc', 'free'
