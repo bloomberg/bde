@@ -962,7 +962,7 @@ class TestAllocatorUtil
 template <class KEY,
           class COMP = TestComparator<KEY>,
           class ALLOC = bsl::allocator<KEY> >
-struct TestDriver {
+class TestDriver {
     // This templatized struct provide a namespace for testing the 'set'
     // container.  The parameterized 'KEY', 'COMP' and 'ALLOC' specifies the
     // value type, comparator type and allocator type respectively.  Each
@@ -970,6 +970,7 @@ struct TestDriver {
     // Every test cases should be invoked with various parameterized type to
     // fully test the container.
 
+  private:
     // TYPES
 
     // Shorthands
@@ -992,10 +993,12 @@ struct TestDriver {
     typedef TestComparatorNonConst<KEY>           NonConstComp;
         // Comparator functor with a non-const function call operator.
 
-    typedef bsltf::StdTestAllocator<KEY> StlAlloc;
-
     typedef bsl::allocator_traits<ALLOC>          AllocatorTraits;
 
+  public:
+    typedef bsltf::StdTestAllocator<KEY> StlAlloc;
+
+  private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
     // The generating functions interpret the given 'spec' in order from left
