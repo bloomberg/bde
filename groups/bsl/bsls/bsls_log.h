@@ -170,10 +170,6 @@ BSLS_IDENT("$Id: $")
 // specifiers but the expected substitutions are not present, it will lead to
 // undefined behavior.
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
 #endif
@@ -370,10 +366,6 @@ void Log::logMessage(bsls::LogSeverity::Enum  severity,
                      int                      line,
                      const char              *message)
 {
-    BSLS_ASSERT_SAFE(file);
-    BSLS_ASSERT_SAFE(line >= 0);
-    BSLS_ASSERT_SAFE(message);
-
     if (severity <= severityThreshold()) {
         (logMessageHandler())(severity, file, line, message);
     }
@@ -389,7 +381,6 @@ Log::LogMessageHandler Log::logMessageHandler()
 inline
 void Log::setLogMessageHandler(Log::LogMessageHandler handler)
 {
-    BSLS_ASSERT_SAFE(handler);
     bsls::AtomicOperations::setPtrRelease(
         &s_logMessageHandler, PointerCastUtil::cast<void *>(handler));
 }
