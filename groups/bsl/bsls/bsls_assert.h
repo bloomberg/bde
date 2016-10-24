@@ -1187,6 +1187,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -1304,8 +1308,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // A nested include guard is needed to support the test driver implementation.
-#ifndef RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
-#define RECUSRSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#ifndef RECURSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
+#define RECURSIVELY_INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN

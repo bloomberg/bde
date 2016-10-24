@@ -1,8 +1,6 @@
 // bsls_log.t.cpp                                                     -*-C++-*-
 #include <bsls_log.h>
 
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
@@ -103,14 +101,6 @@ static void aSsErT(bool b, const char *s, int i)
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -614,7 +604,7 @@ bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
     if(!d_enabled) {
         // It is too harmful to let this slide.  Even in non-assert mode, it is
         // worth checking our state.
-        BSLS_ASSERT_OPT(d_enabled);
+        ASSERT(d_enabled);
         return false;                                                 // RETURN
     }
 
@@ -674,7 +664,7 @@ bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
 // ACCESSORS
 const char *WindowsDebugMessageSink::message()
 {
-    BSLS_ASSERT(d_enabled);
+    ASSERT(d_enabled);
     return d_localBuffer;
 }
 
@@ -1006,7 +996,7 @@ OutputRedirector::OutputRedirector(Stream which)
 , d_outputSize(0)
 , d_duplicatedOriginalFd(-1)
 {
-    BSLS_ASSERT(which == STDOUT_STREAM || which == STDERR_STREAM);
+    ASSERT(which == STDOUT_STREAM || which == STDERR_STREAM);
     d_fileName[0] = '\0';
     memset(&d_originalStat, 0, sizeof(struct stat));
 }
@@ -1063,7 +1053,7 @@ void OutputRedirector::enable()
     // tests.
 
     const int originalFD = fileno(redirectedStream());
-    // These are meant to be the test driver 'ASSERT', not 'BSLS_ASSERT'
+
     ASSERT(-1 != originalFD);
     ASSERT(0 == fstat(originalFD, &d_originalStat));
 
@@ -1146,7 +1136,7 @@ void OutputRedirector::enable()
 
 bool OutputRedirector::load()
 {
-    BSLS_ASSERT(d_isRedirectingFlag);
+    ASSERT(d_isRedirectingFlag);
 
     if(ferror(redirectedStream()) != 0) {
         if (veryVerbose) {
@@ -1250,7 +1240,7 @@ bool OutputRedirector::load()
 
 void OutputRedirector::clear()
 {
-    BSLS_ASSERT(d_isRedirectingFlag);
+    ASSERT(d_isRedirectingFlag);
 
     d_outputSize = 0u;
     d_isOutputReadyFlag = false;
@@ -1261,14 +1251,14 @@ void OutputRedirector::clear()
 // ACCESSORS
 int OutputRedirector::compare(const char *expected) const
 {
-    BSLS_ASSERT(expected);
+    ASSERT(expected);
     return compare(expected, strlen(expected));
 }
 
 int
 OutputRedirector::compare(const char *expected, size_t expectedLength) const
 {
-    BSLS_ASSERT(expected || ! expectedLength);
+    ASSERT(expected || ! expectedLength);
 
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
@@ -1414,8 +1404,6 @@ void handleError(int code)
     // Log the error message associated with the specified 'code'.  The
     // behavior is undefined unless 'code' is in the range [0 .. 3].
 {
-    BSLS_ASSERT(static_cast<unsigned int>(code)
-                < sizeof(errorStrings)/sizeof(errorStrings[0]));
 //..
 //
 // In the case that we receive a valid error code, we would want to log the
@@ -1464,11 +1452,6 @@ void handleErrorFlexible(const char *file, int line, int code)
     // error.  The behavior is undefined unless 'file' is a null-terminated
     // string, 'line' is not negative, and 'code' is in the range [0 .. 3].
 {
-    BSLS_ASSERT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT(code >= 0);
-    BSLS_ASSERT(static_cast<unsigned int>(code)
-                < (sizeof(errorStringsNew)/sizeof(errorStringsNew[0])));
 //..
 // We can bypass the macros by calling the function 'bsls::Log::logMessage'
 // directly, allowing us to pass in the given file name and line number:

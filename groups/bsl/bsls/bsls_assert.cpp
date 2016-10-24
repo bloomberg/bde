@@ -5,7 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
-#include <bsls_platform.h>
+#include <bsls_log.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
 
@@ -130,10 +130,44 @@ Assert::Handler Assert::failureHandler()
 
                        // Macro Dispatcher Method
 
+#define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
+
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    failureHandler()(text, file, line);
+    static AtomicOperations::AtomicTypes::Int failureReturnCount = {0};
+
+    Assert::Handler failureHandlerPtr = failureHandler();
+
+    failureHandlerPtr(text, file, line);
+
+    // The failure handler should not return.  If a returning failure handler
+    // has been installed, alert the user that the program is continuing to
+    // run.
+
+    unsigned count = static_cast<unsigned>(
+                AtomicOperations::incrementIntNvAcqRel(&failureReturnCount));
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(IS_POWER_OF_TWO(count))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Log when 'count' is a power of 2.
+
+        if (count == (1 << 30)) {
+            // Avoid undefined behavior by resetting the counter.
+
+            AtomicOperations::setInt(&failureReturnCount, 1 << 29);
+        }
+
+        Log::logFormattedMessage(file,
+                                 line,
+                                 "BSLS_ASSERT failure: '%s'",
+                                 text);
+
+        BSLS_LOG("Bad 'bsls_assert' configuration: "
+                 "violation handler at %p must not return.",
+                 failureHandlerPtr);
+    }
 }
 
                      // Standard Assertion-Failure Handlers
@@ -195,6 +229,11 @@ void Assert::failSleep(const char *text, const char *file, int line)
 #endif
 
     }
+
+    // We will never reach this line, but it is needed to let the compiler know
+    // that this function does not return.
+
+    std::abort();
 }
 
 BSLS_ASSERT_NORETURN
