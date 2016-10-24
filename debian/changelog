@@ -1,5 +1,15 @@
-bsl-internal (3.0.6.0) unstable; urgency=low
+bsl-internal (3.0.7.0) unstable; urgency=low
 
+  * c53f53e Merge pull request #802 from abeels/bsls_assert-log-handler-return-jira-1460-release-30x
+  * be04c82 Merge pull request #804 from mgiroux/review/bump-version-to-3.0.7
+  * e183776 bump patchversion to 3.0.7
+  * 986481c Merge pull request #789 from jmendelsohn4/drqs-90203436/bdlt_datetimeinterval_instrument_range
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Mon, 24 Oct 2016 10:49:09 -0400
+
+bsl-internal (3.0.6.0) git; urgency=low
+
+  * b216abb Changelog for version 3.0.6.0
   * 76307d2 Merge pull request #778 from mgiroux/review/fix-bitset-all-drqs-90339397
   * bcfed76 Merge pull request #773 from hversche/pr/768-rebased-releases/3.0.x
   * 98a47e0 Merge pull request #771 from hrosen4/allocatortraits-declval-3.0.6-drqs-90075227
@@ -8,7 +18,7 @@ bsl-internal (3.0.6.0) unstable; urgency=low
   * 3e57b82 Merge pull request #763 from mgiroux/review/bump-version-to-3.0.6
   * b7bd685 Bump patchversion for 3.0.6
 
- -- mgiroux <mgiroux@bloomberg.net>  Fri, 7 Oct 2016 15:54:34 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 10 Oct 2016 14:56:05 -0400
 
 bsl-internal (3.0.5.0) git; urgency=low
 
