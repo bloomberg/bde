@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a minimal standard compliant allocator.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsltf::StdStatefulAllocator: standard compliant allocator managing state
 //
@@ -18,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
-//@DESCRIPTION: This component provides an allocator, 'StdStatefulAllocator',
-// that defines the minimal interface to comply with section 17.6.3.5
-// ([allocator.requirements]) of the C++11 standard, while still providing an
-// externally visible and potentially distinct state for each allocator object.
-// This type can be used to verify that constructs designed to support a
-// standard-compliant allocator access the allocator only through the
-// standard-defined interface.
+//@DESCRIPTION: This component provides an allocator,
+// 'bsltf::StdStatefulAllocator', that defines the minimal interface to comply
+// with section 17.6.3.5 ([allocator.requirements]) of the C++11 standard,
+// while still providing an externally visible and potentially distinct state
+// for each allocator object.  This type can be used to verify that constructs
+// designed to support a standard-compliant allocator access the allocator only
+// through the standard-defined interface.
 //
 // 'StdStatefulAllocator' delegates its operations to 'bslma::TestAllocator'
 // (delegate allocator) that is also the sole attribute of this class.  We
@@ -53,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // In this example we will verify that a type supports the use of a
 // STL-compliant allocator.
 //
-// First we define a simple container type intended to be used with a C++03
+// First, we define a simple container type intended to be used with a C++11
 // standard compliant allocator:
 //..
 //  template <class TYPE, class ALLOCATOR>
@@ -69,18 +67,17 @@ BSLS_IDENT("$Id: $")
 //      TYPE      *d_object_p;   // pointer to the contained object
 //
 //    public:
-//      // CONSTRUCTORS
-//      MyContainer(const TYPE& object);
+//      // CREATORS
+//      MyContainer(const TYPE& object, const ALLOCATOR& allocator);
 //          // Create an container containing the specified 'object', using the
-//          // parameterized 'ALLOCATOR' to allocate memory.
+//          // specified 'allocator' to supply memory.
 //
 //      ~MyContainer();
 //          // Destroy this container.
 //
 //      // MANIPULATORS
 //      TYPE& object();
-//
-// // Return a reference providing modifiable access to the object
+//          // Return a reference providing modifiable access to the object
 //          // contained in this container.
 //
 //      // ACCESSORS
@@ -93,17 +90,19 @@ BSLS_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  template <class TYPE, class ALLOCATOR>
-//  MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE& object)
+//  MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE&      object,
+//                                            const ALLOCATOR& allocator)
+//  : d_allocator(allocator)
 //  {
 //      d_object_p = d_allocator.allocate(1);
-//      d_allocator.construct(d_object_p, object);
+//      new (static_cast<void *>(d_object_p)) TYPE(object);
 //  }
 //
 //  template <class TYPE, class ALLOCATOR>
 //  MyContainer<TYPE, ALLOCATOR>::~MyContainer()
 //  {
-//      d_allocator.destroy(d_object_p);
-//      d_allocator.deallocate(d_object_p);
+//      d_object_p->~TYPE();
+//      d_allocator.deallocate(d_object_p, 1);
 //  }
 //
 //  // MANIPULATORS
@@ -120,16 +119,16 @@ BSLS_IDENT("$Id: $")
 //      return *d_object_p;
 //  }
 //..
-// Now, we use 'StdStatefulAllocator' to implement a simple test for
+// Now, we use 'bsltf::StdStatefulAllocator' to implement a simple test for
 // 'MyContainer' to verify it correctly uses a parameterized allocator using
-// only the C++03 standard methods:
+// only the C++11 standard methods:
 //..
-//  bslma_TestAllocator oa("object", veryVeryVeryVerbose);
-//  StdStatefulAllocatorConfigurationGuard stag(&oa);
+//  bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 //  {
-//      typedef MyContainer<int, StdStatefulAllocator<int> > Obj;
+//      typedef MyContainer<int, bsltf::StdStatefulAllocator<int> > Obj;
 //
-//      Obj mX(2); const Obj& X = mX;
+//      Obj        mX(2, bsltf::StdStatefulAllocator<int>(&oa));
+//      const Obj& X = mX;
 //      assert(sizeof(int) == oa.numBytesInUse());
 //
 //      assert(X.object() == 2);
@@ -205,8 +204,9 @@ class StdStatefulAllocator {
     // 'select_on_container_copy_construction'.
 
   private:
-    // CLASS DATA
-    bslma::TestAllocator *d_allocator_p; // the wrapped test allocator
+    // DATA
+    bslma::TestAllocator *d_allocator_p;  // the wrapped test allocator (held,
+                                          // not owned)
 
   public:
     // PUBLIC TYPES
@@ -266,10 +266,9 @@ class StdStatefulAllocator {
         // Create a 'StdStatefulAllocator' object wrapping the specified
         // 'testAllocator'.
 
-    // StdStatefulAllocator(const StdStatefulAllocator& original) = default;
-        // Create a 'StdStatefulAllocator' object.  Note that this object will
-        // compare equal to the default constructed object, because this type
-        // has no state.
+    //! StdStatefulAllocator(const StdStatefulAllocator& original) = default;
+        // Create an allocator having the same value as the specified
+        // 'original' object.
 
     template <class OTHER_TYPE>
     StdStatefulAllocator(const StdStatefulAllocator<
@@ -281,26 +280,27 @@ class StdStatefulAllocator {
         // Create a 'StdStatefulAllocator' object wrapping the same test
         // allocator as the specified 'original'.
 
-    // ~StdStatefulAllocator() = default;
+    //! ~StdStatefulAllocator() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    // StdStatefulAllocator&
-    // operator=(const StdStatefulAllocator& rhs) = default;
+    //! StdStatefulAllocator&
+    //! operator=(const StdStatefulAllocator& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
     TYPE *allocate(bslma::Allocator::size_type numElements);
         // Allocate enough (properly aligned) space for the specified
-        // 'numElements' of type 'TYPE'.
+        // 'numElements' of the (template parameter) type 'TYPE'.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>
     void construct(ELEMENT_TYPE *address, Args&&... arguments);
-        // TBD: fix comment
-        // Copy-construct a 'TYPE' object at the specified 'address'.  Do not
-        // directly allocate memory.  The behavior is undefined unless
-        // 'address' is properly aligned for 'TYPE'.
+        // Construct an object of the (template parameter) 'ELEMENT_TYPE', by
+        // forwarding the specified (variable number of) 'arguments' to the
+        // corresponding constructor of 'ELEMENT_TYPE', at the specified
+        // uninitialized memory 'address'.  The behavior is undefined unless
+        // 'address' is properly aligned for objects of 'ELEMENT_TYPE'.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -556,7 +556,7 @@ class StdStatefulAllocator {
 #endif
 
     void deallocate(TYPE *address, bslma::Allocator::size_type numElements);
-        // Return memory previously at the specified 'address' for
+        // Return memory previously allocated at the specified 'address' for
         // 'numElements' back to this allocator.  The 'numElements' argument is
         // ignored by this allocator type.  The behavior is undefined unless
         // 'address' was allocated using this allocator object and has not
@@ -564,33 +564,33 @@ class StdStatefulAllocator {
 
     template <class ELEMENT_TYPE>
     void destroy(ELEMENT_TYPE *address);
-        // Invoke the 'TYPE' destructor for the object at the specified
+        // Invoke the 'ELEMENT_TYPE' destructor for the object at the specified
         // 'address'.
 
     // ACCESSORS
-    bslma::TestAllocator *testAllocator() const;
-        // Return the address of the test allocator wrapped by this object.
-
-    StdStatefulAllocator select_on_container_copy_construction() const;
-        // Return a copy of this object if the 'bool' template parameter
-        // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy
-        // of a 'StdStatefulAllocator' object wrapping the default allocator
-        // otherwise.  The behavior is undefined unless the template parameter
-        // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, or unless a
-        // 'bslma::TestAllocator' object has been installed as the default
-        // allocator.
-
 #if !defined(BSLSTL_ALLOCATOR_TRAITS_SUPPORTS_ALL_CPP11_DEDUCTIONS)
     size_type max_size() const;
         // Return the maximum number of elements of type 'TYPE' that can be
         // allocated using this allocator in a single call to the 'allocate'
         // method.  Note that there is no guarantee that attempts at allocating
         // less elements than the value returned by 'max_size' will not throw.
-        // *** DO NOT RELY ON THE CONTINUING PRESENT OF THIS METHOD ***
-        // THIS METHOD WILL BE REMOVED ONCE 'bslstl::allocator_traits' PROPERLY
+        // *** DO NOT RELY ON THE CONTINUING PRESENT OF THIS METHOD *** THIS
+        // METHOD WILL BE REMOVED ONCE 'bslstl::allocator_traits' PROPERLY
         // DEDUCES AN IMPLEMENTATION FOR THIS FUNCTION WHEN NOT SUPPLIED BY THE
         // ALLOCATOR DIRECTLY.
 #endif
+
+    StdStatefulAllocator select_on_container_copy_construction() const;
+        // Return a copy of this object if the 'bool' template parameter
+        // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy of a
+        // 'StdStatefulAllocator' object wrapping the default allocator
+        // otherwise.  The behavior is undefined unless the template parameter
+        // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, or unless a
+        // 'bslma::TestAllocator' object has been installed as the default
+        // allocator.
+
+    bslma::TestAllocator *testAllocator() const;
+        // Return the address of the test allocator wrapped by this object.
 };
 
 // FREE OPERATORS
@@ -636,7 +636,7 @@ bool operator!=(const StdStatefulAllocator<
 
 
 // ============================================================================
-//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------------
@@ -661,7 +661,6 @@ StdStatefulAllocator(bslma::TestAllocator *testAllocator)
     BSLS_ASSERT_SAFE(testAllocator);
 }
 
-// CREATORS
 template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
@@ -1362,15 +1361,33 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
 inline
-bslma::TestAllocator *
+typename StdStatefulAllocator<
+                             TYPE,
+                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
+                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
+                             PROPAGATE_ON_CONTAINER_SWAP,
+                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::size_type
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
-testAllocator() const
+max_size() const
 {
-    return d_allocator_p;
+    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
+    // 'size_type' (copied from bslstl_allocator).
+
+    // We will calculate MAX_NUM_BYTES based on our knowledge that
+    // 'bslma::Allocator::size_type' is just an alias for 'std::size_t'.  First
+    // demonstrate that is true:
+
+    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
+                                                         std::size_t>::value));
+
+    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
+    static const std::size_t MAX_NUM_ELEMENTS =
+                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
+    return MAX_NUM_ELEMENTS;
 }
 
 template <class TYPE,
@@ -1401,40 +1418,21 @@ select_on_container_copy_construction() const
                                           bslma::Default::defaultAllocator()));
 }
 
-
 template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
 inline
-typename StdStatefulAllocator<
-                             TYPE,
-                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
-                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
-                             PROPAGATE_ON_CONTAINER_SWAP,
-                             PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::size_type
+bslma::TestAllocator *
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
-max_size() const
+testAllocator() const
 {
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type' (copied from bslstl_allocator).
-
-    // We will calculate MAX_NUM_BYTES based on our knowledge that
-    // 'bslma::Allocator::size_type' is just an alias for 'std::size_t'.  First
-    // demonstrate that is true:
-
-    BSLMF_ASSERT((bsl::is_same<BloombergLP::bslma::Allocator::size_type,
-                                                         std::size_t>::value));
-
-    static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
-    static const std::size_t MAX_NUM_ELEMENTS =
-                                     std::size_t(MAX_NUM_BYTES) / sizeof(TYPE);
-    return MAX_NUM_ELEMENTS;
+    return d_allocator_p;
 }
 
 }  // close package namespace
