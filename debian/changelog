@@ -1,11 +1,19 @@
-bsl-internal (3.0.7.0) unstable; urgency=low
+bsl-internal (3.0.7.1) unstable; urgency=low
 
+  * 462d925 Merge pull request #809 from mgiroux/review/remove-assert-from-bsls-log-drqs-91256983
+  * 2dd78e3 Merge pull request #808 from hversche/pr/805-rebased-releases/3.0.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2016 18:42:19 -0400
+
+bsl-internal (3.0.7.0) git; urgency=low
+
+  * 3d78dd5 Changelog for version 3.0.7.0
   * c53f53e Merge pull request #802 from abeels/bsls_assert-log-handler-return-jira-1460-release-30x
   * be04c82 Merge pull request #804 from mgiroux/review/bump-version-to-3.0.7
   * e183776 bump patchversion to 3.0.7
   * 986481c Merge pull request #789 from jmendelsohn4/drqs-90203436/bdlt_datetimeinterval_instrument_range
 
- -- Henry Verschell <hverschell@bloomberg.net>  Mon, 24 Oct 2016 10:49:09 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 24 Oct 2016 19:03:00 -0400
 
 bsl-internal (3.0.6.0) git; urgency=low
 
