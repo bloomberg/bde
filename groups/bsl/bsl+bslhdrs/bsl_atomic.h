@@ -62,6 +62,12 @@ namespace bsl {
     using native_std::atomic_thread_fence;
     using native_std::kill_dependency;
     using native_std::memory_order;
+    using native_std::memory_order_relaxed;
+    using native_std::memory_order_consume;
+    using native_std::memory_order_acquire;
+    using native_std::memory_order_release;
+    using native_std::memory_order_acq_rel;
+    using native_std::memory_order_seq_cst;
 
 }  // close package namespace
 
