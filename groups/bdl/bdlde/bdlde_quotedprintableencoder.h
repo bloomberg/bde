@@ -429,8 +429,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSL_QUEUE
-#include <bsl_queue.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
@@ -459,12 +463,7 @@ class QuotedPrintableEncoder {
     };
 
     enum {
-        e_DEFAULT_MAX_LINELEN = -1  // a flag to indicate that the default
-                                    // s_defaultMaxLineLength is to be used;
-                                    // this device prevents recompilation of
-                                    // the client's code even in the unlikely
-                                    // event that the s_defaultMaxLineLength
-                                    // should change
+        k_DEFAULT_MAX_LINELEN = 76  // maximum allowed by RFC 2045
     };
 
   public:
@@ -509,40 +508,44 @@ class QuotedPrintableEncoder {
                                                     // 'unsigned char' to
                                                     // equivalent class
 
-    static const int    s_defaultMaxLineLength;     // default max line length
-
     static const char  *s_lineBreakModeName[];      // names of line break mode
 
     // INSTANCE DATA
-    LineBreakMode
-            d_lineBreakMode;    // linebreak mode
+    LineBreakMode     d_lineBreakMode;  // linebreak mode
 
-    int     d_maxLineLength;    // maximum length of output line
-    int     d_outputLength;     // total number of output characters
-    int     d_lineLength;       // number of characters on the current line
+    int               d_maxLineLength;  // maximum length of output line
 
-    char   *d_equivClass_p;     // map of 'unsigned char' to input equivalence
-                                // class; dynamically allocated if the default
-                                // map is to be modified; otherwise it is
-                                // assigned; compare with static address to
-                                // know whether to delete
+    int               d_outputLength;   // total number of output characters
 
-    char    d_lastInputChar;    // stores an input space or tab if it happens
-                                // at the end of input
+    int               d_lineLength;     // number of characters on the current
+                                        //line
 
-    int     d_state;            // stores current state of this object
+    char             *d_equivClass_p;   // map of 'unsigned char' to input
+                                        // equivalence class; dynamically
+                                        // allocated if the default map is to
+                                        // be modified; otherwise it is
+                                        // assigned; compare with static
+                                        // address to know whether to delete
 
-    char    d_buffer[8];        // stack of characters to output
+    char              d_lastInputChar;  // stores an input space or tab if it
+                                        // happens at the end of input
 
-    int     d_bufferLength;     // size of the stack
+    int               d_state;          // stores current state of this object
 
-    int     d_lineStart;        // index of output character that starts the
-                                // current line
+    char              d_buffer[5];      // stack of characters to output
 
-    char    d_deffered;         // stores 0 or the deffered input character
+    int               d_bufferLength;   // size of the stack
 
-    bool    d_lastWasWS;        // stores whether last printed character was a
-                                // whitespace character
+    int               d_lineStart;      // index of output character that
+                                        // starts the current line
+
+    char              d_deffered;       // stores 0 or the deffered input
+                                        // character
+
+    bool              d_lastWasWS;      // stores whether last printed
+                                        // character was a whitespace character
+
+    bslma::Allocator *d_allocator_p;    // memory allocator (held, not owned)
 
   private:
     // PRIVATE MANIPULATORS
@@ -586,36 +589,40 @@ class QuotedPrintableEncoder {
     // CREATORS
     explicit
     QuotedPrintableEncoder(
-                          LineBreakMode lineBreakMode = e_CRLF_MODE,
-                          int           maxLineLength = e_DEFAULT_MAX_LINELEN);
+                       LineBreakMode     lineBreakMode = e_CRLF_MODE,
+                       int               maxLineLength = k_DEFAULT_MAX_LINELEN,
+                       bslma::Allocator *basicAllocator = 0);
         // Create a Quoted-Printable encoder in the initial state, configured
-        // to accept hard line breaks based on the specified 'lineBreakMode',
-        // and to insert soft line breaks when the line length exceeds the
-        // specified 'maxLineLength' (default is the recommended standard 76; 0
-        // means single-line output).  The behavior is undefined unless either
-        // 0 == 'maxLineLength' or 4 <= 'maxLineLength'.  Note that
-        // BDEDE_CRLF_MODE passes "\r\n" straight to output and converts '\n';
-        // BDEDE_LF_MODE passes '\n' and converts '\r'; BDEDE_MIXED_MODE passes
-        // both "\r\n" and '\n'.
+        // to accept hard line breaks based on the optionally specified
+        // 'lineBreakMode', and to insert soft line breaks when the line length
+        // exceeds the optionally specified 'maxLineLength' (default is the RFC
+        // 2045 maximum 76).  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // '4 <= maxLineLength <= 76'.  Note that BDEDE_CRLF_MODE passes "\r\n"
+        // straight to output and converts '\n'; BDEDE_LF_MODE passes '\n' and
+        // converts '\r'; BDEDE_MIXED_MODE passes both "\r\n" and '\n'.
 
     explicit
     QuotedPrintableEncoder(
-                         const char    *extraCharsToEncode,
-                         LineBreakMode  lineBreakMode = e_CRLF_MODE,
-                         int            maxLineLength = e_DEFAULT_MAX_LINELEN);
+                       const char       *extraCharsToEncode,
+                       LineBreakMode     lineBreakMode = e_CRLF_MODE,
+                       int               maxLineLength = k_DEFAULT_MAX_LINELEN,
+                       bslma::Allocator *basicAllocator = 0);
         // Create a Quoted-Printable encoder in the initial state, configured
         // to convert to the form "=XX" any input character matching a
         // printable or whitespace character in the specified
         // 'extraCharsToEncode' array (as opposed to the default setting of
         // passing the input character straight to output), to accept hard
-        // linebreaks based on the specified 'lineBreakMode', and to insert
-        // soft linebreaks when the line length exceeds the specified
-        // 'maxLineLength' (default is the recommended standard 76; 0 means
-        // single-line output).  The behavior is undefined unless either 0 ==
-        // 'maxLineLength' or 4 <= 'maxLineLength'.  Note that BDEDE_CRLF_MODE
-        // passes "\r\n" straight to output and converts '\n'; BDEDE_LF_MODE
-        // passes '\n' and converts '\r'; BDEDE_MIXED_MODE passes both "\r\n"
-        // and '\n'.
+        // linebreaks based on the optionally specified 'lineBreakMode', and to
+        // insert soft linebreaks when the line length exceeds the optionally
+        // specified 'maxLineLength' (default is the RFC 2045 maximum 76).
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless '4 <= 'maxLineLength <= 76'.
+        // Note that BDEDE_CRLF_MODE passes "\r\n" straight to output and
+        // converts '\n'; BDEDE_LF_MODE passes '\n' and converts '\r';
+        // BDEDE_MIXED_MODE passes both "\r\n" and '\n'.
 
     ~QuotedPrintableEncoder();
         // Destroy this object.
@@ -633,22 +640,21 @@ class QuotedPrintableEncoder {
         // pending output and 'maxNumOut' is still not reached, begin to
         // consume and encode a sequence of input characters starting at the
         // specified 'begin' position, up to but not including the specified
-        // 'end' position, writing any resulting output in the specified
-        // 'output' buffer up to the (cumulative) 'maxNumOut' limit.  If
-        // 'maxNumOut' limit is reached, no further input will be consumed.
-        // Load into the specified 'numOut' and 'numIn' the number of output
-        // bytes produced and input bytes consumed, respectively.  Return a
-        // non-negative value on success and a negative value otherwise.  A
-        // successful return status indicates the number of characters that
-        // would be output if 'endConvert' were called subsequently with no
-        // output limit.  These bytes *may* be available for output if this
-        // method is called with a sufficiently large 'maxNumOut'.  Note that
-        // calling this method after 'endConvert' has been invoked without an
-        // intervening 'reset' call will place this instance in an error state,
-        // and return an error status.  Note also that it is recommended that
-        // after all calls to 'convert' are finished, the 'endConvert' method
-        // be called to complete the encoding of any unprocessed input
-        // characters.
+        // 'end' position, writing any resulting output in the specified 'out'
+        // buffer up to the (cumulative) 'maxNumOut' limit.  If 'maxNumOut'
+        // limit is reached, no further input will be consumed.  Load into the
+        // specified 'numOut' and 'numIn' the number of output bytes produced
+        // and input bytes consumed, respectively.  Return a non-negative value
+        // on success and a negative value otherwise.  A successful return
+        // status indicates the number of characters that would be output if
+        // 'endConvert' were called subsequently with no output limit.  These
+        // bytes *may* be available for output if this method is called with a
+        // sufficiently large 'maxNumOut'.  Note that calling this method after
+        // 'endConvert' has been invoked without an intervening 'reset' call
+        // will place this instance in an error state, and return an error
+        // status.  Note also that it is recommended that after all calls to
+        // 'convert' are finished, the 'endConvert' method be called to
+        // complete the encoding of any unprocessed input characters.
 
     int endConvert(char *out, int *numOut, int maxNumOut = -1);
         // Terminate encoding for this encoder; write any retained output
@@ -785,6 +791,17 @@ int QuotedPrintableEncoder::outputLength() const
 }
 
 }  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<bdlde::QuotedPrintableEncoder> : bsl::true_type {};
+
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

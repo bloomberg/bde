@@ -1509,7 +1509,7 @@ int main(int argc, char *argv[])
         V("In CRLF_MODE and 'maxLineLength' = 0 (actually INT_MAX)");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(Obj::e_CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1519,7 +1519,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
                 LOOP_ASSERT(i, Obj::e_CRLF_MODE == obj.lineBreakMode());
-                LOOP_ASSERT(i, INT_MAX == obj.maxLineLength());
+                LOOP_ASSERT(i, 76 == obj.maxLineLength());
             }
         }
 
@@ -2784,226 +2784,226 @@ int main(int argc, char *argv[])
 //--- -- -- ------------------------------------------  -- ------------------
 
 // DEPTH 0
-{ L_,  0, 0,"",                                          0,""                },
+{ L_, 76, 0,"",                                          0,""                },
 
 // DEPTH 1
-{ L_,  0, 1,"a",                                         1,"a"               },
-{ L_,  0, 1,"A",                                         1,"A"               },
-{ L_,  0, 1,"\"",                                        1,"\""              },
-{ L_,  0, 1,"~",                                         1,"~"               },
-{ L_,  0, 1,"0",                                         1,"0"               },
-{ L_,  0, 1,"\x00",                                      3,"=00"             },
-{ L_,  0, 1,"\x1F",                                      3,"=1F"             },
-{ L_,  0, 1,"\t",                                        3,"=09"             },
-{ L_,  0, 1," ",                                         3,"=20"             },
-{ L_,  0, 1,"\r",                                        3,"=0D"             },
-{ L_,  0, 1,"\n",                                        3,"=0A"             },
-{ L_,  0, 1,"\x7F",                                      3,"=7F"             },
-{ L_,  0, 1,"\xFF",                                      3,"=FF"             },
+{ L_, 76, 1,"a",                                         1,"a"               },
+{ L_, 76, 1,"A",                                         1,"A"               },
+{ L_, 76, 1,"\"",                                        1,"\""              },
+{ L_, 76, 1,"~",                                         1,"~"               },
+{ L_, 76, 1,"0",                                         1,"0"               },
+{ L_, 76, 1,"\x00",                                      3,"=00"             },
+{ L_, 76, 1,"\x1F",                                      3,"=1F"             },
+{ L_, 76, 1,"\t",                                        3,"=09"             },
+{ L_, 76, 1," ",                                         3,"=20"             },
+{ L_, 76, 1,"\r",                                        3,"=0D"             },
+{ L_, 76, 1,"\n",                                        3,"=0A"             },
+{ L_, 76, 1,"\x7F",                                      3,"=7F"             },
+{ L_, 76, 1,"\xFF",                                      3,"=FF"             },
 
 // DEPTH 2
 // 2 of the same equivalence class (EC)
-{ L_,  0, 2,"aa",                                        2,"aa"              },
-{ L_,  0, 2,"AA",                                        2,"AA"              },
-{ L_,  0, 2,"\"\"",                                      2,"\"\""            },
-{ L_,  0, 2,"~~",                                        2,"~~"              },
-{ L_,  0, 2,"00",                                        2,"00"              },
-{ L_,  0, 2,"\x00\x00",                                  6,"=00=00"          },
-{ L_,  0, 2,"\x1F\x1F",                                  6,"=1F=1F"          },
-{ L_,  0, 2,"\t\t",                                      4,"\t=09"           },
-{ L_,  0, 2,"  ",                                        4," =20"            },
-{ L_,  0, 2,"\r\r",                                      6,"=0D=0D"          },
-{ L_,  0, 2,"\n\n",                                      6,"=0A=0A"          },
-{ L_,  0, 2,"\x7F""\x7F",                                6,"=7F=7F"          },
-{ L_,  0, 2,"\xFE""\xFE",                                6,"=FE=FE"          },
-{ L_,  0, 2,"\xFF""\xFF",                                6,"=FF=FF"          },
+{ L_, 76, 2,"aa",                                        2,"aa"              },
+{ L_, 76, 2,"AA",                                        2,"AA"              },
+{ L_, 76, 2,"\"\"",                                      2,"\"\""            },
+{ L_, 76, 2,"~~",                                        2,"~~"              },
+{ L_, 76, 2,"00",                                        2,"00"              },
+{ L_, 76, 2,"\x00\x00",                                  6,"=00=00"          },
+{ L_, 76, 2,"\x1F\x1F",                                  6,"=1F=1F"          },
+{ L_, 76, 2,"\t\t",                                      4,"\t=09"           },
+{ L_, 76, 2,"  ",                                        4," =20"            },
+{ L_, 76, 2,"\r\r",                                      6,"=0D=0D"          },
+{ L_, 76, 2,"\n\n",                                      6,"=0A=0A"          },
+{ L_, 76, 2,"\x7F""\x7F",                                6,"=7F=7F"          },
+{ L_, 76, 2,"\xFE""\xFE",                                6,"=FE=FE"          },
+{ L_, 76, 2,"\xFF""\xFF",                                6,"=FF=FF"          },
 
 // 2 of different ECs involving printable characters
-{ L_,  0, 2,"a ",                                        4,"a=20"            },
-{ L_,  0, 2," a",                                        2," a"              },
-{ L_,  0, 2,"a\r",                                       4,"a=0D"            },
-{ L_,  0, 2,"\ra",                                       4,"=0Da"            },
-{ L_,  0, 2,"a\n",                                       4,"a=0A"            },
-{ L_,  0, 2,"\na",                                       4,"=0Aa"            },
-{ L_,  0, 2,"a""\xFE",                                   4,"a=FE"            },
-{ L_,  0, 2,"\xFE""a",                                   4,"=FEa"            },
+{ L_, 76, 2,"a ",                                        4,"a=20"            },
+{ L_, 76, 2," a",                                        2," a"              },
+{ L_, 76, 2,"a\r",                                       4,"a=0D"            },
+{ L_, 76, 2,"\ra",                                       4,"=0Da"            },
+{ L_, 76, 2,"a\n",                                       4,"a=0A"            },
+{ L_, 76, 2,"\na",                                       4,"=0Aa"            },
+{ L_, 76, 2,"a""\xFE",                                   4,"a=FE"            },
+{ L_, 76, 2,"\xFE""a",                                   4,"=FEa"            },
 
 // 2 of different ECs involving whitespace
-{ L_,  0, 2," \r",                                       6,"=20=0D"          },
-{ L_,  0, 2,"\r ",                                       6,"=0D=20"          },
-{ L_,  0, 2," \n",                                       6,"=20=0A"          },
-{ L_,  0, 2,"\n ",                                       6,"=0A=20"          },
-{ L_,  0, 2," ""\xFE",                                   4," =FE"            },
-{ L_,  0, 2,"\xFE"" ",                                   6,"=FE=20"          },
+{ L_, 76, 2," \r",                                       6,"=20=0D"          },
+{ L_, 76, 2,"\r ",                                       6,"=0D=20"          },
+{ L_, 76, 2," \n",                                       6,"=20=0A"          },
+{ L_, 76, 2,"\n ",                                       6,"=0A=20"          },
+{ L_, 76, 2," ""\xFE",                                   4," =FE"            },
+{ L_, 76, 2,"\xFE"" ",                                   6,"=FE=20"          },
 
 // 2 of different ECs involving carriage return
-{ L_,  0, 2,"\r\n",                                      2,"\r\n"            },
-{ L_,  0, 2,"\n\r",                                      6,"=0A=0D"          },
-{ L_,  0, 2,"\r\xFE",                                    6,"=0D=FE"          },
-{ L_,  0, 2,"\xFE""\r",                                  6,"=FE=0D"          },
+{ L_, 76, 2,"\r\n",                                      2,"\r\n"            },
+{ L_, 76, 2,"\n\r",                                      6,"=0A=0D"          },
+{ L_, 76, 2,"\r\xFE",                                    6,"=0D=FE"          },
+{ L_, 76, 2,"\xFE""\r",                                  6,"=FE=0D"          },
 
 // 2 of different ECs involving newline
-{ L_,  0, 2,"\n""\xFE",                                  6,"=0A=FE"          },
-{ L_,  0, 2,"\xFE""\n",                                  6,"=FE=0A"          },
+{ L_, 76, 2,"\n""\xFE",                                  6,"=0A=FE"          },
+{ L_, 76, 2,"\xFE""\n",                                  6,"=FE=0A"          },
 
 // DEPTH 3
 // 3 of the same ECs - 5 combinations
-{ L_,  0, 3,"aaa",                                       3,"aaa"             },
-{ L_,  0, 3,"   ",                                       5,"  =20"           },
-{ L_,  0, 3,"\r\r\r",                                    9,"=0D=0D=0D"       },
-{ L_,  0, 3,"\n\n\n",                                    9,"=0A=0A=0A"       },
-{ L_,  0, 3,"\xFE""\xFE""\xFE",                          9,"=FE=FE=FE"       },
+{ L_, 76, 3,"aaa",                                       3,"aaa"             },
+{ L_, 76, 3,"   ",                                       5,"  =20"           },
+{ L_, 76, 3,"\r\r\r",                                    9,"=0D=0D=0D"       },
+{ L_, 76, 3,"\n\n\n",                                    9,"=0A=0A=0A"       },
+{ L_, 76, 3,"\xFE""\xFE""\xFE",                          9,"=FE=FE=FE"       },
 
 // 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
 // combinations
-{ L_,  0, 3,"aa ",                                       5,"aa=20"           },
-{ L_,  0, 3," aa",                                       3," aa"             },
-{ L_,  0, 3,"a a",                                       3,"a a"             },
-{ L_,  0, 3,"aa\r",                                      5,"aa=0D"           },
-{ L_,  0, 3,"\raa",                                      5,"=0Daa"           },
-{ L_,  0, 3,"a\ra",                                      5,"a=0Da"           },
-{ L_,  0, 3,"aa\n",                                      5,"aa=0A"           },
-{ L_,  0, 3,"\naa",                                      5,"=0Aaa"           },
-{ L_,  0, 3,"a\na",                                      5,"a=0Aa"           },
-{ L_,  0, 3,"aa""\xFE",                                  5,"aa=FE"           },
-{ L_,  0, 3,"\xFE""aa",                                  5,"=FEaa"           },
-{ L_,  0, 3,"a""\xFE""a",                                5,"a=FEa"           },
+{ L_, 76, 3,"aa ",                                       5,"aa=20"           },
+{ L_, 76, 3," aa",                                       3," aa"             },
+{ L_, 76, 3,"a a",                                       3,"a a"             },
+{ L_, 76, 3,"aa\r",                                      5,"aa=0D"           },
+{ L_, 76, 3,"\raa",                                      5,"=0Daa"           },
+{ L_, 76, 3,"a\ra",                                      5,"a=0Da"           },
+{ L_, 76, 3,"aa\n",                                      5,"aa=0A"           },
+{ L_, 76, 3,"\naa",                                      5,"=0Aaa"           },
+{ L_, 76, 3,"a\na",                                      5,"a=0Aa"           },
+{ L_, 76, 3,"aa""\xFE",                                  5,"aa=FE"           },
+{ L_, 76, 3,"\xFE""aa",                                  5,"=FEaa"           },
+{ L_, 76, 3,"a""\xFE""a",                                5,"a=FEa"           },
 
 // 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
 // combinations
-{ L_,  0, 3,"  \r",                                      7," =20=0D"         },
-{ L_,  0, 3,"\r  ",                                      7,"=0D =20"         },
-{ L_,  0, 3," \r ",                                      9,"=20=0D=20"       },
-{ L_,  0, 3,"  \n",                                      7," =20=0A"         },
-{ L_,  0, 3,"\n  ",                                      7,"=0A =20"         },
-{ L_,  0, 3," \n ",                                      9,"=20=0A=20"       },
-{ L_,  0, 3,"  ""\xFE",                                  5,"  =FE"           },
-{ L_,  0, 3,"\xFE""  ",                                  7,"=FE =20"         },
-{ L_,  0, 3," ""\xFE"" ",                                7," =FE=20"         },
+{ L_, 76, 3,"  \r",                                      7," =20=0D"         },
+{ L_, 76, 3,"\r  ",                                      7,"=0D =20"         },
+{ L_, 76, 3," \r ",                                      9,"=20=0D=20"       },
+{ L_, 76, 3,"  \n",                                      7," =20=0A"         },
+{ L_, 76, 3,"\n  ",                                      7,"=0A =20"         },
+{ L_, 76, 3," \n ",                                      9,"=20=0A=20"       },
+{ L_, 76, 3,"  ""\xFE",                                  5,"  =FE"           },
+{ L_, 76, 3,"\xFE""  ",                                  7,"=FE =20"         },
+{ L_, 76, 3," ""\xFE"" ",                                7," =FE=20"         },
 
 // 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
-{ L_,  0, 3,"\r\r\n",                                    5,"=0D\r\n"         },
-{ L_,  0, 3,"\n\r\r",                                    9,"=0A=0D=0D"       },
-{ L_,  0, 3,"\r\n\r",                                    5,"\r\n=0D"         },
-{ L_,  0, 3,"\r\r""\xFE",                                9,"=0D=0D=FE"       },
-{ L_,  0, 3,"\xFE""\r\r",                                9,"=FE=0D=0D"       },
-{ L_,  0, 3,"\r""\xFE""\r",                              9,"=0D=FE=0D"       },
+{ L_, 76, 3,"\r\r\n",                                    5,"=0D\r\n"         },
+{ L_, 76, 3,"\n\r\r",                                    9,"=0A=0D=0D"       },
+{ L_, 76, 3,"\r\n\r",                                    5,"\r\n=0D"         },
+{ L_, 76, 3,"\r\r""\xFE",                                9,"=0D=0D=FE"       },
+{ L_, 76, 3,"\xFE""\r\r",                                9,"=FE=0D=0D"       },
+{ L_, 76, 3,"\r""\xFE""\r",                              9,"=0D=FE=0D"       },
 
 // 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
-{ L_,  0, 3,"\n\n""\xFE",                                9,"=0A=0A=FE"       },
-{ L_,  0, 3,"\xFE""\n\n",                                9,"=FE=0A=0A"       },
-{ L_,  0, 3,"\n""\xFE""\n",                              9,"=0A=FE=0A"       },
+{ L_, 76, 3,"\n\n""\xFE",                                9,"=0A=0A=FE"       },
+{ L_, 76, 3,"\xFE""\n\n",                                9,"=FE=0A=0A"       },
+{ L_, 76, 3,"\n""\xFE""\n",                              9,"=0A=FE=0A"       },
 
 // 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
 // 36 combinations
-{ L_,  0, 3,"a \r",                                      7,"a=20=0D"         },
-{ L_,  0, 3,"a \n",                                      7,"a=20=0A"         },
-{ L_,  0, 3,"a ""\xFE",                                  5,"a =FE"           },
-{ L_,  0, 3,"a\r ",                                      7,"a=0D=20"         },
-{ L_,  0, 3,"a\n ",                                      7,"a=0A=20"         },
-{ L_,  0, 3,"a""\xFE"" ",                                7,"a=FE=20"         },
+{ L_, 76, 3,"a \r",                                      7,"a=20=0D"         },
+{ L_, 76, 3,"a \n",                                      7,"a=20=0A"         },
+{ L_, 76, 3,"a ""\xFE",                                  5,"a =FE"           },
+{ L_, 76, 3,"a\r ",                                      7,"a=0D=20"         },
+{ L_, 76, 3,"a\n ",                                      7,"a=0A=20"         },
+{ L_, 76, 3,"a""\xFE"" ",                                7,"a=FE=20"         },
 
-{ L_,  0, 3,"a\r\n",                                     3,"a\r\n"           },
-{ L_,  0, 3,"a\r""\xFE",                                 7,"a=0D=FE"         },
-{ L_,  0, 3,"a\n\r",                                     7,"a=0A=0D"         },
-{ L_,  0, 3,"a""\xFE""\r",                               7,"a=FE=0D"         },
+{ L_, 76, 3,"a\r\n",                                     3,"a\r\n"           },
+{ L_, 76, 3,"a\r""\xFE",                                 7,"a=0D=FE"         },
+{ L_, 76, 3,"a\n\r",                                     7,"a=0A=0D"         },
+{ L_, 76, 3,"a""\xFE""\r",                               7,"a=FE=0D"         },
 
-{ L_,  0, 3,"a\n""\xFE",                                 7,"a=0A=FE"         },
-{ L_,  0, 3,"a""\xFE""\n",                               7,"a=FE=0A"         },
+{ L_, 76, 3,"a\n""\xFE",                                 7,"a=0A=FE"         },
+{ L_, 76, 3,"a""\xFE""\n",                               7,"a=FE=0A"         },
 
-{ L_,  0, 3," a\r",                                      5," a=0D"           },
-{ L_,  0, 3," a\n",                                      5," a=0A"           },
-{ L_,  0, 3," a""\xFE",                                  5," a=FE"           },
-{ L_,  0, 3,"\ra ",                                      7,"=0Da=20"         },
-{ L_,  0, 3,"\na ",                                      7,"=0Aa=20"         },
-{ L_,  0, 3,"\xFE""a ",                                  7,"=FEa=20"         },
+{ L_, 76, 3," a\r",                                      5," a=0D"           },
+{ L_, 76, 3," a\n",                                      5," a=0A"           },
+{ L_, 76, 3," a""\xFE",                                  5," a=FE"           },
+{ L_, 76, 3,"\ra ",                                      7,"=0Da=20"         },
+{ L_, 76, 3,"\na ",                                      7,"=0Aa=20"         },
+{ L_, 76, 3,"\xFE""a ",                                  7,"=FEa=20"         },
 
-{ L_,  0, 3,"\ra\n",                                     7,"=0Da=0A"         },
-{ L_,  0, 3,"\ra""\xFE",                                 7,"=0Da=FE"         },
-{ L_,  0, 3,"\na\r",                                     7,"=0Aa=0D"         },
-{ L_,  0, 3,"\xFE""a\r",                                 7,"=FEa=0D"         },
+{ L_, 76, 3,"\ra\n",                                     7,"=0Da=0A"         },
+{ L_, 76, 3,"\ra""\xFE",                                 7,"=0Da=FE"         },
+{ L_, 76, 3,"\na\r",                                     7,"=0Aa=0D"         },
+{ L_, 76, 3,"\xFE""a\r",                                 7,"=FEa=0D"         },
 
-{ L_,  0, 3,"\na""\xFE",                                 7,"=0Aa=FE"         },
-{ L_,  0, 3,"\xFE""a\n",                                 7,"=FEa=0A"         },
+{ L_, 76, 3,"\na""\xFE",                                 7,"=0Aa=FE"         },
+{ L_, 76, 3,"\xFE""a\n",                                 7,"=FEa=0A"         },
 
-{ L_,  0, 3," \ra",                                      7,"=20=0Da"         },
-{ L_,  0, 3," \na",                                      7,"=20=0Aa"         },
-{ L_,  0, 3," \xFE""a",                                  5," =FEa"           },
-{ L_,  0, 3," \ra",                                      7,"=20=0Da"         },
-{ L_,  0, 3," \na",                                      7,"=20=0Aa"         },
-{ L_,  0, 3," \xFE""a",                                  5," =FEa"           },
+{ L_, 76, 3," \ra",                                      7,"=20=0Da"         },
+{ L_, 76, 3," \na",                                      7,"=20=0Aa"         },
+{ L_, 76, 3," \xFE""a",                                  5," =FEa"           },
+{ L_, 76, 3," \ra",                                      7,"=20=0Da"         },
+{ L_, 76, 3," \na",                                      7,"=20=0Aa"         },
+{ L_, 76, 3," \xFE""a",                                  5," =FEa"           },
 
-{ L_,  0, 3,"\r\na",                                     3,"\r\na"           },
-{ L_,  0, 3,"\r""\xFE""a",                               7,"=0D=FEa"         },
-{ L_,  0, 3,"\n\ra",                                     7,"=0A=0Da"         },
-{ L_,  0, 3,"\xFE""\ra",                                 7,"=FE=0Da"         },
+{ L_, 76, 3,"\r\na",                                     3,"\r\na"           },
+{ L_, 76, 3,"\r""\xFE""a",                               7,"=0D=FEa"         },
+{ L_, 76, 3,"\n\ra",                                     7,"=0A=0Da"         },
+{ L_, 76, 3,"\xFE""\ra",                                 7,"=FE=0Da"         },
 
-{ L_,  0, 3,"\n""\xFE""a",                               7,"=0A=FEa"         },
-{ L_,  0, 3,"\xFE""\na",                                 7,"=FE=0Aa"         },
+{ L_, 76, 3,"\n""\xFE""a",                               7,"=0A=FEa"         },
+{ L_, 76, 3,"\xFE""\na",                                 7,"=FE=0Aa"         },
 
 // 3 of different ECs involving no 2 of a kind, only 1 whitespace and no
 // printable - 3 * 3 * 2 = 18 combinations
-{ L_,  0, 3," \r\n",                                     5,"=20\r\n"         },
-{ L_,  0, 3," \r""\xFE",                                 9,"=20=0D=FE"       },
-{ L_,  0, 3," \n\r",                                     9,"=20=0A=0D"       },
-{ L_,  0, 3," \xFE""\r",                                 7," =FE=0D"         },
+{ L_, 76, 3," \r\n",                                     5,"=20\r\n"         },
+{ L_, 76, 3," \r""\xFE",                                 9,"=20=0D=FE"       },
+{ L_, 76, 3," \n\r",                                     9,"=20=0A=0D"       },
+{ L_, 76, 3," \xFE""\r",                                 7," =FE=0D"         },
 
-{ L_,  0, 3," \n\xFE",                                   9,"=20=0A=FE"       },
-{ L_,  0, 3," \xFE\n",                                   7," =FE=0A"         },
+{ L_, 76, 3," \n\xFE",                                   9,"=20=0A=FE"       },
+{ L_, 76, 3," \xFE\n",                                   7," =FE=0A"         },
 
-{ L_,  0, 3,"\r \n",                                     9,"=0D=20=0A"       },
-{ L_,  0, 3,"\r ""\xFE",                                 7,"=0D =FE"         },
-{ L_,  0, 3,"\n \r",                                     9,"=0A=20=0D"       },
-{ L_,  0, 3,"\xFE"" \r",                                 9,"=FE=20=0D"       },
+{ L_, 76, 3,"\r \n",                                     9,"=0D=20=0A"       },
+{ L_, 76, 3,"\r ""\xFE",                                 7,"=0D =FE"         },
+{ L_, 76, 3,"\n \r",                                     9,"=0A=20=0D"       },
+{ L_, 76, 3,"\xFE"" \r",                                 9,"=FE=20=0D"       },
 
-{ L_,  0, 3,"\n ""\xFE",                                 7,"=0A =FE"         },
-{ L_,  0, 3,"\xFE"" \n",                                 9,"=FE=20=0A"       },
+{ L_, 76, 3,"\n ""\xFE",                                 7,"=0A =FE"         },
+{ L_, 76, 3,"\xFE"" \n",                                 9,"=FE=20=0A"       },
 
-{ L_,  0, 3,"\r\n ",                                     5,"\r\n=20"         },
-{ L_,  0, 3,"\r""\xFE ",                                 9,"=0D=FE=20"       },
-{ L_,  0, 3,"\n\r ",                                     9,"=0A=0D=20"       },
-{ L_,  0, 3,"\xFE""\r ",                                 9,"=FE=0D=20"       },
+{ L_, 76, 3,"\r\n ",                                     5,"\r\n=20"         },
+{ L_, 76, 3,"\r""\xFE ",                                 9,"=0D=FE=20"       },
+{ L_, 76, 3,"\n\r ",                                     9,"=0A=0D=20"       },
+{ L_, 76, 3,"\xFE""\r ",                                 9,"=FE=0D=20"       },
 
-{ L_,  0, 3,"\n""\xFE ",                                 9,"=0A=FE=20"       },
-{ L_,  0, 3,"\xFE""\n ",                                 9,"=FE=0A=20"       },
+{ L_, 76, 3,"\n""\xFE ",                                 9,"=0A=FE=20"       },
+{ L_, 76, 3,"\xFE""\n ",                                 9,"=FE=0A=20"       },
 
 // 3 of different ECs involving no 2 of a kind, only 1 carriage return and no
 // printable or whitespace - 3 * 2 * 1 = 6 combinations
-{ L_,  0, 3,"\r\n""\xFE",                                5,"\r\n=FE"         },
-{ L_,  0, 3,"\r""\xFE""\n",                              9,"=0D=FE=0A"       },
+{ L_, 76, 3,"\r\n""\xFE",                                5,"\r\n=FE"         },
+{ L_, 76, 3,"\r""\xFE""\n",                              9,"=0D=FE=0A"       },
 
-{ L_,  0, 3,"\n\r""\xFE",                                9,"=0A=0D=FE"       },
-{ L_,  0, 3,"\xFE""\r\n",                                5,"=FE\r\n"         },
+{ L_, 76, 3,"\n\r""\xFE",                                9,"=0A=0D=FE"       },
+{ L_, 76, 3,"\xFE""\r\n",                                5,"=FE\r\n"         },
 
-{ L_,  0, 3,"\n""\xFE""\r",                              9,"=0A=FE=0D"       },
-{ L_,  0, 3,"\xFE""\n\r",                                9,"=FE=0A=0D"       },
+{ L_, 76, 3,"\n""\xFE""\r",                              9,"=0A=FE=0D"       },
+{ L_, 76, 3,"\xFE""\n\r",                                9,"=FE=0A=0D"       },
 
 // DEPTH 4
 // 4 of the same ECs - 5 combinations
-{ L_,  0, 4,"aaaa",                                      4,"aaaa"            },
-{ L_,  0, 4,"    ",                                      6,"   =20"          },
-{ L_,  0, 4,"\r\r\r\r",                                 12,"=0D=0D=0D=0D"    },
-{ L_,  0, 4,"\n\n\n\n",                                 12,"=0A=0A=0A=0A"    },
-{ L_,  0, 4,"\xFE""\xFE""\xFE""\xFE",                   12,"=FE=FE=FE=FE"    },
+{ L_, 76, 4,"aaaa",                                      4,"aaaa"            },
+{ L_, 76, 4,"    ",                                      6,"   =20"          },
+{ L_, 76, 4,"\r\r\r\r",                                 12,"=0D=0D=0D=0D"    },
+{ L_, 76, 4,"\n\n\n\n",                                 12,"=0A=0A=0A=0A"    },
+{ L_, 76, 4,"\xFE""\xFE""\xFE""\xFE",                   12,"=FE=FE=FE=FE"    },
 
 // Only consider the interesting cases.
-{ L_,  0, 4,"   a",                                      4,"   a"            },
-{ L_,  0, 4,"  a ",                                      6,"  a=20"          },
-{ L_,  0, 4," a  ",                                      6," a =20"          },
-{ L_,  0, 4,"a   ",                                      6,"a  =20"          },
+{ L_, 76, 4,"   a",                                      4,"   a"            },
+{ L_, 76, 4,"  a ",                                      6,"  a=20"          },
+{ L_, 76, 4," a  ",                                      6," a =20"          },
+{ L_, 76, 4,"a   ",                                      6,"a  =20"          },
 
-{ L_,  0, 4,"\r\n\r\n",                                  4,"\r\n\r\n"        },
-{ L_,  0, 4,"\r\naa",                                    4,"\r\naa"          },
-{ L_,  0, 4,"a\r\na",                                    4,"a\r\na"          },
-{ L_,  0, 4,"aa\r\n",                                    4,"aa\r\n"          },
-{ L_,  0, 4,"\ra\na",                                    8,"=0Da=0Aa"        },
+{ L_, 76, 4,"\r\n\r\n",                                  4,"\r\n\r\n"        },
+{ L_, 76, 4,"\r\naa",                                    4,"\r\naa"          },
+{ L_, 76, 4,"a\r\na",                                    4,"a\r\na"          },
+{ L_, 76, 4,"aa\r\n",                                    4,"aa\r\n"          },
+{ L_, 76, 4,"\ra\na",                                    8,"=0Da=0Aa"        },
 
     // *** DEPTH-ORDERED ENUMERATION: Depth = inputLength + maxLineLength ***
 
 //    v----------INPUT-----------v  v-----------------OUTPUT---------------v
 //lin LL #i input data              #o output data
 //--- -- -- ----------------------  -- -------------------------------------
-{ L_,  0, 0,"",                      0,""                                    },
+{ L_, 76, 0,"",                      0,""                                    },
 
 // Note that LL must be >= 4 or LL == 0.
 //
@@ -3013,17 +3013,17 @@ int main(int argc, char *argv[])
 //
 
 // DEPTH 1
-{ L_,  0, 1,"a",                     1,"a"                                   },
+{ L_, 76, 1,"a",                     1,"a"                                   },
 
 // DEPTH 2
-{ L_,  0, 2,"aa",                    2,"aa"                                  },
+{ L_, 76, 2,"aa",                    2,"aa"                                  },
 
 // DEPTH 3
-{ L_,  0, 3,"aaa",                   3,"aaa"                                 },
+{ L_, 76, 3,"aaa",                   3,"aaa"                                 },
 
 // DEPTH 4
 { L_,  4, 0,"",                      0,""                                    },
-{ L_,  0, 4,"aaaa",                  4,"aaaa"                                },
+{ L_, 76, 4,"aaaa",                  4,"aaaa"                                },
 
 // DEPTH 5
 { L_,  5, 0,"",                      0,""                                    },
@@ -3032,7 +3032,7 @@ int main(int argc, char *argv[])
 { L_,  4, 1,"\r",                    3,"=0D"                                 },
 { L_,  4, 1,"\n",                    3,"=0A"                                 },
 { L_,  4, 1,"\xFE",                  3,"=FE"                                 },
-{ L_,  0, 5,"aaaaa",                 5,"aaaaa"                               },
+{ L_, 76, 5,"aaaaa",                 5,"aaaaa"                               },
 
 // DEPTH 6
 { L_,  6, 0,"",                      0,""                                    },
@@ -3077,7 +3077,7 @@ int main(int argc, char *argv[])
 { L_,  4, 2,"\n""\xFE",              9,"=0A=\r\n=FE"                         },
 { L_,  4, 2,"\xFE""\n",              9,"=FE=\r\n=0A"                         },
 
-{ L_,  0, 6,"aaaaaa",                6,"aaaaaa"                              },
+{ L_, 76, 6,"aaaaaa",                6,"aaaaaa"                              },
 
 // DEPTH 7
 { L_,  7, 0,"",                      0,""                                    },
@@ -3255,7 +3255,7 @@ int main(int argc, char *argv[])
 { L_,  4, 3,"\n""\xFE""\r",         15,"=0A=\r\n=FE=\r\n=0D"                 },
 { L_,  4, 3,"\xFE""\n\r",           15,"=FE=\r\n=0A=\r\n=0D"                 },
 
-{ L_,  0, 7,"aaaaaaa",               7,"aaaaaaa"                             },
+{ L_, 76, 7,"aaaaaaa",               7,"aaaaaaa"                             },
 
 // DEPTH 8
 { L_,  8, 0,"",                      0,""                                    },
@@ -3454,7 +3454,7 @@ int main(int argc, char *argv[])
 { L_,  4, 4,"aa\r\n",                4,"aa\r\n"                              },
 { L_,  4, 4,"\ra\na",               17,"=0D=\r\na=\r\n=0A=\r\na"             },
 
-{ L_,  0, 8,"aaaaaaaa",              8,"aaaaaaaa"                            },
+{ L_, 76, 8,"aaaaaaaa",              8,"aaaaaaaa"                            },
 
 // DEPTH 9
 { L_,  9, 0,"",                      0,""                                    },
@@ -3674,7 +3674,7 @@ int main(int argc, char *argv[])
 { L_,  4, 5,"aa\r\na",               5,"aa\r\na"                             },
 { L_,  4, 5,"\ra\naa",              18,"=0D=\r\na=\r\n=0A=\r\naa"            },
 
-{ L_,  0, 9,"aaaaaaaaa",             9,"aaaaaaaaa"                           },
+{ L_, 76, 9,"aaaaaaaaa",             9,"aaaaaaaaa"                           },
 
 // DEPTH 10
 { L_, 10, 0,"",                      0,""                                    },
@@ -3925,7 +3925,7 @@ int main(int argc, char *argv[])
 { L_,  4, 6,"aaaa\r\n",              9,"aaa=\r\na\r\n"                       },
 { L_,  4, 6,"\ra\na\ra",            27,"=0D=\r\na=\r\n=0A=\r\na=\r\n=0D"
                                        "=\r\na"                              },
-{ L_,  0, 10,"aaaaaaaaaa",          10,"aaaaaaaaaa"                          }
+{ L_, 76, 10,"aaaaaaaaaa",          10,"aaaaaaaaaa"                          }
 //--------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -4211,7 +4211,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 encoded.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4234,7 +4234,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4259,7 +4259,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4284,7 +4284,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4310,7 +4310,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4345,7 +4345,7 @@ encoded.");
                         printHex(B, 1) << "'");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4364,7 +4364,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4389,7 +4389,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4414,7 +4414,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4440,7 +4440,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4474,7 +4474,7 @@ encoded.");
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_LF_MODE, 0);
+                        Obj obj(Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4496,7 +4496,7 @@ encoded.");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4513,7 +4513,7 @@ encoded.");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_MIXED_MODE, 0);
+                        Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4545,7 +4545,7 @@ encoded.");
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_LF_MODE, 0);
+                        Obj obj(encode, Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4567,7 +4567,7 @@ encoded.");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4584,7 +4584,7 @@ encoded.");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_MIXED_MODE, 0);
+                        Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4616,7 +4616,7 @@ encoded.");
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4637,7 +4637,7 @@ encoded.");
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4665,7 +4665,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_LF_MODE, 0);
+                        Obj obj(Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4684,7 +4684,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_MIXED_MODE, 0);
+                        Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4710,7 +4710,7 @@ encoded.");
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4730,7 +4730,7 @@ encoded.");
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4758,7 +4758,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_LF_MODE, 0);
+                        Obj obj(encode, Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4777,7 +4777,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_MIXED_MODE, 0);
+                        Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4810,7 +4810,7 @@ encoded.");
                     VVV("Verify control characters are encoded.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::e_CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4834,7 +4834,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::e_CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4940,7 +4940,7 @@ encoded.");
                 const char *const E = B + COUNT;
                 int RTN;
 
-                Obj obj(Obj::e_CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
 
                 if (lastNumInputs != COUNT) {
                     if (verbose) cout << '\t' << COUNT << " input character"
@@ -5033,7 +5033,7 @@ encoded.");
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(ERROR_STATE == END);
 
-                Obj obj(Obj::e_CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -5360,7 +5360,7 @@ encoded.");
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(Obj::e_CRLF_MODE, 0);
+                    Obj obj(Obj::e_CRLF_MODE);
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -5423,30 +5423,6 @@ encoded.");
             ASSERT(0 == obj.outputLength());
         }
 
-        if (verbose) cout << "\tmaxLineLength = -1" << endl;
-        {
-            Obj obj(Obj::e_CRLF_MODE, -1);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = 0 (single line)" << endl;
-        {
-            Obj obj(Obj::e_CRLF_MODE, 0);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
         if (verbose) cout << "\tmaxLineLength = 4 (the minimum)" << endl;
         {
             Obj obj(Obj::e_CRLF_MODE, 4);
@@ -5468,18 +5444,6 @@ encoded.");
             ASSERT(1 == obj.isInitialState());
             ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(5 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = INT_MAX" << endl;
-        {
-            Obj obj(Obj::e_CRLF_MODE, INT_MAX);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
@@ -5529,30 +5493,6 @@ encoded.");
             ASSERT(0 == obj.outputLength());
         }
 
-        if (verbose) cout << "\tmaxLineLength = -1" << endl;
-        {
-            Obj obj(testVector, Obj::e_CRLF_MODE, -1);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = 0 (single line)" << endl;
-        {
-            Obj obj(testVector, Obj::e_CRLF_MODE, 0);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
         if (verbose) cout << "\tmaxLineLength = 4 (the minimum)" << endl;
         {
             Obj obj(testVector, Obj::e_CRLF_MODE, 4);
@@ -5574,18 +5514,6 @@ encoded.");
             ASSERT(1 == obj.isInitialState());
             ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(5 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = INT_MAX" << endl;
-        {
-            Obj obj(testVector, Obj::e_CRLF_MODE, INT_MAX);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 

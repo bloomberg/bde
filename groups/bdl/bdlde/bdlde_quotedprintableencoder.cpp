@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlde_quotedprintableencoder_cpp,"$Id$ $CSID$")
 
+#include <bslma_default.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_cstring.h>   // 'strlen'
@@ -88,12 +90,9 @@ const char* QuotedPrintableEncoder::s_lineBreakModeName[] = {
 
 const char *QuotedPrintableEncoder::s_defaultEquivClass_p =
                                                            equivalenceClassMap;
-const int bdlde::QuotedPrintableEncoder::s_defaultMaxLineLength = 76;
 
 // PRIVATE MANIPULATORS
 void QuotedPrintableEncoder::appendSoftLineBreak(char *out) {
-    BSLS_ASSERT(0 == d_bufferLength);
-
     *out = '=';
     ++d_outputLength;
 
@@ -103,11 +102,11 @@ void QuotedPrintableEncoder::appendSoftLineBreak(char *out) {
     d_lineStart = d_outputLength + 2;
 
     d_lastWasWS = false;
+
+    BSLS_ASSERT(5 <= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendHardLineBreak(char *out) {
-    BSLS_ASSERT(0 == d_bufferLength);
-
     if (d_lastWasWS) {
         *out = '=';
         ++d_outputLength;
@@ -129,6 +128,8 @@ void QuotedPrintableEncoder::appendHardLineBreak(char *out) {
     }
 
     d_lastWasWS = false;
+
+    BSLS_ASSERT(5 <= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendPrintable(char *out, char ch) {
@@ -144,6 +145,8 @@ void QuotedPrintableEncoder::appendPrintable(char *out, char ch) {
     }
 
     d_lastWasWS = (WS == d_equivClass_p[static_cast<unsigned char>(ch)]);
+
+    BSLS_ASSERT(5 <= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendAsHex(char *out, char ch, bool isFinal) {
@@ -162,37 +165,33 @@ void QuotedPrintableEncoder::appendAsHex(char *out, char ch, bool isFinal) {
     }
 
     d_lastWasWS = false;
+
+    BSLS_ASSERT(5 <= d_bufferLength);
 }
 
 // CREATORS
 QuotedPrintableEncoder::QuotedPrintableEncoder(
-                           QuotedPrintableEncoder::LineBreakMode lineBreakMode,
-                           int                                   maxLineLength)
+                         QuotedPrintableEncoder::LineBreakMode  lineBreakMode,
+                         int                                    maxLineLength,
+                         bslma::Allocator                      *basicAllocator)
 : d_lineBreakMode(lineBreakMode)
 , d_maxLineLength(maxLineLength)
 , d_outputLength(0)
 , d_lineLength(0)
+, d_equivClass_p(const_cast<char *>(s_defaultEquivClass_p))
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
 , d_deffered(0)
 , d_lastWasWS(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
-        d_maxLineLength = s_defaultMaxLineLength;
-    }
-    else if (d_maxLineLength == 0) {
-        d_maxLineLength = INT_MAX;
-    }
-
     BSLS_ASSERT(4 <= d_maxLineLength);
+    BSLS_ASSERT(     d_maxLineLength <= 76);
 
-    if (e_CRLF_MODE == d_lineBreakMode || e_MIXED_MODE == d_lineBreakMode) {
-        d_equivClass_p = const_cast<char *>(s_defaultEquivClass_p);
-    }
-    else {
+    if (e_CRLF_MODE != d_lineBreakMode && e_MIXED_MODE != d_lineBreakMode) {
         int len = sizeof(equivalenceClassMap);
-        d_equivClass_p = new char[len];
+        d_equivClass_p = static_cast<char *>(d_allocator_p->allocate(len));
         bsl::memcpy(d_equivClass_p, s_defaultEquivClass_p, len);
         d_equivClass_p['\r'] = CC;
         if (e_BINARY_MODE == d_lineBreakMode) {
@@ -204,30 +203,27 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 QuotedPrintableEncoder::QuotedPrintableEncoder(
                      const char                            *extraCharsToEncode,
                      QuotedPrintableEncoder::LineBreakMode  lineBreakMode,
-                     int                                    maxLineLength)
+                     int                                    maxLineLength,
+                     bslma::Allocator                      *basicAllocator)
 : d_lineBreakMode(lineBreakMode)
 , d_maxLineLength(maxLineLength)
 , d_outputLength(0)
 , d_lineLength(0)
+, d_equivClass_p(const_cast<char *>(s_defaultEquivClass_p))
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
 , d_deffered(0)
 , d_lastWasWS(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    if (d_maxLineLength == e_DEFAULT_MAX_LINELEN) {
-        d_maxLineLength = s_defaultMaxLineLength;
-    }
-    else if (d_maxLineLength == 0) {
-        d_maxLineLength = INT_MAX;
-    }
-
     BSLS_ASSERT(4 <= d_maxLineLength);
+    BSLS_ASSERT(     d_maxLineLength <= 76);
 
     // First copy the default mapping table to data member.
 
     int len = sizeof(equivalenceClassMap);
-    d_equivClass_p = new char[len];
+    d_equivClass_p = static_cast<char *>(d_allocator_p->allocate(len));
     bsl::memcpy(d_equivClass_p, s_defaultEquivClass_p, len);
 
     // Now change the specified individual elements.
@@ -259,7 +255,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 QuotedPrintableEncoder::~QuotedPrintableEncoder()
 {
     if (d_equivClass_p != s_defaultEquivClass_p) {
-        delete[] d_equivClass_p;
+        d_allocator_p->deallocate(d_equivClass_p);
     }
 }
 
