@@ -222,10 +222,6 @@ class bdef_Function;
 
 namespace bsl {
 
-// Forward declarations
-// template <class PROTOTYPE>
-// class function;  // Primary template declared but not defined.
-
 template <class FUNC>
 class Function_Imp;  // Primary template declared but not defined.
 
@@ -788,17 +784,13 @@ template <class RET, class... ARGS>
 class Function_Imp<RET(ARGS...)> :
         public Function_ArgTypes<RET(ARGS...)>,
         public Function_Rep  {
-    // An instantiation of this class template generalizes the notion of a
-    // pointer to a function taking the specified 'ARGS' types and returning
-    // the specified 'RET' type, i.e., a function pointer of type
-    // 'RET(*)(ARGS)'.  An object of this class wraps a run-time invokable
-    // object specified at construction, such as a function pointer, member
-    // function pointer, or functor.  Note that 'function' is defined only for
-    // template parameters that specify a function prototype; the primary
-    // template (taking an arbitrary template parameter) is not defined.
-    //
-    // IMPLEMENTATION NOTE: This implementation class is defined, in addition
-    // to the primary template, to work around issues with the Sun CC compiler.
+    // Implementation "guts" of 'bsl::function' (see class and component
+    // documentation for 'bsl::function').  IMPLEMENTATION NOTE: This
+    // implementation class is defined, in addition to the primary template,
+    // to work around issues with the Sun CC compiler, which has trouble with
+    // argument type deduction when a template argument has a partial
+    // specialization (as 'Function_Imp' does). 'bsl::function' is a thin
+    // wrapper that does not have a partial specialization.
 
     // PRIVATE TYPES
     typedef RET Invoker(const Function_Rep* rep,
@@ -1035,8 +1027,15 @@ class Function_Imp<RET(ARGS...)> :
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_function.h
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_A
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT_A BSLSTL_FUNCTION_VARIADIC_LIMIT
+#endif
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 0
 template <class RET>
 class Function_Imp<RET()> :
         public Function_ArgTypes<RET()>,
@@ -1199,7 +1198,9 @@ class Function_Imp<RET()> :
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 1
 template <class RET, class ARGS_01>
 class Function_Imp<RET(ARGS_01)> :
         public Function_ArgTypes<RET(ARGS_01)>,
@@ -1367,7 +1368,9 @@ class Function_Imp<RET(ARGS_01)> :
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 class Function_Imp<RET(ARGS_01,
@@ -1546,7 +1549,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -1736,7 +1741,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1937,7 +1944,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -2149,7 +2158,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -2372,7 +2383,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -2606,7 +2619,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -2851,7 +2866,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -3107,7 +3124,9 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -3374,6 +3393,7 @@ class Function_Imp<RET(ARGS_01,
 #endif
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3553,17 +3573,30 @@ class Function_Imp<RET(ARGS...)> :
 
 template <class PROTOTYPE>
 class function : public Function_Imp<PROTOTYPE> {
+    // An instantiation of this class template generalizes the notion of a
+    // pointer to a function taking the specified 'ARGS' types and returning
+    // the specified 'RET' type, i.e., a function pointer of type
+    // 'RET(*)(ARGS)'.  An object of this class wraps a run-time invokable
+    // object specified at construction, such as a function pointer, member
+    // function pointer, or functor.  Note that 'function' is defined only for
+    // template parameters that specify a function prototype; the primary
+    // template (taking an arbitrary template parameter) is not defined.
+    //
+    // IMPLEMENTATION NOTE: This class is a thin wrapper around
+    // 'Function_Imp' in order to work around a SunCC bug. Note that
+    // 'Function_Imp' is partially specialized on the return type and argument
+    // types in the 'PROTOTYPE' whereas this template has no parital
+    // specializations. This indirection prevents argument deduction errors in
+    // the SunCC compiler.
+
   private:
     typedef Function_Imp<PROTOTYPE>            Base;
     typedef BloombergLP::bslmf::MovableRefUtil MovableRefUtil;
         // Create a type aliases to simplify rendering.
 
-    static Base& upcast(function& f)
-        // Upcast 'function' reference to 'Function_Imp' reference
-        { return static_cast<Base&>(f); }
-    static const Base& upcast(const function& f)
-        // Upcast 'function' reference to 'Function_Imp' reference
-        { return static_cast<const Base&>(f); }
+    static Base& upcast(function& f);
+    static const Base& upcast(const function& f);
+        // Upcast specified  'function' reference to 'Function_Imp' reference.
 
     // Since 'function' does not support 'operator==' and 'operator!=', they
     // must be deliberately supressed; otherwise 'function' objects would be
@@ -3574,80 +3607,64 @@ class function : public Function_Imp<PROTOTYPE> {
   public:
 
     // CREATORS
-    function() BSLS_NOTHROW_SPEC
-        : Base(BloombergLP::bslma::Default::defaultAllocator()) {}
+    function() BSLS_NOTHROW_SPEC;
 
-    function(nullptr_t) BSLS_NOTHROW_SPEC
-        : Base(BloombergLP::bslma::Default::defaultAllocator()) {}
+    function(nullptr_t) BSLS_NOTHROW_SPEC;
 
-    function(const function& other)
-        : Base(BloombergLP::bslma::Default::defaultAllocator(), upcast(other))
-        {}
+    function(const function& other);
 
     template <class FUNC>
     function(
         FUNC func,
         typename Function_DisableIfLosslessCnvrsn<FUNC, function, int>::type =
             0)
-        : Base(BloombergLP::bslma::Default::defaultAllocator(), func) {}
+        : Base(BloombergLP::bslma::Default::defaultAllocator(), func) {
+        // Must be in-place inline because the use of 'DisableIf' will
+        // otherwise break the MSVC 2010 compiler.
+    }
 
     template<class ALLOC>
-    function(allocator_arg_t, const ALLOC& alloc) : Base(alloc) {}
+    function(allocator_arg_t, const ALLOC& alloc);
 
     template <class ALLOC>
-    function(allocator_arg_t, const ALLOC& alloc, nullptr_t) : Base(alloc) {}
+    function(allocator_arg_t, const ALLOC& alloc, nullptr_t);
 
     template <class ALLOC>
-    function(allocator_arg_t, const ALLOC& alloc, const function& other)
-        : Base(alloc, upcast(other)) {}
+    function(allocator_arg_t, const ALLOC& alloc, const function& other);
 
     template<class FUNC, class ALLOC>
     function(allocator_arg_t,
              const ALLOC& alloc,
              FUNC         func,
         typename Function_DisableIfLosslessCnvrsn<FUNC,function,int>::type = 0)
-        : Base(alloc, func) {}
-
-    function(BloombergLP::bslmf::MovableRef<function> other)
-        : Base(MovableRefUtil::move(upcast(MovableRefUtil::access(other))))
-    {
+        : Base(alloc, func) {
+        // Must be in-place inline because the use of 'DisableIf' will
+        // otherwise break the MSVC 2010 compiler.
     }
+
+    function(BloombergLP::bslmf::MovableRef<function> other);
 
     template <class ALLOC>
     function(allocator_arg_t,
              const ALLOC&                             alloc,
-             BloombergLP::bslmf::MovableRef<function> other)
-    : Base(alloc, MovableRefUtil::move(upcast(MovableRefUtil::access(other))))
-    {
-    }
+             BloombergLP::bslmf::MovableRef<function> other);
 
     // MANIPULATORS
-    function& operator=(const function& rhs)
-    {
-        Base::operator=(upcast(rhs));
-        return *this;
-    }
+    function& operator=(const function& rhs);
 
-    function& operator=(BloombergLP::bslmf::MovableRef<function> rhs)
-    {
-        Base::operator=(
-            MovableRefUtil::move(upcast(MovableRefUtil::access(rhs))));
-        return *this;
-    }
+    function& operator=(BloombergLP::bslmf::MovableRef<function> rhs);
 
     template <class FUNC>
     typename Function_DisableIfLosslessCnvrsn<FUNC, function, function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
     {
+        // Must be in-place inline because the use of 'DisableIf' will
+        // otherwise break the MSVC 2010 compiler.
         Base::operator=(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
         return *this;
     }
 
-    function& operator=(nullptr_t)
-    {
-        Base::operator=(nullptr_t());
-        return *this;
-    }
+    function& operator=(nullptr_t);
 };
 
 // FREE FUNCTIONS
@@ -3848,25 +3865,72 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_function.h
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_B
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT_B BSLSTL_FUNCTION_VARIADIC_LIMIT
+#endif
 
 
 template <class FUNC,
           class OBJ_TYPE,
           class OBJ_ARG_TYPE,
-          class RET,
-          class ARGS_0 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_1 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_2 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_3 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_4 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_5 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_6 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_7 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_8 = BSLS_COMPILERFEATURES_NILT,
-          class ARGS_9 = BSLS_COMPILERFEATURES_NILT,
+          class RET
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
+,
+          class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
+,
+          class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
+,
+          class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
+,
+          class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
+,
+          class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
+,
+          class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
+,
+          class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
+,
+          class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
+,
+          class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
+,
+          class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
+,
           class = BSLS_COMPILERFEATURES_NILT>
 struct Function_MemFuncInvokeImp;
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET>
 struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET> {
 
@@ -3898,7 +3962,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET> {
         { return invoke_imp(DirectInvoke(), f, obj); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01>
 struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01> {
@@ -3934,7 +4000,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01> {
         { return invoke_imp(DirectInvoke(), f, obj, args_01); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02>
@@ -3978,7 +4046,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_02); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4030,7 +4100,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_03); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4090,7 +4162,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_04); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4158,7 +4232,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_05); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4234,7 +4310,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_06); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4318,7 +4396,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_07); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4410,7 +4490,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_08); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4510,7 +4592,9 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_09); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
           class ARGS_01,
           class ARGS_02,
@@ -4618,22 +4702,28 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
                                                     args_10); }
 
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(), OBJ_ARG_TYPE>
     : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(), OBJ_TYPE,
                                 OBJ_ARG_TYPE, RET>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01), OBJ_ARG_TYPE>
     : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01), OBJ_TYPE,
                                 OBJ_ARG_TYPE, RET, ARGS_01>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
@@ -4644,7 +4734,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_02>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03, class OBJ_ARG_TYPE>
@@ -4659,7 +4751,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_03>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4678,7 +4772,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_04>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4701,7 +4797,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_05>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4728,7 +4826,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_06>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4759,7 +4859,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_07>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4794,7 +4896,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_08>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4833,7 +4937,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_09>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4876,22 +4982,28 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_10>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() const, OBJ_ARG_TYPE>
     : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)() const,
                                 const OBJ_TYPE, OBJ_ARG_TYPE, RET>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) const, OBJ_ARG_TYPE>
     : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01) const,
                                 const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
@@ -4902,7 +5014,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_02>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03, class OBJ_ARG_TYPE>
@@ -4917,7 +5031,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_03>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4936,7 +5052,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_04>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4959,7 +5077,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_05>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -4986,7 +5106,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_06>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5017,7 +5139,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_07>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5052,7 +5176,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_08>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5091,7 +5217,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_09>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5134,8 +5262,10 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                    ARGS_10>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() volatile,
                               OBJ_ARG_TYPE>
@@ -5143,7 +5273,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() volatile,
                                 volatile OBJ_TYPE, OBJ_ARG_TYPE, RET>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) volatile,
                               OBJ_ARG_TYPE>
@@ -5151,7 +5283,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) volatile,
                                 volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
@@ -5163,7 +5297,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_02>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03, class OBJ_ARG_TYPE>
@@ -5179,7 +5315,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_03>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5199,7 +5337,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_04>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5223,7 +5363,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_05>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5251,7 +5393,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_06>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5283,7 +5427,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_07>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5319,7 +5465,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_08>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5359,7 +5507,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_09>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5403,8 +5553,10 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                                       ARGS_10>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() const volatile,
                               OBJ_ARG_TYPE>
@@ -5413,7 +5565,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)() const volatile,
                                 OBJ_ARG_TYPE, RET>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 template <class RET, class OBJ_TYPE, class ARGS_01, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) const volatile,
                               OBJ_ARG_TYPE>
@@ -5422,7 +5576,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01) const volatile,
                                 OBJ_ARG_TYPE, RET, ARGS_01>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02, class OBJ_ARG_TYPE>
 struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
@@ -5435,7 +5591,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_02>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03, class OBJ_ARG_TYPE>
@@ -5452,7 +5610,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_03>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5473,7 +5633,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_04>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5498,7 +5660,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_05>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5527,7 +5691,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_06>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5560,7 +5726,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_07>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5597,7 +5765,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_08>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5638,7 +5808,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_09>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 template <class RET, class OBJ_TYPE, class ARGS_01,
                                      class ARGS_02,
                                      class ARGS_03,
@@ -5683,6 +5855,7 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
                                                    ARGS_10>
 {
 };
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -6403,9 +6576,9 @@ BloombergLP::bslma::Allocator *bsl::Function_Rep::allocator() const
     return d_allocator_p;
 }
 
-                        // ----------------------------
-                        // class template bsl::function
-                        // ----------------------------
+                        // ---------------------------
+                        // class template Function_Imp
+                        // ---------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
@@ -6748,7 +6921,14 @@ bsl::Function_Imp<RET(ARGS...)>::
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_function.h
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_C
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT_C BSLSTL_FUNCTION_VARIADIC_LIMIT
+#endif
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class FUNC>
 inline
@@ -6760,7 +6940,9 @@ RET bsl::Function_Imp<RET()>::functionPtrInvoker(
     return BSLSTL_FUNCTION_CAST_RESULT(
                   f());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
@@ -6774,7 +6956,9 @@ RET bsl::Function_Imp<RET(ARGS_01)>::functionPtrInvoker(
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
@@ -6793,7 +6977,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
                     forwardToTarget(args_02)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -6817,7 +7003,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
                     forwardToTarget(args_03)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -6846,7 +7034,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
                     forwardToTarget(args_04)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -6880,7 +7070,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
                     forwardToTarget(args_05)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -6919,7 +7111,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
                     forwardToTarget(args_06)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -6963,7 +7157,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
                     forwardToTarget(args_07)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7012,7 +7208,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
                     forwardToTarget(args_08)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7066,7 +7264,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
                     forwardToTarget(args_09)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7125,8 +7325,10 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
                     forwardToTarget(args_10)));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class FUNC>
 inline
@@ -7140,7 +7342,9 @@ RET bsl::Function_Imp<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
     BSLMF_ASSERT( 0u == InvokeType::NUM_ARGS + 1);
     return (RET) InvokeType::invoke(f);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
@@ -7155,7 +7359,9 @@ RET bsl::Function_Imp<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep,
     BSLMF_ASSERT( 1u == InvokeType::NUM_ARGS + 1);
     return (RET) InvokeType::invoke(f, args_01);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
@@ -7175,7 +7381,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
     return (RET) InvokeType::invoke(f, args_01,
                                        args_02);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -7200,7 +7408,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_02,
                                        args_03);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7230,7 +7440,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_03,
                                        args_04);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7265,7 +7477,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_04,
                                        args_05);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7305,7 +7519,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_05,
                                        args_06);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7350,7 +7566,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_06,
                                        args_07);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7400,7 +7618,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_07,
                                        args_08);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7455,7 +7675,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_08,
                                        args_09);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7515,8 +7737,10 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                        args_09,
                                        args_10);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class FUNC>
 inline
@@ -7528,7 +7752,9 @@ RET bsl::Function_Imp<RET()>::inplaceFunctorInvoker(
     return BSLSTL_FUNCTION_CAST_RESULT(
                   f());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
@@ -7541,7 +7767,9 @@ RET bsl::Function_Imp<RET(ARGS_01)>::inplaceFunctorInvoker(
     return BSLSTL_FUNCTION_CAST_RESULT(
                   f(args_01));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
@@ -7558,7 +7786,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                   f(args_01,
                     args_02));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -7579,7 +7809,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_02,
                     args_03));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7604,7 +7836,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_03,
                     args_04));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7633,7 +7867,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_04,
                     args_05));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7666,7 +7902,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_05,
                     args_06));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7703,7 +7941,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_06,
                     args_07));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7744,7 +7984,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_07,
                     args_08));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7789,7 +8031,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_08,
                     args_09));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7838,8 +8082,10 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     args_09,
                     args_10));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class FUNC>
 inline
@@ -7850,7 +8096,9 @@ bsl::Function_Imp<RET()>::outofplaceFunctorInvoker(
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
     return BSLSTL_FUNCTION_CAST_RESULT(f());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
@@ -7862,7 +8110,9 @@ bsl::Function_Imp<RET(ARGS_01)>::outofplaceFunctorInvoker(
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
     return BSLSTL_FUNCTION_CAST_RESULT(f(args_01));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
@@ -7878,7 +8128,9 @@ bsl::Function_Imp<RET(ARGS_01,
     return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
                                          args_02));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -7898,7 +8150,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_02,
                                          args_03));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7922,7 +8176,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_03,
                                          args_04));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7950,7 +8206,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_04,
                                          args_05));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -7982,7 +8240,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_05,
                                          args_06));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8018,7 +8278,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_06,
                                          args_07));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8058,7 +8320,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_07,
                                          args_08));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8102,7 +8366,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_08,
                                          args_09));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8150,8 +8416,10 @@ bsl::Function_Imp<RET(ARGS_01,
                                          args_09,
                                          args_10));
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 void bsl::Function_Imp<RET()>::setInvoker(Invoker *p)
@@ -8162,7 +8430,9 @@ void bsl::Function_Imp<RET()>::setInvoker(Invoker *p)
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 void bsl::Function_Imp<RET(ARGS_01)>::setInvoker(Invoker *p)
@@ -8173,7 +8443,9 @@ void bsl::Function_Imp<RET(ARGS_01)>::setInvoker(Invoker *p)
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -8186,7 +8458,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -8201,7 +8475,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8218,7 +8494,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8237,7 +8515,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8258,7 +8538,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8281,7 +8563,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8306,7 +8590,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8333,7 +8619,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8362,8 +8650,10 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 typename bsl::Function_Imp<RET()>::Invoker *
@@ -8371,7 +8661,9 @@ bsl::Function_Imp<RET()>::invoker() const
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 typename bsl::Function_Imp<RET(ARGS_01)>::Invoker *
@@ -8379,7 +8671,9 @@ bsl::Function_Imp<RET(ARGS_01)>::invoker() const
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -8390,7 +8684,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -8404,7 +8700,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8421,7 +8719,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8441,7 +8741,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8464,7 +8766,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8490,7 +8794,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8519,7 +8825,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8551,7 +8859,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8586,8 +8896,10 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class ALLOC>
 inline
@@ -8598,7 +8910,9 @@ bsl::Function_Imp<RET()>::Function_Imp(const ALLOC& alloc)
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class ALLOC>
 inline
@@ -8609,7 +8923,9 @@ bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(const ALLOC& alloc)
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class ALLOC>
@@ -8622,7 +8938,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -8637,7 +8955,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8654,7 +8974,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8673,7 +8995,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8694,7 +9018,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8717,7 +9043,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8742,7 +9070,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8769,7 +9099,9 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8798,8 +9130,10 @@ bsl::Function_Imp<RET(ARGS_01,
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class ALLOC>
 inline
@@ -8808,7 +9142,9 @@ bsl::Function_Imp<RET()>::Function_Imp(const ALLOC&    alloc,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class ALLOC>
 inline
@@ -8817,7 +9153,9 @@ bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(const ALLOC&    alloc,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class ALLOC>
@@ -8828,7 +9166,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -8841,7 +9181,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8856,7 +9198,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8873,7 +9217,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8892,7 +9238,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8913,7 +9261,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8936,7 +9286,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8961,7 +9313,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -8988,8 +9342,10 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     copyInit(alloc, other);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class FUNC, class ALLOC>
 inline
@@ -8997,7 +9353,9 @@ bsl::Function_Imp<RET()>::Function_Imp(const ALLOC& alloc, FUNC func)
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class FUNC, class ALLOC>
 inline
@@ -9005,7 +9363,9 @@ bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(const ALLOC& alloc, FUNC func)
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC, class ALLOC>
@@ -9015,7 +9375,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -9027,7 +9389,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9041,7 +9405,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9057,7 +9423,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9075,7 +9443,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9095,7 +9465,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9117,7 +9489,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9141,7 +9515,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9167,8 +9543,10 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     initFromTarget(&func, alloc);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class FUNC, class ALLOC>
 inline void
@@ -9191,7 +9569,9 @@ bsl::Function_Imp<RET()>::initFromTarget(FUNC *func, const ALLOC& alloc)
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class FUNC, class ALLOC>
 inline void
@@ -9214,7 +9594,9 @@ bsl::Function_Imp<RET(ARGS_01)>::initFromTarget(FUNC *func, const ALLOC& alloc)
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC, class ALLOC>
@@ -9239,7 +9621,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -9266,7 +9650,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9295,7 +9681,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9326,7 +9714,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9359,7 +9749,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9394,7 +9786,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9431,7 +9825,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9470,7 +9866,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9511,8 +9909,10 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p = NULL;
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>::Function_Imp(
@@ -9521,7 +9921,9 @@ bsl::Function_Imp<RET()>::Function_Imp(
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(
@@ -9530,7 +9932,9 @@ bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -9541,7 +9945,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -9554,7 +9960,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9569,7 +9977,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9586,7 +9996,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9605,7 +10017,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9626,7 +10040,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9649,7 +10065,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9674,7 +10092,9 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9701,8 +10121,10 @@ bsl::Function_Imp<RET(ARGS_01,
     Function_Imp& lvalue = other;
     moveInit(lvalue);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class ALLOC>
 inline
@@ -9721,7 +10143,9 @@ bsl::Function_Imp<RET()>::Function_Imp(
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template <class ALLOC>
 inline
@@ -9740,7 +10164,9 @@ bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class ALLOC>
@@ -9761,7 +10187,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -9784,7 +10212,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9809,7 +10239,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9836,7 +10268,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9865,7 +10299,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9896,7 +10332,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9929,7 +10367,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -9964,7 +10404,9 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10001,8 +10443,10 @@ bsl::Function_Imp<RET(ARGS_01,
         copyInit(typename AllocTraits::Type(alloc), lvalue);
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>::~Function_Imp()
@@ -10014,7 +10458,9 @@ bsl::Function_Imp<RET()>::~Function_Imp()
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>::~Function_Imp()
@@ -10026,7 +10472,9 @@ bsl::Function_Imp<RET(ARGS_01)>::~Function_Imp()
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -10040,7 +10488,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -10056,7 +10506,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10074,7 +10526,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10094,7 +10548,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10116,7 +10572,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10140,7 +10598,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10166,7 +10626,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10194,7 +10656,9 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10224,8 +10688,10 @@ bsl::Function_Imp<RET(ARGS_01,
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>&
@@ -10235,7 +10701,9 @@ bsl::Function_Imp<RET()>::operator=(const Function_Imp& rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>&
@@ -10245,7 +10713,9 @@ bsl::Function_Imp<RET(ARGS_01)>::operator=(const Function_Imp& rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -10258,7 +10728,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -10274,7 +10746,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10293,7 +10767,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10315,7 +10791,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10340,7 +10818,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10368,7 +10848,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10399,7 +10881,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10433,7 +10917,9 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10470,8 +10956,10 @@ bsl::Function_Imp<RET(ARGS_01,
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>& bsl::Function_Imp<RET()>::
@@ -10487,7 +10975,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>& bsl::Function_Imp<RET(ARGS_01)>::
@@ -10503,7 +10993,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -10522,7 +11014,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -10544,7 +11038,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10569,7 +11065,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10597,7 +11095,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10628,7 +11128,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10662,7 +11164,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10699,7 +11203,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10739,7 +11245,9 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10782,8 +11290,10 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class FUNC>
 bsl::Function_Imp<RET()>&
@@ -10802,7 +11312,9 @@ bsl::Function_Imp<RET()>::operator=(
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class FUNC>
 bsl::Function_Imp<RET(ARGS_01)>&
@@ -10821,7 +11333,9 @@ bsl::Function_Imp<RET(ARGS_01)>::operator=(
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC>
@@ -10843,7 +11357,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -10868,7 +11384,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10896,7 +11414,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10927,7 +11447,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10961,7 +11483,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -10998,7 +11522,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11038,7 +11564,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11081,7 +11609,9 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11127,8 +11657,10 @@ bsl::Function_Imp<RET(ARGS_01,
     }
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class FUNC>
 inline
@@ -11156,7 +11688,9 @@ void bsl::Function_Imp<RET()>::assignTarget(ManagerOpCode  moveOrCopy,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 template<class FUNC>
 inline
@@ -11184,7 +11718,9 @@ void bsl::Function_Imp<RET(ARGS_01)>::assignTarget(ManagerOpCode  moveOrCopy,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC>
@@ -11214,7 +11750,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -11246,7 +11784,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11280,7 +11820,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11316,7 +11858,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11354,7 +11898,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11394,7 +11940,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11436,7 +11984,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11480,7 +12030,9 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11526,8 +12078,10 @@ void bsl::Function_Imp<RET(ARGS_01,
 
     setInvoker(invoker_p);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>&
@@ -11537,7 +12091,9 @@ bsl::Function_Imp<RET()>::operator=(nullptr_t)
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>&
@@ -11547,7 +12103,9 @@ bsl::Function_Imp<RET(ARGS_01)>::operator=(nullptr_t)
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -11560,7 +12118,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -11576,7 +12136,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11595,7 +12157,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11617,7 +12181,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11642,7 +12208,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11670,7 +12238,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11701,7 +12271,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11735,7 +12307,9 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11772,9 +12346,11 @@ bsl::Function_Imp<RET(ARGS_01,
     makeEmpty();
     return *this;
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 RET bsl::Function_Imp<RET()>::operator()() const
@@ -11793,7 +12369,9 @@ RET bsl::Function_Imp<RET()>::operator()() const
     return invoker()(this);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 RET bsl::Function_Imp<RET(ARGS_01)>::operator()(ARGS_01 args_01) const
@@ -11812,7 +12390,9 @@ RET bsl::Function_Imp<RET(ARGS_01)>::operator()(ARGS_01 args_01) const
     return invoker()(this, args_01);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -11836,7 +12416,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_02);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -11865,7 +12447,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_03);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11899,7 +12483,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_04);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11938,7 +12524,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_05);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -11982,7 +12570,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_06);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12031,7 +12621,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_07);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12085,7 +12677,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_08);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12144,7 +12738,9 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_09);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12208,24 +12804,30 @@ RET bsl::Function_Imp<RET(ARGS_01,
                            args_10);
 #endif
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>::operator bool() const BSLS_NOTHROW_SPEC
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>::operator bool() const BSLS_NOTHROW_SPEC
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -12234,7 +12836,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -12245,7 +12849,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12258,7 +12864,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12273,7 +12881,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12290,7 +12900,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12309,7 +12921,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12330,7 +12944,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12353,7 +12969,9 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12378,10 +12996,12 @@ bsl::Function_Imp<RET(ARGS_01,
 {
     return invoker();
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>::
@@ -12390,7 +13010,9 @@ bsl::Function_Imp<RET()>::
     typedef BloombergLP::bdef_Function<RET(*)()> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>::
@@ -12399,7 +13021,9 @@ bsl::Function_Imp<RET(ARGS_01)>::
     typedef BloombergLP::bdef_Function<RET(*)(ARGS_01)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -12412,7 +13036,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_02)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -12429,7 +13055,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_03)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12450,7 +13078,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_04)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12475,7 +13105,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_05)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12504,7 +13136,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_06)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12537,7 +13171,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_07)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12574,7 +13210,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_08)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12615,7 +13253,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_09)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12660,8 +13300,10 @@ bsl::Function_Imp<RET(ARGS_01,
                                               ARGS_10)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 inline
 bsl::Function_Imp<RET()>::
@@ -12670,7 +13312,9 @@ bsl::Function_Imp<RET()>::
     typedef const BloombergLP::bdef_Function<RET(*)()> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 template <class RET, class ARGS_01>
 inline
 bsl::Function_Imp<RET(ARGS_01)>::
@@ -12679,7 +13323,9 @@ bsl::Function_Imp<RET(ARGS_01)>::
     typedef const BloombergLP::bdef_Function<RET(*)(ARGS_01)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 inline
@@ -12692,7 +13338,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_02)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -12709,7 +13357,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_03)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12730,7 +13380,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_04)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12755,7 +13407,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_05)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12784,7 +13438,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_06)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12817,7 +13473,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_07)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12854,7 +13512,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_08)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12895,7 +13555,9 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_09)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -12940,6 +13602,7 @@ bsl::Function_Imp<RET(ARGS_01,
                                                     ARGS_10)> Ret;
     return *static_cast<Ret*>(this);
 }
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
 #endif
 #else
@@ -13245,6 +13908,93 @@ bsl::Function_Imp<RET(ARGS...)>::
 
 // }}} END GENERATED CODE
 #endif
+
+                        // ----------------------------
+                        // class template bsl::function
+                        // ----------------------------
+
+template <class PROTOTYPE>
+inline typename bsl::function<PROTOTYPE>::Base&
+bsl::function<PROTOTYPE>::upcast(function& f) {
+    return static_cast<Base&>(f);
+}
+
+template <class PROTOTYPE>
+inline const typename bsl::function<PROTOTYPE>::Base&
+bsl::function<PROTOTYPE>::upcast(const function& f) {
+    return static_cast<const Base&>(f);
+}
+
+    // CREATORS
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>::function() BSLS_NOTHROW_SPEC
+    : Base(BloombergLP::bslma::Default::defaultAllocator()) {}
+
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>::function(nullptr_t) BSLS_NOTHROW_SPEC
+    : Base(BloombergLP::bslma::Default::defaultAllocator()) {}
+
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>::function(const function& other)
+    : Base(BloombergLP::bslma::Default::defaultAllocator(), upcast(other)) {}
+
+template <class PROTOTYPE>
+template<class ALLOC>
+inline bsl::function<PROTOTYPE>::function(allocator_arg_t, const ALLOC& alloc)
+    : Base(alloc) {}
+
+template <class PROTOTYPE>
+template <class ALLOC>
+inline bsl::function<PROTOTYPE>::function(allocator_arg_t,
+                                          const ALLOC& alloc,
+                                          nullptr_t)
+    : Base(alloc) {}
+
+template <class PROTOTYPE>
+template <class ALLOC>
+inline bsl::function<PROTOTYPE>::function(allocator_arg_t,
+                                          const ALLOC&    alloc,
+                                          const function& other)
+    : Base(alloc, upcast(other)) {}
+
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>::function(
+                               BloombergLP::bslmf::MovableRef<function> other)
+    : Base(MovableRefUtil::move(upcast(MovableRefUtil::access(other)))) {}
+
+template <class PROTOTYPE>
+template <class ALLOC>
+inline bsl::function<PROTOTYPE>::function(
+                                allocator_arg_t,
+                                const ALLOC&                             alloc,
+                                BloombergLP::bslmf::MovableRef<function> other)
+    : Base(alloc, MovableRefUtil::move(upcast(MovableRefUtil::access(other))))
+{
+}
+
+// MANIPULATORS
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>&
+bsl::function<PROTOTYPE>::operator=(const function& rhs)
+{
+    Base::operator=(upcast(rhs));
+    return *this;
+}
+
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>&
+bsl::function<PROTOTYPE>::operator=(
+                                BloombergLP::bslmf::MovableRef<function> rhs) {
+    Base::operator=(MovableRefUtil::move(upcast(MovableRefUtil::access(rhs))));
+    return *this;
+}
+
+template <class PROTOTYPE>
+inline bsl::function<PROTOTYPE>&
+bsl::function<PROTOTYPE>::operator=(nullptr_t) {
+    Base::operator=(nullptr_t());
+    return *this;
+}
 
 // FREE FUNCTIONS
 template <class PROTOTYPE>
