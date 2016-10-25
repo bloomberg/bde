@@ -152,11 +152,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_ASSERT_H
-#include <assert.h>
-#define INCLUDED_ASSERT_H
-#endif
-
                          // ==========================
                          // BSLS_LOG Macro Definitions
                          // ==========================
@@ -279,10 +274,6 @@ class Log {
 inline
 void Log::logMessage(const char *file, int line, const char *message)
 {
-    assert(file);
-    assert(line >= 0);
-    assert(message);
-
     return (logMessageHandler()) (file, line, message);
 }
 
