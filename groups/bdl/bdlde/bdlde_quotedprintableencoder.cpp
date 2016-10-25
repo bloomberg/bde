@@ -103,7 +103,7 @@ void QuotedPrintableEncoder::appendSoftLineBreak(char *out) {
 
     d_lastWasWS = false;
 
-    BSLS_ASSERT(5 <= d_bufferLength);
+    BSLS_ASSERT(5 >= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendHardLineBreak(char *out) {
@@ -129,7 +129,7 @@ void QuotedPrintableEncoder::appendHardLineBreak(char *out) {
 
     d_lastWasWS = false;
 
-    BSLS_ASSERT(5 <= d_bufferLength);
+    BSLS_ASSERT(5 >= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendPrintable(char *out, char ch) {
@@ -146,7 +146,7 @@ void QuotedPrintableEncoder::appendPrintable(char *out, char ch) {
 
     d_lastWasWS = (WS == d_equivClass_p[static_cast<unsigned char>(ch)]);
 
-    BSLS_ASSERT(5 <= d_bufferLength);
+    BSLS_ASSERT(5 >= d_bufferLength);
 }
 
 void QuotedPrintableEncoder::appendAsHex(char *out, char ch, bool isFinal) {
@@ -166,7 +166,7 @@ void QuotedPrintableEncoder::appendAsHex(char *out, char ch, bool isFinal) {
 
     d_lastWasWS = false;
 
-    BSLS_ASSERT(5 <= d_bufferLength);
+    BSLS_ASSERT(5 >= d_bufferLength);
 }
 
 // CREATORS

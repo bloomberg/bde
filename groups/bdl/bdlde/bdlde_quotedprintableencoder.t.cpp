@@ -2543,7 +2543,7 @@ int main(int argc, char *argv[])
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                const bool MODE = Obj::e_CRLF_MODE; // Relaxed Mode
+                const Obj::LineBreakMode MODE = Obj::e_CRLF_MODE;
 
                 Obj obj(MODE);  // object under test.
                 Obj obj1(MODE); // control for validating S1
