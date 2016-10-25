@@ -1,9 +1,15 @@
-bsl-internal (3.0.7.1) unstable; urgency=low
+bsl-internal (3.0.7.2) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2016 18:44:58 -0400
+
+bsl-internal (3.0.7.1) git; urgency=low
+
+  * 3896bf2 Changelog for version 3.0.7.1
   * 462d925 Merge pull request #809 from mgiroux/review/remove-assert-from-bsls-log-drqs-91256983
   * 2dd78e3 Merge pull request #808 from hversche/pr/805-rebased-releases/3.0.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2016 18:42:19 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2016 18:43:23 -0400
 
 bsl-internal (3.0.7.0) git; urgency=low
 
