@@ -101,6 +101,7 @@ struct MyClass
 //..
 // Now we can see that the row type is the type of the array after having
 // striped off the high-order dimension:
+//..
     int usageExample()
     {
         ASSERT((bsl::is_same<int, Traverser<int>::RowType>::value));

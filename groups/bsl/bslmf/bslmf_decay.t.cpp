@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
         //:   pointer).
         //: 10 If 'TYPE' is an lvalue reference type 'U&', then
         //:   'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
-        //: 12 If 'TYPE' is an rvalue reference (C++11) type 'U&&', then
+        //: 11 If 'TYPE' is an rvalue reference (C++11) type 'U&&', then
         //:   'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
         //
         // Plan:
@@ -199,7 +199,12 @@ int main(int argc, char *argv[])
         //:   'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'. Use
         //:   'bsl::is_same' to verify that 'bsl::remove_extent<TYPE>::type'
         //:   is as expected.
-	//
+        //: 2 NOT TESTED: function prototypes, such as 'int () const', for
+        //:   which it is not possible to create a (non-member) pointer.  Not
+        //:   all of our compilers support such "abominable function types"
+        //:   and 'bsl::add_pointer' does the wrong thing for them. Real code
+        //:   should not encounter such types.
+        //
         // Testing:
         //     bsl::decay<TYPE>::type
         // --------------------------------------------------------------------

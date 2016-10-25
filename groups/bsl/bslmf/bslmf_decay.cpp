@@ -1,6 +1,6 @@
 // bslmf_decay.cpp                  -*-C++-*-
 
-#include <bslmf_decay.h>
+#include <bslmf_decay.h> // For testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

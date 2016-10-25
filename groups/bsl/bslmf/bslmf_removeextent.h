@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Metafunction removes one array dimension from an array type
+//@PURPOSE: Provide a metafunction to return an array type's element type.
 //
 //@CLASSES: bsl::remove_extent<TYPE>
 //

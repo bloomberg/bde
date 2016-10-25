@@ -1,6 +1,6 @@
 // bslmf_removeextent.cpp                  -*-C++-*-
 
-#include <bslmf_removeextent.h>
+#include <bslmf_removeextent.h> // For testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
