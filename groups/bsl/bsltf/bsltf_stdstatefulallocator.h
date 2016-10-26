@@ -185,22 +185,21 @@ class StdStatefulAllocator {
     // a 'bslma::Allocator'.  The template is configurable to control its
     // allocator propagation properties, but does not support the BDE "scoped"
     // allocator model, as scoped allocators should never propagate.  Instances
-    // of this allocator delegate their operations to the wrapped test
-    // allocator that constitutes its state.  Note that meeting only the
-    // minimal requirements means that this class is not DefaultConstructible.
-    // Note that while we define the various traits used by the C++11 allocator
-    // traits facility, they actually mean very little for this component, as
-    // it is the consumer of the allocator's responsibility to check and apply
-    // the traits correctly, typically by using 'bsl::allocator_traits' to
-    // perform all memory allocation tasks rather than using the allocator
-    // directly.  The 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' flag is
-    // consumed directly though, in the static member function
+    // of this allocator delegate their operations to the wrapped allocator
+    // that constitutes its state.  Note that while we define the various
+    // traits used by the C++11 allocator traits facility, they actually mean
+    // very little for this component, as it is the consumer of the allocator's
+    // responsibility to check and apply the traits correctly, typically by
+    // using 'bsl::allocator_traits' to perform all memory allocation tasks
+    // rather than using the allocator directly.  The
+    // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' flag is consumed directly
+    // though, in the static member function
     // 'select_on_container_copy_construction'.
 
   private:
     // DATA
-    bslma::Allocator *d_allocator_p;      // the wrapped test allocator (held,
-                                          // not owned)
+    bslma::Allocator *d_allocator_p;      // the wrapped allocator (held, not
+                                          // owned)
 
   public:
     // PUBLIC TYPES
