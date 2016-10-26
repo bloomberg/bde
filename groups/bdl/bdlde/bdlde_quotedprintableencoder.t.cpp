@@ -7,12 +7,13 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlde_quotedprintableencoder.h>
 
-#include <bsl_cstdlib.h>   // atoi()
-#include <bsl_cstring.h>   // memset()
-#include <bsl_cctype.h>    // isprint(), toupper(), etc.
+#include <bslim_testutil.h>
+
+#include <bsl_cstdlib.h>   // 'atoi'
+#include <bsl_cstring.h>   // 'memset'
+#include <bsl_cctype.h>    // 'isprint', 'toupper', etc.
 #include <bsl_iostream.h>
 #include <bsl_limits.h>    // INT_MAX
 #include <bsl_sstream.h>
@@ -21,7 +22,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                             TEST PLAN
@@ -47,7 +47,7 @@ using namespace bsl;  // automatically added by script
 // turn out to be convenient to test 'reset' along with all the other state
 // transitions imposed by 'convert' and 'endConvert' early in the testing
 // process.
-//..
+//
 // The basic accessers for the encoder are all the functions that return
 // information about the customization and/or execution state:
 //..
@@ -71,13 +71,12 @@ using namespace bsl;  // automatically added by script
 //      ERROR_STATE:    ERROR_STATE     ERROR_STATE     INITIAL_STATE
 //..
 // Our first step will be to ensure that each of these states can be reached
-// ('::setState'), that an anticipated state can be verified ('::isState'),
-// and that each of the above state transitions (including 'reset') is
-// verified.  Next, we will ensure that each internal table is correct.
-// Finally, using category partitioning,  we enumerate a representative
-// collection of inputs ordered by length (plus MaxLineLength) that will be
-// sufficient to prove that the logic associated with the state machine is
-// performing as desired.
+// ('::setState'), that an anticipated state can be verified ('::isState'), and
+// that each of the above state transitions (including 'reset') is verified.
+// Next, we will ensure that each internal table is correct.  Finally, using
+// category partitioning, we enumerate a representative collection of inputs
+// ordered by length (plus MaxLineLength) that will be sufficient to prove that
+// the logic associated with the state machine is performing as desired.
 //
 // Note that Because the 'convert' and 'endConvert' methods are parametrized
 // based on iterator types, we will want to ensure (at compile time) that their
@@ -87,83 +86,85 @@ using namespace bsl;  // automatically added by script
 // for both of these template methods.
 //
 // ----------------------------------------------------------------------------
-// [ 7] static int encodedLength(int numInputBytes, int maxLineLength); [ 8]
-// bdlde::QuotedPrintableEncoder(); [ 2] bdlde::QuotedPrintableEncoder(int
-// maxLineLength); [ 3] ~bdlde::QuotedPrintableEncoder(); [ 7] int convert(char
-// *o, int *no, int*ni, const char*b, const char*e); [ 7] int endConvert(char
-// *out, int *numOut); [ 3] void reset(); [ 3] bool isAccepting() const; [ 3]
-// bool isError() const; [ 3] bool isInitialState() const; [ 2] int
-// maxLineLength() const; [ 3] int outputLength() const;
+// [ 7] static int encodedLength(int numInputBytes, int maxLineLength);
+// [ 8] bdlde::QuotedPrintableEncoder();
+// [ 2] bdlde::QuotedPrintableEncoder(int maxLineLength);
+// [ 3] ~bdlde::QuotedPrintableEncoder();
+// [ 7] int convert(char *o, int *no, int*ni, const char*b, const char*e);
+// [ 7] int endConvert(char *out, int *numOut);
+// [ 3] void reset();
+// [ 3] bool isAccepting() const;
+// [ 3] bool isError() const;
+// [ 3] bool isInitialState() const;
+// [ 2] int maxLineLength() const;
+// [ 3] int outputLength() const;
 //
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST -- (developer's sandbox) [ ] USAGE EXAMPLE [ ?] That the
-// input iterator can have *minimal* functionality.  [ ?] That the output
-// iterator can have *minimal* functionality.  [ 5] BOOTSTRAP: 'convert' -
-// transitions [ 4] BOOTSTRAP: 'endConvert'- transitions [ 3] That we can reach
-// each of the major processing states.  [ 1] ::myMin(const T& a, const T& b);
-// [ 1] ::printCharN(ostream& output, const char* sequence, int length) [ 3]
-// void ::setState(Obj *obj, int state, const char *input); [ 3] bool
-// ::isState(Obj *obj, int state); [ 6] That each internal table has no
-// defective entries.  [ 7] That each bit of a 3-byte quantum finds its
-// appropriate spot.  [ 7] That each bit of a 2-byte quantum finds its
-// appropriate spot.  [ 7] That each bit of a 1-byte quantum finds its
-// appropriate spot.  [ 7] That output length is calculated properly.
-//
-// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST -- (developer's sandbox)
+// [  ] USAGE EXAMPLE
+// [ ?] That the input iterator can have *minimal* functionality.
+// [ ?] That the output iterator can have *minimal* functionality.
+// [ 5] BOOTSTRAP: 'convert' - transitions
+// [ 4] BOOTSTRAP: 'endConvert'- transitions
+// [ 3] That we can reach each of the major processing states.
+// [ 1] ::myMin(const T& a, const T& b);
+// [ 1] ::printCharN(ostream& output, const char* sequence, int length)
+// [ 3] void ::setState(Obj *obj, int state, const char *input);
+// [ 3] bool ::isState(Obj *obj, int state);
+// [ 6] That each internal table has no defective entries.
+// [ 7] That each bit of a 3-byte quantum finds its appropriate spot.
+// [ 7] That each bit of a 2-byte quantum finds its appropriate spot.
+// [ 7] That each bit of a 1-byte quantum finds its appropriate spot.
+// [ 7] That output length is calculated properly.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//             NON-STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
 #define V(X) { if (verbose) { cout << "\t" << X << endl; } } // no () to allow
                                                              // stringing <<
 #define VV(X) { if (veryVerbose) { cout << "\t\t" << X << endl; } }
@@ -182,9 +183,9 @@ typedef bdlde::QuotedPrintableEncoder Obj;
 enum State {
     // Enumeration of logical states described in the test plan overview.
     // These logical states must range in value from INITIAL_STATE = 0 to
-    // ERROR_STATE = NUM_STATES - 1.  Note that the number and values of
-    // these logical states need not coincide with those defined explicitly
-    // in the implementation.
+    // ERROR_STATE = NUM_STATES - 1.  Note that the number and values of these
+    // logical states need not coincide with those defined explicitly in the
+    // implementation.
 
     INITIAL_STATE = 0,
     SAW_RETURN,
@@ -209,9 +210,9 @@ const int NUM_STATES = sizeof STATE_NAMES / sizeof *STATE_NAMES;
 
 char assertion[ERROR_STATE + 1 == NUM_STATES];
 
-                            // ===================
-                            // class StateAccessor
-                            // ===================
+                           // ===================
+                           // class StateAccessor
+                           // ===================
 
 class StateAccessor {
   private:
@@ -259,9 +260,9 @@ class StateAccessor {
     }
 };
 
-                        // ===========================================
-                        // Public Manipulators for class StateAccessor
-                        // ===========================================
+               // ===========================================
+               // Public Manipulators for class StateAccessor
+               // ===========================================
 
 void StateAccessor::makeStateTransitionOnInput(char input)
 {
@@ -392,10 +393,10 @@ class EnabledGuard {
   public:
     explicit
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions
-        // in the '::isState' test helper function using the specified
-        // enable 'flag' value.  If 'flag' is 'true' individual false values
-        // we be reported as assertion errors.
+        // Create a guard to control the activation of individual assertions in
+        // the '::isState' test helper function using the specified enable
+        // 'flag' value.  If 'flag' is 'true' individual false values we be
+        // reported as assertion errors.
     : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
 
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
@@ -632,9 +633,9 @@ bool StateAccessor::isState(State state) const
     return rv;
 }
 
-                        // ====================================
-                        // Equivalence-Class Related Data Types
-                        // ====================================
+                   // ====================================
+                   // Equivalence-Class Related Data Types
+                   // ====================================
 
 struct Range {
     // Range is made inclusive to support a point.
@@ -703,7 +704,6 @@ const EquivalenceClass *const EquivalenceClass_p[] = {
     &controlChar
 };
 
-
 // enum EquivalenceClassId = {
 //     PRINTABLE = 0,
 //     WHITESPACE,
@@ -758,9 +758,9 @@ class StateTransitionMatrix {
 //                           TEST HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
-                        // =============================
-                        // Function findEquivalenceClass
-                        // =============================
+                      // =============================
+                      // Function findEquivalenceClass
+                      // =============================
 
 const EquivalenceClass& findEquivalenceClass(char ch)
     // Find the equivalence class to which the specified 'ch' belongs.
@@ -782,9 +782,9 @@ const EquivalenceClass& findEquivalenceClass(char ch)
     }
 }
 
-                        // ==============
-                        // Function myMin
-                        // ==============
+                              // ==============
+                              // Function myMin
+                              // ==============
 
 template <class T>
 inline
@@ -793,9 +793,9 @@ T myMin(const T& a, const T& b)
     return a < b ? a : b;
 }
 
-                        // ==============
-                        // Function isHex
-                        // ==============
+                              // ==============
+                              // Function isHex
+                              // ==============
 
 inline
 bool isHex(char ch)
@@ -806,16 +806,16 @@ bool isHex(char ch)
     return '0' <= ch && ch <= '9' || 'A' <= ch && ch <= 'F';
 }
 
-                        // ===================
-                        // Function printCharN
-                        // ===================
+                           // ===================
+                           // Function printCharN
+                           // ===================
 
 ostream& printCharN(ostream& output, const char* sequence, int length)
     // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream'
-    // (if a character is not printable, its hexadecimal code is printed
-    // instead).  The behavior is undefined unless 0 <= 'length' and sequence
-    // refers to a valid area of memory of size at least 'length'.
+    // specified 'stream' and return a reference to the modifiable 'stream' (if
+    // a character is not printable, its hexadecimal code is printed instead).
+    // The behavior is undefined unless 0 <= 'length' and sequence refers to a
+    // valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -834,10 +834,10 @@ ostream& printCharN(ostream& output, const char* sequence, int length)
 
 string printHex(const char* sequence, int length)
     // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream'
-    // (if a character is not printable, its hexadecimal code is printed
-    // instead).  The behavior is undefined unless 0 <= 'length' and sequence
-    // refers to a valid area of memory of size at least 'length'.
+    // specified 'stream' and return a reference to the modifiable 'stream' (if
+    // a character is not printable, its hexadecimal code is printed instead).
+    // The behavior is undefined unless 0 <= 'length' and sequence refers to a
+    // valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
     string str;
@@ -876,7 +876,6 @@ void charToHex(char* hex, unsigned char ch, int numOut)
     hex[1] = HEX[ch & 0x0F];
 }
 
-#if 1
                         // =================
                         // Function setState
                         // =================
@@ -931,7 +930,7 @@ void setState(bdlde::QuotedPrintableEncoder *object, int state)
         ASSERT(3 == object->convert(b, &numOut, &numIn, begin, end));
         ASSERT(0 == numOut); ASSERT(1 == numIn);
 
-        ASSERT(0 == object->isAccepting());
+        ASSERT(1 == object->isAccepting());
         ASSERT(0 == object->isDone());
         ASSERT(0 == object->isError());
         ASSERT(0 == object->isInitialState());
@@ -942,7 +941,7 @@ void setState(bdlde::QuotedPrintableEncoder *object, int state)
         ASSERT(3 == object->convert(b, &numOut, &numIn, begin, end));
         ASSERT(0 == numOut); ASSERT(1 == numIn);
 
-        ASSERT(0 == object->isAccepting());
+        ASSERT(1 == object->isAccepting());
         ASSERT(0 == object->isDone());
         ASSERT(0 == object->isError());
         ASSERT(0 == object->isInitialState());
@@ -979,36 +978,15 @@ void setState(bdlde::QuotedPrintableEncoder *object, int state)
                         // ================
                         // Function isState
                         // ================
-#if 0
-static bool globalAssertsEnabled = false;
-    // If set to true, will enable ASSERTs in '::isState' (for debugging).
-
-class EnabledGuard {
-    // Enable/Disable '::isState' ASSERTs for current scope; restore status at
-    // end.  Note that guards can be nested.
-
-    bool d_state;
-
-  public:
-    EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions
-        // in the '::isState' test helper function using the specified
-        // enable 'flag' value.  If 'flag' is 'true' individual false values
-        // we be reported as assertion errors.
-    : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
-
-    ~EnabledGuard() { globalAssertsEnabled = d_state; }
-};
-#endif
 
 bool isState(bdlde::QuotedPrintableEncoder *object, int state)
     // Return 'true' if the specified 'object' was initially in the specified
     // 'state', and 'false' otherwise.  Setting the global variable
-    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to
-    // be ASSERTed, which can be used to facilitate test driver debugging.
-    // Note that the final state of 'object' may (and probably will) be
-    // modified arbitrarily from its initial state in order to distinguish
-    // similar states.
+    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to be
+    // ASSERTed, which can be used to facilitate test driver debugging.  Note
+    // that the final state of 'object' may (and probably will) be modified
+    // arbitrarily from its initial state in order to distinguish similar
+    // states.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -1070,7 +1048,13 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool c5 = 5 == numOut;
         bool c6 = c1 || c2 || c3 || c4 || c5;           ASSERT(c6 || !enabled);
 
-        bool d0, d1, d2, d3, d4, d5, d6;
+        bool d0 = false;
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
+        bool d4 = false;
+        bool d5 = false;
+        bool d6 = false;
 
         switch (numOut) {
           case 5: {
@@ -1124,7 +1108,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
             && c0 && c6 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
       } break;
       case SAW_RETURN: {
-        bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
+        bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
         bool a2 = 0 == object->isError();               ASSERT(a2 || !enabled);
         bool a3 = 0 == object->isInitialState();        ASSERT(a3 || !enabled);
@@ -1167,7 +1151,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
             && c0 && c3 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
       } break;
       case SAW_WHITE: {
-        bool a0 = 0 == object->isAccepting();           ASSERT(a0 || !enabled);
+        bool a0 = 1 == object->isAccepting();           ASSERT(a0 || !enabled);
         bool a1 = 0 == object->isDone();                ASSERT(a1 || !enabled);
         bool a2 = 0 == object->isError();               ASSERT(a2 || !enabled);
         bool a3 = 0 == object->isInitialState();        ASSERT(a3 || !enabled);
@@ -1291,15 +1275,13 @@ const char* getStateInText(bdlde::QuotedPrintableEncoder *object)
     return "UNKNOWN_STATE";
 }
 
-#endif
-
 // ============================================================================
 //                            TEST HELPER CLASSES
 // ----------------------------------------------------------------------------
 
-                            // ===================
-                            // class InputIterator
-                            // ===================
+                           // ===================
+                           // class InputIterator
+                           // ===================
 
 class InputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1384,9 +1366,9 @@ bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
     return !(lhs == rhs);
 }
 
-                            // ====================
-                            // class OutputIterator
-                            // ====================
+                           // ====================
+                           // class OutputIterator
+                           // ====================
 
 class OutputIterator {
     // This class provides an minimal iterator-like interface that can be used
@@ -1484,13 +1466,12 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
-    // int veryVeryVeryVerbose = argc > 5;
+    int veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if 0
       case 9: {
         // --------------------------------------------------------------------
         // RESET
@@ -1528,7 +1509,7 @@ int main(int argc, char *argv[])
         V("In CRLF_MODE and 'maxLineLength' = 0 (actually INT_MAX)");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(Obj::CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1537,15 +1518,15 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::CRLF_MODE == obj.lineBreakMode());
-                LOOP_ASSERT(i, INT_MAX == obj.maxLineLength());
+                LOOP_ASSERT(i, Obj::e_CRLF_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, 76 == obj.maxLineLength());
             }
         }
 
         V("In MIXED_MODE and with 'maxLineLength' = 5.");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
-                Obj obj(Obj::MIXED_MODE, 5);
+                Obj obj(Obj::e_MIXED_MODE, 5);
                 if (verbose) cout << "\t\t" << STATE_NAMES[i] << '.' << endl;
                 setState(&obj, i);
                 const bool SAME = INITIAL_STATE == i;
@@ -1554,11 +1535,10 @@ int main(int argc, char *argv[])
                 obj.reset();
                 LOOP_ASSERT(i, 1 == isState(&obj, INITIAL_STATE));
 
-                LOOP_ASSERT(i, Obj::MIXED_MODE == obj.lineBreakMode());
+                LOOP_ASSERT(i, Obj::e_MIXED_MODE == obj.lineBreakMode());
                 LOOP_ASSERT(i, 5 == obj.maxLineLength());
             }
         }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1714,7 +1694,7 @@ int main(int argc, char *argv[])
 { L_, "ABCD",    -1, 0, 3, 4, 4, N,         -1, 0, D, 0, _,"ABCD"            },
 { L_, "A\nBC",   -1, 0, 3, 6, 4, N,         -1, 0, D, 0, _,"A=0ABC"          },
 #endif
-    };
+
 #if 0
 //lin InputData1 L1 R1 S1 o1 i1  InputData2 L2 R2 S2 o2 i2 Output Data   D =  4
 //--- ---------- -- -- -- -- --  ---------- -- -- -- -- -- ------------------
@@ -2523,8 +2503,8 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAwQ",7, 0, 1, 6, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
 //--------------v
-            };
 #endif
+            };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2563,7 +2543,7 @@ int main(int argc, char *argv[])
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                const bool MODE = Obj::CRLF_MODE; // Relaxed Mode
+                const Obj::LineBreakMode MODE = Obj::e_CRLF_MODE;
 
                 Obj obj(MODE);  // object under test.
                 Obj obj1(MODE); // control for validating S1
@@ -2701,7 +2681,6 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, N_OUT2, nOut2, N_OUT2 == nOut2);
                 LOOP3_ASSERT(LINE, N_IN2, nIn2, N_IN2 == nIn2);
 
-
                 // Verify combined output.
 
                 if (veryVeryVerbose) {
@@ -2786,7 +2765,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS" << endl
                           << "====================" << endl;
-
         if (verbose) cout << endl << "\nVerifying Conversion Logic." << endl;
         {
             static const struct {
@@ -2806,228 +2784,226 @@ int main(int argc, char *argv[])
 //--- -- -- ------------------------------------------  -- ------------------
 
 // DEPTH 0
-{ L_,  0, 0,"",                                          0,""                },
+{ L_, 76, 0,"",                                          0,""                },
 
 // DEPTH 1
-{ L_,  0, 1,"a",                                         1,"a"               },
-{ L_,  0, 1,"A",                                         1,"A"               },
-{ L_,  0, 1,"\"",                                        1,"\""              },
-{ L_,  0, 1,"~",                                         1,"~"               },
-{ L_,  0, 1,"0",                                         1,"0"               },
-{ L_,  0, 1,"\x00",                                      3,"=00"             },
-{ L_,  0, 1,"\x1F",                                      3,"=1F"             },
-{ L_,  0, 1,"\t",                                        3,"=09"             },
-{ L_,  0, 1," ",                                         3,"=20"             },
-{ L_,  0, 1,"\r",                                        3,"=0D"             },
-{ L_,  0, 1,"\n",                                        3,"=0A"             },
-{ L_,  0, 1,"\x7F",                                      3,"=7F"             },
+{ L_, 76, 1,"a",                                         1,"a"               },
+{ L_, 76, 1,"A",                                         1,"A"               },
+{ L_, 76, 1,"\"",                                        1,"\""              },
+{ L_, 76, 1,"~",                                         1,"~"               },
+{ L_, 76, 1,"0",                                         1,"0"               },
+{ L_, 76, 1,"\x00",                                      3,"=00"             },
+{ L_, 76, 1,"\x1F",                                      3,"=1F"             },
+{ L_, 76, 1,"\t",                                        3,"=09"             },
+{ L_, 76, 1," ",                                         3,"=20"             },
+{ L_, 76, 1,"\r",                                        3,"=0D"             },
+{ L_, 76, 1,"\n",                                        3,"=0A"             },
+{ L_, 76, 1,"\x7F",                                      3,"=7F"             },
+{ L_, 76, 1,"\xFF",                                      3,"=FF"             },
 
 // DEPTH 2
 // 2 of the same equivalence class (EC)
-{ L_,  0, 2,"aa",                                        2,"aa"              },
-{ L_,  0, 2,"AA",                                        2,"AA"              },
-{ L_,  0, 2,"\"\"",                                      2,"\"\""            },
-{ L_,  0, 2,"~~",                                        2,"~~"              },
-{ L_,  0, 2,"00",                                        2,"00"              },
-{ L_,  0, 2,"\x00\x00",                                  6,"=00=00"          },
-{ L_,  0, 2,"\x1F\x1F",                                  6,"=1F=1F"          },
-{ L_,  0, 2,"\t\t",                                      4,"\t=09"           },
-{ L_,  0, 2,"  ",                                        4," =20"            },
-{ L_,  0, 2,"\r\r",                                      6,"=0D=0D"          },
-{ L_,  0, 2,"\n\n",                                      6,"=0A=0A"          },
-{ L_,  0, 2,"\x7F""\x7F",                                6,"=7F=7F"          },
-{ L_,  0, 2,"\xFE""\xFE",                                6,"=FE=FE"          },
-{ L_,  0, 2,"\xFF""\xFF",                                6,"=FF=FF"          },
+{ L_, 76, 2,"aa",                                        2,"aa"              },
+{ L_, 76, 2,"AA",                                        2,"AA"              },
+{ L_, 76, 2,"\"\"",                                      2,"\"\""            },
+{ L_, 76, 2,"~~",                                        2,"~~"              },
+{ L_, 76, 2,"00",                                        2,"00"              },
+{ L_, 76, 2,"\x00\x00",                                  6,"=00=00"          },
+{ L_, 76, 2,"\x1F\x1F",                                  6,"=1F=1F"          },
+{ L_, 76, 2,"\t\t",                                      4,"\t=09"           },
+{ L_, 76, 2,"  ",                                        4," =20"            },
+{ L_, 76, 2,"\r\r",                                      6,"=0D=0D"          },
+{ L_, 76, 2,"\n\n",                                      6,"=0A=0A"          },
+{ L_, 76, 2,"\x7F""\x7F",                                6,"=7F=7F"          },
+{ L_, 76, 2,"\xFE""\xFE",                                6,"=FE=FE"          },
+{ L_, 76, 2,"\xFF""\xFF",                                6,"=FF=FF"          },
 
 // 2 of different ECs involving printable characters
-{ L_,  0, 2,"a ",                                        4,"a=20"            },
-{ L_,  0, 2," a",                                        2," a"              },
-{ L_,  0, 2,"a\r",                                       4,"a=0D"            },
-{ L_,  0, 2,"\ra",                                       4,"=0Da"            },
-{ L_,  0, 2,"a\n",                                       4,"a=0A"            },
-{ L_,  0, 2,"\na",                                       4,"=0Aa"            },
-{ L_,  0, 2,"a""\xFE",                                   4,"a=FE"            },
-{ L_,  0, 2,"\xFE""a",                                   4,"=FEa"            },
+{ L_, 76, 2,"a ",                                        4,"a=20"            },
+{ L_, 76, 2," a",                                        2," a"              },
+{ L_, 76, 2,"a\r",                                       4,"a=0D"            },
+{ L_, 76, 2,"\ra",                                       4,"=0Da"            },
+{ L_, 76, 2,"a\n",                                       4,"a=0A"            },
+{ L_, 76, 2,"\na",                                       4,"=0Aa"            },
+{ L_, 76, 2,"a""\xFE",                                   4,"a=FE"            },
+{ L_, 76, 2,"\xFE""a",                                   4,"=FEa"            },
 
 // 2 of different ECs involving whitespace
-{ L_,  0, 2," \r",                                       6,"=20=0D"          },
-{ L_,  0, 2,"\r ",                                       6,"=0D=20"          },
-{ L_,  0, 2," \n",                                       6,"=20=0A"          },
-{ L_,  0, 2,"\n ",                                       6,"=0A=20"          },
-{ L_,  0, 2," ""\xFE",                                   4," =FE"            },
-{ L_,  0, 2,"\xFE"" ",                                   6,"=FE=20"          },
+{ L_, 76, 2," \r",                                       6,"=20=0D"          },
+{ L_, 76, 2,"\r ",                                       6,"=0D=20"          },
+{ L_, 76, 2," \n",                                       6,"=20=0A"          },
+{ L_, 76, 2,"\n ",                                       6,"=0A=20"          },
+{ L_, 76, 2," ""\xFE",                                   4," =FE"            },
+{ L_, 76, 2,"\xFE"" ",                                   6,"=FE=20"          },
 
 // 2 of different ECs involving carriage return
-{ L_,  0, 2,"\r\n",                                      2,"\r\n"            },
-{ L_,  0, 2,"\n\r",                                      6,"=0A=0D"          },
-{ L_,  0, 2,"\r\xFE",                                    6,"=0D=FE"          },
-{ L_,  0, 2,"\xFE""\r",                                  6,"=FE=0D"          },
+{ L_, 76, 2,"\r\n",                                      2,"\r\n"            },
+{ L_, 76, 2,"\n\r",                                      6,"=0A=0D"          },
+{ L_, 76, 2,"\r\xFE",                                    6,"=0D=FE"          },
+{ L_, 76, 2,"\xFE""\r",                                  6,"=FE=0D"          },
 
 // 2 of different ECs involving newline
-{ L_,  0, 2,"\n""\xFE",                                  6,"=0A=FE"          },
-{ L_,  0, 2,"\xFE""\n",                                  6,"=FE=0A"          },
+{ L_, 76, 2,"\n""\xFE",                                  6,"=0A=FE"          },
+{ L_, 76, 2,"\xFE""\n",                                  6,"=FE=0A"          },
 
 // DEPTH 3
 // 3 of the same ECs - 5 combinations
-{ L_,  0, 3,"aaa",                                       3,"aaa"             },
-{ L_,  0, 3,"   ",                                       5,"  =20"           },
-{ L_,  0, 3,"\r\r\r",                                    9,"=0D=0D=0D"       },
-{ L_,  0, 3,"\n\n\n",                                    9,"=0A=0A=0A"       },
-{ L_,  0, 3,"\xFE""\xFE""\xFE",                          9,"=FE=FE=FE"       },
+{ L_, 76, 3,"aaa",                                       3,"aaa"             },
+{ L_, 76, 3,"   ",                                       5,"  =20"           },
+{ L_, 76, 3,"\r\r\r",                                    9,"=0D=0D=0D"       },
+{ L_, 76, 3,"\n\n\n",                                    9,"=0A=0A=0A"       },
+{ L_, 76, 3,"\xFE""\xFE""\xFE",                          9,"=FE=FE=FE"       },
 
-// 3 of different ECs involving 2 printable characters
-// 3 * (5-1) = 12 combinations
-{ L_,  0, 3,"aa ",                                       5,"aa=20"           },
-{ L_,  0, 3," aa",                                       3," aa"             },
-{ L_,  0, 3,"a a",                                       3,"a a"             },
-{ L_,  0, 3,"aa\r",                                      5,"aa=0D"           },
-{ L_,  0, 3,"\raa",                                      5,"=0Daa"           },
-{ L_,  0, 3,"a\ra",                                      5,"a=0Da"           },
-{ L_,  0, 3,"aa\n",                                      5,"aa=0A"           },
-{ L_,  0, 3,"\naa",                                      5,"=0Aaa"           },
-{ L_,  0, 3,"a\na",                                      5,"a=0Aa"           },
-{ L_,  0, 3,"aa""\xFE",                                  5,"aa=FE"           },
-{ L_,  0, 3,"\xFE""aa",                                  5,"=FEaa"           },
-{ L_,  0, 3,"a""\xFE""a",                                5,"a=FEa"           },
+// 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
+// combinations
+{ L_, 76, 3,"aa ",                                       5,"aa=20"           },
+{ L_, 76, 3," aa",                                       3," aa"             },
+{ L_, 76, 3,"a a",                                       3,"a a"             },
+{ L_, 76, 3,"aa\r",                                      5,"aa=0D"           },
+{ L_, 76, 3,"\raa",                                      5,"=0Daa"           },
+{ L_, 76, 3,"a\ra",                                      5,"a=0Da"           },
+{ L_, 76, 3,"aa\n",                                      5,"aa=0A"           },
+{ L_, 76, 3,"\naa",                                      5,"=0Aaa"           },
+{ L_, 76, 3,"a\na",                                      5,"a=0Aa"           },
+{ L_, 76, 3,"aa""\xFE",                                  5,"aa=FE"           },
+{ L_, 76, 3,"\xFE""aa",                                  5,"=FEaa"           },
+{ L_, 76, 3,"a""\xFE""a",                                5,"a=FEa"           },
 
-// 3 of different ECs involving 2 whitespace characters
-// 3 * (4 - 1) = 9 combinations
-{ L_,  0, 3,"  \r",                                      7," =20=0D"         },
-{ L_,  0, 3,"\r  ",                                      7,"=0D =20"         },
-{ L_,  0, 3," \r ",                                      9,"=20=0D=20"       },
-{ L_,  0, 3,"  \n",                                      7," =20=0A"         },
-{ L_,  0, 3,"\n  ",                                      7,"=0A =20"         },
-{ L_,  0, 3," \n ",                                      9,"=20=0A=20"       },
-{ L_,  0, 3,"  ""\xFE",                                  5,"  =FE"           },
-{ L_,  0, 3,"\xFE""  ",                                  7,"=FE =20"         },
-{ L_,  0, 3," ""\xFE"" ",                                7," =FE=20"         },
+// 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
+// combinations
+{ L_, 76, 3,"  \r",                                      7," =20=0D"         },
+{ L_, 76, 3,"\r  ",                                      7,"=0D =20"         },
+{ L_, 76, 3," \r ",                                      9,"=20=0D=20"       },
+{ L_, 76, 3,"  \n",                                      7," =20=0A"         },
+{ L_, 76, 3,"\n  ",                                      7,"=0A =20"         },
+{ L_, 76, 3," \n ",                                      9,"=20=0A=20"       },
+{ L_, 76, 3,"  ""\xFE",                                  5,"  =FE"           },
+{ L_, 76, 3,"\xFE""  ",                                  7,"=FE =20"         },
+{ L_, 76, 3," ""\xFE"" ",                                7," =FE=20"         },
 
-// 3 of different ECs involving 2 carriage returns
-// 3 * (3 - 1) = 6 combinations
-{ L_,  0, 3,"\r\r\n",                                    5,"=0D\r\n"         },
-{ L_,  0, 3,"\n\r\r",                                    9,"=0A=0D=0D"       },
-{ L_,  0, 3,"\r\n\r",                                    5,"\r\n=0D"         },
-{ L_,  0, 3,"\r\r""\xFE",                                9,"=0D=0D=FE"       },
-{ L_,  0, 3,"\xFE""\r\r",                                9,"=FE=0D=0D"       },
-{ L_,  0, 3,"\r""\xFE""\r",                              9,"=0D=FE=0D"       },
+// 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
+{ L_, 76, 3,"\r\r\n",                                    5,"=0D\r\n"         },
+{ L_, 76, 3,"\n\r\r",                                    9,"=0A=0D=0D"       },
+{ L_, 76, 3,"\r\n\r",                                    5,"\r\n=0D"         },
+{ L_, 76, 3,"\r\r""\xFE",                                9,"=0D=0D=FE"       },
+{ L_, 76, 3,"\xFE""\r\r",                                9,"=FE=0D=0D"       },
+{ L_, 76, 3,"\r""\xFE""\r",                              9,"=0D=FE=0D"       },
 
-// 3 of different ECs involving 2 newlines
-// 3 * (2 - 1) = 3 combinations
-{ L_,  0, 3,"\n\n""\xFE",                                9,"=0A=0A=FE"       },
-{ L_,  0, 3,"\xFE""\n\n",                                9,"=FE=0A=0A"       },
-{ L_,  0, 3,"\n""\xFE""\n",                              9,"=0A=FE=0A"       },
+// 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
+{ L_, 76, 3,"\n\n""\xFE",                                9,"=0A=0A=FE"       },
+{ L_, 76, 3,"\xFE""\n\n",                                9,"=FE=0A=0A"       },
+{ L_, 76, 3,"\n""\xFE""\n",                              9,"=0A=FE=0A"       },
 
-// 3 of different ECs involving no 2 of a kind and only 1 printable
-// 3 * 4 * 3 = 36 combinations
-{ L_,  0, 3,"a \r",                                      7,"a=20=0D"         },
-{ L_,  0, 3,"a \n",                                      7,"a=20=0A"         },
-{ L_,  0, 3,"a ""\xFE",                                  5,"a =FE"           },
-{ L_,  0, 3,"a\r ",                                      7,"a=0D=20"         },
-{ L_,  0, 3,"a\n ",                                      7,"a=0A=20"         },
-{ L_,  0, 3,"a""\xFE"" ",                                7,"a=FE=20"         },
+// 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
+// 36 combinations
+{ L_, 76, 3,"a \r",                                      7,"a=20=0D"         },
+{ L_, 76, 3,"a \n",                                      7,"a=20=0A"         },
+{ L_, 76, 3,"a ""\xFE",                                  5,"a =FE"           },
+{ L_, 76, 3,"a\r ",                                      7,"a=0D=20"         },
+{ L_, 76, 3,"a\n ",                                      7,"a=0A=20"         },
+{ L_, 76, 3,"a""\xFE"" ",                                7,"a=FE=20"         },
 
-{ L_,  0, 3,"a\r\n",                                     3,"a\r\n"           },
-{ L_,  0, 3,"a\r""\xFE",                                 7,"a=0D=FE"         },
-{ L_,  0, 3,"a\n\r",                                     7,"a=0A=0D"         },
-{ L_,  0, 3,"a""\xFE""\r",                               7,"a=FE=0D"         },
+{ L_, 76, 3,"a\r\n",                                     3,"a\r\n"           },
+{ L_, 76, 3,"a\r""\xFE",                                 7,"a=0D=FE"         },
+{ L_, 76, 3,"a\n\r",                                     7,"a=0A=0D"         },
+{ L_, 76, 3,"a""\xFE""\r",                               7,"a=FE=0D"         },
 
-{ L_,  0, 3,"a\n""\xFE",                                 7,"a=0A=FE"         },
-{ L_,  0, 3,"a""\xFE""\n",                               7,"a=FE=0A"         },
+{ L_, 76, 3,"a\n""\xFE",                                 7,"a=0A=FE"         },
+{ L_, 76, 3,"a""\xFE""\n",                               7,"a=FE=0A"         },
 
-{ L_,  0, 3," a\r",                                      5," a=0D"           },
-{ L_,  0, 3," a\n",                                      5," a=0A"           },
-{ L_,  0, 3," a""\xFE",                                  5," a=FE"           },
-{ L_,  0, 3,"\ra ",                                      7,"=0Da=20"         },
-{ L_,  0, 3,"\na ",                                      7,"=0Aa=20"         },
-{ L_,  0, 3,"\xFE""a ",                                  7,"=FEa=20"         },
+{ L_, 76, 3," a\r",                                      5," a=0D"           },
+{ L_, 76, 3," a\n",                                      5," a=0A"           },
+{ L_, 76, 3," a""\xFE",                                  5," a=FE"           },
+{ L_, 76, 3,"\ra ",                                      7,"=0Da=20"         },
+{ L_, 76, 3,"\na ",                                      7,"=0Aa=20"         },
+{ L_, 76, 3,"\xFE""a ",                                  7,"=FEa=20"         },
 
-{ L_,  0, 3,"\ra\n",                                     7,"=0Da=0A"         },
-{ L_,  0, 3,"\ra""\xFE",                                 7,"=0Da=FE"         },
-{ L_,  0, 3,"\na\r",                                     7,"=0Aa=0D"         },
-{ L_,  0, 3,"\xFE""a\r",                                 7,"=FEa=0D"         },
+{ L_, 76, 3,"\ra\n",                                     7,"=0Da=0A"         },
+{ L_, 76, 3,"\ra""\xFE",                                 7,"=0Da=FE"         },
+{ L_, 76, 3,"\na\r",                                     7,"=0Aa=0D"         },
+{ L_, 76, 3,"\xFE""a\r",                                 7,"=FEa=0D"         },
 
-{ L_,  0, 3,"\na""\xFE",                                 7,"=0Aa=FE"         },
-{ L_,  0, 3,"\xFE""a\n",                                 7,"=FEa=0A"         },
+{ L_, 76, 3,"\na""\xFE",                                 7,"=0Aa=FE"         },
+{ L_, 76, 3,"\xFE""a\n",                                 7,"=FEa=0A"         },
 
-{ L_,  0, 3," \ra",                                      7,"=20=0Da"         },
-{ L_,  0, 3," \na",                                      7,"=20=0Aa"         },
-{ L_,  0, 3," \xFE""a",                                  5," =FEa"           },
-{ L_,  0, 3," \ra",                                      7,"=20=0Da"         },
-{ L_,  0, 3," \na",                                      7,"=20=0Aa"         },
-{ L_,  0, 3," \xFE""a",                                  5," =FEa"           },
+{ L_, 76, 3," \ra",                                      7,"=20=0Da"         },
+{ L_, 76, 3," \na",                                      7,"=20=0Aa"         },
+{ L_, 76, 3," \xFE""a",                                  5," =FEa"           },
+{ L_, 76, 3," \ra",                                      7,"=20=0Da"         },
+{ L_, 76, 3," \na",                                      7,"=20=0Aa"         },
+{ L_, 76, 3," \xFE""a",                                  5," =FEa"           },
 
-{ L_,  0, 3,"\r\na",                                     3,"\r\na"           },
-{ L_,  0, 3,"\r""\xFE""a",                               7,"=0D=FEa"         },
-{ L_,  0, 3,"\n\ra",                                     7,"=0A=0Da"         },
-{ L_,  0, 3,"\xFE""\ra",                                 7,"=FE=0Da"         },
+{ L_, 76, 3,"\r\na",                                     3,"\r\na"           },
+{ L_, 76, 3,"\r""\xFE""a",                               7,"=0D=FEa"         },
+{ L_, 76, 3,"\n\ra",                                     7,"=0A=0Da"         },
+{ L_, 76, 3,"\xFE""\ra",                                 7,"=FE=0Da"         },
 
-{ L_,  0, 3,"\n""\xFE""a",                               7,"=0A=FEa"         },
-{ L_,  0, 3,"\xFE""\na",                                 7,"=FE=0Aa"         },
+{ L_, 76, 3,"\n""\xFE""a",                               7,"=0A=FEa"         },
+{ L_, 76, 3,"\xFE""\na",                                 7,"=FE=0Aa"         },
 
 // 3 of different ECs involving no 2 of a kind, only 1 whitespace and no
 // printable - 3 * 3 * 2 = 18 combinations
-{ L_,  0, 3," \r\n",                                     5,"=20\r\n"         },
-{ L_,  0, 3," \r""\xFE",                                 9,"=20=0D=FE"       },
-{ L_,  0, 3," \n\r",                                     9,"=20=0A=0D"       },
-{ L_,  0, 3," \xFE""\r",                                 7," =FE=0D"         },
+{ L_, 76, 3," \r\n",                                     5,"=20\r\n"         },
+{ L_, 76, 3," \r""\xFE",                                 9,"=20=0D=FE"       },
+{ L_, 76, 3," \n\r",                                     9,"=20=0A=0D"       },
+{ L_, 76, 3," \xFE""\r",                                 7," =FE=0D"         },
 
-{ L_,  0, 3," \n\xFE",                                   9,"=20=0A=FE"       },
-{ L_,  0, 3," \xFE\n",                                   7," =FE=0A"         },
+{ L_, 76, 3," \n\xFE",                                   9,"=20=0A=FE"       },
+{ L_, 76, 3," \xFE\n",                                   7," =FE=0A"         },
 
-{ L_,  0, 3,"\r \n",                                     9,"=0D=20=0A"       },
-{ L_,  0, 3,"\r ""\xFE",                                 7,"=0D =FE"         },
-{ L_,  0, 3,"\n \r",                                     9,"=0A=20=0D"       },
-{ L_,  0, 3,"\xFE"" \r",                                 9,"=FE=20=0D"       },
+{ L_, 76, 3,"\r \n",                                     9,"=0D=20=0A"       },
+{ L_, 76, 3,"\r ""\xFE",                                 7,"=0D =FE"         },
+{ L_, 76, 3,"\n \r",                                     9,"=0A=20=0D"       },
+{ L_, 76, 3,"\xFE"" \r",                                 9,"=FE=20=0D"       },
 
-{ L_,  0, 3,"\n ""\xFE",                                 7,"=0A =FE"         },
-{ L_,  0, 3,"\xFE"" \n",                                 9,"=FE=20=0A"       },
+{ L_, 76, 3,"\n ""\xFE",                                 7,"=0A =FE"         },
+{ L_, 76, 3,"\xFE"" \n",                                 9,"=FE=20=0A"       },
 
-{ L_,  0, 3,"\r\n ",                                     5,"\r\n=20"         },
-{ L_,  0, 3,"\r""\xFE ",                                 9,"=0D=FE=20"       },
-{ L_,  0, 3,"\n\r ",                                     9,"=0A=0D=20"       },
-{ L_,  0, 3,"\xFE""\r ",                                 9,"=FE=0D=20"       },
+{ L_, 76, 3,"\r\n ",                                     5,"\r\n=20"         },
+{ L_, 76, 3,"\r""\xFE ",                                 9,"=0D=FE=20"       },
+{ L_, 76, 3,"\n\r ",                                     9,"=0A=0D=20"       },
+{ L_, 76, 3,"\xFE""\r ",                                 9,"=FE=0D=20"       },
 
-{ L_,  0, 3,"\n""\xFE ",                                 9,"=0A=FE=20"       },
-{ L_,  0, 3,"\xFE""\n ",                                 9,"=FE=0A=20"       },
+{ L_, 76, 3,"\n""\xFE ",                                 9,"=0A=FE=20"       },
+{ L_, 76, 3,"\xFE""\n ",                                 9,"=FE=0A=20"       },
 
 // 3 of different ECs involving no 2 of a kind, only 1 carriage return and no
 // printable or whitespace - 3 * 2 * 1 = 6 combinations
-{ L_,  0, 3,"\r\n""\xFE",                                5,"\r\n=FE"         },
-{ L_,  0, 3,"\r""\xFE""\n",                              9,"=0D=FE=0A"       },
+{ L_, 76, 3,"\r\n""\xFE",                                5,"\r\n=FE"         },
+{ L_, 76, 3,"\r""\xFE""\n",                              9,"=0D=FE=0A"       },
 
-{ L_,  0, 3,"\n\r""\xFE",                                9,"=0A=0D=FE"       },
-{ L_,  0, 3,"\xFE""\r\n",                                5,"=FE\r\n"         },
+{ L_, 76, 3,"\n\r""\xFE",                                9,"=0A=0D=FE"       },
+{ L_, 76, 3,"\xFE""\r\n",                                5,"=FE\r\n"         },
 
-{ L_,  0, 3,"\n""\xFE""\r",                              9,"=0A=FE=0D"       },
-{ L_,  0, 3,"\xFE""\n\r",                                9,"=FE=0A=0D"       },
+{ L_, 76, 3,"\n""\xFE""\r",                              9,"=0A=FE=0D"       },
+{ L_, 76, 3,"\xFE""\n\r",                                9,"=FE=0A=0D"       },
 
 // DEPTH 4
 // 4 of the same ECs - 5 combinations
-{ L_,  0, 4,"aaaa",                                      4,"aaaa"            },
-{ L_,  0, 4,"    ",                                      6,"   =20"          },
-{ L_,  0, 4,"\r\r\r\r",                                 12,"=0D=0D=0D=0D"    },
-{ L_,  0, 4,"\n\n\n\n",                                 12,"=0A=0A=0A=0A"    },
-{ L_,  0, 4,"\xFE""\xFE""\xFE""\xFE",                   12,"=FE=FE=FE=FE"    },
+{ L_, 76, 4,"aaaa",                                      4,"aaaa"            },
+{ L_, 76, 4,"    ",                                      6,"   =20"          },
+{ L_, 76, 4,"\r\r\r\r",                                 12,"=0D=0D=0D=0D"    },
+{ L_, 76, 4,"\n\n\n\n",                                 12,"=0A=0A=0A=0A"    },
+{ L_, 76, 4,"\xFE""\xFE""\xFE""\xFE",                   12,"=FE=FE=FE=FE"    },
 
 // Only consider the interesting cases.
-{ L_,  0, 4,"   a",                                      4,"   a"            },
-{ L_,  0, 4,"  a ",                                      6,"  a=20"          },
-{ L_,  0, 4," a  ",                                      6," a =20"          },
-{ L_,  0, 4,"a   ",                                      6,"a  =20"          },
+{ L_, 76, 4,"   a",                                      4,"   a"            },
+{ L_, 76, 4,"  a ",                                      6,"  a=20"          },
+{ L_, 76, 4," a  ",                                      6," a =20"          },
+{ L_, 76, 4,"a   ",                                      6,"a  =20"          },
 
-{ L_,  0, 4,"\r\n\r\n",                                  4,"\r\n\r\n"        },
-{ L_,  0, 4,"\r\naa",                                    4,"\r\naa"          },
-{ L_,  0, 4,"a\r\na",                                    4,"a\r\na"          },
-{ L_,  0, 4,"aa\r\n",                                    4,"aa\r\n"          },
-{ L_,  0, 4,"\ra\na",                                    8,"=0Da=0Aa"        },
-
+{ L_, 76, 4,"\r\n\r\n",                                  4,"\r\n\r\n"        },
+{ L_, 76, 4,"\r\naa",                                    4,"\r\naa"          },
+{ L_, 76, 4,"a\r\na",                                    4,"a\r\na"          },
+{ L_, 76, 4,"aa\r\n",                                    4,"aa\r\n"          },
+{ L_, 76, 4,"\ra\na",                                    8,"=0Da=0Aa"        },
 
     // *** DEPTH-ORDERED ENUMERATION: Depth = inputLength + maxLineLength ***
 
 //    v----------INPUT-----------v  v-----------------OUTPUT---------------v
 //lin LL #i input data              #o output data
 //--- -- -- ----------------------  -- -------------------------------------
-{ L_,  0, 0,"",                      0,""                                    },
+{ L_, 76, 0,"",                      0,""                                    },
 
 // Note that LL must be >= 4 or LL == 0.
 //
@@ -3037,17 +3013,17 @@ int main(int argc, char *argv[])
 //
 
 // DEPTH 1
-{ L_,  0, 1,"a",                     1,"a"                                   },
+{ L_, 76, 1,"a",                     1,"a"                                   },
 
 // DEPTH 2
-{ L_,  0, 2,"aa",                    2,"aa"                                  },
+{ L_, 76, 2,"aa",                    2,"aa"                                  },
 
 // DEPTH 3
-{ L_,  0, 3,"aaa",                   3,"aaa"                                 },
+{ L_, 76, 3,"aaa",                   3,"aaa"                                 },
 
 // DEPTH 4
 { L_,  4, 0,"",                      0,""                                    },
-{ L_,  0, 4,"aaaa",                  4,"aaaa"                                },
+{ L_, 76, 4,"aaaa",                  4,"aaaa"                                },
 
 // DEPTH 5
 { L_,  5, 0,"",                      0,""                                    },
@@ -3056,7 +3032,7 @@ int main(int argc, char *argv[])
 { L_,  4, 1,"\r",                    3,"=0D"                                 },
 { L_,  4, 1,"\n",                    3,"=0A"                                 },
 { L_,  4, 1,"\xFE",                  3,"=FE"                                 },
-{ L_,  0, 5,"aaaaa",                 5,"aaaaa"                               },
+{ L_, 76, 5,"aaaaa",                 5,"aaaaa"                               },
 
 // DEPTH 6
 { L_,  6, 0,"",                      0,""                                    },
@@ -3068,15 +3044,15 @@ int main(int argc, char *argv[])
 
 // 2 of the same equivalence class (EC)
 { L_,  4, 2,"aa",                    2,"aa"                                  },
-{ L_,  4, 2,"  ",                    7," =\r\n=20"                           },
+{ L_,  4, 2,"  ",                    4," =20"                                },
 { L_,  4, 2,"\r\r",                  9,"=0D=\r\n=0D"                         },
 { L_,  4, 2,"\n\n",                  9,"=0A=\r\n=0A"                         },
 { L_,  4, 2,"\xFE""\xFE",            9,"=FE=\r\n=FE"                         },
 
 // 2 of different ECs involving printable characters
-{ L_,  4, 2,"a ",                    7,"a=\r\n=20"                           },
+{ L_,  4, 2,"a ",                    4,"a=20"                                },
 { L_,  4, 2," a",                    2," a"                                  },
-{ L_,  4, 2,"a\r",                   7,"a=\r\n=0D"                           },
+{ L_,  4, 2,"a\r",                   4,"a=0D"                                },
 { L_,  4, 2,"\ra",                   7,"=0D=\r\na"                           },
 { L_,  4, 2,"a\n",                   7,"a=\r\n=0A"                           },
 { L_,  4, 2,"\na",                   7,"=0A=\r\na"                           },
@@ -3101,7 +3077,7 @@ int main(int argc, char *argv[])
 { L_,  4, 2,"\n""\xFE",              9,"=0A=\r\n=FE"                         },
 { L_,  4, 2,"\xFE""\n",              9,"=FE=\r\n=0A"                         },
 
-{ L_,  0, 6,"aaaaaa",                6,"aaaaaa"                              },
+{ L_, 76, 6,"aaaaaa",                6,"aaaaaa"                              },
 
 // DEPTH 7
 { L_,  7, 0,"",                      0,""                                    },
@@ -3155,8 +3131,8 @@ int main(int argc, char *argv[])
 { L_,  4, 3,"\n\n\n",               15,"=0A=\r\n=0A=\r\n=0A"                 },
 { L_,  4, 3,"\xFE""\xFE""\xFE",     15,"=FE=\r\n=FE=\r\n=FE"                 },
 
-// 3 of different ECs involving 2 printable characters
-// 3 * (5-1) = 12 combinations
+// 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
+// combinations
 { L_,  4, 3,"aa ",                   8,"aa=\r\n=20"                          },
 { L_,  4, 3," aa",                   3," aa"                                 },
 { L_,  4, 3,"a a",                   3,"a a"                                 },
@@ -3170,20 +3146,19 @@ int main(int argc, char *argv[])
 { L_,  4, 3,"\xFE""aa",              8,"=FE=\r\naa"                          },
 { L_,  4, 3,"a""\xFE""a",           11,"a=\r\n=FE=\r\na"                     },
 
-// 3 of different ECs involving 2 whitespace characters
-// 3 * (4 - 1) = 9 combinations
+// 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
+// combinations
 { L_,  4, 3,"  \r",                 13," =\r\n=20=\r\n=0D"                   },
-{ L_,  4, 3,"\r  ",                 13,"=0D=\r\n =\r\n=20"                   },
+{ L_,  4, 3,"\r  ",                 10,"=0D=\r\n =20"                        },
 { L_,  4, 3," \r ",                 15,"=20=\r\n=0D=\r\n=20"                 },
 { L_,  4, 3,"  \n",                 13," =\r\n=20=\r\n=0A"                   },
-{ L_,  4, 3,"\n  ",                 13,"=0A=\r\n =\r\n=20"                   },
+{ L_,  4, 3,"\n  ",                 10,"=0A=\r\n =20"                        },
 { L_,  4, 3," \n ",                 15,"=20=\r\n=0A=\r\n=20"                 },
 { L_,  4, 3,"  ""\xFE",              8,"  =\r\n=FE"                          },
-{ L_,  4, 3,"\xFE""  ",             13,"=FE=\r\n =\r\n=20"                   },
+{ L_,  4, 3,"\xFE""  ",             10,"=FE=\r\n =20"                        },
 { L_,  4, 3," ""\xFE"" ",           13," =\r\n=FE=\r\n=20"                   },
 
-// 3 of different ECs involving 2 carriage returns
-// 3 * (3 - 1) = 6 combinations
+// 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
 { L_,  4, 3,"\r\r\n",                5,"=0D\r\n"                             },
 { L_,  4, 3,"\n\r\r",               15,"=0A=\r\n=0D=\r\n=0D"                 },
 { L_,  4, 3,"\r\n\r",                5,"\r\n=0D"                             },
@@ -3191,14 +3166,13 @@ int main(int argc, char *argv[])
 { L_,  4, 3,"\xFE""\r\r",           15,"=FE=\r\n=0D=\r\n=0D"                 },
 { L_,  4, 3,"\r""\xFE""\r",         15,"=0D=\r\n=FE=\r\n=0D"                 },
 
-// 3 of different ECs involving 2 newlines
-// 3 * (2 - 1) = 3 combinations
+// 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
 { L_,  4, 3,"\n\n""\xFE",           15,"=0A=\r\n=0A=\r\n=FE"                 },
 { L_,  4, 3,"\xFE""\n\n",           15,"=FE=\r\n=0A=\r\n=0A"                 },
 { L_,  4, 3,"\n""\xFE""\n",         15,"=0A=\r\n=FE=\r\n=0A"                 },
 
-// 3 of different ECs involving no 2 of a kind and only 1 printable
-// 3 * 4 * 3 = 36 combinations
+// 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
+// 36 combinations
 { L_,  4, 3,"a \r",                 13,"a=\r\n=20=\r\n=0D"                   },
 { L_,  4, 3,"a \n",                 13,"a=\r\n=20=\r\n=0A"                   },
 { L_,  4, 3,"a ""\xFE",              8,"a =\r\n=FE"                          },
@@ -3217,14 +3191,14 @@ int main(int argc, char *argv[])
 { L_,  4, 3," a\r",                  8," a=\r\n=0D"                          },
 { L_,  4, 3," a\n",                  8," a=\r\n=0A"                          },
 { L_,  4, 3," a""\xFE",              8," a=\r\n=FE"                          },
-{ L_,  4, 3,"\ra ",                 13,"=0D=\r\na=\r\n=20"                   },
-{ L_,  4, 3,"\na ",                 13,"=0A=\r\na=\r\n=20"                   },
-{ L_,  4, 3,"\xFE""a ",             13,"=FE=\r\na=\r\n=20"                   },
+{ L_,  4, 3,"\ra ",                 10,"=0D=\r\na=20"                        },
+{ L_,  4, 3,"\na ",                 10,"=0A=\r\na=20"                        },
+{ L_,  4, 3,"\xFE""a ",             10,"=FE=\r\na=20"                        },
 
 { L_,  4, 3,"\ra\n",                13,"=0D=\r\na=\r\n=0A"                   },
 { L_,  4, 3,"\ra""\xFE",            13,"=0D=\r\na=\r\n=FE"                   },
-{ L_,  4, 3,"\na\r",                13,"=0A=\r\na=\r\n=0D"                   },
-{ L_,  4, 3,"\xFE""a\r",            13,"=FE=\r\na=\r\n=0D"                   },
+{ L_,  4, 3,"\na\r",                10,"=0A=\r\na=0D"                        },
+{ L_,  4, 3,"\xFE""a\r",            10,"=FE=\r\na=0D"                        },
 
 { L_,  4, 3,"\na""\xFE",            13,"=0A=\r\na=\r\n=FE"                   },
 { L_,  4, 3,"\xFE""a\n",            13,"=FE=\r\na=\r\n=0A"                   },
@@ -3281,7 +3255,7 @@ int main(int argc, char *argv[])
 { L_,  4, 3,"\n""\xFE""\r",         15,"=0A=\r\n=FE=\r\n=0D"                 },
 { L_,  4, 3,"\xFE""\n\r",           15,"=FE=\r\n=0A=\r\n=0D"                 },
 
-{ L_,  0, 7,"aaaaaaa",               7,"aaaaaaa"                             },
+{ L_, 76, 7,"aaaaaaa",               7,"aaaaaaa"                             },
 
 // DEPTH 8
 { L_,  8, 0,"",                      0,""                                    },
@@ -3295,7 +3269,7 @@ int main(int argc, char *argv[])
 // 2 of the same equivalence class (EC)
 { L_,  6, 2,"aa",                    2,"aa"                                  },
 { L_,  6, 2,"  ",                    4," =20"                                },
-{ L_,  6, 2,"\r\r",                  9,"=0D=\r\n=0D"                         },
+{ L_,  6, 2,"\r\r",                  6,"=0D=0D"                              },
 { L_,  6, 2,"\n\n",                  9,"=0A=\r\n=0A"                         },
 { L_,  6, 2,"\xFE""\xFE",            9,"=FE=\r\n=FE"                         },
 
@@ -3310,18 +3284,18 @@ int main(int argc, char *argv[])
 { L_,  6, 2,"\xFE""a",               4,"=FEa"                                },
 
 // 2 of different ECs involving whitespace
-{ L_,  6, 2," \r",                   9,"=20=\r\n=0D"                         },
-{ L_,  6, 2,"\r ",                   9,"=0D=\r\n=20"                         },
+{ L_,  6, 2," \r",                   6,"=20=0D"                              },
+{ L_,  6, 2,"\r ",                   6,"=0D=20"                              },
 { L_,  6, 2," \n",                   9,"=20=\r\n=0A"                         },
-{ L_,  6, 2,"\n ",                   9,"=0A=\r\n=20"                         },
+{ L_,  6, 2,"\n ",                   6,"=0A=20"                              },
 { L_,  6, 2," ""\xFE",               4," =FE"                                },
-{ L_,  6, 2,"\xFE"" ",               9,"=FE=\r\n=20"                         },
+{ L_,  6, 2,"\xFE"" ",               6,"=FE=20"                              },
 
 // 2 of different ECs involving carriage return
 { L_,  6, 2,"\r\n",                  2,"\r\n"                                },
-{ L_,  6, 2,"\n\r",                  9,"=0A=\r\n=0D"                         },
+{ L_,  6, 2,"\n\r",                  6,"=0A=0D"                              },
 { L_,  6, 2,"\r""\xFE",              9,"=0D=\r\n=FE"                         },
-{ L_,  6, 2,"\xFE""\r",              9,"=FE=\r\n=0D"                         },
+{ L_,  6, 2,"\xFE""\r",              6,"=FE=0D"                              },
 
 // 2 of different ECs involving newline
 { L_,  6, 2,"\n""\xFE",              9,"=0A=\r\n=FE"                         },
@@ -3330,17 +3304,17 @@ int main(int argc, char *argv[])
 // MAX LINE LENGTH = 5   INPUT LENGTH = 3
 // 3 of the same ECs - 5 combinations
 { L_,  5, 3,"aaa",                   3,"aaa"                                 },
-{ L_,  5, 3,"   ",                   8,"  =\r\n=20"                          },
+{ L_,  5, 3,"   ",                   5,"  =20"                               },
 { L_,  5, 3,"\r\r\r",               15,"=0D=\r\n=0D=\r\n=0D"                 },
 { L_,  5, 3,"\n\n\n",               15,"=0A=\r\n=0A=\r\n=0A"                 },
 { L_,  5, 3,"\xFE""\xFE""\xFE",     15,"=FE=\r\n=FE=\r\n=FE"                 },
 
-// 3 of different ECs involving 2 printable characters
-// 3 * (5-1) = 12 combinations
-{ L_,  5, 3,"aa ",                   8,"aa=\r\n=20"                          },
+// 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
+// combinations
+{ L_,  5, 3,"aa ",                   5,"aa=20"                               },
 { L_,  5, 3," aa",                   3," aa"                                 },
 { L_,  5, 3,"a a",                   3,"a a"                                 },
-{ L_,  5, 3,"aa\r",                  8,"aa=\r\n=0D"                          },
+{ L_,  5, 3,"aa\r",                  5,"aa=0D"                               },
 { L_,  5, 3,"\raa",                  8,"=0Da=\r\na"                          },
 { L_,  5, 3,"a\ra",                  8,"a=0D=\r\na"                          },
 { L_,  5, 3,"aa\n",                  8,"aa=\r\n=0A"                          },
@@ -3350,8 +3324,8 @@ int main(int argc, char *argv[])
 { L_,  5, 3,"\xFE""aa",              8,"=FEa=\r\na"                          },
 { L_,  5, 3,"a""\xFE""a",            8,"a=FE=\r\na"                          },
 
-// 3 of different ECs involving 2 whitespace characters
-// 3 * (4 - 1) = 9 combinations
+// 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
+// combinations
 { L_,  5, 3,"  \r",                 10," =20=\r\n=0D"                        },
 { L_,  5, 3,"\r  ",                 10,"=0D =\r\n=20"                        },
 { L_,  5, 3," \r ",                 15,"=20=\r\n=0D=\r\n=20"                 },
@@ -3362,8 +3336,7 @@ int main(int argc, char *argv[])
 { L_,  5, 3,"\xFE""  ",             10,"=FE =\r\n=20"                        },
 { L_,  5, 3," ""\xFE"" ",           10," =FE=\r\n=20"                        },
 
-// 3 of different ECs involving 2 carriage returns
-// 3 * (3 - 1) = 6 combinations
+// 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
 { L_,  5, 3,"\r\r\n",                5,"=0D\r\n"                             },
 { L_,  5, 3,"\n\r\r",               15,"=0A=\r\n=0D=\r\n=0D"                 },
 { L_,  5, 3,"\r\n\r",                5,"\r\n=0D"                             },
@@ -3371,14 +3344,13 @@ int main(int argc, char *argv[])
 { L_,  5, 3,"\xFE""\r\r",           15,"=FE=\r\n=0D=\r\n=0D"                 },
 { L_,  5, 3,"\r""\xFE""\r",         15,"=0D=\r\n=FE=\r\n=0D"                 },
 
-// 3 of different ECs involving 2 newlines
-// 3 * (2 - 1) = 3 combinations
+// 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
 { L_,  5, 3,"\n\n""\xFE",           15,"=0A=\r\n=0A=\r\n=FE"                 },
 { L_,  5, 3,"\xFE""\n\n",           15,"=FE=\r\n=0A=\r\n=0A"                 },
 { L_,  5, 3,"\n""\xFE""\n",         15,"=0A=\r\n=FE=\r\n=0A"                 },
 
-// 3 of different ECs involving no 2 of a kind and only 1 printable
-// 3 * 4 * 3 = 36 combinations
+// 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
+// 36 combinations
 { L_,  5, 3,"a \r",                 10,"a=20=\r\n=0D"                        },
 { L_,  5, 3,"a \n",                 10,"a=20=\r\n=0A"                        },
 { L_,  5, 3,"a ""\xFE",              8,"a =\r\n=FE"                          },
@@ -3394,7 +3366,7 @@ int main(int argc, char *argv[])
 { L_,  5, 3,"a\n""\xFE",            10,"a=0A=\r\n=FE"                        },
 { L_,  5, 3,"a""\xFE""\n",          10,"a=FE=\r\n=0A"                        },
 
-{ L_,  5, 3," a\r",                  8," a=\r\n=0D"                          },
+{ L_,  5, 3," a\r",                  5," a=0D"                               },
 { L_,  5, 3," a\n",                  8," a=\r\n=0A"                          },
 { L_,  5, 3," a""\xFE",              8," a=\r\n=FE"                          },
 { L_,  5, 3,"\ra ",                 10,"=0Da=\r\n=20"                        },
@@ -3482,7 +3454,7 @@ int main(int argc, char *argv[])
 { L_,  4, 4,"aa\r\n",                4,"aa\r\n"                              },
 { L_,  4, 4,"\ra\na",               17,"=0D=\r\na=\r\n=0A=\r\na"             },
 
-{ L_,  0, 8,"aaaaaaaa",              8,"aaaaaaaa"                            },
+{ L_, 76, 8,"aaaaaaaa",              8,"aaaaaaaa"                            },
 
 // DEPTH 9
 { L_,  9, 0,"",                      0,""                                    },
@@ -3532,12 +3504,12 @@ int main(int argc, char *argv[])
 // 3 of the same ECs - 5 combinations
 { L_,  6, 3,"aaa",                   3,"aaa"                                 },
 { L_,  6, 3,"   ",                   5,"  =20"                               },
-{ L_,  6, 3,"\r\r\r",               15,"=0D=\r\n=0D=\r\n=0D"                 },
+{ L_,  6, 3,"\r\r\r",               12,"=0D=\r\n=0D=0D"                      },
 { L_,  6, 3,"\n\n\n",               15,"=0A=\r\n=0A=\r\n=0A"                 },
 { L_,  6, 3,"\xFE""\xFE""\xFE",     15,"=FE=\r\n=FE=\r\n=FE"                 },
 
-// 3 of different ECs involving 2 printable characters
-// 3 * (5-1) = 12 combinations
+// 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
+// combinations
 { L_,  6, 3,"aa ",                   5,"aa=20"                               },
 { L_,  6, 3," aa",                   3," aa"                                 },
 { L_,  6, 3,"a a",                   3,"a a"                                 },
@@ -3551,35 +3523,33 @@ int main(int argc, char *argv[])
 { L_,  6, 3,"\xFE""aa",              5,"=FEaa"                               },
 { L_,  6, 3,"a""\xFE""a",            5,"a=FEa"                               },
 
-// 3 of different ECs involving 2 whitespace characters
-// 3 * (4 - 1) = 9 combinations
+// 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
+// combinations
 { L_,  6, 3,"  \r",                 10," =20=\r\n=0D"                        },
 { L_,  6, 3,"\r  ",                 10,"=0D =\r\n=20"                        },
-{ L_,  6, 3," \r ",                 15,"=20=\r\n=0D=\r\n=20"                 },
+{ L_,  6, 3," \r ",                 12,"=20=\r\n=0D=20"                      },
 { L_,  6, 3,"  \n",                 10," =20=\r\n=0A"                        },
 { L_,  6, 3,"\n  ",                 10,"=0A =\r\n=20"                        },
-{ L_,  6, 3," \n ",                 15,"=20=\r\n=0A=\r\n=20"                 },
+{ L_,  6, 3," \n ",                 12,"=20=\r\n=0A=20"                      },
 { L_,  6, 3,"  ""\xFE",              5,"  =FE"                               },
 { L_,  6, 3,"\xFE""  ",             10,"=FE =\r\n=20"                        },
 { L_,  6, 3," ""\xFE"" ",           10," =FE=\r\n=20"                        },
 
-// 3 of different ECs involving 2 carriage returns
-// 3 * (3 - 1) = 6 combinations
+// 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
 { L_,  6, 3,"\r\r\n",                5,"=0D\r\n"                             },
-{ L_,  6, 3,"\n\r\r",               15,"=0A=\r\n=0D=\r\n=0D"                 },
+{ L_,  6, 3,"\n\r\r",               12,"=0A=\r\n=0D=0D"                      },
 { L_,  6, 3,"\r\n\r",                5,"\r\n=0D"                             },
 { L_,  6, 3,"\r\r""\xFE",           15,"=0D=\r\n=0D=\r\n=FE"                 },
-{ L_,  6, 3,"\xFE""\r\r",           15,"=FE=\r\n=0D=\r\n=0D"                 },
-{ L_,  6, 3,"\r""\xFE""\r",         15,"=0D=\r\n=FE=\r\n=0D"                 },
+{ L_,  6, 3,"\xFE""\r\r",           12,"=FE=\r\n=0D=0D"                      },
+{ L_,  6, 3,"\r""\xFE""\r",         12,"=0D=\r\n=FE=0D"                      },
 
-// 3 of different ECs involving 2 newlines
-// 3 * (2 - 1) = 3 combinations
+// 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
 { L_,  6, 3,"\n\n""\xFE",           15,"=0A=\r\n=0A=\r\n=FE"                 },
 { L_,  6, 3,"\xFE""\n\n",           15,"=FE=\r\n=0A=\r\n=0A"                 },
 { L_,  6, 3,"\n""\xFE""\n",         15,"=0A=\r\n=FE=\r\n=0A"                 },
 
-// 3 of different ECs involving no 2 of a kind and only 1 printable
-// 3 * 4 * 3 = 36 combinations
+// 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
+// 36 combinations
 { L_,  6, 3,"a \r",                 10,"a=20=\r\n=0D"                        },
 { L_,  6, 3,"a \n",                 10,"a=20=\r\n=0A"                        },
 { L_,  6, 3,"a ""\xFE",              5,"a =FE"                               },
@@ -3629,7 +3599,7 @@ int main(int argc, char *argv[])
 // printable - 3 * 3 * 2 = 18 combinations
 { L_,  6, 3," \r\n",                 5,"=20\r\n"                             },
 { L_,  6, 3," \r""\xFE",            15,"=20=\r\n=0D=\r\n=FE"                 },
-{ L_,  6, 3," \n\r",                15,"=20=\r\n=0A=\r\n=0D"                 },
+{ L_,  6, 3," \n\r",                12,"=20=\r\n=0A=0D"                      },
 { L_,  6, 3," \xFE""\r",            10," =FE=\r\n=0D"                        },
 
 { L_,  6, 3," \n""\xFE",            15,"=20=\r\n=0A=\r\n=FE"                 },
@@ -3637,19 +3607,19 @@ int main(int argc, char *argv[])
 
 { L_,  6, 3,"\r \n",                15,"=0D=\r\n=20=\r\n=0A"                 },
 { L_,  6, 3,"\r ""\xFE",            10,"=0D =\r\n=FE"                        },
-{ L_,  6, 3,"\n \r",                15,"=0A=\r\n=20=\r\n=0D"                 },
-{ L_,  6, 3,"\xFE"" \r",            15,"=FE=\r\n=20=\r\n=0D"                 },
+{ L_,  6, 3,"\n \r",                12,"=0A=\r\n=20=0D"                      },
+{ L_,  6, 3,"\xFE"" \r",            12,"=FE=\r\n=20=0D"                      },
 
 { L_,  6, 3,"\n ""\xFE",            10,"=0A =\r\n=FE"                        },
 { L_,  6, 3,"\xFE"" \n",            15,"=FE=\r\n=20=\r\n=0A"                 },
 
 { L_,  6, 3,"\r\n ",                 5,"\r\n=20"                             },
-{ L_,  6, 3,"\r""\xFE"" ",          15,"=0D=\r\n=FE=\r\n=20"                 },
-{ L_,  6, 3,"\n\r ",                15,"=0A=\r\n=0D=\r\n=20"                 },
-{ L_,  6, 3,"\xFE""\r ",            15,"=FE=\r\n=0D=\r\n=20"                 },
+{ L_,  6, 3,"\r""\xFE"" ",          12,"=0D=\r\n=FE=20"                      },
+{ L_,  6, 3,"\n\r ",                12,"=0A=\r\n=0D=20"                      },
+{ L_,  6, 3,"\xFE""\r ",            12,"=FE=\r\n=0D=20"                      },
 
-{ L_,  6, 3,"\n""\xFE"" ",          15,"=0A=\r\n=FE=\r\n=20"                 },
-{ L_,  6, 3,"\xFE""\n ",            15,"=FE=\r\n=0A=\r\n=20"                 },
+{ L_,  6, 3,"\n""\xFE"" ",          12,"=0A=\r\n=FE=20"                      },
+{ L_,  6, 3,"\xFE""\n ",            12,"=FE=\r\n=0A=20"                      },
 
 // 3 of different ECs involving no 2 of a kind, only 1 carriage return and no
 // printable or whitespace - 3 * 2 * 1 = 6 combinations
@@ -3659,8 +3629,8 @@ int main(int argc, char *argv[])
 { L_,  6, 3,"\n\r""\xFE",           15,"=0A=\r\n=0D=\r\n=FE"                 },
 { L_,  6, 3,"\xFE""\r\n",            5,"=FE\r\n"                             },
 
-{ L_,  6, 3,"\n""\xFE""\r",         15,"=0A=\r\n=FE=\r\n=0D"                 },
-{ L_,  6, 3,"\xFE""\n\r",           15,"=FE=\r\n=0A=\r\n=0D"                 },
+{ L_,  6, 3,"\n""\xFE""\r",         12,"=0A=\r\n=FE=0D"                      },
+{ L_,  6, 3,"\xFE""\n\r",           12,"=FE=\r\n=0A=0D"                      },
 
 // MAX LINE LENGTH = 5   INPUT LENGTH = 4
 // 4 of the same ECs - 5 combinations
@@ -3686,17 +3656,17 @@ int main(int argc, char *argv[])
 // MAX LINE LENGTH = 4   INPUT LENGTH = 5
 // 5 of the same ECs - 5 combinations
 { L_,  4, 5,"aaaaa",                 8,"aaa=\r\naa"                          },
-{ L_,  4, 5,"     ",                13,"   =\r\n =\r\n=20"                   },
+{ L_,  4, 5,"     ",                10,"   =\r\n =20"                        },
 { L_,  4, 5,"\r\r\r\r\r\r",         27,"=0D=\r\n=0D=\r\n=0D=\r\n=0D=\r\n=0D" },
 { L_,  4, 5,"\n\n\n\n\n",           27,"=0A=\r\n=0A=\r\n=0A=\r\n=0A=\r\n=0A" },
 { L_,  4, 5,"\xFE""\xFE""\xFE""\xFE""\xFE",
                                     27,"=FE=\r\n=FE=\r\n=FE=\r\n=FE=\r\n=FE" },
 // Only consider the interesting cases.
 { L_,  4, 5,"    a",                 8,"   =\r\n a"                          },
-{ L_,  4, 5,"   a ",                13,"   =\r\na=\r\n=20"                   },
-{ L_,  4, 5,"  a  ",                13,"  a=\r\n =\r\n=20"                   },
-{ L_,  4, 5," a   ",                13," a =\r\n =\r\n=20"                   },
-{ L_,  4, 5,"a    ",                13,"a  =\r\n =\r\n=20"                   },
+{ L_,  4, 5,"   a ",                10,"   =\r\na=20"                        },
+{ L_,  4, 5,"  a  ",                10,"  a=\r\n =20"                        },
+{ L_,  4, 5," a   ",                10," a =\r\n =20"                        },
+{ L_,  4, 5,"a    ",                10,"a  =\r\n =20"                        },
 
 { L_,  4, 5,"\r\n\r\na",             5,"\r\n\r\na"                           },
 { L_,  4, 5,"\r\naaa",               5,"\r\naaa"                             },
@@ -3704,7 +3674,7 @@ int main(int argc, char *argv[])
 { L_,  4, 5,"aa\r\na",               5,"aa\r\na"                             },
 { L_,  4, 5,"\ra\naa",              18,"=0D=\r\na=\r\n=0A=\r\naa"            },
 
-{ L_,  0, 9,"aaaaaaaaa",             9,"aaaaaaaaa"                           },
+{ L_, 76, 9,"aaaaaaaaa",             9,"aaaaaaaaa"                           },
 
 // DEPTH 10
 { L_, 10, 0,"",                      0,""                                    },
@@ -3758,8 +3728,8 @@ int main(int argc, char *argv[])
 { L_,  7, 3,"\n\n\n",               12,"=0A=0A=\r\n=0A"                      },
 { L_,  7, 3,"\xFE""\xFE""\xFE",     12,"=FE=FE=\r\n=FE"                      },
 
-// 3 of different ECs involving 2 printable characters
-// 3 * (5-1) = 12 combinations
+// 3 of different ECs involving 2 printable characters 3 * (5-1) = 12
+// combinations
 { L_,  7, 3,"aa ",                   5,"aa=20"                               },
 { L_,  7, 3," aa",                   3," aa"                                 },
 { L_,  7, 3,"a a",                   3,"a a"                                 },
@@ -3773,20 +3743,19 @@ int main(int argc, char *argv[])
 { L_,  7, 3,"\xFE""aa",              5,"=FEaa"                               },
 { L_,  7, 3,"a""\xFE""a",            5,"a=FEa"                               },
 
-// 3 of different ECs involving 2 whitespace characters
-// 3 * (4 - 1) = 9 combinations
-{ L_,  7, 3,"  \r",                 10," =20=\r\n=0D"                        },
-{ L_,  7, 3,"\r  ",                 10,"=0D =\r\n=20"                        },
+// 3 of different ECs involving 2 whitespace characters 3 * (4 - 1) = 9
+// combinations
+{ L_,  7, 3,"  \r",                  7," =20=0D"                             },
+{ L_,  7, 3,"\r  ",                  7,"=0D =20"                             },
 { L_,  7, 3," \r ",                 12,"=20=0D=\r\n=20"                      },
 { L_,  7, 3,"  \n",                 10," =20=\r\n=0A"                        },
-{ L_,  7, 3,"\n  ",                 10,"=0A =\r\n=20"                        },
+{ L_,  7, 3,"\n  ",                  7,"=0A =20"                             },
 { L_,  7, 3," \n ",                 12,"=20=0A=\r\n=20"                      },
 { L_,  7, 3,"  ""\xFE",              5,"  =FE"                               },
-{ L_,  7, 3,"\xFE""  ",             10,"=FE =\r\n=20"                        },
-{ L_,  7, 3," \xFE"" ",             10," =FE=\r\n=20"                        },
+{ L_,  7, 3,"\xFE""  ",              7,"=FE =20"                             },
+{ L_,  7, 3," \xFE"" ",              7," =FE=20"                             },
 
-// 3 of different ECs involving 2 carriage returns
-// 3 * (3 - 1) = 6 combinations
+// 3 of different ECs involving 2 carriage returns 3 * (3 - 1) = 6 combinations
 { L_,  7, 3,"\r\r\n",                5,"=0D\r\n"                             },
 { L_,  7, 3,"\n\r\r",               12,"=0A=0D=\r\n=0D"                      },
 { L_,  7, 3,"\r\n\r",                5,"\r\n=0D"                             },
@@ -3794,25 +3763,24 @@ int main(int argc, char *argv[])
 { L_,  7, 3,"\xFE""\r\r",           12,"=FE=0D=\r\n=0D"                      },
 { L_,  7, 3,"\r""\xFE""\r",         12,"=0D=FE=\r\n=0D"                      },
 
-// 3 of different ECs involving 2 newlines
-// 3 * (2 - 1) = 3 combinations
+// 3 of different ECs involving 2 newlines 3 * (2 - 1) = 3 combinations
 { L_,  7, 3,"\n\n""\xFE",           12,"=0A=0A=\r\n=FE"                      },
 { L_,  7, 3,"\xFE""\n\n",           12,"=FE=0A=\r\n=0A"                      },
 { L_,  7, 3,"\n""\xFE""\n",         12,"=0A=FE=\r\n=0A"                      },
 
-// 3 of different ECs involving no 2 of a kind and only 1 printable
-// 3 * 4 * 3 = 36 combinations
-{ L_,  7, 3,"a \r",                 10,"a=20=\r\n=0D"                        },
+// 3 of different ECs involving no 2 of a kind and only 1 printable 3 * 4 * 3 =
+// 36 combinations
+{ L_,  7, 3,"a \r",                  7,"a=20=0D"                             },
 { L_,  7, 3,"a \n",                 10,"a=20=\r\n=0A"                        },
 { L_,  7, 3,"a ""\xFE",              5,"a =FE"                               },
-{ L_,  7, 3,"a\r ",                 10,"a=0D=\r\n=20"                        },
-{ L_,  7, 3,"a\n ",                 10,"a=0A=\r\n=20"                        },
-{ L_,  7, 3,"a""\xFE"" ",           10,"a=FE=\r\n=20"                        },
+{ L_,  7, 3,"a\r ",                  7,"a=0D=20"                             },
+{ L_,  7, 3,"a\n ",                  7,"a=0A=20"                             },
+{ L_,  7, 3,"a""\xFE"" ",            7,"a=FE=20"                             },
 
 { L_,  7, 3,"a\r\n",                 3,"a\r\n"                               },
 { L_,  7, 3,"a\r""\xFE",            10,"a=0D=\r\n=FE"                        },
-{ L_,  7, 3,"a\n\r",                10,"a=0A=\r\n=0D"                        },
-{ L_,  7, 3,"a""\xFE""\r",          10,"a=FE=\r\n=0D"                        },
+{ L_,  7, 3,"a\n\r",                 7,"a=0A=0D"                             },
+{ L_,  7, 3,"a""\xFE""\r",           7,"a=FE=0D"                             },
 
 { L_,  7, 3,"a\n""\xFE",            10,"a=0A=\r\n=FE"                        },
 { L_,  7, 3,"a""\xFE""\n",          10,"a=FE=\r\n=0A"                        },
@@ -3820,14 +3788,14 @@ int main(int argc, char *argv[])
 { L_,  7, 3," a\r",                  5," a=0D"                               },
 { L_,  7, 3," a\n",                  5," a=0A"                               },
 { L_,  7, 3," a""\xFE",              5," a=FE"                               },
-{ L_,  7, 3,"\ra ",                 10,"=0Da=\r\n=20"                        },
-{ L_,  7, 3,"\na ",                 10,"=0Aa=\r\n=20"                        },
-{ L_,  7, 3,"\xFE""a ",             10,"=FEa=\r\n=20"                        },
+{ L_,  7, 3,"\ra ",                  7,"=0Da=20"                             },
+{ L_,  7, 3,"\na ",                  7,"=0Aa=20"                             },
+{ L_,  7, 3,"\xFE""a ",              7,"=FEa=20"                             },
 
 { L_,  7, 3,"\ra\n",                10,"=0Da=\r\n=0A"                        },
 { L_,  7, 3,"\ra""\xFE",            10,"=0Da=\r\n=FE"                        },
-{ L_,  7, 3,"\na\r",                10,"=0Aa=\r\n=0D"                        },
-{ L_,  7, 3,"\xFE""a\r",            10,"=FEa=\r\n=0D"                        },
+{ L_,  7, 3,"\na\r",                 7,"=0Aa=0D"                             },
+{ L_,  7, 3,"\xFE""a\r",             7,"=FEa=0D"                             },
 
 { L_,  7, 3,"\na""\xFE",            10,"=0Aa=\r\n=FE"                        },
 { L_,  7, 3,"\xFE""a\n",            10,"=FEa=\r\n=0A"                        },
@@ -3852,7 +3820,7 @@ int main(int argc, char *argv[])
 { L_,  7, 3," \r\n",                 5,"=20\r\n"                             },
 { L_,  7, 3," \r""\xFE",            12,"=20=0D=\r\n=FE"                      },
 { L_,  7, 3," \n\r",                12,"=20=0A=\r\n=0D"                      },
-{ L_,  7, 3," ""\xFE""\r",          10," =FE=\r\n=0D"                        },
+{ L_,  7, 3," ""\xFE""\r",           7," =FE=0D"                             },
 
 { L_,  7, 3," \n""\xFE",            12,"=20=0A=\r\n=FE"                      },
 { L_,  7, 3," ""\xFE""\n",          10," =FE=\r\n=0A"                        },
@@ -3887,16 +3855,16 @@ int main(int argc, char *argv[])
 // MAX LINE LENGTH = 6   INPUT LENGTH = 4
 // 4 of the same ECs - 5 combinations
 { L_,  6, 4,"aaaa",                  4,"aaaa"                                },
-{ L_,  6, 4,"    ",                  9,"   =\r\n=20"                         },
-{ L_,  6, 4,"\r\r\r\r",              21,"=0D=\r\n=0D=\r\n=0D=\r\n=0D"        },
+{ L_,  6, 4,"    ",                  6,"   =20"                              },
+{ L_,  6, 4,"\r\r\r\r",              18,"=0D=\r\n=0D=\r\n=0D=0D"             },
 { L_,  6, 4,"\n\n\n\n",              21,"=0A=\r\n=0A=\r\n=0A=\r\n=0A"        },
 { L_,  6, 4,"\xFE""\xFE""\xFE""\xFE",21,"=FE=\r\n=FE=\r\n=FE=\r\n=FE"        },
 
 // Only consider the interesting cases.
 { L_,  6, 4,"   a",                  4,"   a"                                },
-{ L_,  6, 4,"  a ",                  9,"  a=\r\n=20"                         },
-{ L_,  6, 4," a  ",                  9," a =\r\n=20"                         },
-{ L_,  6, 4,"a   ",                  9,"a  =\r\n=20"                         },
+{ L_,  6, 4,"  a ",                  6,"  a=20"                              },
+{ L_,  6, 4," a  ",                  6," a =20"                              },
+{ L_,  6, 4,"a   ",                  6,"a  =20"                              },
 
 { L_,  6, 4,"\r\n\r\n",              4,"\r\n\r\n"                            },
 { L_,  6, 4,"\r\naa",                4,"\r\naa"                              },
@@ -3957,12 +3925,10 @@ int main(int argc, char *argv[])
 { L_,  4, 6,"aaaa\r\n",              9,"aaa=\r\na\r\n"                       },
 { L_,  4, 6,"\ra\na\ra",            27,"=0D=\r\na=\r\n=0A=\r\na=\r\n=0D"
                                        "=\r\na"                              },
-{ L_,  0, 10,"aaaaaaaaaa",          10,"aaaaaaaaaa"                          }
-
+{ L_, 76, 10,"aaaaaaaaaa",          10,"aaaaaaaaaa"                          }
 //--------------v
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
 
             int depth = -1;
 
@@ -3981,7 +3947,7 @@ int main(int argc, char *argv[])
                 const int OUTPUT_BUFFER_SIZE = 100; // overrun will be detected
                 const int TRAILING_OUTPUT_WINDOW = 30; // detect extra output
 
-                Obj obj(Obj::CRLF_MODE, MAX_LEN);
+                Obj obj(Obj::e_CRLF_MODE, MAX_LEN);
 
                 const int newDepth = IN_LEN + MAX_LEN;
 
@@ -4012,9 +3978,9 @@ int main(int argc, char *argv[])
                 int nIn = -1;
 
                 int res = obj.convert(b, &nOut, &nIn, B, E);
-                if (B[nIn - 1] == ' '  ||
-                    B[nIn - 1] == '\t' ||
-                    B[nIn - 1] == '\r') {
+                if (nIn && (B[nIn - 1] == ' '  ||
+                            B[nIn - 1] == '\t' ||
+                            B[nIn - 1] == '\r')) {
                     LOOP_ASSERT(LINE, 3 == res);
                 }
                 else {
@@ -4068,15 +4034,15 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, '?' == outputBuffer[sizeof outputBuffer - 1])
 
                 // ORTHOGONAL PERTURBATION:
-                // For each index in [0, IN_LEN], partition the input
-                // into two sequences, apply these sequences, in turn, to a
-                // newly created instance, and verify that the result is
-                // identical to that of the original (unpartitioned) sequence.
+                // For each index in [0, IN_LEN], partition the input into two
+                // sequences, apply these sequences, in turn, to a newly
+                // created instance, and verify that the result is identical to
+                // that of the original (unpartitioned) sequence.
 
                 for (int index = 0; index <= IN_LEN; ++index) {
                     if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
 
-                    Obj localObj(Obj::CRLF_MODE, MAX_LEN);
+                    Obj localObj(Obj::e_CRLF_MODE, MAX_LEN);
                     const char *const M = B + index;
                     char localBuf[sizeof outputBuffer];
                     memset(localBuf, '$', sizeof localBuf);
@@ -4092,9 +4058,9 @@ int main(int argc, char *argv[])
                     int res1 = localObj.convert(lb, &localNumOut, &localNumIn,
                                                                          B, M);
 
-                    if (B[localNumIn - 1] == ' '  ||
-                        B[localNumIn - 1] == '\t' ||
-                        B[localNumIn - 1] == '\r') {
+                    if (localNumIn && (B[localNumIn - 1] == ' '  ||
+                                       B[localNumIn - 1] == '\t' ||
+                                       B[localNumIn - 1] == '\r')) {
                         LOOP2_ASSERT(LINE, index, 3 == res1);
                     }
                     else {
@@ -4114,9 +4080,10 @@ int main(int argc, char *argv[])
                     int res2 = localObj.convert(lb, &localNumOut, &localNumIn,
                                                                          M, E);
 
-                    if (M[localNumIn - 1] == ' '  ||
-                        M[localNumIn - 1] == '\t' ||
-                        M[localNumIn - 1] == '\r') {
+                    if (0 < localTotalIn + localNumIn
+                        && (M[localNumIn - 1] == ' '  ||
+                            M[localNumIn - 1] == '\t' ||
+                            M[localNumIn - 1] == '\r')) {
                         LOOP2_ASSERT(LINE, index, 3 == res2);
                     }
                     else {
@@ -4187,7 +4154,6 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
             } // end for ti
 
         } // end block
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4245,7 +4211,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 encoded.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4268,7 +4234,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4293,7 +4259,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4318,7 +4284,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4344,7 +4310,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4379,7 +4345,7 @@ encoded.");
                         printHex(B, 1) << "'");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4398,7 +4364,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4423,7 +4389,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4448,7 +4414,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4474,7 +4440,7 @@ encoded.");
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4508,7 +4474,7 @@ encoded.");
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::LF_MODE, 0);
+                        Obj obj(Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4530,7 +4496,7 @@ encoded.");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4547,7 +4513,7 @@ encoded.");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::MIXED_MODE, 0);
+                        Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4579,7 +4545,7 @@ encoded.");
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::LF_MODE, 0);
+                        Obj obj(encode, Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4601,7 +4567,7 @@ encoded.");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4618,7 +4584,7 @@ encoded.");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::MIXED_MODE, 0);
+                        Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
@@ -4631,8 +4597,8 @@ encoded.");
                         LOOP_ASSERT(i, -1     == b[3]);
                     }
 
-                    // The case of a '\r' followed immediately by a '\n'
-                    // is verified when the '\n' test cases are verified.
+                    // The case of a '\r' followed immediately by a '\n' is
+                    // verified when the '\n' test cases are verified.
                 }
             }
         }
@@ -4650,7 +4616,7 @@ encoded.");
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4671,7 +4637,7 @@ encoded.");
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4699,7 +4665,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::LF_MODE, 0);
+                        Obj obj(Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4718,7 +4684,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::MIXED_MODE, 0);
+                        Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4744,7 +4710,7 @@ encoded.");
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4764,7 +4730,7 @@ encoded.");
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4792,7 +4758,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::LF_MODE, 0);
+                        Obj obj(encode, Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4811,7 +4777,7 @@ encoded.");
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::MIXED_MODE, 0);
+                        Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4831,7 +4797,7 @@ encoded.");
         }
 
         V("Verify Control Characters: Entries [0-8], [11-12], [14-31], [61],");
-        V("[127-256]");
+        V("[127-255]");
         {
             const EquivalenceClass &inputType = controlChar;
             for (int j = 0; j < inputType.d_ranges.size(); ++j) {
@@ -4844,7 +4810,7 @@ encoded.");
                     VVV("Verify control characters are encoded.");
                     {
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(Obj::CRLF_MODE, 0);
+                        Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4868,7 +4834,7 @@ encoded.");
                         encode[0] = i;
                         encode[1] = 0;
                         char b[4] = { -1, -1, -1, -1 };
-                        Obj obj(encode, Obj::CRLF_MODE, 0);
+                        Obj obj(encode, Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4974,7 +4940,7 @@ encoded.");
                 const char *const E = B + COUNT;
                 int RTN;
 
-                Obj obj(Obj::CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
 
                 if (lastNumInputs != COUNT) {
                     if (verbose) cout << '\t' << COUNT << " input character"
@@ -5038,7 +5004,6 @@ encoded.");
                           << "BOOTSTRAP: 'endConvert' - transitions" << endl
                           << "=====================================" << endl;
 
-
         if (verbose) cout << "\nVerify 'endConvert' - transitions." << endl;
         {
             static const struct {
@@ -5068,7 +5033,7 @@ encoded.");
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(ERROR_STATE == END);
 
-                Obj obj(Obj::CRLF_MODE, 0);
+                Obj obj(Obj::e_CRLF_MODE);
 
                 if (verbose) cout << '\t' << STATE_NAMES[START] << '.' << endl;
                 if (veryVerbose) cout <<
@@ -5148,7 +5113,7 @@ encoded.");
         {
             if (verbose) cout << "\tINITIAL_STATE." << endl;
 
-            Obj obj(Obj::CRLF_MODE, 9);
+            Obj obj(Obj::e_CRLF_MODE, 9);
 
             ASSERT(9 == obj.maxLineLength());
             ASSERT(1 == obj.isAccepting());
@@ -5163,10 +5128,10 @@ encoded.");
 
             if (verbose) cout << "\tINITIAL_STATE." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, INITIAL_STATE);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
@@ -5179,7 +5144,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
@@ -5199,10 +5164,10 @@ encoded.");
 
             if (verbose) cout << "\tSTATE_ZERO." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, STATE_ZERO);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
@@ -5215,7 +5180,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
@@ -5233,14 +5198,14 @@ encoded.");
                 ASSERT(-1 == b[6]);
             }
 
-            if (verbose) cout << "\tSAW_RETURN." < endl;
+            if (verbose) cout << "\tSAW_RETURN." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, SAW_RETURN);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(0 == obj.isAccepting());
+                ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
@@ -5251,7 +5216,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
@@ -5271,12 +5236,12 @@ encoded.");
 
             if (verbose) cout << "\tSAW_WHITE." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, SAW_WHITE);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
-                ASSERT(0 == obj.isAccepting());
+                ASSERT(1 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
                 ASSERT(0 == obj.isError());
                 ASSERT(0 == obj.isInitialState());
@@ -5287,7 +5252,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // DONE_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
@@ -5307,10 +5272,10 @@ encoded.");
 
             if (verbose) cout << "\tDONE_STATE." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, DONE_STATE);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(1 == obj.isAccepting());
                 ASSERT(1 == obj.isDone());
@@ -5323,7 +5288,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // ERROR_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
@@ -5343,10 +5308,10 @@ encoded.");
 
             if (verbose) cout << "\tERROR_STATE." << endl;
             {
-                Obj obj(Obj::CRLF_MODE, 9);
+                Obj obj(Obj::e_CRLF_MODE, 9);
                 setState(&obj, ERROR_STATE);
 
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
@@ -5359,7 +5324,7 @@ encoded.");
                 int result = obj.endConvert(b, &numOut);
 
                 // ERROR_STATE
-                ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+                ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
                 ASSERT(9 == obj.maxLineLength());
                 ASSERT(0 == obj.isAccepting());
                 ASSERT(0 == obj.isDone());
@@ -5395,7 +5360,7 @@ encoded.");
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
-                    Obj obj(Obj::CRLF_MODE, 0);
+                    Obj obj(Obj::e_CRLF_MODE);
                     setState(&obj, i);
                     LOOP2_ASSERT(i, j, SAME == isState(&obj, j));
                 }
@@ -5448,96 +5413,60 @@ encoded.");
 
         if (verbose) cout << "\tmaxLineLength = default" << endl;
         {
-            Obj obj(Obj::CRLF_MODE);
+            Obj obj(Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = -1" << endl;
-        {
-            Obj obj(Obj::CRLF_MODE, -1);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = 0 (single line)" << endl;
-        {
-            Obj obj(Obj::CRLF_MODE, 0);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmaxLineLength = 4 (the minimum)" << endl;
         {
-            Obj obj(Obj::CRLF_MODE, 4);
+            Obj obj(Obj::e_CRLF_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmaxLineLength = 5" << endl;
         {
-            Obj obj(Obj::CRLF_MODE, 5);
+            Obj obj(Obj::e_CRLF_MODE, 5);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(5 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = INT_MAX" << endl;
-        {
-            Obj obj(Obj::CRLF_MODE, INT_MAX);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmode = LF_MODE" << endl;
         {
-            Obj obj(Obj::LF_MODE, 4);
+            Obj obj(Obj::e_LF_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmode = MIXED_MODE" << endl;
         {
-            Obj obj(Obj::MIXED_MODE, 4);
+            Obj obj(Obj::e_MIXED_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::MIXED_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_MIXED_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
@@ -5554,102 +5483,65 @@ encoded.");
 
         if (verbose) cout << "\tmaxLineLength = default" << endl;
         {
-            Obj obj(testVector, Obj::CRLF_MODE);
+            Obj obj(testVector, Obj::e_CRLF_MODE);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = -1" << endl;
-        {
-            Obj obj(testVector, Obj::CRLF_MODE, -1);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(76 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = 0 (single line)" << endl;
-        {
-            Obj obj(testVector, Obj::CRLF_MODE, 0);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmaxLineLength = 4 (the minimum)" << endl;
         {
-            Obj obj(testVector, Obj::CRLF_MODE, 4);
+            Obj obj(testVector, Obj::e_CRLF_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmaxLineLength = 5" << endl;
         {
-            Obj obj(testVector, Obj::CRLF_MODE, 5);
+            Obj obj(testVector, Obj::e_CRLF_MODE, 5);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_CRLF_MODE == obj.lineBreakMode());
             ASSERT(5 == obj.maxLineLength());
-            ASSERT(0 == obj.outputLength());
-        }
-
-        if (verbose) cout << "\tmaxLineLength = INT_MAX" << endl;
-        {
-            Obj obj(testVector, Obj::CRLF_MODE, INT_MAX);
-            ASSERT(1 == obj.isAccepting());
-            ASSERT(0 == obj.isDone());
-            ASSERT(0 == obj.isError());
-            ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::CRLF_MODE == obj.lineBreakMode());
-            ASSERT(INT_MAX == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmode = LF_MODE" << endl;
         {
-            Obj obj(testVector, Obj::LF_MODE, 4);
+            Obj obj(testVector, Obj::e_LF_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::LF_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_LF_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
         if (verbose) cout << "\tmode = MIXED_MODE" << endl;
         {
-            Obj obj(testVector, Obj::MIXED_MODE, 4);
+            Obj obj(testVector, Obj::e_MIXED_MODE, 4);
             ASSERT(1 == obj.isAccepting());
             ASSERT(0 == obj.isDone());
             ASSERT(0 == obj.isError());
             ASSERT(1 == obj.isInitialState());
-            ASSERT(Obj::MIXED_MODE == obj.lineBreakMode());
+            ASSERT(Obj::e_MIXED_MODE == obj.lineBreakMode());
             ASSERT(4 == obj.maxLineLength());
             ASSERT(0 == obj.outputLength());
         }
 
       } break;
-#endif
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -5826,16 +5718,15 @@ line of text containing a space at pos=\r\n =3D 76\
       }
     }
 
-    if (testStatus > 0) {
+          if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;
 }
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
