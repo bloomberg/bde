@@ -11417,6 +11417,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("BREATHING TEST\n"
                             "==============\n");
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        {
+            bsl::unordered_multimap<bsl::string,
+                                    bsl::pair<bsl::string, bsl::string> > mX;
+
+            mX.insert({bsl::string{"banana"},
+                      {bsl::string{"apple"}, bsl::string{"cherry"} } });
+        }
+#endif
+
         using namespace BREATHING_TEST;
 
         typedef bsl::unordered_multimap<int, int> TestType;
