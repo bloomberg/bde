@@ -150,6 +150,32 @@ void aSsErT(bool condition, const char *message, int line)
 #define RUN_EACH_TYPE      BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
 
+// TBD
+// For specific test cases, remove 'bsltf::TemplateTestFacility::FunctionPtr'
+// from the list of types to test on Linux to avoid:
+//   collect2: error: /opt/swt/bin/gnm returned 1 exit status
+// which occurs when 'gnm' is run on 'bsltf_stdstatefulallocator.t.cpp.1.o'.
+// Also see 'bslstl_deque.t.cpp'.
+
+#if defined(BSLS_PLATFORM_OS_LINUX)
+#define REDUCED_TEST_TYPES_REGULAR                                            \
+    signed char,                                                              \
+    size_t,                                                                   \
+    bsltf::TemplateTestFacility::ObjectPtr,                                   \
+    bsltf::TemplateTestFacility::MethodPtr,                                   \
+    bsltf::EnumeratedTestType::Enum,                                          \
+    bsltf::UnionTestType,                                                     \
+    bsltf::SimpleTestType,                                                    \
+    bsltf::AllocTestType,                                                     \
+    bsltf::BitwiseCopyableTestType,                                           \
+    bsltf::BitwiseMoveableTestType,                                           \
+    bsltf::AllocBitwiseMoveableTestType,                                      \
+    bsltf::NonTypicalOverloadsTestType
+#else
+#define REDUCED_TEST_TYPES_REGULAR                                            \
+    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+#endif
+
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -1773,7 +1799,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'construct'"
                             "\n===================\n");
 
-        RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase15, REDUCED_TEST_TYPES_REGULAR);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -1823,9 +1849,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
       } break;
       case 9: {
-    // ------------------------------------------------------------------------
-    // COPY-ASSIGNMENT OPERATOR
-    // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // COPY-ASSIGNMENT OPERATOR
+        // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
                             "\n========================\n");

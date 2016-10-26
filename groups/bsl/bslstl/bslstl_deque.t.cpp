@@ -264,6 +264,32 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
+// TBD
+// For specific test cases, remove 'bsltf::TemplateTestFacility::FunctionPtr'
+// from the list of types to test on Linux to avoid:
+//   collect2: error: /opt/swt/bin/gnm returned 1 exit status
+// which occurs when 'gnm' is run on 'bslstl_deque.t.cpp.1.o'.  Also see
+// 'bsltf_stdstatefulallocator.t.cpp'.
+
+#if defined(BSLS_PLATFORM_OS_LINUX)
+#define REDUCED_TEST_TYPES_REGULAR                                            \
+    signed char,                                                              \
+    size_t,                                                                   \
+    bsltf::TemplateTestFacility::ObjectPtr,                                   \
+    bsltf::TemplateTestFacility::MethodPtr,                                   \
+    bsltf::EnumeratedTestType::Enum,                                          \
+    bsltf::UnionTestType,                                                     \
+    bsltf::SimpleTestType,                                                    \
+    bsltf::AllocTestType,                                                     \
+    bsltf::BitwiseCopyableTestType,                                           \
+    bsltf::BitwiseMoveableTestType,                                           \
+    bsltf::AllocBitwiseMoveableTestType,                                      \
+    bsltf::NonTypicalOverloadsTestType
+#else
+#define REDUCED_TEST_TYPES_REGULAR                                            \
+    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+#endif
+
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -4218,7 +4244,9 @@ void TestDriver<TYPE, ALLOC>::testCase31()
                 const Int64     BMEM   = oa.numBytesInUse();
                 const size_type BCAP   = X.capacity();
 
-                if (veryVerbose) { printf("\t\tBEFORE: "); P_(BMEM); P(BCAP); }
+                if (veryVerbose) {
+                    printf("\t\tBEFORE: "); P_(BALLOC); P_(BMEM); P(BCAP);
+                }
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     mX.shrink_to_fit();
@@ -4228,7 +4256,9 @@ void TestDriver<TYPE, ALLOC>::testCase31()
                 const Int64     AMEM   = oa.numBytesInUse();
                 const size_type ACAP   = X.capacity();
 
-                if (veryVerbose) { printf("\t\tAFTER : "); P_(AMEM); P(ACAP); }
+                if (veryVerbose) {
+                    printf("\t\tAFTER : "); P_(AALLOC); P_(AMEM); P(ACAP);
+                }
 
                 ASSERT(   X == Y);
                 ASSERT(AMEM <= BMEM);
@@ -4237,8 +4267,14 @@ void TestDriver<TYPE, ALLOC>::testCase31()
                 // +2 to account for the allocation (if any) that throws in the
                 // above exception testing block.
 
+#if defined(BDE_BUILD_TARGET_EXC)
+                const Int64 EXC_EXTRA = 2;
+#else
+                const Int64 EXC_EXTRA = 1;
+#endif
+
                 ASSERTV(BALLOC, AALLOC,
-                        AALLOC == BALLOC || AALLOC == BALLOC + 2);
+                        AALLOC == BALLOC || AALLOC == BALLOC + EXC_EXTRA);
 
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
@@ -15467,7 +15503,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase25_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      REDUCED_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase25_propagate_on_container_move_assignment,
@@ -15567,7 +15603,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase21_propagate_on_container_swap,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      REDUCED_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase21_propagate_on_container_swap,
@@ -16016,7 +16052,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      REDUCED_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
