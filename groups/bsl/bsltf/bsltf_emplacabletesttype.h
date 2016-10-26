@@ -20,8 +20,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
 // 'bsltf::EmplacableTestType', that is used to ensure that arguments are
-// forwarded correctly to functions and methods taking an arbitrary number of
-// arguments.
+// forwarded correctly to a type's constructor.  This component is similar to
+// 'bsltf_allocemplacabletesttype', but provides a type that does not allocate
+// on construction.
 //
 ///Attributes
 ///----------
@@ -48,9 +49,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
-// Suppose we wanted to ...
+// See 'bsltf_allocemplacabletesttype' for usage example.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

@@ -12,41 +12,176 @@ BSLS_IDENT("$Id: $")
 //@REVIEW_FOR_MASTER:
 //
 //@CLASSES:
-//   AllocEmplacableTestType: allocating test class taking up to 14 arguments
+//  AllocEmplacableTestType: allocating test class taking up to 14 arguments
 //
-//@SEE_ALSO: bsltf_templatetestfacility
+//@SEE_ALSO: bsltf_allocargumenttype, bsltf_templatetestfacility
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
-// 'AllocEmplacableTestType', that is used to ensure that arguments are
-// forwarded correctly to functions and methods taking an arbitrary number of
-// arguments.
+// 'bsltf::AllocEmplacableTestType', that is used to ensure that arguments are
+// forwarded correctly to a type's constructor.  This component is similar to
+// 'bsltf_emplacabletesttype', but provides a type that allocates on
+// construction.
 //
-//
-// TBD: fix this up
 ///Attributes
 ///----------
 //..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
+//  Name     Type                           Default
+//  -------  -----------------------------  -------
+//  arg01    bsltf::AllocArgumentType< 1>   -1
+//  arg02    bsltf::AllocArgumentType< 2>   -1
+//  arg03    bsltf::AllocArgumentType< 3>   -1
+//  arg04    bsltf::AllocArgumentType< 4>   -1
+//  arg05    bsltf::AllocArgumentType< 5>   -1
+//  arg06    bsltf::AllocArgumentType< 6>   -1
+//  arg07    bsltf::AllocArgumentType< 7>   -1
+//  arg08    bsltf::AllocArgumentType< 8>   -1
+//  arg09    bsltf::AllocArgumentType< 9>   -1
+//  arg10    bsltf::AllocArgumentType<10>   -1
+//  arg11    bsltf::AllocArgumentType<11>   -1
+//  arg12    bsltf::AllocArgumentType<12>   -1
+//  arg13    bsltf::AllocArgumentType<13>   -1
+//  arg14    bsltf::AllocArgumentType<14>   -1
 //..
-//: o 'data': representation of the class value
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// In this section we show intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
-// Suppose we wanted to ...
+///Example 1: Testing Methods With Argument Forwarding
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will utilize 'bsltf::AllocEmplacableTestType' to
+// test the implementation of a container's 'emplace' method.
+//
+// First, we create an elided definition of a container class, 'MyContainer',
+// and show the signature of the 'emplace' method we intend to test:
+//..
+//  // container.h
+//  // -----------
+//  template <class TYPE>
+//  class Container {
+//      // This class template implements a value-semantic container type
+//      // holding elements of the (template parameter) type 'TYPE'.  This
+//      // class provides an 'emplace' method that constructs the element by
+//      // forwarding a variable number of arguments to the 'TYPE' constructor.
+//
+//      // ...
+//
+//      // MANIPULATORS
+//      template <class... Args>
+//      void emplace(Args&&... arguments);
+//          // Insert into this container a newly created 'TYPE' object,
+//          // constructed by forwarding the specified (variable number of)
+//          // 'arguments' to the corresponding constructor of 'TYPE'.
+//
+//      // ...
+//  };
+//..
+// Then, we provide test machinery that will invoke the 'emplace' method with
+// variable number of arguments:
+//..
+//  // container.t.cpp
+//  // ---------------
+//
+//  template <class T>
+//  bslmf::MovableRef<T> forwardCtorArg(T& argument, bsl::true_type);
+//      // Return 'bslmf::MovableRef' to the specified 'argument'.
+//
+//  template <class T>
+//  const T& forwardCtorArg(T& argument, bsl::false_type)
+//      // Return a reference providing non-modifiable access to the
+//      // specified 'argument'.
+//
+//  template <int N_ARGS, bool MOVE_ARG_01, bool MOVE_ARG_02>
+//  void testCaseHelper()
+//      // Call 'emplace' on the container and verify that value was correctly
+//      // constructed and inserted into the container.  Forward (template
+//      // parameter) 'N_ARGS' arguments to the 'emplace' method and ensure 1)
+//      // that values are properly passed to the constructor of
+//      // 'bsltf::AllocEmplacableTestType', 2) that the allocator is correctly
+//      // configured for each argument in the newly inserted element in
+//      // 'target', and 3) that the arguments are forwarded using copy
+//      // ('false') or move semantics ('true') based on bool template
+//      // parameters 'MOVE_ARG_01' ...  'MOVE_ARG_02'.
+//  {
+//      bslma::TestAllocator ta;
+//..
+// Here, we use 'AllocEmplacableTestType' as the contained type to ensure the
+// arguments to the 'emplace' method are correctly forwarded to the contained
+// type's constructor:
+//..
+//      Container<bsltf::AllocEmplacableTestType>        mX(&ta);
+//      const Container<bsltf::AllocEmplacableTestType>& X = mX;
+//
+//      // Prepare the arguments
+//      bslma::TestAllocator aa("args", veryVeryVeryVerbose);
+//
+//      bsltf::AllocArgumentType<1> A01(18, &aa);
+//      bsltf::AllocArgumentType<2> A02(33, &aa);
+//..
+// Then, we call 'emplace' supplying test arguments, which should call the
+// correct constructor of 'AllocEmplacableTestType' (which we will later
+// verify):
+//..
+//      const bsl::integral_constant<bool, MOVE_ARG_01> MOVE_01 = {};
+//      const bsl::integral_constant<bool, MOVE_ARG_02> MOVE_02 = {};
+//      switch (N_ARGS) {
+//        case 0: {
+//          mX.emplace();
+//        } break;
+//        case 1: {
+//          mX.emplace(forwardCtorArg(A01, MOVE_01));
+//        } break;
+//        case 2: {
+//          mX.emplace(forwardCtorArg(A01, MOVE_01),
+//                     forwardCtorArg(A02, MOVE_02));
+//        } break;
+//        default: {
+//          assert(0);
+//        } break;
+//      }
+//..
+// We verify the correct arguments were forwarded to the
+// 'AllocEmplcableTestType':
+//..
+//      // Verify that, depending on the corresponding template parameters,
+//      // arguments were copied or moved.
+//      assert(MOVE_ARG_01 == (bsltf::MoveState::e_MOVED == A01.movedFrom()));
+//      assert(MOVE_ARG_02 == (bsltf::MoveState::e_MOVED == A02.movedFrom()));
+//
+//      // Verify that the element was constructed correctly.
+//      const bsltf::AllocEmplacableTestType& V = X.front();
+//
+//      assert(18 == V.arg01() || N_ARGS < 1);
+//      assert(33 == V.arg02() || N_ARGS < 2);
+//  }
+//..
+// Finally, we call our templatized test case helper with a variety of template
+// arguments:
+//..
+//  void testCase()
+//  {
+//      // Testing 'emplace' with 0 arguments.
+//      testCaseHelper<0, false, false>();
+//
+//      // Testing 'emplace' with 1 argument.
+//      testCaseHelper<1, false, false>();
+//      testCaseHelper<1, true,  false>();
+//
+//      // Testing 'emplace' with 2 arguments.
+//      testCaseHelper<2, false, false>();
+//      testCaseHelper<2, true,  false>();
+//      testCaseHelper<2, false, true >();
+//      testCaseHelper<2, true,  true >();
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLTF_ARGUMENTTYPE
+#ifndef INCLUDED_BSLTF_ALLOCARGUMENTTYPE
 #include <bsltf_allocargumenttype.h>
 #endif
 
@@ -66,8 +201,8 @@ namespace bsltf {
 
 class AllocEmplacableTestType {
     // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
+    // passed for creating an object with an in-place representation are of the
+    // correct types and values.
   public:
     // TYPEDEFS
     typedef bsltf::AllocArgumentType< 1> ArgType01;
@@ -87,20 +222,24 @@ class AllocEmplacableTestType {
 
   private:
     // DATA
-    ArgType01 d_a01;
-    ArgType02 d_a02;
-    ArgType03 d_a03;
-    ArgType04 d_a04;
-    ArgType05 d_a05;
-    ArgType06 d_a06;
-    ArgType07 d_a07;
-    ArgType08 d_a08;
-    ArgType09 d_a09;
-    ArgType10 d_a10;
-    ArgType11 d_a11;
-    ArgType12 d_a12;
-    ArgType13 d_a13;
-    ArgType14 d_a14;
+    ArgType01 d_arg01;
+    ArgType02 d_arg02;
+    ArgType03 d_arg03;
+    ArgType04 d_arg04;
+    ArgType05 d_arg05;
+    ArgType06 d_arg06;
+    ArgType07 d_arg07;
+    ArgType08 d_arg08;
+    ArgType09 d_arg09;
+    ArgType10 d_arg10;
+    ArgType11 d_arg11;
+    ArgType12 d_arg12;
+    ArgType13 d_arg13;
+    ArgType14 d_arg14;
+
+    // CLASS DATA
+    static int s_numDeletes;
+        // Track number of times the destructor is called.
 
   public:
     // CLASS METHODS
@@ -110,149 +249,153 @@ class AllocEmplacableTestType {
 
     // CREATORS
     AllocEmplacableTestType(bslma::Allocator *basicAllocator = 0);
-    explicit AllocEmplacableTestType(ArgType01         a01,
+    explicit AllocEmplacableTestType(ArgType01         arg01,
                                      bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
-                            ArgType10         a10,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
-                            ArgType10         a10,
-                            ArgType11         a11,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
-                            ArgType10         a10,
-                            ArgType11         a11,
-                            ArgType12         a12,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
-                            ArgType10         a10,
-                            ArgType11         a11,
-                            ArgType12         a12,
-                            ArgType13         a13,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
+                            ArgType13         arg13,
                             bslma::Allocator *basicAllocator = 0);
-    AllocEmplacableTestType(ArgType01         a01,
-                            ArgType02         a02,
-                            ArgType03         a03,
-                            ArgType04         a04,
-                            ArgType05         a05,
-                            ArgType06         a06,
-                            ArgType07         a07,
-                            ArgType08         a08,
-                            ArgType09         a09,
-                            ArgType10         a10,
-                            ArgType11         a11,
-                            ArgType12         a12,
-                            ArgType13         a13,
-                            ArgType14         a14,
+    AllocEmplacableTestType(ArgType01         arg01,
+                            ArgType02         arg02,
+                            ArgType03         arg03,
+                            ArgType04         arg04,
+                            ArgType05         arg05,
+                            ArgType06         arg06,
+                            ArgType07         arg07,
+                            ArgType08         arg08,
+                            ArgType09         arg09,
+                            ArgType10         arg10,
+                            ArgType11         arg11,
+                            ArgType12         arg12,
+                            ArgType13         arg13,
+                            ArgType14         arg14,
                             bslma::Allocator *basicAllocator = 0);
-        // Create an 'AllocEmplacableTestType' by initializing the data members
-        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and initializing any
-        // remaining data members with their default value (-1).
+        // Create an 'AllocEmplacableTestType' by initializing corresponding
+        // attributes with the specified 'arg01'..'arg14', and initializing any
+        // remaining attributes with their default value (-1).  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    AllocEmplacableTestType(const AllocEmplacableTestType& original,
-                            bslma::Allocator *basicAllocator = 0);
+    AllocEmplacableTestType(
+                           const AllocEmplacableTestType&  original,
+                           bslma::Allocator               *basicAllocator = 0);
         // Create an allocating, in-place test object having the same value as
         // the specified 'original'.  Optionally specify a 'basicAllocator'
-        // used to supply memory; if no allocator is specified, the default
-        // allocator is used.
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~AllocEmplacableTestType();
         // Increment the count of calls to this destructor, and destroy this
         // object.
 
+    // MANIPULATORS
+    //! AllocEmplacableTestType& operator=(
+    //                           const AllocEmplacableTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used to supply memory for this object.
-
-    bool isEqual(const AllocEmplacableTestType& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-        // objects have the same value if each of their corresponding data
-        // members 'd1'..'d14' have the same value.
 
     const ArgType01& arg01() const;
     const ArgType02& arg02() const;
@@ -271,157 +414,158 @@ class AllocEmplacableTestType {
         // Return the value of the correspondingly numbered argument that was
         // passed to the constructor of this object.
 
+    bool isEqual(const AllocEmplacableTestType& rhs) const;
+        // Return 'true' if the specified 'rhs' has the same value as this
+        // object, and 'false' otherwise.  Two 'AllocEmplacableTestType'
+        // objects have the same value if each of their corresponding
+        // attributes have the same value.
 };
 
 // FREE OPERATORS
 bool operator==(const AllocEmplacableTestType& lhs,
                 const AllocEmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects has the same
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'AllocEmplacableTestType' objects
-    // have the same value if each of their corresponding data members
-    // 'd1'..'d14' have the same value.
+    // have the same value if each of their corresponding attributes have the
+    // same value.
 
 bool operator!=(const AllocEmplacableTestType& lhs,
                 const AllocEmplacableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-    // objects have the same value if each of their corresponding data members
-    // 'd1'..'d14' have the same value.
+    // objects do not have the same value if any of their corresponding
+    // attributes do not have the same value.
 
 // ============================================================================
-//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                         // -----------------------------
                         // class AllocEmplacableTestType
                         // -----------------------------
 
-// CREATORS
-// MANIPULATORS
-
-
 // ACCESSORS
 inline
 const AllocEmplacableTestType::ArgType01&
 AllocEmplacableTestType::arg01() const
 {
-    return d_a01;
+    return d_arg01;
 }
 
 inline
 const AllocEmplacableTestType::ArgType02&
 AllocEmplacableTestType::arg02() const
 {
-    return d_a02;
+    return d_arg02;
 }
 
 inline
 const AllocEmplacableTestType::ArgType03&
 AllocEmplacableTestType::arg03() const
 {
-    return d_a03;
+    return d_arg03;
 }
 
 inline
 const AllocEmplacableTestType::ArgType04&
 AllocEmplacableTestType::arg04() const
 {
-    return d_a04;
+    return d_arg04;
 }
 
 inline
 const AllocEmplacableTestType::ArgType05&
 AllocEmplacableTestType::arg05() const
 {
-    return d_a05;
+    return d_arg05;
 }
 
 inline
 const AllocEmplacableTestType::ArgType06&
 AllocEmplacableTestType::arg06() const
 {
-    return d_a06;
+    return d_arg06;
 }
 
 inline
 const AllocEmplacableTestType::ArgType07&
 AllocEmplacableTestType::arg07() const
 {
-    return d_a07;
+    return d_arg07;
 }
 
 inline
 const AllocEmplacableTestType::ArgType08&
 AllocEmplacableTestType::arg08() const
 {
-    return d_a08;
+    return d_arg08;
 }
 
 inline
 const AllocEmplacableTestType::ArgType09&
 AllocEmplacableTestType::arg09() const
 {
-    return d_a09;
+    return d_arg09;
 }
 
 inline
 const AllocEmplacableTestType::ArgType10&
 AllocEmplacableTestType::arg10() const
 {
-    return d_a10;
+    return d_arg10;
 }
 
 inline
 const AllocEmplacableTestType::ArgType11&
 AllocEmplacableTestType::arg11() const
 {
-    return d_a11;
+    return d_arg11;
 }
 
 inline
 const AllocEmplacableTestType::ArgType12&
 AllocEmplacableTestType::arg12() const
 {
-    return d_a12;
+    return d_arg12;
 }
 
 inline
 const AllocEmplacableTestType::ArgType13&
 AllocEmplacableTestType::arg13() const
 {
-    return d_a13;
+    return d_arg13;
 }
 
 inline
 const AllocEmplacableTestType::ArgType14&
 AllocEmplacableTestType::arg14() const
 {
-    return d_a14;
+    return d_arg14;
 }
 
 inline
 bslma::Allocator *AllocEmplacableTestType::allocator() const
 {
-    return d_a01.allocator();
+    return d_arg01.allocator();
 }
 
 inline
 bool AllocEmplacableTestType::isEqual(const AllocEmplacableTestType& rhs) const
 {
-    return d_a01 == rhs.d_a01
-        && d_a02 == rhs.d_a02
-        && d_a03 == rhs.d_a03
-        && d_a04 == rhs.d_a04
-        && d_a05 == rhs.d_a05
-        && d_a06 == rhs.d_a06
-        && d_a07 == rhs.d_a07
-        && d_a08 == rhs.d_a08
-        && d_a09 == rhs.d_a09
-        && d_a10 == rhs.d_a10
-        && d_a11 == rhs.d_a11
-        && d_a12 == rhs.d_a12
-        && d_a13 == rhs.d_a13
-        && d_a14 == rhs.d_a14;
+    return d_arg01 == rhs.d_arg01
+        && d_arg02 == rhs.d_arg02
+        && d_arg03 == rhs.d_arg03
+        && d_arg04 == rhs.d_arg04
+        && d_arg05 == rhs.d_arg05
+        && d_arg06 == rhs.d_arg06
+        && d_arg07 == rhs.d_arg07
+        && d_arg08 == rhs.d_arg08
+        && d_arg09 == rhs.d_arg09
+        && d_arg10 == rhs.d_arg10
+        && d_arg11 == rhs.d_arg11
+        && d_arg12 == rhs.d_arg12
+        && d_arg13 == rhs.d_arg13
+        && d_arg14 == rhs.d_arg14;
 }
 
 // FREE OPERATORS

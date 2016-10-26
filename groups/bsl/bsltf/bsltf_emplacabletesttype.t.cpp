@@ -43,8 +43,7 @@ using namespace BloombergLP::bsltf;
 //                              Overview
 //                              --------
 // The component under test implements a type that is used to ensure that
-// arguments are forwarded correctly to functions and methods taking an
-// arbitrary number of arguments.
+// arguments are forwarded correctly to a type's constructor.
 //
 // Logically, this single test type represents 15 different test types (each
 // having a single value constructor with 0..14 arguments, respectively).  For
@@ -1660,8 +1659,7 @@ void TestDriver::testCase2()
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
     verbose             = argc > 2;
     veryVerbose         = argc > 3;
     veryVeryVerbose     = argc > 4;
