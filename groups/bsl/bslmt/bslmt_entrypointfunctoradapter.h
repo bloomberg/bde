@@ -25,7 +25,7 @@ BSLS_IDENT("$: $")
 // 'EntryPointFunctorAdapter', invoking the invokable object contained within
 // it and then deallocating the adapter object along with the contained
 // invokable object.  Together, 'EntryPointFunctorAdapter' and
-// 'bldqq_EntryPointFunctorAdapter_invoker' simplify the process of invoking a
+// 'bslmt_EntryPointFunctorAdapter_invoker' simplify the process of invoking a
 // generic functor as a C-style callback, such as a thread entry point.
 //
 // Finally, this component provides 'EntryPointFunctorAdapterUtil', a namespace
@@ -43,91 +43,98 @@ BSLS_IDENT("$: $")
 // threads or in general when registering a C-style callback.  A simplistic
 // example of such a function is:
 //..
-// extern "C" {
-//    typedef void *(*CallbackFunction)(void*);
-// }
+//  extern "C" {
+//     typedef void *(*CallbackFunction)(void*);
+//  }
 //
-// void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
-//    return funcPtr(argument);
-// }
+//  void *executeWithArgument(CallbackFunction funcPtr, void *argument)
+//  {
+//     return funcPtr(argument);
+//  }
 //..
 // In this example, we want to use this interface to invoke a C++-style
 // functor.  Our approach will be to use
-// 'bldqq_EntryPointFunctorAdapter_invoker' as the C-linkage callback function,
+// 'bslmt_EntryPointFunctorAdapter_invoker' as the C-linkage callback function,
 // and a dynamically allocated value of 'EntryPointFunctorAdapter' as the
 // 'void*' argument.
 //
 // First, we define a C++ functor type.  This type implements the job of
 // counting the number of words in a string held by value.
 //..
-// class WordCountJob {
-//     // DATA
-//     bsl::string  d_message;
-//     int         *d_result_p; // held, not owned
+//  class WordCountJob {
+//      // DATA
+//      bsl::string  d_message;
+//      int         *d_result_p; // held, not owned
 //
-//   public:
-//     // TRAITS
-//     BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob, bslma::UsesBslmaAllocator);
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob,
+//                                     bslma::UsesBslmaAllocator);
 //
-//     // CREATORS
-//     WordCountJob(const bslstl::StringRef&  message,
-//                  int                      *result,
-//                  bslma::Allocator         *basicAllocator = 0);
-//       // Create a new functor that, upon execution, counts the number of
-//       // words (contiguous sequences of non-space characters) in the
-//       // specified 'message' and stores the count in the specified
-//       // 'result' address.  Use the specified 'basicAllocator' to supply
-//       // memory.  If 'basicAllocator' is 0, the currently installed default
-//       // allocator is used.
+//      // CREATORS
+//      WordCountJob(const bslstl::StringRef&  message,
+//                   int                      *result,
+//                   bslma::Allocator         *basicAllocator = 0);
+//          // Create a new functor that, upon execution, counts the number of
+//          // words (contiguous sequences of non-space characters) in the
+//          // specified 'message' and stores the count in the specified
+//          // 'result' address.  Optionally specify a 'basicAllocator' used to
+//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //
-//     WordCountJob(const WordCountJob&  other,
-//                  bslma::Allocator    *basicAllocator = 0);
-//       // Create a new functor that performs the same calculation as the
-//       // specified 'other' functor.  Use the specified 'basicAllocator'
-//       // to supply memory.  If 'basicAllocator' is 0, the currently installed
-//       // default allocator is used.
+//      WordCountJob(const WordCountJob&  original,
+//                   bslma::Allocator    *basicAllocator = 0);
+//          // Create a new functor that performs the same calculation as the
+//          // specified 'other' functor.  Optionally specify a
+//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//          // 0, the currently installed default allocator is used.
 //
-//     // MANIPULATORS
-//     void operator()();
-//       // Count the number of words in the message and store the count in
-//       // the address specified on construction.
-// };
+//      // MANIPULATORS
+//      void operator()();
+//          // Count the number of words in the message and store the count in
+//          // the address specified on construction.
+//  };
 //
-// inline WordCountJob::WordCountJob(const bslstl::StringRef&  message,
-//                                   int                      *result,
-//                                   bslma::Allocator         *basicAllocator)
-// : d_message(message, basicAllocator)
-// , d_result_p(result)
-// {}
+//  inline
+//  WordCountJob::WordCountJob(const bslstl::StringRef&  message,
+//                             int                      *result,
+//                             bslma::Allocator         *basicAllocator)
+//  : d_message(message, basicAllocator)
+//  , d_result_p(result)
+//  {}
 //
-// inline WordCountJob::WordCountJob(const WordCountJob&  other,
-//                                   bslma::Allocator    *basicAllocator)
-// : d_message(other.d_message, basicAllocator)
-// , d_result_p(other.d_result_p)
-// {}
+//  inline
+//  WordCountJob::WordCountJob(const WordCountJob&  original,
+//                             bslma::Allocator    *basicAllocator)
+//  : d_message(original.d_message, basicAllocator)
+//  , d_result_p(original.d_result_p)
+//  {}
 //
-// void WordCountJob::operator()() {
-//   bool inWord = false;
-//   *d_result_p = 0;
-//   for (int i = 0; i < d_message.length(); ++i) {
-//     if (isspace(d_message[i])) {
-//        inWord = false;
-//     } else if (!inWord) {
-//        inWord = true;
-//        ++(*d_result_p);
-//     }
-//   }
-// }
-//..
+//  void WordCountJob::operator()()
+//  {
+//      bool inWord = false;
+//      *d_result_p = 0;
+//      for (unsigned i = 0; i < d_message.length(); ++i) {
+//          if (isspace(d_message[i])) {
+//              inWord = false;
+//          } else if (!inWord) {
+//              inWord = true;
+//              ++(*d_result_p);
+//          }
+//      }
+//  }
 // Next, we dynamically allocate an 'EntryPointFunctorAdapter' wrapping an
 // instance of this functor:
 //..
-// int result = 0;
-// WordCountJob job("The quick brown fox jumped over the lazy dog.", &result);
+//  int result = 0;
+//  WordCountJob job("The quick brown fox jumped over the lazy dog.",
+//                   &result);
 //
-// bslma::ManagedPtr<
-//     bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
-// bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData, job);
+//  bslma::ManagedPtr<
+//      bslmt::EntryPointFunctorAdapter<WordCountJob> > threadData;
+//  bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
+//                                                       job,
+//                                                       "");
 //..
 // Finally, we use 'bslmt_EntryPointFunctorAdapter_invoker' to invoke the job
 // in the context of a C-linkage function.  Note that
@@ -138,19 +145,34 @@ BSLS_IDENT("$: $")
 // 'ManagedPtr' to aid in proper error and exception handling, outside the
 // scope of this example.)
 //..
-// executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
-//                     threadData.ptr());
-// threadData.release();
-// assert(9 == result);
+//  executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
+//                      threadData.ptr());
+//  threadData.release();
+//  assert(9 == result);
 //..
-//
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include <bslmt_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
+#include <bslmt_threadutilimpl_pthread.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTILIMPL_WIN32
+#include <bslmt_threadutilimpl_win32.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -165,6 +187,10 @@ BSLS_IDENT("$: $")
 #include <bslma_rawdeleterguard.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
 namespace BloombergLP {
 
 extern "C" {
@@ -176,6 +202,9 @@ void *bslmt_EntryPointFunctorAdapter_invoker(void* argument);
 }
 
 namespace bslmt {
+
+template <class THREAD_POLICY>
+struct ThreadUtilImpl;
 
 struct EntryPointFunctorAdapterUtil;
 
@@ -196,12 +225,12 @@ class EntryPointFunctorAdapter_Base {
     InvokerFunction d_function; // Function to operate on template object
 
   protected:
-    // CREATORS
+    // PROTECTED CREATORS
     explicit EntryPointFunctorAdapter_Base(InvokerFunction function);
         // Create a new object holding the specified 'function'.
 
-  public :
-    // ACCESSORS
+  public:
+    // PUBLIC ACCESSORS
     InvokerFunction function() const;
         // Return the function supplied at construction.
 };
@@ -214,53 +243,55 @@ class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
     // uses 'bslma::Allocator' as an argument to its copy constructor.
 
     // DATA
-    bslalg::ConstructorProxy<TYPE>  d_functor;
-    bslma::Allocator               *d_allocator_p;
+    bslalg::ConstructorProxy<TYPE> d_functor;
+    bsl::string                    d_threadName;
 
+    // FRIENDS
     friend struct EntryPointFunctorAdapterUtil;
 
+  private:
     // NOT IMPLEMENTED
     EntryPointFunctorAdapter(const EntryPointFunctorAdapter&);
     EntryPointFunctorAdapter& operator=(const EntryPointFunctorAdapter&);
 
-    // CREATORS
-    EntryPointFunctorAdapter(const TYPE& functor, bslma::Allocator *allocator);
-        // Create a new managed object holding a new copy of the specified
-        // 'functor' value and using the specified 'allocator' to manage
-        // memory.
+    // PRIVATE CREATORS
+    EntryPointFunctorAdapter(const TYPE&               functor,
+                             const bslstl::StringRef&  threadName,
+                             bslma::Allocator         *allocator);
+        // Create a new managed object holding copies of the specified
+        // 'functor' and 'threadName' values and using the specified
+        // 'allocator' to supply memory.
 
-    // CLASS METHODS
+    // PRIVATE CLASS METHODS
     static void invokerFunction(void *adapter);
-        // Interpreting the specified 'adapter' as a
+        // Interpreting the specified 'adapter' as an
         // 'EntryPointFunctorAdapter<TYPE>*', invoke 'd_object' and then
-        // deallocate 'adapter' using 'd_allocator_p'.
+        // deallocate 'adapter' using the allocator used by '*adapter'.
+
+    // PRIVATE MANIPULATORS
+    TYPE& functor();
+        // Return a reference to the functor.
 
   public:
     // ~EntryPointFunctorAdapter() = default;
         // Destroy this object and the underlying managed object.  Note that
-        // this destructor is generated by the compiler.
-
-    // ACCESSORS
-    bslma::Allocator* allocator() const;
-        // Return the allocator supplied at construction.
-
-    // MANIPULATORS
-    TYPE& functor();
-        // Return a reference to the functor.
+        // this public destructor is generated by the compiler.
 };
 
 struct EntryPointFunctorAdapterUtil {
 
+    // CLASS METHODS
     template<typename TYPE>
     static void allocateAdapter(
        bslma::ManagedPtr<EntryPointFunctorAdapter<TYPE> > *adapter,
        const TYPE&                                         invokable,
+       const bslstl::StringRef&                            threadName,
        bslma::Allocator                                   *basicAllocator = 0);
-        // Allocate a new 'EntryPointFunctorAdapter' holding a copy of the
-        // specified 'invokable' object, and load the result into the specified
-        // 'adapter'.  Use 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Allocate a new 'EntryPointFunctorAdapter' holding copies of the
+        // specified 'invokable' object and 'threadName', and load the result
+        // into the specified 'adapter'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 };
 
 // ============================================================================
@@ -270,16 +301,19 @@ struct EntryPointFunctorAdapterUtil {
                     // -----------------------------------
                     // class EntryPointFunctorAdapter_Base
                     // -----------------------------------
-// CREATORS
+
+// PROTECTED CREATORS
 inline
 EntryPointFunctorAdapter_Base::EntryPointFunctorAdapter_Base(
                                                       InvokerFunction function)
 : d_function(function)
 {}
 
-// ACCESSORS
-inline EntryPointFunctorAdapter_Base::InvokerFunction
-EntryPointFunctorAdapter_Base::function() const {
+// PUBLIC ACCESSORS
+inline
+EntryPointFunctorAdapter_Base::InvokerFunction
+EntryPointFunctorAdapter_Base::function() const
+{
     return d_function;
 }
 
@@ -287,42 +321,43 @@ EntryPointFunctorAdapter_Base::function() const {
                       // class EntryPointFunctorAdapter
                       // ------------------------------
 
-// CLASS METHODS
+// PRIVATE CLASS METHODS
 template <typename TYPE>
 inline
-void EntryPointFunctorAdapter<TYPE>::invokerFunction(void *adapterRaw) {
+void EntryPointFunctorAdapter<TYPE>::invokerFunction(void *adapterRaw)
+{
     EntryPointFunctorAdapter<TYPE> *adapter =
-        static_cast<EntryPointFunctorAdapter<TYPE>*>(adapterRaw);
+                      static_cast<EntryPointFunctorAdapter<TYPE>*>(adapterRaw);
 
-    bslma::RawDeleterGuard<
-        EntryPointFunctorAdapter<TYPE>,
-        bslma::Allocator> adapterGuard(adapter, adapter->allocator());
+    bslma::Allocator *a = adapter->d_threadName.get_allocator().mechanism();
+    bslma::RawDeleterGuard<EntryPointFunctorAdapter<TYPE>,
+                           bslma::Allocator> adapterGuard(adapter, a);
+
+    if (false == adapter->d_threadName.empty()) {
+        ThreadUtilImpl<Platform::ThreadPolicy>::setThreadName(
+                                                        adapter->d_threadName);
+    }
 
     adapter->functor()();
 }
 
-// CREATORS
+// PRIVATE CREATORS
 template <typename TYPE>
 inline
 EntryPointFunctorAdapter<TYPE>::EntryPointFunctorAdapter(
-                                                   const TYPE&       functor,
-                                                   bslma::Allocator *allocator)
+                                          const TYPE&               functor,
+                                          const bslstl::StringRef&  threadName,
+                                          bslma::Allocator         *allocator)
 : EntryPointFunctorAdapter_Base(&invokerFunction)
 , d_functor(functor, allocator)
-, d_allocator_p(allocator)
+, d_threadName(threadName, allocator)
 {}
 
-// ACCESSORS
+// PRIVATE MANIPULATORS
 template <typename TYPE>
 inline
-bslma::Allocator* EntryPointFunctorAdapter<TYPE>::allocator() const {
-    return d_allocator_p;
-}
-
-// MANIPULATORS
-template <typename TYPE>
-inline
-TYPE& EntryPointFunctorAdapter<TYPE>::functor() {
+TYPE& EntryPointFunctorAdapter<TYPE>::functor()
+{
     return d_functor.object();
 }
 
@@ -335,10 +370,12 @@ inline
 void EntryPointFunctorAdapterUtil::allocateAdapter(
           bslma::ManagedPtr<EntryPointFunctorAdapter<TYPE> > *adapter,
           const TYPE&                                         invokable,
-          bslma::Allocator                                   *basicAllocator) {
-
+          const bslstl::StringRef&                            threadName,
+          bslma::Allocator                                   *basicAllocator)
+{
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
     adapter->load(new (*allocator) EntryPointFunctorAdapter<TYPE>(invokable,
+                                                                  threadName,
                                                                   allocator),
                   allocator);
 }

@@ -12,34 +12,44 @@ BSLS_IDENT("$Id: $")
 //@REVIEW_FOR_MASTER:
 //
 //@CLASSES:
-//   EmplacableTestType: non-allocating test class taking up to 14 arguments
+//   bsltf::EmplacableTestType: non-allocating test class with 0..14 arguments
 //
-//@SEE_ALSO: bsltf_templatetestfacility
+//@SEE_ALSO: bsltf_argumenttype, bsltf_templatetestfacility
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
-// 'EmplacableTestType', that is used to ensure that arguments are forwarded
-// correctly to functions and methods taking an arbitrary number of arguments.
+// 'bsltf::EmplacableTestType', that is used to ensure that arguments are
+// forwarded correctly to a type's constructor.  This component is similar to
+// 'bsltf_allocemplacabletesttype', but provides a type that does not allocate
+// on construction.
 //
-//
-// TBD: fix this up
 ///Attributes
 ///----------
 //..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
+//  Name     Type                      Default
+//  -------  ------------------------  -------
+//  arg01    bsltf::ArgumentType< 1>   -1
+//  arg02    bsltf::ArgumentType< 2>   -1
+//  arg03    bsltf::ArgumentType< 3>   -1
+//  arg04    bsltf::ArgumentType< 4>   -1
+//  arg05    bsltf::ArgumentType< 5>   -1
+//  arg06    bsltf::ArgumentType< 6>   -1
+//  arg07    bsltf::ArgumentType< 7>   -1
+//  arg08    bsltf::ArgumentType< 8>   -1
+//  arg09    bsltf::ArgumentType< 9>   -1
+//  arg10    bsltf::ArgumentType<10>   -1
+//  arg11    bsltf::ArgumentType<11>   -1
+//  arg12    bsltf::ArgumentType<12>   -1
+//  arg13    bsltf::ArgumentType<13>   -1
+//  arg14    bsltf::ArgumentType<14>   -1
 //..
-//: o 'data': representation of the class value
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: TBD
-/// - - - - - - -
-// Suppose we wanted to ...
+// See 'bsltf_allocemplacabletesttype' for usage example.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -58,11 +68,11 @@ namespace bsltf {
 
 class EmplacableTestType {
     // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
+    // passed for creating an object with an in-place representation are of the
+    // correct type and value.
 
   public:
-    // TYPEDEFS
+    // PUBLIC TYPES
     typedef bsltf::ArgumentType< 1> ArgType01;
     typedef bsltf::ArgumentType< 2> ArgType02;
     typedef bsltf::ArgumentType< 3> ArgType03;
@@ -80,22 +90,22 @@ class EmplacableTestType {
 
   private:
     // DATA
-    ArgType01 d_a01;
-    ArgType02 d_a02;
-    ArgType03 d_a03;
-    ArgType04 d_a04;
-    ArgType05 d_a05;
-    ArgType06 d_a06;
-    ArgType07 d_a07;
-    ArgType08 d_a08;
-    ArgType09 d_a09;
-    ArgType10 d_a10;
-    ArgType11 d_a11;
-    ArgType12 d_a12;
-    ArgType13 d_a13;
-    ArgType14 d_a14;
+    ArgType01 d_arg01;
+    ArgType02 d_arg02;
+    ArgType03 d_arg03;
+    ArgType04 d_arg04;
+    ArgType05 d_arg05;
+    ArgType06 d_arg06;
+    ArgType07 d_arg07;
+    ArgType08 d_arg08;
+    ArgType09 d_arg09;
+    ArgType10 d_arg10;
+    ArgType11 d_arg11;
+    ArgType12 d_arg12;
+    ArgType13 d_arg13;
+    ArgType14 d_arg14;
 
-    // DATA
+    // CLASS DATA
     static int s_numDeletes;
         // Track number of times the destructor is called.
 
@@ -107,111 +117,111 @@ class EmplacableTestType {
 
     // CREATORS
     EmplacableTestType();
-    explicit EmplacableTestType(ArgType01 a01);
-    EmplacableTestType(ArgType01 a01, ArgType02 a02);
-    EmplacableTestType(ArgType01 a01, ArgType02 a02, ArgType03 a03);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09,
-                       ArgType10 a10);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09,
-                       ArgType10 a10,
-                       ArgType11 a11);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09,
-                       ArgType10 a10,
-                       ArgType11 a11,
-                       ArgType12 a12);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09,
-                       ArgType10 a10,
-                       ArgType11 a11,
-                       ArgType12 a12,
-                       ArgType13 a13);
-    EmplacableTestType(ArgType01 a01,
-                       ArgType02 a02,
-                       ArgType03 a03,
-                       ArgType04 a04,
-                       ArgType05 a05,
-                       ArgType06 a06,
-                       ArgType07 a07,
-                       ArgType08 a08,
-                       ArgType09 a09,
-                       ArgType10 a10,
-                       ArgType11 a11,
-                       ArgType12 a12,
-                       ArgType13 a13,
-                       ArgType14 a14);
-        // Create an 'EmplacableTestType' by initializing the data members
-        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and initializing any
-        // remaining data members with their default value (-1).
+    explicit EmplacableTestType(ArgType01 arg01);
+    EmplacableTestType(ArgType01 arg01, ArgType02 arg02);
+    EmplacableTestType(ArgType01 arg01, ArgType02 arg02, ArgType03 arg03);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09,
+                       ArgType10 arg10);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09,
+                       ArgType10 arg10,
+                       ArgType11 arg11);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09,
+                       ArgType10 arg10,
+                       ArgType11 arg11,
+                       ArgType12 arg12);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09,
+                       ArgType10 arg10,
+                       ArgType11 arg11,
+                       ArgType12 arg12,
+                       ArgType13 arg13);
+    EmplacableTestType(ArgType01 arg01,
+                       ArgType02 arg02,
+                       ArgType03 arg03,
+                       ArgType04 arg04,
+                       ArgType05 arg05,
+                       ArgType06 arg06,
+                       ArgType07 arg07,
+                       ArgType08 arg08,
+                       ArgType09 arg09,
+                       ArgType10 arg10,
+                       ArgType11 arg11,
+                       ArgType12 arg12,
+                       ArgType13 arg13,
+                       ArgType14 arg14);
+        // Create an 'EmplacableTestType' object by initializing corresponding
+        // attributes with the specified 'arg01'..'arg14', and initializing any
+        // remaining attributes with their default value (-1).
 
     EmplacableTestType(const EmplacableTestType& original);
         // Create an in-place test object having the same value as the
@@ -221,13 +231,12 @@ class EmplacableTestType {
         // Increment the count of calls to this destructor, and destroy this
         // object.
 
-    // ACCESSORS
-    bool isEqual(const EmplacableTestType& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'EmplacableTestType' objects have
-        // the same value if each of their corresponding data members
-        // 'd1'..'d14' have the same value.
+    // MANIPULATORS
+    //! EmplacableTestType& operator=(const EmplacableTestType& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
+    // ACCESSORS
     const ArgType01& arg01() const;
     const ArgType02& arg02() const;
     const ArgType03& arg03() const;
@@ -245,135 +254,136 @@ class EmplacableTestType {
         // Return the value of the correspondingly numbered argument that was
         // passed to the constructor of this object.
 
+    bool isEqual(const EmplacableTestType& other) const;
+        // Return 'true' if the specified 'other' object has the same value as
+        // this object, and 'false' otherwise.  Two 'EmplacableTestType'
+        // objects have the same value if each of their corresponding
+        // attributes have the same value.
 };
 
 // FREE OPERATORS
 bool operator==(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects has the same
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'EmplacableTestType' objects have the
-    // same value if each of their corresponding data members 'd1'..'d14' have
-    // the same value.
+    // same value if each of their corresponding attributes have the same
+    // value.
 
 bool operator!=(const EmplacableTestType& lhs, const EmplacableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'EmplacableTestType' objects have
-    // the same value if each of their corresponding data members 'd1'..'d14'
+    // same value, and 'false' otherwise.  Two 'EmplacableTestType' objects do
+    // not have the same value if any of their corresponding attributes do not
     // have the same value.
 
 // ============================================================================
-//                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                      INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------------
                         // class EmplacableTestType
                         // ------------------------
 
-// CREATORS
-// MANIPULATORS
-
-
 // ACCESSORS
 inline
 const EmplacableTestType::ArgType01& EmplacableTestType::arg01() const
 {
-    return d_a01;
+    return d_arg01;
 }
 
 inline
 const EmplacableTestType::ArgType02& EmplacableTestType::arg02() const
 {
-    return d_a02;
+    return d_arg02;
 }
 
 inline
 const EmplacableTestType::ArgType03& EmplacableTestType::arg03() const
 {
-    return d_a03;
+    return d_arg03;
 }
 
 inline
 const EmplacableTestType::ArgType04& EmplacableTestType::arg04() const
 {
-    return d_a04;
+    return d_arg04;
 }
 
 inline
 const EmplacableTestType::ArgType05& EmplacableTestType::arg05() const
 {
-    return d_a05;
+    return d_arg05;
 }
 
 inline
 const EmplacableTestType::ArgType06& EmplacableTestType::arg06() const
 {
-    return d_a06;
+    return d_arg06;
 }
 
 inline
 const EmplacableTestType::ArgType07& EmplacableTestType::arg07() const
 {
-    return d_a07;
+    return d_arg07;
 }
 
 inline
 const EmplacableTestType::ArgType08& EmplacableTestType::arg08() const
 {
-    return d_a08;
+    return d_arg08;
 }
 
 inline
 const EmplacableTestType::ArgType09& EmplacableTestType::arg09() const
 {
-    return d_a09;
+    return d_arg09;
 }
 
 inline
 const EmplacableTestType::ArgType10& EmplacableTestType::arg10() const
 {
-    return d_a10;
+    return d_arg10;
 }
 
 inline
 const EmplacableTestType::ArgType11& EmplacableTestType::arg11() const
 {
-    return d_a11;
+    return d_arg11;
 }
 
 inline
 const EmplacableTestType::ArgType12& EmplacableTestType::arg12() const
 {
-    return d_a12;
+    return d_arg12;
 }
 
 inline
 const EmplacableTestType::ArgType13& EmplacableTestType::arg13() const
 {
-    return d_a13;
+    return d_arg13;
 }
 
 inline
 const EmplacableTestType::ArgType14& EmplacableTestType::arg14() const
 {
-    return d_a14;
+    return d_arg14;
 }
 
 inline
-bool EmplacableTestType::isEqual(const EmplacableTestType& rhs) const
+bool EmplacableTestType::isEqual(const EmplacableTestType& other) const
 {
-    return d_a01 == rhs.d_a01
-        && d_a02 == rhs.d_a02
-        && d_a03 == rhs.d_a03
-        && d_a04 == rhs.d_a04
-        && d_a05 == rhs.d_a05
-        && d_a06 == rhs.d_a06
-        && d_a07 == rhs.d_a07
-        && d_a08 == rhs.d_a08
-        && d_a09 == rhs.d_a09
-        && d_a10 == rhs.d_a10
-        && d_a11 == rhs.d_a11
-        && d_a12 == rhs.d_a12
-        && d_a13 == rhs.d_a13
-        && d_a14 == rhs.d_a14;
+    return d_arg01 == other.d_arg01
+        && d_arg02 == other.d_arg02
+        && d_arg03 == other.d_arg03
+        && d_arg04 == other.d_arg04
+        && d_arg05 == other.d_arg05
+        && d_arg06 == other.d_arg06
+        && d_arg07 == other.d_arg07
+        && d_arg08 == other.d_arg08
+        && d_arg09 == other.d_arg09
+        && d_arg10 == other.d_arg10
+        && d_arg11 == other.d_arg11
+        && d_arg12 == other.d_arg12
+        && d_arg13 == other.d_arg13
+        && d_arg14 == other.d_arg14;
 }
 
 // FREE OPERATORS

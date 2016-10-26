@@ -25,8 +25,7 @@ BSLS_IDENT("$Id: $")
 
 #include <cwchar>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
 
     using native_std::btowc;

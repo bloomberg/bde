@@ -167,6 +167,8 @@ int main(int argc, char *argv[])
                          bslmf::MovableRefUtil::move(mA));
         ASSERT(false == X.copied());
         ASSERT( true == X.moved());
+
+        ASSERT(sizeof(bool) == sizeof(bslmf::Util::declval<Obj>().copied()));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

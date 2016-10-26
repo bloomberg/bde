@@ -25,6 +25,7 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
 
+#include <bsl_algorithm.h>   // 'bsl::min'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_ctime.h>
@@ -41,6 +42,8 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 # include <mach/clock.h>   // clock_sleep
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 # include <sys/utsname.h>
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+# include <sys/prctl.h>
 #endif
 
 #include <errno.h>         // constant 'EINTR'
@@ -392,6 +395,47 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleep(
     return result;
 }
 
+void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::getThreadName(
+                                                       bsl::string *threadName)
+{
+    BSLS_ASSERT(threadName);
+
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN)
+    // 'man (2) prctl' from Linux 2.6.9 says the buffer must accommodate at
+    // least 16 bytes.
+
+    // http://linux.die.net/man/3/pthread_getname_np says 'pthread_getname_np'
+    // requires a buffer at least 16 bytes long (and says that
+    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
+    // including the terminating '\0').
+
+    enum { k_BUF_SIZE = 16 };
+    char localBuf[k_BUF_SIZE];
+
+# if defined(BSLS_PLATFORM_OS_LINUX)
+
+    const int rc = prctl(PR_GET_NAME, localBuf, 0, 0, 0);
+# elif defined(BSLS_PLATFORM_OS_DARWIN)
+    const int rc = pthread_getname_np(pthread_self(),
+                                      localBuf,
+                                      k_BUF_SIZE);
+# endif
+
+    localBuf[k_BUF_SIZE - 1] = 0;
+    BSLS_ASSERT(0 == rc);        (void)rc;    // suppress unused warnings
+
+    *threadName = localBuf;
+
+#else
+
+    // Thread names are not implemented on other platforms, but the passed
+    // 'bsl::string' is cleared.
+
+    threadName->clear();
+
+#endif
+}
+
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
                                               int                 microseconds,
                                               int                 seconds,
@@ -411,6 +455,38 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::microSleep(
                                  static_cast<int>(unslept.tv_nsec));
     }
     return result;
+}
+
+void bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::setThreadName(
+                                           const bslstl::StringRef& threadName)
+{
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+    // http://linux.die.net/man/2/prctl says that 'prctl(PR_SET_NAME, ...)' can
+    // only handle names up to 16 bytes, including the terminating '\0'.
+
+    // http://linux.die.net/man/3/pthread_getname_np says that
+    // 'pthread_setname_np' can't handle a string longer than 16 bytes,
+    // including the terminating '\0'.
+
+    enum { k_BUF_SIZE = 16 };   // 16 is appropriate for both Linux and Darwin.
+    char localBuf[k_BUF_SIZE];
+    const bsl::size_t len = bsl::min<bsl::size_t>(k_BUF_SIZE - 1,
+                                                  threadName.length());
+    bsl::strncpy(localBuf, threadName.data(), len);
+    localBuf[len] = 0;
+
+# if   defined(BSLS_PLATFORM_OS_LINUX)
+    const int rc = prctl(PR_SET_NAME, localBuf, 0, 0, 0);
+# elif defined(BSLS_PLATFORM_OS_DARWIN)
+    const int rc = pthread_setname_np(localBuf);
+# endif
+
+    BSLS_ASSERT(0 == rc);        (void)rc;    // suppress unused warnings
+#else
+    // This function has no effect on other platforms.
+
+    (void)threadName;
+#endif
 }
 
 int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
@@ -447,7 +523,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     // can be found:
     //: o http://felinemenace.org/~nemo/mach/manpages/
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
-    //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
+    //: o Mac OS X Internals: A Systems Approach (On Safari-Online)
 
     // This implementation is very sensitive to the 'clockType'.  For safety,
     // we will assert the value is one of the two currently expected values.

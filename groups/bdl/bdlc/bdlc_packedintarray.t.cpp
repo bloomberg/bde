@@ -153,9 +153,10 @@ using namespace bsl;
 // [ 6] bool operator==(lhs, rhs);
 // [ 6] bool operator!=(lhs, rhs);
 // [11] void swap(PackedIntArray& a, PackedIntArray& b);
+// [26] void hashAppend(HASHALG&, const PackedIntArray&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] UnsignedObj& gg(UnsignedObj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
@@ -595,7 +596,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -665,6 +666,193 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(sizeof(signed char)) == nyc.bytesPerElement());
     ASSERT(                                   24 == nyc.length());
 //..
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'hashAppend'
+        //   Ensure that equal arrays hash to the sam evalue.
+        //
+        // Concerns:
+        //: 1 Two objects, 'X' and 'Y', hash to the same value if they compare
+        //:   equal.
+        //:
+        //: 2 The capacity and storage method of the objects does not affect
+        //:   the result of hashing.
+        //:
+        //: 3 Non-modifiable objects can be hashed (i.e., objects providing
+        //:   only non-modifiable access).
+        //
+        // Plan:
+        //: 1 Specify a set of specifications for the 'gg' function that result
+        //:   in an empty object but with different capacity and bytes per
+        //:   element characteristics.
+        //:
+        //: 2 Specify a set of specifications for distinct object values.
+        //:
+        //: 3 For every item in the cross-product of these two sets, verify
+        //:   that the hash value is the same when the two items are.  Hope
+        //:   that they are different when the two items are.  (C-1..3)
+        //
+        // Testing:
+        //   void hashAppend(HASHALG&, const PackedIntArray&);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING 'hashAppend'"
+                          << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        if (verbose) {
+            cout << "\nVerify hashing for the signed array.\n";
+        }
+        {
+            static const struct {
+                int         d_lineNum;
+                const char *d_spec_p;
+            } INIT[] = {
+                // line spec
+                //----  ----
+                { L_,   ""          },
+                { L_,   "Lp"        },
+                { L_,   "LLLLLLx"   },
+                { L_,   "LLLLLLxLp" },
+            };
+            const int NUM_INIT = static_cast<int>(sizeof INIT / sizeof *INIT);
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_spec_p;
+            } DATA[] = {
+                // line spec
+                //----  ----
+                { L_,   ""          },
+                { L_,   "zoO"       },
+                { L_,   "cC"        },
+                { L_,   "sS"        },
+                { L_,   "iI"        },
+                { L_,   "zoOcC"     },
+                { L_,   "zoOsS"     },
+                { L_,   "zoOcCsSiI" },
+                { L_,   "IiSsCcOoz" },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                for (int si = 0; si < NUM_INIT ; ++si) {
+                    const int   LINE1 = DATA[ti].d_lineNum;
+                    bsl::string SPEC1 = (bsl::string()
+                                         + INIT[si].d_spec_p
+                                         + DATA[ti].d_spec_p);
+
+                    Obj mX;  const Obj& X = gg(&mX, SPEC1.c_str());
+
+                    for (int tj = 0; tj < NUM_DATA; ++tj) {
+                        for (int sj = 0; sj < NUM_INIT ; ++sj) {
+                            const int   LINE2 = DATA[tj].d_lineNum;
+                            bsl::string SPEC2 = (bsl::string()
+                                                 + INIT[sj].d_spec_p
+                                                 + DATA[tj].d_spec_p);
+
+                            if (veryVerbose) { P_(SPEC1) P(SPEC2) }
+
+                            Obj mY;  const Obj& Y = gg(&mY, SPEC2.c_str());
+
+                            bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                            HashType hX = hasher(X);
+                            HashType hY = hasher(Y);
+
+                            LOOP2_ASSERT(LINE1,
+                                         LINE2,
+                                         (hX == hY) == (ti == tj));
+                            LOOP2_ASSERT(LINE1,
+                                         LINE2,
+                                         defaultAllocator.numAllocations()
+                                                               == allocations);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "\nVerify hashing for the unsigned array."
+                          << endl;
+
+        {
+            static const struct {
+                int         d_lineNum;
+                const char *d_spec_p;
+            } INIT[] = {
+                // line spec
+                //----  ----
+                { L_,   ""          },
+                { L_,   "Lp"        },
+                { L_,   "LLLLLLx"   },
+                { L_,   "LLLLLLxLp" },
+            };
+            const int NUM_INIT = static_cast<int>(sizeof INIT / sizeof *INIT);
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_spec_p;
+            } DATA[] = {
+                // line spec
+                //----  ----
+                { L_,   ""          },
+                { L_,   "zO"        },
+                { L_,   "C"         },
+                { L_,   "sS"        },
+                { L_,   "iI"        },
+                { L_,   "zOC"       },
+                { L_,   "zOsS"      },
+                { L_,   "zOCsSiI"   },
+                { L_,   "IiSsCOOz"  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                for (int si = 0; si < NUM_INIT ; ++si) {
+                    const int   LINE1 = DATA[ti].d_lineNum;
+                    bsl::string SPEC1 = (bsl::string()
+                                         + INIT[si].d_spec_p
+                                         + DATA[ti].d_spec_p);
+
+                    UnsignedObj        mX;
+                    const UnsignedObj& X = gg(&mX, SPEC1.c_str());
+
+                    for (int tj = 0; tj < NUM_DATA; ++tj) {
+                        for (int sj = 0; sj < NUM_INIT ; ++sj) {
+                            const int   LINE2 = DATA[tj].d_lineNum;
+                            bsl::string SPEC2 = (bsl::string()
+                                                 + INIT[sj].d_spec_p
+                                                 + DATA[tj].d_spec_p);
+
+                            if (veryVerbose) { P_(SPEC1) P(SPEC2) }
+
+                            UnsignedObj        mY;
+                            const UnsignedObj& Y = gg(&mY, SPEC2.c_str());
+
+                            bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                            HashType hX = hasher(X);
+                            HashType hY = hasher(Y);
+
+                            LOOP2_ASSERT(LINE1,
+                                         LINE2,
+                                         (hX == hY) == (ti == tj));
+
+                            LOOP2_ASSERT(LINE1,
+                                         LINE2,
+                                         defaultAllocator.numAllocations()
+                                                               == allocations);
+                        }
+                    }
+                }
+            }
+        }
       } break;
       case 25: {
         // --------------------------------------------------------------------

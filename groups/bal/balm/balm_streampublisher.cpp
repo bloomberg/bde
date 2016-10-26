@@ -192,13 +192,12 @@ void StreamPublisher::publish(const MetricSample& metricValues)
                  << metricValues.numRecords() << " Records" << bsl::endl;
 
         MetricSample::const_iterator gIt = metricValues.begin();
-        MetricSample::const_iterator prev;
+        MetricSample::const_iterator prev = gIt;
         for (; gIt != metricValues.end(); ++gIt) {
             const double elapsedTime =
                                      gIt->elapsedTime().totalSecondsAsDouble();
 
-            if (gIt == metricValues.begin()
-             || gIt->elapsedTime() != prev->elapsedTime()) {
+            if (gIt == prev || gIt->elapsedTime() != prev->elapsedTime()) {
                 d_stream << "\tElapsed Time: " << elapsedTime << "s"
                          << bsl::endl;
             }

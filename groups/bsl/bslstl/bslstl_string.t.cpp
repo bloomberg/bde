@@ -315,6 +315,7 @@ using bsls::nameOfType;
 // [25] CONCERN: 'std::length_error' is used properly
 // [27] DRQS 16870796
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
+// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1100,6 +1101,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase35();
+        // Test 'noexcept' specifications
+
     static void testCase33();
         // Test the 'initializer_list' functions where supported.
 
@@ -1407,6 +1411,272 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
+{
+    // ------------------------------------------------------------------------
+    // 'noexcept' SPECIFICATION
+    //
+    // Concerns:
+    //: 1 The 'noexcept' specification has been applied to all class interfaces
+    //:   required by the standard.
+    //
+    // Plan:
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //:   appearing in the standard and confirm that calculated boolean value
+    //:   matches the expected value.
+    //:
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+    //:   of the container, we need test for just one general type and any
+    //:   'TYPE' specializations.
+    //
+    // Testing:
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    // ------------------------------------------------------------------------
+
+    if (verbose) {
+        P(bsls::NameOf<TYPE>())
+        P(bsls::NameOf<TRAITS>())
+        P(bsls::NameOf<ALLOC>())
+    }
+
+    // N4594: page 699: String classes
+
+    // page 704
+    //..
+    //  // 21.3.1.2, construct/copy/destroy:
+    //  basic_string() noexcept(noexcept(Allocator())) :
+    //                      basic_string(Allocator()) { }
+    //  explicit basic_string(const Allocator& a) noexcept;
+    //  basic_string(basic_string&& str) noexcept;
+    //  basic_string& operator=(basic_string&& str) noexcept(
+    //      allocator_traits<Allocator>::
+    //                         propagate_on_container_move_assignment::value ||
+    //      allocator_traits<Allocator>::is_always_equal::value);
+    //..
+
+    {
+        // Not implemented: 'basic_string()'
+
+        ALLOC a;
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(a)));
+
+        Obj str;
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                       Obj(bslmf::MovableRefUtil::move(str))));
+        Obj s;
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                        s = bslmf::MovableRefUtil::move(str)));
+    }
+
+    // page 704
+    //..
+    //  // 21.3.1.3, iterators:
+    //  iterator begin() noexcept;
+    //  const_iterator begin() const noexcept;
+    //  iterator end() noexcept;
+    //  const_iterator end() const noexcept;
+    //  reverse_iterator rbegin() noexcept;
+    //  const_reverse_iterator rbegin() const noexcept;
+    //  reverse_iterator rend() noexcept;
+    //  const_reverse_iterator rend() const noexcept;
+    //  const_iterator cbegin() const noexcept;
+    //  const_iterator cend() const noexcept;
+    //  const_reverse_iterator crbegin() const noexcept;
+    //  const_reverse_iterator crend() const noexcept;
+    //..
+
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.begin()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.end()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rbegin()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.rend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rend()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.cend()));
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.crend()));
+    }
+
+    // page 704 - 705
+    //..
+    //  // 21.3.1.4, capacity:
+    //  size_type size() const noexcept;
+    //  size_type length() const noexcept;
+    //  size_type max_size() const noexcept;
+    //  size_type capacity() const noexcept;
+    //  void clear() noexcept;
+    //  bool empty() const noexcept;
+    //..
+
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.length()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.capacity()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.clear()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.empty()));
+    }
+
+    // page 705 - 706
+    //..
+    //  // 21.3.1.6, modifiers:
+    //  basic_string& assign(basic_string&& str) noexcept(
+    //      allocator_traits<Allocator>::
+    //                         propagate_on_container_move_assignment::value ||
+    //      allocator_traits<Allocator>::is_always_equal::value);
+    //  void swap(basic_string& str) noexcept(
+    //       allocator_traits<Allocator>::propagate_on_container_swap::value ||
+    //       allocator_traits<Allocator>::is_always_equal::value);
+    //..
+
+    // page 706 - 707
+    //..
+    //  // 21.3.1.7, string operations:
+    //  const charT* c_str() const noexcept;
+    //  const charT* data() const noexcept;
+    //  charT* data() noexcept;
+    //  allocator_type get_allocator() const noexcept;
+    //
+    //  size_type find (const basic_string& str,
+    //                  size_type pos = 0) const noexcept;
+    //  size_type rfind(const basic_string& str,
+    //                  size_type pos = npos) const noexcept;
+    //  size_type find_first_of    (const basic_string& str,
+    //                              size_type pos = 0) const noexcept;
+    //  size_type find_last_of     (const basic_string& str,
+    //                              size_type pos = npos) const noexcept;
+    //  size_type find_first_not_of(const basic_string& str,
+    //                              size_type pos = 0) const noexcept;
+    //  size_type find_last_not_of (const basic_string& str,
+    //                              size_type pos = npos) const noexcept;
+    //  int compare(const basic_string& str) const noexcept;
+    //..
+
+    {
+        Obj s;  const Obj& S = s;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.c_str()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.data()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s.data()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.get_allocator()));
+
+        Obj    str;
+        size_t pos;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find             (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.rfind            (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_of    (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_of     (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_first_not_of(str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.find_last_not_of (str, pos)));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(S.compare(str)));
+    }
+
+    // page 725
+    //..
+    //  21.3.2.2 operator== [string::operator==]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator==(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.3 operator!= [string::op!=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator!=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.4 operator< [string::op<]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator< (const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.5 operator> [string::op>]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator> (const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.6 operator<= [string::op<=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator<=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.7 operator>= [string::op>=]
+    //  template<class charT, class traits, class Allocator>
+    //  bool operator>=(const basic_string<charT,traits,Allocator>& lhs,
+    //                  const basic_string<charT,traits,Allocator>& rhs)
+    //                                                                noexcept;
+    //  21.3.2.8 swap [string.special]
+    //  template<class charT, class traits, class Allocator>
+    //  void swap(basic_string<charT,traits,Allocator>& lhs,
+    //            basic_string<charT,traits,Allocator>& rhs)
+    //      noexcept(noexcept(lhs.swap(rhs)));
+
+    {
+        const Obj lhs;
+        const Obj rhs;
+
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs == rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs != rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <  rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >  rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs <= rhs));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
+
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1629,7 +1899,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
     for (size_t i = 0; i < NUM_iListBySize; ++i) {
         IList LIST = iListBySize[i];
-        LOOP_ASSERT(i, i == LIST.size())
+        LOOP_ASSERT(i, i == LIST.size());
         for (typename IList::const_iterator cur  = LIST.begin(),
                                             end  = LIST.end();
                                             end != cur;
@@ -1722,7 +1992,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     for (size_t i = 0; i < NUM_iSpecBySize; ++i) {
         const char * const SPEC = iSpecBySize[i];
 
-        LOOP_ASSERT(i, i == strlen(SPEC))
+        LOOP_ASSERT(i, i == strlen(SPEC));
 
         for (const char *       cur  = SPEC,
                         * const end  = SPEC + i;
@@ -15178,11 +15448,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
         if (1 == sizeof(TYPE)) {
             ASSERTV(k_SHORT_BUFFER_CAPACITY_CHAR,   X.capacity(),
-                    k_SHORT_BUFFER_CAPACITY_CHAR == X.capacity())
+                    k_SHORT_BUFFER_CAPACITY_CHAR == X.capacity());
         }
         else if (sizeof(wchar_t) == sizeof(TYPE)) {
             ASSERTV(k_SHORT_BUFFER_CAPACITY_WCHAR_T,   X.capacity(),
-                    k_SHORT_BUFFER_CAPACITY_WCHAR_T == X.capacity())
+                    k_SHORT_BUFFER_CAPACITY_WCHAR_T == X.capacity());
         }
     }
 
@@ -17197,6 +17467,21 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase35();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase35();
+
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

@@ -128,6 +128,93 @@ enum {
 // the last scheduled callback has run.  As before, we make the callbacks take
 // the shared pointer *by* *value*.
 
+// Handling of "high-watermark" and "low-watermark" alerts
+// -------------------------------------------------------
+//
+// The "Invocation of High- and Low-Water Mark Callbacks" section in the
+// component-level doc outlines under what conditions these alerts are provided
+// to the user.  This section will explain how the invocation of these alerts
+// is managed in the implementation.  Our goal in the invocation of these two
+// alerts is:
+//..
+// o The high- and low-watermark alerts should always be invoked in sequence.
+//   A "high-watermark alert" is always the first alert invoked and every
+//   "high-watermark alert" is always followed only by a "low-watermark alert".
+//   Similarly, a "low-watermark alert" can only be followed by a
+//   "high-watermark alert".
+//
+// o At any one time only one high- and/or low-watermark alert is pending.
+//..
+// Below, we will explain how the above invariants are implemented.
+//
+// The alert state for a specified 'btlmt::Channel' is managed by an atomic
+// variable, 'd_highWatermarkStateAlert', that can be in one of four states,
+// as specified in 'btlmt::Channel::HighWatermarkAlertState' 'enum'.  The
+// states that this member can be in are (detailed descriptions are in the
+// 'enum' definition and the abbreviations for each state that will be used
+// later are specified in parenthesis):
+//..
+// o e_HIGH_WATERMARK_ALERT_NOT_ACTIVE (NA)
+// o e_HIGH_WATERMARK_ALERT_PENDING    (HWP)
+// o e_LOW_WATERMARK_ALERT_PENDING     (LWP)
+// o e_HIGH_WATERMARK_ALERT_DELIVERED  (D)
+//..
+// The methods that use the 'd_highWatermarkStateAlert' are (abbreviated names
+// for each method that will be used later are specified in parenthesis):
+//..
+// o setWriteQueueHighWatermark   (SHW)
+// o setWriteQueueLowWatermark    (SLW)
+// o writeMessage                 (WM)
+// o writeCb                      (WCB)
+// o invokeWriteQueueHighWatemark (IHW)
+// o invokeWriteQueueLowWatemark  (ILW)
+//..
+// The state transition diagram for 'd_highWatermarkAlertState' along with the
+// methods that cause that state transition is as follows:
+//..
+//                     ILW             +-----+            WCB
+//    +------------------------------> | NA  | <----------------------------+
+//    |                                +-----+                              |
+//    |                                   |                                 |
+//    |                                   |                                 |
+//    |                               SHW |                                 |
+//    |                                WM |                                 |
+//    |                                   |                                 |
+//    |                                   |                                 |
+//    |                                   V                                 V
+// +-----+              SLW            +-----+            IHW             +---+
+// | LWP | <-------------------------- | HWP | -------------------------> | D |
+// +-----+              WCB            +-----+                            +---+
+//..
+// In the following table we explain the state transition that can occur in
+// each method.  The "Begin State" column outlines the beginning state of
+// 'd_highWatermarkAlertState' when each 'btlmt::Channel' method is invoked and
+// the "End State" specifies either the end state of
+// 'd_highWatermarkAlertState', if the flag is ignored or if the specified
+// begin state is erroneous.
+//..
+//                                      End State
+//                                      ---------
+//
+// Begin State   SHW         SLW         WM         WCB         IHW       ILW
+// -----------   ---         ---         --         ---         ---       ---
+//
+// NA            HWP       Ignored       HWP      Ignored      Error     Error
+// HWP         Ignored       LWP       Ignored      LWP          D       Error
+// LWP         Ignored*    Ignored     Ignored*   Ignored     Ignored      NA
+// D           Ignored       LWP       Ignored      NA         Error     Error
+//
+// * A 'setWriteQueueHighWatermark' or 'writeMessage' call may require a
+//   high watermark alert to be invoked when the state of
+//   'd_highWatermarkAlertState' is 'e_LOW_WATERMARK_ALERT_PENDING'.  This can
+//   happen for example if soon after the write queue is drain below the
+//   low-watermark level, a write fills it up again.  However, we dont know if
+//   the initial high-watermark alert was delivered or not.  So we simply
+//   ignore the alert in this case.  The delivery of the low-watermark alert
+//   should cause the user to try writing again and the high-watermark alert
+//   should be enqueued then.
+//..
+
 // ============================================================================
 //                     LOCAL CLASS DEFINITIONS
 // ============================================================================
@@ -228,6 +315,42 @@ class Channel {
         // the channel lives at least as long as the callbacks that reference
         // it.
 
+    enum HighWatermarkAlertState {
+        // A channel in a channel-pool is designed to alert users when they
+        // have surpassed a configured threshold ("high-watermark level") for
+        // the size of the write queue of the channel.  The system for
+        // delivering this alert (the "high-watermark alert") can be in one of
+        // three states described below and is stored in the
+        // 'd_highWatermarkAlertState' variable.
+
+        e_HIGH_WATERMARK_ALERT_NOT_ACTIVE = 0,
+            // This state indicates that a condition warranting a
+            // high-watermark alert has not yet occurred (meaning either the
+            // high watermark threshold has not been exceeded, or it has, but a
+            // subsequent high and low watermark callbacks have been delivered
+            // to the user).
+
+        e_HIGH_WATERMARK_ALERT_PENDING,
+            // This state indicates that the conditions requiring high
+            // watermark alert have occurred (meaning that a write was
+            // attempted when the size of the write queue exceeded the high
+            // watermark or the enqueue watermark level) but the corresponding
+            // high watermark callback has not been delivered to the user.
+
+        e_LOW_WATERMARK_ALERT_PENDING,
+            // This state indicates that the conditions requiring low watermark
+            // alert have occurred (meaning that a high watermark alert was
+            // previously enqueued) but the corresponding high watermark or low
+            // watermark callback has not been delivered to the user.
+
+        e_HIGH_WATERMARK_ALERT_DELIVERED
+            // This state indicates that the conditions requiring high
+            // watermark alert have occurred (meaning that a write was
+            // attempted when the size of the write queue exceeded the high
+            // watermark or the enqueue watermark level) and that the
+            // corresponding high watermark callback was delivered to the user.
+    };
+
     // PRIVATE DATA MEMBERS
 
     // Socket section
@@ -270,8 +393,15 @@ class Channel {
                                                          // local buffer,
                                                          // stack-allocated
 
-    volatile bool                    d_highWatermarkHitFlag;
-                                                         // already full
+    bsls::AtomicInt                  d_highWatermarkAlertState;
+                                                             // this data
+                                                             // member
+                                                             // specifies
+                                                             // which high
+                                                             // watermark
+                                                             // event state
+                                                             // this channel
+                                                             // is in
 
     // Channel state section (here for packing boolean flags together)
 
@@ -438,6 +568,18 @@ class Channel {
         // executed in the dispatcher thread of the event manager associated
         // with this channel.
 
+    void invokeWriteQueueHighWatermark(ChannelHandle self);
+        // Invoke the user-installed channel state callback with
+        // 'e_WRITE_QUEUE_HIGHWATER_MARK' state in the calling thread.
+        // Note that this function should always be executed in the dispatcher
+        // thread of the event manager associated with this channel.
+
+    void invokeWriteQueueLowWatermark(ChannelHandle self);
+        // Invoke the user-installed channel state callback with
+        // 'e_WRITE_QUEUE_LOWWATER_MARK' state in the calling thread.  Note
+        // that this function should always be executed in the dispatcher
+        // thread of the event manager associated with this channel.
+
     void notifyChannelDown(ChannelHandle             self,
                            btlso::Flag::ShutdownType type,
                            bool                      serializedFlag = true);
@@ -587,29 +729,31 @@ class Channel {
         // that it has been enqueued successfully.  Also note that 'self' is
         // guaranteed to be valid during the entirety of this call.
 
-    int setWriteQueueHighWatermark(int numBytes);
+    int setWriteQueueHighWatermark(int numBytes, ChannelHandle self);
         // Set the write queue high-water mark for this channel to the
         // specified 'numBytes'; return 0 on success, and a non-zero value if
         // 'numBytes' is less than the low-water mark for the write queue.  The
         // behavior is undefined unless '0 <= numBytes'.
 
-    void setWriteQueueHighWatermarkRaw(int numBytes);
+    void setWriteQueueHighWatermarkRaw(int numBytes, ChannelHandle self);
         // Set the write queue high-water mark for this channel to the
         // specified 'numBytes'.  The behavior is undefined unless exclusive
         // write access has been obtained on this channel prior to the call.
 
-    int setWriteQueueLowWatermark(int numBytes);
+    int setWriteQueueLowWatermark(int numBytes, ChannelHandle self);
         // Set the write queue low-water mark for this channel to the specified
         // 'numBytes'; return 0 on success, and a non-zero value if 'numBytes'
         // is greater than the high-water mark for the write queue.  The
         // behavior is undefined unless '0 <= numBytes'.
 
-    void setWriteQueueLowWatermarkRaw(int numBytes);
+    void setWriteQueueLowWatermarkRaw(int numBytes, ChannelHandle self);
         // Set the write queue low-water mark for this channel to the specified
         // 'numBytes'.  The behavior is undefined unless exclusive write access
         // has been obtained on this channel prior to the call.
 
-    void setWriteQueueWatermarks(int lowWatermark, int highWatermark);
+    void setWriteQueueWatermarks(int           lowWatermark,
+                                 int           highWatermark,
+                                 ChannelHandle self);
         // Set the write queue low-water and high-water marks for this channel
         // to the specified 'lowWatermark' and 'highWatermark', respectively.
         // The behavior is undefined unless '0 <= lowWatermark' and
@@ -1064,7 +1208,7 @@ namespace btlmt {
 void Channel::invokeChannelDown(ChannelHandle              self,
                                 ChannelPool::ChannelEvents type)
 {
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+    (void)self; BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                   bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.get());
@@ -1109,6 +1253,58 @@ void Channel::invokeChannelUp(ChannelHandle)
                      d_userData);
 
     d_channelUpFlag = 1;
+}
+
+void Channel::invokeWriteQueueHighWatermark(ChannelHandle)
+{
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
+                                  d_eventManager_p->dispatcherThreadHandle()));
+
+    d_channelStateCb(d_channelId,
+                     d_sourceId,
+                     ChannelPool::e_WRITE_QUEUE_HIGHWATER,
+                     d_userData);
+
+    // See the 'Handling of "high-watermark" and "low-watermark" alerts'
+    // section in the implementation notes for details on the various states
+    // that 'd_highWatermarkAlertState' can be in.
+
+    int prevHighWatermarkState = d_highWatermarkAlertState.testAndSwap(
+                                             e_HIGH_WATERMARK_ALERT_PENDING,
+                                             e_HIGH_WATERMARK_ALERT_DELIVERED);
+
+    (void)prevHighWatermarkState;
+    BSLS_ASSERT(e_HIGH_WATERMARK_ALERT_PENDING == prevHighWatermarkState
+             || e_LOW_WATERMARK_ALERT_PENDING  == prevHighWatermarkState);
+}
+
+void Channel::invokeWriteQueueLowWatermark(ChannelHandle)
+{
+    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+                                  bslmt::ThreadUtil::self(),
+                                  d_eventManager_p->dispatcherThreadHandle()));
+
+    // The invocation of the channel state callback with
+    // 'e_WRITE_QUEUE_LOWWATER' informs the user that the write queue is
+    // now below the high watermark level and that they can begin writing
+    // again.  We reset the 'd_highWatermarkAlertState' before invoking the low
+    // watermark callback to allow 'write's in the callback to succeed.
+
+    // See the 'Handling of "high-watermark" and "low-watermark" alerts'
+    // section in the implementation notes for details on the various states
+    // that 'd_highWatermarkAlertState' can be in.
+
+    int prevHighWatermarkState = d_highWatermarkAlertState.swap(
+                                            e_HIGH_WATERMARK_ALERT_NOT_ACTIVE);
+
+    (void)prevHighWatermarkState;
+    BSLS_ASSERT(e_LOW_WATERMARK_ALERT_PENDING == prevHighWatermarkState);
+
+    d_channelStateCb(d_channelId,
+                     d_sourceId,
+                     ChannelPool::e_WRITE_QUEUE_LOWWATER,
+                     d_userData);
 }
 
 void Channel::notifyChannelDown(ChannelHandle             self,
@@ -1169,7 +1365,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bind(
-                                           &Channel::invokeChannelDown,
+                                            &Channel::invokeChannelDown,
                                             this,
                                             self,
                                             ChannelPool::e_CHANNEL_DOWN_READ));
@@ -1185,7 +1381,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bind(
-                                          &Channel::invokeChannelDown,
+                                           &Channel::invokeChannelDown,
                                            this,
                                            self,
                                            ChannelPool::e_CHANNEL_DOWN_WRITE));
@@ -1221,7 +1417,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
 
             int rc = d_channelPool_p->d_channels.remove(d_channelId);
 
-            BSLS_ASSERT(0 == rc);
+            (void)rc; BSLS_ASSERT(0 == rc);
         }
 
         if (serializedFlag) {
@@ -1229,7 +1425,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         }
         else {
             bsl::function<void()> cb(bdlf::BindUtil::bind(
-                                                &Channel::invokeChannelDown,
+                                                 &Channel::invokeChannelDown,
                                                  this,
                                                  self,
                                                  ChannelPool::e_CHANNEL_DOWN));
@@ -1243,7 +1439,7 @@ inline
 int Channel::protectAndCheckCallback(const ChannelHandle& self,
                                      ChannelDownMask      mask)
 {
-    BSLS_ASSERT(this == self.get());
+    (void)self; BSLS_ASSERT(this == self.get());
     BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                   bslmt::ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
@@ -1394,7 +1590,7 @@ void Channel::readCb(ChannelHandle self)
             const int rc = d_eventManager_p->rescheduleTimer(
                                                           d_readTimeoutTimerId,
                                                           timeout);
-            BSLS_ASSERT(!rc);
+            (void)rc; BSLS_ASSERT(!rc);
         }
     }
 }
@@ -1454,8 +1650,8 @@ void Channel::registerReadTimeoutCallback(bsls::TimeInterval   timeout,
 
     bsl::function<void()> readTimeoutFunctor(bdlf::BindUtil::bind(
                                                        &Channel::readTimeoutCb,
-                                                        this,
-                                                        self));
+                                                       this,
+                                                       self));
 
     d_readTimeoutTimerId = d_eventManager_p->registerTimer(timeout,
                                                            readTimeoutFunctor);
@@ -1471,8 +1667,8 @@ void Channel::registerWriteCb(ChannelHandle self)
     }
 
     bsl::function<void()> writeFunctor(bdlf::BindUtil::bind(&Channel::writeCb,
-                                                             this,
-                                                             self));
+                                                            this,
+                                                            self));
 
     int rCode = d_eventManager_p->registerSocketEvent(
                                                      this->socket()->handle(),
@@ -1600,17 +1796,71 @@ void Channel::writeCb(ChannelHandle self)
             d_numBytesWritten.addRelaxed(writeRet);
             d_writeActiveQueueSize.addRelaxed(-writeRet);
 
-            if (d_highWatermarkHitFlag
-             && (currentWriteQueueSize() <= d_writeQueueLowWater)) {
+            if (currentWriteQueueSize() <= d_writeQueueLowWater) {
+                // The write queue size has fallen below the "low-watermark
+                // level".  The "low-watermark alert" is invoked for the user
+                // only if a "high-watermark alert" is either pending or has
+                // been delivered.
 
-                d_highWatermarkHitFlag = false;
+                // Note that if a "low-watermark alert" has to be delivered we
+                // can always enqueue the callback (via 'execute') irrespective
+                // of whether the "high-watermark alert" is pending or has been
+                // delivered.  That guarantees that the high and low watermark
+                // callbacks are always invoked in sequence.  However, doing so
+                // is inefficient in the majority of the cases when the high
+                // watermark has been delivered and the low watermark callback
+                // can be instantly delivered instead of waiting for preceding
+                // callbacks in the execute queue to be invoked first.  So we
+                // check if the high watermark has been invoked or not and only
+                // then conditionally enqueue the low watermark callback.
 
-                oGuard.release()->unlock();
+                // See the 'Handling of "high-watermark" and "low-watermark"
+                // alerts' section in the implementation notes for details on
+                // the various states that 'd_highWatermarkAlertState' can be
+                // in.
 
-                d_channelStateCb(d_channelId,
+                int prevHighWatermarkState =
+                    d_highWatermarkAlertState.testAndSwap(
+                                                e_HIGH_WATERMARK_ALERT_PENDING,
+                                                e_LOW_WATERMARK_ALERT_PENDING);
+
+                // If a "high-watermark alert" is pending enqueue a
+                // "low-watermark alert".
+
+                if (e_HIGH_WATERMARK_ALERT_PENDING == prevHighWatermarkState) {
+                    bsl::function<void()> functor(
+                        bdlf::BindUtil::bind(
+                                        &Channel::invokeWriteQueueLowWatermark,
+                                        this,
+                                        self));
+                    d_eventManager_p->execute(functor);
+                }
+                else {
+                    prevHighWatermarkState =
+                        d_highWatermarkAlertState.testAndSwap(
+                                            e_HIGH_WATERMARK_ALERT_DELIVERED,
+                                            e_HIGH_WATERMARK_ALERT_NOT_ACTIVE);
+
+                    // If a "high-watermark alert" has been delivered *and* a
+                    // "low-watermark alert" is not pending invoke the
+                    // "low-watermark alert" right away.
+
+                    if (e_HIGH_WATERMARK_ALERT_DELIVERED ==
+                                                      prevHighWatermarkState) {
+
+                        // We reset the 'd_highWatermarkAlertState' before
+                        // invoking the low watermark callback to allow
+                        // 'write's in the callback to succeed.
+
+                        oGuard.release()->unlock();
+
+                        d_channelStateCb(
+                                 d_channelId,
                                  d_sourceId,
                                  ChannelPool::e_WRITE_QUEUE_LOWWATER,
                                  d_userData);
+                    }
+                }
             }
         } // End of the lock guard.
 
@@ -1700,7 +1950,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_userData(static_cast<void *>(0))
 , d_numUsedIVecs(0)
 , d_minBytesBeforeNextCb(config.minIncomingMessageSize())
-, d_highWatermarkHitFlag(false)
+, d_highWatermarkAlertState(e_HIGH_WATERMARK_ALERT_NOT_ACTIVE)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
 , d_keepHalfOpenMode(mode)
@@ -1742,7 +1992,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
     int flags = fcntl(fd, F_GETFD);
     int ret   = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
 
-    BSLS_ASSERT( -1 != ret);
+    (void)ret; BSLS_ASSERT( -1 != ret);
 #endif
 
     d_writeEnqueuedData.createInplace(d_allocator_p,
@@ -1817,8 +2067,8 @@ int Channel::initiateReadSequence(ChannelHandle self)
     BSLS_ASSERT(d_socket);
 
     bsl::function<void()> readFunctor = bdlf::BindUtil::bind(&Channel::readCb,
-                                                              this,
-                                                              self);
+                                                             this,
+                                                             self);
 
     int rCode = d_eventManager_p->registerSocketEvent(this->socket()->handle(),
                                                       btlso::EventType::e_READ,
@@ -1881,14 +2131,19 @@ int Channel::writeMessage(const MessageType&   msg,
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                      writeQueueSize > writeQueueRejectLevel)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        // See the 'Handling of "high-watermark" and "low-watermark" alerts'
+        // section in the implementation notes for details on the various
+        // states that 'd_highWatermarkAlertState' can be in.
 
-        if(!d_highWatermarkHitFlag) {
-            d_highWatermarkHitFlag = true;
+        int prevHighWatermarkState = d_highWatermarkAlertState.testAndSwap(
+                                             e_HIGH_WATERMARK_ALERT_NOT_ACTIVE,
+                                             e_HIGH_WATERMARK_ALERT_PENDING);
 
-            bsl::function<void()> functor(
-                bdlf::BindUtil::bind(d_channelStateCb, d_channelId, d_sourceId,
-                            ChannelPool::e_WRITE_QUEUE_HIGHWATER, d_userData));
+        if (e_HIGH_WATERMARK_ALERT_NOT_ACTIVE == prevHighWatermarkState) {
+             bsl::function<void()> functor(
+                 bdlf::BindUtil::bind(&Channel::invokeWriteQueueHighWatermark,
+                                      this,
+                                      self));
 
             d_eventManager_p->execute(functor);
 
@@ -2000,8 +2255,8 @@ int Channel::writeMessage(const MessageType&   msg,
 
         bsl::function<void()> initWriteFunctor(bdlf::BindUtil::bind(
                                                      &Channel::registerWriteCb,
-                                                      this,
-                                                      self));
+                                                     this,
+                                                     self));
 
         d_eventManager_p->execute(initWriteFunctor);
         return ChannelStatus::e_SUCCESS;                              // RETURN
@@ -2028,16 +2283,16 @@ int Channel::writeMessage(const MessageType&   msg,
     return ChannelStatus::e_SUCCESS;
 }
 
-int Channel::setWriteQueueHighWatermark(int numBytes)
+int Channel::setWriteQueueHighWatermark(int numBytes, ChannelHandle self)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    setWriteQueueHighWatermarkRaw(numBytes);
+    setWriteQueueHighWatermarkRaw(numBytes, self);
 
     return 0;
 }
 
-void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
+void Channel::setWriteQueueHighWatermarkRaw(int numBytes, ChannelHandle self)
 {
     // Generate a 'HIGHWATER' alert if the new queue size limit is smaller than
     // the existing queue size and a 'HIGHWATER' alert has not already been
@@ -2046,52 +2301,100 @@ void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
     const int writeQueueSize = currentWriteQueueSize();
     d_writeQueueHighWater = numBytes;
 
-    if (!d_highWatermarkHitFlag && writeQueueSize >= numBytes) {
-        d_highWatermarkHitFlag = true;
-        bsl::function<void()> functor(bdlf::BindUtil::bind(
-            &d_channelStateCb, d_channelId, d_sourceId,
-                            ChannelPool::e_WRITE_QUEUE_HIGHWATER, d_userData));
+    if (writeQueueSize >= numBytes) {
+        // See the 'Handling of "high-watermark" and "low-watermark" alerts'
+        // section in the implementation notes for details on the various
+        // states that 'd_highWatermarkAlertState' can be in.
 
-        d_eventManager_p->execute(functor);
-    }
-    // If the write queue size limit is now greater than the current queue
-    // size, and a high-water alert has already been issued, the next write
-    // attempted beyond the new limit will not generate a new high-water alert,
-    // (even if some intervening writes succeed), until a low-water alert has
-    // also been issued.
+        int prevHighWatermarkState = d_highWatermarkAlertState.testAndSwap(
+                                             e_HIGH_WATERMARK_ALERT_NOT_ACTIVE,
+                                             e_HIGH_WATERMARK_ALERT_PENDING);
+
+        if (e_HIGH_WATERMARK_ALERT_NOT_ACTIVE == prevHighWatermarkState) {
+            bsl::function<void()> functor(
+                bdlf::BindUtil::bind(&Channel::invokeWriteQueueHighWatermark,
+                                     this,
+                                     self));
+
+            d_eventManager_p->execute(functor);
+        }
+     }
+
+    // It is possible that the queue size had previously exceeded the the high
+    // watermark level resulting in the enqueuing of a high-watermark alert.
+    // Now, even if the queue size is below the high watermark level we have no
+    // way of dequeuing that alert.  So we leave 'd_highWatermarkAlertState'
+    // remain unchanged.
 }
 
-int Channel::setWriteQueueLowWatermark(int numBytes)
+int Channel::setWriteQueueLowWatermark(int numBytes, ChannelHandle self)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    setWriteQueueLowWatermarkRaw(numBytes);
+    setWriteQueueLowWatermarkRaw(numBytes, self);
 
     return 0;
 }
 
-void Channel::setWriteQueueLowWatermarkRaw(int numBytes)
+void Channel::setWriteQueueLowWatermarkRaw(int numBytes, ChannelHandle self)
 {
     d_writeQueueLowWater = numBytes;
 
-    if (d_highWatermarkHitFlag
-     && (currentWriteQueueSize() <= d_writeQueueLowWater)) {
+    if (currentWriteQueueSize() <= d_writeQueueLowWater) {
+        // Add a low-watermark alert if either a high-watermark alert is
+        // already pending or has been delivered.  Dont change the state or
+        // register an alert otherwise.  See the 'Handling of "high-watermark"
+        // and "low-watermark" alerts' section in the implementation notes for
+        // details on the various states that 'd_highWatermarkAlertState' can
+        // be in.
 
-        d_highWatermarkHitFlag = false;
-        bsl::function<void()> functor(bdlf::BindUtil::bind(
-             &d_channelStateCb, d_channelId, d_sourceId,
-                             ChannelPool::e_WRITE_QUEUE_LOWWATER, d_userData));
+        int prevHighWatermarkState = d_highWatermarkAlertState.testAndSwap(
+                                                e_HIGH_WATERMARK_ALERT_PENDING,
+                                                e_LOW_WATERMARK_ALERT_PENDING);
 
-        d_eventManager_p->execute(functor);
+        if (e_HIGH_WATERMARK_ALERT_PENDING == prevHighWatermarkState) {
+            bsl::function<void()> functor(
+                    bdlf::BindUtil::bind(
+                                        &Channel::invokeWriteQueueLowWatermark,
+                                        this,
+                                        self));
+
+            d_eventManager_p->execute(functor);
+        }
+        else {
+            // We are guaranteed that 'd_highWatermarkAlertState' will not
+            // transition to the 'e_HIGH_WATERMARK_ALERT_PENDING' state between
+            // the two 'testAndSwap' operations in this method because this
+            // method is called with 'd_writeMutex' locked and the transition
+            // to 'e_HIGH_WATERMARK_ALERT_PENDING' can happen only in
+            // 'writeMessage' or 'setWriteQueueHighWatermark' with
+            // 'd_writeMutex' locked.
+
+            prevHighWatermarkState = d_highWatermarkAlertState.testAndSwap(
+                                              e_HIGH_WATERMARK_ALERT_DELIVERED,
+                                              e_LOW_WATERMARK_ALERT_PENDING);
+
+            if (e_HIGH_WATERMARK_ALERT_DELIVERED == prevHighWatermarkState) {
+                bsl::function<void()> functor(
+                    bdlf::BindUtil::bind(
+                                        &Channel::invokeWriteQueueLowWatermark,
+                                        this,
+                                        self));
+
+                d_eventManager_p->execute(functor);
+            }
+        }
     }
 }
 
-void Channel::setWriteQueueWatermarks(int lowWatermark, int highWatermark)
+void Channel::setWriteQueueWatermarks(int           lowWatermark,
+                                      int           highWatermark,
+                                      ChannelHandle self)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    setWriteQueueHighWatermarkRaw(highWatermark);
-    setWriteQueueLowWatermarkRaw(lowWatermark);
+    setWriteQueueHighWatermarkRaw(highWatermark, self);
+    setWriteQueueLowWatermarkRaw(lowWatermark, self);
 }
 
 void Channel::resetRecordedMaxWriteQueueSize()
@@ -2261,9 +2564,9 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
 
             bsl::function<void()> acceptRetryFunctor(
                               bdlf::BindUtil::bind(&ChannelPool::acceptRetryCb,
-                                                    this,
-                                                    serverId,
-                                                    server));
+                                                   this,
+                                                   serverId,
+                                                   server));
 
             if (server->d_exponentialBackoff < k_MAX_EXP_BACKOFF) {
                 server->d_exponentialBackoff *= 2;
@@ -2344,7 +2647,7 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     BSLS_ASSERT(channelHandle);
 
     int rc = d_channels.replace(newId, channelHandle);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     // Reschedule the acceptTimeoutCb.
 
@@ -2354,9 +2657,9 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
 
         bsl::function<void()> acceptTimeoutFunctor(
                             bdlf::BindUtil::bind(&ChannelPool::acceptTimeoutCb,
-                                                  this,
-                                                  serverId,
-                                                  server));
+                                                 this,
+                                                 serverId,
+                                                 server));
 
         server->d_start = bdlt::CurrentTime::now() + server->d_timeout;
         server->d_timeoutTimerId = server->d_manager_p->registerTimer(
@@ -2367,15 +2670,15 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
 
     bsl::function<void()> invokeChannelUpCommand(
                                 bdlf::BindUtil::bind(&Channel::invokeChannelUp,
-                                                      channelPtr,
-                                                      channelHandle));
+                                                     channelPtr,
+                                                     channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (server->d_readEnabledFlag) {
         initiateReadCommand = bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                 channelPtr,
-                                                 channelHandle);
+                                                channelPtr,
+                                                channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
@@ -2403,9 +2706,9 @@ void ChannelPool::acceptRetryCb(int                          serverId,
 
     bsl::function<void()> acceptFunctor(
                                    bdlf::BindUtil::bind(&ChannelPool::acceptCb,
-                                                         this,
-                                                         serverId,
-                                                         server));
+                                                        this,
+                                                        serverId,
+                                                        server));
 
     if (0 != server->d_manager_p->registerSocketEvent(
                                                   server->d_socket_p->handle(),
@@ -2433,9 +2736,9 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
 
     bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bind(
                                                  &ChannelPool::acceptTimeoutCb,
-                                                  this,
-                                                  serverId,
-                                                  server));
+                                                 this,
+                                                 serverId,
+                                                 server));
 
     server->d_start += server->d_timeout;
     server->d_timeoutTimerId = server->d_manager_p->registerTimer(
@@ -2624,9 +2927,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
 
     bsl::function<void()> acceptFunctor(bdlf::BindUtil::bind(
                                                         &ChannelPool::acceptCb,
-                                                         this,
-                                                         serverId,
-                                                         server));
+                                                        this,
+                                                        serverId,
+                                                        server));
 
     if (0 != manager->registerSocketEvent(serverSocket->handle(),
                                           btlso::EventType::e_ACCEPT,
@@ -2645,9 +2948,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     if (isTimedFlag) {
         bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bind(
                                                  &ChannelPool::acceptTimeoutCb,
-                                                  this,
-                                                  serverId,
-                                                  server));
+                                                 this,
+                                                 serverId,
+                                                 server));
 
         ss->d_timeoutTimerId = manager->registerTimer(
                                             bdlt::CurrentTime::now() + timeout,
@@ -2881,8 +3184,8 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == retCode) {
           bsl::function<void()> connectEventFunctor(
                              bdlf::BindUtil::bind(&ChannelPool::connectEventCb,
-                                                   this,
-                                                   idx));
+                                                  this,
+                                                  idx));
 
             // Keep guard active for makeM(&connectTimeoutFunctor, ...) below.
 
@@ -2916,8 +3219,8 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
     bsl::function<void()> connectTimeoutFunctor(bdlf::BindUtil::bind(
                                                 &ChannelPool::connectTimeoutCb,
-                                                 this,
-                                                 idx));
+                                                this,
+                                                idx));
 
     cs.d_timeoutTimerId = manager->registerTimer(cs.d_start,
                                                  connectTimeoutFunctor);
@@ -3001,7 +3304,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
 
     // Always executed in the source event manager's dispatcher thread.
 
-    BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
+    (void)srcManager; BSLS_ASSERT(bslmt::ThreadUtil::isEqual(
                                         bslmt::ThreadUtil::self(),
                                         srcManager->dispatcherThreadHandle()));
 
@@ -3038,19 +3341,19 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     BSLS_ASSERT(channelHandle);
 
     int rc = d_channels.replace(newId, channelHandle);
-    BSLS_ASSERT(0 == rc);
+    (void)rc; BSLS_ASSERT(0 == rc);
 
     bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bind(
                                                      &Channel::invokeChannelUp,
-                                                      channelPtr,
-                                                      channelHandle));
+                                                     channelPtr,
+                                                     channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (readEnabledFlag) {
         initiateReadCommand = bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                 channelPtr,
-                                                 channelHandle);
+                                                channelPtr,
+                                                channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
@@ -3089,8 +3392,8 @@ void ChannelPool::timerCb(int clockId)
 
         bsl::function<void()> functor(bdlf::BindUtil::bind(
                                                          &ChannelPool::timerCb,
-                                                          this,
-                                                          clockId));
+                                                         this,
+                                                         clockId));
 
         ts.d_eventManagerId = ts.d_eventManager_p->registerTimer(
                                                              ts.d_absoluteTime,
@@ -3639,9 +3942,9 @@ int ChannelPool::disableRead(int channelId)
     else {
         bsl::function<void()> disableReadCommand(bdlf::BindUtil::bind(
                                                          &Channel::disableRead,
-                                                          channel,
-                                                          channelHandle,
-                                                          false));
+                                                         channel,
+                                                         channelHandle,
+                                                         false));
 
         channel->eventManager()->execute(disableReadCommand);
     }
@@ -3662,8 +3965,8 @@ int ChannelPool::enableRead(int channelId)
 
     bsl::function<void()> initiateReadCommand(bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                 channel,
-                                                 channelHandle));
+                                                channel,
+                                                channelHandle));
 
     channel->eventManager()->execute(initiateReadCommand);
     return 0;
@@ -3693,15 +3996,15 @@ int ChannelPool::import(
 
     bsl::function<void()> importFunctor(
                                    bdlf::BindUtil::bind(&ChannelPool::importCb,
-                                                         this,
-                                                         pointer,
-                                                         deleter,
-                                                         manager,
-                                                         manager,
-                                                         sourceId,
-                                                         readEnabledFlag,
-                                                         mode,
-                                                         true));
+                                                        this,
+                                                        pointer,
+                                                        deleter,
+                                                        manager,
+                                                        manager,
+                                                        sourceId,
+                                                        readEnabledFlag,
+                                                        mode,
+                                                        true));
 
     manager->execute(importFunctor);
     return e_SUCCESS;
@@ -3716,7 +4019,7 @@ int ChannelPool::shutdown(int                       channelId,
                           btlso::Flag::ShutdownType type,
                           ShutdownMode              how)
 {
-    BSLS_ASSERT(e_IMMEDIATE == how);
+    (void)how; BSLS_ASSERT(e_IMMEDIATE == how);
 
     enum {
         e_NOT_FOUND    = -1,
@@ -3765,7 +4068,7 @@ int ChannelPool::stopAndRemoveAllChannels()
                attr.setStackSize(d_config.threadStackSize());
 
                int rc = d_managers[i]->enable(attr);
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return -1;                                                 // RETURN
         }
@@ -3813,7 +4116,7 @@ int ChannelPool::setWriteQueueHighWatermark(int channelId, int numBytes)
     }
     BSLS_ASSERT(channelHandle);
 
-    return channelHandle->setWriteQueueHighWatermark(numBytes);
+    return channelHandle->setWriteQueueHighWatermark(numBytes, channelHandle);
 }
 
 int ChannelPool::setWriteQueueLowWatermark(int channelId, int numBytes)
@@ -3826,7 +4129,7 @@ int ChannelPool::setWriteQueueLowWatermark(int channelId, int numBytes)
     }
     BSLS_ASSERT(channelHandle);
 
-    return channelHandle->setWriteQueueLowWatermark(numBytes);
+    return channelHandle->setWriteQueueLowWatermark(numBytes, channelHandle);
 }
 
 int ChannelPool::setWriteQueueWatermarks(int channelId,
@@ -3842,7 +4145,9 @@ int ChannelPool::setWriteQueueWatermarks(int channelId,
     }
     BSLS_ASSERT(channelHandle);
 
-    channelHandle->setWriteQueueWatermarks(lowWatermark, highWatermark);
+    channelHandle->setWriteQueueWatermarks(lowWatermark,
+                                           highWatermark,
+                                           channelHandle);
 
     return 0;
 }
@@ -3874,7 +4179,7 @@ int ChannelPool::start()
         if (0 != ret) {
            while(--i >= 0) {
                int rc = d_managers[i]->disable();
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return ret;                                                // RETURN
         }
@@ -3894,7 +4199,7 @@ int ChannelPool::stop()
                bslmt::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
-               BSLS_ASSERT(0 == rc);
+               (void)rc; BSLS_ASSERT(0 == rc);
            }
            return -1;                                                 // RETURN
         }
@@ -4002,8 +4307,8 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
     ts.d_callback       = command;
 
     bsl::function<void()> functor(bdlf::BindUtil::bind(&ChannelPool::timerCb,
-                                                        this,
-                                                        clockId));
+                                                       this,
+                                                       clockId));
 
     bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {
@@ -4044,8 +4349,8 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
     ts.d_callback       = command;
 
     bsl::function<void()> functor(bdlf::BindUtil::bind(&ChannelPool::timerCb,
-                                                        this,
-                                                        clockId));
+                                                       this,
+                                                       clockId));
 
     bslmt::LockGuard<bslmt::Mutex> tGuard(&d_timersLock);
     if (d_timers.end() != d_timers.find(clockId)) {

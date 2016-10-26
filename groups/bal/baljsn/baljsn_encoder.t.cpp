@@ -82,6 +82,8 @@ using bsl::endl;
 // MANIPULATORS
 // [13] int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
 // [13] int encode(bsl::ostream& stream, const TYPE& v, options);
+// [13] int encode(bsl::streambuf *streamBuf, const TYPE& v, &options);
+// [13] int encode(bsl::ostream& stream, const TYPE& v, &options);
 //
 // ACCESSORS
 // [13] bsl::string loggedMessages() const;
@@ -30429,6 +30431,10 @@ int main(int argc, char *argv[])
         //:   4 Compare the generated JSON with the expected JSON.
         //
         // Testing:
+        //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
+        //   int encode(bsl::ostream& stream, const TYPE& v, options);
+        //   int encode(bsl::streambuf *streamBuf, const TYPE& v, &options);
+        //   int encode(bsl::ostream& stream, const TYPE& v, &options);
         // --------------------------------------------------------------------
 
         typedef Options::EncodingStyle Style;
@@ -30833,7 +30839,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == populateTestObject(&object, XML));
 
             baljsn::Encoder     encoder;
-            bsl::ostringstream oss;
 
             baljsn::EncoderOptions options;
             options.setEncodingStyle(STYLE);
@@ -30841,8 +30846,18 @@ int main(int argc, char *argv[])
             options.setSpacesPerLevel(SPL);
             options.setEncodeNullElements(ENE);
 
-            ASSERTV(0 == encoder.encode(oss, object, options));
-            ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+            const Options& mO = options;
+
+            {
+                bsl::ostringstream oss;
+                ASSERTV(0 == encoder.encode(oss, object, mO));
+                ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+            }
+            {
+                bsl::ostringstream oss;
+                ASSERTV(0 == encoder.encode(oss, object, &mO));
+                ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+            }
         }
       } break;
       case 12: {
@@ -31816,17 +31831,24 @@ int main(int argc, char *argv[])
                 balb::Sequence3 object;
                 ASSERT(0 == populateTestObject(&object, XML));
 
-                baljsn::Encoder     encoder;
-                bsl::ostringstream oss;
-
                 baljsn::EncoderOptions options;
                 options.setEncodingStyle(Options::e_PRETTY);
                 options.setInitialIndentLevel(0);
                 options.setSpacesPerLevel(2);
                 options.setEncodeEmptyArrays(EEA);
 
-                ASSERTV(0 == encoder.encode(oss, object, options));
-                ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+                baljsn::Encoder encoder;
+                const Options& mO = options;
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(0 == encoder.encode(oss, object, mO));
+                    ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+                }
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(0 == encoder.encode(oss, object, &mO));
+                    ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
+                }
             }
         }
       } break;
@@ -32585,18 +32607,30 @@ int main(int argc, char *argv[])
             }
         }
 
+
+        baljsn::EncoderOptions options;
+        options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+        options.setInitialIndentLevel(1);
+        options.setSpacesPerLevel(4);
+        const Options& mO = options;
+
+        baljsn::Encoder encoder;
+
         {
             bsl::istringstream iss(jsonTextPretty);
-
-            baljsn::Encoder encoder;
             bsl::ostringstream oss;
 
-            baljsn::EncoderOptions options;
-            options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
-            options.setInitialIndentLevel(1);
-            options.setSpacesPerLevel(4);
+            ASSERTV(0 == encoder.encode(oss, bob, mO));
+            ASSERTV(oss.str() == jsonTextPretty);
+            if (verbose) {
+                P(oss.str()); P(jsonTextPretty);
+            }
+        }
+        {
+            bsl::istringstream iss(jsonTextPretty);
+            bsl::ostringstream oss;
 
-            ASSERTV(0 == encoder.encode(oss, bob, options));
+            ASSERTV(0 == encoder.encode(oss, bob, &mO));
             ASSERTV(oss.str() == jsonTextPretty);
             if (verbose) {
                 P(oss.str()); P(jsonTextPretty);

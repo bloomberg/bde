@@ -94,11 +94,11 @@ void checkBlob(int         LINE,
     LOOP2_ASSERT(bufferSize, LINE, bufferSize*NUM_BUFFERS == X.totalSize());
     LOOP2_ASSERT(bufferSize, LINE, length == X.length());
     LOOP2_ASSERT(bufferSize, LINE, NUM_BUFFERS == X.numBuffers());
-    for (size_t i = 0; i < X.numBuffers(); ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(X.numBuffers()); ++i) {
         LOOP3_ASSERT(bufferSize, LINE, i, bufferSize == X.buffer(i).size());
         bsl::memset(mX.buffer(i).data(), (char)i, X.buffer(i).size());
     }
-    for (size_t i = 0; i < X.numBuffers(); ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(X.numBuffers()); ++i) {
         LOOP3_ASSERT(bufferSize, LINE, i, X.buffer(i).data()[0] == (char)i);
     }
 }
@@ -136,7 +136,9 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting bcema_PooledBlobBufferFactory."
                           << "\n--------------------------------------\n";
-        for (int bufferSize = 1; bufferSize < 32 * sizeof(void*); ++bufferSize)
+        for (int bufferSize = 1;
+             bufferSize < static_cast<int>(32 * sizeof(void*));
+             ++bufferSize)
         {
             bslma::TestAllocator ta(veryVeryVerbose);
             bslma::DefaultAllocatorGuard gard(&ta);

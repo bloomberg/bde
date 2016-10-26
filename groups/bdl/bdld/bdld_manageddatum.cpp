@@ -14,7 +14,6 @@ namespace bdld {
                             // class ManagedDatum
                             // ------------------
 
-BSLMF_ASSERT(bsl::is_trivially_copyable<ManagedDatum>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<ManagedDatum>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<ManagedDatum>::value);
 

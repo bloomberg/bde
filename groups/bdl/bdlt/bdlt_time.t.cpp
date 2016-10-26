@@ -93,7 +93,7 @@ using namespace bsl;
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
 //
 // FREE OPERATORS
-// [18] hashAppend(HASHALG& hashAlg, const Time& time);
+// [18] void hashAppend(HASHALG&, const Time&);
 // [14] DatetimeInterval operator-(const Time& lhs, const Time& rhs);
 // [ 6] bool operator==(const Time& lhs, const Time& rhs);
 // [ 6] bool operator!=(const Time& lhs, const Time& rhs);
@@ -307,7 +307,7 @@ if (veryVerbose)
         //    not.
         //
         // Testing:
-        //     hashAppend(HASHALG& hashAlg, const Time& time);
+        //    void hashAppend(HASHALG&, const Time&);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'hashAppend'"
                           << "\n====================\n";

@@ -25,8 +25,7 @@ BSLS_IDENT("$Id: $")
 
 #include <cstdio>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::FILE;
     using native_std::fpos_t;

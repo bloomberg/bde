@@ -6,13 +6,6 @@
 #include <baltzo_zoneinfo.h>
 #include <baltzo_zoneinfobinaryreader.h>
 
-#include <ball_administration.h>
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -25,6 +18,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -745,30 +739,21 @@ struct LogVerbosityGuard {
     // logged output for intentional errors when the test driver is run in
     // non-verbose mode.
 
-    bool d_verbose;             // verbose mode does not disable logging
-    int  d_defaultPassthrough;  // default passthrough log level
+    bool                    d_verbose;             // verbose mode does not
+                                                   // disable logging
 
-    LogVerbosityGuard(bool verbose = false)
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+                                                   // log level
+
+    explicit LogVerbosityGuard(bool verbose = false)
         // If the optionally specified 'verbose' is 'false' disable logging
         // until this guard is destroyed.
     {
-        d_verbose = verbose;
+        d_verbose            = verbose;
+        d_defaultPassthrough = bsls::Log::severityThreshold();
+
         if (!d_verbose) {
-            d_defaultPassthrough =
-                  ball::LoggerManager::singleton().defaultPassThresholdLevel();
-
-            ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-            ball::Administration::setThresholdLevels(
-                                              "*",
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-
+            bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_FATAL);
         }
     }
 
@@ -776,17 +761,7 @@ struct LogVerbosityGuard {
         // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
-            ball::Administration::setDefaultThresholdLevels(
-                                              ball::Severity::e_OFF,
-                                              d_defaultPassthrough,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
-            ball::Administration::setThresholdLevels(
-                                              "*",
-                                              ball::Severity::e_OFF,
-                                              d_defaultPassthrough,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF);
+            bsls::Log::setSeverityThreshold(d_defaultPassthrough);
         }
     }
 };
@@ -827,11 +802,6 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    ball::DefaultObserver            observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManager&             manager =
-                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     // CONCERN: This test driver is reusable w/other, similar components.
 

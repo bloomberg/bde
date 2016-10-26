@@ -95,13 +95,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #endif
 
-namespace BloombergLP
-{
+namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
-namespace bsltf
-{
+namespace bsltf {
 
                         // ===========================
                         // class MoveOnlyAllocTestType
@@ -209,6 +207,17 @@ bool operator!=(const MoveOnlyAllocTestType& lhs,
     // same value, and 'false' otherwise.  Two 'MoveOnlyAllocTestType' objects
     // do not have the same value if their 'data' attributes are not the same.
 
+// FREE FUNCTIONS
+MoveState::Enum getMovedFrom(const MoveOnlyAllocTestType& object);
+    // Return the move-from state of the specified 'object'.
+
+MoveState::Enum getMovedInto(const MoveOnlyAllocTestType& object);
+    // Return the move-into state of the specified 'object'.
+
+void setMovedInto(MoveOnlyAllocTestType *object, MoveState::Enum value);
+    // Set the moved-into state of the specified 'object' to the specified
+    // 'value'.
+
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
@@ -240,17 +249,19 @@ bslma::Allocator *MoveOnlyAllocTestType::allocator() const
 }
 
 inline
-bsltf::MoveState::Enum MoveOnlyAllocTestType::movedFrom() const
+MoveState::Enum MoveOnlyAllocTestType::movedFrom() const
 {
     return d_movedFrom;
 }
 
 inline
-bsltf::MoveState::Enum MoveOnlyAllocTestType::movedInto() const
+MoveState::Enum MoveOnlyAllocTestType::movedInto() const
 {
     return d_movedInto;
 }
 
+
+// FREE FUNCTIONS
 inline
 MoveState::Enum getMovedFrom(const MoveOnlyAllocTestType& object)
 {

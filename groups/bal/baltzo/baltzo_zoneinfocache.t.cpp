@@ -5,13 +5,6 @@
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
-#include <ball_administration.h>
-#include <ball_defaultobserver.h>
-#include <ball_log.h>
-#include <ball_loggermanager.h>
-#include <ball_loggermanagerconfiguration.h>
-#include <ball_severity.h>
-
 #include <bslmt_threadutil.h>
 #include <bslmt_barrier.h>
 
@@ -606,15 +599,6 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    ball::DefaultObserver            observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_OFF,
-                                                   ball::Severity::e_OFF,
-                                                   ball::Severity::e_OFF,
-                                                   ball::Severity::e_OFF);
-    ball::LoggerManager& manager =
-                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     bslma::TestAllocator defaultAllocator;  // To be used to make sure the
                                             // allocator is always passed down

@@ -25,8 +25,16 @@ BSLS_IDENT_RCSID(bslmt_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 #include <bsl_c_errno.h>
 #include <bsls_types.h>
 
+#include <stdio.h>         // 'snprintf'
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/time.h>      // needed before sys/posix_sem.h to define
+                           // 'itimerval'
+#include <sys/posix_sem.h> // 'PSEMNAMLEN'
+
+#ifndef SEM_NAME_LEN
+#define SEM_NAME_LEN PSEMNAMLEN
+#endif
 
 namespace BloombergLP {
 
@@ -40,14 +48,15 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::s_semaphorePrefix
 
 namespace {
 
-bsl::string makeUniqueName(const char *prefix, bsls::Types::UintPtr suffix)
+void
+makeUniqueName(char *buffer, const char *prefix, bsls::Types::UintPtr suffix)
     // Create a sufficiently unique name for a semaphore object.  Note that the
     // name of the semaphore shouldn't exceed SEM_NAME_LEN characters (31).
 {
-    bsl::ostringstream out;
-    out << prefix << bsl::hex << (getpid() & 0xffff) << '_'
-                              << (suffix & 0xffff);
-    return out.str();
+    snprintf(buffer, SEM_NAME_LEN, "%s%04x_%04x",
+                                   prefix,
+                                   (getpid() & 0xffff),
+                                   static_cast<unsigned>(suffix & 0xffff));
 }
 
 }  // close unnamed namespace
@@ -56,13 +65,15 @@ bsl::string makeUniqueName(const char *prefix, bsls::Types::UintPtr suffix)
 bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::SemaphoreImpl(
                                                                      int count)
 {
-    bsl::string semaphoreName(
-        makeUniqueName(s_semaphorePrefix,
-                       reinterpret_cast<bsls::Types::UintPtr>(this)));
+    char semaphoreName[SEM_NAME_LEN + 1];
+
+    makeUniqueName(semaphoreName,
+                   s_semaphorePrefix,
+                   reinterpret_cast<bsls::Types::UintPtr>(this));
 
     do {
         // create a named semaphore with exclusive access
-        d_sem_p = ::sem_open(semaphoreName.c_str(),
+        d_sem_p = ::sem_open(semaphoreName,
                              O_CREAT | O_EXCL,
                              S_IRUSR | S_IWUSR,
                              count);
@@ -77,7 +88,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::SemaphoreImpl(
     // sufficiently unique names because if the process is killed before it
     // unlinks the name, no other process can create a semaphore with that
     // name.
-    int result = ::sem_unlink(semaphoreName.c_str());
+    int result = ::sem_unlink(semaphoreName);
 
     (void) result;
     BSLS_ASSERT(result == 0);

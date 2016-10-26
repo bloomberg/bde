@@ -16,6 +16,7 @@
 #include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_timeinterval.h>
@@ -93,6 +94,7 @@ using namespace BloombergLP;
 // [13] void numProcessed(int *, int *) const;
 // [ 4] int numQueues() const;
 // [ 4] int numElements(int id) const;
+// [ 6] bool isEnabled(int id);
 // [ 2] const bdlmt::ThreadPool& threadPool() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -224,14 +226,25 @@ void incrementCounter(bsls::AtomicInt *counter)
     ++*counter;
 }
 
-static void waitTwiceAndIncrement(bslmt::Barrier *barrier, 
-                                  bsls::AtomicInt *counter) 
+static void waitTwiceAndIncrement(bslmt::Barrier  *barrier, 
+                                  bsls::AtomicInt *counter,
+                                  int              incrementBy) 
 {
     // Wait two times on the specified 'barrier' and increment the specified
-    // 'counter'
+    // 'counter' by the specified 'incrementBy' value.
     barrier->wait();
     barrier->wait();
-    (*counter)++;
+    counter->add(incrementBy);
+}
+
+static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
+{
+    // Resume the queue with the speciffid 'queueId' in the specified 'pool'.
+    // On success, increment the specified 'counter'.
+
+    if (0 == pool->resumeQueue(queueId)) {
+        (*counter)++;
+    }
 }
 
 static void waitPauseAndIncrement(bslmt::Barrier  *barrier, 
@@ -733,6 +746,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         // verify pool is still enabled
         startTime = now();
         for (int i = 0; i < NUM_QUEUES; ++i) {
+            ASSERT(mX.isEnabled(queueIds[i]));
             ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
         }
 
@@ -742,18 +756,25 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 
         ASSERT(0 == mX.start());
         Sleeper::s_finished = 0;
+        ASSERT(mX.isEnabled(queueIds[2]));
         ASSERT(0 == mX.enqueueJob(queueIds[2], sleepALittle));
         ASSERT(0 == mX.disableQueue(queueIds[2]));
+        ASSERT(!mX.isEnabled(queueIds[2]));
+
+        ASSERT(mX.isEnabled(queueIds[4]));
         ASSERT(0 == mX.enqueueJob(queueIds[4], sleepALittle));
         ASSERT(0 == mX.disableQueue(queueIds[4]));
+        ASSERT(!mX.isEnabled(queueIds[4]));
         mX.drainQueue(queueIds[2]);
 
         // verify queues are disabled as expected after 'drainQueue()'
         for (int i = 0; i < NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
+                ASSERT(!mX.isEnabled(queueIds[i]));
                 ASSERT(0 != mX.enqueueJob(queueIds[i], sleepHardly));
             }
             else {
+                ASSERT(mX.isEnabled(queueIds[i]));
                 ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
             }
         }
@@ -763,9 +784,11 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         // verify queues are disabled as expected after 'drain()'
         for (int i = 0; i < NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
+                ASSERT(!mX.isEnabled(queueIds[i]));
                 ASSERT(0 != mX.enqueueJob(queueIds[i], sleepHardly));
             }
             else {
+                ASSERT(mX.isEnabled(queueIds[i]));
                 ASSERT(0 == mX.enqueueJob(queueIds[i], sleepHardly));
             }
         }
@@ -1073,10 +1096,26 @@ int main(int argc, char *argv[]) {
         detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
         
         enum { SHORT_SLEEP = 20 * 1000 }; // 20 ms
+ 
+       const struct Params {
+            int d_numThreads;
+            int d_numResumers;
+        } PARAMS[] = {
+            {1, 1},
+            {3, 1},
+            {1, 3},
+            {3, 3}
+        };
 
-        for (int NUM_THREADS = 1; NUM_THREADS <= 2; ++NUM_THREADS) {
+        int numParams = sizeof(PARAMS) / sizeof(Params);
+        for (int i = 0; i < numParams; ++i) {
+            const int NUM_THREADS = PARAMS[i].d_numThreads;
+            const int NUM_RESUMERS = PARAMS[i].d_numResumers;
             if (veryVerbose) {
                 cout << "Pool with " << NUM_THREADS << " thread" <<
+                    (NUM_THREADS > 1 ? "s" : "") <<
+                    " with resume() invoked by " << NUM_RESUMERS <<
+                    " thread"  <<
                     (NUM_THREADS > 1 ? "s" : "") << endl;
             }
             
@@ -1090,11 +1129,26 @@ int main(int argc, char *argv[]) {
             int id1;
             {
                 if (veryVerbose) {
+                    cout << "\tTight pause/resume loop" << endl;
+                }
+                {
+                    int id = mX.createQueue();
+                    const int N = 100000;
+                    for (int loop = 0; loop <= N; ++loop) {
+                        if (veryVeryVerbose) {
+                            if (loop % (N / 10) == 0) { P(loop) }
+                        }
+                        mX.pauseQueue(id);
+                        mX.resumeQueue(id);
+                    }
+                }
+                
+                if (veryVerbose) {
                     cout << "\tPause blocks until job finishes" << endl;
                 }
                 Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
                                                 &controlBarrier, 
-                                                &count);
+                                                &count, 1);
                 id1 = mX.createQueue();
                 mX.enqueueJob(id1, job);
                 mX.enqueueJob(id1, job);
@@ -1157,8 +1211,8 @@ int main(int argc, char *argv[]) {
                 // Queue id1 is still paused
                 Func job = 
                     bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
-                                        &controlBarrier, 
-                                        &count);
+                                         &controlBarrier, 
+                                         &count, 2);
                 mX.enqueueJob(id1, job);
                 // Try a timedWait; adding a job should not cause anything to
                 // execute on the queue
@@ -1174,15 +1228,29 @@ int main(int argc, char *argv[]) {
                          << endl;
                 }
                 // Queue id1 is still paused and still has two jobs
-                // sitting on it
-                mX.resumeQueue(id1);
+                // sitting on it.  The first is to increment (from the existing
+                // value of 1) by '1', and the second is to increment by '2'.
+                // Ensure that the jobs execute in the correct order.
+
+                // Try to resume N times in parallel.  Only one resume() should
+                // succeed, as the others should encounter either a resumed
+                // queue or one in the process of being resumed.
+                bsls::AtomicInt numSuccesses; // = 0
+                bslmt::ThreadGroup tg;
+                tg.addThreads(bdlf::BindUtil::bind(&resumeAndIncrement,
+                                                   &mX, id1, &numSuccesses),
+                              NUM_RESUMERS);
+                tg.joinAll();
+                                                   
                 ASSERT(!X.isPaused(id1));
+                ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
                 controlBarrier.wait();
+                ASSERT(2 == count);
                 controlBarrier.wait();
                 controlBarrier.wait();
                 mX.drainQueue(id1);
-                ASSERT(3 == count);
+                ASSERT(4 == count);
             }
             {
                 if (veryVerbose) {

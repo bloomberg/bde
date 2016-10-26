@@ -27,6 +27,8 @@ static const char LOWER_STRING[]  = "abcdefghijklmnopqrstuvwxyz";
 static const char ALPHA_STRING[]  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                     "abcdefghijklmnopqrstuvwxyz";
 
+static const char ODIGIT_STRING[] = "01234567";
+
 static const char DIGIT_STRING[]  = "0123456789";
 
 static const char XDIGIT_STRING[] = "0123456789ABCDEFabcdef";
@@ -93,6 +95,7 @@ static const char *CATEGORY_STRING[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_STRING,
     LOWER_STRING,
     ALPHA_STRING,
+    ODIGIT_STRING,
     DIGIT_STRING,
     XDIGIT_STRING,
     ALNUM_STRING,
@@ -112,6 +115,7 @@ static const char *CATEGORY_NAME[bdlb::CharType::k_NUM_CATEGORIES] = {
     "UPPER",
     "LOWER",
     "ALPHA",
+    "ODIGIT",
     "DIGIT",
     "XDIGIT",
     "ALNUM",
@@ -165,6 +169,18 @@ static const bool ALPHA_TABLE[256] = {
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,  // 50
        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  // 60
        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,  // 70
+};
+
+static const bool ODIGIT_TABLE[256] = {
+    // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 00
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 10
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 20
+       1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,  // 30
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 40
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 50
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 60
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 70
 };
 
 static const bool DIGIT_TABLE[256] = {
@@ -327,6 +343,7 @@ static const bool *CATEGORY_TABLE[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_TABLE,
     LOWER_TABLE,
     ALPHA_TABLE,
+    ODIGIT_TABLE,
     DIGIT_TABLE,
     XDIGIT_TABLE,
     ALNUM_TABLE,
@@ -346,6 +363,7 @@ static const short int CATEGORY_COUNT[bdlb::CharType::k_NUM_CATEGORIES] = {
     static_cast<short int>(sizeof UPPER_STRING - 1),
     static_cast<short int>(sizeof LOWER_STRING - 1),
     static_cast<short int>(sizeof ALPHA_STRING - 1),
+    static_cast<short int>(sizeof ODIGIT_STRING - 1),
     static_cast<short int>(sizeof DIGIT_STRING - 1),
     static_cast<short int>(sizeof XDIGIT_STRING - 1),
     static_cast<short int>(sizeof ALNUM_STRING - 1),
@@ -414,6 +432,7 @@ static const unsigned char TOLOWER_TABLE[256] = {
 const char *const bdlb::CharType::s_upperString_p  = UPPER_STRING;
 const char *const bdlb::CharType::s_lowerString_p  = LOWER_STRING;
 const char *const bdlb::CharType::s_alphaString_p  = ALPHA_STRING;
+const char *const bdlb::CharType::s_odigitString_p = ODIGIT_STRING;
 const char *const bdlb::CharType::s_digitString_p  = DIGIT_STRING;
 const char *const bdlb::CharType::s_xdigitString_p = XDIGIT_STRING;
 const char *const bdlb::CharType::s_alnumString_p  = ALNUM_STRING;
@@ -437,8 +456,11 @@ const char *const *const bdlb::CharType::s_categoryName_p = CATEGORY_NAME;
 const short int bdlb::CharType::s_upperCount  = SHORT(sizeof UPPER_STRING - 1);
 const short int bdlb::CharType::s_lowerCount  = SHORT(sizeof LOWER_STRING - 1);
 const short int bdlb::CharType::s_alphaCount  = SHORT(sizeof ALPHA_STRING - 1);
+const short int bdlb::CharType::s_odigitCount =
+                                               SHORT(sizeof ODIGIT_STRING - 1);
 const short int bdlb::CharType::s_digitCount  = SHORT(sizeof DIGIT_STRING - 1);
-const short int bdlb::CharType::s_xdigitCount = SHORT(sizeof XDIGIT_STRING - 1);
+const short int bdlb::CharType::s_xdigitCount =
+                                               SHORT(sizeof XDIGIT_STRING - 1);
 const short int bdlb::CharType::s_alnumCount  = SHORT(sizeof ALNUM_STRING - 1);
 const short int bdlb::CharType::s_spaceCount  = SHORT(sizeof SPACE_STRING - 1);
 const short int bdlb::CharType::s_printCount  = SHORT(sizeof PRINT_STRING - 1);
@@ -458,6 +480,7 @@ const short int *bdlb::CharType::s_categoryCount_p = CATEGORY_COUNT;
 const bool *const bdlb::CharType::s_upperArray_p  = UPPER_TABLE;
 const bool *const bdlb::CharType::s_lowerArray_p  = LOWER_TABLE;
 const bool *const bdlb::CharType::s_alphaArray_p  = ALPHA_TABLE;
+const bool *const bdlb::CharType::s_odigitArray_p  = ODIGIT_TABLE;
 const bool *const bdlb::CharType::s_digitArray_p  = DIGIT_TABLE;
 const bool *const bdlb::CharType::s_xdigitArray_p = XDIGIT_TABLE;
 const bool *const bdlb::CharType::s_alnumArray_p  = ALNUM_TABLE;

@@ -8,424 +8,420 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace {
-// INTERNAL DATA FOR THE WHOLE COMPONENT
-static int s_numDeletes;
-    // Track number of times the destructor is called.
-}  // close unnamed namespace
-
 namespace BloombergLP {
 namespace bsltf {
 
 typedef bslmf::MovableRefUtil MoveUtil;
 
+int AllocEmplacableTestType::s_numDeletes = 0;
+
 AllocEmplacableTestType::AllocEmplacableTestType(
     bslma::Allocator *basicAllocator)
-: d_a01(bslma::Default::allocator(basicAllocator))
-, d_a02(bslma::Default::allocator(basicAllocator))
-, d_a03(bslma::Default::allocator(basicAllocator))
-, d_a04(bslma::Default::allocator(basicAllocator))
-, d_a05(bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(bslma::Default::allocator(basicAllocator))
+, d_arg02(bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
+    ArgType01         arg01,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(bslma::Default::allocator(basicAllocator))
-, d_a03(bslma::Default::allocator(basicAllocator))
-, d_a04(bslma::Default::allocator(basicAllocator))
-, d_a05(bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
+    ArgType01         arg01,
+    ArgType02         arg02,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(bslma::Default::allocator(basicAllocator))
-, d_a04(bslma::Default::allocator(basicAllocator))
-, d_a05(bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(bslma::Default::allocator(basicAllocator))
-, d_a05(bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
-    ArgType10         a10,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
+    ArgType10         arg10,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(MoveUtil::move(a10), bslma::Default::allocator(basicAllocator))
-, d_a11(bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
-    ArgType10         a10,
-    ArgType11         a11,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
+    ArgType10         arg10,
+    ArgType11         arg11,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(MoveUtil::move(a10), bslma::Default::allocator(basicAllocator))
-, d_a11(MoveUtil::move(a11), bslma::Default::allocator(basicAllocator))
-, d_a12(bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
-    ArgType10         a10,
-    ArgType11         a11,
-    ArgType12         a12,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
+    ArgType10         arg10,
+    ArgType11         arg11,
+    ArgType12         arg12,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(MoveUtil::move(a10), bslma::Default::allocator(basicAllocator))
-, d_a11(MoveUtil::move(a11), bslma::Default::allocator(basicAllocator))
-, d_a12(MoveUtil::move(a12), bslma::Default::allocator(basicAllocator))
-, d_a13(bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
-    ArgType10         a10,
-    ArgType11         a11,
-    ArgType12         a12,
-    ArgType13         a13,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
+    ArgType10         arg10,
+    ArgType11         arg11,
+    ArgType12         arg12,
+    ArgType13         arg13,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(MoveUtil::move(a10), bslma::Default::allocator(basicAllocator))
-, d_a11(MoveUtil::move(a11), bslma::Default::allocator(basicAllocator))
-, d_a12(MoveUtil::move(a12), bslma::Default::allocator(basicAllocator))
-, d_a13(MoveUtil::move(a13), bslma::Default::allocator(basicAllocator))
-, d_a14(bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(MoveUtil::move(arg13), bslma::Default::allocator(basicAllocator))
+, d_arg14(bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
-    ArgType01         a01,
-    ArgType02         a02,
-    ArgType03         a03,
-    ArgType04         a04,
-    ArgType05         a05,
-    ArgType06         a06,
-    ArgType07         a07,
-    ArgType08         a08,
-    ArgType09         a09,
-    ArgType10         a10,
-    ArgType11         a11,
-    ArgType12         a12,
-    ArgType13         a13,
-    ArgType14         a14,
+    ArgType01         arg01,
+    ArgType02         arg02,
+    ArgType03         arg03,
+    ArgType04         arg04,
+    ArgType05         arg05,
+    ArgType06         arg06,
+    ArgType07         arg07,
+    ArgType08         arg08,
+    ArgType09         arg09,
+    ArgType10         arg10,
+    ArgType11         arg11,
+    ArgType12         arg12,
+    ArgType13         arg13,
+    ArgType14         arg14,
     bslma::Allocator *basicAllocator)
-: d_a01(MoveUtil::move(a01), bslma::Default::allocator(basicAllocator))
-, d_a02(MoveUtil::move(a02), bslma::Default::allocator(basicAllocator))
-, d_a03(MoveUtil::move(a03), bslma::Default::allocator(basicAllocator))
-, d_a04(MoveUtil::move(a04), bslma::Default::allocator(basicAllocator))
-, d_a05(MoveUtil::move(a05), bslma::Default::allocator(basicAllocator))
-, d_a06(MoveUtil::move(a06), bslma::Default::allocator(basicAllocator))
-, d_a07(MoveUtil::move(a07), bslma::Default::allocator(basicAllocator))
-, d_a08(MoveUtil::move(a08), bslma::Default::allocator(basicAllocator))
-, d_a09(MoveUtil::move(a09), bslma::Default::allocator(basicAllocator))
-, d_a10(MoveUtil::move(a10), bslma::Default::allocator(basicAllocator))
-, d_a11(MoveUtil::move(a11), bslma::Default::allocator(basicAllocator))
-, d_a12(MoveUtil::move(a12), bslma::Default::allocator(basicAllocator))
-, d_a13(MoveUtil::move(a13), bslma::Default::allocator(basicAllocator))
-, d_a14(MoveUtil::move(a14), bslma::Default::allocator(basicAllocator))
+: d_arg01(MoveUtil::move(arg01), bslma::Default::allocator(basicAllocator))
+, d_arg02(MoveUtil::move(arg02), bslma::Default::allocator(basicAllocator))
+, d_arg03(MoveUtil::move(arg03), bslma::Default::allocator(basicAllocator))
+, d_arg04(MoveUtil::move(arg04), bslma::Default::allocator(basicAllocator))
+, d_arg05(MoveUtil::move(arg05), bslma::Default::allocator(basicAllocator))
+, d_arg06(MoveUtil::move(arg06), bslma::Default::allocator(basicAllocator))
+, d_arg07(MoveUtil::move(arg07), bslma::Default::allocator(basicAllocator))
+, d_arg08(MoveUtil::move(arg08), bslma::Default::allocator(basicAllocator))
+, d_arg09(MoveUtil::move(arg09), bslma::Default::allocator(basicAllocator))
+, d_arg10(MoveUtil::move(arg10), bslma::Default::allocator(basicAllocator))
+, d_arg11(MoveUtil::move(arg11), bslma::Default::allocator(basicAllocator))
+, d_arg12(MoveUtil::move(arg12), bslma::Default::allocator(basicAllocator))
+, d_arg13(MoveUtil::move(arg13), bslma::Default::allocator(basicAllocator))
+, d_arg14(MoveUtil::move(arg14), bslma::Default::allocator(basicAllocator))
 {
 }
 
 AllocEmplacableTestType::AllocEmplacableTestType(
     const AllocEmplacableTestType&  original,
     bslma::Allocator               *basicAllocator)
-: d_a01(original.d_a01, bslma::Default::allocator(basicAllocator))
-, d_a02(original.d_a02, bslma::Default::allocator(basicAllocator))
-, d_a03(original.d_a03, bslma::Default::allocator(basicAllocator))
-, d_a04(original.d_a04, bslma::Default::allocator(basicAllocator))
-, d_a05(original.d_a05, bslma::Default::allocator(basicAllocator))
-, d_a06(original.d_a06, bslma::Default::allocator(basicAllocator))
-, d_a07(original.d_a07, bslma::Default::allocator(basicAllocator))
-, d_a08(original.d_a08, bslma::Default::allocator(basicAllocator))
-, d_a09(original.d_a09, bslma::Default::allocator(basicAllocator))
-, d_a10(original.d_a10, bslma::Default::allocator(basicAllocator))
-, d_a11(original.d_a11, bslma::Default::allocator(basicAllocator))
-, d_a12(original.d_a12, bslma::Default::allocator(basicAllocator))
-, d_a13(original.d_a13, bslma::Default::allocator(basicAllocator))
-, d_a14(original.d_a14, bslma::Default::allocator(basicAllocator))
+: d_arg01(original.d_arg01, bslma::Default::allocator(basicAllocator))
+, d_arg02(original.d_arg02, bslma::Default::allocator(basicAllocator))
+, d_arg03(original.d_arg03, bslma::Default::allocator(basicAllocator))
+, d_arg04(original.d_arg04, bslma::Default::allocator(basicAllocator))
+, d_arg05(original.d_arg05, bslma::Default::allocator(basicAllocator))
+, d_arg06(original.d_arg06, bslma::Default::allocator(basicAllocator))
+, d_arg07(original.d_arg07, bslma::Default::allocator(basicAllocator))
+, d_arg08(original.d_arg08, bslma::Default::allocator(basicAllocator))
+, d_arg09(original.d_arg09, bslma::Default::allocator(basicAllocator))
+, d_arg10(original.d_arg10, bslma::Default::allocator(basicAllocator))
+, d_arg11(original.d_arg11, bslma::Default::allocator(basicAllocator))
+, d_arg12(original.d_arg12, bslma::Default::allocator(basicAllocator))
+, d_arg13(original.d_arg13, bslma::Default::allocator(basicAllocator))
+, d_arg14(original.d_arg14, bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -434,19 +430,19 @@ AllocEmplacableTestType::~AllocEmplacableTestType()
 {
     ++s_numDeletes;
 
-    BSLS_ASSERT(d_a01.getAllocator() == d_a02.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a03.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a04.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a05.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a06.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a07.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a08.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a09.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a10.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a11.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a12.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a13.getAllocator());
-    BSLS_ASSERT(d_a01.getAllocator() == d_a14.getAllocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg02.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg03.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg04.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg05.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg06.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg07.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg08.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg09.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg10.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg11.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg12.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg13.allocator());
+    BSLS_ASSERT(d_arg01.allocator() == d_arg14.allocator());
 }
 
 int AllocEmplacableTestType::getNumDeletes()

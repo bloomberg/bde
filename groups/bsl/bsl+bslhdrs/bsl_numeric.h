@@ -25,8 +25,7 @@ BSLS_IDENT("$Id: $")
 
 #include <numeric>
 
-namespace bsl
-{
+namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::accumulate;
     using native_std::adjacent_difference;

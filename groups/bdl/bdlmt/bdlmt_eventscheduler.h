@@ -330,7 +330,7 @@ BSLS_IDENT("$Id: $")
 //
 // This example shows how the clock may be altered:
 //
-// ..
+//..
 // void myCallbackFunction() {
 //     puts("Event triggered!");
 // }
@@ -367,7 +367,7 @@ BSLS_IDENT("$Id: $")
 //
 //     scheduler.stop();
 // }
-// ..
+//..
 //
 // Note that this feature should be used only for testing purposes, never in
 // production code.
@@ -544,7 +544,7 @@ class EventScheduler {
         // valid.  Note that the argument and return value of this method are
         // expressed in terms of the number of microseconds elapsed since some
         // epoch, which is detemined by the clock indicated at construction
-        // (see {'Supported Clock-Types'} in the component documentation).
+        // (see {Supported Clock-Types} in the component documentation).
         // Also note that this method may update the value of 'now' with the
         // current system time if necessary.
 
@@ -673,7 +673,7 @@ class EventScheduler {
         // non-zero value if the 'handle' is invalid *or* if the event has
         // already been dispatched.  The 'newTime' is an absolute time
         // represented as an interval from some epoch, which is detemined by
-        // the clock indicated at construction (see {'Supported Clock-Types'}
+        // the clock indicated at construction (see {Supported Clock-Types}
         // in the component documentation).
 
     int rescheduleEventAndWait(const Event               *handle,
@@ -699,7 +699,7 @@ class EventScheduler {
         // can be used to cancel the event (by invoking 'cancelEvent').  The
         // 'time' is an absolute time represented as an interval from some
         // epoch, which is detemined by the clock indicated at construction
-        // (see {'Supported Clock-Types'} in the component documentation).
+        // (see {Supported Clock-Types} in the component documentation).
         // Note that 'time' may be in the past, in which case the event will be
         // executed as soon as possible.
 
@@ -711,7 +711,7 @@ class EventScheduler {
         // be used to cancel the event (by invoking 'cancelEvent').  The 'time'
         // is an absolute time represented as an interval from some epoch,
         // which is detemined by the clock indicated at construction (see
-        // {'Supported Clock-Types'} in the component documentation).  The
+        // {Supported Clock-Types} in the component documentation).  The
         // 'event' pointer must be released by invoking 'releaseEventRaw' when
         // it is no longer needed.
 

@@ -604,7 +604,11 @@ int BufferManager::calculateAlignmentOffsetFromSize(
     bsls::Types::size_type alignment = (size & d_alignmentAndMask)
                                                            | d_alignmentOrMask;
 
-    alignment &= -alignment;  // clear all but lowest order set bit
+    // Clear all but lowest order set bit (note the cast avoids a MSVC warning
+    // related to negating an unsigned type).
+
+    alignment &= -static_cast<bsls::Types::IntPtr>(alignment);
+
 
     return static_cast<int>(
                 (alignment - reinterpret_cast<bsls::Types::size_type>(address))

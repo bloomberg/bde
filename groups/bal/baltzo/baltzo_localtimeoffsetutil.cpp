@@ -94,7 +94,7 @@ bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
 
                 int status = configureImp(privateTimezone()->c_str(),
                                           utcDatetime);
-                BSLS_ASSERT(0 == status);
+                (void)status; BSLS_ASSERT(0 == status);
             }
 
             offsetInSeconds =

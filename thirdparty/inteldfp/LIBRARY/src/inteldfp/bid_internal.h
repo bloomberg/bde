@@ -30,8 +30,13 @@
 #ifndef __BIDECIMAL_H
 #define __BIDECIMAL_H
 
-#define _CRT_SECURE_NO_DEPRECATE
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#   ifndef _CRT_SECURE_NO_DEPRECATE
+#      define INTELDFP_BID_INTERNAL_DEFINED_CSND
+#      define _CRT_SECURE_NO_DEPRECATE
+#   endif
+#   define INTELDFP_BID_INTERNAL_PRAGMA_PUSHED
+#   pragma warning( push )
 #   pragma warning( disable: 4996 )
 #endif
 
@@ -2960,5 +2965,15 @@ typedef union {
 #define bid_raise_except(x)  __set_status_flags (pfpsf, (x))
 #define get_bid_sw()         (*pfpsf)
 #define set_bid_sw(x)        (*pfpsf) = (x)
+
+#ifdef INTELDFP_BID_INTERNAL_PRAGMA_PUSHED
+#   undef INTELDFP_BID_INTERNAL_PRAGMA_PUSHED
+#   pragma warning( pop )
+#endif
+
+#ifdef INTELDFP_BID_INTERNAL_DEFINED_CSND
+#   undef INTELDFP_BID_INTERNAL_DEFINED_CSND
+#   undef _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #endif

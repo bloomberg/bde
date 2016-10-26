@@ -256,9 +256,6 @@ BSLS_IDENT("$Id$")
 //:     position; in other words the smallest difference that can be
 //:     represented by a floating-point number without changing its exponent.
 //:
-//:     o Note that the C++ Decimal TR uses a different, not-specified, and not
-//:       very useful definition, which we chose to ignore here.
-//:
 //: "mantissa":
 //:    the old name for the significand
 //:
@@ -633,8 +630,8 @@ class Decimal_Type32 {
 
     // CREATORS
     Decimal_Type32();
-        // Create a 'Decimal32_Type' object having the value positive zero, and
-        // 0 exponent (quantum 1e-6).
+        // Create a 'Decimal32_Type' object having the value positive zero and
+        // the smallest exponent value.
 
     Decimal_Type32(DecimalImpUtil::ValueType32 value);              // IMPLICIT
         // Create a 'Decimal32_Type' object having the specified 'value'.
@@ -717,10 +714,7 @@ class Decimal_Type32 {
         // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
-        //: o If 'other' is zero then initialize this object to positive zero
-        //:   with a 0 exponent (quantum 1e-6).
-        //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
+        //: o If 'other' has an absolute value that is larger than
         //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
         //:   floating-point exception and initialize this object to infinity
         //:   with the same sign as 'other'.
@@ -731,10 +725,8 @@ class Decimal_Type32 {
         //:   and initialize this object to the value of 'other' rounded
         //:   according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
-        //
-        // The exponent 0 (quantum 1e-6) is preferred during conversion unless
-        // it would cause unnecessary loss of precision.
+        //: o Otherwise initialize this object to the value of 'other' with
+        //:   exponent 0.
 
     //! Decimal32_Type(const Decimal32_Type& original) = default;
         // Create a 'Decimal32_Type' object that is a copy of the specified
@@ -997,8 +989,8 @@ class Decimal_Type64 {
 
     // CREATORS
     Decimal_Type64();
-        // Create a 'Decimal64_Type' object having the value positive zero, and
-        // 0 exponent (quantum 1e-15).
+        // Create a 'Decimal64_Type' object having the value positive zero and
+        // the smallest exponent value.
 
     Decimal_Type64(DecimalImpUtil::ValueType64 value);              // IMPLICIT
         // Create a 'Decimal64_Type' object having the specified 'value'.
@@ -1093,10 +1085,7 @@ class Decimal_Type64 {
         // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
-        //: o If 'other' is zero then initialize this object to positive zero
-        //:   with a 0 exponent (quantum 1e-15).
-        //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
+        //: o If 'other' has an absolute value that is larger than
         //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
         //:   floating-point exception and initialize this object to infinity
         //:   with the same sign as 'other'.
@@ -1107,10 +1096,8 @@ class Decimal_Type64 {
         //:   and initialize this object to the value of 'other' rounded
         //:   according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
-        //
-        // The exponent 0 (quantum 1e-15) is preferred during conversion unless
-        // it would cause unnecessary loss of precision.
+        //: o Otherwise initialize this object to the value of 'other' with
+        //:   exponent 0.
 
     //! Decimal64_Type(const Decimal64_Type& original) = default;
         // Create a 'Decimal64_Type' object that is a copy of the specified
@@ -2194,8 +2181,8 @@ class Decimal_Type128 {
 
     // CREATORS
     Decimal_Type128();
-        // Create a 'Decimal128_Type' object having the value positive zero,
-        // and 0 exponent (quantum 1e-33).
+        // Create a 'Decimal128_Type' object having the value positive zero and
+        // the smallest exponent value.
 
     Decimal_Type128(DecimalImpUtil::ValueType128 value);            // IMPLICIT
         // Create a 'Decimal128_Type' object having the specified 'value'.
@@ -2259,10 +2246,7 @@ class Decimal_Type128 {
         // specified 'value' subject to the conversion rules as defined by
         // IEEE-754:
         //
-        //: o If 'value' is zero then initialize this object to positive zero
-        //:   with a 0 exponent (quantum 1e-33).
-        //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
+        //: o If 'value' has an absolute value that is larger than
         //:   'std::numeric_limits<Decimal128>::max()' then raise the
         //:   "overflow" floating-point exception and initialize this object to
         //:   infinity with the same sign as 'other'.
@@ -2273,10 +2257,7 @@ class Decimal_Type128 {
         //:   and initialize this object to the value of 'value' rounded
         //:   according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to 'value'.
-        //
-        // The exponent 0 (quantum 1e-33) is preferred during conversion unless
-        // it would cause unnecessary loss of precision.
+        //: o Otherwise initialize this object to 'value' with exponent 0.
 
     //! Decimal128_Type(const Decimal128_Type& original) = default;
         // Create a 'Decimal128_Type' object that is a copy of the specified

@@ -268,7 +268,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   '?',  UTC_MIN,   true,  "a"            },
     { L_,   'Y',  UTC_MAX,   true,  LONG_STRING    },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
         { L_,    INT_MAX + 0,   false   },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE     = DATA[ti].d_line;
@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
         //:     'mX'; also use the value constructor and a distinct "scratch"
         //:     allocator to create a 'const' 'Obj' 'ZZ'.
         //:
-        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
+        //:   3 Let 'Z' be a 'const' reference to 'mX'.
         //:
         //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions
         //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
@@ -1191,8 +1191,7 @@ int main(int argc, char *argv[])
         //:
         //: 8 Every object releases any allocated memory at destruction.
         //:
-        //: 9 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
+        //: 9 The original object is passed as a 'const' reference.
         //:
         //:10 The value of the original object is unchanged.
         //:
@@ -1512,8 +1511,8 @@ int main(int argc, char *argv[])
         //: 9 Comparison is symmetric with respect to user-defined conversion
         //:   (i.e., both comparison operators are free functions).
         //:
-        //:10 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
+        //:10 Non-modifiable objects can be compared (i.e., 'const' objects and
+        //:   'const' references).
         //:
         //:11 No memory allocation occurs as a result of comparison (e.g., the
         //:   arguments are not passed by value).
@@ -1649,7 +1648,7 @@ int main(int argc, char *argv[])
         { L_,       A1,   A2,   B3 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1982,7 +1981,7 @@ int main(int argc, char *argv[])
 #undef SP
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -2049,8 +2048,8 @@ int main(int argc, char *argv[])
         //: 3 No accessor allocates any memory.
         //:
         //: 4 Accessors for attributes that can allocate memory (i.e., those
-        //:   that take an allocator in their constructor) return a reference
-        //:   providing only non-modifiable access.
+        //:   that take an allocator in their constructor) return a 'const'
+        //:   reference.
         //
         // Plan:
         //   In case 3 we demonstrated that all basic accessors work properly
@@ -2066,9 +2065,8 @@ int main(int argc, char *argv[])
         //: 2 Use the default constructor, using the other test allocator
         //:   from P-1, to create an object (having default attribute values).
         //:
-        //: 3 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
+        //: 3 Verify that each basic accessor, invoked on a 'const' reference
+        //:   to the object created in P2, returns the expected value.  (C-2)
         //:
         //: 4 For each salient attribute (contributing to value):  (C-1, 3..4)
         //:   1 Use the corresponding primary manipulator to set the attribute

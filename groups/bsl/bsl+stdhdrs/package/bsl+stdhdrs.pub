@@ -151,7 +151,6 @@ ios.h           ios.h.SUNWCCh
 iosfwd.h        iosfwd.h.SUNWCCh
 iostream.h      iostream.h.SUNWCCh
 memory.h        memory.h.SUNWCCh
-new.h           new.h.SUNWCCh
 ostream.h       ostream.h.SUNWCCh
 streambuf.h     streambuf.h.SUNWCCh
 strstream.h     strstream.h.SUNWCCh

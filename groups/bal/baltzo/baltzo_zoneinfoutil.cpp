@@ -7,8 +7,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
-#include <ball_log.h>
-
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_epochutil.h>
 
@@ -17,11 +15,10 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
-static const char LOG_CATEGORY[] = "BALTZO.ZONEINFOUTIL";
 
 void baltzo::ZoneinfoUtil::convertUtcToLocalTime(
                            bdlt::DatetimeTz                  *resultTime,
@@ -235,13 +232,11 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
     // the component documentation, and returns 'false' if any constraint is
     // not satisfied.
 
-    BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-
     // Constraint 1: 'timeZone.numTransitions() > 0'.
 
     if (timeZone.numTransitions() == 0) {
-        BALL_LOG_WARN << "Time zone '" << timeZone.identifier() << "' "
-                      << "constains no transitions." << BALL_LOG_END;
+        BSLS_LOG_WARN("Time zone '%s' constains no transitions.",
+                      timeZone.identifier().c_str());
         return false;                                                 // RETURN
     }
 
@@ -253,9 +248,8 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
                               bdlt::EpochUtil::convertToTimeT64(firstDatetime);
 
     if (firstDatetimeT != timeZone.beginTransitions()->utcTime()) {
-        BALL_LOG_WARN << "Time zone '" << timeZone.identifier() << "' does "
-                      << "not contain an initial transition at 1/1/1."
-                      << BALL_LOG_END;
+        BSLS_LOG_WARN("Time zone '%s' does not contain an initial transition "
+                      "at 1/1/1.", timeZone.identifier().c_str());
         return false;                                                 // RETURN
     }
 
@@ -303,10 +297,9 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
         if (prePreviousTransition  >= preCurrentTransition  ||
             prePreviousTransition  >= postCurrentTransition ||
             postPreviousTransition >= postCurrentTransition) {
-            BALL_LOG_WARN << "Time zone '" << timeZone.identifier() << "' "
-                          << "contains transitions with overlapping ranges "
-                          << "of invalid or ambiguous times."
-                          << BALL_LOG_END;
+            BSLS_LOG_WARN("Time zone '%s' contains transitions with "
+                          "overlapping ranges of invalid or ambiguous times.",
+                          timeZone.identifier().c_str());
             return false;                                             // RETURN
         }
 

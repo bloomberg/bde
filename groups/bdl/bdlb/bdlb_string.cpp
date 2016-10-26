@@ -314,8 +314,8 @@ const char *String::strrstr(const char *string,
 
     BSLS_ASSERT_SAFE(string);    // impossible to fail
 
-    for (int i = stringLen - subStringLen; i >= 0; --i) {
-        const char *p = string + i;
+    for (int i = stringLen; i >= subStringLen; --i) {
+        const char *p = string + i - subStringLen;
 
         if (0 == bsl::memcmp(p, subString, subStringLen)) {
             return p;                                                 // RETURN
@@ -345,8 +345,8 @@ const char *String::strrstrCaseless(const char *string,
 
     BSLS_ASSERT_SAFE(string);    // impossible to fail
 
-    for (int i = stringLen - subStringLen; i >= 0; --i) {
-        const char *p = string + i;
+    for (int i = stringLen; i >= subStringLen; --i) {
+        const char *p = string + i - subStringLen;
 
         if (areEqualCaseless(p, subStringLen, subString, subStringLen)) {
             return p;                                                 // RETURN

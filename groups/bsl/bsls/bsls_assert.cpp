@@ -5,9 +5,10 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
-#include <bsls_platform.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_types.h>
+#include <bsls_log.h>
+#include <bsls_logseverity.h>
 
 #include <exception>
 
@@ -24,6 +25,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>   // IsDebbugerPresent
 #include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
 
 typedef unsigned long DWORD;
@@ -66,11 +68,6 @@ void printError(const char *text, const char *file, int line)
     // 'text' or 'file' is empty ("") or null (0), replace it with some
     // informative, "human-readable" text, before formatting.
 {
-
-    // Note that we deliberately use 'stdio' rather than 'iostream' to
-    // avoid issues pertaining to memory allocation for file-scope 'static'
-    // objects such as 'std::cerr'.
-
     if (!text) {
         text = "(* Unspecified Expression Text *)";
     }
@@ -85,11 +82,8 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    std::fprintf(stderr,
-                 "Assertion failed: %s, file %s, line %d\n", text, file, line);
-
-    std::fflush(stderr);  // Not necessary for the default 'stderr', but just
-                          // in case it has been reopened as a buffered stream.
+    bsls::Log::logFormattedMessage(
+        bsls::LogSeverity::e_ERROR, file, line, "Assertion failed: %s", text);
 }
 
 namespace bsls {
@@ -129,10 +123,45 @@ Assert::Handler Assert::failureHandler()
 
                        // Macro Dispatcher Method
 
+#define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
+
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
-    failureHandler()(text, file, line);
+    static AtomicOperations::AtomicTypes::Int failureReturnCount = {0};
+
+    Assert::Handler failureHandlerPtr = failureHandler();
+
+    failureHandlerPtr(text, file, line);
+
+    // The failure handler should not return.  If a returning failure handler
+    // has been installed, alert the user that the program is continuing to
+    // run.
+
+    unsigned count = static_cast<unsigned>(
+                AtomicOperations::incrementIntNvAcqRel(&failureReturnCount));
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(IS_POWER_OF_TWO(count))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        // Log when 'count' is a power of 2.
+
+        if (count == (1 << 30)) {
+            // Avoid undefined behavior by resetting the counter.
+
+            AtomicOperations::setInt(&failureReturnCount, 1 << 29);
+        }
+
+        Log::logFormattedMessage(LogSeverity::e_FATAL,
+                                 file,
+                                 line,
+                                 "BSLS_ASSERT failure: '%s'",
+                                 text);
+
+        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
+                       "violation handler at %p must not return.",
+                       failureHandlerPtr);
+    }
 }
 
                      // Standard Assertion-Failure Handlers
@@ -143,33 +172,34 @@ void Assert::failAbort(const char *text, const char *file, int line)
     printError(text, file, line);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
+    // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_PLATFORM_OS_AIX
     sigset_t newset;
     sigemptyset(&newset);
     sigaddset(&newset, SIGABRT);
-    #if defined(BDE_BUILD_TARGET_MT)
-        pthread_sigmask(SIG_UNBLOCK, &newset, 0);
-    #else
-        sigprocmask(SIG_UNBLOCK, &newset, 0);
-    #endif
+#if defined(BDE_BUILD_TARGET_MT)
+    pthread_sigmask(SIG_UNBLOCK, &newset, 0);
+#else
+    sigprocmask(SIG_UNBLOCK, &newset, 0);
+#endif
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// See DRQS 13882128: Note that (according to Oleg) the first line alone may be
-// sufficient.
+    // See DRQS 13882128: Note that (according to Oleg) the first line alone may be
+    // sufficient.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // The following configures the runtime library on how to report asserts,
     // errors, and warnings in order to avoid pop-up windows when 'abort' is
     // called.
-
-    _CrtSetReportMode(_CRT_ASSERT, 0);
-    _CrtSetReportMode(_CRT_ERROR,  0);
-    _CrtSetReportMode(_CRT_WARN,   0);
+    if (!IsDebuggerPresent()) {
+        _CrtSetReportMode(_CRT_ASSERT, 0);
+        _CrtSetReportMode(_CRT_ERROR, 0);
+        _CrtSetReportMode(_CRT_WARN, 0);
+    }
 #endif
 
     std::abort();
@@ -193,6 +223,11 @@ void Assert::failSleep(const char *text, const char *file, int line)
 #endif
 
     }
+
+    // We will never reach this line, but it is needed to let the compiler know
+    // that this function does not return.
+
+    std::abort();
 }
 
 BSLS_ASSERT_NORETURN
@@ -204,9 +239,9 @@ void Assert::failThrow(const char *text, const char *file, int line)
         throw AssertTestException(text, file, line);
     }
     else {
-        std::fprintf(stderr,
-                "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                " cannot throw 'AssertTestException'.\n");
+        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR, file, line,
+                "BSLS_ASSERT: An uncaught exception is pending;"
+                " cannot throw 'AssertTestException'.");
     }
 #endif
 

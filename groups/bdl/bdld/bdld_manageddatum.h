@@ -244,7 +244,6 @@ class ManagedDatum {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
         // 'ManagedDatum' objects use 'bslma::Allocator' and they are bitwise

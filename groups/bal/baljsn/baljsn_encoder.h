@@ -39,29 +39,8 @@ BSLS_IDENT("$Id: $")
 // bulky to transmit.  It is more efficient to use a binary encoding (such as
 // BER) if the encoding format is under your control (see 'balber_berencoder').
 //
-///Encoding Format for a Simple Type
-///---------------------------------
-// The following table describes how various Simple types are encoded.
-//..
-//  Simple Type          JSON Type  Notes
-//  -----------          ---------  -----
-//  char                 number     The integer value of the character
-//  unsigned char        number     The integer value of the character
-//  int                  number
-//  unsigned int         number
-//  bsls::Types::Int64   number
-//  bsls::Types::Uint64  number
-//  float                number
-//  double               number
-//  char *               string
-//  bsl::string          string
-//  bdlt::Date            string     ISO 8601 format
-//  bdlt::DateTz          string     ISO 8601 format
-//  bdlt::Time            string     ISO 8601 format
-//  bdlt::TimeTz          string     ISO 8601 format
-//  bdlt::DatetimeTz      string     ISO 8601 format
-//  bdlt::DatetimeTz      string     ISO 8601 format
-//..
+// Refer to the details of the JSON encoding format supported by this decoder
+// in the package documentation file (doc/baljsn.txt).
 //
 ///Usage
 ///-----
@@ -283,23 +262,34 @@ class Encoder {
     int encode(bsl::streambuf        *streamBuf,
                const TYPE&            value,
                const EncoderOptions&  options);
+    template <class TYPE>
+    int encode(bsl::streambuf        *streamBuf,
+               const TYPE&            value,
+               const EncoderOptions  *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' and output it onto the
-        // specified 'streamBuf'.  'TYPE' shall be a 'bdeat'-compatible
-        // sequence, choice, or array type, or a 'bdeat'-compatible dynamic
-        // type referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'streamBuf'.  Specifying a nullptr 'options'
+        // is equivalent to passing a default-constructed DecoderOptions in
+        // 'options'.  'TYPE' shall be a 'bdeat'-compatible sequence, choice,
+        // or array type, or a 'bdeat'-compatible dynamic type referring to one
+        // of those types.  Return 0 on success, and a non-zero value
+        // otherwise.
 
     template <class TYPE>
     int encode(bsl::ostream&         stream,
                const TYPE&           value,
                const EncoderOptions& options);
+    template <class TYPE>
+    int encode(bsl::ostream&         stream,
+               const TYPE&           value,
+               const EncoderOptions *options);
         // Encode the specified 'value', of (template parameter) 'TYPE', in the
-        // JSON format using the specified 'options' and output it onto the
-        // specified 'stream'.  'TYPE' shall be a 'bdeat'-compatible sequence,
-        // choice, or array type, or a 'bdeat'-compatible dynamic type
-        // referring to one of those types.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // JSON format using the specified 'options' and output
+        // it onto the specified 'stream'.  Specifying a nullptr 'options' is
+        // equivalent to passing a default-constructed DecoderOptions in
+        // 'options'.  'TYPE' shall be a 'bdeat'-compatible choice, or array
+        // type, or a 'bdeat'-compatible dynamic type referring to one of those
+        // types.  Return 0 on success, and a non-zero value otherwise.
 
     template <class TYPE>
     int encode(bsl::streambuf *streamBuf, const TYPE& value);
@@ -703,6 +693,15 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
 }
 
 template <class TYPE>
+int Encoder::encode(bsl::streambuf        *streamBuf,
+                    const TYPE&            value,
+                    const EncoderOptions  *options)
+{
+    EncoderOptions localOpts;
+    return encode(streamBuf, value, options ? *options : localOpts);
+}
+
+template <class TYPE>
 int Encoder::encode(bsl::ostream&         stream,
                     const TYPE&           value,
                     const EncoderOptions& options)
@@ -719,6 +718,15 @@ int Encoder::encode(bsl::ostream&         stream,
     }
 
     return 0;
+}
+
+template <class TYPE>
+int Encoder::encode(bsl::ostream&         stream,
+                    const TYPE&           value,
+                    const EncoderOptions *options)
+{
+    EncoderOptions localOpts;
+    return encode(stream, value, options ? *options : localOpts);
 }
 
 // ACCESSORS

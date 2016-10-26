@@ -708,7 +708,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct MyCallbackObject {
 //      typedef void ResultType;
-//      void operator() (int id, MyEvent const& event)
+//      void operator() (int id, MyEvent const& event) const
 //      {
 //          myCallback(id, event);
 //      }
@@ -817,7 +817,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  typedef void GlobalResultType;
 //  struct MyCallbackObjectWithoutResultType {
-//      GlobalResultType operator() (int id, MyEvent const& event)
+//      GlobalResultType operator() (int id, MyEvent const& event) const
 //      {
 //          myCallback(id, event);
 //      }
@@ -985,7 +985,9 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 
 }  // close package namespace
 
-namespace bdlf {struct Bind_Tuple0;
+namespace bdlf {
+
+    struct Bind_Tuple0;
 template <class A1>
     struct Bind_Tuple1;
 template <class A1, class A2>

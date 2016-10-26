@@ -4,13 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_allocator.h>
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 namespace bsltf {
 
                     // ----------------------------------
                     // class bsltf_AllocArgumentType<int>
                     // ----------------------------------
-
 
 }  // close package namespace
 }  // close enterprise namespace

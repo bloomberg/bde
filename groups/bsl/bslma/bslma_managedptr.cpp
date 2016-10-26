@@ -4,18 +4,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslma_newdeleteallocator.h>
-#include <stdio.h>    // 'sprintf'
+#include <bslma_defaultallocatorguard.h>    // for testing only
+#include <bslma_testallocator.h>            // for testing only
+#include <bslma_testallocatormonitor.h>     // for testing only
 
-// Design notes
+// Design Notes
 // ------------
 // These notes are recorded here as they are not part of the public interface,
 // but reflect certain design decisions taken when implementing this component.
 // A number of redundant constructors were removed from earlier designs in
 // order to produce the leanest component with minimal template bloat.  One
-// side effect of this is that some signatures, such as the constructor for
+// side-effect of this is that some signatures, such as the constructor for
 // converting from a managed-pointer-of-a-different-type, are implicit and so
-// no longer clearly documented in a clear place of their own.
+// are no longer clearly documented in an obvious place of their own.
 //
 // A second design decision was to implement aliasing as member-function
 // templates taking references to arbitrary managed pointer types.  The other
@@ -29,11 +30,13 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bslma {
-                       // ----------------------------
-                       // struct ManagedPtrNoOpDeleter
-                       // ----------------------------
 
-void ManagedPtrUtil::noOpDeleter(void *, void *)
+                       // ---------------------
+                       // struct ManagedPtrUtil
+                       // ---------------------
+
+// CLASS METHODS
+void ManagedPtrUtil::noOpDeleter(void *, void *) BSLS_CPP11_NOEXCEPT
 {
 }
 
@@ -41,7 +44,7 @@ void ManagedPtrUtil::noOpDeleter(void *, void *)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

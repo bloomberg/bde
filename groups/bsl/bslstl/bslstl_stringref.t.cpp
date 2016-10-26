@@ -34,19 +34,19 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 2] bslstl::StringRef();
 // [ 2] bslstl::StringRef(const char *begin, const char *end);
-// [ 2] bslstl::StringRef(const char *begin, int length);
+// [ 2] bslstl::StringRef(const char *begin, size_type length);
 // [ 2] bslstl::StringRef(const char *begin);
 // [ 2] bslstl::StringRef(const bsl::string& begin);
 // [ 2] bslstl::StringRef(const native_std::string& begin);
 // [ 2] bslstl::StringRef(const bslstl::StringRef& original);
-// [ 9] bslstl::StringRefImp(const StringRefImp& , int, int)
+// [ 9] bslstl::StringRefImp(const StringRefImp& , size_type, size_type)
 // [ 2] ~bslstl::StringRef();
 //
 // MANIPULATORS
 // [ 2] bslstl::StringRef& operator=(const bslstl::StringRef& rhs);
 // [ 6] void reset();
 // [ 6] void assign(const char *begin, const char *end);
-// [ 6] void assign(const char *begin, int length);
+// [ 6] void assign(const char *begin, size_type length);
 // [ 6] void assign(const char *begin);
 // [ 6] void assign(const bsl::string& begin);
 //
@@ -56,11 +56,11 @@ using namespace bsl;  // automatically added by script
 // [ 3] const_iterator         end() const;
 // [10] const_reverse_iterator rbegin() const;
 // [10] const_reverse_iterator rend() const;
-// [ 3] int                    length() const;
+// [ 3] size_type              length() const;
 // [ 3] int                    isEmpty() const;
 // [ 3]                        operator bsl::string() const;
 // [ 3]                        operator native_std::string() const;
-// [ 3] const char&            operator[](int index) const;
+// [ 3] const char&            operator[](size_type index) const;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const StringRef& lhs, const StringRef& rhs);
@@ -209,6 +209,9 @@ struct TestData
     static CHAR const * nonEmptyString;
     static CHAR const * stringValue1;
     static CHAR const * stringValue2;
+
+    enum Enum { k_ENUM_ZERO_VALUE, k_ENUM_MAX = 0xFFFF };
+    enum      { k_ZERO_VALUE,      k_MAX      = 0xFFFF };
 };
 
 template <>
@@ -279,7 +282,7 @@ class TestDriver {
         // Testing reverse iterators.
 
     static void testCase9();
-        // Testing 'StringRefImp(const StringRefImp& , int, int)'
+        // Testing 'StringRefImp(const StringRefImp& , size_type, size_type)'
 };
 
 
@@ -332,15 +335,15 @@ void TestDriver<CHAR_TYPE>::testCase10()
             TestData<CHAR_TYPE>::nonEmptyString);
         const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
 
-        int i = X.length() - 1;
+        bslstl::StringRef::size_type i = X.length();
 
         for (typename bslstl::StringRefImp<CHAR_TYPE>::const_reverse_iterator
                                                             riter = X.rbegin();
-             riter != X.rend(); ++riter, --i) {
-            ASSERT(TestData<CHAR_TYPE>::nonEmptyString[i] == *riter);
+             riter != X.rend(); ++riter) {
+            ASSERT(TestData<CHAR_TYPE>::nonEmptyString[--i] == *riter);
         }
 
-        ASSERT(-1 == i);
+        ASSERT(0 == i);
     }
 }
 
@@ -348,7 +351,7 @@ template <class CHAR_TYPE>
 void TestDriver<CHAR_TYPE>::testCase9()
 {
     // --------------------------------------------------------------------
-    // TESTING: StringRefImp(const StringRefImp& , int, int)
+    // TESTING: StringRefImp(const StringRefImp&, size_type, size_type)
     //
     // Concerns:
     //
@@ -383,7 +386,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
     //:   macros. (C-5)
     //
     // Testing:
-    //   StringRefImp(const StringRefImp& , int, int)
+    //   StringRefImp(const StringRefImp&, size_type, size_type)
     // --------------------------------------------------------------------
 
 
@@ -511,24 +514,10 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
-        if (verbose) printf("\tNegative testing '0 <= startIndex'.\n");
-        {
-            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, -1, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, INT_MIN, 0));
-        }
-
         if (verbose) printf("\tNegative testing 'startIndex <= or.length'.\n");
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, ORIGINAL.length(), 0));
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
-        }
-
-        if (verbose) printf("\tNegative testing '0 <= numCharacters'.\n");
-        {
-            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, -1));
-            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, INT_MIN));
         }
     }
 }
@@ -553,12 +542,14 @@ void TestDriver<CHAR_TYPE>::testCase9()
 //..
 //  #include <algorithm>
 
-    int getNumBlanks(const bslstl::StringRef& stringRef)
+    bslstl::StringRef::size_type
+    getNumBlanks(const bslstl::StringRef& stringRef)
         // Return the number of blank (' ') characters in the string referenced
         // by the specified 'stringRef'.
     {
 #ifdef BSLS_PLATFORM_CMP_SUN
-        std::size_t n = 0;
+        // See <http://tinyurl.com/qz7blzp>.
+        bslstl::StringRef::size_type n = 0;
         std::count(stringRef.begin(), stringRef.end(), ' ', n);
         return n;
 #else
@@ -656,9 +647,10 @@ void testBasicAccessors(bool verbose)
         const bslstl::StringRefImp<CHAR>& X2 = x2;
 
         // NON-EMPTY STRING
-        int Len = static_cast<int>(native_std::char_traits<CHAR>::length(
-                                              TestData<CHAR>::nonEmptyString));
-        for (int idx = 0; idx < Len; ++idx) {
+        bslstl::StringRef::size_type Len =
+            native_std::char_traits<CHAR>::length(
+                TestData<CHAR>::nonEmptyString);
+        for (bslstl::StringRef::size_type idx = 0; idx < Len; ++idx) {
             LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
         }
     }
@@ -703,7 +695,7 @@ int main(int argc, char *argv[])
 // Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
 //..
     bslstl::StringRef emptyRef;
-    int numBlanks = getNumBlanks(emptyRef);
+    bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
     ASSERT(0 == numBlanks);
 
     ASSERT(""         == emptyRef);
@@ -775,7 +767,7 @@ int main(int argc, char *argv[])
 // be able to hold embedded null characters:
 //..
     char poemWithNulls[512];
-    const int poemLength = std::strlen(poem);
+    const bslstl::StringRef::size_type poemLength = std::strlen(poem);
     ASSERT(poemLength < 512);
 
     std::memcpy(poemWithNulls, poem, poemLength + 1);
@@ -808,15 +800,17 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // StringRefImp(const StringRefImp& , int, int)
+        // StringRefImp(const StringRefImp&, size_type, size_type)
         //
         // --------------------------------------------------------------------
 
         //  See 'TestDriver::testCase9' for concerns and plan.
 
-        if (verbose) printf("\nTesting: StringRefImp(StringRefImp&, int, int)"
-                            "\n=============================================="
-                            "\n");
+        if (verbose) {
+            printf(
+             "\nTesting: StringRefImp(StringRefImp&, size_type, size_type)"
+             "\n==========================================================\n");
+        }
 
 
         RUN_EACH_TYPE(TestDriver, testCase9, char, wchar_t);
@@ -2257,7 +2251,7 @@ int main(int argc, char *argv[])
         // Testing:
         // void reset();
         // void assign(const char *begin, const char *end);
-        // void assign(const char *begin, int length);
+        // void assign(const char *begin, size_type length);
         // void assign(const char *begin);
         // void assign(const bsl::string& begin);
         // --------------------------------------------------------------------
@@ -2376,9 +2370,9 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            std::cout << "\nassign(const char *begin, int length)"
-                      << "\n=  =  =  =  =  =  =  =  =  =  =  =  ="
-                      << std::endl;
+            std::cout << "\nassign(const char *begin, size_type length)"
+                      << "\nassign(const char *begin, INT_TYPE length)"
+                      << "\n=  =  =  =  =  =  =  =  =  =  =  =  = = = =\n";
         {
           // Empty string to non-empty string
           Obj x1(EMPTY_STRING, EMPTY_STRING + std::strlen(EMPTY_STRING));
@@ -2389,8 +2383,7 @@ int main(int argc, char *argv[])
           ASSERT(X1.begin()   == EMPTY_STRING);
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
-          x1.assign(NON_EMPTY_STRING,
-                    static_cast<int>(std::strlen(NON_EMPTY_STRING)));
+          x1.assign(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
 
           ASSERT(!X1.isEmpty());
           ASSERT(X1.length()  != 0);
@@ -2417,6 +2410,67 @@ int main(int argc, char *argv[])
           ASSERT(X2.begin()   != X2.end());
           ASSERT(X2.begin()   == NON_EMPTY_STRING + 2);
           ASSERT(X2.end()     == NON_EMPTY_STRING + 6);
+
+          // Assorted integer types for length
+#define TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
+        {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Literal zero " #LITERAL_ZERO "\n";                \
+          }                                                                   \
+                                                                              \
+          Obj y;                                                              \
+          const Obj & Y = y;                                                  \
+          y.assign(EMPTY_STRING, LITERAL_ZERO);                               \
+          ASSERT(Y.length()  == 0);                                           \
+          ASSERT(Y.begin()   == Y.end());                                     \
+          ASSERT(Y.begin()   == EMPTY_STRING);                                \
+          ASSERT(Y.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));    \
+        }
+
+#define TEST_TYPE(INT_TYPE)                                                   \
+        {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Integral type " #INT_TYPE "\n";                   \
+          }                                                                   \
+                                                                              \
+          Obj y;                                                              \
+          y.assign(NON_EMPTY_STRING,                                          \
+                static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
+          const Obj& Y = y;                                                   \
+          ASSERT(!Y.isEmpty());                                               \
+          ASSERT(Y.length()  == 30);                                          \
+          ASSERT(Y.begin()   != Y.end());                                     \
+          ASSERT(Y.begin()   == NON_EMPTY_STRING);                            \
+          ASSERT(Y.end()     == NON_EMPTY_STRING +                            \
+                                 std::strlen(NON_EMPTY_STRING));              \
+        }
+
+#define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
+        TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
+        TEST_TYPE(INT_TYPE)
+
+          TEST_INT_TYPE(short, (short)0)
+          TEST_INT_TYPE(unsigned short, (unsigned short)0)
+          TEST_INT_TYPE(int, 0)
+          TEST_INT_TYPE(unsigned, 0u)
+          TEST_INT_TYPE(long, 0l)
+          TEST_INT_TYPE(unsigned long, 0ul)
+          TEST_INT_TYPE(long long, 0ll)
+          TEST_INT_TYPE(unsigned long long, 0ull)
+
+          enum Enum { k_LOCAL_ENUM_ZERO_VALUE, k_LOCAL_ENUM_MAX = 0xFFFF };
+          enum      { k_LOCAL_ZERO_VALUE,      k_LOCAL_MAX      = 0xFFFF };
+
+          TEST_LITERAL_ZERO(TestData<char>::k_ENUM_ZERO_VALUE)
+          TEST_TYPE(TestData<char>::Enum)
+          TEST_LITERAL_ZERO(TestData<char>::k_ZERO_VALUE)
+
+          TEST_LITERAL_ZERO(k_LOCAL_ENUM_ZERO_VALUE)
+          TEST_TYPE(Enum)
+          TEST_LITERAL_ZERO(k_LOCAL_ZERO_VALUE)
+#undef TEST_LITERAL_ZERO
+#undef TEST_TYPE
+#undef TEST_INT_TYPE
         }
 
         if (veryVerbose)
@@ -2903,12 +2957,12 @@ int main(int argc, char *argv[])
         //      const_iterator begin() const;
         //      const_iterator data() const;
         //      const_iterator end() const;
-        //      int            length() const;
+        //      size_type      length() const;
         //      int            empty() const;
         //      int            isEmpty() const;
         //      int            compare(other) const;
         //                     operator bsl::string() const;
-        //      const char&    operator[](int index) const;
+        //      const char&    operator[](size_type index) const;
         // --------------------------------------------------------------------
 
         testBasicAccessors<char>(verbose);
@@ -2928,7 +2982,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslstl::StringRef();
         //   bslstl::StringRef(const char *begin, const char *end);
-        //   bslstl::StringRef(const char *begin, int length);
+        //   bslstl::StringRef(const char *begin, INT_TYPE length);
+        //   bslstl::StringRef(const char *begin, size_type length);
         //   bslstl::StringRef(const char *begin);
         //   bslstl::StringRef(const bsl::string& begin);
         //   bslstl::StringRef(const native_std::string& begin);
@@ -2986,13 +3041,13 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringRef(const char *begin, int length)"
-                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  ="
-                << std::endl;
+                << "\nbslstl_StringRef(const char *begin, size_type length)"
+                << "\nbslstl_StringRef(const char *begin, INT_TYPE length)"
+                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  = = =\n";
 
         {
           // Empty string
-          Obj x1(EMPTY_STRING, static_cast<int>(std::strlen(EMPTY_STRING)));
+          Obj x1(EMPTY_STRING, std::strlen(EMPTY_STRING));
           const Obj& X1 = x1;
           ASSERT(X1.isEmpty());
           ASSERT(X1.length()  == 0);
@@ -3001,8 +3056,7 @@ int main(int argc, char *argv[])
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
           // Non-empty string
-          Obj x2(NON_EMPTY_STRING,
-                 static_cast<int>(std::strlen(NON_EMPTY_STRING)));
+          Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
           ASSERT(X2.length()  == 30);
@@ -3010,6 +3064,64 @@ int main(int argc, char *argv[])
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
                                  std::strlen(NON_EMPTY_STRING));
+
+          // Assorted integer types for length
+#define TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
+        {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Literal zero " #LITERAL_ZERO "\n";                \
+          }                                                                   \
+          Obj x(EMPTY_STRING, LITERAL_ZERO);                                  \
+          const Obj& X = x;                                                   \
+          ASSERT(X.isEmpty());                                                \
+          ASSERT(X.length()  == 0);                                           \
+          ASSERT(X.begin()   == X.end());                                     \
+          ASSERT(X.begin()   == EMPTY_STRING);                                \
+          ASSERT(X.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));    \
+        }
+
+#define TEST_TYPE(INT_TYPE)                                                   \
+        {                                                                     \
+          if (veryVeryVerbose) {                                              \
+              std::cout << "Integral type " #INT_TYPE "\n";                   \
+          }                                                                   \
+          Obj x(NON_EMPTY_STRING,                                             \
+                static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
+          const Obj& X = x;                                                   \
+          ASSERT(!X.isEmpty());                                               \
+          ASSERT(X.length()  == 30);                                          \
+          ASSERT(X.begin()   != X.end());                                     \
+          ASSERT(X.begin()   == NON_EMPTY_STRING);                            \
+          ASSERT(X.end()     == NON_EMPTY_STRING +                            \
+                                 std::strlen(NON_EMPTY_STRING));              \
+        }
+
+#define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
+        TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
+        TEST_TYPE(INT_TYPE)
+
+          TEST_INT_TYPE(short, (short)0)
+          TEST_INT_TYPE(unsigned short, (unsigned short)0)
+          TEST_INT_TYPE(int, 0)
+          TEST_INT_TYPE(unsigned, 0u)
+          TEST_INT_TYPE(long, 0l)
+          TEST_INT_TYPE(unsigned long, 0ul)
+          TEST_INT_TYPE(long long, 0ll)
+          TEST_INT_TYPE(unsigned long long, 0ull)
+
+          enum Enum { k_LOCAL_ENUM_ZERO_VALUE, k_LOCAL_ENUM_MAX = 0xFFFF };
+          enum      { k_LOCAL_ZERO_VALUE,      k_LOCAL_MAX      = 0xFFFF };
+
+          TEST_LITERAL_ZERO(TestData<char>::k_ENUM_ZERO_VALUE)
+          TEST_TYPE(TestData<char>::Enum)
+          TEST_LITERAL_ZERO(TestData<char>::k_ZERO_VALUE)
+
+          TEST_LITERAL_ZERO(k_LOCAL_ENUM_ZERO_VALUE)
+          TEST_TYPE(Enum)
+          TEST_LITERAL_ZERO(k_LOCAL_ZERO_VALUE)
+#undef TEST_LITERAL_ZERO
+#undef TEST_TYPE
+#undef TEST_INT_TYPE
         }
 
         if (veryVerbose)

@@ -401,7 +401,6 @@ int main(int argc, char *argv[])
 #else
         const bool hasNoexceptSupport = false;
 #endif
-
         noThrow1();
         const bool isNoThrow1 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1());
         ASSERT(isNoThrow1 == hasNoexceptSupport);
@@ -439,6 +438,8 @@ int main(int argc, char *argv[])
         const bool isNoThrow9 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws5());
         ASSERT(isNoThrow9 == false);
 
+        ASSERT(hasNoexceptSupport == BSLS_CPP11_NOEXCEPT_AVAILABLE);
+        ASSERT(false              == BSLS_CPP11_PROVISIONALLY_FALSE);
       } break;
       case 4: {
         // --------------------------------------------------------------------
