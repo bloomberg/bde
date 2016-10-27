@@ -25,8 +25,8 @@ BSLS_IDENT("$Id: $")
 // through the standard-defined interface.
 //
 // 'StdStatefulAllocator' delegates its operations to the allocator passed at
-// construction (or the default allocator if no allocator is passed) (delegate
-// allocator) that is also the sole attribute of this class.  In most tests, a
+// construction (or the default allocator if no allocator is passed) that is
+// also the sole attribute of this class.  In most tests, a
 // 'bslma::TestAllocator' will be passed.
 //
 // The key differences between this test allocator and a regular BDE allocator

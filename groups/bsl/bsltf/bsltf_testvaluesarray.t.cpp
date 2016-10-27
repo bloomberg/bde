@@ -274,8 +274,8 @@ class TestDriver
     typedef TestValuesArrayIterator<VALUE> Iterator;
         // The iterator for the type under testing.
 
-    enum { k_IS_BSLMA_ALLOC   = bsl::is_same<ALLOCATOR,
-                                           bsl::allocator<VALUE> >::value,
+    enum { k_IS_BSL_ALLOCATOR = bsl::is_same<ALLOCATOR,
+                                             bsl::allocator<VALUE> >::value,
            k_VALUE_USES_BSLMA = bslma::UsesBslmaAllocator<VALUE>::value };
 
   public:
@@ -1825,11 +1825,13 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
               } break;
             }
 
-            // Verify no allocation from the default allocator.
+            // Verify no allocation from the default allocator, unless 'VALUE'
+            // uses 'bslma::Allocator' and the 'ALLOCATOR' template argument is
+            // not 'bsl::allocator'.
 
             ASSERTV(NameOf<Obj>(), CONFIG, doa.numBlocksTotal(),
-                    (!k_IS_BSLMA_ALLOC && k_VALUE_USES_BSLMA) ||
-                                                        !doa.numBlocksTotal());
+                    (!k_IS_BSL_ALLOCATOR && k_VALUE_USES_BSLMA) ||
+                                                    0 == doa.numBlocksTotal());
 
             // Verify sizes of allocated memory blocks.
 
@@ -2073,7 +2075,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
                 // Verify no allocation from the default allocator.
 
                 ASSERTV(NameOf<Obj>(), SPEC, CONFIG, doa.numBlocksTotal(),
-                        (!k_IS_BSLMA_ALLOC && k_VALUE_USES_BSLMA) ||
+                        (!k_IS_BSL_ALLOCATOR && k_VALUE_USES_BSLMA) ||
                                                         !doa.numBlocksTotal());
 
                 // Verify sizes of allocated memory blocks.
