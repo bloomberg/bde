@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_variant_cpp,"$Id$ $CSID$")
 
+#include <bdlb_print.h>  // for testing only
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
