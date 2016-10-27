@@ -1554,15 +1554,30 @@ class unordered_map {
         // 'key', if such an entry exists, and the past-the-end iterator
         // ('end') otherwise.
 
+    pair<iterator, bool> insert(const value_type& value);
+        // Insert the specified 'value' into this unordered map if the key (the
+        // 'first' element) of the object referred to by 'value' does not
+        // already exist in this unordered map; otherwise, this method has no
+        // effect (a 'value_type' object having the key equivalent to the key
+        // of 'value' already exists in this unordered map).  Return a 'pair'
+        // whose 'first' member is an iterator referring to the (possibly newly
+        // inserted) 'value_type' object in this unordered map whose key is
+        // equivalent to that of the object to be inserted, and whose 'second'
+        // member is 'true' if a new value was inserted, and 'false' if a value
+        // having an equivalent key was already present.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "copy-insertable" into this unordered map (see {Requirements on
+        // 'value_type'}).
+
 #if defined(BSLS_PLATFORM_CMP_SUN)
-    template <class SOURCE_TYPE>
-    pair<iterator, bool> insert(
-                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+    template <class ALT_VALUE_TYPE>
+    pair<iterator, bool>
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #else
-    template <class SOURCE_TYPE>
-    typename enable_if<is_convertible<SOURCE_TYPE, value_type>::value,
-                       pair<iterator, bool> >::type insert(
-                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
+                       pair<iterator, bool> >::type
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #endif
         // Insert the specified 'value' into this unordered map if the key (the
         // 'first' element) of the object referred to by 'value' does not
@@ -1571,15 +1586,15 @@ class unordered_map {
         // 'value' already exists in this unordered map) .  Return a 'pair'
         // whose 'first' member is an iterator referring to the (possibly newly
         // inserted) 'value_type' object in this unordered map whose key is the
-        // same as that of the object to be inserted, and whose 'second' member
-        // is 'true' if a new value was inserted, and 'false' if a value having
-        // an equivalent key was already present.  Note that this method
+        // equivalent to that of the object to be inserted, and whose 'second'
+        // member is 'true' if a new value was inserted, and 'false' if a value
+        // having an equivalent key was already present.  Note that this method
         // requires that the (template parameter) types 'KEY' and 'VALUE' both
         // be "move-constructible" (see {Requirements on 'value_type'}).  Also
         // note that this one template stands in for three 'insert' functions
         // in the C++11 standard.
     {
-        // Note that some compilers require functions declared with 'eanble_if'
+        // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
 
         typedef bsl::pair<iterator, bool> ResultType;
@@ -1587,39 +1602,51 @@ class unordered_map {
         bool isInsertedFlag = false;
 
         HashTableLink *result = d_impl.insertIfMissing(
-                            &isInsertedFlag,
-                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+                         &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));
 
         return ResultType(iterator(result), isInsertedFlag);
     }
 
+    iterator insert(const_iterator hint, const value_type& value);
+        // Insert the specified 'value' into this unordered map if the key (the
+        // 'first' element) of the object referred to by 'value' does not
+        // already exist in this unordered map; otherwise, this method has no
+        // effect (a 'value_type' object having the key equivalent to the key
+        // of 'value' already exists in this unordered map).  Return an
+        // iterator referring to ether the newly inserted 'value_type' object
+        // or to the existing object whose key is equivalent to the key of
+        // 'value'.  Note that the specified 'hint' is ignored.  Also note that
+        // this method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' both be "copy-insertable" into this unordered map.  (see
+        // {Requirements on 'value_type'}).
+
 #if defined(BSLS_PLATFORM_CMP_SUN)
-    template <class SOURCE_TYPE>
-    iterator insert(const_iterator                                 hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+    template <class ALT_VALUE_TYPE>
+    iterator
+    insert(const_iterator                                    hint,
+           BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #else
-    template <class SOURCE_TYPE>
-    typename enable_if<is_convertible<SOURCE_TYPE, value_type>::value,
-                       iterator>::type insert(
-                          const_iterator                                 hint,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
+    template <class ALT_VALUE_TYPE>
+    typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
+                       iterator>::type
+    insert(const_iterator                                    hint,
+           BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #endif
         // Insert the specified 'value' into this unordered map if the key (the
         // 'first' element) of the object referred to by 'value' does not
         // already exist in this unordered map; otherwise, this method has no
         // effect (a 'value_type' object having the same key as the converted
-        // 'value' already exists in this unordered map) .  Return a 'pair'
-        // whose 'first' member is an iterator referring to the (possibly newly
-        // inserted) 'value_type' object in this unordered map whose key is the
-        // same as that of the object to be inserted, and whose 'second' member
-        // is 'true' if a new value was inserted, and 'false' if the value was
-        // already present.  Note that the specified 'hint' is ignored.  Also
-        // note that this method requires that the (template parameter) types
-        // 'KEY' and 'VALUE' both be "move-constructible" (see {Requirements on
-        // 'value_type'}).  Also note that this one template stands in for
-        // three 'insert' functions in the C++11 standard.
+        // 'value' already exists in this unordered map) .  Return an iterator
+        // referring to ether the newly inserted) 'value_type' object or to the
+        // existing object whose key is equivalent to the key of 'value'.  Note
+        // that the specified 'hint' is ignored.  Also note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "move-constructible" (see {Requirements on 'value_type'}).  Also
+        // note that this one template stands in for three 'insert' functions
+        // in the C++11 standard.
     {
-        // Note that some compilers require functions declared with 'eanble_if'
+        // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
 
         // There is no realistic use-case for the 'hint' in an 'unordered_map'
@@ -1630,13 +1657,13 @@ class unordered_map {
         // a bucket, we need to walk the whole bucket looking for duplicates,
         // and the hint is no help in finding the start of a bucket.
 
-        (void) hint;          // suppress 'unused' warnings
+        (void)hint;  // suppress 'unused' warnings
 
         bool isInsertedFlag;  // not used
 
         HashTableLink *result = d_impl.insertIfMissing(
-                            &isInsertedFlag,
-                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+                         &isInsertedFlag,
+                         BSLS_COMPILERFEATURES_FORWARD(ALT_VALUE_TYPE, value));
 
         return iterator(result);
     }
@@ -2499,6 +2526,36 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+pair<typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+     bool>
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                       const value_type& value)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+                                                       const_iterator,
+                                                       const value_type& value)
+{
+    bool   isInsertedFlag;    // not used
+
+    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+
+    return iterator(result);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                           INPUT_ITERATOR first,
@@ -2519,7 +2576,6 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
         ++first;
     }
 }
-
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
