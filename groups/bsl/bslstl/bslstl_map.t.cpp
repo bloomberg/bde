@@ -430,7 +430,7 @@ const DefaultDataRow DEFAULT_DATA[] = {
 
     { L_,   21, "CD",                "CD"                 }
 };
-static const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
@@ -903,8 +903,9 @@ class DummyAllocator {
     // DummyAllocator(const DummyAllocator& original) = default;
 
     template <class OTHER_TYPE>
-    DummyAllocator(const DummyAllocator<OTHER_TYPE>&)
+    DummyAllocator(const DummyAllocator<OTHER_TYPE>& original)
     {
+        (void) original;
     }
 
     //! ~DummyAllocator() = default;
@@ -913,28 +914,39 @@ class DummyAllocator {
     // MANIPULATORS
     //! DummyAllocator& operator=(const DummyAllocator& rhs) = default;
 
-    pointer allocate(size_type    /* numElements */,
-                     const void * /* hint */ = 0) {
+    pointer allocate(size_type    numElements,
+                     const void * hint = 0)
+    {
+        (void) numElements;    (void) hint;
+
         return 0;
     }
 
-    void deallocate(pointer /* address */, size_type /* numElements */ = 1)
+    void deallocate(pointer address, size_type numElements = 1)
     {
+        (void) address;    (void) numElements;
     }
 
     template <class ELEMENT_TYPE>
-    void construct(ELEMENT_TYPE * /* address */) {}
+    void construct(ELEMENT_TYPE *      address) { (void) address; }
     template <class ELEMENT_TYPE>
-    void construct(ELEMENT_TYPE * /* address */,
-                   const ELEMENT_TYPE& /* value */) { }
+    void construct(ELEMENT_TYPE *      address,
+                   const ELEMENT_TYPE& value)
+    {
+        (void) address;    (void) value;
+    }
 
     template <class ELEMENT_TYPE>
-    void destroy(ELEMENT_TYPE * /* address */) {}
+    void destroy(ELEMENT_TYPE *address) { (void) address; }
 
     // ACCESSORS
-    pointer address(reference /* object */) const { return 0; }
+    pointer address(reference object) const { (void) object; return 0; }
 
-    const_pointer address(const_reference /* object */) const { return 0; }
+    const_pointer address(const_reference object) const
+    {
+        (void) object;
+        return 0;
+    }
 
     size_type max_size() const { return 0; }
 };
@@ -1206,6 +1218,7 @@ class TestDriver {
         // Comparator functor with a non-'const' function call operator.
 
     // Shorthands
+
     typedef typename Obj::iterator                Iter;
     typedef typename Obj::const_iterator          CIter;
     typedef typename Obj::reverse_iterator        RIter;
@@ -1226,11 +1239,11 @@ class TestDriver {
     // Aix has a compiler bug where method pointers do not default construct to
     // 0.  Windows has the same problem.
 
-     enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE =
+    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE =
                 !bsl::is_same<VALUE,
                               bsltf::TemplateTestFacility::MethodPtr>::value };
 #else
-     enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
+    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
 #endif
 
   public:
@@ -1395,6 +1408,7 @@ class TestDriver {
 
   public:
     // TEST CASES
+
     static void testCase37();
         // Test 'noexcept' specifications
 
@@ -2235,8 +2249,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX;  const Obj& X = mX;
-        Obj mY;  const Obj& Y = mY;
+        Obj mX;
+        Obj mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -2264,7 +2278,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
@@ -2306,7 +2320,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
@@ -2554,7 +2568,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
                                                  veryVeryVeryVerbose);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        Obj mW(&scratch);  const Obj& W = gg(&mW, SPEC);
+                        Obj mW(&scratch);        gg(&mW, SPEC);
                         ExceptionProctor<Obj> proctor(&X, L_,
                                                       MoveUtil::move(mW));
 
@@ -5052,7 +5066,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -5070,7 +5083,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -8744,7 +8756,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -8762,7 +8773,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -9189,7 +9199,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -9206,7 +9215,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -9389,10 +9397,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:   'true_type', then no memory will be allocated and the allocators will
     //:   also be swapped.
     //:
-    //: 7 Both functions provides the strong exception guarantee w.t.r. to
-    //:   memory allocation .
-    //:
-    //: 8 The free 'swap' function is discoverable through ADL (Argument
+    //: 7 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
     //
     // Plan:
@@ -9468,19 +9473,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:     6 Use the member and free 'swap' functions to swap the values of
     //:       'mX' and 'mZ' respectively (when
     //:       AllocatorTraits::propagate_on_container_swap is an alias to
-    //:       false_type) under the presence of exceptions; verify, after each
-    //:       swap, that:  (C-1, 5, 7)
+    //:       false_type) verify, after each swap, that:  (C-1, 5)
     //:
-    //:       1 If exception occurred during the swap, both values are
-    //:         unchanged.  (C-7)
-    //
-    //:       2 If no exception occurred, the values have been exchanged.
-    //:         (C-1)
+    //:       1 The values have been exchanged. (C-1)
     //:
-    //:       3 The common object allocator address held by 'mX' and 'mZ' is
+    //:       2 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
+    //:       3 Temporary memory were allocated from 'oa' if 'mZ' is is not
     //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
     //:         is not empty.  (C-5)
     //:
@@ -9505,7 +9505,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:       3 There was no additional object memory allocation.  (C-6)
     //:
     //: 5 Verify that the free 'swap' function is discoverable through ADL:
-    //:   (C-8)
+    //:   (C-7)
     //:
     //:   1 Create a set of attribute values, 'A', distinct from the values
     //:     corresponding to the default-constructed object, choosing
@@ -9525,7 +9525,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:
     //:   5 Use the 'invokeAdlSwap' helper function template to swap the
     //:     values of 'mX' and 'mY', using the free 'swap' function defined
-    //:     in this component, then verify that:  (C-8)
+    //:     in this component, then verify that:  (C-7)
     //:
     //:     1 The values have been exchanged.  (C-1)
     //:
@@ -9573,8 +9573,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mW(&oa);  const Obj& W = gg(&mW,  SPEC1);
-        const Obj XX(W, &scratch);
+        Obj mW(&oa);          const Obj& W  = gg(&mW,  SPEC1);
+        Obj mXX(&scratch);    const Obj& XX = gg(&mXX, SPEC1);
 
         if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
 
@@ -9613,10 +9613,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
             const int         LINE2   = DATA[tj].d_line;
             const char *const SPEC2   = DATA[tj].d_spec_p;
 
-            Obj mX(XX, &oa);  const Obj& X = mX;
-
-            Obj mY(&oa);  const Obj& Y = gg(&mY, SPEC2);
-            const Obj YY(Y, &scratch);
+            Obj mX(&oa);          const Obj& X  = gg(&mX,  SPEC1);
+            Obj mY(&oa);          const Obj& Y  = gg(&mY,  SPEC2);
+            Obj mYY(&scratch);    const Obj& YY = gg(&mYY, SPEC2);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -9648,8 +9647,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
 
             bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
-            Obj mZ(&oaz);  const Obj& Z = gg(&mZ, SPEC2);
-            const Obj ZZ(Z, &scratch);
+            Obj mZ(&oaz);         const Obj& Z  = gg(&mZ,  SPEC2);
+            Obj mZZ(&scratch);    const Obj& ZZ = gg(&mZZ, SPEC2);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -9658,16 +9657,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionProctor<Obj> proctorX(&X, L_, &scratch);
-                    ExceptionProctor<Obj> proctorZ(&Z, L_, &scratch);
-
-                    mX.swap(mZ);
-
-                    proctorX.release();
-                    proctorZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
+                mX.swap(mZ);
 
                 ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
                 ASSERTV(LINE1, LINE2, XX, Z, XX == Z);
@@ -9694,15 +9684,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionProctor<Obj> proctorX(&X, L_, &scratch);
-                    ExceptionProctor<Obj> proctorZ(&Z, L_, &scratch);
-
-                    swap(mX, mZ);
-
-                    proctorX.release();
-                    proctorZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                swap(mX, mZ);
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -9735,11 +9717,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mX(&oa);  const Obj& X = mX;
-        const Obj XX(X, &scratch);
+        Obj mX(&oa);          const Obj& X  = mX;
+        Obj mXX(&scratch);    const Obj& XX = mXX;
 
-        Obj mY(&oa);  const Obj& Y = gg(&mY, "ABC");
-        const Obj YY(Y, &scratch);
+        Obj mY(&oa);          const Obj& Y  = gg(&mY,  "ABC");
+        Obj mYY(&scratch);    const Obj& YY = gg(&mYY, "ABC");
 
         if (veryVerbose) { T_ P_(X) P(Y) }
 
@@ -11578,6 +11560,7 @@ class TradeMatcher {
         // providing non-modifiable access to buy orders in a 'TradeMatcher'.
 
     // CREATORS
+    explicit
     TradeMatcher(bslma::Allocator *basicAllocator = 0);
         // Create an empty 'TradeMatcher' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -11838,6 +11821,11 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase33,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase33,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -12036,9 +12024,16 @@ int main(int argc, char *argv[])
         // TESTING FREE COMPARISON OPERATORS
         // --------------------------------------------------------------------
 
-        RUN_EACH_TYPE(TestDriver, testCase19, int, char);
+        RUN_EACH_TYPE(TestDriver,
+                      testCase19,
+                      signed char,
+                      size_t,
+                      bsltf::TemplateTestFacility::ObjectPtr);
 
-        TestDriver<char, int>::testCase19();
+        // Note relational operators between components compare pair.second
+        // as well, and do not use 'COMP', but rather, naked
+        // 'operator<(const pair&, const pair&)', which severely limits the
+        // variety of types we can use here.
 
 // TBD Testing only 'map<int, char>' misses all of the interesting concerns.
 // (See the TBD regarding 'DEFAULT_DATA' above.)
@@ -12070,6 +12065,11 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         TestDriver<TestKeyType, TestValueType>::testCase17();
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase17,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -12081,6 +12081,11 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         TestDriver<TestKeyType, TestValueType>::testCase16();
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase16,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -12092,6 +12097,11 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         TestDriver<TestKeyType, TestValueType>::testCase15();
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase15,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -12103,6 +12113,11 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         TestDriver<TestKeyType, TestValueType>::testCase14();
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase14,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -12134,6 +12149,11 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         TestDriver<TestKeyType, TestValueType>::testCase12();
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase12,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
 // TBD We should test inserting move-only values from a range given by
 // move-enabled iterators.
@@ -12215,6 +12235,7 @@ int main(int argc, char *argv[])
                       testCase8,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase8();
 
         // TBD test 'bsltf::MoveOnlyAllocTestType' here (after done in list)
 
@@ -12384,7 +12405,7 @@ int main(int argc, char *argv[])
                             "\n==============\n");
         {
             int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
-            int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
+            enum { NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES) };
 
             typedef bool (*Comparator)(int, int);
             TestDriver<int, int, Comparator>::testCase1(&intLessThan,

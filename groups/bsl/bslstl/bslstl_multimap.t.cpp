@@ -419,7 +419,7 @@ size_t verifyContainer(const CONTAINER&  container,
 {
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
-    if(expectedSize != container.size()) {
+    if (expectedSize != container.size()) {
         return static_cast<size_t>(-1);                               // RETURN
     }
 
@@ -807,7 +807,10 @@ class DummyAllocator {
     // DummyAllocator(const DummyAllocator& original) = default;
 
     template <class OTHER_TYPE>
-    DummyAllocator(const DummyAllocator<OTHER_TYPE>&) {}
+    DummyAllocator(const DummyAllocator<OTHER_TYPE>& original)
+    {
+        (void) original;
+    }
 
     // ~DummyAllocator() = default;
         // Destroy this object.
@@ -816,12 +819,12 @@ class DummyAllocator {
     // DummyAllocator& operator=(const DummyAllocator& rhs) = default;
 
     pointer allocate(size_type    /* numElements */,
-                     const void * /* hint */ = 0) {
+                     const void * /* hint */ = 0)
+    {
         return 0;
     }
 
-    void deallocate(pointer /* address */, size_type /* numElements */ = 1) {
-    }
+    void deallocate(pointer /* address */, size_type /* numElements */ = 1) {}
 
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE * /* address */) {}
@@ -1028,6 +1031,7 @@ class TestDriver {
     // TYPES
 
     // Shorthands
+
     typedef bsl::multimap<KEY, VALUE, COMP, ALLOC> Obj;
     typedef typename Obj::iterator                 Iter;
     typedef typename Obj::const_iterator           CIter;
@@ -1196,6 +1200,7 @@ class TestDriver {
 
   public:
     // TEST CASES
+
     static void testCase35();
         // Test 'noexcept' specifications
 
@@ -1670,7 +1675,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj   *target,
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
         ASSERT(!"Allocator in test case 31 is not a test allocator!");
-        return target->end();
+        return target->end();                                         // RETURN
     }
 
     bslma::TestAllocator& oa = *testAlloc;
@@ -1966,8 +1971,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX;  const Obj& X = mX;
-        Obj mY;  const Obj& Y = mY;
+        Obj mX;
+        Obj mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -1995,7 +2000,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
@@ -2037,7 +2042,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
@@ -3723,7 +3728,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase28()
                     if (IS_UNIQ) {
                         ASSERTV(LINE, tj, RESULT ==
                                               X.lower_bound(VALUES[tj].first));
-                        if(RESULT != X.begin()) {
+                        if (RESULT != X.begin()) {
                             Iter BEFORE = RESULT;  --BEFORE;
                             ASSERTV(LINE, tj, VALUES[tj] != *BEFORE);
                         }
@@ -3886,7 +3891,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -3904,7 +3908,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -5862,7 +5865,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
                 Obj mX(&oa); const Obj& X = gg(&mX, SPEC);
 
                 CIter POS = X.begin();
-                for(size_t i = 0; i < tj; ++i) {
+                for (size_t i = 0; i < tj; ++i) {
                     ++POS;
                 }
 
@@ -5988,12 +5991,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
                 Obj mX(&oa); const Obj& X = gg(&mX, SPEC);
 
                 CIter FIRST = X.begin();
-                for(size_t i = 0; i < tj; ++i) {
+                for (size_t i = 0; i < tj; ++i) {
                     ++FIRST;
                 }
 
                 CIter LAST  = X.begin();
-                for(size_t i = 0; i < tk; ++i) {
+                for (size_t i = 0; i < tk; ++i) {
                     ++LAST;
                 }
                 const size_t NUM_ELEMENTS = tk - tj;
@@ -6332,7 +6335,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase16()
                     }
 
 
-                    if(expectToAllocate(SIZE + 1)) {
+                    if (expectToAllocate(SIZE + 1)) {
                         ASSERTV(LINE, tj, AA, BB,
                                 BB + 1 + TYPE_ALLOC == AA);
                         ASSERTV(LINE, tj, A, B,
@@ -6433,7 +6436,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase16()
                     ASSERTV(LINE, CONFIG, tj, SIZE,
                             VALUES[tj] == *RESULT);
 
-                    if(expectToAllocate(SIZE + 1)) {
+                    if (expectToAllocate(SIZE + 1)) {
                         ASSERTV(LINE, tj, AA, BB,
                                 BB + 1 + TYPE_ALLOC == AA);
                         ASSERTV(LINE, tj, A, B, B + 1 + TYPE_ALLOC == A);
@@ -6560,7 +6563,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase15()
                 if (IS_UNIQ) {
                     ASSERTV(LINE, tj,
                             RESULT == X.lower_bound(VALUES[tj].first));
-                    if(RESULT != X.begin()) {
+                    if (RESULT != X.begin()) {
                         Iter BEFORE = RESULT;  --BEFORE;
                         ASSERTV(LINE, tj, VALUES[tj] != *BEFORE);
                     }
@@ -6574,7 +6577,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase15()
 
                 const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
-                if(expectToAllocate(SIZE + 1)) {
+                if (expectToAllocate(SIZE + 1)) {
                     ASSERTV(LINE, tj, A, B, B + 1 + TYPE_ALLOC == A);
                 }
                 else {
@@ -6639,7 +6642,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase15()
                 if (IS_UNIQ) {
                     ASSERTV(LINE, tj,
                             RESULT == X.lower_bound(VALUES[tj].first));
-                    if(RESULT != X.begin()) {
+                    if (RESULT != X.begin()) {
                         Iter BEFORE = RESULT;  --BEFORE;
                         ASSERTV(LINE, tj, VALUES[tj] != *BEFORE);
                     }
@@ -7285,7 +7288,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -7303,7 +7305,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -7730,7 +7731,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -7747,7 +7747,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -7930,10 +7929,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:   'true_type', then no memory will be allocated and the allocators will
     //:   also be swapped.
     //:
-    //: 7 Both functions provides the strong exception guarantee w.t.r. to
-    //:   memory allocation .
-    //:
-    //: 8 The free 'swap' function is discoverable through ADL (Argument
+    //: 7 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
     //
     // Plan:
@@ -7960,7 +7956,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:     implementations of individual attribute types: ('Y') "Yes",
     //:     ('N') "No", or ('?') "implementation-dependent".
     //:
-    //: 4 For each row 'R1' in the table of P-3:  (C-1, 3..7)
+    //: 4 For each row 'R1' in the table of P-3:  (C-1, 3..6)
     //:
     //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
     //:
@@ -8007,19 +8003,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:     6 Use the member and free 'swap' functions to swap the values of
     //:       'mX' and 'mZ' respectively (when
     //:       AllocatorTraits::propagate_on_container_swap is an alias to
-    //:       false_type) under the presence of exception; verify, after each
-    //:       swap, that:  (C-1, 5, 7)
+    //:       false_type) verify, after each swap, that: (C-1, 5)
     //:
-    //:       1 If exception occurred during the swap, both values are
-    //:         unchanged.  (C-7)
-    //
-    //:       2 If no exception occurred, the values have been exchanged.
-    //:         (C-1)
+    //:       1 The values have been exchanged.  (C-1)
     //:
-    //:       3 The common object allocator address held by 'mX' and 'mZ' is
+    //:       2 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
+    //:       3 Temporary memory were allocated from 'oa' if 'mZ' is is not
     //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
     //:         is not empty.  (C-5)
     //:
@@ -8044,7 +8035,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:       3 There was no additional object memory allocation.  (C-6)
     //:
     //: 5 Verify that the free 'swap' function is discoverable through ADL:
-    //:   (C-8)
+    //:   (C-7)
     //:
     //:   1 Create a set of attribute values, 'A', distinct from the values
     //:     corresponding to the default-constructed object, choosing
@@ -8064,7 +8055,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
     //:
     //:   5 Use the 'invokeAdlSwap' helper function template to swap the
     //:     values of 'mX' and 'mY', using the free 'swap' function defined
-    //:     in this component, then verify that:  (C-8)
+    //:     in this component, then verify that:  (C-7)
     //:
     //:     1 The values have been exchanged.  (C-1)
     //:
@@ -8112,8 +8103,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mW(&oa);  const Obj& W = gg(&mW,  SPEC1);
-        const Obj XX(W, &scratch);
+        Obj mW(&oa);        const Obj& W  = gg(&mW,  SPEC1);
+        Obj mXX(&scratch);  const Obj& XX = gg(&mXX, SPEC1);
 
         if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
 
@@ -8152,10 +8143,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
             const int         LINE2   = DATA[tj].d_line;
             const char *const SPEC2   = DATA[tj].d_spec;
 
-            Obj mX(XX, &oa);  const Obj& X = mX;
+            Obj mX(&oa);  const Obj& X = gg(&mX, SPEC1);
 
-            Obj mY(&oa);  const Obj& Y = gg(&mY, SPEC2);
-            const Obj YY(Y, &scratch);
+            Obj mY(&oa);        const Obj& Y  = gg(&mY,  SPEC2);
+            Obj mYY(&scratch);  const Obj& YY = gg(&mYY, SPEC2);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -8187,8 +8178,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
 
             bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
-            Obj mZ(&oaz);  const Obj& Z = gg(&mZ, SPEC2);
-            const Obj ZZ(Z, &scratch);
+            Obj mZ(&oaz);       const Obj& Z  = gg(&mZ,  SPEC2);
+            Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC2);
 
             if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
@@ -8197,16 +8188,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionProctor<Obj> proctorX(&X, L_, &scratch);
-                    ExceptionProctor<Obj> proctorZ(&Z, L_, &scratch);
-
-                    mX.swap(mZ);
-
-                    proctorX.release();
-                    proctorZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
+                mX.swap(mZ);
 
                 ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
                 ASSERTV(LINE1, LINE2, XX, Z, XX == Z);
@@ -8233,15 +8215,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor oazm(&oaz);
 
-                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionProctor<Obj> proctorX(&X, L_, &scratch);
-                    ExceptionProctor<Obj> proctorZ(&Z, L_, &scratch);
-
-                    swap(mX, mZ);
-
-                    proctorX.release();
-                    proctorZ.release();
-                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                swap(mX, mZ);
 
                 ASSERTV(LINE1, LINE2, XX, X, XX == X);
                 ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
@@ -8274,11 +8248,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8()
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-        Obj mX(&oa);  const Obj& X = mX;
-        const Obj XX(X, &scratch);
+        Obj mX(&oa);        const Obj& X  = mX;
+        Obj mXX(&scratch);  const Obj& XX = mXX;
 
-        Obj mY(&oa);  const Obj& Y = gg(&mY, "ABC");
-        const Obj YY(Y, &scratch);
+        Obj mY(&oa);        const Obj& Y  = gg(&mY,  "ABC");
+        Obj mYY(&scratch);  const Obj& YY = gg(&mYY, "ABC");
 
         if (veryVerbose) { T_ P_(X) P(Y) }
 
@@ -10012,11 +9986,11 @@ class string {
     size_t            d_size;         // length of d_value_p
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
-     // PRIVATE CLASS CONSTANTS
+     // PRIVATE CLASS DATA
     static const char *EMPTY_STRING;
 
   public:
-    // PUBLIC TRAITS
+    // PUBLIC TYPE TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(string, bslma::UsesBslmaAllocator);
 
     // CREATORS
@@ -10028,7 +10002,7 @@ class string {
     }
 
     string(const char      *value,
-           bslma::Allocator *basicAllocator = 0)
+           bslma::Allocator *basicAllocator = 0)                    // IMPLICIT
     : d_value_p(const_cast<char *>(EMPTY_STRING))
     , d_size(std::strlen(value))
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -10207,7 +10181,7 @@ const char *string::EMPTY_STRING = "";
         NameToNumberMap d_nameToNumber;  // mapping of names to phone numbers
 
         // FRIENDS
-        friend bool operator==(const PhoneBook& lhs, const PhoneBook& rhs);
+        friend bool operator==(const PhoneBook&, const PhoneBook&);
 
       public:
         // PUBLIC TYPES
@@ -10220,6 +10194,7 @@ const char *string::EMPTY_STRING = "";
             // providing non-modifiable access to the entries in a 'PhoneBook'.
 
         // CREATORS
+        explicit
         PhoneBook(bslma::Allocator *basicAllocator = 0);
             // Create an empty 'PhoneBook' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -10568,6 +10543,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         RUN_EACH_TYPE(TestDriver,
@@ -10580,6 +10556,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         RUN_EACH_TYPE(TestDriver,
@@ -10592,6 +10569,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType)
         TestDriver<bsltf::MovableAllocTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase27();
@@ -10625,15 +10603,20 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING MOVE CONSTRUCTION
         // --------------------------------------------------------------------
-        RUN_EACH_TYPE(TestDriver,
-                      testCase26,
-                      bsltf::MovableAllocTestType);
-        TestDriver<bsltf::MovableAllocTestType,
-                   bsltf::MoveOnlyAllocTestType>::testCase26();
-        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase26();
+
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase26,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+        TestDriver<int,
+                   bsltf::MoveOnlyAllocTestType>::testCase26();
+        TestDriver<bsltf::MovableAllocTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase26();
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -10823,6 +10806,12 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         TestDriver<TestKeyType, TestValueType>::testCase8();
 
+        RUN_EACH_TYPE(TestDriver,
+                      testCase8,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase8();
+
         // 'propagate_on_container_swap' testing
 
         RUN_EACH_TYPE(TestDriver,
@@ -10852,6 +10841,7 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase7,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase7();
 
@@ -10885,6 +10875,7 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase6();
@@ -10913,6 +10904,7 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase4();
@@ -10930,6 +10922,7 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase3();
@@ -10944,6 +10937,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
+                      bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
         RUN_EACH_TYPE(TestDriver,

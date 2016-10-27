@@ -663,6 +663,7 @@ class map {
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+      private:
         // NOT IMPLEMENTED
         DataWrapper(const DataWrapper&);
         DataWrapper& operator=(const DataWrapper&);
@@ -675,7 +676,8 @@ class map {
             // to order key-value pairs and a copy of the specified
             // 'basicAllocator' to supply memory.
 
-        DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
+        DataWrapper(
+              BloombergLP::bslmf::MovableRef<DataWrapper> original);// IMPLICIT
             // Create a data wrapper initialized to the contents of the 'pool'
             // associated with the specified 'original' data wrapper.  The
             // comparator and allocator associated with 'original' are
@@ -872,7 +874,7 @@ class map {
         // parameter) types 'KEY' and 'VALUE' both be 'copy-insertable' into
         // this map (see {Requirements on 'KEY' and 'VALUE'}).
 
-    map(BloombergLP::bslmf::MovableRef<map> original);
+    map(BloombergLP::bslmf::MovableRef<map> original);              // IMPLICIT
         // Create a map having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new map.  Use a copy of 'original.key_comp()' to order the
@@ -1089,10 +1091,11 @@ class map {
         // 'VALUE' both be 'move-insertable' into this map (see {Requirements
         // on 'KEY' and 'VALUE'}).
 
-    template <class ALT_VALUE_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
+    template <class ALT_VALUE_TYPE>
     pair<iterator, bool>
 #else
+    template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        pair<iterator, bool> >::type
 #endif
@@ -1149,10 +1152,11 @@ class map {
         // this map (see {Requirements on 'KEY' and 'VALUE'}).  The behavior is
         // undefined unless 'hint' is a valid iterator into this map.
 
-    template <class ALT_VALUE_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
+    template <class ALT_VALUE_TYPE>
     iterator
 #else
+    template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type
 #endif
@@ -3569,11 +3573,12 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            map thisCopy(*this, other.nodeFactory().allocator());
-            map otherCopy(other, nodeFactory().allocator());
+            map toOtherCopy(MoveUtil::move(*this),
+                            other.nodeFactory().allocator());
+            map toThisCopy(MoveUtil::move(other), nodeFactory().allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            this->quickSwapRetainAllocators(toThisCopy);
+            other.quickSwapRetainAllocators(toOtherCopy);
         }
     }
 }
