@@ -24,12 +24,13 @@ BSLS_IDENT("$Id: $")
 // designed to support a standard-compliant allocator access the allocator only
 // through the standard-defined interface.
 //
-// 'StdStatefulAllocator' delegates its operations to 'bslma::TestAllocator'
-// (delegate allocator) that is also the sole attribute of this class.  We
-// choose to store a test allocator as the attribute constituting state as
-// this allows a common test strategy to support testing allocation with BDE
-// allocators, and testing the general notion of stateful STL allocators.  The
-// key differences between this test allocator and a regular BDE allocator are:
+// 'StdStatefulAllocator' delegates its operations to the allocator passed at
+// construction (or the default allocator if no allocator is passed) that is
+// also the sole attribute of this class.  In most tests, a
+// 'bslma::TestAllocator' will be passed.
+//
+// The key differences between this test allocator and a regular BDE allocator
+// are:
 //
 //: o This allocator does not support the 'scoped' allocation model, so that
 //:   elements in a container will often have a different allocator to the
@@ -38,9 +39,6 @@ BSLS_IDENT("$Id: $")
 //: o This allocator may propagate through copy operations, move operations
 //:   and 'swap' operations, depending on how the template is configured as
 //:   it is instantiated.
-//:
-//: o This allocator is not DefaultConstructible, and has no notion of the
-//:   default allocator.
 //
 ///Usage
 ///-----
@@ -152,10 +150,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_TESTALLOCATOR
-#include <bslma_testallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -188,25 +182,24 @@ class StdStatefulAllocator {
     // This allocator implements the minimal interface to comply with section
     // 17.6.3.5 ([allocator.requirements]) of the C++11 standard, while
     // maintaining a distinct object state - in this case a wrapped pointer to
-    // a 'bslma::TestAllocator'.  The template is configurable to control its
+    // a 'bslma::Allocator'.  The template is configurable to control its
     // allocator propagation properties, but does not support the BDE "scoped"
     // allocator model, as scoped allocators should never propagate.  Instances
-    // of this allocator delegate their operations to the wrapped test
-    // allocator that constitutes its state.  Note that meeting only the
-    // minimal requirements means that this class is not DefaultConstructible.
-    // Note that while we define the various traits used by the C++11 allocator
-    // traits facility, they actually mean very little for this component, as
-    // it is the consumer of the allocator's responsibility to check and apply
-    // the traits correctly, typically by using 'bsl::allocator_traits' to
-    // perform all memory allocation tasks rather than using the allocator
-    // directly.  The 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' flag is
-    // consumed directly though, in the static member function
+    // of this allocator delegate their operations to the wrapped allocator
+    // that constitutes its state.  Note that while we define the various
+    // traits used by the C++11 allocator traits facility, they actually mean
+    // very little for this component, as it is the consumer of the allocator's
+    // responsibility to check and apply the traits correctly, typically by
+    // using 'bsl::allocator_traits' to perform all memory allocation tasks
+    // rather than using the allocator directly.  The
+    // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' flag is consumed directly
+    // though, in the static member function
     // 'select_on_container_copy_construction'.
 
   private:
     // DATA
-    bslma::TestAllocator *d_allocator_p;  // the wrapped test allocator (held,
-                                          // not owned)
+    bslma::Allocator *d_allocator_p;      // the wrapped allocator (held, not
+                                          // owned)
 
   public:
     // PUBLIC TYPES
@@ -262,9 +255,9 @@ class StdStatefulAllocator {
     };
 
     // CREATORS
-    explicit StdStatefulAllocator(bslma::TestAllocator *testAllocator);
+    explicit StdStatefulAllocator(bslma::Allocator *allocator = 0);
         // Create a 'StdStatefulAllocator' object wrapping the specified
-        // 'testAllocator'.
+        // 'allocator'.
 
     //! StdStatefulAllocator(const StdStatefulAllocator& original) = default;
         // Create an allocator having the same value as the specified
@@ -584,13 +577,10 @@ class StdStatefulAllocator {
         // Return a copy of this object if the 'bool' template parameter
         // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy of a
         // 'StdStatefulAllocator' object wrapping the default allocator
-        // otherwise.  The behavior is undefined unless the template parameter
-        // 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, or unless a
-        // 'bslma::TestAllocator' object has been installed as the default
-        // allocator.
+        // otherwise.
 
-    bslma::TestAllocator *testAllocator() const;
-        // Return the address of the test allocator wrapped by this object.
+    bslma::Allocator *allocator() const;
+        // Return the address of the allocator wrapped by this object.
 };
 
 // FREE OPERATORS
@@ -655,10 +645,9 @@ StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
-StdStatefulAllocator(bslma::TestAllocator *testAllocator)
-: d_allocator_p(testAllocator)
+StdStatefulAllocator(bslma::Allocator *allocator)
+: d_allocator_p(bslma::Default::allocator(allocator))
 {
-    BSLS_ASSERT_SAFE(testAllocator);
 }
 
 template <class TYPE,
@@ -679,7 +668,7 @@ StdStatefulAllocator(const StdStatefulAllocator<
                              PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                              PROPAGATE_ON_CONTAINER_SWAP,
                              PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& original)
-: d_allocator_p(original.testAllocator())
+: d_allocator_p(original.allocator())
 {
 }
 
@@ -1414,8 +1403,7 @@ select_on_container_copy_construction() const
 
     // else
 
-    return StdStatefulAllocator(dynamic_cast<bslma::TestAllocator *>(
-                                          bslma::Default::defaultAllocator()));
+    return StdStatefulAllocator(bslma::Default::defaultAllocator());
 }
 
 template <class TYPE,
@@ -1424,13 +1412,13 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
 inline
-bslma::TestAllocator *
+bslma::Allocator *
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                      PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
-testAllocator() const
+allocator() const
 {
     return d_allocator_p;
 }
@@ -1457,7 +1445,7 @@ bool bsltf::operator==(const StdStatefulAllocator<
                                   PROPAGATE_ON_CONTAINER_SWAP,
                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs)
 {
-    return lhs.testAllocator() == rhs.testAllocator();
+    return lhs.allocator() == rhs.allocator();
 }
 
 template <class TYPE,
@@ -1479,7 +1467,7 @@ bool bsltf::operator!=(const StdStatefulAllocator<
                                   PROPAGATE_ON_CONTAINER_SWAP,
                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>& rhs)
 {
-    return lhs.testAllocator() != rhs.testAllocator();
+    return lhs.allocator() != rhs.allocator();
 }
 
 }  // close enterprise namespace

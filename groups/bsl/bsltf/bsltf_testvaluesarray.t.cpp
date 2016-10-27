@@ -1,6 +1,7 @@
 // bsltf_testvaluesarray.t.cpp                                        -*-C++-*-
 #include <bsltf_testvaluesarray.h>
 
+#include <bsltf_stdstatefulallocator.h>
 #include <bsltf_templatetestfacility.h>
 
 #include <bslma_default.h>
@@ -272,6 +273,10 @@ class TestDriver
 
     typedef TestValuesArrayIterator<VALUE> Iterator;
         // The iterator for the type under testing.
+
+    enum { k_IS_BSL_ALLOCATOR = bsl::is_same<ALLOCATOR,
+                                             bsl::allocator<VALUE> >::value,
+           k_VALUE_USES_BSLMA = bslma::UsesBslmaAllocator<VALUE>::value };
 
   public:
     // TEST CASES
@@ -1779,7 +1784,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
+        printf("\nVALUE: %s, %s\n", NameOf<VALUE>().name(),
+                                    k_VALUE_USES_BSLMA ? "bslma" : "stateful");
 
     const char   DEFAULT_SPEC[] =
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -1791,13 +1797,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
 
             if (veryVeryVerbose) { T_ P(CONFIG) }
 
-            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator doa("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator foa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator soa("supplied",  veryVeryVeryVerbose);
+
+            ALLOCATOR da(&doa);
+            ALLOCATOR sa(&soa);
 
             // Install default allocator.
 
-            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::DefaultAllocatorGuard dag(&doa);
 
             Obj *objPtr;
 
@@ -1805,10 +1814,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
 
             switch (CONFIG) {
               case 'a': {
-                objPtr = new (fa) Obj;
+                objPtr = new (foa) Obj;
               } break;
               case 'b': {
-                objPtr = new (fa) Obj(&sa);
+                objPtr = new (foa) Obj(sa);
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad constructor config.");
@@ -1816,29 +1825,32 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
               } break;
             }
 
-            // Verify no allocation from the default allocator.
+            // Verify no allocation from the default allocator, unless 'VALUE'
+            // uses 'bslma::Allocator' and the 'ALLOCATOR' template argument is
+            // not 'bsl::allocator'.
 
-            ASSERTV(CONFIG, da.numBlocksTotal(),
-                    0 == da.numBlocksTotal());
+            ASSERTV(NameOf<Obj>(), CONFIG, doa.numBlocksTotal(),
+                    (!k_IS_BSL_ALLOCATOR && k_VALUE_USES_BSLMA) ||
+                                                    0 == doa.numBlocksTotal());
 
             // Verify sizes of allocated memory blocks.
 
-            ASSERTV(CONFIG, fa.numBytesInUse(),
-                    sizeof(Obj) == fa.numBytesInUse());
+            ASSERTV(CONFIG, foa.numBytesInUse(),
+                    sizeof(Obj) == foa.numBytesInUse());
 
             if (CONFIG == 'a') {
                 // MallocFreeAllocator is used.  It has no accessors, so we
                 // can't confirm memory allocation.
 
-                ASSERTV(CONFIG, sa.numBytesInUse(),
-                        0 == sa.numBytesInUse());
+                ASSERTV(CONFIG, soa.numBytesInUse(),
+                        0 == soa.numBytesInUse());
             } else {
                 // We can't calculate exact size of allocated memory, as
                 // 'VALUE' objects can allocate some extra memory in their
                 // constructors.
 
-                ASSERTV(CONFIG, sa.numBytesInUse(),
-                        0 < sa.numBytesInUse());
+                ASSERTV(CONFIG, soa.numBytesInUse(),
+                        0 < soa.numBytesInUse());
             }
 
             // Verify the expected attributes values.
@@ -1857,12 +1869,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
 
             // Reclaim dynamically allocated object.
 
-            fa.deleteObject(objPtr);
+            foa.deleteObject(objPtr);
 
             // Verify all memory is released on object destruction.
 
-            ASSERTV(fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
-            ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+            ASSERTV(foa.numBlocksInUse(), 0 == foa.numBlocksInUse());
+            ASSERTV(soa.numBlocksInUse(), 0 == soa.numBlocksInUse());
         }  // end foreach configuration
     }
 }
@@ -2016,7 +2028,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
     // ------------------------------------------------------------------------
 
     if (verbose)
-        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
+        printf("\nVALUE: %s, %s\n", NameOf<VALUE>().name(),
+                                    k_VALUE_USES_BSLMA ? "bslma" : "stateful");
 
     if (verbose) printf("\tTesting behavior.\n");
     {
@@ -2031,13 +2044,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
                 if (veryVeryVerbose) { T_ T_ P(CONFIG) }
 
-                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
-                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
-                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                bslma::TestAllocator doa("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator foa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator soa("supplied",  veryVeryVeryVerbose);
+
+                ALLOCATOR da(&doa);
+                ALLOCATOR sa(&soa);
 
                 // Install default allocator.
 
-                bslma::DefaultAllocatorGuard dag(&da);
+                bslma::DefaultAllocatorGuard dag(&doa);
 
                 Obj *objPtr;
 
@@ -2045,10 +2061,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
                 switch (CONFIG) {
                   case 'a': {
-                    objPtr = new (fa) Obj(SPEC);
+                    objPtr = new (foa) Obj(SPEC);
                   } break;
                   case 'b': {
-                    objPtr = new (fa) Obj(SPEC, &sa);
+                    objPtr = new (foa) Obj(SPEC, sa);
                   } break;
                   default: {
                     ASSERTV(LINE, CONFIG, !"Bad constructor config.");
@@ -2058,27 +2074,28 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
                 // Verify no allocation from the default allocator.
 
-                ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
-                        0 == da.numBlocksTotal());
+                ASSERTV(NameOf<Obj>(), SPEC, CONFIG, doa.numBlocksTotal(),
+                        (!k_IS_BSL_ALLOCATOR && k_VALUE_USES_BSLMA) ||
+                                                        !doa.numBlocksTotal());
 
                 // Verify sizes of allocated memory blocks.
 
-                ASSERTV(LINE, CONFIG, fa.numBytesInUse(),
-                        sizeof(Obj) == fa.numBytesInUse());
+                ASSERTV(LINE, CONFIG, foa.numBytesInUse(),
+                        sizeof(Obj) == foa.numBytesInUse());
 
                 if (CONFIG == 'a') {
                     // MallocFreeAllocator is used.  It has no accessors, so we
                     // can't confirm memory allocation.
 
-                    ASSERTV(LINE, CONFIG, sa.numBytesInUse(),
-                            0 == sa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, soa.numBytesInUse(),
+                            0 == soa.numBytesInUse());
                 } else {
                     // We can't calculate exact size of allocated memory, as
                     // 'VALUE' objects can allocate some extra memory in their
                     // constructors.
 
-                    ASSERTV(LINE, CONFIG, sa.numBytesInUse(),
-                            0 < sa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, soa.numBytesInUse(),
+                            0 < soa.numBytesInUse());
                 }
 
                 // Verify the expected attributes values.
@@ -2096,12 +2113,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
                 // Testing destructor.
 
-                fa.deleteObject(objPtr);
+                foa.deleteObject(objPtr);
 
                 // Verify all memory is released on object destruction.
 
-                ASSERTV(LINE, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
-                ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+                ASSERTV(LINE, foa.numBlocksInUse(), 0 == foa.numBlocksInUse());
+                ASSERTV(LINE, soa.numBlocksInUse(), 0 == soa.numBlocksInUse());
             }  // end foreach configuration
         }  // end foreach row
     }
@@ -2111,12 +2128,14 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
         bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
 
         const char           *SPEC = "A";
-        bslma::TestAllocator  ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocator  toa("test", veryVeryVeryVerbose);
 
-        ASSERT_SAFE_FAIL(Obj(0));
-        ASSERT_SAFE_FAIL(Obj(0, &ta));
+        ALLOCATOR ta(&toa);
+
+        ASSERT_SAFE_FAIL(Obj(static_cast<const char *>(0)));
+        ASSERT_SAFE_FAIL(Obj(static_cast<const char *>(0), ta));
         ASSERT_SAFE_PASS(Obj(SPEC));
-        ASSERT_SAFE_PASS(Obj(SPEC, &ta));
+        ASSERT_SAFE_PASS(Obj(SPEC, ta));
     }
 }
 
@@ -2217,6 +2236,19 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase1()
     ++IT;
     ASSERTV(IT == Y.end());
 }
+
+// Create a version of 'TestDriver' that uses the 'StdStatefulAllocator'
+// instead of 'bsl::allocator' in order to run some of our tests and make sure
+// that the 'TestValuesArray' is compatible with the standard stateful
+// allocator.
+
+template <class VALUE>
+struct StatefulTestDriver : public TestDriver<VALUE,
+                                              StdStatefulAllocator<VALUE,
+                                                                   0,
+                                                                   0,
+                                                                   0,
+                                                                   0> > {};
 
 // ============================================================================
 //                              USAGE EXAMPLE
@@ -2456,6 +2488,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING OTHER CONSTRUCTORS"
                             "\n==========================\n");
 
+        RUN_EACH_TYPE(StatefulTestDriver,
+                      testCase5,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
         RUN_EACH_TYPE(TestDriver,
                       testCase5,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2479,6 +2515,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nPRIMARY MANIPULATORS"
                             "\n====================\n");
+
+        RUN_EACH_TYPE(StatefulTestDriver,
+                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
