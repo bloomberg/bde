@@ -155,12 +155,12 @@ using bsl::pair;
 // [18] size_type erase(const KEY&);
 // [18] Iter erase(CIter, CIter);
 // [15] pair<Iter, bool> insert(const Pair&);
-// [15] pair<Iter, bool> insert(CIter, const Pair&);
+// [15] Iter insert(CIter, const Pair&);
 // [17] void insert(ITER, ITER);
 // [29] pair<iterator, bool> insert(Pair&&);
 // [29] pair<iterator, bool> insert(ALT_PAIR&&);
-// [29] pair<iterator, bool> insert(CIter, Pair&&);
-// [29] pair<iterator, bool> insert(CIter, ALT_PAIR&&);
+// [29] iterator insert(CIter, Pair&&);
+// [29] iterator insert(CIter, ALT_PAIR&&);
 // [33] void insert(initializer_list<Pair>);
 // [ 8] void swap(Obj&);
 //
@@ -397,8 +397,7 @@ static struct DefaultDataRow {
     { L_,   11, "ABCDEFGHIJKLMNOPQ", "ABCDEFGHIJKLMNOPQ" },
     { L_,   11, "DHBIMACOPELGFKNJQ", "ABCDEFGHIJKLMNOPQ" }
 };
-static const size_t DEFAULT_NUM_DATA =
-                                    sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 static const size_t DEFAULT_MAX_LENGTH = 17;        // length of longest spec
 static const size_t DEFAULT_NUM_MAX_LENGTH = 2;     // # of specs that length
 
@@ -6311,6 +6310,11 @@ class TestDriver {
                         ALLOC,
                         u::CharToPairConverter<TValueType, ALLOC> > TestValues;
 
+    typedef bsltf::TestValuesArray<
+                       Pair,
+                       ALLOC,
+                       u::CharToPairConverter<Pair, ALLOC> >       CTestValues;
+
     BSLMF_ASSERT((!bslmf::IsSame<Iter,  CIter>::value));
     BSLMF_ASSERT((!bslmf::IsSame<LIter, CLIter>::value));
     BSLMF_ASSERT((!bslmf::IsSame<Pair,  TValueType>::value));
@@ -6330,7 +6334,7 @@ class TestDriver {
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_WINDOWS)
            // Aix has a compiler bug where method pointers do not default
-           // construct to 0.  Windows has the same prOBLEM.
+           // construct to 0.  Windows has the same problem.
 
            k_IS_VALUE_DEFAULT_CONSTRUCTIBLE =
                 !bsl::is_same<VALUE,
@@ -6411,8 +6415,7 @@ class TestDriver {
                                        buffer.address(),
                                        static_cast<char>(identifier),
                                        container->get_allocator().mechanism());
-        bslma::DestructorGuard<TValueType> guard(
-                                       bsls::Util::addressOf(buffer.object()));
+        bslma::DestructorGuard<TValueType> guard(buffer.address());
 
         return container->insert(MoveUtil::move(buffer.object()));
     }
@@ -7514,7 +7517,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
         (void) mp;
     }
 
-    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -7522,7 +7525,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
     bool done = false;
     const char *prevSpec = "+";
     const char *SPEC;
-    for (size_t ti = 0; ti < NUM_DATA; ++ti, prevSpec = SPEC) {
+    for (int ti = 0; ti < NUM_DATA; ++ti, prevSpec = SPEC) {
         const int         LINE   = DATA[ti].d_line;
                           SPEC   = DATA[ti].d_results_p;
         const size_t      LENGTH = strlen(DATA[ti].d_results_p);
@@ -7537,8 +7540,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
 
         if (veryVeryVerbose) Q(Test 'rehash');
         {
-            Obj mX(&sa);            const Obj& X = gg(&mX, SPEC);
-            Obj mY(X, &scratch);    const Obj& Y = mY;
+            Obj mX(&sa);         const Obj& X = gg(&mX, SPEC);
+            Obj mY(X, &scratch); const Obj& Y = mY;
 
             const size_t BC = X.bucket_count();
 
@@ -7658,7 +7661,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 {
     // ------------------------------------------------------------------------
-    // TESTING ELEMENTAL ACCESS WITH MOVABLE KEY:
+    // TESTING ELEMENTAL ACCESS WITH MOVABLE KEY
     //
     // Concerns:
     //: 1 'operator[]' returns the value associated with the key.
@@ -7728,7 +7731,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
         const int         LINE    = DATA[ti].d_line;
         const char *const SPEC    = DATA[ti].d_spec_p;
         const size_t      LENGTH  = strlen(DATA[ti].d_results_p);
-        const TestValues  VALUES(          DATA[ti].d_results_p);
+
+        const TestValues  VALUES(DATA[ti].d_results_p);
 
         for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
             const char CONFIG = cfg;
@@ -7891,7 +7895,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
 {
     // ------------------------------------------------------------------------
-    // TESTING INITIALIZER LIST C'TORS AND MANIPULATORS OUT OF LINE:
+    // TESTING INITIALIZER LIST C'TORS AND MANIPULATORS OUT OF LINE
     //
     // Concerns:
     //: 1 That constructors from an initializer list function correctly.
@@ -7998,11 +8002,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
         InitList    d_list;
         const char *d_expSpec_p;
     } DATA[] = {
-        { L_, 0, { }, "" },
-        { L_, 1, { VA }, "A" },
-        { L_, 1, { VA, VA, VA }, "A" },
-        { L_, 2, { VC, VE, VC }, "CE" },
-        { L_, 5, { VE, VD, VC, VA, VB }, "ABCDE" },
+        { L_, 0, { },                            ""      },
+        { L_, 1, { VA },                         "A"     },
+        { L_, 1, { VA, VA, VA },                 "A"     },
+        { L_, 2, { VC, VE, VC },                 "CE"    },
+        { L_, 5, { VE, VD, VC, VA, VB },         "ABCDE" },
         { L_, 5, { VE, VD, VC, VE, VA, VD, VB }, "ABCDE" } };
     const int NUM_DATA = u::arrayLength(DATA);
     ASSERT(NUM_DATA > 4);
@@ -8476,7 +8480,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a()
 {
     // ------------------------------------------------------------------------
-    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT:
+    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT
     //
     // Concerns:
     //: 1 'emplace_hint' correctly forwards arguments to the constructor of the
@@ -8849,7 +8853,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
 {
     // ------------------------------------------------------------------------
-    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE:
+    // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE
     //
     // Concerns:
     //: 1 'emplace' correctly forwards arguments to the piecewise constructor
@@ -9215,7 +9219,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
 {
     // ------------------------------------------------------------------------
-    // TESTING SINGLE-ARG EMPLACE AND EMPLACE_HINT:
+    // TESTING SINGLE-ARG EMPLACE AND EMPLACE_HINT
     //
     // Concerns:
     //: 1 'emplace' returns a pair containing an iterator and a 'bool', and
@@ -9440,7 +9444,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'insert' SINGLE VALUE MOVE:
+    // TESTING 'insert' SINGLE VALUE MOVE
     //
     // Concerns:
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
@@ -9483,8 +9487,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
     // Testing:
     //   pair<iterator, bool> insert(value_type&&);
     //   pair<iterator, bool> insert(ALT_VALUE_TYPE&&);
-    //   pair<iterator, bool> insert(CIter, value_type&&);
-    //   pair<iterator, bool> insert(CIter, ALT_VALUE_TYPE&&);
+    //   iterator insert(CIter, value_type&&);
+    //   iterator insert(CIter, ALT_VALUE_TYPE&&);
     // -----------------------------------------------------------------------
 
     if (verbose) printf("TESTING 'insert' SINGLE VALUE MOVE: %s\n"
@@ -9510,10 +9514,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
         { L_,   "EEDDCCBBAA",  "YNYNYNYNYN"  },    // redundant) letters
         { L_,   "ABCDEABCDEF", "YYYYYNNNNNY" }     // beginning with 'A'.
     };
-    const int NUM_DATA = static_cast<const int>(sizeof DATA / sizeof *DATA);
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int MAX_LENGTH = 11;
-    char EXPECTED[MAX_LENGTH + 1];
+    char      EXPECTED[MAX_LENGTH + 1];
 
     enum Mode {
         e_BEGIN,
@@ -9545,7 +9549,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
 
             ASSERTV(LINE, LENGTH == strlen(UNIQUE));
 
-            Obj mX(&oa);  const Obj &X = mX;
+            Obj mX(&oa); const Obj &X = mX;
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 const bool   IS_UNIQ = 'Y' == UNIQUE[tj];
@@ -9964,7 +9968,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -9982,7 +9985,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -10110,7 +10112,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE-ASSIGNMENT OPERATOR:
+    // TESTING MOVE-ASSIGNMENT OPERATOR
     //
     // Concerns:
     //  TBD: the test does not yet cover the case where allocator propagation
@@ -11320,6 +11322,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
             const int         LINE    = DATA[ti].d_line;
             const char *const SPEC    = DATA[ti].d_spec_p;
             const size_t      LENGTH  = strlen(DATA[ti].d_results_p);
+
             const TestValues  VALUES(DATA[ti].d_results_p);
 
             if (ti && DATA[ti].d_index == DATA[ti - 1].d_index) {
@@ -11801,7 +11804,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase18()
             const int         LINE   = DATA[ti].d_line;
             const char *const VSPEC  = DATA[ti].d_results_p;
             const size_t      LENGTH = strlen(VSPEC);
-            const TestValues  VALUES(  VSPEC);
+
+            const TestValues  VALUES(VSPEC);
 
             if (ti && !strcmp(DATA[ti-1].d_results_p, VSPEC)) {
                 continue;
@@ -11865,7 +11869,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase18()
             const int         LINE   = DATA[ti].d_line;
             const char *const VSPEC  = DATA[ti].d_results_p;
             const size_t      LENGTH = strlen(VSPEC);
-            const TestValues  VALUES(  VSPEC);
+
+            const TestValues  VALUES(VSPEC);
 
             if (ti && !strcmp(DATA[ti-1].d_results_p, VSPEC)) {
                 continue;
@@ -11936,7 +11941,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase18()
             const int         LINE   = DATA[ti].d_line;
             const char *const VSPEC  = DATA[ti].d_results_p;
             const size_t      LENGTH = strlen(VSPEC);
-            const TestValues  VALUES(  VSPEC);
+
+            const TestValues  VALUES(VSPEC);
 
             if (ti && !strcmp(DATA[ti-1].d_results_p, VSPEC)) {
                 continue;
@@ -12025,7 +12031,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
 {
     // ------------------------------------------------------------------------
-    // RANGE 'insert'
+    // TESTING RANGE 'insert'
     //
     // Concerns:
     //: 1 All values within the range [first, last) are inserted.
@@ -12066,6 +12072,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
     // Testing:
     //   void insert(ITER, ITER);
     // ------------------------------------------------------------------------
+    if (verbose) printf("TESTING RANGE 'insert': %s\n"
+                        "----------------------\n",
+                        NameOf<KEY>().name());
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -12079,6 +12088,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
         const size_t      LENGTH = strlen(EXP);
 
         TestValues CONT(SPEC);
+
         for (size_t tj = 0; tj <= CONT.size(); ++tj) {
             CONT.resetIterators();
 
@@ -12151,7 +12161,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
     //
     // Testing:
     //   pair<Iter, bool> insert(const Pair&);
-    //   pair<Iter, bool> insert(CIter, const Pair&);
+    //   Iter insert(CIter, const Pair&);
     // -----------------------------------------------------------------------
 
     if (verbose) printf(
@@ -12178,7 +12188,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
         { L_,   "EEDDCCBBAA",  "YNYNYNYNYN"  },    // redundant) letters
         { L_,   "ABCDEABCDEF", "YYYYYNNNNNY" }     // beginning with 'A'.
     };
-    const int NUM_DATA = static_cast<const int>(sizeof DATA / sizeof *DATA);
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int MAX_LENGTH = 10;
     char EXPECTED[MAX_LENGTH + 1];
@@ -12204,20 +12214,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
             ASSERTV(LINE, LENGTH == strlen(UNIQUE));
 
-            const TestValues VALUES(SPEC, &sa);
+            // Note that we are using objects of Obj::value_type to invoke
+            // correct 'insert' overload.
+            const CTestValues VALUES(SPEC, &sa);
             EXPECTED[0] = '\0';
 
             if (veryVerbose) { P_(LINE) P_(SPEC) P_(UNIQUE) P(LENGTH); }
 
-            Obj mX(&oa);  const Obj &X = mX;
+            Obj mX(&oa); const Obj &X = mX;
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 const bool   IS_UNIQ = 'Y' == UNIQUE[tj];
                 const size_t SIZE    = X.size();
+
                 ASSERT((strchr(SPEC, SPEC[tj]) == &SPEC[tj]) == IS_UNIQ);
 
                 // 'hint' should be ignored, so maliciously make it garbage.
-
                 CIter hint;
                 memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
 
@@ -12260,7 +12272,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
             const char *const UNIQUE = DATA[ti].d_unique_p;
             const size_t      LENGTH = strlen(SPEC);
 
-            const TestValues VALUES(SPEC, &sa);
+            const CTestValues VALUES(SPEC, &sa);
             EXPECTED[0] = '\0';
 
             if (veryVerbose) { P_(LINE) P_(SPEC) P_(UNIQUE) P(LENGTH); }
@@ -12268,7 +12280,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
             ASSERTV(LINE, LENGTH == strlen(UNIQUE));
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            Obj mX(&oa);  const Obj &X = mX;
+            Obj mX(&oa); const Obj &X = mX;
 
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 const bool   IS_UNIQ = 'Y' == UNIQUE[tj];
@@ -12281,7 +12293,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
                 CIter hint;
                 memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
 
-                Obj mY(&sa);    const Obj& Y = gg(&mY, EXPECTED);
+                Obj mY(&sa); const Obj& Y = gg(&mY, EXPECTED);
 
                 if (IS_UNIQ) {
                     EXPECTED[SIZE] = SPEC[tj];
@@ -12299,6 +12311,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                 pair<Iter, bool> RESULT;
                 int numThrows = -1;
+
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     ++numThrows;
                     ASSERTV(numThrows, Y == X);
@@ -13078,7 +13091,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -13096,7 +13108,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -13507,7 +13518,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -13526,7 +13536,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -14214,6 +14223,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
             const size_t      LENGTH = strlen(SPEC);
+
             TestValues VALUES(SPEC);
 
             const int ALLOC_ID = ti + 73;
@@ -14884,18 +14894,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
         (void) mp;
     }
 
+    const int             NUM_DATA         = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
     TestValues values(TV_SPEC);    const TestValues& VALUES = values;
 
-    const char *SPEC;
-    const char *PREV_SPEC = "woof";
-    for (size_t ti = 0; ti < DEFAULT_NUM_DATA; ++ti, PREV_SPEC = SPEC) {
-        const DefaultDataRow *pd   = DEFAULT_DATA + ti;
-                     SPEC   = pd->d_results_p;
-        const size_t LENGTH = strlen(SPEC);
-
-        if (!strcmp(SPEC, PREV_SPEC)) {
-            continue;
-        }
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const char   *SPEC   = DATA[ti].d_results_p;
+        const size_t  LENGTH = strlen(SPEC);
 
         bslma::TestAllocator da("default",  veryVeryVeryVerbose);
         bslma::TestAllocator sc("scratch",  veryVeryVeryVerbose);
@@ -14903,7 +14909,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
 
         bslma::DefaultAllocatorGuard dag(&da);
 
-        Obj mX(&sa);    const Obj& X = mX;
+        Obj mX(&sa); const Obj& X = mX;
 
         gg(&mX, SPEC);
 
@@ -16207,8 +16213,8 @@ void testConstEmptyContainer(const CONTAINER& x)
     typedef typename TestType::size_type SizeType;
 
     ASSERT(x.empty());
-    LOOP_ASSERT(x.size(), 0 == x.size());
-    LOOP_ASSERT(x.load_factor(), 0.f == x.load_factor());
+    ASSERTV(x.size(), 0 == x.size());
+    ASSERTV(x.load_factor(), 0.f == x.load_factor());
 
     ASSERT(x.begin() == x.end());
     ASSERT(x.cbegin() == x.cend());
@@ -17586,6 +17592,16 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        {
+            bsl::unordered_map<bsl::string,
+                               bsl::pair<bsl::string, bsl::string> > mX;
+
+            mX.insert({bsl::string{"banana"},
+                      {bsl::string{"apple"}, bsl::string{"cherry"} } });
+        }
+#endif
 
         using namespace BREATHING_TEST;
 
