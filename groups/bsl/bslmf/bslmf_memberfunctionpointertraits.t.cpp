@@ -94,7 +94,7 @@ struct T14 {};
 typedef T0 (T0::*TestFunc0)();
 typedef T1 (T1::*TestFunc1)(T1);
 typedef T2 (T2::*TestFunc2)(T1, T2);
-typedef T3 (T3::*TestFunc3)(T1, T2, T3); //
+typedef T3 (T3::*TestFunc3)(T1, T2, T3);
 typedef T4 (T4::*TestFunc4)(T1, T2, T3, T4);
 typedef T5 (T5::*TestFunc5)(T1, T2, T3,T4, T5);
 typedef T6 (T6::*TestFunc6)(T1, T2, T3, T4, T5, T6);
@@ -129,6 +129,49 @@ typedef T13 (T13::*TestFunc13C)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
                                 T12, T13) const;
 typedef T14 (T14::*TestFunc14C)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
                                 T12, T13, T14) const;
+
+typedef T0 (T0::*TestFunc0V)() volatile;
+typedef T1 (T1::*TestFunc1V)(T1) volatile;
+typedef T2 (T2::*TestFunc2V)(T1, T2) volatile;
+typedef T3 (T3::*TestFunc3V)(T1, T2, T3) volatile;
+typedef T4 (T4::*TestFunc4V)(T1, T2, T3, T4) volatile;
+typedef T5 (T5::*TestFunc5V)(T1, T2, T3,T4, T5) volatile;
+typedef T6 (T6::*TestFunc6V)(T1, T2, T3, T4, T5, T6) volatile;
+typedef T7 (T7::*TestFunc7V)(T1, T2, T3, T4, T5, T6, T7) volatile;
+typedef T8 (T8::*TestFunc8V)(T1, T2, T3, T4, T5, T6, T7, T8) volatile;
+typedef T9 (T9::*TestFunc9V)(T1, T2, T3, T4, T5, T6, T7, T8, T9) volatile;
+typedef T10 (T10::*TestFunc10V)(T1, T2, T3, T4, T5, T6, T7, T8, T9,
+                                T10) volatile;
+typedef T11 (T11::*TestFunc11V)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+                                T11) volatile;
+typedef T12 (T12::*TestFunc12V)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                T12) volatile;
+typedef T13 (T13::*TestFunc13V)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                T12, T13) volatile;
+typedef T14 (T14::*TestFunc14V)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                T12, T13, T14) volatile;
+
+typedef T0 (T0::*TestFunc0CV)() const volatile;
+typedef T1 (T1::*TestFunc1CV)(T1) const volatile;
+typedef T2 (T2::*TestFunc2CV)(T1, T2) const volatile;
+typedef T3 (T3::*TestFunc3CV)(T1, T2, T3) const volatile;
+typedef T4 (T4::*TestFunc4CV)(T1, T2, T3, T4) const volatile;
+typedef T5 (T5::*TestFunc5CV)(T1, T2, T3,T4, T5) const volatile;
+typedef T6 (T6::*TestFunc6CV)(T1, T2, T3, T4, T5, T6) const volatile;
+typedef T7 (T7::*TestFunc7CV)(T1, T2, T3, T4, T5, T6, T7) const volatile;
+typedef T8 (T8::*TestFunc8CV)(T1, T2, T3, T4, T5, T6, T7, T8) const volatile;
+typedef T9 (T9::*TestFunc9CV)(T1, T2, T3, T4, T5, T6, T7, T8,
+                             T9) const volatile;
+typedef T10 (T10::*TestFunc10CV)(T1, T2, T3, T4, T5, T6, T7, T8, T9,
+                                 T10) const volatile;
+typedef T11 (T11::*TestFunc11CV)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+                                 T11) const volatile;
+typedef T12 (T12::*TestFunc12CV)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                 T12) const volatile;
+typedef T13 (T13::*TestFunc13CV)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                 T12, T13) const volatile;
+typedef T14 (T14::*TestFunc14CV)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+                                 T12, T13, T14) const volatile;
 
 typedef void (*TestVoidFunc0)();
 typedef void (*TestVoidFunc1)(T1);
@@ -225,11 +268,312 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case 0:  // Zero is always the leading case.
-      case 3: {
+      case 5: {
           usageExample();
       } break;
-      case 2: {
+      case 4: {
+          //------------------------------------------------------------------
+          // TESTING POINTER TO MEMBER OF CONST VOLATILE CLASS
+          //------------------------------------------------------------------
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc0CV> X;
+              typedef bslmf::TypeList0 ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc0CV>::value);
+              ASSERT_SAME(T0, X::ResultType);
+              ASSERT_SAME(const volatile T0, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
 
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc1CV> X;
+              typedef bslmf::TypeList1<T1> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc1CV>::value);
+              ASSERT_SAME(T1, X::ResultType);
+              ASSERT_SAME(const volatile T1, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc2CV> X;
+              typedef bslmf::TypeList2<T1,T2> ListType;
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc2CV>::value);
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT_SAME(T2, X::ResultType);
+              ASSERT_SAME(const volatile T2, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc3CV> X;
+              typedef bslmf::TypeList3<T1,T2,T3> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc3CV>::value);
+              ASSERT_SAME(T3, X::ResultType);
+              ASSERT_SAME(const volatile T3, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc4CV> X;
+              typedef bslmf::TypeList4<T1,T2,T3,T4> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc4CV>::value);
+              ASSERT_SAME(T4, X::ResultType);
+              ASSERT_SAME(const volatile T4, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc5CV> X;
+              typedef bslmf::TypeList5<T1,T2,T3,T4,T5> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc5CV>::value);
+              ASSERT_SAME(T5, X::ResultType);
+              ASSERT_SAME(const volatile T5, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc6CV> X;
+              typedef bslmf::TypeList6<T1,T2,T3,T4,T5,T6> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc6CV>::value);
+              ASSERT_SAME(T6, X::ResultType);
+              ASSERT_SAME(const volatile T6, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc7CV> X;
+              typedef bslmf::TypeList7<T1,T2,T3,T4,T5,T6,T7> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc7CV>::value);
+              ASSERT_SAME(T7, X::ResultType);
+              ASSERT_SAME(const volatile T7, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc8CV> X;
+              typedef bslmf::TypeList8<T1,T2,T3,T4,T5,T6,T7,T8> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc8CV>::value);
+              ASSERT_SAME(T8, X::ResultType);
+              ASSERT_SAME(const volatile T8, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc9CV> X;
+              typedef bslmf::TypeList9<T1,T2,T3,T4,T5,T6,T7,T8,T9> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc9CV>::value);
+              ASSERT_SAME(T9, X::ResultType);
+              ASSERT_SAME(const volatile T9, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc10CV> X;
+              typedef bslmf::TypeList10<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc10CV>::value);
+              ASSERT_SAME(T10, X::ResultType);
+              ASSERT_SAME(const volatile T10, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc11CV> X;
+              typedef bslmf::TypeList11<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc11CV>::value);
+              ASSERT_SAME(T11, X::ResultType);
+              ASSERT_SAME(const volatile T11, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc12CV> X;
+              typedef bslmf::TypeList12<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc12CV>::value);
+              ASSERT_SAME(T12, X::ResultType);
+              ASSERT_SAME(const volatile T12, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc13CV> X;
+              typedef bslmf::TypeList13<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13>  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc13CV>::value);
+              ASSERT_SAME(T13, X::ResultType);
+              ASSERT_SAME(const volatile T13, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc14CV> X;
+              typedef bslmf::TypeList14<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13,T14> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc14CV>::value);
+              ASSERT_SAME(T14, X::ResultType);
+              ASSERT_SAME(const volatile T14, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+      } break;
+      case 3: {
+          //------------------------------------------------------------------
+          // TESTING POINTER TO MEMBER OF VOLATILE CLASS
+          //------------------------------------------------------------------
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc0V> X;
+              typedef bslmf::TypeList0 ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc0V>::value);
+              ASSERT_SAME(T0, X::ResultType);
+              ASSERT_SAME(volatile T0, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc1V> X;
+              typedef bslmf::TypeList1<T1> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc1V>::value);
+              ASSERT_SAME(T1, X::ResultType);
+              ASSERT_SAME(volatile T1, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc2V> X;
+              typedef bslmf::TypeList2<T1,T2> ListType;
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc2V>::value);
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT_SAME(T2, X::ResultType);
+              ASSERT_SAME(volatile T2, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc3V> X;
+              typedef bslmf::TypeList3<T1,T2,T3> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc3V>::value);
+              ASSERT_SAME(T3, X::ResultType);
+              ASSERT_SAME(volatile T3, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc4V> X;
+              typedef bslmf::TypeList4<T1,T2,T3,T4> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc4V>::value);
+              ASSERT_SAME(T4, X::ResultType);
+              ASSERT_SAME(volatile T4, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc5V> X;
+              typedef bslmf::TypeList5<T1,T2,T3,T4,T5> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc5V>::value);
+              ASSERT_SAME(T5, X::ResultType);
+              ASSERT_SAME(volatile T5, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc6V> X;
+              typedef bslmf::TypeList6<T1,T2,T3,T4,T5,T6> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc6V>::value);
+              ASSERT_SAME(T6, X::ResultType);
+              ASSERT_SAME(volatile T6, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc7V> X;
+              typedef bslmf::TypeList7<T1,T2,T3,T4,T5,T6,T7> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc7V>::value);
+              ASSERT_SAME(T7, X::ResultType);
+              ASSERT_SAME(volatile T7, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc8V> X;
+              typedef bslmf::TypeList8<T1,T2,T3,T4,T5,T6,T7,T8> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc8V>::value);
+              ASSERT_SAME(T8, X::ResultType);
+              ASSERT_SAME(volatile T8, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc9V> X;
+              typedef bslmf::TypeList9<T1,T2,T3,T4,T5,T6,T7,T8,T9> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc9V>::value);
+              ASSERT_SAME(T9, X::ResultType);
+              ASSERT_SAME(volatile T9, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc10V> X;
+              typedef bslmf::TypeList10<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc10V>::value);
+              ASSERT_SAME(T10, X::ResultType);
+              ASSERT_SAME(volatile T10, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc11V> X;
+              typedef bslmf::TypeList11<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc11V>::value);
+              ASSERT_SAME(T11, X::ResultType);
+              ASSERT_SAME(volatile T11, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc12V> X;
+              typedef bslmf::TypeList12<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>
+                  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc12V>::value);
+              ASSERT_SAME(T12, X::ResultType);
+              ASSERT_SAME(volatile T12, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc13V> X;
+              typedef bslmf::TypeList13<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13>  ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc13V>::value);
+              ASSERT_SAME(T13, X::ResultType);
+              ASSERT_SAME(volatile T13, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+          {
+              typedef bslmf::MemberFunctionPointerTraits<TestFunc14V> X;
+              typedef bslmf::TypeList14<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,
+                  T12,T13,T14> ListType;
+              ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
+              ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc14V>::value);
+              ASSERT_SAME(T14, X::ResultType);
+              ASSERT_SAME(volatile T14, X::ClassType);
+              ASSERT_SAME(ListType, X::ArgumentList);
+          }
+
+      } break;
+      case 2: {
+          //------------------------------------------------------------------
+          // TESTING POINTER TO MEMBER OF CONST CLASS
+          //------------------------------------------------------------------
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0C> X;
               typedef bslmf::TypeList0 ListType;
@@ -377,12 +721,16 @@ int main(int argc, char *argv[])
 
       } break;
       case 1: {
+          //------------------------------------------------------------------
+          // TESTING POINTER TO MEMBER OF NON-CV CLASS
+          //------------------------------------------------------------------
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0> X;
               typedef bslmf::TypeList0 ListType;
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc0>::value);
               ASSERT_SAME(T0, X::ResultType);
+              ASSERT_SAME(T0, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -391,6 +739,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc1>::value);
               ASSERT_SAME(T1, X::ResultType);
+              ASSERT_SAME(T1, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -399,6 +748,7 @@ int main(int argc, char *argv[])
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc2>::value);
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT_SAME(T2, X::ResultType);
+              ASSERT_SAME(T2, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -407,6 +757,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc3>::value);
               ASSERT_SAME(T3, X::ResultType);
+              ASSERT_SAME(T3, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -415,6 +766,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc4>::value);
               ASSERT_SAME(T4, X::ResultType);
+              ASSERT_SAME(T4, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
 
@@ -424,6 +776,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc5>::value);
               ASSERT_SAME(T5, X::ResultType);
+              ASSERT_SAME(T5, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -432,6 +785,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc6>::value);
               ASSERT_SAME(T6, X::ResultType);
+              ASSERT_SAME(T6, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -440,6 +794,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc7>::value);
               ASSERT_SAME(T7, X::ResultType);
+              ASSERT_SAME(T7, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -448,6 +803,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc8>::value);
               ASSERT_SAME(T8, X::ResultType);
+              ASSERT_SAME(T8, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -456,6 +812,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc9>::value);
               ASSERT_SAME(T9, X::ResultType);
+              ASSERT_SAME(T9, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -465,6 +822,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc10>::value);
               ASSERT_SAME(T10, X::ResultType);
+              ASSERT_SAME(T10, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -474,6 +832,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc11>::value);
               ASSERT_SAME(T11, X::ResultType);
+              ASSERT_SAME(T11, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
           {
@@ -483,6 +842,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc12>::value);
               ASSERT_SAME(T12, X::ResultType);
+              ASSERT_SAME(T12, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
 
@@ -493,6 +853,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc13>::value);
               ASSERT_SAME(T13, X::ResultType);
+              ASSERT_SAME(T13, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
 
@@ -503,6 +864,7 @@ int main(int argc, char *argv[])
               ASSERT(1==X::IS_MEMBER_FUNCTION_PTR);
               ASSERT(1==bslmf::IsMemberFunctionPointer<TestFunc14>::value);
               ASSERT_SAME(T14, X::ResultType);
+              ASSERT_SAME(T14, X::ClassType);
               ASSERT_SAME(ListType, X::ArgumentList);
           }
 

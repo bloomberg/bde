@@ -1059,6 +1059,17 @@ struct TestDriver {
     typedef bsltf::MoveState                      MoveState;
     typedef bslma::ConstructionUtil               ConsUtil;
 
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_WINDOWS)
+    // AIX has a compiler bug where method pointers do not default-construct to
+    // 0.  Windows has the same problem.
+
+     enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE =
+                !bsl::is_same<TYPE,
+                              bsltf::TemplateTestFacility::MethodPtr>::value };
+#else
+     enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
+#endif
+
     // TEST APPARATUS
     static void primaryManipulator(Obj              *container,
                                    int               identifier,
@@ -10061,8 +10072,10 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.capacity());
 
-                for (size_t j = 0; j < LENGTH; ++j) {
-                    LOOP3_ASSERT(LINE, ti, j, TYPE() == X[j]);
+                if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP3_ASSERT(LINE, ti, j, TYPE() == X[j]);
+                    }
                 }
             }
         }
