@@ -2625,7 +2625,7 @@ void doNotDelete(TYPE *) {}
 struct Harness {
     template <class ALLOCATOR>
     static bslma::Allocator *extractBslma(ALLOCATOR basicAllocator) {
-        return basicAllocator.testAllocator();
+        return basicAllocator.allocator();
     }
 
     template <class ALLOCATOR>

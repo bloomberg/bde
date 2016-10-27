@@ -586,7 +586,7 @@ namespace bsltf {
 // CREATORS
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray()
-: d_allocator(bsl::allocator<VALUE>(&bslma::MallocFreeAllocator::singleton()))
+: d_allocator(&bslma::MallocFreeAllocator::singleton())
 {
     static const char DEFAULT_SPEC[] =
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -608,7 +608,7 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
 TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(const char *spec)
-: d_allocator(bsl::allocator<VALUE>(&bslma::MallocFreeAllocator::singleton()))
+: d_allocator(&bslma::MallocFreeAllocator::singleton())
 {
     initialize(spec);
 }
