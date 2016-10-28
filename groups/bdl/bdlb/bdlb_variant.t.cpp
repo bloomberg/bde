@@ -3039,14 +3039,20 @@ void TestUtil::testCase20()
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwrt));
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(vwurt));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWRT));
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == mX.applyRaw<int>(VWURT));
+#endif
 
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwrt));
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(vwurt));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWRT));
         ASSERT(EXPECTED_VISITOR_RETURN_VALUE == X.applyRaw<int>(VWURT));
+#endif
     }
 }
 
@@ -13760,17 +13766,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVV::BSLMF_NIL == mX.apply<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::BSLMF_NIL == mX.apply<int>(V));
+#endif
 
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::BSLMF_NIL == X.apply<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::BSLMF_NIL == X.apply<int>(V));
+#endif
     }
 
     if (verbose) cout << "\nTesting user-specified 'defaultValue'." << endl;
@@ -13806,17 +13818,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVV::TEST_ARG == mX.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::TEST_ARG == mX.apply<int>(V, TestArg<1>()));
+#endif
 
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::TEST_ARG == X.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
+#endif
     }
 
     if (verbose) cout << "\nTesting set variant with 'defaultValue'." << endl;
@@ -13852,17 +13870,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVV::GENERIC == mX.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::GENERIC == mX.apply<int>(V, TestArg<1>()));
+#endif
 
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::GENERIC == X.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVV::GENERIC == X.apply<int>(V, TestArg<1>()));
+#endif
     }
 
     if (verbose) cout << "\nWith a 'ResultType' available." << endl;
@@ -13896,17 +13920,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVRV::BSLMF_NIL == mX.apply<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::BSLMF_NIL == mX.apply<int>(V));
+#endif
 
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::BSLMF_NIL == X.apply<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::BSLMF_NIL == X.apply<int>(V));
+#endif
     }
 
     if (verbose) cout << "\nTesting user-specified 'defaultValue'." << endl;
@@ -13938,17 +13968,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVRV::TEST_ARG == mX.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::TEST_ARG == mX.apply<int>(V, TestArg<1>()));
+#endif
 
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::TEST_ARG == X.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
+#endif
     }
 
     if (verbose) cout << "\nTesting set variant with 'defaultValue'." << endl;
@@ -13980,17 +14016,23 @@ void TestUtil::testCase16()
 
         ASSERTV(UVRV::GENERIC == mX.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::GENERIC == mX.apply<int>(V, TestArg<1>()));
+#endif
 
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::GENERIC == X.apply<int>(mV, TestArg<1>()));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
         mV.reset();   ASSERTV(UVRV::NOT_VISITED == V.lastType());
 
         ASSERTV(UVRV::GENERIC == X.apply<int>(V, TestArg<1>()));
+#endif
     }
 
     if (verbose) cout << "\nTesting a subtle warning case (on Solaris)."
@@ -14027,14 +14069,20 @@ void TestUtil::testCase16()
             mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
             mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
             mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
             mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+#endif
 
             mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
             mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
             mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
             mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+#endif
         }
 
         {
@@ -14060,14 +14108,20 @@ void TestUtil::testCase16()
             mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
             mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
             mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
             mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+#endif
 
             mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
             mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
 
+// TBD disable for AIX/xlC until DRQS 89729549 is fixed
+#if BSLS_PLATFORM_CMP_IBM
             mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
             mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+#endif
         }
     }
 }
