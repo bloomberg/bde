@@ -139,48 +139,48 @@ class DatumMaker {
         // 'bool'. This (unimplemented) function template should not be
         // instantiated unless 'operator()' is called with an unsupported type.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
     // PRIVATE ACCESSORS
     template <typename TYPE>
     void pushBackHelper(bdld::DatumArrayBuilder *builder,
-                        const TYPE&              element) const;
+                        TYPE&&                   element) const;
         // 'push_back' the specified 'element' into the specified 'builder'.
 
     template <typename TYPE, typename... ELEMENTS>
     void pushBackHelper(bdld::DatumArrayBuilder *builder,
-                        const TYPE&              element,
-                        const ELEMENTS&...       elements) const;
+                        TYPE&&                   element,
+                        ELEMENTS&&...            elements) const;
         // 'push_back' the specified 'element' into the specified 'builder',
         // then call 'pushBackHelper' with the specified (variadic) 'elements'.
 
     template <typename TYPE>
-    void pushBackHelper(bdld::DatumMapBuilder    *builder,
-                        const bslstl::StringRef&  key,
-                        const TYPE&               value) const;
+    void pushBackHelper(bdld::DatumMapBuilder *builder,
+                        bslstl::StringRef&&    key,
+                        TYPE&&                 value) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder'.
 
     template <typename TYPE, typename... ENTRIES>
-    void pushBackHelper(bdld::DatumMapBuilder    *builder,
-                        const bslstl::StringRef&  key,
-                        const TYPE&               value,
-                        const ENTRIES&...         entries) const;
+    void pushBackHelper(bdld::DatumMapBuilder *builder,
+                        bslstl::StringRef&&    key,
+                        TYPE&&                 value,
+                        ENTRIES&&...           entries) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
 
     template <typename TYPE>
     void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
-                        const bslstl::StringRef&         key,
-                        const TYPE&                      value) const;
+                        bslstl::StringRef&&              key,
+                        TYPE&&                           value) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder'.
 
     template <typename TYPE, typename... ENTRIES>
     void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
-                        const bslstl::StringRef&         key,
-                        const TYPE&                      value,
-                        const ENTRIES&...                entries) const;
+                        bslstl::StringRef&&              key,
+                        TYPE&&                           value,
+                        ENTRIES&&...                     entries) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
@@ -243,572 +243,33 @@ class DatumMaker {
     bdld::Datum a() const;
         // Return a 'bdld::Datum' having an empty array value.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    template <typename... ELEMENTS>
-    bdld::Datum a(const ELEMENTS&... elements) const;
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
+	template <typename... ELEMENTS>
+    bdld::Datum a(ELEMENTS&&... elements) const;
         // Return a 'bdld::Datum' having an array value of the specified
         // 'elements'.
-#else
-    template <class T0> bdld::Datum a(const T0& t0) const;
-    template <class T0, class T1>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1) const;
-    template <class T0, class T1, class T2>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2) const;
-    template <class T0, class T1, class T2, class T3>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3) const;
-    template <class T0, class T1, class T2, class T3, class T4>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4,
-                                      const T5& t5) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4,
-                                      const T5& t5,
-                                      const T6& t6) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4,
-                                      const T5& t5,
-                                      const T6& t6,
-                                      const T7& t7) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4,
-                                      const T5& t5,
-                                      const T6& t6,
-                                      const T7& t7,
-                                      const T8& t8) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9>
-                        bdld::Datum a(const T0& t0,
-                                      const T1& t1,
-                                      const T2& t2,
-                                      const T3& t3,
-                                      const T4& t4,
-                                      const T5& t5,
-                                      const T6& t6,
-                                      const T7& t7,
-                                      const T8& t8,
-                                      const T9& t9) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10,
-                                      const T11& t11) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10,
-                                      const T11& t11,
-                                      const T12& t12) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12, class T13>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10,
-                                      const T11& t11,
-                                      const T12& t12,
-                                      const T13& t13) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10,
-                                      const T11& t11,
-                                      const T12& t12,
-                                      const T13& t13,
-                                      const T14& t14) const;
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14, class T15>
-                        bdld::Datum a(const T0&  t0,
-                                      const T1&  t1,
-                                      const T2&  t2,
-                                      const T3&  t3,
-                                      const T4&  t4,
-                                      const T5&  t5,
-                                      const T6&  t6,
-                                      const T7&  t7,
-                                      const T8&  t8,
-                                      const T9&  t9,
-                                      const T10& t10,
-                                      const T11& t11,
-                                      const T12& t12,
-                                      const T13& t13,
-                                      const T14& t14,
-                                      const T15& t15) const;
 #endif
-        // Return a 'bdld::Datum' object containing an array of the specified
-        // values.  Note that with C++11 this could be a single method.
 
     bdld::Datum m() const;
         // Return a 'bdld::Datum' object containing an empty map.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    template <typename... ENTRIES>
-    bdld::Datum m(const ENTRIES&... entries) const;
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
+	template <typename... ENTRIES>
+    bdld::Datum m(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map of the specified
         // 'entries'.
-#else
-    template <class T0>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0) const;
-
-    template <class T0, class T1>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1) const;
-
-    template <class T0, class T1, class T2>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2) const;
-
-    template <class T0, class T1, class T2, class T3>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3) const;
-
-    template <class T0, class T1, class T2, class T3, class T4>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4,
-                  const bslstl::StringRef& k5, const T5& v5) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4,
-                  const bslstl::StringRef& k5, const T5& v5,
-                  const bslstl::StringRef& k6, const T6& v6) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4,
-                  const bslstl::StringRef& k5, const T5& v5,
-                  const bslstl::StringRef& k6, const T6& v6,
-                  const bslstl::StringRef& k7, const T7& v7) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4,
-                  const bslstl::StringRef& k5, const T5& v5,
-                  const bslstl::StringRef& k6, const T6& v6,
-                  const bslstl::StringRef& k7, const T7& v7,
-                  const bslstl::StringRef& k8, const T8& v8) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9>
-    bdld::Datum m(const bslstl::StringRef& k0, const T0& v0,
-                  const bslstl::StringRef& k1, const T1& v1,
-                  const bslstl::StringRef& k2, const T2& v2,
-                  const bslstl::StringRef& k3, const T3& v3,
-                  const bslstl::StringRef& k4, const T4& v4,
-                  const bslstl::StringRef& k5, const T5& v5,
-                  const bslstl::StringRef& k6, const T6& v6,
-                  const bslstl::StringRef& k7, const T7& v7,
-                  const bslstl::StringRef& k8, const T8& v8,
-                  const bslstl::StringRef& k9, const T9& v9) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10) const;
-
-    template <class T0, class T1, class T2, class T3, class T4,  class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10,
-                  const bslstl::StringRef& k11, const T11& v11) const;
-
-    template <class T0, class T1, class T2, class T3, class T4,  class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10,
-                  const bslstl::StringRef& k11, const T11& v11,
-                  const bslstl::StringRef& k12, const T12& v12) const;
-
-    template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-              class T6,  class T7, class T8, class T9, class T10, class T11,
-              class T12, class T13>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10,
-                  const bslstl::StringRef& k11, const T11& v11,
-                  const bslstl::StringRef& k12, const T12& v12,
-                  const bslstl::StringRef& k13, const T13& v13) const;
-
-    template <class T0,  class T1,  class T2, class T3, class T4,  class T5,
-              class T6,  class T7,  class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10,
-                  const bslstl::StringRef& k11, const T11& v11,
-                  const bslstl::StringRef& k12, const T12& v12,
-                  const bslstl::StringRef& k13, const T13& v13,
-                  const bslstl::StringRef& k14, const T14& v14) const;
-
-    template <class T0,  class T1,  class T2, class T3, class T4,  class T5,
-              class T6,  class T7,  class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14, class T15>
-    bdld::Datum m(const bslstl::StringRef& k0,  const T0&  v0,
-                  const bslstl::StringRef& k1,  const T1&  v1,
-                  const bslstl::StringRef& k2,  const T2&  v2,
-                  const bslstl::StringRef& k3,  const T3&  v3,
-                  const bslstl::StringRef& k4,  const T4&  v4,
-                  const bslstl::StringRef& k5,  const T5&  v5,
-                  const bslstl::StringRef& k6,  const T6&  v6,
-                  const bslstl::StringRef& k7,  const T7&  v7,
-                  const bslstl::StringRef& k8,  const T8&  v8,
-                  const bslstl::StringRef& k9,  const T9&  v9,
-                  const bslstl::StringRef& k10, const T10& v10,
-                  const bslstl::StringRef& k11, const T11& v11,
-                  const bslstl::StringRef& k12, const T12& v12,
-                  const bslstl::StringRef& k13, const T13& v13,
-                  const bslstl::StringRef& k14, const T14& v14,
-                  const bslstl::StringRef& k15, const T15& v15) const;
 #endif
-        // Return a 'bdld::Datum' object containing a map with the up to
-        // 16 specified key/value pairs, where the keys are not owned.  The
-        // behavior is undefined unless all specified key values are unique.
 
     bdld::Datum mok() const;
         // Return a 'bdld::Datum' object containing an empty map with owned
         // keys.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    template <typename... ENTRIES>
-    bdld::Datum mok(const ENTRIES&... entries) const;
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
+	template <typename... ENTRIES>
+    bdld::Datum mok(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map with owned keys
         // consisting of the specified 'entries'.
-#else
-    template <class T0>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0) const;
-
-    template <class T0, class T1>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1) const;
-
-    template <class T0, class T1, class T2>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2) const;
-
-    template <class T0, class T1, class T2, class T3>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3) const;
-
-    template <class T0, class T1, class T2, class T3, class T4>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4,
-                    const bslstl::StringRef& k5, const T5& v5) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4,
-                    const bslstl::StringRef& k5, const T5& v5,
-                    const bslstl::StringRef& k6, const T6& v6) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4,
-                    const bslstl::StringRef& k5, const T5& v5,
-                    const bslstl::StringRef& k6, const T6& v6,
-                    const bslstl::StringRef& k7, const T7& v7) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4,
-                    const bslstl::StringRef& k5, const T5& v5,
-                    const bslstl::StringRef& k6, const T6& v6,
-                    const bslstl::StringRef& k7, const T7& v7,
-                    const bslstl::StringRef& k8, const T8& v8) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9>
-    bdld::Datum mok(const bslstl::StringRef& k0, const T0& v0,
-                    const bslstl::StringRef& k1, const T1& v1,
-                    const bslstl::StringRef& k2, const T2& v2,
-                    const bslstl::StringRef& k3, const T3& v3,
-                    const bslstl::StringRef& k4, const T4& v4,
-                    const bslstl::StringRef& k5, const T5& v5,
-                    const bslstl::StringRef& k6, const T6& v6,
-                    const bslstl::StringRef& k7, const T7& v7,
-                    const bslstl::StringRef& k8, const T8& v8,
-                    const bslstl::StringRef& k9, const T9& v9) const;
-
-    template <class T0, class T1, class T2, class T3, class T4, class T5,
-              class T6, class T7, class T8, class T9, class T10>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10) const;
-
-    template <class T0, class T1, class T2, class T3, class T4,  class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10,
-                    const bslstl::StringRef& k11, const T11& v11) const;
-
-    template <class T0, class T1, class T2, class T3, class T4,  class T5,
-              class T6, class T7, class T8, class T9, class T10, class T11,
-              class T12>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10,
-                    const bslstl::StringRef& k11, const T11& v11,
-                    const bslstl::StringRef& k12, const T12& v12) const;
-
-    template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-              class T6,  class T7, class T8, class T9, class T10, class T11,
-              class T12, class T13>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10,
-                    const bslstl::StringRef& k11, const T11& v11,
-                    const bslstl::StringRef& k12, const T12& v12,
-                    const bslstl::StringRef& k13, const T13& v13) const;
-
-    template <class T0,  class T1,  class T2, class T3, class T4,  class T5,
-              class T6,  class T7,  class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10,
-                    const bslstl::StringRef& k11, const T11& v11,
-                    const bslstl::StringRef& k12, const T12& v12,
-                    const bslstl::StringRef& k13, const T13& v13,
-                    const bslstl::StringRef& k14, const T14& v14) const;
-
-    template <class T0,  class T1,  class T2, class T3, class T4,  class T5,
-              class T6,  class T7,  class T8, class T9, class T10, class T11,
-              class T12, class T13, class T14, class T15>
-    bdld::Datum mok(const bslstl::StringRef& k0,  const T0&  v0,
-                    const bslstl::StringRef& k1,  const T1&  v1,
-                    const bslstl::StringRef& k2,  const T2&  v2,
-                    const bslstl::StringRef& k3,  const T3&  v3,
-                    const bslstl::StringRef& k4,  const T4&  v4,
-                    const bslstl::StringRef& k5,  const T5&  v5,
-                    const bslstl::StringRef& k6,  const T6&  v6,
-                    const bslstl::StringRef& k7,  const T7&  v7,
-                    const bslstl::StringRef& k8,  const T8&  v8,
-                    const bslstl::StringRef& k9,  const T9&  v9,
-                    const bslstl::StringRef& k10, const T10& v10,
-                    const bslstl::StringRef& k11, const T11& v11,
-                    const bslstl::StringRef& k12, const T12& v12,
-                    const bslstl::StringRef& k13, const T13& v13,
-                    const bslstl::StringRef& k14, const T14& v14,
-                    const bslstl::StringRef& k15, const T15& v15) const;
 #endif
-        // Return a 'bdld::Datum' object containing a map with the up to
-        // 16 specified key/value pairs, where the keys are copied and owned by
-        // the returned datum.  The behavior is undefined unless all specified
-        // key values are unique.
 };
 
 // ============================================================================
@@ -819,37 +280,37 @@ class DatumMaker {
                               // class DatumMaker
                               // ----------------
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
 // PRIVATE ACCESSORS
 template <typename TYPE>
 void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
-                                const TYPE&              element) const
+                                TYPE&&                   element) const
 {
     builder->pushBack((*this)(element));
 }
 
 template <typename TYPE, typename... ELEMENTS>
 void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
-                                const TYPE&              element,
-                                const ELEMENTS&...       elements) const
+                                TYPE&&                   element,
+                                ELEMENTS&&...            elements) const
 {
     builder->pushBack((*this)(element));
     pushBackHelper(builder, elements...);
 }
 
 template <typename TYPE>
-void DatumMaker::pushBackHelper(bdld::DatumMapBuilder    *builder,
-                                const bslstl::StringRef&  key,
-                                const TYPE&               value) const
+void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *builder,
+                                bslstl::StringRef&&    key,
+                                TYPE&&                 value) const
 {
     builder->pushBack(key, (*this)(value));
 }
 
 template <typename TYPE, typename... ENTRIES>
-void DatumMaker::pushBackHelper(bdld::DatumMapBuilder    *builder,
-                                const bslstl::StringRef&  key,
-                                const TYPE&               value,
-                                const ENTRIES&...         entries) const
+void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *builder,
+                                bslstl::StringRef&&    key,
+                                TYPE&&                 value,
+                                ENTRIES&&...           entries) const
 {
     builder->pushBack(key, (*this)(value));
     pushBackHelper(builder, entries...);
@@ -857,8 +318,8 @@ void DatumMaker::pushBackHelper(bdld::DatumMapBuilder    *builder,
 
 template <typename TYPE>
 void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
-                                const bslstl::StringRef&         key,
-                                const TYPE&                      value) const
+                                bslstl::StringRef&&              key,
+                                TYPE&&                           value) const
 {
     builder->pushBack(key, (*this)(value));
 }
@@ -866,14 +327,13 @@ void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
 template <typename TYPE, typename... ENTRIES>
 void DatumMaker::pushBackHelper(
                                bdld::DatumMapOwningKeysBuilder *builder,
-                               const bslstl::StringRef&         key,
-                               const TYPE&                      value,
-                               const ENTRIES&...                entries) const
+                               bslstl::StringRef&&              key,
+                               TYPE&&                           value,
+                               ENTRIES&&...                     entries) const
 {
     builder->pushBack(key, (*this)(value));
     pushBackHelper(builder, entries...);
 }
-
 #endif
 
 // CREATORS
@@ -1031,404 +491,13 @@ bdld::Datum DatumMaker::a() const
                                              d_allocator_p);
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
 template <typename... ELEMENTS>
-bdld::Datum DatumMaker::a(const ELEMENTS&... elements) const
+bdld::Datum DatumMaker::a(ELEMENTS&&... elements) const
 {
-    const int numElements = sizeof...(elements);
+    const int numElements = sizeof...(ELEMENTS);
     bdld::DatumArrayBuilder builder(numElements, d_allocator_p);
     pushBackHelper(&builder, elements...);
-    return builder.commit();
-}
-
-#else
-template <class T0> inline
-bdld::Datum DatumMaker::a(const T0& t0) const
-{
-    bdld::DatumArrayBuilder builder(1, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    return builder.commit();
-}
-
-template <class T0, class T1> inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1) const
-{
-    bdld::DatumArrayBuilder builder(2, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2> inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2) const
-{
-    bdld::DatumArrayBuilder builder(3, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3> inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3) const
-{
-    bdld::DatumArrayBuilder builder(4, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4> inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4) const
-{
-    bdld::DatumArrayBuilder builder(5, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5> inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4,
-                          const T5& t5) const
-{
-    bdld::DatumArrayBuilder builder(6, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4,
-                          const T5& t5,
-                          const T6& t6) const
-{
-    bdld::DatumArrayBuilder builder(7, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7>
-inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4,
-                          const T5& t5,
-                          const T6& t6,
-                          const T7& t7) const
-{
-    bdld::DatumArrayBuilder builder(8, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8>
-inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4,
-                          const T5& t5,
-                          const T6& t6,
-                          const T7& t7,
-                          const T8& t8) const
-{
-    bdld::DatumArrayBuilder builder(9, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9>
-inline
-bdld::Datum DatumMaker::a(const T0& t0,
-                          const T1& t1,
-                          const T2& t2,
-                          const T3& t3,
-                          const T4& t4,
-                          const T5& t5,
-                          const T6& t6,
-                          const T7& t7,
-                          const T8& t8,
-                          const T9& t9) const
-{
-    bdld::DatumArrayBuilder builder(10, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10) const
-{
-    bdld::DatumArrayBuilder builder(11, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10, class T11>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10,
-                          const T11& t11) const
-{
-    bdld::DatumArrayBuilder builder(12, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    builder.pushBack((*this)(t11));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10, class T11, class T12>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10,
-                          const T11& t11,
-                          const T12& t12) const
-{
-    bdld::DatumArrayBuilder builder(13, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    builder.pushBack((*this)(t11));
-    builder.pushBack((*this)(t12));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10, class T11, class T12,
-          class T13>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10,
-                          const T11& t11,
-                          const T12& t12,
-                          const T13& t13) const
-{
-    bdld::DatumArrayBuilder builder(14, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    builder.pushBack((*this)(t11));
-    builder.pushBack((*this)(t12));
-    builder.pushBack((*this)(t13));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10, class T11, class T12,
-          class T13, class T14>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10,
-                          const T11& t11,
-                          const T12& t12,
-                          const T13& t13,
-                          const T14& t14) const
-{
-    bdld::DatumArrayBuilder builder(15, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    builder.pushBack((*this)(t11));
-    builder.pushBack((*this)(t12));
-    builder.pushBack((*this)(t13));
-    builder.pushBack((*this)(t14));
-    return builder.commit();
-}
-
-template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9, class T10, class T11, class T12,
-          class T13, class T14, class T15>
-inline
-bdld::Datum DatumMaker::a(const T0&  t0,
-                          const T1&  t1,
-                          const T2&  t2,
-                          const T3&  t3,
-                          const T4&  t4,
-                          const T5&  t5,
-                          const T6&  t6,
-                          const T7&  t7,
-                          const T8&  t8,
-                          const T9&  t9,
-                          const T10& t10,
-                          const T11& t11,
-                          const T12& t12,
-                          const T13& t13,
-                          const T14& t14,
-                          const T15& t15) const
-{
-    bdld::DatumArrayBuilder builder(16, d_allocator_p);
-    builder.pushBack((*this)(t0));
-    builder.pushBack((*this)(t1));
-    builder.pushBack((*this)(t2));
-    builder.pushBack((*this)(t3));
-    builder.pushBack((*this)(t4));
-    builder.pushBack((*this)(t5));
-    builder.pushBack((*this)(t6));
-    builder.pushBack((*this)(t7));
-    builder.pushBack((*this)(t8));
-    builder.pushBack((*this)(t9));
-    builder.pushBack((*this)(t10));
-    builder.pushBack((*this)(t11));
-    builder.pushBack((*this)(t12));
-    builder.pushBack((*this)(t13));
-    builder.pushBack((*this)(t14));
-    builder.pushBack((*this)(t15));
     return builder.commit();
 }
 #endif
@@ -1439,11 +508,11 @@ bdld::Datum DatumMaker::m() const
     return (*this)(bdld::DatumMutableMapRef());
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
 template <typename... ENTRIES>
-bdld::Datum DatumMaker::m(const ENTRIES&... entries) const
+bdld::Datum DatumMaker::m(ENTRIES&&... entries) const
 {
-    const int numArguments = sizeof...(entries);
+    const int numArguments = sizeof...(ENTRIES);
 
     // Due to MSVC not recognizing bitwise and of a constant expression and a
     // string literal as a constant expression, we don't use a meaningful error
@@ -1457,388 +526,6 @@ bdld::Datum DatumMaker::m(const ENTRIES&... entries) const
     pushBackHelper(&builder, entries...);
     return builder.commit();
 }
-#else
-template <class T0>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0) const
-{
-    bdld::DatumMapBuilder builder(1, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    return builder.commit();
-}
-
-template <class T0,  class T1>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1) const
-{
-    bdld::DatumMapBuilder builder(2, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2) const
-{
-    bdld::DatumMapBuilder builder(3, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3) const
-{
-    bdld::DatumMapBuilder builder(4, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4) const
-{
-    bdld::DatumMapBuilder builder(5, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4,
-                          const bslstl::StringRef& k5, const T5& v5) const
-{
-    bdld::DatumMapBuilder builder(6, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4,
-                          const bslstl::StringRef& k5, const T5& v5,
-                          const bslstl::StringRef& k6, const T6& v6) const
-{
-    bdld::DatumMapBuilder builder(7, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4,
-                          const bslstl::StringRef& k5, const T5& v5,
-                          const bslstl::StringRef& k6, const T6& v6,
-                          const bslstl::StringRef& k7, const T7& v7) const
-{
-    bdld::DatumMapBuilder builder(8, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4,
-                          const bslstl::StringRef& k5, const T5& v5,
-                          const bslstl::StringRef& k6, const T6& v6,
-                          const bslstl::StringRef& k7, const T7& v7,
-                          const bslstl::StringRef& k8, const T8& v8) const
-{
-    bdld::DatumMapBuilder builder(9, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    builder.pushBack(k8, (*this)(v8));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0, const T0& v0,
-                          const bslstl::StringRef& k1, const T1& v1,
-                          const bslstl::StringRef& k2, const T2& v2,
-                          const bslstl::StringRef& k3, const T3& v3,
-                          const bslstl::StringRef& k4, const T4& v4,
-                          const bslstl::StringRef& k5, const T5& v5,
-                          const bslstl::StringRef& k6, const T6& v6,
-                          const bslstl::StringRef& k7, const T7& v7,
-                          const bslstl::StringRef& k8, const T8& v8,
-                          const bslstl::StringRef& k9, const T9& v9) const
-{
-    bdld::DatumMapBuilder builder(10, d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    builder.pushBack(k8, (*this)(v8));
-    builder.pushBack(k9, (*this)(v9));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0,  const T0&  v0,
-                          const bslstl::StringRef& k1,  const T1&  v1,
-                          const bslstl::StringRef& k2,  const T2&  v2,
-                          const bslstl::StringRef& k3,  const T3&  v3,
-                          const bslstl::StringRef& k4,  const T4&  v4,
-                          const bslstl::StringRef& k5,  const T5&  v5,
-                          const bslstl::StringRef& k6,  const T6&  v6,
-                          const bslstl::StringRef& k7,  const T7&  v7,
-                          const bslstl::StringRef& k8,  const T8&  v8,
-                          const bslstl::StringRef& k9,  const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10) const
-{
-    bdld::DatumMapBuilder builder(11, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11>
-bdld::Datum DatumMaker::m(const bslstl::StringRef&  k0, const T0&  v0,
-                          const bslstl::StringRef&  k1, const T1&  v1,
-                          const bslstl::StringRef&  k2, const T2&  v2,
-                          const bslstl::StringRef&  k3, const T3&  v3,
-                          const bslstl::StringRef&  k4, const T4&  v4,
-                          const bslstl::StringRef&  k5, const T5&  v5,
-                          const bslstl::StringRef&  k6, const T6&  v6,
-                          const bslstl::StringRef&  k7, const T7&  v7,
-                          const bslstl::StringRef&  k8, const T8&  v8,
-                          const bslstl::StringRef&  k9, const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10,
-                          const bslstl::StringRef& k11, const T11& v11) const
-{
-    bdld::DatumMapBuilder builder(12, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0,  const T0&  v0,
-                          const bslstl::StringRef& k1,  const T1&  v1,
-                          const bslstl::StringRef& k2,  const T2&  v2,
-                          const bslstl::StringRef& k3,  const T3&  v3,
-                          const bslstl::StringRef& k4,  const T4&  v4,
-                          const bslstl::StringRef& k5,  const T5&  v5,
-                          const bslstl::StringRef& k6,  const T6&  v6,
-                          const bslstl::StringRef& k7,  const T7&  v7,
-                          const bslstl::StringRef& k8,  const T8&  v8,
-                          const bslstl::StringRef& k9,  const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10,
-                          const bslstl::StringRef& k11, const T11& v11,
-                          const bslstl::StringRef& k12, const T12& v12) const
-{
-    bdld::DatumMapBuilder builder(13, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0,  const T0&  v0,
-                          const bslstl::StringRef& k1,  const T1&  v1,
-                          const bslstl::StringRef& k2,  const T2&  v2,
-                          const bslstl::StringRef& k3,  const T3&  v3,
-                          const bslstl::StringRef& k4,  const T4&  v4,
-                          const bslstl::StringRef& k5,  const T5&  v5,
-                          const bslstl::StringRef& k6,  const T6&  v6,
-                          const bslstl::StringRef& k7,  const T7&  v7,
-                          const bslstl::StringRef& k8,  const T8&  v8,
-                          const bslstl::StringRef& k9,  const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10,
-                          const bslstl::StringRef& k11, const T11& v11,
-                          const bslstl::StringRef& k12, const T12& v12,
-                          const bslstl::StringRef& k13, const T13& v13) const
-{
-    bdld::DatumMapBuilder builder(14, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13, class T14>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0,  const T0&  v0,
-                          const bslstl::StringRef& k1,  const T1&  v1,
-                          const bslstl::StringRef& k2,  const T2&  v2,
-                          const bslstl::StringRef& k3,  const T3&  v3,
-                          const bslstl::StringRef& k4,  const T4&  v4,
-                          const bslstl::StringRef& k5,  const T5&  v5,
-                          const bslstl::StringRef& k6,  const T6&  v6,
-                          const bslstl::StringRef& k7,  const T7&  v7,
-                          const bslstl::StringRef& k8,  const T8&  v8,
-                          const bslstl::StringRef& k9,  const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10,
-                          const bslstl::StringRef& k11, const T11& v11,
-                          const bslstl::StringRef& k12, const T12& v12,
-                          const bslstl::StringRef& k13, const T13& v13,
-                          const bslstl::StringRef& k14, const T14& v14) const
-{
-    bdld::DatumMapBuilder builder(15, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    builder.pushBack(k14, (*this)(v14));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13, class T14, class T15>
-bdld::Datum DatumMaker::m(const bslstl::StringRef& k0,  const T0&  v0,
-                          const bslstl::StringRef& k1,  const T1&  v1,
-                          const bslstl::StringRef& k2,  const T2&  v2,
-                          const bslstl::StringRef& k3,  const T3&  v3,
-                          const bslstl::StringRef& k4,  const T4&  v4,
-                          const bslstl::StringRef& k5,  const T5&  v5,
-                          const bslstl::StringRef& k6,  const T6&  v6,
-                          const bslstl::StringRef& k7,  const T7&  v7,
-                          const bslstl::StringRef& k8,  const T8&  v8,
-                          const bslstl::StringRef& k9,  const T9&  v9,
-                          const bslstl::StringRef& k10, const T10& v10,
-                          const bslstl::StringRef& k11, const T11& v11,
-                          const bslstl::StringRef& k12, const T12& v12,
-                          const bslstl::StringRef& k13, const T13& v13,
-                          const bslstl::StringRef& k14, const T14& v14,
-                          const bslstl::StringRef& k15, const T15& v15) const
-{
-    bdld::DatumMapBuilder builder(16, d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    builder.pushBack(k14, (*this)(v14));
-    builder.pushBack(k15, (*this)(v15));
-    return builder.commit();
-}
 #endif
 
 inline
@@ -1847,11 +534,11 @@ bdld::Datum DatumMaker::mok() const
     return (*this)(bdld::DatumMutableMapRef());
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=0
 template <typename... ENTRIES>
-bdld::Datum DatumMaker::mok(const ENTRIES&... entries) const
+bdld::Datum DatumMaker::mok(ENTRIES&&... entries) const
 {
-    const int numArguments = sizeof...(entries);
+    const int numArguments = sizeof...(ENTRIES);
 
     // Due to MSVC not recognizing bitwise and of a constant expression and a
     // string literal as a constant expression, we don't use a meaningful error
@@ -1862,388 +549,6 @@ bdld::Datum DatumMaker::mok(const ENTRIES&... entries) const
 
     bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
     pushBackHelper(&builder, entries...);
-    return builder.commit();
-}
-#else
-template <class T0>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    return builder.commit();
-}
-
-template <class T0,  class T1>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4,
-                            const bslstl::StringRef& k5, const T5& v5) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4,
-                            const bslstl::StringRef& k5, const T5& v5,
-                            const bslstl::StringRef& k6, const T6& v6) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4,
-                            const bslstl::StringRef& k5, const T5& v5,
-                            const bslstl::StringRef& k6, const T6& v6,
-                            const bslstl::StringRef& k7, const T7& v7) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4,
-                            const bslstl::StringRef& k5, const T5& v5,
-                            const bslstl::StringRef& k6, const T6& v6,
-                            const bslstl::StringRef& k7, const T7& v7,
-                            const bslstl::StringRef& k8, const T8& v8) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    builder.pushBack(k8, (*this)(v8));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0, const T0& v0,
-                            const bslstl::StringRef& k1, const T1& v1,
-                            const bslstl::StringRef& k2, const T2& v2,
-                            const bslstl::StringRef& k3, const T3& v3,
-                            const bslstl::StringRef& k4, const T4& v4,
-                            const bslstl::StringRef& k5, const T5& v5,
-                            const bslstl::StringRef& k6, const T6& v6,
-                            const bslstl::StringRef& k7, const T7& v7,
-                            const bslstl::StringRef& k8, const T8& v8,
-                            const bslstl::StringRef& k9, const T9& v9) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0, (*this)(v0));
-    builder.pushBack(k1, (*this)(v1));
-    builder.pushBack(k2, (*this)(v2));
-    builder.pushBack(k3, (*this)(v3));
-    builder.pushBack(k4, (*this)(v4));
-    builder.pushBack(k5, (*this)(v5));
-    builder.pushBack(k6, (*this)(v6));
-    builder.pushBack(k7, (*this)(v7));
-    builder.pushBack(k8, (*this)(v8));
-    builder.pushBack(k9, (*this)(v9));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0,  const T0&  v0,
-                            const bslstl::StringRef& k1,  const T1&  v1,
-                            const bslstl::StringRef& k2,  const T2&  v2,
-                            const bslstl::StringRef& k3,  const T3&  v3,
-                            const bslstl::StringRef& k4,  const T4&  v4,
-                            const bslstl::StringRef& k5,  const T5&  v5,
-                            const bslstl::StringRef& k6,  const T6&  v6,
-                            const bslstl::StringRef& k7,  const T7&  v7,
-                            const bslstl::StringRef& k8,  const T8&  v8,
-                            const bslstl::StringRef& k9,  const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef&  k0, const T0&  v0,
-                            const bslstl::StringRef&  k1, const T1&  v1,
-                            const bslstl::StringRef&  k2, const T2&  v2,
-                            const bslstl::StringRef&  k3, const T3&  v3,
-                            const bslstl::StringRef&  k4, const T4&  v4,
-                            const bslstl::StringRef&  k5, const T5&  v5,
-                            const bslstl::StringRef&  k6, const T6&  v6,
-                            const bslstl::StringRef&  k7, const T7&  v7,
-                            const bslstl::StringRef&  k8, const T8&  v8,
-                            const bslstl::StringRef&  k9, const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10,
-                            const bslstl::StringRef& k11, const T11& v11) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0,  const T0&  v0,
-                            const bslstl::StringRef& k1,  const T1&  v1,
-                            const bslstl::StringRef& k2,  const T2&  v2,
-                            const bslstl::StringRef& k3,  const T3&  v3,
-                            const bslstl::StringRef& k4,  const T4&  v4,
-                            const bslstl::StringRef& k5,  const T5&  v5,
-                            const bslstl::StringRef& k6,  const T6&  v6,
-                            const bslstl::StringRef& k7,  const T7&  v7,
-                            const bslstl::StringRef& k8,  const T8&  v8,
-                            const bslstl::StringRef& k9,  const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10,
-                            const bslstl::StringRef& k11, const T11& v11,
-                            const bslstl::StringRef& k12, const T12& v12) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0,  const T0&  v0,
-                            const bslstl::StringRef& k1,  const T1&  v1,
-                            const bslstl::StringRef& k2,  const T2&  v2,
-                            const bslstl::StringRef& k3,  const T3&  v3,
-                            const bslstl::StringRef& k4,  const T4&  v4,
-                            const bslstl::StringRef& k5,  const T5&  v5,
-                            const bslstl::StringRef& k6,  const T6&  v6,
-                            const bslstl::StringRef& k7,  const T7&  v7,
-                            const bslstl::StringRef& k8,  const T8&  v8,
-                            const bslstl::StringRef& k9,  const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10,
-                            const bslstl::StringRef& k11, const T11& v11,
-                            const bslstl::StringRef& k12, const T12& v12,
-                            const bslstl::StringRef& k13, const T13& v13) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13, class T14>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0,  const T0&  v0,
-                            const bslstl::StringRef& k1,  const T1&  v1,
-                            const bslstl::StringRef& k2,  const T2&  v2,
-                            const bslstl::StringRef& k3,  const T3&  v3,
-                            const bslstl::StringRef& k4,  const T4&  v4,
-                            const bslstl::StringRef& k5,  const T5&  v5,
-                            const bslstl::StringRef& k6,  const T6&  v6,
-                            const bslstl::StringRef& k7,  const T7&  v7,
-                            const bslstl::StringRef& k8,  const T8&  v8,
-                            const bslstl::StringRef& k9,  const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10,
-                            const bslstl::StringRef& k11, const T11& v11,
-                            const bslstl::StringRef& k12, const T12& v12,
-                            const bslstl::StringRef& k13, const T13& v13,
-                            const bslstl::StringRef& k14, const T14& v14) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    builder.pushBack(k14, (*this)(v14));
-    return builder.commit();
-}
-
-template <class T0,  class T1, class T2, class T3, class T4,  class T5,
-          class T6,  class T7, class T8, class T9, class T10, class T11,
-          class T12, class T13, class T14, class T15>
-bdld::Datum DatumMaker::mok(const bslstl::StringRef& k0,  const T0&  v0,
-                            const bslstl::StringRef& k1,  const T1&  v1,
-                            const bslstl::StringRef& k2,  const T2&  v2,
-                            const bslstl::StringRef& k3,  const T3&  v3,
-                            const bslstl::StringRef& k4,  const T4&  v4,
-                            const bslstl::StringRef& k5,  const T5&  v5,
-                            const bslstl::StringRef& k6,  const T6&  v6,
-                            const bslstl::StringRef& k7,  const T7&  v7,
-                            const bslstl::StringRef& k8,  const T8&  v8,
-                            const bslstl::StringRef& k9,  const T9&  v9,
-                            const bslstl::StringRef& k10, const T10& v10,
-                            const bslstl::StringRef& k11, const T11& v11,
-                            const bslstl::StringRef& k12, const T12& v12,
-                            const bslstl::StringRef& k13, const T13& v13,
-                            const bslstl::StringRef& k14, const T14& v14,
-                            const bslstl::StringRef& k15, const T15& v15) const
-{
-    bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    builder.pushBack(k0,  (*this)(v0));
-    builder.pushBack(k1,  (*this)(v1));
-    builder.pushBack(k2,  (*this)(v2));
-    builder.pushBack(k3,  (*this)(v3));
-    builder.pushBack(k4,  (*this)(v4));
-    builder.pushBack(k5,  (*this)(v5));
-    builder.pushBack(k6,  (*this)(v6));
-    builder.pushBack(k7,  (*this)(v7));
-    builder.pushBack(k8,  (*this)(v8));
-    builder.pushBack(k9,  (*this)(v9));
-    builder.pushBack(k10, (*this)(v10));
-    builder.pushBack(k11, (*this)(v11));
-    builder.pushBack(k12, (*this)(v12));
-    builder.pushBack(k13, (*this)(v13));
-    builder.pushBack(k14, (*this)(v14));
-    builder.pushBack(k15, (*this)(v15));
     return builder.commit();
 }
 #endif
