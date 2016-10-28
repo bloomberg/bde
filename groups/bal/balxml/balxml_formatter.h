@@ -376,6 +376,8 @@ class Formatter {
                             // to addListData when it's called more than once
                             // between its enclosing tags.
 
+    EncoderOptions          d_encoderOptions;  // Encoder formatting options
+
     // NOT IMPLEMENTED
     Formatter(const Formatter&);
     Formatter& operator=(const Formatter&);
@@ -419,10 +421,22 @@ class Formatter {
               int               spacesPerLevel =  4,
               int               wrapColumn =      80,
               bslma::Allocator *basic_allocator = 0);
+    Formatter(bsl::streambuf              *output,
+              const EncoderOptions &encoderOptions,
+              int                          indentLevel     = 0,
+              int                          spacesPerLevel  = 4,
+              int                          wrapColumn      = 80,
+              bslma::Allocator            *basic_allocator = 0);
+    Formatter(bsl::ostream&                output,
+              const EncoderOptions &encoderOptions,
+              int                          indentLevel     = 0,
+              int                          spacesPerLevel  = 4,
+              int                          wrapColumn      = 80,
+              bslma::Allocator            *basic_allocator = 0);
         // Construct an object to format XML data into the specified 'output'
-        // stream or streambuf.  Optionally specify initial 'indentLevel',
-        // 'spacesPerLevel', and 'wrapColumn' for formatting.  An
-        // 'indentLevel' of 0 (the default) indicates the root element will
+        // stream or streambuf.  Optionally specify 'encoderOptions', initial
+        // 'indentLevel', 'spacesPerLevel', and 'wrapColumn' for formatting.
+        // An 'indentLevel' of 0 (the default) indicates the root element will
         // have no indentation.  A 'wrapColumn' of 0 will cause the formatter
         // to behave as though the line length were infinite, but will still
         // insert newlines and indent when starting a new element.  A
@@ -561,14 +575,17 @@ class Formatter {
         // Return the current level of indentation.
 
     int spacesPerLevel() const;
-        // Return the number of spaces per indentation level
+        // Return the number of spaces per indentation level.
 
     int status() const;
         // Return 0 if no errors have been detected since construction or
         // since the last call to 'reset', otherwise return a negative value.
 
     int wrapColumn() const;
-        // Return the line width where line-wrapping takes place
+        // Return the line width where line-wrapping takes place.
+
+    const EncoderOptions& encoderOptions() const;
+        // Return the encoder options being used.
 };
 }  // close package namespace
 
@@ -650,7 +667,7 @@ void Formatter::addAttribute(const bslstl::StringRef& name,
         bdlsb::MemOutStreamBuf sb(&allocator);
         bsl::ostream ss(&sb);
 
-        TypesPrintUtil::print(ss, value, formattingMode);
+        TypesPrintUtil::print(ss, value, formattingMode, &d_encoderOptions);
         if (!ss.good()) {
             d_outputStream.setstate(bsl::ios_base::failbit);
             return;                                                   // RETURN
@@ -661,7 +678,10 @@ void Formatter::addAttribute(const bslstl::StringRef& name,
     else {
         // Blast attribute to stream without line-wrapping
         d_outputStream << ' ' << name << "=\"";
-        TypesPrintUtil::print(d_outputStream, value, formattingMode);
+        TypesPrintUtil::print(d_outputStream,
+                              value,
+                              formattingMode,
+                              &d_encoderOptions);
         d_outputStream << '"';
         d_column += name.length() + 4;  // Minimum output if value is empty
     }
@@ -682,7 +702,7 @@ void Formatter::addData(const TYPE& value, int formattingMode)
         bdlsb::MemOutStreamBuf sb(&allocator);
         bsl::ostream ss(&sb);
 
-        TypesPrintUtil::print(ss, value, formattingMode);
+        TypesPrintUtil::print(ss, value, formattingMode, &d_encoderOptions);
         if (!ss.good()) {
             d_outputStream.setstate(bsl::ios_base::failbit);
             return;                                                   // RETURN
@@ -692,7 +712,10 @@ void Formatter::addData(const TYPE& value, int formattingMode)
     }
     else {
         // Blast data to stream without line-wrapping
-        TypesPrintUtil::print(d_outputStream, value, formattingMode);
+        TypesPrintUtil::print(d_outputStream,
+                              value,
+                              formattingMode,
+                              &d_encoderOptions);
         d_column += 1; // Assume value is not empty
         d_isFirstData = false;
         d_isFirstDataAtLine = false;
@@ -714,7 +737,7 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
         bdlsb::MemOutStreamBuf sb(&allocator);
         bsl::ostream ss(&sb);
 
-        TypesPrintUtil::print(ss, value, formattingMode);
+        TypesPrintUtil::print(ss, value, formattingMode, &d_encoderOptions);
         if (!ss.good()) {
             d_outputStream.setstate(bsl::ios_base::failbit);
             return;                                                   // RETURN
@@ -727,7 +750,10 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
         if (!d_isFirstData) {
             d_outputStream << ' ';
         }
-        TypesPrintUtil::print(d_outputStream, value, formattingMode);
+        TypesPrintUtil::print(d_outputStream,
+                              value,
+                              formattingMode,
+                              &d_encoderOptions);
         d_column += 1; // Assume value is not empty
         d_isFirstData = false;
         d_isFirstDataAtLine = false;
@@ -809,8 +835,14 @@ int Formatter::wrapColumn() const
 {
     return d_wrapColumn;
 }
-}  // close package namespace
 
+inline
+const EncoderOptions& Formatter::encoderOptions() const
+{
+    return d_encoderOptions;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

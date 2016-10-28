@@ -55,6 +55,7 @@ Formatter::Formatter(bsl::streambuf   *output,
                      bslma::Allocator *basic_allocator)
 : d_outputStreamObj(output)
 , d_outputStream(d_outputStreamObj)
+, d_encoderOptions()
 , d_indentLevel(indentLevel)
 , d_spacesPerLevel(spacesPerLevel)
 , d_column(0)
@@ -79,6 +80,60 @@ Formatter::Formatter(bsl::ostream&     output,
                      bslma::Allocator *basic_allocator)
 : d_outputStreamObj(0)
 , d_outputStream(output)
+, d_encoderOptions()
+, d_indentLevel(indentLevel)
+, d_spacesPerLevel(spacesPerLevel)
+, d_column(0)
+, d_wrapColumn(wrapColumn)
+, d_elementNesting(basic_allocator)
+, d_state(e_AT_START)
+, d_isFirstData(true)
+, d_isFirstDataAtLine(true)
+{
+    if (d_wrapColumn < 0) {
+        // In compact mode, we don't use the 'd_elementNesting' stack.  In
+        // this case, we rely on 'd_indentLevel' to determine the depth of the
+        // element stack.
+        d_indentLevel = 0;
+    }
+}
+
+
+Formatter::Formatter(bsl::streambuf        *output,
+                     const EncoderOptions&  encoderOptions,
+                     int                    indentLevel,
+                     int                    spacesPerLevel,
+                     int                    wrapColumn,
+                     bslma::Allocator      *basic_allocator)
+: d_outputStreamObj(output)
+, d_outputStream(d_outputStreamObj)
+, d_encoderOptions(encoderOptions)
+, d_indentLevel(indentLevel)
+, d_spacesPerLevel(spacesPerLevel)
+, d_column(0)
+, d_wrapColumn(wrapColumn)
+, d_elementNesting(basic_allocator)
+, d_state(e_AT_START)
+, d_isFirstData(true)
+, d_isFirstDataAtLine(true)
+{
+    if (d_wrapColumn < 0) {
+        // In compact mode, we don't use the 'd_elementNesting' stack.  In
+        // this case, we rely on 'd_indentLevel' to determine the depth of the
+        // element stack.
+        d_indentLevel = 0;
+    }
+}
+
+Formatter::Formatter(bsl::ostream&          output,
+                     const EncoderOptions&  encoderOptions,
+                     int                    indentLevel,
+                     int                    spacesPerLevel,
+                     int                    wrapColumn,
+                     bslma::Allocator      *basic_allocator)
+: d_outputStreamObj(0)
+, d_outputStream(output)
+, d_encoderOptions(encoderOptions)
 , d_indentLevel(indentLevel)
 , d_spacesPerLevel(spacesPerLevel)
 , d_column(0)

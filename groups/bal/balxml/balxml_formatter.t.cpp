@@ -218,8 +218,9 @@ struct FieldType {
         e_DOUBLE            =  5,
         e_STRING            =  6,
         e_DATETIME          =  7,
-        e_DATE              =  8,
-        e_TIME              =  9,
+        e_DATETIMETZ        =  8,
+        e_DATE              =  9,
+        e_TIME              =  10,
     };
 };
 
@@ -243,6 +244,7 @@ class ScalarData {
     double             d_double;
     bsl::string        d_string;
     bdlt::Datetime     d_datetime;
+    bdlt::DatetimeTz   d_datetimeTz;
     bdlt::Date         d_date;
     bdlt::Time         d_time;
 
@@ -258,6 +260,10 @@ class ScalarData {
     ScalarData(const bdlt::Datetime& d)
         : d_type(Ft::e_DATETIME),
           d_datetime(d)
+        {}
+    ScalarData(const bdlt::DatetimeTz& d)
+        : d_type(Ft::e_DATETIMETZ),
+          d_datetimeTz(d)
         {}
     ScalarData(const bdlt::Date& d) : d_type(Ft::e_DATE), d_date(d) {}
     ScalarData(const bdlt::Time& t) : d_type(Ft::e_TIME), d_time(t) {}
@@ -297,6 +303,8 @@ void ScalarData::addAttribute(const bsl::string&  attrName,
         formatter->addAttribute(attrName, d_string); break;
       case Ft::e_DATETIME:
         formatter->addAttribute(attrName, d_datetime); break;
+      case Ft::e_DATETIMETZ:
+        formatter->addAttribute(attrName, d_datetimeTz); break;
       case Ft::e_DATE:
         formatter->addAttribute(attrName, d_date); break;
       case Ft::e_TIME:
@@ -325,6 +333,8 @@ void ScalarData::addData(Obj *formatter) const
         formatter->addData(d_string); break;
       case Ft::e_DATETIME:
         formatter->addData(d_datetime); break;
+      case Ft::e_DATETIMETZ:
+        formatter->addData(d_datetimeTz); break;
       case Ft::e_DATE:
         formatter->addData(d_date); break;
       case Ft::e_TIME:
@@ -353,6 +363,8 @@ void ScalarData::addListData(Obj *formatter) const
         formatter->addListData(d_string); break;
       case Ft::e_DATETIME:
         formatter->addListData(d_datetime); break;
+      case Ft::e_DATETIMETZ:
+        formatter->addListData(d_datetimeTz); break;
       case Ft::e_DATE:
         formatter->addListData(d_date); break;
       case Ft::e_TIME:
@@ -383,6 +395,8 @@ using namespace bsl;  // automatically added by script
         os << data.d_string; break;
       case ScalarData::Ft::e_DATETIME:
         os << data.d_datetime; break;
+      case ScalarData::Ft::e_DATETIMETZ:
+        os << data.d_datetimeTz; break;
       case ScalarData::Ft::e_DATE:
         os << data.d_date; break;
       case ScalarData::Ft::e_TIME:
@@ -1158,56 +1172,85 @@ int main(int argc, char *argv[])
                   "\nTESTING overloaded addData addListData addAttribute\n"
                         << bsl::endl;
           }
+
+          balxml::EncoderOptions opt1;
+          opt1.setDatetimeFractionalSecondPrecision(2);
+          balxml::EncoderOptions opt2;
+          opt2.setUseZAbbreviationForUtc(true);
+
           static struct {
-              int         d_line;
-              const char *d_name;
-              ScalarData  d_originalValue;
-              const char *d_displayedValue; // if 0, use inStream to generate
-                                            // displayed value
+              int                           d_line;
+              const balxml::EncoderOptions *d_encoderOptions_p;
+              const char                   *d_name;
+              ScalarData                    d_originalValue;
+              const char                   *d_displayedValue; // if 0, use
+                                                              // inStream to
+                                                              // generate
+                                                              // displayed
+                                                              // value
           } DATA[] = {
-              { L_, "Char", (char)'\0', "0" },
-              { L_, "Char", (char)'A', "65" },
-              { L_, "Char", (char)128, "-128" },
-              { L_, "Char", (char)-128, "-128" },
-              { L_, "Short", (short)0, "0" },
-              { L_, "Short", (short)SHRT_MAX, 0 },
-              { L_, "Short", (short)SHRT_MIN, 0 },
-              { L_, "Int", (int)0, "0" },
-              { L_, "Int", (int)INT_MAX, 0 },
-              { L_, "Int", (int)INT_MIN, 0 },
-              { L_, "Int64", (bsls::Types::Int64)0, 0 },
-              { L_, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
-              { L_, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
+              { L_, 0, "Char", (char)'\0', "0" },
+              { L_, 0, "Char", (char)'A', "65" },
+              { L_, 0, "Char", (char)128, "-128" },
+              { L_, 0, "Char", (char)-128, "-128" },
+              { L_, 0, "Short", (short)0, "0" },
+              { L_, 0, "Short", (short)SHRT_MAX, 0 },
+              { L_, 0, "Short", (short)SHRT_MIN, 0 },
+              { L_, 0, "Int", (int)0, "0" },
+              { L_, 0, "Int", (int)INT_MAX, 0 },
+              { L_, 0, "Int", (int)INT_MIN, 0 },
+              { L_, 0, "Int64", (bsls::Types::Int64)0, 0 },
+              { L_, 0, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
+              { L_, 0, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-              { L_, "Float", (float)0.000000000314159, "3.14159e-010" },
-              { L_, "Float", (float)3.14159e100, "+INF" },
-              { L_, "Double", (double)0.0000000000000000314, "3.14e-017"  },
+              { L_, 0, "Float", (float)0.000000000314159, "3.14159e-010" },
+              { L_, 0, "Float", (float)3.14159e100, "+INF" },
+              { L_, 0, "Double", (double)0.0000000000000000314, "3.14e-017"  },
 #else
-              { L_, "Float", (float)0.000000000314159, 0 },
-              { L_, "Float", (float)3.14159e100, "+INF" },
-              { L_, "Double", (double)0.0000000000000000314, 0 },
+              { L_, 0, "Float", (float)0.000000000314159, 0 },
+              { L_, 0, "Float", (float)3.14159e100, "+INF" },
+              { L_, 0, "Double", (double)0.0000000000000000314, 0 },
 #endif
 
-              { L_, "Double", (double)3.14e200, 0 },
-              { L_, "Datetime", bdlt::Datetime(1, 1, 1, 0, 0, 0, 0),
-                    "0001-01-01T00:00:00.000" },
-              { L_, "Datetime", bdlt::Datetime(2005, 1, 22, 23, 59, 59, 999),
-                    "2005-01-22T23:59:59.999" },
-              { L_, "Date", bdlt::Date(), "0001-01-01" },
-              { L_, "Date", bdlt::Date(2005, 1, 22), "2005-01-22" },
-              { L_, "Time", bdlt::Time(0, 0, 0, 1), "00:00:00.001" },
-              { L_, "Time", bdlt::Time(), "24:00:00.000" },
+              { L_, 0, "Double", (double)3.14e200, 0 },
+              { L_, 0, "Datetime", bdlt::Datetime(1, 1, 1, 0, 0, 0, 0),
+                    "0001-01-01T00:00:00.000000" },
+
+              { L_, 0, "Datetime", bdlt::Datetime(2005, 1, 22, 23, 59, 59, 999,
+                                                 999),
+                    "2005-01-22T23:59:59.999999" },
+              { L_, &opt1, "Datetime", bdlt::Datetime(2005, 1, 22, 23, 59, 59,
+                                                     999, 999),
+                    "2005-01-22T23:59:59.99" },
+              { L_, 0, "DatetimeTz", bdlt::DatetimeTz(
+                      bdlt::Datetime(2016, 7, 4, 8, 21, 30, 123, 456), 0),
+                    "2016-07-04T08:21:30.123456+00:00" },
+              { L_, &opt2, "DatetimeTz", bdlt::DatetimeTz(
+                      bdlt::Datetime(2016, 7, 4, 8, 21, 30, 123, 456), 0),
+                    "2016-07-04T08:21:30.123456Z" },
+              { L_, 0, "Date", bdlt::Date(), "0001-01-01" },
+              { L_, 0, "Date", bdlt::Date(2005, 1, 22), "2005-01-22" },
+              { L_, 0, "Time", bdlt::Time(0, 0, 0, 1), "00:00:00.001" },
+              { L_, 0, "Time", bdlt::Time(), "24:00:00.000" },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
           bsl::ostringstream ss;
-          Obj formatter(ss, 0, 4, INT_MAX); // big wrap column
-          formatter.openElement("root");
 
           for (int i = 0; i < DATA_SIZE; ++i) {
-              const int LINE = DATA[i].d_line;
-              const char *NAME = DATA[i].d_name;
-              const ScalarData ORIGINAL = DATA[i].d_originalValue;
+              const int                     LINE     = DATA[i].d_line;
+              const char                   *NAME     = DATA[i].d_name;
+              const ScalarData              ORIGINAL = DATA[i].d_originalValue;
+              const balxml::EncoderOptions *OPTIONS  =
+                                                    DATA[i].d_encoderOptions_p;
+
+              balxml::EncoderOptions options;
+              if (OPTIONS != 0) {
+                  options = *OPTIONS;
+              }
+
+              Obj formatter(ss, options, 0, 4, INT_MAX); // big wrap column
+              formatter.openElement("root");
 
               if (veryVerbose) {
                   T_ P_(LINE) P_(NAME) P(ORIGINAL)
@@ -1228,7 +1271,7 @@ int main(int argc, char *argv[])
 
               ORIGINAL.addAttribute(NAME, &formatter);
 
-              LOOP_ASSERT(LINE, ss.str() ==
+              LOOP2_ASSERT(LINE, ss.str(), ss.str() ==
                           bsl::string(" ") + NAME + "=\"" + DISPLAYED +
                           "\"");
               formatter.flush(); // add a '>' to close the opening tag
@@ -1236,7 +1279,7 @@ int main(int argc, char *argv[])
 
               ORIGINAL.addData(&formatter);
 
-              LOOP_ASSERT(LINE, ss.str() == DISPLAYED);
+              LOOP2_ASSERT(LINE, ss.str(), ss.str() == DISPLAYED);
               formatter.closeElement(NAME);
               formatter.openElement(NAME);
               formatter.flush(); // add a '>' to close the opening tag
@@ -1244,7 +1287,7 @@ int main(int argc, char *argv[])
 
               ORIGINAL.addListData(&formatter);
 
-              LOOP_ASSERT(LINE, ss.str() == DISPLAYED);
+              LOOP2_ASSERT(LINE, ss.str(), ss.str() == DISPLAYED);
           }
       } break;
       case 14: {
@@ -2458,25 +2501,50 @@ int main(int argc, char *argv[])
           bsl::ostringstream stream1, stream2;
           int initialIndent = 1, spacesPerLevel = 2, wrapColumn = 3;
 
-          Obj formatter1(stream1, initialIndent, spacesPerLevel, wrapColumn);
-          Obj formatter2(stream2.rdbuf(),
-                         initialIndent,
-                         spacesPerLevel,
-                         wrapColumn);
-          ASSERT(formatter1.outputColumn() == 0);
-          ASSERT(formatter2.outputColumn() == 0);
+          {
+              Obj formatter1(stream1, initialIndent,
+                             spacesPerLevel, wrapColumn);
+              Obj formatter2(stream2.rdbuf(), initialIndent,
+                             spacesPerLevel, wrapColumn);
+              ASSERT(formatter1.outputColumn() == 0);
+              ASSERT(formatter2.outputColumn() == 0);
 
-          ASSERT(formatter1.indentLevel() == initialIndent);
-          ASSERT(formatter2.indentLevel() == initialIndent);
+              ASSERT(formatter1.indentLevel() == initialIndent);
+              ASSERT(formatter2.indentLevel() == initialIndent);
 
-          ASSERT(formatter1.spacesPerLevel() == spacesPerLevel);
-          ASSERT(formatter2.spacesPerLevel() == spacesPerLevel);
+              ASSERT(formatter1.spacesPerLevel() == spacesPerLevel);
+              ASSERT(formatter2.spacesPerLevel() == spacesPerLevel);
 
-          ASSERT(formatter1.wrapColumn() == wrapColumn);
-          ASSERT(formatter2.wrapColumn() == wrapColumn);
+              ASSERT(formatter1.wrapColumn() == wrapColumn);
+              ASSERT(formatter2.wrapColumn() == wrapColumn);
 
-          ASSERT(formatter1.rawOutputStream().rdbuf() == stream1.rdbuf());
-          ASSERT(formatter2.rawOutputStream().rdbuf() == stream2.rdbuf());
+              ASSERT(formatter1.rawOutputStream().rdbuf() == stream1.rdbuf());
+              ASSERT(formatter2.rawOutputStream().rdbuf() == stream2.rdbuf());
+          }
+          {
+              balxml::EncoderOptions opt;
+              opt.setUseZAbbreviationForUtc(true);
+              Obj formatter1(stream1, opt, initialIndent,
+                             spacesPerLevel, wrapColumn);
+              Obj formatter2(stream2.rdbuf(), opt, initialIndent,
+                             spacesPerLevel, wrapColumn);
+              ASSERT(formatter1.outputColumn() == 0);
+              ASSERT(formatter2.outputColumn() == 0);
+
+              ASSERT(formatter1.indentLevel() == initialIndent);
+              ASSERT(formatter2.indentLevel() == initialIndent);
+
+              ASSERT(formatter1.spacesPerLevel() == spacesPerLevel);
+              ASSERT(formatter2.spacesPerLevel() == spacesPerLevel);
+
+              ASSERT(formatter1.wrapColumn() == wrapColumn);
+              ASSERT(formatter2.wrapColumn() == wrapColumn);
+
+              ASSERT(formatter1.rawOutputStream().rdbuf() == stream1.rdbuf());
+              ASSERT(formatter2.rawOutputStream().rdbuf() == stream2.rdbuf());
+              ASSERT(opt == formatter1.encoderOptions());
+              ASSERT(opt == formatter2.encoderOptions());
+          }
       } break;
       case 2: {
         // --------------------------------------------------------------------
