@@ -3196,7 +3196,8 @@ void TestDriver<TEST_TYPE>::testCase20()
                 const size_t hashValue_1 = bslh::Hash<>()(X);
                 hashAppend(hasher, true);
                 hashAppend(hasher, VALUES[j]);
-                const size_t hashValue_2 = hasher.computeHash();
+                const size_t hashValue_2 =
+                                     static_cast<size_t>(hasher.computeHash());
 
                 ASSERTV(areSame, hashValue_1, hashValue_2,
                         areSame == (hashValue_2 == hashValue_1));
@@ -5480,7 +5481,6 @@ int main(int argc, char *argv[])
                 typedef int                             ValueType1;
                 typedef double                          ValueType2;
 
-                typedef ValueType1                      ObjType1;
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
 
                 const ValueType1 VALUE1 = 123;
@@ -5508,7 +5508,6 @@ int main(int argc, char *argv[])
                 typedef double                          ValueType1;
                 typedef int                             ValueType2;
 
-                typedef ValueType1                      ObjType1;
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
 
                 const ValueType1 VALUE1 = 123;
@@ -5542,7 +5541,6 @@ int main(int argc, char *argv[])
                 typedef char *                          ValueType1;
                 typedef bsl::string                     ValueType2;
 
-                typedef ValueType1                      ObjType1;
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
 
                 char VALUE1[] = SUFFICIENTLY_LONG_STRING;
