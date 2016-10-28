@@ -33,6 +33,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Maintaining an Account Balance
+///- - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the use of
 // 'bslmt::ReaderWriterMutex' to write a thread-safe class, 'my_Account'.  Note
 // the typical use of 'mutable' for the lock:
@@ -150,24 +154,20 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
-#endif
-
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_READERWRITERMUTEXIMPL
+#include <bslmt_readerwritermuteximpl.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_SEMAPHORE
 #include <bslmt_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 namespace BloombergLP {
@@ -180,31 +180,8 @@ namespace bslmt {
 class ReaderWriterMutex {
     // This class provides a multi-reader/single-writer lock mechanism.
 
-    // CLASS DATA
-    static const bsls::Types::Int64 k_READER_MASK       = 0x00000000ffffffffLL;
-    static const bsls::Types::Int64 k_READER_INC        = 0x0000000000000001LL;
-    static const bsls::Types::Int64 k_PENDING_WRITER_MASK
-                                                        = 0x0fffffff00000000LL;
-    static const bsls::Types::Int64 k_PENDING_WRITER_INC
-                                                        = 0x0000000100000000LL;
-    static const bsls::Types::Int64 k_WRITER            = 0x1000000000000000LL;
-
     // DATA
-    bsls::AtomicOperations::AtomicTypes::Int64 d_state;      // atomic value
-                                                             // used to track
-                                                             // the state of
-                                                             // this mutex
-
-    Mutex                                      d_mutex;      // primary access
-                                                             // control
-
-    Semaphore                                  d_semaphore;  // used to capture
-                                                             // writers
-                                                             // released from
-                                                             // 'd_mutex' but
-                                                             // must wait for
-                                                             // readers to
-                                                             // finish
+    ReaderWriterMutexImpl<bsls::AtomicOperations, Mutex, Semaphore> d_impl;
 
     // NOT IMPLEMENTED
     ReaderWriterMutex(const ReaderWriterMutex&);
@@ -281,98 +258,49 @@ class ReaderWriterMutex {
 inline
 bslmt::ReaderWriterMutex::ReaderWriterMutex()
 {
-    bsls::AtomicOperations::initInt64(&d_state);
 }
 
 // MANIPULATORS
 inline
 void bslmt::ReaderWriterMutex::lockRead()
 {
-    bsls::Types::Int64 state = bsls::AtomicOperations::getInt64(&d_state);
-    bsls::Types::Int64 expState;
-
-    do {
-        if (state & (k_WRITER | k_PENDING_WRITER_MASK)) {
-            d_mutex.lock();
-            bsls::AtomicOperations::addInt64AcqRel(&d_state, k_READER_INC);
-            d_mutex.unlock();
-            return;                                                   // RETURN
-        }
-
-        expState = state;
-        state    = bsls::AtomicOperations::testAndSwapInt64AcqRel(
-                                                         &d_state,
-                                                         state,
-                                                         state + k_READER_INC);
-    } while (state != expState);
+    d_impl.lockRead();
 }
 
 inline
 void bslmt::ReaderWriterMutex::lockWrite()
 {
-    bsls::AtomicOperations::addInt64NvAcqRel(&d_state, k_PENDING_WRITER_INC);
-    d_mutex.lock();
-    if (bsls::AtomicOperations::addInt64NvAcqRel(&d_state,
-                                                 k_WRITER
-                                                        - k_PENDING_WRITER_INC)
-                                                             & k_READER_MASK) {
-        d_semaphore.wait();
-    }
+    d_impl.lockWrite();
 }
 
 inline
 int bslmt::ReaderWriterMutex::tryLockRead()
 {
-    if (0 == d_mutex.tryLock()) {
-        bsls::AtomicOperations::addInt64AcqRel(&d_state, k_READER_INC);
-        d_mutex.unlock();
-        return 0;                                                     // RETURN
-    }
-    return 1;
+    return d_impl.tryLockRead();
 }
 
 inline
 int bslmt::ReaderWriterMutex::tryLockWrite()
 {
-    if (0 == d_mutex.tryLock()) {
-        if (0 == bsls::AtomicOperations::testAndSwapInt64(&d_state,
-                                                          0,
-                                                          k_WRITER)) {
-            return 0;                                                 // RETURN
-        }
-        d_mutex.unlock();
-    }
-    return 1;
+    return d_impl.tryLockWrite();
 }
 
 inline
 void bslmt::ReaderWriterMutex::unlock()
 {
-    if (bsls::AtomicOperations::getInt64Acquire(&d_state) & k_READER_MASK) {
-        unlockRead();
-    }
-    else {
-        unlockWrite();
-    }
+    d_impl.unlock();
 }
 
 inline
 void bslmt::ReaderWriterMutex::unlockRead()
 {
-    bsls::Types::Int64 state = bsls::AtomicOperations::addInt64Nv(
-                                                                &d_state,
-                                                                -k_READER_INC);
-
-    if (0 == (state & k_READER_MASK) && (state & k_WRITER)) {
-        d_semaphore.post();
-    }
+    d_impl.unlockRead();
 }
 
 inline
 void bslmt::ReaderWriterMutex::unlockWrite()
 {
-    bsls::AtomicOperations::addInt64AcqRel(&d_state, -k_WRITER);
-    d_mutex.unlock();
+    d_impl.unlockWrite();
 }
 
 }  // close enterprise namespace
