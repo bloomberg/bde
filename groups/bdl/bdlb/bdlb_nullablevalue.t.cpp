@@ -5011,6 +5011,9 @@ int main(int argc, char *argv[])
             const ValueType1 VALUE1a = 123;
             const ValueType1 VALUE1b = 456;
 
+            ValueType1  mVALUE2  = 789;  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
+
             if (verbose) cout << "\tcopy assignment" << endl;
             {
                 const ObjType1 OBJ1a(VALUE1a);
@@ -5059,6 +5062,20 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1b == OBJ2.value());
                 ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
             }
 
             if (verbose) cout << "\tmake value" << endl;
@@ -5090,6 +5107,9 @@ int main(int argc, char *argv[])
             const ValueType1 VALUE1a = 123;
             const ValueType1 VALUE1b = 456;
 
+            ValueType1  mVALUE2  = 789;  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
+
             if (verbose) cout << "\tcopy assignment" << endl;
             {
                 const ObjType1 OBJ1a(VALUE1a);
@@ -5138,6 +5158,20 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1b == OBJ2.value());
                 ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
             }
 
             if (verbose) cout << "\tmake value" << endl;
@@ -5171,6 +5205,9 @@ int main(int argc, char *argv[])
 
             const ValueType1 VALUE1a = "abc";
             const ValueType1 VALUE1b = SUFFICIENTLY_LONG_STRING;
+
+            ValueType1  mVALUE2  = "xyz";  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -5220,6 +5257,20 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1b == OBJ2.value());
                 ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
             }
 
             if (verbose) cout << "\tmake value" << endl;
@@ -5252,6 +5303,9 @@ int main(int argc, char *argv[])
 
             const ValueType1 VALUE1a(IMPORTANT);
             const ValueType1 VALUE1b(JUNK);
+
+            ValueType1  mVALUE2  = JUNK;  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
 
             if (verbose) cout << "\tcopy assignment" << endl;
             {
@@ -5301,6 +5355,20 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1b == OBJ2.value().msgType());
                 ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value().msgType());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value().msgType());
             }
 
             if (verbose) cout << "\tmake value" << endl;
@@ -5401,7 +5469,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Conversion Constructors"
                              "\n===============================" << endl;
 
-        if (verbose) cout << "\nConversion from 'const OTHER_TYPE&'." << endl;
+        if (verbose) cout << "\nConversion from 'OTHER_TYPE'." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -5418,8 +5486,20 @@ int main(int argc, char *argv[])
                 const ValueType1 VALUE1 = 123;
 
                 const ObjType2 OBJ2(VALUE1);
-
                 ASSERT(VALUE1 == OBJ2.value());
+
+                // testing non-'const' source object
+
+                ValueType1  mVALUE1a  = 456;
+                ValueType1& mRVALUE1a = mVALUE1a;
+
+                const ValueType1& VALUE1a = mVALUE1a;
+
+                const ObjType2 OBJ2a(mVALUE1a);
+                ASSERT(VALUE1a == OBJ2a.value());
+
+                const ObjType2 OBJ2b(mRVALUE1a);
+                ASSERT(VALUE1a == OBJ2b.value());
             }
             ASSERT(0 == da.numBlocksTotal());
 
@@ -5434,8 +5514,20 @@ int main(int argc, char *argv[])
                 const ValueType1 VALUE1 = 123;
 
                 const ObjType2 OBJ2(VALUE1);
-
                 ASSERT(VALUE1 == OBJ2.value());
+
+                // testing non-'const' source object
+
+                ValueType1  mVALUE1a  = 456;
+                ValueType1& mRVALUE1a = mVALUE1a;
+
+                const ValueType1& VALUE1a = mVALUE1a;
+
+                const ObjType2 OBJ2a(mVALUE1a);
+                ASSERT(VALUE1a == OBJ2a.value());
+
+                const ObjType2 OBJ2b(mRVALUE1a);
+                ASSERT(VALUE1a == OBJ2b.value());
             }
             ASSERT(0 == da.numBlocksTotal());
 
@@ -5458,28 +5550,25 @@ int main(int argc, char *argv[])
                 ASSERT(dam.isTotalSame());
                 {
                     const ObjType2 OBJ2(VALUE1);
+                    ASSERT(VALUE1 == OBJ2.value());
 
                     ASSERT(dam.isInUseUp());
-
-                    ASSERT(VALUE1 == OBJ2.value());
                 }
 
                 dam.reset();
 
                 {
                     const ObjType2 OBJ2(VALUE1, &oa);
+                    ASSERT(VALUE1 == OBJ2.value());
 
                     ASSERT(dam.isTotalSame());
                     ASSERT(0 != oa.numBlocksInUse());
-
-                    ASSERT(VALUE1 == OBJ2.value());
                 }
                 ASSERT(0 == oa.numBlocksInUse());
             }
         }
 
-        if (verbose) cout <<
-                        "\nConversion from 'const NullableValue<OTHER_TYPE>&'."
+        if (verbose) cout << "\nConversion from 'NullableValue<OTHER_TYPE>'."
                           << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -5501,6 +5590,23 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1             == OBJ1.value());
                 ASSERT(ValueType2(VALUE1) == OBJ2.value());
+
+                // testing non-'const' source object
+
+                const ValueType1 VALUE1a = 456;
+
+                ObjType1  mOBJ1a(VALUE1a);  const ObjType1& OBJ1a = mOBJ1a;
+                ObjType1& mROBJ1a = mOBJ1a;
+
+                const ObjType2 OBJ2a(mOBJ1a);
+
+                ASSERT(VALUE1a             == OBJ1a.value());
+                ASSERT(ValueType2(VALUE1a) == OBJ2a.value());
+
+                const ObjType2 OBJ2b(mROBJ1a);
+
+                ASSERT(VALUE1a             == OBJ1a.value());
+                ASSERT(ValueType2(VALUE1a) == OBJ2b.value());
             }
             ASSERT(0 == da.numBlocksTotal());
 
@@ -5519,6 +5625,23 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1             == OBJ1.value());
                 ASSERT(ValueType2(VALUE1) == OBJ2.value());
+
+                // testing non-'const' source object
+
+                const ValueType1 VALUE1a = 456;
+
+                ObjType1  mOBJ1a(VALUE1a);  const ObjType1& OBJ1a = mOBJ1a;
+                ObjType1& mROBJ1a = mOBJ1a;
+
+                const ObjType2 OBJ2a(mOBJ1a);
+
+                ASSERT(VALUE1a             == OBJ1a.value());
+                ASSERT(ValueType2(VALUE1a) == OBJ2a.value());
+
+                const ObjType2 OBJ2b(mROBJ1a);
+
+                ASSERT(VALUE1a             == OBJ1a.value());
+                ASSERT(ValueType2(VALUE1a) == OBJ2b.value());
             }
             ASSERT(0 == da.numBlocksTotal());
 
@@ -5564,6 +5687,26 @@ int main(int argc, char *argv[])
                     ASSERT(ValueType2(VALUE1) == OBJ2.value());
                 }
                 ASSERT(0 == oa.numBlocksInUse());
+
+                // testing non-'const' source object
+                {
+                    char p[] = "abc";
+
+                    const ValueType1 VALUE1a = p;
+
+                    ObjType1  mOBJ1a(VALUE1a);  const ObjType1& OBJ1a = mOBJ1a;
+                    ObjType1& mROBJ1a = mOBJ1a;
+
+                    const ObjType2 OBJ2a(mOBJ1a);
+
+                    ASSERT(VALUE1a             == OBJ1a.value());
+                    ASSERT(ValueType2(VALUE1a) == OBJ2a.value());
+
+                    const ObjType2 OBJ2b(mROBJ1a);
+
+                    ASSERT(VALUE1a             == OBJ1a.value());
+                    ASSERT(ValueType2(VALUE1a) == OBJ2b.value());
+                }
             }
         }
 
@@ -5690,6 +5833,50 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == da.numBlocksTotal());
 
+        if (verbose) cout << "\nWith non-'const' source object." << endl;
+
+        {
+            typedef int                            ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            ValueType mN = 77;  const ValueType& N = mN;
+
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(     Y.isNull());
+
+            mY = mN;
+            ASSERT(N == Y.value());
+
+            ValueType& rmN = mN;
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = rmN;
+            ASSERT(N == Y.value());
+        }
+
+        {
+            typedef bsl::string                    ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            ValueType mS = "abc";  const ValueType& S = mS;
+
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(     Y.isNull());
+
+            mY = mS;
+            ASSERT(S == Y.value());
+
+            ValueType& rmS = mS;
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = rmS;
+            ASSERT(S == Y.value());
+        }
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -5771,6 +5958,38 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(0 == oa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nWith non-'const' source object." << endl;
+
+        {
+            typedef int                            ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            ValueType mN = 77;  const ValueType& N = mN;
+
+            const Obj U(mN);
+            ASSERT(N == U.value());
+
+            ValueType& rmN = mN;
+
+            const Obj V(rmN);
+            ASSERT(N == V.value());
+        }
+
+        {
+            typedef bsl::string                    ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            ValueType mS = "abc";  const ValueType& S = mS;
+
+            const Obj U(mS);
+            ASSERT(S == U.value());
+
+            ValueType& rmS = mS;
+
+            const Obj V(rmS);
+            ASSERT(S == V.value());
         }
 
       } break;
@@ -6032,6 +6251,14 @@ int main(int argc, char *argv[])
 
             mY = mX;
             ASSERT(N == Y.value());
+
+            Obj& rmX = mX;
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = rmX;
+            ASSERT(N == Y.value());
         }
 
         {
@@ -6042,6 +6269,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;  mX.makeValue(S);
             Obj mY;  const Obj& Y = mY;
+            ASSERT(     Y.isNull());
 
             mY = X;
             ASSERT(S == Y.value());
@@ -6050,6 +6278,14 @@ int main(int argc, char *argv[])
             ASSERT(     Y.isNull());
 
             mY = mX;
+            ASSERT(S == Y.value());
+
+            Obj& rmX = mX;
+
+            mY.reset();
+            ASSERT(     Y.isNull());
+
+            mY = rmX;
             ASSERT(S == Y.value());
         }
 
@@ -6188,6 +6424,42 @@ int main(int argc, char *argv[])
                     ASSERT(oam.isTotalSame());
                 }
             }
+        }
+
+        if (verbose) cout << "\nWith non-'const' source object." << endl;
+
+        {
+            typedef int                            ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const ValueType N = 77;
+
+            Obj mX;  const Obj& X = mX;  mX.makeValue(N);
+
+            const Obj U(mX);
+            ASSERT(N == U.value());
+
+            Obj& rmX = mX;
+
+            const Obj V(rmX);
+            ASSERT(N == V.value());
+        }
+
+        {
+            typedef bsl::string                    ValueType;
+            typedef bdlb::NullableValue<ValueType> Obj;
+
+            const ValueType S = "abc";
+
+            Obj mX;  const Obj& X = mX;  mX.makeValue(S);
+
+            const Obj U(mX);
+            ASSERT(S == U.value());
+
+            Obj& rmX = mX;
+
+            const Obj V(rmX);
+            ASSERT(S == V.value());
         }
 
       } break;
