@@ -85,6 +85,36 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# define BSLS_ISENUM_USE_NATIVE_TRAIT 1
+#endif
+
+#if defined(BSLS_ISENUM_USE_NATIVE_TRAIT)
+namespace bsl {
+
+template <class TYPE>
+struct is_enum
+    : bsl::integral_constant<bool, ::native_std::is_enum<TYPE>::value>
+{
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is an enumaration.
+};
+
+} // namespace bsl
+#else
 namespace BloombergLP {
 namespace bslmf {
 
@@ -188,6 +218,7 @@ struct is_enum<const volatile TYPE>
 };
 
 }  // close namespace bsl
+#endif
 
 namespace BloombergLP {
 namespace bslmf {

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide meta-fn for determining if a type is copy constructibile
+//@PURPOSE: Provide a meta-fn for determining if a type is copy constructibile.
 //
 //@REVIEW_FOR_MASTER: improve component-level doc, add usage example
 //
@@ -67,12 +67,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPOINTER
-#include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#include <bslmf_ismemberpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
@@ -87,7 +83,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
@@ -100,6 +96,30 @@ BSLS_IDENT("$Id: $")
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
+ && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1700)
+    // The VisualC++ 2010 type traits library does not implement this trait,
+    // while the VC 2012 library does provide the trait, but gives the wrong
+    // answer in several cases.
+# define BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT 1
+#endif
+
+#if defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
+    // Early MSVC compilers have an incomplete <type_traits> header
+namespace bsl {
+
+template <class TYPE>
+struct is_copy_constructible
+    : bsl::integral_constant<bool,
+                             ::native_std::is_copy_constructible<TYPE>::value>
+{
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 'TYPE' has a copy
+    // constructor.
+};
+
+}  // close namespace bsl
+#else
 namespace bsl {
 
 template <class TYPE>
@@ -114,25 +134,13 @@ namespace bslmf {
                        // struct IsCopyConstructible_Imp
                        // ==============================
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-template <class TYPE>
-struct IsCopyConstructible_Imp
-    : bsl::integral_constant<
-        bool, ::native_std::is_copy_constructible<TYPE>::value>
-{
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' has a copy
-    // constructor.
-};
-#else
 template <class TYPE>
 struct IsCopyConstructible_Imp
     : bsl::integral_constant<bool,
                             (!(bsl::is_volatile<TYPE>::value
                            && !(bsl::is_fundamental<TYPE>::value
                              || bsl::is_enum<TYPE>::value
-                             || IsPointerToMember<TYPE>::value))
-                          && !bsl::is_void<TYPE>::value
+                             || bsl::is_member_pointer<TYPE>::value))
                           && !(!bsl::is_reference<TYPE>::value
                              && bsl::is_function<TYPE>::value))>
 {
@@ -148,7 +156,19 @@ struct IsCopyConstructible_Imp<void> : bsl::false_type
     // constructor, despite being a fundamental type.
 };
 
-#endif
+template <>
+struct IsCopyConstructible_Imp<volatile void> : bsl::false_type
+{
+    // This explicit specialization reports that 'volatile void' does not have
+    // a copy constructor, despite being a fundamental type.
+};
+
+template <class TYPE>
+struct IsCopyConstructible_Imp<TYPE *volatile> : bsl::true_type
+{
+    // This explicit specialization reports that volatile pointer objects have
+    // a copy constructor, just like a fundamental type.
+};
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -176,7 +196,6 @@ struct is_copy_constructible
 
 };
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 template <class TYPE>
 struct is_copy_constructible<const TYPE> : is_copy_constructible<TYPE>::type
 {
@@ -227,7 +246,7 @@ template <class TYPE>
 struct is_copy_constructible<const TYPE[]> : false_type
 {
     // This partial specialization ensures that const-qualified
-    // array-of-unknown-bound types have the resull 'false'.
+    // array-of-unknown-bound types have the result 'false'.
 };
 
 template <class TYPE>
@@ -245,9 +264,9 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
 };
 
 #endif  // defined(BSLS_PLATFORM_CMP_IBM)
-#endif  // !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
 }  // close namespace bsl
+#endif  // !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
 
 #endif
 
