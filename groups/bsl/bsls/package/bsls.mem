@@ -37,6 +37,7 @@ bsls_byteorderutil
 bsls_byteorderutil_impl
 bsls_compilerfeatures
 bsls_cpp11
+bsls_dbghelpdllimpl_windows
 bsls_exceptionutil
 bsls_ident
 bsls_int64
@@ -55,6 +56,7 @@ bsls_platformutil
 bsls_pointercastutil
 bsls_protocoltest
 bsls_spinlock
+bsls_stackaddressutil
 bsls_stopwatch
 bsls_systemclocktype
 bsls_systemtime

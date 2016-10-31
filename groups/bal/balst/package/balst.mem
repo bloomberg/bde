@@ -1,7 +1,5 @@
 balst_assertionlogger
-balst_dbghelpdllimpl_windows
 balst_objectfileformat
-balst_stackaddressutil
 balst_stacktrace
 balst_stacktraceframe
 balst_stacktraceprintutil

@@ -10,7 +10,6 @@
 #include <balst_stacktraceutil.h>
 
 #include <balst_objectfileformat.h>
-#include <balst_stackaddressutil.h>
 #include <balst_stacktrace.h>
 
 #include <bdlb_string.h>
@@ -29,6 +28,7 @@
 
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_stackaddressutil.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -144,10 +144,10 @@ void aSsErT(int c, const char *s, int i)
 
 namespace {
 
-typedef balst::StackAddressUtil         Address;
-typedef balst::StackTrace               ST;
-typedef balst::StackTraceFrame          Frame;
-typedef balst::StackTraceUtil           Util;
+typedef balst::StackTrace      ST;
+typedef balst::StackTraceFrame Frame;
+typedef balst::StackTraceUtil  Util;
+typedef bsls::StackAddressUtil Address;
 
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
@@ -1277,11 +1277,11 @@ void top(bslma::Allocator *alloc)
     matches.push_back("main");
 
     {
-        enum { IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES };
+        enum { IGNORE_FRAMES = bsls::StackAddressUtil::k_IGNORE_FRAMES };
 
         void *addresses[3 + IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
-        int na = balst::StackAddressUtil::getStackAddresses(addresses,
+        int na = bsls::StackAddressUtil::getStackAddresses(addresses,
                                                            3 + IGNORE_FRAMES);
         na -= IGNORE_FRAMES;
 
@@ -1399,7 +1399,7 @@ void traceExample3()
 // Example 2: Loading a Stack-Trace From an Array of Stack Addresses.
 
 // In this example, we demonstrate obtaining return addresses from the stack
-// using 'balst::StackAddressUtil', and later using them to load a
+// using 'bsls::StackAddressUtil', and later using them to load a
 // 'balst::StackTrace' object with a description of the stack.  This approach
 // may be desirable if one wants to quickly save the addresses that are the
 // basis for a stack-trace, postponing the more time-consuming translation of
@@ -1437,14 +1437,13 @@ void traceExample2()
     enum { ARRAY_LENGTH = 50 };
     void *addresses[ARRAY_LENGTH];
 
-    // Next, we call 'balst::StackAddressUtil::getStackAddresses' to get the
+    // Next, we call 'bsls::StackAddressUtil::getStackAddresses' to get the
     // stored return addresses from the stack and load them into the array
     // 'addresses'.  The call returns the number of addresses saved into the
     // array, which will be less than or equal to 'ARRAY_LENGTH'.
 
-    int numAddresses = balst::StackAddressUtil::getStackAddresses(
-                                                         addresses,
-                                                         ARRAY_LENGTH);
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(addresses,
+                                                                 ARRAY_LENGTH);
 
     // Then, we call 'loadStackTraceFromAddressArray' to initialize the
     // information in the stack-trace object, such as function names, source
@@ -2163,9 +2162,8 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Get several subroutines deep on the stack.
         //:   1 load a stack trace using
-        //:     'balst::StackAddressUtil::getStackAddresses' and then
-        //:     initialize a stack trace using
-        //:     'loadStackTraceFromAddressArray'.
+        //:     'bsls::StackAddressUtil::getStackAddresses' and then initialize
+        //:     a stack trace using 'loadStackTraceFromAddressArray'.
         //:   2 verify the subroutine names on the stack trace.
         //:   3 load another stack trace using 'loadStackTraceFromStack'.
         //:   4 verify the subroutine names on the stack trace.

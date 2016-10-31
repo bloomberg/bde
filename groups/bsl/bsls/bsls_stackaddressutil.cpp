@@ -1,4 +1,4 @@
-// balst_stackaddressutil.cpp                                         -*-C++-*-
+// bsls_stackaddressutil.cpp                                          -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,21 +7,15 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stackaddressutil.h>
+#include <bsls_stackaddressutil.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
-
-#include <bslmf_assert.h>
-#include <bsls_assert.h>
 #include <bsls_platform.h>
-
-#include <bsl_algorithm.h>
+#include <assert.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-#include <bsl_climits.h>
-#include <bsl_cerrno.h>
+#include <limits.h>
+#include <errno.h>
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -32,15 +26,6 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_AIX)
 
 # include <ucontext.h>
-
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-
-# include <bdlma_heapbypassallocator.h>
-# include <bsls_types.h>
-
-# include <uwx.h>
-# include <uwx_self.h>
-# include <unwind.h>
 
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
@@ -56,7 +41,7 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-#include <balst_dbghelpdllimpl_windows.h>
+#include <bsls_dbghelpdllimpl_windows.h>
 
 #include <windows.h>
 #include <intrin.h>
@@ -89,19 +74,19 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                               // ------------------
-                              // balst::StackAddress
+                              // bsls::StackAddress
                               // ------------------
 
 
 // CLASS METHODS
 #if defined(BSLS_PLATFORM_OS_AIX)
 
-namespace balst {
+namespace bsls {
 
 int StackAddressUtil::getStackAddresses(void **buffer,
                                         int    maxFrames)
 {
-    BSLS_ASSERT(0 <= maxFrames);
+    assert(0 <= maxFrames);
 
     struct AixFrame {
         AixFrame  *d_nextFrame;
@@ -139,110 +124,15 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 
 // AIX
 #endif
-#if defined(BSLS_PLATFORM_OS_HPUX)
 
-                            // -----------------------
-                            // HP allocation callbacks
-                            // -----------------------
-
-extern "C" {
-
-static
-void *allocationCallBack(void *allocator, size_t size)
-    // Use 'allocator' to allocate a segment of memory that is at least 'size'
-    // in bytes.  Return a pointer to the segment.  The behavior is undefined
-    // unless 'locator' is of type 'bslma::Allocator *'.  Note that a pointer
-    // to this function is passed to the 'uwx' debugging routines provided by
-    // HP to allow this component to specify how 'uwx' is to allocate memory.
-{
-    return ((bslma::Allocator *)allocator)->allocate(size);
-}
-
-static
-void freeCallBack(void *allocator, void *segmentPtr)
-    // This function is a noop.  When we pass 'allocationCallBack' to 'uwx', we
-    // are required to specify a 'free' function too.  Since this component is
-    // only used with 'bdlma::HeapBypassAllocator', which frees all memory it
-    // has allocated upon destruction of the allocator and doesn't free
-    // individual segments, this routine does nothing.
-{
-    ;
-}
-
-}  // extern "C"
-
-namespace balst {
-
-int StackAddressUtil::getStackAddresses(void **buffer,
-                                              int    maxFrames)
-{
-    BSLS_ASSERT(0 <= maxFrames);
-
-    int rc;
-    bdlma::HeapBypassAllocator allocator;
-
-    uwx_config cfg = { UWX_CONFIG_ALLOC,        // flags
-                       &allocationCallBack,     // alloc callback
-                       &freeCallBack,           // free callback
-                       &allocator };            // arg to pass to alloc & free
-                                                // cb's
-
-    uwx_env *env = uwx_init_config(&cfg, &rc);
-    if (0 == env || UWX_OK != rc) {
-        return -101;                                                  // RETURN
-    }
-
-    uwx_self_info *info = uwx_self_init_info(env);
-    if (0 == info) {
-        return -105;                                                  // RETURN
-    }
-
-    rc = uwx_register_callbacks(env,
-                                (intptr_t) info,
-                                &uwx_self_copyin,
-                                &uwx_self_lookupip);
-    if (UWX_OK != rc) {
-        return -111;                                                  // RETURN
-    }
-
-    rc = uwx_self_init_context(env);
-    if (UWX_OK != rc) {
-        return -115;                                                  // RETURN
-    }
-
-    for (int i = 0; i < maxFrames; ++i) {
-        rc = uwx_step(env);
-        if (UWX_BOTTOM == rc) {
-            return i;                                                 // RETURN
-        }
-        if (UWX_OK != rc) {
-            return -121;                                              // RETURN
-        }
-
-        uint64_t ip;
-        rc = uwx_get_reg(env, UWX_REG_IP, &ip);
-        if (UWX_OK != rc) {
-            return -125;                                              // RETURN
-        }
-
-        buffer[i] = (void *) (bsls::Types::UintPtr) ip;
-    }
-
-    return maxFrames;
-}
-
-}  // close package namespace
-
-// HPUX
-#endif
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
-namespace balst {
+namespace bsls {
 
-int StackAddressUtil::getStackAddresses(void    **buffer,
-                                              int       maxFrames)
+int StackAddressUtil::getStackAddresses(void **buffer,
+                                        int    maxFrames)
 {
-    BSLS_ASSERT(0 <= maxFrames);
+    assert(0 <= maxFrames);
 
     if (0 >= maxFrames) {
         // Call 'backtrace' to make sure that it has been dynamically loaded
@@ -283,9 +173,9 @@ extern char **_environ;
 
 #if defined(BSLS_PLATFORM_CPU_SPARC)
 
-void balst_StackAddressUtil_SparcAsmDummy()
+void bsls_StackAddressUtil_SparcAsmDummy()
     // This routine is never called.  It just provides a place to put the
-    // assembler routine 'balst_StackAddressUtil_flushWinAndGetFP', which
+    // assembler routine 'bsls_StackAddressUtil_flushWinAndGetFP', which
     // flushes the stack registers of the sparc processor to memory.  Note this
     // routine must be global to avoid the compiler issuing
     // 'static function never called' warnings.
@@ -299,9 +189,9 @@ void balst_StackAddressUtil_SparcAsmDummy()
     // trick.  It was also found that recursing deeply also works, but that is
     // more brute force.
 
-    asm volatile(".global balst_StackAddressUtil_flushAndGetFP\n"
-                 ".type balst_StackAddressUtil_flushAndGetFP,#function\n"
-                 "balst_StackAddressUtil_flushAndGetFP:\n"
+    asm volatile(".global bsls_StackAddressUtil_flushAndGetFP\n"
+                 ".type bsls_StackAddressUtil_flushAndGetFP,#function\n"
+                 "bsls_StackAddressUtil_flushAndGetFP:\n"
                  "ta 0x03\n"
                  "mov %o6, %o0\n"
                  "retl\n"
@@ -309,15 +199,15 @@ void balst_StackAddressUtil_SparcAsmDummy()
                  );
 }
 
-extern "C" char *balst_StackAddressUtil_flushAndGetFP();
+extern "C" char *bsls_StackAddressUtil_flushAndGetFP();
 
 #endif
 
-namespace balst {
-int StackAddressUtil::getStackAddresses(void    **buffer,
-                                              int       maxFrames)
+namespace bsls {
+int StackAddressUtil::getStackAddresses(void **buffer,
+                                        int    maxFrames)
 {
-    BSLS_ASSERT(0 <= maxFrames);
+    assert(0 <= maxFrames);
 
     // 'STACK_BIAS' is a constant defined in '/usr/include/sys/stack.h'.
     // The type 'frame' is a struct declared in '<sys/frame.h>'.
@@ -326,7 +216,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
 #if defined(BSLS_PLATFORM_CPU_SPARC)
     const frame *framePtr = (frame *) (void *)
-                         (balst_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
+                          (bsls_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
 
     // Calculate the base of the stack.  It is preferable to call
     // 'thr_stksegment', but it and 'thr_probe_getfunc_addr' may not be loaded.
@@ -348,7 +238,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
         baseOfStack = _environ;
     }
 
-#else //  defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
+#else // defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
 
     jmp_buf ctx;
     setjmp(ctx);
@@ -362,11 +252,11 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
     if (!framePtr) {
         return frameIndex;                                            // RETURN
     }
-    BSLS_ASSERT(framePtr < baseOfStack);
+    assert(framePtr < baseOfStack);
     while (frameIndex < maxFrames && framePtr < baseOfStack) {
         void * pc = (void *) framePtr->fr_savpc;
         if (!pc) {
-            BSLS_ASSERT(frameIndex > 0);
+            assert(frameIndex > 0);
             break;
         }
         buffer[frameIndex++] = (void *) pc;
@@ -389,14 +279,12 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 
-namespace balst {
+namespace bsls {
 
 int StackAddressUtil::getStackAddresses(void    **buffer,
                                         int       maxFrames)
 {
-    BSLS_ASSERT(0 <= maxFrames);
-
-    bslmt::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
+    assert(0 <= maxFrames);
 
     DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                           | SYMOPT_LOAD_LINES
@@ -477,10 +365,10 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
     HANDLE currentThread = GetCurrentThread();
 
     for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex){
-        bool rc = balst::DbghelpDllImpl_Windows::stackWalk64(MACHINE,
-                                                             currentThread,
-                                                             &stackFrame,
-                                                             &winContext);
+        bool rc = bsls::DbghelpDllImpl_Windows::stackWalk64(MACHINE,
+                                                            currentThread,
+                                                            &stackFrame,
+                                                            &winContext);
         if (!rc) {
             break;
         }

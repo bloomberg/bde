@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bsls_bslonce_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>   // for testing only
 #include <bsls_bsltestutil.h>  // for testing only
 
 #include <bsls_platform.h>
@@ -45,9 +43,9 @@ bool BslOnce::doEnter()
                                                        e_IN_PROGRESS);
 
     // Verify that 'd_onceState' was correctly initialized.
-    BSLS_ASSERT(e_NOT_ENTERED == state ||
-                e_IN_PROGRESS == state ||
-                e_DONE        == state);
+    assert(e_NOT_ENTERED == state ||
+           e_IN_PROGRESS == state ||
+           e_DONE        == state);
 
 
     if (state != e_NOT_ENTERED) {
@@ -58,8 +56,7 @@ bool BslOnce::doEnter()
             yield();
             state = bsls::AtomicOperations::getIntAcquire(&d_onceState);
 
-            BSLS_ASSERT(e_IN_PROGRESS == state ||
-                        e_DONE        == state);
+            assert(e_IN_PROGRESS == state || e_DONE == state);
         }
         return false;                                                 // RETURN
     }

@@ -77,8 +77,8 @@ BSLS_IDENT("$Id: $")
 // that 'singleton' is a function scoped static variable to avoid allocating
 // it on the 'heap' (which might be reported as leaked memory).
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
+#ifndef INCLUDED_CASSERT
+#include <assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -235,9 +235,8 @@ bool BslOnce::enter()
 inline
 void BslOnce::leave()
 {
-    BSLS_ASSERT_SAFE(e_IN_PROGRESS ==
-                     bsls::AtomicOperations::getIntRelaxed(&d_onceState));
-
+    assert(e_IN_PROGRESS ==
+                          bsls::AtomicOperations::getIntRelaxed(&d_onceState));
     bsls::AtomicOperations::setIntRelease(&d_onceState, e_DONE);
 }
 
@@ -266,8 +265,8 @@ BslOnceGuard::~BslOnceGuard()
 inline
 bool BslOnceGuard::enter(BslOnce *once)
 {
-    BSLS_ASSERT_SAFE(once);
-    BSLS_ASSERT_SAFE(!d_once);
+    assert(once);
+    assert(!d_once);
 
     bool success = once->enter();
 
@@ -283,7 +282,7 @@ bool BslOnceGuard::enter(BslOnce *once)
 inline
 void BslOnceGuard::leave()
 {
-    BSLS_ASSERT_SAFE(d_once);
+    assert(d_once);
 
     d_once->leave();
     d_once = 0;

@@ -104,7 +104,7 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Loading a Stack-Trace from an Array of Stack Addresses
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate obtaining return addresses from the stack
-// using 'balst::StackAddressUtil', and later using them to load a
+// using 'bsls::StackAddressUtil', and later using them to load a
 // 'balst::StackTrace' object with a description of the stack.  This approach
 // may be desirable if one wants to quickly save the addresses that are the
 // basis for a stack-trace, postponing the more time-consuming translation of
@@ -143,14 +143,14 @@ BSLS_IDENT("$Id: $")
 //      enum { ARRAY_LENGTH = 50 };
 //      void *addresses[ARRAY_LENGTH];
 //..
-// Next, we call 'balst::StackAddressUtil::getStackAddresses' to get the stored
+// Next, we call 'bsls::StackAddressUtil::getStackAddresses' to get the stored
 // return addresses from the stack and load them into the array 'addresses'.
 // The call returns the number of addresses saved into the array, which will be
 // less than or equal to 'ARRAY_LENGTH'.
 //..
-//      int numAddresses = balst::StackAddressUtil::getStackAddresses(
-//                                                           addresses,
-//                                                           ARRAY_LENGTH);
+//      int numAddresses = bsls::StackAddressUtil::getStackAddresses(
+//                                                               addresses,
+//                                                               ARRAY_LENGTH);
 //..
 // Then, we call 'loadStackTraceFromAddressArray' to initialize the information
 // in the stack-trace object, such as function names, source file names, and
@@ -287,7 +287,7 @@ struct StackTraceUtil {
         // The behavior is undefined unless 'addresses' contains at least
         // 'numAddresses' addresses.  Note that the return addresses from the
         // stack can be obtained by calling
-        // 'StackAddressUtil::getStackAddresses', and that demangling
+        // 'bsls::StackAddressUtil::getStackAddresses', and that demangling
         // sometimes involves calling 'malloc'.
 
     static

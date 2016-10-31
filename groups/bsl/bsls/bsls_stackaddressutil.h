@@ -1,4 +1,4 @@
-// balst_stackaddressutil.h                                           -*-C++-*-
+// bsls_stackaddressutil.h                                            -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_STACKADDRESSUTIL
-#define INCLUDED_BALST_STACKADDRESSUTIL
+#ifndef INCLUDED_BSLS_STACKADDRESSUTIL
+#define INCLUDED_BSLS_STACKADDRESSUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,9 +18,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility for obtaining return addresses from the stack.
 //
 //@CLASSES:
-//   balst::StackAddressUtil: utilities for obtaining addresses from the stack
+//   bsls::StackAddressUtil: utilities for obtaining addresses from the stack
 //
-//@SEE_ALSO: balst_stacktrace, balst_stacktraceframe, balst_stacktraceutil
+//@SEE_ALSO: bsls_stacktrace, bsls_stacktraceframe, bsls_stacktraceutil
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we define 'func1', the last function to be called in the chain of
 // nested function calls.  'func1' uses
-// 'balst::StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// 'bsls::StackAddressUtil::getStackAddresses' to get an ordered sequence of
 // return addresses from the current thread's function call stack and uses the
 // previously defined 'findIndex' function to verify those address are correct.
 //..
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 //      enum { BUFFER_LENGTH = 100 };
 //      void *buffer[BUFFER_LENGTH];
 //      bsl::memset(buffer, 0, sizeof(buffer));
-//      int numAddresses = balst::StackAddressUtil::getStackAddresses(
+//      int numAddresses = bsls::StackAddressUtil::getStackAddresses(
 //                                                              buffer,
 //                                                              BUFFER_LENGTH);
 //      assert(numAddresses >= (int) entries.size());
@@ -221,7 +221,7 @@ BSLS_IDENT("$Id: $")
 // platforms.
 //..
 //      int funcIdx  = 1;
-//      int stackIdx = balst::StackAddressUtil::k_IGNORE_FRAMES;
+//      int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
 //      for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
 //          assert(stackIdx < numAddresses);
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
@@ -248,16 +248,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BALSCM_VERSION
-#include <balscm_version.h>
-#endif
-
                        // =============================
-                       // class balst::StackAddressUtil
+                       // class bsls::StackAddressUtil
                        // =============================
 
 namespace BloombergLP {
-namespace balst {
+namespace bsls {
 
 struct StackAddressUtil {
     // This struct provides a namespace for the function to obtain return
