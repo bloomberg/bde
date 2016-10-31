@@ -6255,11 +6255,35 @@ struct TestIncompleteType {
     bsl::unordered_map<int, IncompleteType>            d_data1;
     bsl::unordered_map<IncompleteType, int>            d_data2;
     bsl::unordered_map<IncompleteType, IncompleteType> d_data3;
+
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+    ~TestIncompleteType();
+        // If building in 'SAFE_2' mode, the invariants-check in the destructor
+        // for 'bslstl::HashTable' requires the key type to be complete, and
+        // hashable.  Deferring the definition of this class's destructor until
+        // after the incomplete key type has been fully defined, with hashing
+        // support provided, resolves these issues.
+#endif
 };
 
 struct IncompleteType {
     int d_data;
 };
+
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM &hashAlg, const IncompleteType &object)
+    // Apply the specified 'hashAlg' to the specified 'object'
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlg, object.d_data);
+}
+
+inline
+TestIncompleteType::~TestIncompleteType()
+{
+}
+#endif
 
 }  // close unnamed namespace
 
