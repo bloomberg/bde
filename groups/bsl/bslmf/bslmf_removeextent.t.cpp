@@ -1,4 +1,4 @@
-// bslmf_removeextent.t.cpp                  -*-C++-*-
+// bslmf_removeextent.t.cpp                                           -*-C++-*-
 
 #include "bslmf_removeextent.h"
 #include <bslmf_issame.h>
@@ -6,6 +6,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -21,52 +22,62 @@ using namespace BloombergLP;
 // of simple test input types and verifying the correct output types.
 //
 //-----------------------------------------------------------------------------
-// [1] COMPLETE TEST
-// [2] USAGE EXAMPLE
+// [ 1] bsl::remove_extent<TYPE>::type
 //-----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
+// Old microsoft compilers compilers do not support references to arrays of
+// unknown bound.
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -83,11 +94,11 @@ struct MyClass
 
 ///Usage
 ///-----
-// The class template 'Traverser' is used to traverse an array and perform
-// some operation. In order to do its job in the case of two-dimensional
-// arrays, 'Traverser' must hold on to an entire row of the array at a time in
-// order to process it correctly.  The row type is determined from the array
-// type using 'remove_extent':
+// The class template 'Traverser' is used to traverse an array and perform some
+// operation.  In order to do its job in the case of two-dimensional arrays,
+// 'Traverser' must hold on to an entire row of the array at a time in order to
+// process it correctly.  The row type is determined from the array type using
+// 'remove_extent':
 //..
     template <class ARRAY_TYPE>
     class Traverser {
@@ -121,11 +132,17 @@ struct MyClass
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
-    // int veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -143,7 +160,7 @@ int main(int argc, char *argv[])
         //:   documentation, replacing 'assert' with 'ASSERT'.
         //
         // Testing:
-        //     Usage example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -181,13 +198,13 @@ int main(int argc, char *argv[])
         //:   an array type.
         //
         // Plan:
-        //    For each of the above concerns, instantiate
-        //    'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'. Use
-        //    'bsl::is_same' to verify that 'bsl::remove_extent<TYPE>::type'
-        //    is as expected.
-	//
+        //: 1 For each of the above concerns, instantiate
+        //:   'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'.
+        //: 2  Use 'bsl::is_same' to verify that
+        //:    'bsl::remove_extent<TYPE>::type' is as expected.
+        //
         // Testing:
-        //     bsl::remove_extent<TYPE>::type
+        //   bsl::remove_extent<TYPE>::type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOMPLETE TEST"
@@ -225,10 +242,12 @@ int main(int argc, char *argv[])
         TEST(const long[10][40][50] , const long[40][50]   );
         TEST(int&                   , int&                 );   // 7
         TEST(const int&             , const int&           );
-        TEST(short(&)[]             , short(&)[]           );
         TEST(double(&)[10]          , double(&)[10]        );
-        TEST(const char(&)[][20]    , const char(&)[][20]  );
         TEST(long(&)[10][30]        , long(&)[10][30]      );
+#if !defined(BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
+        TEST(short(&)[]             , short(&)[]           );
+        TEST(const char(&)[][20]    , const char(&)[][20]  );
+#endif // BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST(int&&                  , int&&                );   // 8
         TEST(const int&&            , const int&&          );
@@ -236,7 +255,7 @@ int main(int argc, char *argv[])
         TEST(double(&&)[10]         , double(&&)[10]       );
         TEST(const char(&&)[][20]   , const char(&&)[][20] );
         TEST(long(&&)[10][30]       , long(&&)[10][30]     );
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #undef TEST
 
