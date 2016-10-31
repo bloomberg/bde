@@ -1417,7 +1417,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
               !bsl::is_same<VariantImp<TYPES>,
                             typename bsl::remove_reference<TYPE>::type>::value,
               VariantImp<TYPES> >::type&
-    operator=(TYPE&& value);
+    operator=(TYPE&&                              value);
 #else
     VariantImp& operator=(bslmf::MovableRef<TYPE> value);
 #endif
@@ -2315,14 +2315,26 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant(TYPE&&                  value,
+                     typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant(TYPE&&                   value,
+#else
     Variant(bslmf::MovableRef<TYPE>  value,
+#endif
             bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -2361,7 +2373,24 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant<TYPES...>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant<TYPES...> >::type&
+#else
+    typename bsl::enable_if<
+       !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                             A11, A12, A13, A14, A15, A16, A17, A18, A19, A20>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+               A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> >::type&
+#endif
+    operator=(TYPE&&                           value);
+#else
     Variant& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -2413,7 +2442,15 @@ Variant<TYPES...>::Variant(const TYPE& value, bslma::Allocator *basicAllocator)
 template <class ...TYPES>
 template <class TYPE>
 inline
-Variant<TYPES...>::Variant(bslmf::MovableRef<TYPE> value)
+Variant<TYPES...>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                  value,
+        typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
+Variant(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -2421,7 +2458,11 @@ Variant<TYPES...>::Variant(bslmf::MovableRef<TYPE> value)
 template <class ...TYPES>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant<TYPES...>::Variant(TYPE&&                   value,
+#else
 Variant<TYPES...>::Variant(bslmf::MovableRef<TYPE>  value,
+#endif
                            bslma::Allocator        *basicAllocator)
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
@@ -2466,7 +2507,15 @@ Variant<TYPES...>& Variant<TYPES...>::operator=(const TYPE& value)
 template <class ...TYPES>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant<TYPES...>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant<TYPES...> >::type&
+Variant<TYPES...>::operator=(TYPE&&                                     value)
+#else
 Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -2543,8 +2592,15 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                                 bslmf::MovableRef<TYPE> value)
+        A13, A14, A15, A16, A17, A18, A19, A20>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                  value,
+        typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
+Variant(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -2557,7 +2613,11 @@ template <class TYPE>
 inline
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+                                      TYPE&&                   value,
+#else
                                       bslmf::MovableRef<TYPE>  value,
+#endif
                                       bslma::Allocator        *basicAllocator)
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
@@ -2626,10 +2686,21 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A19, class A20>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+   !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                         A11, A12, A13, A14, A15, A16, A17, A18, A19, A20>,
+                 typename bsl::remove_reference<TYPE>::type>::value,
+   Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+           A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> >::type&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12, A13, A14,
+        A15, A16, A17, A18, A19, A20>::operator=(TYPE&&                  value)
+#else
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
         A13, A14, A15, A16, A17, A18, A19, A20>&
 Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12, A13, A14,
         A15, A16, A17, A18, A19, A20>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -2738,14 +2809,26 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant2(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant2(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant2(TYPE&&                   value,
+#else
     Variant2(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -2784,7 +2867,15 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant2<A1,  A2>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant2<A1,  A2> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant2& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -2836,7 +2927,15 @@ Variant2<A1, A2>::Variant2(const TYPE&       value,
 template <class A1, class A2>
 template <class TYPE>
 inline
-Variant2<A1, A2>::Variant2(bslmf::MovableRef<TYPE> value)
+Variant2<A1, A2>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant2(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
+Variant2(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -2844,8 +2943,13 @@ Variant2<A1, A2>::Variant2(bslmf::MovableRef<TYPE> value)
 template <class A1, class A2>
 template <class TYPE>
 inline
-Variant2<A1, A2>::Variant2(bslmf::MovableRef<TYPE>  value,
-                           bslma::Allocator        *basicAllocator)
+Variant2<A1, A2>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant2(TYPE&&                   value,
+#else
+Variant2(bslmf::MovableRef<TYPE>  value,
+#endif
+         bslma::Allocator        *basicAllocator)
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -2888,8 +2992,16 @@ Variant2<A1, A2>::operator=(const TYPE& value)
 template <class A1, class A2>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant2<A1,  A2>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant2<A1,  A2> >::type&
+Variant2<A1, A2>::operator=(TYPE&&                  value)
+#else
 Variant2<A1, A2>&
 Variant2<A1, A2>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -2976,14 +3088,26 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant3(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant3(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant3(TYPE&&                   value,
+#else
     Variant3(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3022,7 +3146,15 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant3<A1,  A2,  A3>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant3<A1,  A2,  A3> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant3& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -3076,7 +3208,14 @@ template <class A1, class A2, class A3>
 template <class TYPE>
 inline
 Variant3<A1, A2, A3>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant3(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant3(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -3085,7 +3224,11 @@ template <class A1, class A2, class A3>
 template <class TYPE>
 inline
 Variant3<A1, A2, A3>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant3(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant3(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -3130,8 +3273,16 @@ Variant3<A1, A2, A3>::operator=(const TYPE& value)
 template <class A1, class A2, class A3>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant3<A1,  A2,  A3>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant3<A1,  A2,  A3> >::type&
+Variant3<A1, A2, A3>::operator=(TYPE&&                  value)
+#else
 Variant3<A1, A2, A3>&
 Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -3219,14 +3370,26 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant4(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant4(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant4(TYPE&&                   value,
+#else
     Variant4(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3265,7 +3428,15 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant4<A1,  A2,  A3,  A4>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant4<A1,  A2,  A3,  A4> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant4& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -3319,7 +3490,14 @@ template <class A1, class A2, class A3, class A4>
 template <class TYPE>
 inline
 Variant4<A1, A2, A3, A4>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant4(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant4(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -3328,7 +3506,11 @@ template <class A1, class A2, class A3, class A4>
 template <class TYPE>
 inline
 Variant4<A1, A2, A3, A4>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant4(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant4(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -3373,8 +3555,16 @@ Variant4<A1, A2, A3, A4>::operator=(const TYPE& value)
 template <class A1, class A2, class A3, class A4>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant4<A1,  A2,  A3,  A4>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant4<A1,  A2,  A3,  A4> >::type&
+Variant4<A1, A2, A3, A4>::operator=(TYPE&&                  value)
+#else
 Variant4<A1, A2, A3, A4>&
 Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -3462,14 +3652,26 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant5(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant5(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant5(TYPE&&                   value,
+#else
     Variant5(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3508,7 +3710,15 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant5<A1,  A2,  A3,  A4,  A5>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant5<A1,  A2,  A3,  A4,  A5> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant5& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -3562,7 +3772,14 @@ template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE>
 inline
 Variant5<A1, A2, A3, A4, A5>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant5(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant5(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -3571,7 +3788,11 @@ template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE>
 inline
 Variant5<A1, A2, A3, A4, A5>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant5(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant5(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -3616,8 +3837,16 @@ Variant5<A1, A2, A3, A4, A5>::operator=(const TYPE& value)
 template <class A1, class A2, class A3, class A4, class A5>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant5<A1,  A2,  A3,  A4,  A5>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant5<A1,  A2,  A3,  A4,  A5> >::type&
+Variant5<A1, A2, A3, A4, A5>::operator=(TYPE&&                  value)
+#else
 Variant5<A1, A2, A3, A4, A5>&
 Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -3705,14 +3934,26 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant6(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant6(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant6(TYPE&&                   value,
+#else
     Variant6(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3751,7 +3992,15 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant6<A1,  A2,  A3,  A4,  A5,  A6>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant6<A1,  A2,  A3,  A4,  A5,  A6> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant6& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -3805,7 +4054,14 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE>
 inline
 Variant6<A1, A2, A3, A4, A5, A6>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant6(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant6(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -3814,7 +4070,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE>
 inline
 Variant6<A1, A2, A3, A4, A5, A6>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant6(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant6(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -3859,8 +4119,16 @@ Variant6<A1, A2, A3, A4, A5, A6>::operator=(const TYPE& value)
 template <class A1, class A2, class A3, class A4, class A5, class A6>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant6<A1,  A2,  A3,  A4,  A5,  A6>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant6<A1,  A2,  A3,  A4,  A5,  A6> >::type&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(TYPE&&                  value)
+#else
 Variant6<A1, A2, A3, A4, A5, A6>&
 Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -3949,14 +4217,26 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant7(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant7(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant7(TYPE&&                   value,
+#else
     Variant7(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -3995,7 +4275,15 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant7<A1,  A2,  A3,  A4,  A5,  A6,  A7>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant7<A1,  A2,  A3,  A4,  A5,  A6,  A7> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant7& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -4049,7 +4337,14 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE>
 inline
 Variant7<A1, A2, A3, A4, A5, A6, A7>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant7(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant7(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -4058,7 +4353,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE>
 inline
 Variant7<A1, A2, A3, A4, A5, A6, A7>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant7(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant7(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -4103,8 +4402,16 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(const TYPE& value)
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant7<A1,  A2,  A3,  A4,  A5,  A6,  A7>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant7<A1,  A2,  A3,  A4,  A5,  A6,  A7> >::type&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(TYPE&&                  value)
+#else
 Variant7<A1, A2, A3, A4, A5, A6, A7>&
 Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -4195,14 +4502,26 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant8(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant8(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant8(TYPE&&                   value,
+#else
     Variant8(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -4241,7 +4560,15 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+              !bsl::is_same<Variant8<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+              Variant8<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant8& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -4299,7 +4626,14 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant8(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant8(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -4309,7 +4643,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant8(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant8(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -4359,9 +4697,18 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant8<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant8<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8> >::type&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(TYPE&&                  value)
+#else
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
 Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -4454,14 +4801,26 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant9(TYPE&&                  value,
+                      typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant9(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant9(TYPE&&                   value,
+#else
     Variant9(bslmf::MovableRef<TYPE>  value,
+#endif
              bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -4500,7 +4859,15 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+            !bsl::is_same<Variant9<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9>,
+                          typename bsl::remove_reference<TYPE>::type>::value,
+            Variant9<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9> >::type&
+    operator=(TYPE&&                            value);
+#else
     Variant9& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -4558,7 +4925,14 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant9(TYPE&&                  value,
+         typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant9(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -4568,7 +4942,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant9(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant9(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -4619,9 +4997,18 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant9<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant9<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9> >::type&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(TYPE&&                  value)
+#else
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
 Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -4715,14 +5102,26 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant10(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant10(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant10(TYPE&&                   value,
+#else
     Variant10(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -4761,7 +5160,15 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant10<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant10<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant10& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -4819,7 +5226,14 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant10(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant10(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -4829,7 +5243,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 template <class TYPE>
 inline
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant10(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant10(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -4880,9 +5298,18 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant10<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant10<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10> >::type&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(TYPE&&                  value)
+#else
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
 Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -4976,14 +5403,26 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant11(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant11(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant11(TYPE&&                   value,
+#else
     Variant11(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -5022,7 +5461,17 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant11<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant11<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant11& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -5081,7 +5530,14 @@ template <class A1, class A2, class A3, class A4,  class A5, class A6,
 template <class TYPE>
 inline
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant11(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant11(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -5091,7 +5547,11 @@ template <class A1, class A2, class A3, class A4,  class A5, class A6,
 template <class TYPE>
 inline
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant11(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant11(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -5142,9 +5602,20 @@ template <class A1, class A2, class A3, class A4,  class A5, class A6,
           class A7, class A8, class A9, class A10, class A11>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant11<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant11<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11> >::type&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(TYPE&&                  value)
+#else
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
 Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -5238,14 +5709,26 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant12(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant12(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant12(TYPE&&                   value,
+#else
     Variant12(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -5284,7 +5767,17 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant12<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant12<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant12& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -5343,7 +5836,14 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant12(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant12(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -5353,7 +5853,11 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant12(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant12(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -5404,9 +5908,20 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A7, class A8, class A9, class A10, class A11, class A12>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant12<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant12<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12> >::type&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(TYPE&&                  value)
+#else
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
 Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -5501,14 +6016,26 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant13(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant13(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant13(TYPE&&                   value,
+#else
     Variant13(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -5547,7 +6074,17 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant13<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant13<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant13& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -5610,7 +6147,14 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant13(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant13(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -5621,7 +6165,11 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant13(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant13(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -5677,9 +6225,20 @@ template <class A1, class A2, class A3, class A4,  class A5,  class A6,
           class A13>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant13<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant13<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13> >::type&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(TYPE&&                  value)
+#else
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
 Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -5779,14 +6338,26 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant14(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant14(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant14(TYPE&&                   value,
+#else
     Variant14(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -5825,7 +6396,17 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant14<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant14& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -5888,7 +6469,14 @@ template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant14(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant14(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -5899,7 +6487,11 @@ template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant14(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant14(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -5955,9 +6547,20 @@ template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
           class A13, class A14>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant14<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14> >::type&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(TYPE&&                  value)
+#else
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
 Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -6057,14 +6660,26 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant15(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant15(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant15(TYPE&&                   value,
+#else
     Variant15(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -6103,7 +6718,17 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14, A15>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant15<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14, A15> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant15& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -6166,7 +6791,14 @@ template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant15(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant15(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -6177,7 +6809,11 @@ template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
 template <class TYPE>
 inline
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant15(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant15(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -6233,9 +6869,20 @@ template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
           class A13, class A14, class A15>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant15<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14, A15> >::type&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(TYPE&&                  value)
+#else
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
 Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -6336,14 +6983,26 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant16(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant16(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant16(TYPE&&                   value,
+#else
     Variant16(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -6382,7 +7041,17 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14, A15, A16>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14, A15, A16> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant16& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -6449,7 +7118,14 @@ template <class TYPE>
 inline
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant16(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant16(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -6461,7 +7137,11 @@ template <class TYPE>
 inline
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant16(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant16(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -6522,11 +7202,23 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A13, class A14, class A15, class A16>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15, A16>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14, A15, A16> >::type&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(TYPE&&                  value)
+#else
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>&
 Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -6631,14 +7323,26 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant17(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant17(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant17(TYPE&&                   value,
+#else
     Variant17(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -6677,7 +7381,17 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14, A15, A16, A17>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14, A15, A16, A17> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant17& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -6744,7 +7458,14 @@ template <class TYPE>
 inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant17(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant17(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -6756,7 +7477,11 @@ template <class TYPE>
 inline
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant17(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant17(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -6817,11 +7542,23 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A13, class A14, class A15, class A16, class A17>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15, A16, A17>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14, A15, A16, A17> >::type&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(TYPE&&                  value)
+#else
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>&
 Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -6925,14 +7662,26 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant18(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant18(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant18(TYPE&&                   value,
+#else
     Variant18(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -6971,7 +7720,17 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14, A15, A16, A17, A18>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14, A15, A16, A17, A18> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant18& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -7038,7 +7797,14 @@ template <class TYPE>
 inline
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant18(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant18(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -7050,7 +7816,11 @@ template <class TYPE>
 inline
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant18(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant18(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -7111,11 +7881,23 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A13, class A14, class A15, class A16, class A17, class A18>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15, A16, A17, A18>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14, A15, A16, A17, A18> >::type&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(TYPE&&                  value)
+#else
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>&
 Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 
@@ -7221,14 +8003,26 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // used.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    explicit Variant19(TYPE&&                  value,
+                       typename bsl::enable_if<
+                               !bsl::is_convertible<TYPE,
+                                                    bslma::Allocator *>::value,
+                               void>::type * = 0);
+#else
     explicit Variant19(bslmf::MovableRef<TYPE> value);
+#endif
         // Create a variant object having the specified 'value' by moving the
         // contents of 'value' to the newly-created object.  Use the currently
         // installed default allocator to supply memory.  'value' is left in a
         // valid but unspecified state.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Variant19(TYPE&&                   value,
+#else
     Variant19(bslmf::MovableRef<TYPE>  value,
+#endif
               bslma::Allocator        *basicAllocator);
         // Create a variant object having the specified 'value' that uses the
         // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
@@ -7267,7 +8061,17 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // destroyed if the value's type is different from 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    typename bsl::enable_if<
+       !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                               A11, A12, A13, A14, A15, A16, A17, A18, A19>,
+                     typename bsl::remove_reference<TYPE>::type>::value,
+       Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                 A11, A12, A13, A14, A15, A16, A17, A18, A19> >::type&
+    operator=(TYPE&&                             value);
+#else
     Variant19& operator=(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this object the specified 'value' of template parameter
         // 'TYPE', and return a reference providing modifiable access to this
         // object.  The contents of 'value' are moved to this object with
@@ -7338,7 +8142,14 @@ template <class TYPE>
 inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant19(TYPE&&                  value,
+          typename bsl::enable_if<
+                         !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
+                         void>::type *)
+#else
 Variant19(bslmf::MovableRef<TYPE> value)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)))
 {
 }
@@ -7351,7 +8162,11 @@ template <class TYPE>
 inline
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant19(TYPE&&                  value, bslma::Allocator *basicAllocator)
+#else
 Variant19(bslmf::MovableRef<TYPE> value, bslma::Allocator *basicAllocator)
+#endif
 : Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
 {
 }
@@ -7417,11 +8232,23 @@ template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A19>
 template <class TYPE>
 inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15, A16, A17, A18, A19>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+    Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+              A11, A12, A13, A14, A15, A16, A17, A18, A19> >::type&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(TYPE&&                  value)
+#else
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>&
 Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
           A15, A16, A17, A18, A19>::
 operator=(bslmf::MovableRef<TYPE> value)
+#endif
 {
     TYPE& lvalue = value;
 

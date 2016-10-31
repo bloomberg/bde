@@ -2246,6 +2246,2279 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
     }
+
+    // declare place-filler types for testing 'VariantN' and 'Variant'
+
+    typedef TestArg< 1>  TestArg1;
+    typedef TestArg< 2>  TestArg2;
+    typedef TestArg< 3>  TestArg3;
+    typedef TestArg< 4>  TestArg4;
+    typedef TestArg< 5>  TestArg5;
+    typedef TestArg< 6>  TestArg6;
+    typedef TestArg< 7>  TestArg7;
+    typedef TestArg< 8>  TestArg8;
+    typedef TestArg< 9>  TestArg9;
+    typedef TestArg<10>  TestArg10;
+    typedef TestArg<11>  TestArg11;
+    typedef TestArg<12>  TestArg12;
+    typedef TestArg<13>  TestArg13;
+    typedef TestArg<14>  TestArg14;
+    typedef TestArg<15>  TestArg15;
+    typedef TestArg<16>  TestArg16;
+    typedef TestArg<17>  TestArg17;
+    typedef TestArg<18>  TestArg18;
+    typedef TestArg<19>  TestArg19;
+    typedef TestArg<20>  TestArg20;
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    {
+        typedef bdlb::Variant2<bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef bsltf::MovableTestType OT;  // other type
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            TT  mY('A');           const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableTestType      OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);   const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableTestType      OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);   const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    {
+        typedef bdlb::Variant3<int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(3 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    {
+        typedef bdlb::Variant4<TestArg1,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(4 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    {
+        typedef bdlb::Variant5<TestArg1,  TestArg2,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(5 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    {
+        typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(6 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    {
+        typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(7 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    {
+        typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(8 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    {
+        typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,  TestArg6,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(9 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    {
+        typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(10 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    {
+        typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(11 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    {
+        typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(12 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    {
+        typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(13 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    {
+        typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(14 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    {
+        typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(15 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    {
+        typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(16 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    {
+        typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(17 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    {
+        typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(18 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    {
+        typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(19 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
+    {
+        typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                              TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                              TestArg9,  TestArg10, TestArg11, TestArg12,
+                              TestArg13, TestArg14, TestArg15, TestArg16,
+                              TestArg17,
+                              int,
+                              bsltf::MovableTestType,
+                              bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(20 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A');          const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77), &oa);  const Obj& X = mX;
+            TT  mY('A',    &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 1 type)'." << endl;
+    {
+        typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(1 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableAllocTestType OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            TT  mY('A',     &za);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseSame());
+            ASSERT(oam.isTotalUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableAllocTestType OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            TT  mY('A',     &oa);  const TT&  Y = mY;
+
+            ASSERT(X.is<OT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
 }
 
 void TestUtil::testCase25()
@@ -2381,6 +4654,2515 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    // declare place-filler types for testing 'VariantN' and 'Variant'
+
+    typedef TestArg< 1>  TestArg1;
+    typedef TestArg< 2>  TestArg2;
+    typedef TestArg< 3>  TestArg3;
+    typedef TestArg< 4>  TestArg4;
+    typedef TestArg< 5>  TestArg5;
+    typedef TestArg< 6>  TestArg6;
+    typedef TestArg< 7>  TestArg7;
+    typedef TestArg< 8>  TestArg8;
+    typedef TestArg< 9>  TestArg9;
+    typedef TestArg<10>  TestArg10;
+    typedef TestArg<11>  TestArg11;
+    typedef TestArg<12>  TestArg12;
+    typedef TestArg<13>  TestArg13;
+    typedef TestArg<14>  TestArg14;
+    typedef TestArg<15>  TestArg15;
+    typedef TestArg<16>  TestArg16;
+    typedef TestArg<17>  TestArg17;
+    typedef TestArg<18>  TestArg18;
+    typedef TestArg<19>  TestArg19;
+    typedef TestArg<20>  TestArg20;
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    {
+        typedef bdlb::Variant2<bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef bsltf::MovableTestType OT;  // other type
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableTestType      OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableTestType      OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    {
+        typedef bdlb::Variant3<int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(3 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    {
+        typedef bdlb::Variant4<TestArg1,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(4 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    {
+        typedef bdlb::Variant5<TestArg1,  TestArg2,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(5 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    {
+        typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(6 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    {
+        typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(7 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    {
+        typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(8 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    {
+        typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,  TestArg6,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(9 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    {
+        typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(10 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    {
+        typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(11 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    {
+        typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(12 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    {
+        typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(13 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    {
+        typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(14 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    {
+        typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(15 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    {
+        typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(16 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    {
+        typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(17 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    {
+        typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(18 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    {
+        typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(19 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
+    {
+        typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                              TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                              TestArg9,  TestArg10, TestArg11, TestArg12,
+                              TestArg13, TestArg14, TestArg15, TestArg16,
+                              TestArg17,
+                              int,
+                              bsltf::MovableTestType,
+                              bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(20 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+            typedef int                    OT;  // other type
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef int                         OT;
+
+            Obj mX(OT(77),  &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 1 type)'." << endl;
+    {
+        typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(1 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableAllocTestType OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseSame());
+            ASSERT(oam.isTotalUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+            typedef bsltf::MovableAllocTestType OT;
+
+            Obj mX(OT('Z'), &oa);  const Obj& X = mX;
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(X.is<OT>());
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+            ASSERT(mR == &mX);
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with no types)'." << endl;
+    {
+        typedef bdlb::Variant<> Obj;
+
+        ASSERT(0 == Obj::TypeList::LENGTH);
+
+        {
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
+
+            ASSERT(X.isUnset());
+            ASSERT(Y.isUnset());
+
+            Obj *mR = &(mX = MoveUtil::move(mY));
+
+            ASSERT(X.isUnset());
+            ASSERT(Y.isUnset());
+            ASSERT(mR == &mX);
         }
     }
 }
@@ -2675,6 +7457,3055 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
     }
+
+    // declare place-filler types for testing 'VariantN' and 'Variant'
+
+    typedef TestArg< 1>  TestArg1;
+    typedef TestArg< 2>  TestArg2;
+    typedef TestArg< 3>  TestArg3;
+    typedef TestArg< 4>  TestArg4;
+    typedef TestArg< 5>  TestArg5;
+    typedef TestArg< 6>  TestArg6;
+    typedef TestArg< 7>  TestArg7;
+    typedef TestArg< 8>  TestArg8;
+    typedef TestArg< 9>  TestArg9;
+    typedef TestArg<10>  TestArg10;
+    typedef TestArg<11>  TestArg11;
+    typedef TestArg<12>  TestArg12;
+    typedef TestArg<13>  TestArg13;
+    typedef TestArg<14>  TestArg14;
+    typedef TestArg<15>  TestArg15;
+    typedef TestArg<16>  TestArg16;
+    typedef TestArg<17>  TestArg17;
+    typedef TestArg<18>  TestArg18;
+    typedef TestArg<19>  TestArg19;
+    typedef TestArg<20>  TestArg20;
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    {
+        typedef bdlb::Variant2<bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    {
+        typedef bdlb::Variant3<int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(3 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    {
+        typedef bdlb::Variant4<TestArg1,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(4 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    {
+        typedef bdlb::Variant5<TestArg1,  TestArg2,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(5 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    {
+        typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(6 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    {
+        typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(7 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    {
+        typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(8 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    {
+        typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,  TestArg6,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(9 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    {
+        typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(10 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    {
+        typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(11 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    {
+        typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(12 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    {
+        typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(13 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    {
+        typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(14 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    {
+        typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(15 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    {
+        typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(16 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    {
+        typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(17 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    {
+        typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(18 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    {
+        typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(19 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
+    {
+        typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                              TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                              TestArg9,  TestArg10, TestArg11, TestArg12,
+                              TestArg13, TestArg14, TestArg15, TestArg16,
+                              TestArg17,
+                              int,
+                              bsltf::MovableTestType,
+                              bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(20 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mY('A');  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 1 type)'." << endl;
+    {
+        typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(1 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&da == X.getAllocator());
+            ASSERT(dam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &za);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            TT mY('A', &oa);  const TT& Y = mY;
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+
+            MoveState::Enum mStateX = TstFacility::getMovedIntoState(
+                                                                  X.the<TT>());
+            MoveState::Enum mStateY = TstFacility::getMovedFromState(Y);
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
 }
 
 void TestUtil::testCase22()
@@ -2863,6 +10694,3541 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    // declare place-filler types for testing 'VariantN' and 'Variant'
+
+    typedef TestArg< 1>  TestArg1;
+    typedef TestArg< 2>  TestArg2;
+    typedef TestArg< 3>  TestArg3;
+    typedef TestArg< 4>  TestArg4;
+    typedef TestArg< 5>  TestArg5;
+    typedef TestArg< 6>  TestArg6;
+    typedef TestArg< 7>  TestArg7;
+    typedef TestArg< 8>  TestArg8;
+    typedef TestArg< 9>  TestArg9;
+    typedef TestArg<10>  TestArg10;
+    typedef TestArg<11>  TestArg11;
+    typedef TestArg<12>  TestArg12;
+    typedef TestArg<13>  TestArg13;
+    typedef TestArg<14>  TestArg14;
+    typedef TestArg<15>  TestArg15;
+    typedef TestArg<16>  TestArg16;
+    typedef TestArg<17>  TestArg17;
+    typedef TestArg<18>  TestArg18;
+    typedef TestArg<19>  TestArg19;
+    typedef TestArg<20>  TestArg20;
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    {
+        typedef bdlb::Variant2<bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    {
+        typedef bdlb::Variant3<int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(3 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    {
+        typedef bdlb::Variant4<TestArg1,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(4 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    {
+        typedef bdlb::Variant5<TestArg1,  TestArg2,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(5 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    {
+        typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(6 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    {
+        typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(7 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    {
+        typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(8 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    {
+        typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                               TestArg5,  TestArg6,
+                               int,
+                               bsltf::MovableTestType,
+                               bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(9 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    {
+        typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(10 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    {
+        typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(11 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    {
+        typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(12 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    {
+        typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(13 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    {
+        typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(14 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    {
+        typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(15 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    {
+        typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(16 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    {
+        typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(17 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    {
+        typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(18 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    {
+        typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                int,
+                                bsltf::MovableTestType,
+                                bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(19 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 20 types)'." << endl;
+    {
+        typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                              TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                              TestArg9,  TestArg10, TestArg11, TestArg12,
+                              TestArg13, TestArg14, TestArg15, TestArg16,
+                              TestArg17,
+                              int,
+                              bsltf::MovableTestType,
+                              bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(20 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type not taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying an allocator." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with 1 type)'." << endl;
+    {
+        typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
+
+        ASSERT(1 == Obj::TypeList::LENGTH);
+
+        if (verbose) cout << "\tWith type taking an allocator." << endl;
+
+        if (verbose) cout << "\t\tNot supplying an allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&za == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying a different allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &za);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+            zam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isInUseUp());
+            ASSERT(zam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\t\tSupplying the same allocator." << endl;
+        {
+            typedef bsltf::MovableAllocTestType TT;
+
+            Obj mY(TT('A'), &oa);  const Obj& Y = mY;
+
+            ASSERT(Y.is<TT>());
+
+            dam.reset();
+            oam.reset();
+
+            const Obj X(MoveUtil::move(mY), &oa);
+
+            ASSERT(X.is<TT>());
+            ASSERT(Y.is<TT>());
+
+            ASSERT(&oa == X.getAllocator());
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+
+            MoveState::Enum mStateX =
+                                   TstFacility::getMovedIntoState(X.the<TT>());
+            MoveState::Enum mStateY =
+                                   TstFacility::getMovedFromState(Y.the<TT>());
+
+            ASSERT(MoveState::e_MOVED == mStateX);
+            ASSERT(MoveState::e_MOVED == mStateY);
+        }
+    }
+
+    if (verbose) cout << "\nTesting 'bdlb::Variant (with no types)'." << endl;
+    {
+        typedef bdlb::Variant<> Obj;
+
+        ASSERT(0 == Obj::TypeList::LENGTH);
+
+        {
+            Obj mY;  const Obj& Y = mY;
+
+            ASSERT(Y.isUnset());
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.isUnset());
+            ASSERT(Y.isUnset());
         }
     }
 }
