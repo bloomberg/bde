@@ -291,7 +291,7 @@ struct TestVoid {
 
     // ACCESSORS
     template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const
+    STREAM& bdexStreamOut(STREAM& stream, int /* version */) const
     {
         return stream;
     }
@@ -302,12 +302,12 @@ bool operator==(const TestVoid&, const TestVoid&)
     return true;
 }
 
-bool operator!=(const TestVoid& lhs, const TestVoid& rhs)
+bool operator!=(const TestVoid&, const TestVoid&)
 {
     return false;
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid& rhs)
+bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid&)
 {
     stream << "TestVoid";
     return stream;
@@ -625,14 +625,14 @@ class TestString {
                 if (!stream) {
                     return stream;
                 }
-                // Add redundant code (purely for the sake of example!)
+                // Add redundant code (purely for the sake of example!).
                 unsigned char sum, check = 0;
                 stream.getUint8(sum);
                 if (!stream) {
                     return stream;
                 }
-                for (int i = 0; i < value.length(); ++i) {
-                    check += value[i];
+                for (int i = 0; i < static_cast<int>(value.length()); ++i) {
+                    check += static_cast<unsigned char>(value[i]);
                 }
                 if (check != sum) {
                     stream.invalidate();
@@ -666,10 +666,10 @@ class TestString {
             if (!stream) {
                 return stream;
             }
-            // Add redundant code (purely for the sake of example!)
+            // Add redundant code (purely for the sake of example!).
             unsigned char sum = 0;
-            for (int i = 0; i < d_value.length(); ++i) {
-                sum += d_value[i];
+            for (int i = 0; i < static_cast<int>(d_value.length()); ++i) {
+                sum += static_cast<unsigned char>(d_value[i]);
             }
             stream.putUint8(sum);
           } break;
@@ -2266,9 +2266,9 @@ void TestUtil::testCase26()
     typedef TestArg<15>  TestArg15;
     typedef TestArg<16>  TestArg16;
     typedef TestArg<17>  TestArg17;
-    typedef TestArg<18>  TestArg18;
-    typedef TestArg<19>  TestArg19;
-    typedef TestArg<20>  TestArg20;
+    // typedef TestArg<18>  TestArg18;
+    // typedef TestArg<19>  TestArg19;
+    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -4676,9 +4676,9 @@ void TestUtil::testCase25()
     typedef TestArg<15>  TestArg15;
     typedef TestArg<16>  TestArg16;
     typedef TestArg<17>  TestArg17;
-    typedef TestArg<18>  TestArg18;
-    typedef TestArg<19>  TestArg19;
-    typedef TestArg<20>  TestArg20;
+    // typedef TestArg<18>  TestArg18;
+    // typedef TestArg<19>  TestArg19;
+    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -7477,9 +7477,9 @@ void TestUtil::testCase23()
     typedef TestArg<15>  TestArg15;
     typedef TestArg<16>  TestArg16;
     typedef TestArg<17>  TestArg17;
-    typedef TestArg<18>  TestArg18;
-    typedef TestArg<19>  TestArg19;
-    typedef TestArg<20>  TestArg20;
+    // typedef TestArg<18>  TestArg18;
+    // typedef TestArg<19>  TestArg19;
+    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -10716,9 +10716,9 @@ void TestUtil::testCase22()
     typedef TestArg<15>  TestArg15;
     typedef TestArg<16>  TestArg16;
     typedef TestArg<17>  TestArg17;
-    typedef TestArg<18>  TestArg18;
-    typedef TestArg<19>  TestArg19;
-    typedef TestArg<20>  TestArg20;
+    // typedef TestArg<18>  TestArg18;
+    // typedef TestArg<19>  TestArg19;
+    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -27669,7 +27669,7 @@ int main(int argc, char *argv[])
                     // that it is *not* necessary to assert.
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        const int AL = oa.allocationLimit();
+                        const bsls::Types::Int64 AL = oa.allocationLimit();
                         oa.setAllocationLimit(-1);
 
                         TObj mV(g(V_SPEC)); const TObj& V = mV;
@@ -27760,7 +27760,6 @@ int main(int argc, char *argv[])
                     ASSERTV(i, in); ASSERTV(i, !i == in.isEmpty());
 
                     TObj t1(g("A")), t2(g("B")), t3(g("C"));
-                    int stage = 0;
 
                     if (i < LOD1) {
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
@@ -27777,7 +27776,6 @@ int main(int argc, char *argv[])
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                         ASSERTV(i,  in);
                         ASSERTV(i, (Y1 == t1));
-                        stage = 1;
                         bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                         ASSERTV(i, !in);
                         // ASSERTV(i, (X2 == t2));
@@ -27789,11 +27787,9 @@ int main(int argc, char *argv[])
                         bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                         ASSERTV(i,  in);
                         ASSERTV(i, (Y1 == t1));
-                        stage = 1;
                         bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                         ASSERTV(i,  in);
                         ASSERTV(i, (Y2 == t2));
-                        stage = 2;
                         bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                         ASSERTV(i, !in);
                         // ASSERTV(i, (X3 == t3));
@@ -27852,7 +27848,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
         }
         {
-            const char version = TObj::maxSupportedBdexVersion() + 1;
+            const int version = TObj::maxSupportedBdexVersion() + 1;
             bslx::TestOutStream out(0);
             out.putVersion(version);  // version too large
 
