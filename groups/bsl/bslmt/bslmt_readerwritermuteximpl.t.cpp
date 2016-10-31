@@ -95,6 +95,31 @@ int veryVerbose = 0;
 // ============================================================================
 //                   GLOBAL STRUCTS FOR TESTING
 // ----------------------------------------------------------------------------
+// The struct 'TestImpl' serves as the concrete type for all three template
+// arguments of 'bslmt::ReaderWriterMutexImpl'; 'TestImpl' provides static
+// methods for atomic operations, mutex 'lock' and 'unlock', and sempahore
+// 'post' and 'wait'.  By using a
+// 'ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>', a script can be
+// defined to test the execution of a 'ReaderWriterMutexImpl' method.
+// Specifically, the internal state of the 'ReaderWriterMutexImpl' can be
+// verified and set, and the methods called from the implementation can be
+// tracked.
+//
+///SCRIPT SPECIFICATION
+///--------------------
+// The script is a 'bsl::vector<int>'.  Every negative value in the script
+// represents a method call.  The implementation of 'TestImpl' uses 'ASSERT' to
+// verify the expected method has been called.  Before every negative script
+// entry, there may be zero, one, or two non-negative number.  If present, the
+// first non-negative number is used to verify ('ASSERT') the value of the
+// internal state of the'ReaderWriterMutexImpl'.  If present, the second
+// non-negative number is used to replace the state value.
+//
+// The non-negative script entries are encoded as three digits, with each digit
+// representing a different count.  The first digit is the number of writers
+// (limited to 0 or 1 due to the 'ReaderWriterMutexImpl').  The second digit is
+// the count of pending writers.  The third digit is the number of readers in
+// the lock.
 
 struct TestImpl {
     static const bsls::Types::Int64 k_READER         = 0x0000000000000001LL;
@@ -117,7 +142,10 @@ struct TestImpl {
         k_POST   = -8
     };
 
-    static void printScript(int exp) {
+    static void printScript(int exp)
+        // Display an error message providing the script and an indication of
+        // the specified 'exp' value at the current script location.
+    {
         cout << "   ";
         for (bsl::size_t i = 0; i < s_script.size(); ++i) {
             if (s_scriptAt == i) {
@@ -130,7 +158,9 @@ struct TestImpl {
         cout << endl;
     }
 
-    static void processState() {
+    static void processState()
+        // Perform the validate and assignment of the internal state.
+    {
         ASSERT(0 != s_pState);
 
         if (s_pState) {
@@ -181,29 +211,41 @@ struct TestImpl {
         }
     }
     
-    static void processFunction(const int expectedFunctionId) {
+    static void processFunction(const int expectedFunctionId)
+        // Process the script up through the next method call and verify the
+        // expected method is called by examining the specified
+        // 'expectedFunctionId'.
+    {
         processState();
 
         ASSERT(s_scriptAt < s_script.size());
+
+        if (veryVerbose && s_scriptAt >= s_script.size()) {
+            printScript(-999);
+        }
 
         ASSERTV(s_scriptAt,
                 expectedFunctionId,
                 s_script[s_scriptAt],
                 expectedFunctionId == s_script[s_scriptAt]);
 
-        if (veryVerbose && expectedFunctionId != s_script[s_scriptAt]) {
+        if (veryVerbose &&  expectedFunctionId != s_script[s_scriptAt]) {
             printScript(expectedFunctionId);
         }
 
         ++s_scriptAt;
     }
 
-    static void assignScript(const bsl::vector<int>& script) {
+    static void assignScript(const bsl::vector<int>& script)
+        // Assign the specified 'script' for verification.
+    {
         s_script = script;
         s_scriptAt = 0;
     }
 
-    static void assertScriptComplete() {
+    static void assertScriptComplete()
+        // Verify the script has been completely consumed.
+    {
         processState();
 
         ASSERT(s_scriptAt == s_script.size());
@@ -269,7 +311,7 @@ struct TestImpl {
                                                               newValue);
     }
 
-    // MUTEX
+    // MUTEX implementations
     static void lock() {
         processFunction(k_LOCK);
     }
@@ -278,7 +320,7 @@ struct TestImpl {
         processFunction(k_UNLOCK);
     }
 
-    // SEMAPHORE
+    // SEMAPHORE implementations
     static void wait() {
         processFunction(k_WAIT);
     }
@@ -310,15 +352,126 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-//
+
 // MANIPULATORS
-// [ 3] void lockRead();
-// [ 4] void lockWrite();
 // [ 8] int  tryLockRead();
 // [ 9] int  tryLockWrite();
 // [ 7] void unlock();
 // [ 5] void unlockRead();
 // [ 6] void unlockWrite();
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'lockWrite'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'lockWrite' operates correctly in the presence of other
+        //:   attempts to acquire read and/or write locks.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths, with and without semaphore
+        //:   acquisition.  (C-1)
+        //
+        // Testing:
+        //   void lockWrite();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'lockWrite'" << endl
+                 << "===================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_INITIAL[]   = {   0,   1,   2,
+                                        10,  11,  12,
+                                        20,  21,  22,
+                                       100, 101, 102,
+                                       110, 111, 112,
+                                       120, 121, 122 };
+
+        const int DATA_READER[]    = {  11,  12,  13,
+                                        21,  22,  23,
+                                        31,  32,  33,
+                                       111, 112, 113,
+                                       121, 122, 123,
+                                       131, 132, 133 };
+
+        const int DATA_NO_READER[] = {  10,  20,  30,
+                                       110, 120, 130};
+
+        const bsl::size_t NUM_INITIAL =
+                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+        const bsl::size_t NUM_READER =
+                                      sizeof DATA_READER / sizeof *DATA_READER;
+        const bsl::size_t NUM_NO_READER =
+                                sizeof DATA_NO_READER / sizeof *DATA_NO_READER;
+        
+        if (verbose) cout << "\nSemaphore is acquired." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            for (bsl::size_t j = 0; j < NUM_READER; ++j) {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(0);
+                    script.push_back(DATA_INITIAL[i]);
+                    script.push_back(TestImpl::k_ADD);
+                    script.push_back(TestImpl::k_LOCK);
+                    script.push_back(DATA_INITIAL[i] + 10);
+                    script.push_back(DATA_READER[j]);
+                    script.push_back(TestImpl::k_ADD);
+                    script.push_back(DATA_READER[j] + 100 - 10);
+                    script.push_back(TestImpl::k_WAIT);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    obj.lockWrite();
+                }
+
+                TestImpl::assertScriptComplete();
+            }
+        }
+        
+        if (verbose) cout << "\nSemaphore is not acquired." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            for (bsl::size_t j = 0; j < NUM_NO_READER; ++j) {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(0);
+                    script.push_back(DATA_INITIAL[i]);
+                    script.push_back(TestImpl::k_ADD);
+                    script.push_back(TestImpl::k_LOCK);
+                    script.push_back(DATA_INITIAL[i] + 10);
+                    script.push_back(DATA_NO_READER[j]);
+                    script.push_back(TestImpl::k_ADD);
+                    script.push_back(DATA_NO_READER[j] + 100 - 10);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    obj.lockWrite();
+                }
+
+                TestImpl::assertScriptComplete();
+            }
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'lockRead'
@@ -344,6 +497,11 @@ int main(int argc, char *argv[])
                  << "==================" << endl;
         }
 
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
         const int DATA_WRITER[]    = {  10,  11,  12,
                                         20,  21,  22,
                                        100, 101, 102,
@@ -361,18 +519,23 @@ int main(int argc, char *argv[])
         for (int depth = 0; depth <= 3; ++depth) {
             if (verbose) cout << "\tDepth = " << depth << '.' << endl;
 
-            int maxIndex = NUM_WRITER;
+            // Compute the number of iterations for the 'depth'.
+            
+            bsl::size_t maxIndex = NUM_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            for (int index = 0; index < maxIndex; ++index) {
-                int i;
-                int d1;
-                int d2;
-                int d3;
+            // Test the method for every possible sequence of the 'depth'
+            // and 'DATA_*' values.
+            
+            for (bsl::size_t index = 0; index < maxIndex; ++index) {
+                bsl::size_t i;
+                bsl::size_t d1;
+                bsl::size_t d2;
+                bsl::size_t d3;
                 {
-                    int v = index;
+                    bsl::size_t v = index;
 
                     i  =  v % NUM_WRITER;
                     v  /= NUM_WRITER;
@@ -387,7 +550,11 @@ int main(int argc, char *argv[])
                     || (depth > 2 && d2 == d3)) {
                     continue;
                 }
-                
+
+                // Produce the script for the method attempt.  The 'depth'
+                // corresponds to the number of 'CAS' attempts before the
+                // mutex is locked.
+
                 bsl::vector<int> script;
                 {
                     script.push_back(TestImpl::k_INIT);
@@ -435,18 +602,23 @@ int main(int argc, char *argv[])
         for (int depth = 0; depth <= 3; ++depth) {
             if (verbose) cout << "\tDepth = " << depth << '.' << endl;
 
-            int maxIndex = NUM_NO_WRITER;
+            // Compute the number of iterations for the 'depth'.
+
+            bsl::size_t maxIndex = NUM_NO_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            for (int index = 0; index < maxIndex; ++index) {
-                int i;
-                int d1;
-                int d2;
-                int d3;
+            // Test the method for every possible sequence of the 'depth'
+            // and 'DATA_*' values.
+
+            for (bsl::size_t index = 0; index < maxIndex; ++index) {
+                bsl::size_t i;
+                bsl::size_t d1;
+                bsl::size_t d2;
+                bsl::size_t d3;
                 {
-                    int v = index;
+                    bsl::size_t v = index;
 
                     i  =  v % NUM_NO_WRITER;
                     v  /= NUM_NO_WRITER;
@@ -465,6 +637,10 @@ int main(int argc, char *argv[])
                                        || d3 == i))) {
                     continue;
                 }
+
+                // Produce the script for the method attempt.  The 'depth'
+                // corresponds to the number of 'CAS' attempts before the
+                // compare-and-swap succeeds.
                 
                 bsl::vector<int> script;
                 {
