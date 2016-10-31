@@ -19,6 +19,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -29,13 +33,23 @@ BSLS_IDENT("$Id: $")
 
 #include <algorithm>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
+    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
+#else
+    #define USING_CPP11_NATIVE_STD(algo)
+#endif
+
 namespace bsl {
 
     // Import selected symbols into bsl namespace
+    USING_CPP11_NATIVE_STD(all_of)
     using native_std::adjacent_find;
+    USING_CPP11_NATIVE_STD(any_of)
     using native_std::binary_search;
     using native_std::copy;
     using native_std::copy_backward;
+    USING_CPP11_NATIVE_STD(copy_if)
+    USING_CPP11_NATIVE_STD(copy_n)
 
     // 'count' and 'count_if' are provided in 'bslstl_algorithmworkaround' in
     // order to work-around the Sun standard library, libCstd.
@@ -51,11 +65,18 @@ namespace bsl {
     using native_std::find_end;
     using native_std::find_first_of;
     using native_std::find_if;
+    USING_CPP11_NATIVE_STD(find_if_not)
     using native_std::for_each;
     using native_std::generate;
     using native_std::generate_n;
     using native_std::includes;
     using native_std::inplace_merge;
+    USING_CPP11_NATIVE_STD(iota)
+    USING_CPP11_NATIVE_STD(is_heap)
+    USING_CPP11_NATIVE_STD(is_partitioned)
+    USING_CPP11_NATIVE_STD(is_permutation)
+    USING_CPP11_NATIVE_STD(is_sorted)
+    USING_CPP11_NATIVE_STD(is_sorted_until)
     using native_std::iter_swap;
     using native_std::lexicographical_compare;
     using native_std::lower_bound;
@@ -64,13 +85,20 @@ namespace bsl {
     using native_std::max_element;
     using native_std::merge;
     using native_std::min;
+    USING_CPP11_NATIVE_STD(minmax)
+    USING_CPP11_NATIVE_STD(minmax_element)
     using native_std::min_element;
     using native_std::mismatch;
+    USING_CPP11_NATIVE_STD(move)
+    USING_CPP11_NATIVE_STD(move_backward)
     using native_std::next_permutation;
+    USING_CPP11_NATIVE_STD(none_of)
     using native_std::nth_element;
     using native_std::partial_sort;
     using native_std::partial_sort_copy;
     using native_std::partition;
+    USING_CPP11_NATIVE_STD(partition_copy)
+    USING_CPP11_NATIVE_STD(partition_point)
     using native_std::pop_heap;
     using native_std::prev_permutation;
     using native_std::push_heap;
@@ -94,6 +122,7 @@ namespace bsl {
     using native_std::set_new_handler;
     using native_std::set_symmetric_difference;
     using native_std::set_union;
+    USING_CPP11_NATIVE_STD(shuffle)
     using native_std::sort;
     using native_std::sort_heap;
     using native_std::stable_partition;
@@ -101,6 +130,7 @@ namespace bsl {
     using native_std::swap;
     using native_std::swap_ranges;
     using native_std::transform;
+    USING_CPP11_NATIVE_STD(uninitialized_copy_n)
     using native_std::unique;
     using native_std::unique_copy;
     using native_std::upper_bound;
@@ -124,6 +154,7 @@ namespace bsl {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 
+#undef USING_CPP11_NATIVE_STD
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
