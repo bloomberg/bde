@@ -689,7 +689,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_ALGORITHM
-#include <algorithm>
+#include <algorithm>  // for 'std::swap' in C++03
 #define INCLUDED_ALGORITHM
 #endif
 
@@ -717,6 +717,11 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_STRING
 #include <string>  // for 'native_std::char_traits'
+#define INCLUDED_STRING
+#endif
+
+#ifndef INCLUDED_STRING
+#include <utility>  // for 'std::swap' in C++11
 #define INCLUDED_STRING
 #endif
 

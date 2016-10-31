@@ -1655,8 +1655,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //      noexcept(noexcept(lhs.swap(rhs)));
 
     {
-        const Obj lhs;
-        const Obj rhs;
+        Obj lhs;
+        Obj rhs;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs == rhs));
@@ -1671,6 +1671,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs >= rhs));
 
+        using bsl::swap;
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(lhs, rhs)));
     }
