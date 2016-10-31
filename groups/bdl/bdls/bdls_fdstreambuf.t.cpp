@@ -1910,6 +1910,8 @@ int main(int argc, char *argv[])
 
             ASSERT(X.isOpened());
             ASSERT(fd == X.fileDescriptor());
+
+            FileUtil::remove(filename);
         }
 
         // getting '0' from close verifies fd's are still open
