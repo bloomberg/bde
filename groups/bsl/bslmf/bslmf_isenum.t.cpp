@@ -314,6 +314,10 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQP(bslmf::IsEnum, bool, 0);
         TYPE_ASSERT_CVQP(bslmf::IsEnum, int,  0);
         TYPE_ASSERT_CVQP(bslmf::IsEnum, long double, 0);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, char16_t,  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, char32_t,  0);
+#endif
 
         // 'void' is fundamental
         TYPE_ASSERT_CVQP(bslmf::IsEnum, void, 0);
@@ -434,6 +438,10 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQP(bsl::is_enum, bool,  false);
         TYPE_ASSERT_CVQP(bsl::is_enum, int,  false);
         TYPE_ASSERT_CVQP(bsl::is_enum, long double, false);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TYPE_ASSERT_CVQP(bsl::is_enum, char16_t,  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, char32_t,  false);
+#endif
 
         // 'void' is fundamental
         TYPE_ASSERT_CVQP(bsl::is_enum, void, false);

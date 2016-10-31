@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-fn for determining if a type is copy constructibile.
+//@PURPOSE: Provide a meta-function to report if a type is copy constructible.
 //
 //@REVIEW_FOR_MASTER: improve component-level doc, add usage example
 //
@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: $")
 // 'bsl::is_copy_constructible' has the same syntax as the
 // 'is_copy_constructible' template from the C++11 standard [meta.unary.prop].
 // Indeed, in C++11 compilation environments, 'bsl::is_copy_constructible'
-// simply forwards to the native implementation which can determine the correct
-// value for all types without requiring specialization; in C++03 environments,
-// 'bsl::is_copy_construcible' provides welcome backward compatibility but
-// returns 'true' for all user-defined types and requires explicit
-// specialization for types that are not copy constructible (e.g., move-only
-// types).
+// simply forwards to the native implementation, which can determine the
+// correct value for all types without requiring specialization; in C++03
+// environments, 'bsl::is_copy_construcible' provides welcome backward
+// compatibility but returns 'true' for all user-defined types and requires
+// explicit specialization for types that are not copy constructible (e.g.,
+// move-only types).
 //
 // NOTE: The 'bsl::is_copy_constructible' trait cannot be declared as a nested
 // trait because the default value of the trait is 'true' and nested traits
@@ -104,29 +104,33 @@ BSLS_IDENT("$Id: $")
 # define BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT 1
 #endif
 
-#if defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
-    // Early MSVC compilers have an incomplete <type_traits> header
 namespace bsl {
 
-template <class TYPE>
-struct is_copy_constructible
-    : bsl::integral_constant<bool,
-                             ::native_std::is_copy_constructible<TYPE>::value>
-{
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' has a copy
-    // constructor.
-};
-
-}  // close namespace bsl
-#else
-namespace bsl {
+                        // ============================
+                        // struct is_copy_constructible
+                        // ============================
 
 template <class TYPE>
 struct is_copy_constructible;
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is copy constructible.  This 'struct'
+    // derives from 'bsl::true_type' if the 'TYPE' is copy constructible, and
+    // from 'bsl::false_type' otherwise.  This meta-function has the same
+    // syntax as the 'is_copy_constructible' meta-function defined in the C++11
+    // standard [meta.unary.prop]; on C++03 platforms, however, this
+    // meta-function defaults to 'true_type' for all types that are not
+    // explicitly declared to have the 'bslmf::IsNonCopyable' trait using the
+    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  To mark a type as non-copyable,
+    // 'bslmf::IsNonCopyable' must be specialized (for that type) to inherit
+    // from 'bsl::true_type'.
 
 }  // close namespace bsl
 
+// ============================================================================
+//                          CLASS TEMPLATE DEFINITIONS
+// ============================================================================
+
+#if !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
 namespace BloombergLP {
 namespace bslmf {
 
@@ -175,25 +179,16 @@ struct IsCopyConstructible_Imp<TYPE *volatile> : bsl::true_type
 
 namespace bsl {
 
-                        // ============================
-                        // struct is_copy_constructible
-                        // ============================
+                        // ====================================
+                        // struct is_copy_constructible (C++03)
+                        // ====================================
 
 template <class TYPE>
 struct is_copy_constructible
 : BloombergLP::bslmf::IsCopyConstructible_Imp<TYPE>::type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (template parameter) 'TYPE' is copy constructible.  This 'struct'
-    // derives from 'bsl::true_type' if the 'TYPE' is copy constructible, and
-    // from 'bsl::false_type' otherwise.  This meta-function has the same
-    // syntax as the 'is_copy_constructible' meta-function defined in the C++11
-    // standard [meta.unary.prop]; on C++03 platforms, however, this
-    // meta-function defaults to 'true_type' for all types that are not
-    // explicitly declared to have the 'bslmf::IsNonCopyable' trait using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.  To mark a type as non-copyable,
-    // 'bslmf::IsNonCopyable' must be specialized (for that type) to inherit
-    // from 'bsl::true_type'.
-
+    // The primary template for this traits handles only non-const-qualified
+    // types; partial specializations will handle some interesting cases,
+    // including the remaining const-qualified types.
 };
 
 template <class TYPE>
@@ -264,6 +259,22 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
 };
 
 #endif  // defined(BSLS_PLATFORM_CMP_IBM)
+
+}  // close namespace bsl
+#else
+namespace bsl {
+
+                        // ====================================
+                        // struct is_copy_constructible (C++11)
+                        // ====================================
+
+template <class TYPE>
+struct is_copy_constructible
+    : bsl::integral_constant<bool,
+                             ::native_std::is_copy_constructible<TYPE>::value>
+{
+    // Defer entirely to the native trait on supported C++11 compilers.
+};
 
 }  // close namespace bsl
 #endif  // !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
