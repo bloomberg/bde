@@ -4,6 +4,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -26,14 +27,15 @@ using namespace BloombergLP;
 // 'new' and 'delete' operators respectively forward the call to the
 // 'allocate' and 'deallocate' method of the supplied allocator.
 //-----------------------------------------------------------------------------
-// [ 1] virtual ~bslma::Allocator();
+// [ 1] virtual ~Allocator();
 // [ 1] virtual void *allocate(size_type size) = 0;
 // [ 1] virtual void deallocate(void *address) = 0;
-// [ 2] template<typename TYPE> deleteObject(const TYPE *);
-// [ 3] template<typename TYPE> deleteObjectRaw(const TYPE *);
+// [ 2] template<class TYPE> void deleteObject(const TYPE *);
+// [ 3] template<class TYPE> void deleteObjectRaw(const TYPE *);
+// [ 2] void deleteObject(bsl::nulptr_t);
+// [ 3] void deleteObjectRaw(bsl::nulptr_t);
 // [ 4] void *operator new(int size, bslma::Allocator& basicAllocator);
-// [ 5] void operator delete(void *address, bslma::Allocator& basicAllocator);
-// [  ] static throwBadAlloc();
+// [ 5] void operator delete(void *address, bslma::Allocator& bA);
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 4] OPERATOR TEST - Make sure overloaded operators call correct functions.
@@ -253,8 +255,8 @@ class my_DoubleStack {
                                      // elements)
     int               d_size;        // physical capacity of this stack (in
                                      // elements)
-    int               d_length;      // logical index of next available
-                                     // stack element
+    int               d_length;      // logical index of next available stack
+                                     // element
     bslma::Allocator *d_allocator_p; // holds (but doesn't own) object
 
     friend class my_DoubleStackIter;
@@ -336,10 +338,11 @@ void reallocate(double           **array,
 
 void my_DoubleStack::increaseSize()
 {
-     int proposedNewSize = d_size * GROW_FACTOR;      // reallocate can throw
-     ASSERT(proposedNewSize > d_length);
-     reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
-     d_size = proposedNewSize;                        // we're committed
+    int proposedNewSize = d_size * GROW_FACTOR;      // reallocate can throw
+    ASSERT(proposedNewSize > d_length);
+
+    reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
+    d_size = proposedNewSize;                        // we're committed
 }
 
 inline
@@ -355,16 +358,23 @@ void my_DoubleStack::push(double value)
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {
+    // PRIVATE DATA
     const double *d_stack_p;
-    int d_index;
+    int           d_index;
+
   private:
+    // NOT DEFINED
     my_DoubleStackIter(const my_DoubleStackIter&);
     my_DoubleStackIter& operator=(const my_DoubleStackIter&);
+
   public:
     explicit my_DoubleStackIter(const my_DoubleStack& stack)
     : d_stack_p(stack.d_stack_p), d_index(stack.d_length - 1) { }
+
     void operator++() { --d_index; }
+
     operator const void *() const { return d_index >= 0 ? this : 0; }
+
     const double& operator()() const { return d_stack_p[d_index]; }
 };
 
@@ -381,7 +391,7 @@ void debugprint(const my_DoubleStack& val) {
 //-----------------------------------------------------------------------------
 
 class my_Type {
-    char *d_stuff_p;
+    char             *d_stuff_p;
     bslma::Allocator *d_allocator_p;
 
   public:
@@ -507,13 +517,13 @@ int main(int argc, char *argv[])
         //   automatically to deallocate the object.
         //
         // Plan:
-        //   Invoke the 'operator new' for a class which throws exception from
-        //   the constructor.  Catch the exception and verify that deallocation
-        //   was performed automatically.
+        //   Invoke 'operator new' for a class that throws an exception from
+        //   the chosen constructor.  Catch the exception and verify that
+        //   deallocation was performed automatically.
         //
         // Testing:
         //   void operator delete(void *address, bslma::Allocator& bA);
-        //   EXCEPTION SAFETY
+        //   CONCERN: EXCEPTION SAFETY
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nEXCEPTION SAFETY OF OPERATOR NEW TEST"
@@ -599,11 +609,13 @@ int main(int argc, char *argv[])
         //   object with a virtual destructor.  Test with null pointer.
         //
         // Testing:
-        //   template<typename TYPE> deleteObjectRaw(const TYPE *)
+        //   template<class TYPE> void deleteObjectRaw(const TYPE *);
+        //   void deleteObjectRaw(bsl::nulptr_t);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'deleteObjectRaw' TEST"
-                            "\n======================\n");
+        if (verbose) printf(
+                          "\nMEMBER TEMPLATE METHOD 'deleteObjectRaw' TEST"
+                          "\n=============================================\n");
 
         if (verbose) printf("\nTesting 'deleteObjectRaw':\n");
         {
@@ -626,7 +638,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
             a.deleteObjectRaw(pC1CONST);
             if (verbose) { T_;  T_;  P(globalObjectStatus); }
-            ASSERT(0 == globalObjectStatus);   ASSERT(2 == myA.getCount());
+            ASSERT(0 == globalObjectStatus);
+            ASSERT(2 == myA.getCount());
 
             if (verbose) printf("\twith a my_Class2 object\n");
 
@@ -645,7 +658,8 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
             a.deleteObjectRaw(pC2CONST);
             if (verbose) { T_;  T_;  P(globalObjectStatus); }
-            ASSERT(0 == globalObjectStatus);   ASSERT(4 == myA.getCount());
+            ASSERT(0 == globalObjectStatus);
+            ASSERT(4 == myA.getCount());
 
             if (verbose) printf("\tWith a polymorphic object\n");
 
@@ -672,11 +686,22 @@ int main(int argc, char *argv[])
             if (verbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
-            a.deleteObject(pC3);
+            a.deleteObjectRaw(pC3);
             if (verbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
+
+            if (verbose) printf("\tWith a null pointer literal\n");
+
+            a.deleteObjectRaw(0);
+            ASSERT(6 == myA.getCount());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+            a.deleteObjectRaw(nullptr);
+            ASSERT(6 == myA.getCount());
+#endif // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
         }
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
@@ -712,8 +737,21 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // MEMBER TEMPLATE METHOD 'deleteObject' TEST
-        //   We want to make sure that when 'deleteObj' is used both
-        //   destructor and 'deallocate' are invoked.
+        //
+        // Concerns:
+        //: 1 'deleteObject' can be called with a null pointer, having no
+        //:   effect.
+        //: 2 'deleteObject' can be called with a null pointer literal, having
+        //:   no effect.
+        //: 3 'deleteObject', when passed a pointer to an object allocated by
+        //:   a given allocator, runs the destructor for the referenced object,
+        //:   and then calls 'deallocate' for the footprint of that object.
+        //: 4 'deleteObject', when passed a pointer to a derived object (where
+        //:   the base type has a virtual destructor) allocated by a given
+        //:   allocator, runs the derived destructor for the referenced object,
+        //:   and then calls 'deallocate' for the footprint of that whole
+        //:   object, even when the base class is not the left-most base of the
+        //:   derived type.
         //
         // Plan:
         //   Using an allocator and placement new operator construct objects of
@@ -723,11 +761,12 @@ int main(int argc, char *argv[])
         //   object with a virtual destructor.  Test with null pointer.
         //
         // Testing:
-        //   template<typename TYPE> deleteObject(const TYPE *)
+        //   template<class TYPE> void deleteObject(const TYPE *);
+        //   void deleteObject(bsl::nulptr_t);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'deleteObject' TEST"
-                            "\n===================\n");
+        if (verbose) printf("\nMEMBER TEMPLATE METHOD 'deleteObject' TEST"
+                            "\n==========================================\n");
 
         if (verbose) printf("\nTesting 'deleteObject':\n");
         {
@@ -750,7 +789,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
             a.deleteObject(pC1CONST);
             if (verbose) { T_;  T_;  P(globalObjectStatus); }
-            ASSERT(0 == globalObjectStatus);   ASSERT(2 == myA.getCount());
+            ASSERT(0 == globalObjectStatus);
+            ASSERT(2 == myA.getCount());
 
             if (verbose) printf("\twith a my_Class2 object\n");
 
@@ -769,7 +809,8 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
             a.deleteObject(pC2CONST);
             if (verbose) { T_;  T_;  P(globalObjectStatus); }
-            ASSERT(0 == globalObjectStatus);   ASSERT(4 == myA.getCount());
+            ASSERT(0 == globalObjectStatus);
+            ASSERT(4 == myA.getCount());
 
             if (verbose) printf("\tWith a my_Class3Base object\n");
 
@@ -800,6 +841,16 @@ int main(int argc, char *argv[])
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
+
+            if (verbose) printf("\tWith a null pointer literal\n");
+
+            a.deleteObject(0);
+            ASSERT(6 == myA.getCount());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+            a.deleteObject(nullptr);
+            ASSERT(6 == myA.getCount());
+#endif // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         }
         {
             my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
@@ -906,14 +957,14 @@ int main(int argc, char *argv[])
         //   implementations of the methods are called.
         //
         // Testing:
-        //   virtual ~bslma::Allocator();
+        //   virtual ~Allocator();
         //   virtual void *allocate(size_type size) = 0;
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPROTOCOL TEST"
                             "\n=============\n");
-        my_Allocator myA;
+        my_Allocator      myA;
         bslma::Allocator& a = myA;
 
         if (verbose) printf("\nTesting allocate/deallocate\n");

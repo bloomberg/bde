@@ -403,6 +403,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NULLPTR
+#include <bsls_nullptr.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -483,6 +487,20 @@ class Allocator {
         // i.e., the address is (numerically) the same as when it was
         // originally dispensed by this allocator, and has not already been
         // deallocated.
+
+    void deleteObject(bsl::nullptr_t);
+        // This function has no effect.  Note that it exists to support calling
+        // 'deleteObject' will a null pointer literal, that would otherwise not
+        // deduce to a pointer type for the method above.  As calls to
+        // 'deleteObject' with (typed) null pointer values have well-defined
+        // behavior, it should also support calls with a null pointer literal.
+
+    void deleteObjectRaw(bsl::nullptr_t);
+        // This function has no effect.  Note that it exists to support calling
+        // 'deleteObjectRaw' will a null pointer literal, that would otherwise
+        // not deduce to a pointer type for the method above.  As calls to
+        // 'deleteObjectRaw' with (typed) null pointer values have well-defined
+        // behavior, it should also support calls with a null pointer literal.
 };
 
 }  // close package namespace
@@ -589,11 +607,24 @@ void Allocator::deleteObject(const TYPE *object)
     DeleterHelper::deleteObject(object, this);
 }
 
+
+inline
+void Allocator::deleteObject(bsl::nullptr_t)
+{
+    // This function body is intentionally left blank.
+}
+
 template <class TYPE>
 inline
 void Allocator::deleteObjectRaw(const TYPE *object)
 {
     DeleterHelper::deleteObjectRaw(object, this);
+}
+
+inline
+void Allocator::deleteObjectRaw(bsl::nullptr_t)
+{
+    // This function body is intentionally left blank.
 }
 
 }  // close package namespace
