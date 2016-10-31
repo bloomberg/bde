@@ -39,6 +39,7 @@ BSLS_IDENT("$Id: $")
 //
 //  BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER: tuple header is available
 //  BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT: piece-wise construct def
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS: standard algorithms C++11 added
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -155,6 +156,15 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT':
 //:     This macro is defined if the definition of 'piecewise_construct_t'
 //:     is provided in the '<utility>' header of the standard library.
+//:
+//: 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS':
+//:     This macro is defined if all of the following algorithms are
+//:     implemented by the compiler vendor's standard library implementation:
+//:     'all_of', 'any_of', 'copy_if', 'copy_n', 'find_if_not', 'iota',
+//:     'is_heap', 'is_partitioned', 'is_permutation', 'is_sorted',
+//:     'is_sorted_until', 'minmax', 'minmax_element', 'move', 'move_backward',
+//:     'none_of', 'partition_copy', 'partition_point', 'shuffle',
+//:     'uninitialized_copy_n'.
 //:
 ///Usage
 ///-----
@@ -431,6 +441,17 @@ BSLS_IDENT("$Id: $")
 // Note that bugs in MSVC 2013 support for variadic templates preclude
 // enabling the feature for BSL.
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// TBD: the below is likely too conservative of a requirement. There might be
+//      compiler versions that do not implement all of C++11 but that 
+//      nonetheless implement all of the standard algorithms added in C++11.
+// This macro is defined if all of the following algorithms are implemented by
+// the compiler vendor's standard library implementation:
+// 'all_of', 'any_of', 'copy_if', 'copy_n', 'find_if_not', 'iota', 'is_heap',
+// 'is_partitioned', 'is_permutation', 'is_sorted', 'is_sorted_until',
+// 'minmax', 'minmax_element', 'move', 'move_backward', 'none_of',
+// 'partition_copy', 'partition_point', 'shuffle', 'uninitialized_copy_n'.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -786,6 +807,17 @@ namespace bsls {
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
+#endif
+
+// Our use of piecewise construction requires variadic templates.  Rather than
+// testing for both features everywhere, just remove the former if we do not
+// have the latter.
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#  undef BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
+#endif
+
+#if __cplusplus >= 201103L
+#define BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
 #endif
 
 #endif
