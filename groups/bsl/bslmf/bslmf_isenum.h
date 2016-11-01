@@ -104,6 +104,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+                                // ==============
+                                // struct is_enum
+                                // ==============
+
 template <class TYPE>
 struct is_enum;
     // This 'struct' template implements the 'is_enum' meta-function defined in
@@ -117,9 +121,9 @@ struct is_enum;
 namespace BloombergLP {
 namespace bslmf {
 
-                                // ============
-                                // class IsEnum
-                                // ============
+                                // =============
+                                // struct IsEnum
+                                // =============
 
 template <class TYPE>
 struct IsEnum : bsl::is_enum<TYPE>::type {
@@ -146,9 +150,9 @@ struct IsEnum : bsl::is_enum<TYPE>::type {
 namespace BloombergLP {
 namespace bslmf {
 
-                      // ==============================
-                      // class IsEnum_AnyArithmeticType
-                      // ==============================
+                        // ===============================
+                        // struct IsEnum_AnyArithmeticType
+                        // ===============================
 
 struct IsEnum_AnyArithmeticType {
     // This 'struct' provides a type that is convertible from any arithmetic
@@ -192,9 +196,9 @@ struct IsEnum_TestConversions
 
 namespace bsl {
 
-                               // ======================
-                               // struct is_enum (C++03)
-                               // ======================
+                        // ======================
+                        // struct is_enum (C++03)
+                        // ======================
 
 template <class TYPE>
 struct is_enum
@@ -247,9 +251,9 @@ struct is_enum<const volatile TYPE>
 #else
 namespace bsl {
 
-                               // ======================
-                               // struct is_enum (C++11)
-                               // ======================
+                        // ======================
+                        // struct is_enum (C++11)
+                        // ======================
 
 template <class TYPE>
 struct is_enum

@@ -42,6 +42,7 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // [ 2] EXTENDING 'bsl::is_copy_constructible'
+// [  ] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

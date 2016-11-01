@@ -9,6 +9,7 @@
 #include <bslmf_addvolatile.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -321,6 +322,9 @@ int main(int argc, char *argv[])
 
         // 'void' is fundamental
         TYPE_ASSERT_CVQP(bslmf::IsEnum, void, 0);
+
+        // 'bsl::nullptr_t' should be fundamental
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, bsl::nullptr_t, 0);
 
         // C-2
         TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType, 1);

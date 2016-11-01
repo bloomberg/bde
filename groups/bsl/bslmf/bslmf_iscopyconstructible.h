@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to report if a type is copy constructible.
 //
-//@REVIEW_FOR_MASTER: improve component-level doc, add usage example
-//
 //@CLASSES:
 //  bsl::is_copy_constructible: type-traits meta-function
 //
