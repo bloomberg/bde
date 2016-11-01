@@ -1,5 +1,6 @@
-// bslmf_util.t.cpp                                                    -*-C++-*-
+// bslmf_util.t.cpp                                                   -*-C++-*-
 #include <bslmf_util.h>
+
 #include <bsls_objectbuffer.h>
 #include <bsls_bsltestutil.h>
 
@@ -32,11 +33,14 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
@@ -47,6 +51,8 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -55,13 +61,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -108,22 +113,26 @@ struct CUtil {
 class Obj {
     bool d_copied;
     bool d_moved;
+
   public:
     Obj()
     : d_copied(false)
     , d_moved(false)
     {
     }
+
     Obj(const Obj&)
     : d_copied(true)
     , d_moved(false)
     {
     }
+
     Obj(bslmf::MovableRef<Obj>)
     : d_copied(false)
     , d_moved(true)
     {
     }
+
     bool copied() const { return d_copied; }
     bool moved() const { return d_moved; }
 };
@@ -146,8 +155,25 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
-        if (verbose) printf("Breathing Test"
-                            "--------------\n");
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This test exercises basic functionality but *tests* *nothing*.
+        //
+        // Concerns:
+        //: 1 That the functions exist with the documented signatures.
+        //: 2 That the basic functionality works as documented.
+        //
+        // Plan:
+        //: 1 Exercise each function in turn and devise an elementary test
+        //:   sequence to ensure that the basic functionality is as documented.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
         Obj mA; const Obj& A = mA;
         ASSERT(false == A.copied());
         ASSERT(false == A.moved());
@@ -155,16 +181,15 @@ int main(int argc, char *argv[])
         bsls::ObjectBuffer<Obj> buf;
         Obj& mX = buf.object(); const Obj& X = mX;
 
-        CUtil::construct(bsls::Util::addressOf(buf.object()),  A);
+        CUtil::construct(buf.address(),  A);
         ASSERT( true == X.copied());
         ASSERT(false == X.moved());
 
-        CUtil::construct(bsls::Util::addressOf(buf.object()), mA);
+        CUtil::construct(buf.address(), mA);
         ASSERT( true == X.copied());
         ASSERT(false == X.moved());
 
-        CUtil::construct(bsls::Util::addressOf(buf.object()),
-                         bslmf::MovableRefUtil::move(mA));
+        CUtil::construct(buf.address(), bslmf::MovableRefUtil::move(mA));
         ASSERT(false == X.copied());
         ASSERT( true == X.moved());
 
