@@ -1,9 +1,10 @@
-// bslmf_removeextent.cpp                  -*-C++-*-
-
-#include <bslmf_removeextent.h> // For testing only
+// bslmf_removeextent.cpp                                             -*-C++-*-
+#include <bslmf_removeextent.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslmf_issame.h>       // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.

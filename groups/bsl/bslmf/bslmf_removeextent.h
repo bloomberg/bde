@@ -1,4 +1,4 @@
-// bslmf_removeextent.h                  -*-C++-*-
+// bslmf_removeextent.h                                               -*-C++-*-
 #ifndef INCLUDED_BSLMF_REMOVEEXTENT
 #define INCLUDED_BSLMF_REMOVEEXTENT
 
@@ -9,29 +9,30 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction to return an array type's element type.
 //
-//@CLASSES: bsl::remove_extent<TYPE>
+//@CLASSES:
+//  bsl::remove_extent: type trait that returns the element type of an array
 //
 //@SEE_ALSO: bslmf_decay
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component provides a metafunction 'bsl::remove_extent'
-// that returns the element type of an array.  The functionality is intended
-// to be identical to the C++11 metafunction 'std::remove_extent'.  From the
-// C++14 standard:
+// that returns the element type of an array.  The functionality is intended to
+// be identical to the C++11 metafunction 'std::remove_extent'.  From the C++14
+// standard:
 //
 // If 'T' names a type "array of 'U'", the member typedef 'type' shall be 'U',
-// otherwise 'T'. [ *Note:* For multidimensional arrays, only the first array
-// dimension is removed. For a type "array of 'const U'", the resulting type
-// is 'const U'. -- *end note* ]
+// otherwise 'T'.  [ *Note:* For multidimensional arrays, only the first array
+// dimension is removed.  For a type "array of 'const U'", the resulting type
+// is 'const U'.  -- *end note* ]
 //
 ///Usage
 ///-----
-// The class template 'Traverser' is used to traverse an array and perform
-// some operation. In order to do its job in the case of two-dimensional
-// arrays, 'Traverser' must hold on to an entire row of the array at a time in
-// order to process it correctly.  The row type is determined from the array
-// type using 'remove_extent':
+// The class template 'Traverser' is used to traverse an array and perform some
+// operation.  In order to do its job in the case of two-dimensional arrays,
+// 'Traverser' must hold on to an entire row of the array at a time in order to
+// process it correctly.  The row type is determined from the array type using
+// 'remove_extent':
 //..
 //  template <class ARRAY_TYPE>
 //  class Traverser {
@@ -77,10 +78,10 @@ namespace bsl {
 template <class TYPE>
 struct remove_extent {
     // From the C++14 standard: If 'T' names a type "array of 'U'", the member
-    // typedef 'type' shall be 'U', otherwise 'T'. [ *Note:* For
-    // multidimensional arrays, only the first array dimension is removed. For
-    // a type "array of 'const U'", the resulting type is 'const U'. --
-    // *end note* ]
+    // typedef 'type' shall be 'U', otherwise 'T'.  [ *Note:* For
+    // multidimensional arrays, only the first array dimension is removed.  For
+    // a type "array of 'const U'", the resulting type is 'const U'.  -- *end
+    // note* ]
 
     typedef TYPE type;
 };
