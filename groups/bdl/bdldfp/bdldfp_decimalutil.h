@@ -461,7 +461,7 @@ struct DecimalUtil {
         // 'value' is equal to 'sign * significand * (10 ** exponent)'.
         // The special values infinity and NaNs are decomposed to 'sign',
         // 'exponent' and 'significand' parts, even though they don't have
-        // their normal meaning (except 'sign'), that is the specific values
+        // their normal meaning (except 'sign').  That is those specific values
         // cannot be restored using these parts, unlike the finite ones.
         // Return the integer value that represents the floating point
         // classification of the specified 'value' as follows:

@@ -944,7 +944,6 @@ int DecimalUtil::decompose(int                 *sign,
         k_SIGN_MASK             = 0x8000000000000000ull,
         k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
         k_INFINITY_MASK         = 0x7800000000000000ull,
-        k_SINFINITY_MASK        = 0xf800000000000000ull,
         k_NAN_MASK              = 0x7c00000000000000ull,
         k_SMALL_COEFF_MASK      = 0x0007ffffffffffffull,
         k_LARGE_COEFF_MASK      = 0x001fffffffffffffull,
@@ -1001,10 +1000,9 @@ int DecimalUtil::decompose(int                 *sign,
         k_SIGN_MASK             = 0x8000000000000000ull,
         k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
         k_INFINITY_MASK         = 0x7800000000000000ull,
-        k_SINFINITY_MASK        = 0xf800000000000000ull,
         k_NAN_MASK              = 0x7c00000000000000ull,
-        k_SMALL_COEFF_MASK      = 0x0001ffffffffffffull,
-        k_LARGE_COEFF_MASK      = 0x00007fffffffffffull,
+        k_SMALL_COEFF_MASK      = 0x00007fffffffffffull,
+        k_LARGE_COEFF_MASK      = 0x0001ffffffffffffull,
         k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
         k_EXPONENT_MASK         = 0x3fff,
         k_EXPONENT_SHIFT_LARGE  = 47,
@@ -1053,7 +1051,7 @@ int DecimalUtil::decompose(int                 *sign,
     *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
                 - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
     // coefficient
-    significand->setHigh(xH & k_SMALL_COEFF_MASK);
+    significand->setHigh(xH & k_LARGE_COEFF_MASK);
     significand->setLow(xL);
 
     return cl;
