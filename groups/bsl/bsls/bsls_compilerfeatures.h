@@ -443,9 +443,6 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// TBD: the below is likely too conservative of a requirement. There might be
-//      compiler versions that do not implement all of C++11 but that 
-//      nonetheless implement all of the standard algorithms added in C++11.
 // This macro is defined if all of the following algorithms are implemented by
 // the compiler vendor's standard library implementation:
 // 'all_of', 'any_of', 'copy_if', 'copy_n', 'find_if_not', 'iota', 'is_heap',
@@ -816,6 +813,7 @@ namespace bsls {
 #  undef BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
 
+// TBD: This is a sufficient but not a necessary condition.
 #if __cplusplus >= 201103L
 #define BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
 #endif
