@@ -85,12 +85,74 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# define BSLS_ISENUM_USE_NATIVE_TRAIT 1
+#endif
+
+namespace bsl {
+
+                                // ==============
+                                // struct is_enum
+                                // ==============
+
+template <class TYPE>
+struct is_enum;
+    // This 'struct' template implements the 'is_enum' meta-function defined in
+    // the C++11 standard [meta.unary.cat] to determine if the (template
+    // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
+    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and from
+    // 'bsl::false_type' otherwise.
+
+}  // close namespace bsl
+
 namespace BloombergLP {
 namespace bslmf {
 
-                      // ==============================
-                      // class IsEnum_AnyArithmeticType
-                      // ==============================
+                                // =============
+                                // struct IsEnum
+                                // =============
+
+template <class TYPE>
+struct IsEnum : bsl::is_enum<TYPE>::type {
+    // This 'struct' provides a meta-function that computes, at compile time,
+    // whether the (template parameter) 'TYPE' is an enumerated type.  It
+    // derives from 'bsl::true_type' if 'TYPE' is an enumerated type, and from
+    // 'bsl::false_type' otherwise.
+    //
+    // Enumerated types are the only user-defined types that have the
+    // characteristics of a native arithmetic type (i.e., they can be converted
+    // to an integral type without invoking user-defined conversions).  This
+    // class takes advantage of this property to distinguish 'enum' types from
+    // class types that are convertible to an integral or enumerated type.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// ============================================================================
+//                          CLASS TEMPLATE DEFINITIONS
+// ============================================================================
+
+#if !defined(BSLS_ISENUM_USE_NATIVE_TRAIT)
+namespace BloombergLP {
+namespace bslmf {
+
+                        // ===============================
+                        // struct IsEnum_AnyArithmeticType
+                        // ===============================
 
 struct IsEnum_AnyArithmeticType {
     // This 'struct' provides a type that is convertible from any arithmetic
@@ -134,9 +196,9 @@ struct IsEnum_TestConversions
 
 namespace bsl {
 
-                               // ==============
-                               // struct is_enum
-                               // ==============
+                        // ======================
+                        // struct is_enum (C++03)
+                        // ======================
 
 template <class TYPE>
 struct is_enum
@@ -146,11 +208,9 @@ struct is_enum
         && !is_class<TYPE>::value,
         BloombergLP::bslmf::IsEnum_TestConversions<TYPE>,
         false_type>::type {
-    // This 'struct' template implements the 'is_enum' meta-function defined in
-    // the C++11 standard [meta.unary.cat] to determine if the (template
-    // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
-    // 'bsl::true_type' if the 'TYPE' is an enumerated type, and from
-    // 'bsl::false_type' otherwise.
+    // This formula determines whether or not most (complete) types are, or are
+    // not, enumerations using only facilities available to a C++03 compiler;
+    // additional specializations will handle the remaining corner cases.
 };
 
 template <class TYPE>
@@ -167,10 +227,10 @@ struct is_enum<void>
 };
 
 // Additional partial specializations for cv-qualified types ensure that the
-// correct result is obtained for cv-qualified enums.  Note that there is a
-// peculiar bug wit the IBM xlC compiler that requires an additional use of the
-// 'remove_cv' trait to obtain the correct result (without infinite recursion)
-// for arrays of more than one dimension.
+// correct result is obtained for cv-qualified 'enum's.  Note that there is a
+// peculiar bug with the IBM xlC compiler that requires an additional use of
+// the 'remove_cv' trait to obtain the correct result (without infinite
+// recursion) for arrays of more than one dimension.
 
 template <class TYPE>
 struct is_enum<const TYPE>
@@ -188,30 +248,22 @@ struct is_enum<const volatile TYPE>
 };
 
 }  // close namespace bsl
+#else
+namespace bsl {
 
-namespace BloombergLP {
-namespace bslmf {
-
-                                // ============
-                                // class IsEnum
-                                // ============
+                        // ======================
+                        // struct is_enum (C++11)
+                        // ======================
 
 template <class TYPE>
-struct IsEnum : bsl::is_enum<TYPE>::type {
-    // This 'struct' provides a meta-function that computes, at compile time,
-    // whether the (template parameter) 'TYPE' is an enumerated type.  It
-    // derives from 'bsl::true_type' if 'TYPE' is an enumerated type, and from
-    // 'bsl::false_type' otherwise.
-    //
-    // Enumerated types are the only user-defined types that have the
-    // characteristics of a native arithmetic type (i.e., they can be converted
-    // to an integral type without invoking user-defined conversions).  This
-    // class takes advantage of this property to distinguish 'enum' types from
-    // class types that are convertible to an integral or enumerated type.
+struct is_enum
+    : bsl::integral_constant<bool, ::native_std::is_enum<TYPE>::value>
+{
+    // Defer entirely to the native trait on supported C++11 compilers.
 };
 
-}  // close package namespace
-}  // close enterprise namespace
+} // namespace bsl
+#endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================

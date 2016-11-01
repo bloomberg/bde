@@ -4,6 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_addconst.h>                     // for testing only
+#include <bslmf_addcv.h>                        // for testing only
+#include <bslmf_addlvaluereference.h>           // for testing only
+#include <bslmf_addpointer.h>                   // for testing only
+#include <bslmf_addvolatile.h>                  // for testing only
+#include <bslmf_ispointer.h>                    // for testing only
+#include <bslmf_nestedtraitdeclaration.h>       // for testing only
+
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.
 //

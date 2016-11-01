@@ -218,6 +218,12 @@ enum EnumTestType {
     // This 'enum' type is used for testing.
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum EnumClassType {
+    // This 'enum' type is used for testing.
+};
+#endif
+
 typedef int (UserDefinedThrowTestType::*MethodPtrTestType) ();
     // This pointer to non-static function member type is used for testing.
 
@@ -357,12 +363,15 @@ int main(int argc, char *argv[])
                    "\n===================================\n");
 
         // C-1
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double, true);
 
         // C-2
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType, true);
+#endif
 
         // C-3
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType,
