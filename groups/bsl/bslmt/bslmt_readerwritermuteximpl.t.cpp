@@ -1253,10 +1253,9 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create four objects using both the default and copy constructors.
+        //: 1 Create objects.
         //:
-        //: 2 Exercise these objects using primary manipulators, basic
-        //:   accessors, equality operators, and the assignment operator.
+        //: 2 Exercise these objects using primary manipulators.
         //:
         //: 3 Verify expected values throughout.  (C-1)
         //

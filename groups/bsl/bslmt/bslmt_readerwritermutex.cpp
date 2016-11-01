@@ -2,6 +2,8 @@
 
 #include <bslmt_readerwritermutex.h>
 
+#include <bslmt_threadutil.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_readerwriterwmutex_cpp,"$Id$ $CSID$")
 
