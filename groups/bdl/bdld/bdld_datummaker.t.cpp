@@ -1110,10 +1110,10 @@ int main(int argc, char *argv[])
         ASSERT(bdld::Datum::createError(2) == m(bdld::DatumError(2)));
 
         ASSERT(bdld::Datum::createDate(bdlt::Date(2014,2,2)) ==
-                                                       m(bdlt::Date(2014,2,2)));
+                                                      m(bdlt::Date(2014,2,2)));
         ASSERT(bdld::Datum::createTime(bdlt::Time(1,1)) == m(bdlt::Time(1,1)));
         ASSERT(bdld::Datum::createDatetime(bdlt::Datetime(2014,2,2), &sa) ==
-                                                   m(bdlt::Datetime(2014,2,2)));
+                                                  m(bdlt::Datetime(2014,2,2)));
         ASSERT(bdld::Datum::createDatetimeInterval(bdlt::DatetimeInterval(9),
                                                    &sa) ==
                                                  m(bdlt::DatetimeInterval(9)));
