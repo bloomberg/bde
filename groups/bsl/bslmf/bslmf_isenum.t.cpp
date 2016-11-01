@@ -1,7 +1,15 @@
 // bslmf_isenum.t.cpp                                                 -*-C++-*-
 #include <bslmf_isenum.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addlvaluereference.h>
+#include <bslmf_addpointer.h>
+#include <bslmf_addrvaluereference.h>
+#include <bslmf_addvolatile.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -71,6 +79,47 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
+    ASSERT(result == META_FUNC<                         TYPE       >::value); \
+    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
+    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value);
+#else
+# define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
+    ASSERT(result == META_FUNC<                         TYPE       >::value); \
+    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);
+#endif
+    // References are never 'enum' types, but must safely be arsed by the
+    // metafunction under test, and give the expected ('false') result.
+
+# define TYPE_ASSERT_CVQ(META_FUNC,                   TYPE,        result)    \
+         TYPE_ASSERT_REF(META_FUNC,                   TYPE,        result)    \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_const<   TYPE>::type, result)    \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_volatile<TYPE>::type, result)    \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_cv<      TYPE>::type, result)
+    // Test all cv-qualified combinations on a type, and references to those
+    // same cv-qualified types.
+
+# define TYPE_ASSERT_CVQP(META_FUNC,                  TYPE,        result)    \
+         TYPE_ASSERT_CVQ (META_FUNC,                  TYPE,        result)    \
+         TYPE_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
+    // Test whether a type as an 'enum', and confirm that pointers to such a
+    // type is never an 'enum'.
+
+
+#if defined(BSLS_PLATFORM_CMP_IBM)                                    \
+ || defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_ISENUM_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND 1
+        // The IBM xlC compiler does not handle arrays of unknown bounds as
+        // template type parameters.  Older Microsoft compilers have problems
+        // with references to arrays of unknown bound that fall out of the
+        // template metaprograms used to implement this trait.
+#endif
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -82,6 +131,12 @@ enum EnumTestType {
     ENUM_TEST_VALUE0 = 0,
     ENUM_TEST_VALUE1
 };
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum class EnumClassType {
+    // This 'enum' type is used for testing.
+};
+#endif
 
 struct StructTestType {
     // This user-defined 'struct' type is intended to be used for testing as
@@ -107,7 +162,7 @@ typedef int (StructTestType::*MethodPtrTestType) ();
     // This pointer to non-static member function type is intended to be used
     // for testing as the template parameter 'TYPE' of 'bsl::is_enum'.
 
-typedef void (*FunctionPtrTestType) ();
+typedef int MultiParameterFunction(char, float...);
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_enum'.
 
@@ -138,35 +193,11 @@ struct ConvertToEnumTestType {
 };
 
 struct ConvertToAnyType {
-    template <class T>
-    operator T() { return T(); }
+    template <class TYPE>
+    operator TYPE() { return TYPE(); }
 };
 
 }  // close unnamed namespace
-
-#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
-    ASSERT(result == META_FUNC<TYPE>::value);                 \
-    ASSERT(result == META_FUNC<const TYPE>::value);           \
-    ASSERT(result == META_FUNC<volatile TYPE>::value);        \
-    ASSERT(result == META_FUNC<const volatile TYPE>::value);
-
-#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)       \
-    ASSERT(result == META_FUNC<TYPE>::value);                 \
-    ASSERT(result == META_FUNC<TYPE const>::value);           \
-    ASSERT(result == META_FUNC<TYPE volatile>::value);        \
-    ASSERT(result == META_FUNC<TYPE const volatile>::value);
-
-#define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)           \
-    ASSERT(result == META_FUNC<TYPE&>::value);                 \
-    ASSERT(result == META_FUNC<TYPE const&>::value);           \
-    ASSERT(result == META_FUNC<TYPE volatile&>::value);        \
-    ASSERT(result == META_FUNC<TYPE const volatile&>::value);
-
-#define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                 \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);           \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);        \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -237,7 +268,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsEnum::VALUE'
+        // TESTING 'bslmf::IsEnum::VALUE'
         //   Ensure that the static data member 'VALUE' of 'bslmf::IsEnum'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
@@ -259,6 +290,15 @@ int main(int argc, char *argv[])
         //: 5 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
         //:   user-defined type having conversions to integral or enumerated
         //:   type, or a reference to such a user-defined type.
+        //:
+        //: 6 'IsEnum::VALUE' is 0 when 'TYPE' is a function or function
+        //:   reference type.
+        //:
+        //: 7 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //:   array type.
+        //:
+        //: 8 'IsEnum::VALUE' is 0 when 'TYPE' is a (possibly cv-qualified)
+        //:   'void' type.
         //
         // Plan:
         //: 1 Verify that 'bslmf::IsEnum::VALUE' has the correct value for each
@@ -268,73 +308,97 @@ int main(int argc, char *argv[])
         //   bslmf::IsEnum::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsEnum::VALUE'\n"
-                            "======================\n");
+        if (verbose) printf("TESTING 'bslmf::IsEnum::VALUE'\n"
+                            "==============================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, int,  0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, int,  0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, void, 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, bool, 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int,  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, long double, 0);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, char16_t,  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, char32_t,  0);
+#endif
+
+        // 'void' is fundamental
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, void, 0);
+
+        // 'bsl::nullptr_t' should be fundamental
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, bsl::nullptr_t, 0);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, EnumTestType, 1);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, EnumTestType, 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType, 1);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumClassType, 1);
+#endif
 
         // C-3
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, StructTestType,       0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, StructTestType,       0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, UnionTestType,        0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, UnionTestType,        0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, Incomplete,           0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, Incomplete,           0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, BaseClassTestType,    0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, BaseClassTestType,    0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, DerivedClassTestType, 0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, DerivedClassTestType, 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, StructTestType,       0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, UnionTestType,        0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, Incomplete,           0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, BaseClassTestType,    0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, DerivedClassTestType, 0);
 
         // C-4
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, int*,                       0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, StructTestType*,            0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, int StructTestType::*,      0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, int StructTestType::* *,    0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, UnionTestType*,             0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, PMD BaseClassTestType::*,   0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, PMD BaseClassTestType::* *, 0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, BaseClassTestType*,         0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, DerivedClassTestType*,      0);
-        TYPE_ASSERT_CVQ(bslmf::IsEnum, Incomplete*,                0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, MethodPtrTestType,   0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, FunctionPtrTestType, 0);
-
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, int*,                       0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, StructTestType*,            0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, int StructTestType::*,      0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, int StructTestType::* *,    0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, UnionTestType*,             0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, PMD BaseClassTestType::*,   0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, PMD BaseClassTestType::* *, 0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, BaseClassTestType*,         0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, DerivedClassTestType*,      0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, Incomplete*,                0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, MethodPtrTestType,          0);
-        TYPE_ASSERT_CVQ_REF(bslmf::IsEnum, FunctionPtrTestType,        0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int StructTestType::*,     0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, PMD BaseClassTestType::*,  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, MethodPtrTestType,   0);
 
         // C-5
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToIntTestType,  0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToIntTestType,  0);
-        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, ConvertToEnumTestType, 0);
-        TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, ConvertToEnumTestType, 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, ConvertToIntTestType,  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, ConvertToEnumTestType, 0);
 
-        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // can't use TYPE_ASSERT_CVQP because it adds volatile and
         // ConvertibleToAny doesn't have a volatile operator()
         ASSERT(! bslmf::IsEnum<ConvertToAnyType>::value);
         ASSERT(! bslmf::IsEnum<ConvertToAnyType const>::value);
         ASSERT(! bslmf::IsEnum<ConvertToAnyType &>::value);
         ASSERT(! bslmf::IsEnum<ConvertToAnyType const &>::value);
+
+        // C-6
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int(int),  0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, void(...), 0);
+
+        typedef int MultiParameterFunction(char, float...);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, MultiParameterFunction, 0);
+
+        // C-7
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int[2], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int[4][2], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType[2], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType[4][2], 0);
+
+#if !defined(BSLMF_ISENUM_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND)
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int[], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int[][2], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType[], 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, EnumTestType[][2], 0);
+#else
+        ASSERT(! bslmf::IsEnum<int[2]>::value);
+        ASSERT(! bslmf::IsEnum<const int[2]>::value);
+        ASSERT(! bslmf::IsEnum<volatile int[2]>::value);
+        ASSERT(! bslmf::IsEnum<const volatile int[2]>::value);
+
+        ASSERT(! bslmf::IsEnum<int[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<const int[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<volatile int[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<const volatile int[4][2]>::value);
+
+        ASSERT(! bslmf::IsEnum<EnumTestType[2]>::value);
+        ASSERT(! bslmf::IsEnum<const EnumTestType[2]>::value);
+        ASSERT(! bslmf::IsEnum<volatile EnumTestType[2]>::value);
+        ASSERT(! bslmf::IsEnum<const volatile EnumTestType[2]>::value);
+
+        ASSERT(! bslmf::IsEnum<EnumTestType[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<const EnumTestType[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<volatile EnumTestType[4][2]>::value);
+        ASSERT(! bslmf::IsEnum<const volatile EnumTestType[4][2]>::value);
+#endif
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_enum::value'
+        // TESTING 'bsl::is_enum::value'
         //   Ensure that the static data member 'value' of 'bsl::is_enum'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
@@ -362,9 +426,6 @@ int main(int argc, char *argv[])
         //:
         //: 7 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) array type.
-        //:
-        //: 8 'is_enum::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) void type.
         //
         // Plan:
         //: 1 Verify that 'bsl::is_enum::value' has the correct value for each
@@ -374,64 +435,44 @@ int main(int argc, char *argv[])
         //   bsl::is_enum::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_enum::value'\n"
-                            "=====================\n");
+        if (verbose) printf("TESTING 'bsl::is_enum::value'\n"
+                            "=============================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, int,  false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, int,  false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, void, false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, bool,  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int,  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, long double, false);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TYPE_ASSERT_CVQP(bsl::is_enum, char16_t,  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, char32_t,  false);
+#endif
+
+        // 'void' is fundamental
+        TYPE_ASSERT_CVQP(bsl::is_enum, void, false);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, EnumTestType, true);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, EnumTestType, false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumTestType, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumClassType, true);
+#endif
 
         // C-3
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, StructTestType,       false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, StructTestType,       false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, UnionTestType,        false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, UnionTestType,        false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, Incomplete,           false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, Incomplete,           false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, DerivedClassTestType, false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, DerivedClassTestType, false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, StructTestType,       false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, UnionTestType,        false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, Incomplete,           false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, BaseClassTestType,    false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, DerivedClassTestType, false);
 
         // C-4
-        TYPE_ASSERT_CVQ(bsl::is_enum, int*,                       false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, StructTestType*,            false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, int StructTestType::*,      false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, int StructTestType::* *,    false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, UnionTestType*,             false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, PMD BaseClassTestType::*,   false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, BaseClassTestType*,         false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, DerivedClassTestType*,      false);
-        TYPE_ASSERT_CVQ(bsl::is_enum, Incomplete*,                false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, MethodPtrTestType,   false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, FunctionPtrTestType, false);
-
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, int*,                       false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, StructTestType*,            false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, int StructTestType::*,      false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, int StructTestType::* *,    false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, UnionTestType*,             false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, PMD BaseClassTestType::*,   false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, BaseClassTestType*,         false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, DerivedClassTestType*,      false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, Incomplete*,                false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, MethodPtrTestType,          false);
-        TYPE_ASSERT_CVQ_REF(bsl::is_enum, FunctionPtrTestType,        false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int StructTestType::*,    false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, PMD BaseClassTestType::*, false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, MethodPtrTestType,        false);
 
         // C-5
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToIntTestType,  false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToIntTestType,  false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, ConvertToEnumTestType, false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_enum, ConvertToEnumTestType, false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, ConvertToIntTestType,  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, ConvertToEnumTestType, false);
 
-        // can't use TYPE_ASSERT_CVQ because it adds volatile and
+        // can't use TYPE_ASSERT_CVQP because it adds volatile and
         // ConvertibleToAny doesn't have a volatile operator()
         ASSERT(! bsl::is_enum<ConvertToAnyType>::value);
         ASSERT(! bsl::is_enum<ConvertToAnyType const>::value);
@@ -439,22 +480,26 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<ConvertToAnyType const &>::value);
 
         // C-6
-        ASSERT(! bsl::is_enum<int(int)>::value);
-        ASSERT(! bsl::is_enum<void(...)>::value);
-
-        ASSERT(! bsl::is_enum<void()>::value);
-        ASSERT(! bsl::is_enum<int(char, float...)>::value);
-        ASSERT(! bsl::is_enum<void(&)()>::value);
-        ASSERT(! bsl::is_enum<int(&)(char, float...)>::value);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int(int),  false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, void(...), false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, MultiParameterFunction, false);
 
         // C-7
+        TYPE_ASSERT_CVQP(bsl::is_enum, int[2], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int[4][2], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumTestType[2], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumTestType[4][2], false);
 
-        // These tests do not use the test macros above, as you need to use a
-        // different syntax to correctly add a cv-qualifier, or make a pointer
-        // or reference to, array types that does not fall out of the simple
-        // textual replacement of a macro.  We could, instead, use the 'add_*'
-        // metafunctions, introducing a further component dependency to the
-        // levelization of this package.
+#if !defined(BSLMF_ISENUM_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND)
+        TYPE_ASSERT_CVQP(bsl::is_enum, int[], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int[][2], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumTestType[], false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, EnumTestType[][2], false);
+#else
+        // The IBM xlC compiler does not handle arrays of unknown bounds as
+        // template type parameters.  MSVC has problems with references to
+        // arrays of unknown bound that fall out of the template metaprograms
+        // used to implement this trait.
 
         ASSERT(! bsl::is_enum<int[2]>::value);
         ASSERT(! bsl::is_enum<const int[2]>::value);
@@ -475,39 +520,8 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<const EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<volatile EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<const volatile EnumTestType[4][2]>::value);
-
-#if !defined(BSLS_PLATFORM_CMP_IBM)                                     \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
-        // The IBM xlC compiler does not handle arrays of unknown bounds as
-        // template type parameters.  MSVC has problems with references to
-        // arrays of unknown bound that fall out of the template metaprograms
-        // used to implement this trait.
-        ASSERT(! bsl::is_enum<int[]>::value);
-        ASSERT(! bsl::is_enum<const int[]>::value);
-        ASSERT(! bsl::is_enum<volatile int[]>::value);
-        ASSERT(! bsl::is_enum<const volatile int[]>::value);
-
-        ASSERT(! bsl::is_enum<int[][2]>::value);
-        ASSERT(! bsl::is_enum<const int[][2]>::value);
-        ASSERT(! bsl::is_enum<volatile int[][2]>::value);
-        ASSERT(! bsl::is_enum<const volatile int[][2]>::value);
-
-        ASSERT(! bsl::is_enum<EnumTestType[]>::value);
-        ASSERT(! bsl::is_enum<const EnumTestType[]>::value);
-        ASSERT(! bsl::is_enum<volatile EnumTestType[]>::value);
-        ASSERT(! bsl::is_enum<const volatile EnumTestType[]>::value);
-
-        ASSERT(! bsl::is_enum<EnumTestType[][2]>::value);
-        ASSERT(! bsl::is_enum<const EnumTestType[][2]>::value);
-        ASSERT(! bsl::is_enum<volatile EnumTestType[][2]>::value);
-        ASSERT(! bsl::is_enum<const volatile EnumTestType[][2]>::value);
 #endif
 
-        // C-8
-        ASSERT(! bsl::is_enum<void>::value);
-        ASSERT(! bsl::is_enum<const void>::value);
-        ASSERT(! bsl::is_enum<volatile void>::value);
-        ASSERT(! bsl::is_enum<const volatile void>::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

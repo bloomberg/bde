@@ -19,8 +19,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
+//  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: for function templates
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default'
 //  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: explicit '= deleted'
+//  BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS: flag for 'enum class'
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
 //  BSLS_COMPILERFEATURES_SUPPORT_FINAL: flag for 'final' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
@@ -76,9 +78,10 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'decltype' is supported by the current
 //:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS':
-//:     This macro is defined if defaulted functions are supported by the
-//:     current compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS':
+//:     This macro is defined if default template arguments for function
+//:     templates are supported by the current compiler settings for this
+//:     platform.
 //
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS':
 //:     This macro is defined if deleted functions are supported by the
@@ -241,6 +244,18 @@ BSLS_IDENT("$Id: $")
 //:   o clang 3.3
 //:   o MSVC 2010
 //:   o xlC 11.1
+//:   o Oracle CC 12.4
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports syntax to introduce defaulted
+// functions.
+//
+//: o Compiler support:
+//:   o gcc 4.3
+//:   o clang 2.9
+//:   o MSVC 2013
+//:   o xlC not supported?
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
@@ -414,6 +429,18 @@ BSLS_IDENT("$Id: $")
 //:   o xlC not supported
 //:   o Oracle CC not supported
 //
+///'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// TBD: confirm below
+// This macro is defined if the 'tuple' header is available in std library.
+//
+//: o Compiler support:
+//:   o gcc 4.5 (do not support rvalue references from earlier specification)
+//:   o clang 3.1
+//:   o MSVC 2010
+//:   o xlC not supported
+//:   o Oracle CC not supported
+//
 ///'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // TBD: confirm below
@@ -450,6 +477,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #if BSLS_PLATFORM_CMP_VERSION >= 40300
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -457,6 +485,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 40400
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40500
@@ -495,6 +524,9 @@ BSLS_IDENT("$Id: $")
 // clang 2.9
 #if __has_feature(cxx_rvalue_references)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+#if __has_feature(cxx_default_function_template_args)
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 #endif
 #if __has_feature(cxx_defaulted_functions)
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
@@ -568,12 +600,14 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-//#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// Disable native type traits while investigating a recursion problem that
-// arises in the standard header include-graph in BSL_OVERRIDES_STD mode.
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
+#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
@@ -662,8 +696,10 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
@@ -760,6 +796,9 @@ namespace bsls {
 #if BSLS_PLATFORM_CMP_VERSION >= 40300
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
 #endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40500
+#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
+#endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40700
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
@@ -769,17 +808,22 @@ namespace bsls {
 #if defined(__APPLE_CC__)
 #if __APPLE_CC__ >= 6000
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
 #else
 #if BSLS_PLATFORM_CMP_VERSION >= 30100
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
+#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
 #endif
 #endif
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
+#if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
+#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
+#endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
 #define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
 #define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT

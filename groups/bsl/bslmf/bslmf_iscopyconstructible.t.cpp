@@ -6,6 +6,7 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_ispointer.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
@@ -21,8 +22,8 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_copy_constructible', that determines whether a template
-// parameter type is copy constructible.  By default on C++03 platforms, the
+// 'bsl::is_copy_constructible', that determines whether a template parameter
+// type is copy constructible.  By default on C++03 platforms, the
 // meta-function must be extended to support user-defined non-copyable types
 // through either template specialization or use of the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
@@ -40,7 +41,8 @@ using namespace BloombergLP;
 // [ 1] bsl::is_copy_constructible::value
 //
 // ----------------------------------------------------------------------------
-// [ 2] EXTENDING bsl::is_copy_constructible
+// [ 2] EXTENDING 'bsl::is_copy_constructible'
+// [  ] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -101,32 +103,26 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(TYPE, RESULT)                       \
     ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);               \
-    ASSERT( bsl::is_copy_constructible<bsl::add_pointer<TYPE>::type>::value); \
     ASSERT( bsl::is_copy_constructible<                                       \
                                bsl::add_lvalue_reference<TYPE>::type>::value);
 
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                    \
+{   const bool IS_PRIMITIVE = bsl::is_fundamental<TYPE>::value                \
+                           || bsl::is_enum<TYPE>::value                       \
+                           || bsl::is_pointer<TYPE>::value                    \
+                           || bsl::is_member_pointer<TYPE>::value;            \
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                          \
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_const<TYPE>::type, RESULT);    \
-    if (bsl::is_fundamental<TYPE>::value                                      \
-     || bsl::is_enum<TYPE>::value                                             \
-     || bslmf::IsPointerToMember<TYPE>::value) {                              \
-        ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_volatile<TYPE>::type,      \
-                                          true);                              \
-        ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, true);     \
-    }                                                                         \
-    else {                                                                    \
-        ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_volatile<TYPE>::type,      \
-                                          false);                             \
-        ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, false);    \
-    }                                                                         \
+    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_volatile<TYPE>::type,          \
+                                                               IS_PRIMITIVE); \
+    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, IS_PRIMITIVE); \
+}
 
 // Two additional macros will allow testing on old MSVC compilers when 'TYPE'
 // is an array of unknown bound.
 
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT)                \
-    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);               \
-    ASSERT( bsl::is_copy_constructible<bsl::add_pointer<TYPE>::type>::value);
+    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);
 
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE, RESULT)             \
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT);                   \
@@ -142,6 +138,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
+    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)
 
@@ -151,6 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
+    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)                  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[], false)                \
@@ -159,6 +157,7 @@ void aSsErT(bool condition, const char *message, int line)
 #else
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
+    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)                  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[], false)                       \
@@ -172,7 +171,7 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 class UserDefinedNcTestType {
-    // This user-defined type, which is marked to have a nothrow move
+    // This user-defined type, which is marked to have a no-throw move
     // constructor using template specialization (below), is used for testing.
 
     UserDefinedNcTestType(const UserDefinedNcTestType&);  // private
@@ -211,6 +210,12 @@ enum EnumTestType {
     // This 'enum' type is used for testing.
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum class EnumClassType {
+    // This 'enum' type is used for testing.
+};
+#endif
+
 typedef int (UserDefinedCopyableTestType::*MethodPtrTestType) ();
     // This pointer to non-static function member type is used for testing.
 
@@ -219,7 +224,7 @@ typedef int (UserDefinedCopyableTestType::*MethodPtrTestType) ();
 
 namespace bsl {
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
 template <>
 struct is_copy_constructible<UserDefinedNcTestType> : false_type {};
 template <>
@@ -296,7 +301,8 @@ int main(int argc, char *argv[])
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedNcTestType, false);
 
         // C-3
-        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedNcTestType2, false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedNcTestType2,
+                                                                        false);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -346,34 +352,36 @@ int main(int argc, char *argv[])
                    "\n===================================\n");
 
         // C-1
-        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(int, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(long double, true);
 
         // C-2
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(EnumClassType, true);
+#endif
 
         // C-3
-        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType,
-                                                         true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType, true);
 
         // C-4 : 'void' is not an object type, but can be cv-qualified.
-        ASSERT(!bsl::is_copy_constructible<void>::value);
-        ASSERT( bsl::is_copy_constructible<void *>::value);
-        ASSERT(!bsl::is_copy_constructible<const void>::value);
-        ASSERT( bsl::is_copy_constructible<const void *>::value);
-        ASSERT(!bsl::is_copy_constructible<volatile void>::value);
-        ASSERT( bsl::is_copy_constructible<volatile void *>::value);
-        ASSERT(!bsl::is_copy_constructible<
-                                              const volatile void>::value);
-        ASSERT( bsl::is_copy_constructible<
-                                              const volatile void *>::value);
+        ASSERT(!bsl::is_copy_constructible<               void  >::value);
+        ASSERT( bsl::is_copy_constructible<               void *>::value);
+        ASSERT(!bsl::is_copy_constructible<const          void  >::value);
+        ASSERT( bsl::is_copy_constructible<const          void *>::value);
+        ASSERT(!bsl::is_copy_constructible<      volatile void  >::value);
+        ASSERT( bsl::is_copy_constructible<      volatile void *>::value);
+        ASSERT(!bsl::is_copy_constructible<const volatile void  >::value);
+        ASSERT( bsl::is_copy_constructible<const volatile void *>::value);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
         // Note that this particular test stresses compilers handling of
         // function types, and function reference types, in the template type
         // system.  We incrementally disable tests for compilers known to have
-        // bugs that we cannot easily work around/
+        // bugs parsing function type parameters that we cannot easily work
+        // around.  Failing to test such cases is not a concern, as users
+        // cannot make such a request either.
         ASSERT( bsl::is_copy_constructible<void(*)()>::value);
         ASSERT( bsl::is_copy_constructible<int(*)(float, double...)>::value);
 #if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
