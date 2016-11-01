@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bslmf::Util', that
 // serves as a namespace for a suite of functions that supply low-level
-// functionality for implementing portable generic facilities such as might
-// be found in the C++ standard library.
+// functionality for implementing portable generic facilities such as might be
+// found in the C++ standard library.
 //
 // TBD: put in a note that we only put this in because we needed a way to
 //      distinguish movable ref vs anything else for C++03
@@ -51,6 +51,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -60,27 +64,38 @@ namespace bslmf {
                       // ===========
 
 struct Util {
-    // This struct provides ...
+    // This struct provides several functions that are specified in the
+    // <utility> header of the C++ Standard, in order to support the 'bsl'
+    // library implementation without cycles into the native standard library,
+    // and on platforms with only C++03 compilers available, where library
+    // features may be emulated.
+
+    // CLASS METHODS
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
-    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&  t);
+    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&  t)
+                                                           BSLS_CPP11_NOEXCEPT;
     template <class TYPE>
-    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&& t);
+    static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&& t)
+                                                           BSLS_CPP11_NOEXCEPT;
 #else
     template <class TYPE>
-    static const TYPE& forward(const TYPE& t);
+    static const TYPE& forward(const TYPE& t) BSLS_CPP11_NOEXCEPT;
     template <class TYPE>
-    static MovableRef<TYPE> forward(MovableRef<TYPE> t);
+    static MovableRef<TYPE> forward(MovableRef<TYPE> t) BSLS_CPP11_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
         // compilation environment.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
-    static typename bsl::add_rvalue_reference<TYPE>::type declval();
+    static typename bsl::add_rvalue_reference<TYPE>::type declval()
+                                                           BSLS_CPP11_NOEXCEPT;
 #else
     template <class TYPE>
-    static typename bsl::add_lvalue_reference<TYPE>::type declval();
+    static typename bsl::add_lvalue_reference<TYPE>::type declval()
+                                                           BSLS_CPP11_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // This function has no implementation.  It exists to allow for the
         // appearance of a temporary object of the specified type that can be
@@ -96,6 +111,7 @@ struct Util {
 template <class TYPE>
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<TYPE&&>(t);
 }
@@ -103,6 +119,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
 template <class TYPE>
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<TYPE&&>(t);
 }
@@ -111,7 +128,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
 
 template <class TYPE>
 inline
-const TYPE& Util::forward(const TYPE& t)
+const TYPE& Util::forward(const TYPE& t) BSLS_CPP11_NOEXCEPT
 {
     return t;
 }
@@ -119,6 +136,7 @@ const TYPE& Util::forward(const TYPE& t)
 template <class TYPE>
 inline
 bslmf::MovableRef<TYPE> Util::forward(bslmf::MovableRef<TYPE> t)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return t;
 }
