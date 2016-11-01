@@ -3,6 +3,7 @@
 #include <bslmf_isarray.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +26,6 @@ using namespace BloombergLP;
 // PUBLIC CLASS DATA
 // [ 2] BloombergLP::bslmf::IsArray::VALUE
 // [ 1] bsl::is_array::value
-//
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -71,6 +71,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
+// Old microsoft compilers compilers do not support references to arrays of
+// unknown bound.
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -125,7 +135,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE\n"
+        if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
 ///Usage
@@ -141,8 +151,8 @@ int main(int argc, char *argv[])
     typedef int MyType;
     typedef int MyArrayType[];
 //..
-// Now, we instantiate the 'bsl::is_array' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
+// Now, we instantiate the 'bsl::is_array' template for each of the 'typedef's
+// and assert the 'value' static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_array<MyType>::value);
     ASSERT(true  == bsl::is_array<MyArrayType>::value);
@@ -151,7 +161,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsArray::VALUE'
+        // TESTING 'bslmf::IsArray::VALUE'
         //   Ensure that 'bslmf::IsArray' returns the correct values for a
         //   variety of template parameter types.
         //
@@ -164,16 +174,16 @@ int main(int argc, char *argv[])
         //:
         //: 4 'IsArray' returns 'false' for non-array types.
         //
-        // Test Plan:
-        //   Verify that 'bslmf::IsArray' returns the correct value for each
-        //   concern.
+        // Plan:
+        //: 1 Verify that 'bslmf::IsArray' returns the correct value for each
+        //:   concern.
         //
         // Testing:
         //   BloombergLP::bslmf::IsArray::VALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bslmf::IsArray::VALUE'\n"
-                            "\n=======================\n");
+        if (verbose) printf("\nTESTING 'bslmf::IsArray::VALUE'"
+                            "\n===============================\n");
 
         ASSERT(1 == bslmf::IsArray<char          [1]>::VALUE);
         ASSERT(1 == bslmf::IsArray<char const    [1]>::VALUE);
@@ -253,6 +263,22 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsArray<int *const    [][7]>::VALUE);
         ASSERT(0 == bslmf::IsArray<int *const (*)[][7]>::VALUE);
 
+#if !defined(BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
+        ASSERT(0 == bslmf::IsArray<int                (&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int const          (&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int volatile       (&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int const volatile (&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int                (&)[][7]>::value);
+        ASSERT(0 == bslmf::IsArray<int *const         (&)[][7]>::value);
+
+        ASSERT(0 == bslmf::IsArray<int                (*&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int const          (*&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int volatile       (*&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int const volatile (*&)[]>::value);
+        ASSERT(0 == bslmf::IsArray<int                (*&)[][7]>::value);
+        ASSERT(0 == bslmf::IsArray<int *const         (*&)[][7]>::value);
+#endif // BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
+
         ASSERT(1 == bslmf::IsArray<Enum          [8]>::VALUE);
         ASSERT(0 == bslmf::IsArray<Enum       (&)[8]>::VALUE);
         ASSERT(0 == bslmf::IsArray<Enum const (&)[8]>::VALUE);
@@ -271,7 +297,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_array::value'
+        // TESTING 'bsl::is_array::value'
         //   Ensure that 'bsl::is_array' returns the correct values for a
         //   variety of template parameter types.
         //
@@ -284,16 +310,16 @@ int main(int argc, char *argv[])
         //:
         //: 4 'is_array' returns 'false' for non-array types.
         //
-        // Test Plan:
-        //   Verify that 'bsl::is_array' returns the correct value for each
-        //   concern.
+        // Plan:
+        //: 1 Verify that 'bsl::is_array' returns the correct value for each
+        //:   concern.
         //
         // Testing:
         //   bsl::is_array::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::is_array::value'\n"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING 'bsl::is_array::value'"
+                            "\n==============================\n");
 
         ASSERT(1 == bsl::is_array<char          [1]>::value);
         ASSERT(1 == bsl::is_array<char const    [1]>::value);
@@ -372,6 +398,22 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == bsl::is_array<int *const    [][7]>::value);
         ASSERT(0 == bsl::is_array<int *const (*)[][7]>::value);
+
+#if !defined(BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
+        ASSERT(0 == bsl::is_array<int                (&)[]>::value);
+        ASSERT(0 == bsl::is_array<int const          (&)[]>::value);
+        ASSERT(0 == bsl::is_array<int volatile       (&)[]>::value);
+        ASSERT(0 == bsl::is_array<int const volatile (&)[]>::value);
+        ASSERT(0 == bsl::is_array<int                (&)[][7]>::value);
+        ASSERT(0 == bsl::is_array<int *const         (&)[][7]>::value);
+
+        ASSERT(0 == bsl::is_array<int                (*&)[]>::value);
+        ASSERT(0 == bsl::is_array<int const          (*&)[]>::value);
+        ASSERT(0 == bsl::is_array<int volatile       (*&)[]>::value);
+        ASSERT(0 == bsl::is_array<int const volatile (*&)[]>::value);
+        ASSERT(0 == bsl::is_array<int                (*&)[][7]>::value);
+        ASSERT(0 == bsl::is_array<int *const         (*&)[][7]>::value);
+#endif // BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
 
         ASSERT(1 == bsl::is_array<Enum          [8]>::value);
         ASSERT(0 == bsl::is_array<Enum       (&)[8]>::value);

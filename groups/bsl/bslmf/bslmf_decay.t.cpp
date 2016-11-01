@@ -1,8 +1,9 @@
-// bslmf_decay.t.cpp                  -*-C++-*-
+// bslmf_decay.t.cpp                                                  -*-C++-*-
 
 #include "bslmf_decay.h"
 
 #include <bslmf_issame.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -15,58 +16,67 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+// The component under test is a simple metafunction with a well-defined set of
+// input and output types.  This test driver consists of applying a sequence of
+// simple test input types and verifying the correct output types.
 //
-// The component under test is a simple metafunction with a well-define set of
-// input and output types.  This test driver consists of applying a sequence
-// of simple test input types and verifying the correct output types.
-//
 //-----------------------------------------------------------------------------
-// [1] COMPLETE TEST
-// [2] USAGE EXAMPLE
+// [ 1] bsl::decay<TYPE>::type
 //-----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
+// Old microsoft compilers compilers do not support references to arrays of
+// unknown bound.
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -74,7 +84,7 @@ void aSsErT(bool b, const char *s, int i)
 
 struct MyClass
 {
-    long m_value;
+    long d_value;
 };
 
 //=============================================================================
@@ -83,21 +93,20 @@ struct MyClass
 
 /// Usage Example 1
 /// - - - - - - - -
-// A class template needs to cache a value of type 'T'. There is
-// nothing in the definition of the class that would prevent it from
-// working for 'T' of function type or array-of-unknown bound, but
-// one cannot simply declare a member of either of those types.
-// Instead, we use 'bsl::decay<T>::type', which can be stored, copied,
-// and compared as needed:
+// A class template needs to cache a value of type 'T'. There is nothing in the
+// definition of the class that would prevent it from working for 'T' of
+// function type or array-of-unknown bound, but one cannot simply declare a
+// member of either of those types.  Instead, we use 'bsl::decay<T>::type',
+// which can be stored, copied, and compared as needed:
 //..
-    #ifndef INCLUDED_BSLMF_DECAY
-    #include <bslmf_decay.h>
-    #endif
+//    #ifndef INCLUDED_BSLMF_DECAY
+//    #include <bslmf_decay.h>
+//    #endif
 
-    template <class T>
+    template <class TYPE>
     class Thing {
     public:
-        typedef typename bsl::decay<T>::type CacheType;
+        typedef typename bsl::decay<TYPE>::type CacheType;
 
     private:
         CacheType d_cache;
@@ -107,8 +116,8 @@ struct MyClass
         CacheType cache() const { return d_cache; }
     };
 //..
-// Now verify that for function and array types, 'cache()' will return
-// a simple pointer:
+// Now verify that for function and array types, 'cache()' will return a simple
+// pointer:
 //..
     int usageExample1()
     {
@@ -132,11 +141,17 @@ struct MyClass
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
-    // int veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -154,7 +169,7 @@ int main(int argc, char *argv[])
         //:   documentation, replacing 'assert' with 'ASSERT'.
         //
         // Testing:
-        //     Usage example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -206,7 +221,7 @@ int main(int argc, char *argv[])
         //:   should not encounter such types.
         //
         // Testing:
-        //     bsl::decay<TYPE>::type
+        //   bsl::decay<TYPE>::type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOMPLETE TEST"
@@ -246,9 +261,11 @@ int main(int argc, char *argv[])
         TEST(const int&             , int                 );
         TEST(const MyClass *&       , const MyClass *     );
         TEST(MyClass *volatile &    , MyClass *           );
+#if !defined(BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
         TEST(short(&)[]             , short *             );
-        TEST(const MyClass(&)[10]   , const MyClass *     );
         TEST(volatile char(&)[][20] , volatile char(*)[20]);
+#endif // BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
+        TEST(const MyClass(&)[10]   , const MyClass *     );
         TEST(long(&)[10][30]        , long(*)[30]         );
         TEST(void (&)(double)       , void (*)(double)    );
         TEST(short (* const&)(int)  , short (*)(int)      );
@@ -266,7 +283,7 @@ int main(int argc, char *argv[])
         TEST(long(&&)[10][30]       , long(*)[30]         );
         TEST(void (&&)(double)      , void (*)(double)    );
         TEST(short (* const&&)(int) , short (*)(int)      );
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #undef TEST
       } break;

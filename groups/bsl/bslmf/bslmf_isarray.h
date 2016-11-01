@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //  typedef int MyType;
 //  typedef int MyArrayType[]
 //..
-// Now, we instantiate the 'bsl::is_array' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
+// Now, we instantiate the 'bsl::is_array' template for each of the 'typedef's
+// and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_array<MyType>::value);
 //  assert(true  == bsl::is_array<MyArrayType>::value);
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
-#include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
+#include <cstdlib>  // Robo transitively needs this for 'bsl::atoi', etc.
 #define INCLUDED_CSTDLIB
 #endif
 
