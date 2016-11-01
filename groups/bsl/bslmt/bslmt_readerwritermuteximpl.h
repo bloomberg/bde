@@ -40,12 +40,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {

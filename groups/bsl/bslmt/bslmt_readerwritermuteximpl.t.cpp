@@ -4,9 +4,12 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+
 #include <bsls_atomicoperations.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -20,8 +23,9 @@ using namespace bsl;
 //                              --------
 // A 'bslmt::ReaderWriterMutexImpl' is the templated-for-testing implementation
 // of a reader-writer lock.  The templatization allows for the creation of a
-// script-based testing object, 'TestImp', that enable simplified testing of
-// the concerns for each method.  Most of the methods are tested using the
+// script-based testing object, 'TestImpl', that enables simplified testing of
+// the concerns for each method.  The methods of 'bslmt::ReaderWriterMutexImpl'
+// are tested by directly exercising the functionality or by using the
 // depth-limited enumeration technique.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -97,7 +101,7 @@ int veryVerbose = 0;
 // ----------------------------------------------------------------------------
 // The struct 'TestImpl' serves as the concrete type for all three template
 // arguments of 'bslmt::ReaderWriterMutexImpl'; 'TestImpl' provides static
-// methods for atomic operations, mutex 'lock' and 'unlock', and sempahore
+// methods for atomic operations, mutex 'lock' and 'unlock', and semaphore
 // 'post' and 'wait'.  By using a
 // 'ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>', a script can be
 // defined to test the execution of a 'ReaderWriterMutexImpl' method.
@@ -110,26 +114,26 @@ int veryVerbose = 0;
 // The script is a 'bsl::vector<int>'.  Every negative value in the script
 // represents a method call.  The implementation of 'TestImpl' uses 'ASSERT' to
 // verify the expected method has been called.  Before every negative script
-// entry, there may be zero, one, or two non-negative number.  If present, the
+// entry, there may be zero, one, or two non-negative numbers.  If present, the
 // first non-negative number is used to verify ('ASSERT') the value of the
 // internal state of the'ReaderWriterMutexImpl'.  If present, the second
 // non-negative number is used to replace the state value.
 //
 // The non-negative script entries are encoded as three digits, with each digit
 // representing a different count.  The first digit is the number of writers
-// (limited to 0 or 1 due to the 'ReaderWriterMutexImpl').  The second digit is
-// the count of pending writers.  The third digit is the number of readers in
-// the lock.
+// (limited to 0 or 1 due to the 'ReaderWriterMutexImpl' implementation).  The
+// second digit is the count of pending writers.  The third digit is the number
+// of readers in the lock.
 
 struct TestImpl {
     static const bsls::Types::Int64 k_READER         = 0x0000000000000001LL;
     static const bsls::Types::Int64 k_PENDING_WRITER = 0x0000000100000000LL;
     static const bsls::Types::Int64 k_WRITER         = 0x1000000000000000LL;
 
-    static bsls::AtomicOperations::AtomicTypes::Int64 *s_pState;
+    static bsls::AtomicOperations::AtomicTypes::Int64 *s_state_p;
 
     static bsl::vector<int>                            s_script;
-    static bsl::size_t                                 s_scriptAt;
+    static bsls::Types::size_type                      s_scriptAt;
 
     enum {
         k_INIT            =  -1,
@@ -149,7 +153,7 @@ struct TestImpl {
         // the specified 'exp' value at the current script location.
     {
         cout << "   ";
-        for (bsl::size_t i = 0; i < s_script.size(); ++i) {
+        for (bsls::Types::size_type i = 0; i < s_script.size(); ++i) {
             if (s_scriptAt == i) {
                 cout << " (" << exp << " != " << s_script[i] << ')';
             }
@@ -163,9 +167,9 @@ struct TestImpl {
     static void processState()
         // Perform the validate and assignment of the internal state.
     {
-        ASSERT(0 != s_pState);
+        ASSERT(0 != s_state_p);
 
-        if (s_pState) {
+        if (s_state_p) {
             bsls::Types::Int64 EXP = -1;
             bsls::Types::Int64 set = -1;
             if (   s_scriptAt < s_script.size()
@@ -181,7 +185,7 @@ struct TestImpl {
                     + k_WRITER * numWriter;
 
                 bsls::Types::Int64 state =
-                                    bsls::AtomicOperations::getInt64(s_pState);
+                                   bsls::AtomicOperations::getInt64(s_state_p);
 
                 ASSERT(EXP == state);
 
@@ -206,13 +210,13 @@ struct TestImpl {
                     + k_PENDING_WRITER * numPendingWriter
                     + k_WRITER * numWriter;
 
-                bsls::AtomicOperations::setInt64(s_pState, set);
+                bsls::AtomicOperations::setInt64(s_state_p, set);
 
                 ++s_scriptAt;
             }
         }
     }
-    
+
     static void processFunction(const int expectedFunctionId)
         // Process the script up through the next method call and verify the
         // expected method is called by examining the specified
@@ -259,64 +263,64 @@ struct TestImpl {
 
     // ATOMIC_OP implementations
     static void initInt64(bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
-        s_pState = pState;
+        s_state_p = pState;
 
         processFunction(k_INIT);
 
-        bsls::AtomicOperations::initInt64(s_pState);
+        bsls::AtomicOperations::initInt64(s_state_p);
     }
 
     static bsls::Types::Int64 getInt64(
                           bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
-        return bsls::AtomicOperations::getInt64(s_pState);
+        return bsls::AtomicOperations::getInt64(s_state_p);
     }
 
     static bsls::Types::Int64 getInt64Acquire(
                           bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_GET);
-        return bsls::AtomicOperations::getInt64(s_pState);
+        return bsls::AtomicOperations::getInt64(s_state_p);
     }
 
     static void addInt64AcqRel(
                            bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                            bsls::Types::Int64                          value) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_ADD);
-        bsls::AtomicOperations::addInt64AcqRel(s_pState, value);
+        bsls::AtomicOperations::addInt64AcqRel(s_state_p, value);
     }
 
     static bsls::Types::Int64 addInt64Nv(
                            bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                            bsls::Types::Int64                          value) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_ADD);
-        return bsls::AtomicOperations::addInt64Nv(s_pState, value);
+        return bsls::AtomicOperations::addInt64Nv(s_state_p, value);
     }
 
     static bsls::Types::Int64 addInt64NvAcqRel(
                            bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                            bsls::Types::Int64                          value) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_ADD);
-        return bsls::AtomicOperations::addInt64NvAcqRel(s_pState, value);
+        return bsls::AtomicOperations::addInt64NvAcqRel(s_state_p, value);
     }
 
     static bsls::Types::Int64 testAndSwapInt64(
                         bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                         bsls::Types::Int64                          value,
                         bsls::Types::Int64                          newValue) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_CAS);
-        return bsls::AtomicOperations::testAndSwapInt64(s_pState,
+        return bsls::AtomicOperations::testAndSwapInt64(s_state_p,
                                                         value,
                                                         newValue);
     }
@@ -325,10 +329,10 @@ struct TestImpl {
                         bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                         bsls::Types::Int64                          value,
                         bsls::Types::Int64                          newValue) {
-        ASSERT(pState == s_pState);
+        ASSERT(pState == s_state_p);
 
         processFunction(k_CAS);
-        return bsls::AtomicOperations::testAndSwapInt64AcqRel(s_pState,
+        return bsls::AtomicOperations::testAndSwapInt64AcqRel(s_state_p,
                                                               value,
                                                               newValue);
     }
@@ -383,9 +387,10 @@ struct TestImpl {
     }
 };
 
-bsls::AtomicOperations::AtomicTypes::Int64 *TestImpl::s_pState   = 0;
-bsl::vector<int>                            TestImpl::s_script;
-bsl::size_t                                 TestImpl::s_scriptAt = 0;
+bsls::AtomicOperations::AtomicTypes::Int64 *TestImpl::s_state_p   = 0;
+bsl::vector<int>                            TestImpl::s_script(
+                                            bslma::Default::globalAllocator());
+bsls::Types::size_type                      TestImpl::s_scriptAt = 0;
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -431,7 +436,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_INITIAL[]   = {        1,   2,
                                         10,  11,  12,
                                         20,  21,  22,
@@ -439,9 +444,9 @@ int main(int argc, char *argv[])
                                        110, 111, 112,
                                        120, 121, 122 };
 
-        const bsl::size_t NUM_INITIAL =
+        const bsls::Types::size_type NUM_INITIAL =
                                     sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
-        
+
         if (verbose) cout << "\nSuccess." << endl;
 
         {
@@ -452,7 +457,7 @@ int main(int argc, char *argv[])
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
-                script.push_back(TestImpl::k_CAS); 
+                script.push_back(TestImpl::k_CAS);
                 script.push_back(100);
             }
 
@@ -466,10 +471,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nFailure on 'tryLock'." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -490,10 +495,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nFailure on compare-and-swap." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -544,7 +549,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_INITIAL[]   = {   0,   1,   2,
                                         10,  11,  12,
                                         20,  21,  22,
@@ -552,12 +557,12 @@ int main(int argc, char *argv[])
                                        110, 111, 112,
                                        120, 121, 122 };
 
-        const bsl::size_t NUM_INITIAL =
+        const bsls::Types::size_type NUM_INITIAL =
                                     sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
-        
+
         if (verbose) cout << "\nSuccess." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -566,7 +571,7 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_INITIAL[i]);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
-                script.push_back(TestImpl::k_ADD); 
+                script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_INITIAL[i] + 1);
                 script.push_back(TestImpl::k_UNLOCK);
             }
@@ -581,10 +586,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nFailure." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -632,7 +637,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_NO_POST[] = {  11,  12,  13,
                                       21,  22,  23,
                                       31,  32,  33,
@@ -644,17 +649,18 @@ int main(int argc, char *argv[])
 
         const int DATA_WRITE[] = { 100, 110, 120 };
 
-        const bsl::size_t NUM_NO_POST =
+        const bsls::Types::size_type NUM_NO_POST =
                                     sizeof DATA_NO_POST / sizeof *DATA_NO_POST;
-        const bsl::size_t NUM_POST = sizeof DATA_POST / sizeof *DATA_POST;
+        const bsls::Types::size_type NUM_POST =
+                                          sizeof DATA_POST / sizeof *DATA_POST;
+        const bsls::Types::size_type NUM_WRITE =
+                                        sizeof DATA_WRITE / sizeof *DATA_WRITE;
 
-        const bsl::size_t NUM_WRITE = sizeof DATA_WRITE / sizeof *DATA_WRITE;
-        
         if (verbose) {
             cout << "\nUnlock read, no semaphore manipulation." << endl;
         }
 
-        for (bsl::size_t i = 0; i < NUM_NO_POST; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_NO_POST; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -676,10 +682,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nUnlock read, semaphore manipulation." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_POST; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_POST; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -702,10 +708,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nUnlock write." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_WRITE; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_WRITE; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -756,15 +762,15 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_INITIAL[] = { 100, 101, 102,
                                      110, 111, 112,
                                      120, 121, 122 };
 
-        const bsl::size_t NUM_INITIAL =
+        const bsls::Types::size_type NUM_INITIAL =
                                     sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -814,7 +820,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_NO_POST[] = {  11,  12,  13,
                                       21,  22,  23,
                                       31,  32,  33,
@@ -824,13 +830,14 @@ int main(int argc, char *argv[])
 
         const int DATA_POST[]    = { 101, 111, 121 };
 
-        const bsl::size_t NUM_NO_POST =
+        const bsls::Types::size_type NUM_NO_POST =
                                     sizeof DATA_NO_POST / sizeof *DATA_NO_POST;
-        const bsl::size_t NUM_POST = sizeof DATA_POST / sizeof *DATA_POST;
-        
+        const bsls::Types::size_type NUM_POST =
+                                          sizeof DATA_POST / sizeof *DATA_POST;
+
         if (verbose) cout << "\nSemaphore is not manipulated." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_NO_POST; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_NO_POST; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -851,10 +858,10 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
-        
+
         if (verbose) cout << "\nSemaphore is manipulated." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_POST; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_POST; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
@@ -904,7 +911,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_INITIAL[]   = {   0,   1,   2,
                                         10,  11,  12,
                                         20,  21,  22,
@@ -922,17 +929,17 @@ int main(int argc, char *argv[])
         const int DATA_NO_READER[] = {  10,  20,  30,
                                        110, 120, 130};
 
-        const bsl::size_t NUM_INITIAL =
+        const bsls::Types::size_type NUM_INITIAL =
                                     sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
-        const bsl::size_t NUM_READER =
+        const bsls::Types::size_type NUM_READER =
                                       sizeof DATA_READER / sizeof *DATA_READER;
-        const bsl::size_t NUM_NO_READER =
+        const bsls::Types::size_type NUM_NO_READER =
                                 sizeof DATA_NO_READER / sizeof *DATA_NO_READER;
-        
+
         if (verbose) cout << "\nSemaphore is acquired." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
-            for (bsl::size_t j = 0; j < NUM_READER; ++j) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+            for (bsls::Types::size_type j = 0; j < NUM_READER; ++j) {
                 bsl::vector<int> script;
                 {
                     // Produce the script for the method attempt.
@@ -959,11 +966,11 @@ int main(int argc, char *argv[])
                 TestImpl::assertScriptComplete();
             }
         }
-        
+
         if (verbose) cout << "\nSemaphore is not acquired." << endl;
 
-        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
-            for (bsl::size_t j = 0; j < NUM_NO_READER; ++j) {
+        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+            for (bsls::Types::size_type j = 0; j < NUM_NO_READER; ++j) {
                 bsl::vector<int> script;
                 {
                     // Produce the script for the method attempt.
@@ -1019,7 +1026,7 @@ int main(int argc, char *argv[])
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
-        
+
         const int DATA_WRITER[]    = {  10,  11,  12,
                                         20,  21,  22,
                                        100, 101, 102,
@@ -1027,33 +1034,33 @@ int main(int argc, char *argv[])
                                        120, 121, 122 };
         const int DATA_NO_WRITER[] = {   0,   1,   2 };
 
-        const bsl::size_t NUM_WRITER =
+        const bsls::Types::size_type NUM_WRITER =
                                       sizeof DATA_WRITER / sizeof *DATA_WRITER;
-        const bsl::size_t NUM_NO_WRITER =
+        const bsls::Types::size_type NUM_NO_WRITER =
                                 sizeof DATA_NO_WRITER / sizeof *DATA_NO_WRITER;
-        
+
         if (verbose) cout << "\nMutex is acquired." << endl;
 
         for (int depth = 0; depth <= 3; ++depth) {
             if (verbose) cout << "\tDepth = " << depth << '.' << endl;
 
             // Compute the number of iterations for the 'depth'.
-            
-            bsl::size_t maxIndex = NUM_WRITER;
+
+            bsls::Types::size_type maxIndex = NUM_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            // Test the method for every possible sequence of the 'depth'
-            // and 'DATA_*' values.
-            
-            for (bsl::size_t index = 0; index < maxIndex; ++index) {
-                bsl::size_t i;
-                bsl::size_t d1;
-                bsl::size_t d2;
-                bsl::size_t d3;
+            // Test the method for every possible sequence of the 'depth' and
+            // 'DATA_*' values.
+
+            for (bsls::Types::size_type index = 0; index < maxIndex; ++index) {
+                bsls::Types::size_type i;
+                bsls::Types::size_type d1;
+                bsls::Types::size_type d2;
+                bsls::Types::size_type d3;
                 {
-                    bsl::size_t v = index;
+                    bsls::Types::size_type v = index;
 
                     i  =  v % NUM_WRITER;
                     v  /= NUM_WRITER;
@@ -1070,8 +1077,8 @@ int main(int argc, char *argv[])
                 }
 
                 // Produce the script for the method attempt.  The 'depth'
-                // corresponds to the number of 'CAS' attempts before the
-                // mutex is locked.
+                // corresponds to the number of 'CAS' attempts before the mutex
+                // is locked.
 
                 bsl::vector<int> script;
                 {
@@ -1114,7 +1121,7 @@ int main(int argc, char *argv[])
                 TestImpl::assertScriptComplete();
             }
         }
-        
+
         if (verbose) cout << "\nMutex is not acquired." << endl;
 
         for (int depth = 0; depth <= 3; ++depth) {
@@ -1122,21 +1129,21 @@ int main(int argc, char *argv[])
 
             // Compute the number of iterations for the 'depth'.
 
-            bsl::size_t maxIndex = NUM_NO_WRITER;
+            bsls::Types::size_type maxIndex = NUM_NO_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            // Test the method for every possible sequence of the 'depth'
-            // and 'DATA_*' values.
+            // Test the method for every possible sequence of the 'depth' and
+            // 'DATA_*' values.
 
-            for (bsl::size_t index = 0; index < maxIndex; ++index) {
-                bsl::size_t i;
-                bsl::size_t d1;
-                bsl::size_t d2;
-                bsl::size_t d3;
+            for (bsls::Types::size_type index = 0; index < maxIndex; ++index) {
+                bsls::Types::size_type i;
+                bsls::Types::size_type d1;
+                bsls::Types::size_type d2;
+                bsls::Types::size_type d3;
                 {
-                    bsl::size_t v = index;
+                    bsls::Types::size_type v = index;
 
                     i  =  v % NUM_NO_WRITER;
                     v  /= NUM_NO_WRITER;
@@ -1159,7 +1166,7 @@ int main(int argc, char *argv[])
                 // Produce the script for the method attempt.  The 'depth'
                 // corresponds to the number of 'CAS' attempts before the
                 // compare-and-swap succeeds.
-                
+
                 bsl::vector<int> script;
                 {
                     script.push_back(TestImpl::k_INIT);
