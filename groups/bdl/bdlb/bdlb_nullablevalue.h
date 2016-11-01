@@ -1221,7 +1221,7 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
-    char isNull;
+    char isNull = 0; // Redundant initialization to suppress -Werror.
 
     stream.getInt8(isNull);
 
