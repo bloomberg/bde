@@ -132,14 +132,16 @@ struct TestImpl {
     static bsl::size_t                                 s_scriptAt;
 
     enum {
-        k_INIT   = -1,
-        k_GET    = -2,
-        k_ADD    = -3,
-        k_CAS    = -4,
-        k_LOCK   = -5,
-        k_UNLOCK = -6,
-        k_WAIT   = -7,
-        k_POST   = -8
+        k_INIT            =  -1,
+        k_GET             =  -2,
+        k_ADD             =  -3,
+        k_CAS             =  -4,
+        k_LOCK            =  -5,
+        k_TRYLOCK_SUCCEED =  -6,
+        k_TRYLOCK_FAIL    =  -7,
+        k_UNLOCK          =  -8,
+        k_WAIT            =  -9,
+        k_POST            = -10
     };
 
     static void printScript(int exp)
@@ -272,6 +274,14 @@ struct TestImpl {
         return bsls::AtomicOperations::getInt64(s_pState);
     }
 
+    static bsls::Types::Int64 getInt64Acquire(
+                          bsls::AtomicOperations::AtomicTypes::Int64 *pState) {
+        ASSERT(pState == s_pState);
+
+        processFunction(k_GET);
+        return bsls::AtomicOperations::getInt64(s_pState);
+    }
+
     static void addInt64AcqRel(
                            bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                            bsls::Types::Int64                          value) {
@@ -299,6 +309,18 @@ struct TestImpl {
         return bsls::AtomicOperations::addInt64NvAcqRel(s_pState, value);
     }
 
+    static bsls::Types::Int64 testAndSwapInt64(
+                        bsls::AtomicOperations::AtomicTypes::Int64 *pState,
+                        bsls::Types::Int64                          value,
+                        bsls::Types::Int64                          newValue) {
+        ASSERT(pState == s_pState);
+
+        processFunction(k_CAS);
+        return bsls::AtomicOperations::testAndSwapInt64(s_pState,
+                                                        value,
+                                                        newValue);
+    }
+
     static bsls::Types::Int64 testAndSwapInt64AcqRel(
                         bsls::AtomicOperations::AtomicTypes::Int64 *pState,
                         bsls::Types::Int64                          value,
@@ -314,6 +336,37 @@ struct TestImpl {
     // MUTEX implementations
     static void lock() {
         processFunction(k_LOCK);
+    }
+
+    static int tryLock() {
+        processState();
+
+        ASSERT(s_scriptAt < s_script.size());
+
+        if (veryVerbose && s_scriptAt >= s_script.size()) {
+            printScript(-999);
+        }
+
+        ASSERTV(s_scriptAt,
+                s_script[s_scriptAt],
+                   k_TRYLOCK_SUCCEED == s_script[s_scriptAt]
+                || k_TRYLOCK_FAIL    == s_script[s_scriptAt]);
+
+        if (   veryVerbose
+            && k_TRYLOCK_SUCCEED != s_script[s_scriptAt]
+            && k_TRYLOCK_FAIL    != s_script[s_scriptAt]) {
+            printScript(-998);
+        }
+
+        int rv = 0;
+        if (   s_scriptAt < s_script.size()
+            && k_TRYLOCK_FAIL == s_script[s_scriptAt]) {
+            rv = 1;
+        }
+
+        ++s_scriptAt;
+
+        return rv;
     }
 
     static void unlock() {
@@ -352,13 +405,478 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'tryLockWrite'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'tryLockWrite' operates correctly in the presence of other
+        //:   manipulations upon the lock.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths.  (C-1)
+        //
+        // Testing:
+        //   void tryLockWrite();
+        // --------------------------------------------------------------------
 
-// MANIPULATORS
-// [ 8] int  tryLockRead();
-// [ 9] int  tryLockWrite();
-// [ 7] void unlock();
-// [ 5] void unlockRead();
-// [ 6] void unlockWrite();
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'tryLockWrite'" << endl
+                 << "======================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_INITIAL[]   = {        1,   2,
+                                        10,  11,  12,
+                                        20,  21,  22,
+                                       100, 101, 102,
+                                       110, 111, 112,
+                                       120, 121, 122 };
+
+        const bsl::size_t NUM_INITIAL =
+                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+        
+        if (verbose) cout << "\nSuccess." << endl;
+
+        {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_CAS); 
+                script.push_back(100);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockWrite();
+                ASSERT(0 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nFailure on 'tryLock'." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_TRYLOCK_FAIL);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockWrite();
+                ASSERT(1 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nFailure on compare-and-swap." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockWrite();
+                ASSERT(1 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'tryLockRead'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'tryLockRead' operates correctly in the presence of other
+        //:   manipulations upon the lock.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths.  (C-1)
+        //
+        // Testing:
+        //   void tryLockRead();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'tryLockRead'" << endl
+                 << "=====================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_INITIAL[]   = {   0,   1,   2,
+                                        10,  11,  12,
+                                        20,  21,  22,
+                                       100, 101, 102,
+                                       110, 111, 112,
+                                       120, 121, 122 };
+
+        const bsl::size_t NUM_INITIAL =
+                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+        
+        if (verbose) cout << "\nSuccess." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_ADD); 
+                script.push_back(DATA_INITIAL[i] + 1);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockRead();
+                ASSERT(0 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nFailure." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_TRYLOCK_FAIL);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockRead();
+                ASSERT(1 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'unlock'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'unlock' operates correctly in the presence of other
+        //:   manipulations upon the lock.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths.  (C-1)
+        //
+        // Testing:
+        //   void unlock();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'unlock'" << endl
+                 << "================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_NO_POST[] = {  11,  12,  13,
+                                      21,  22,  23,
+                                      31,  32,  33,
+                                     102, 103, 104,
+                                     112, 113, 114,
+                                     122, 123, 124 };
+
+        const int DATA_POST[]    = { 101, 111, 121 };
+
+        const int DATA_WRITE[] = { 100, 110, 120 };
+
+        const bsl::size_t NUM_NO_POST =
+                                    sizeof DATA_NO_POST / sizeof *DATA_NO_POST;
+        const bsl::size_t NUM_POST = sizeof DATA_POST / sizeof *DATA_POST;
+
+        const bsl::size_t NUM_WRITE = sizeof DATA_WRITE / sizeof *DATA_WRITE;
+        
+        if (verbose) {
+            cout << "\nUnlock read, no semaphore manipulation." << endl;
+        }
+
+        for (bsl::size_t i = 0; i < NUM_NO_POST; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_NO_POST[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_NO_POST[i] - 1);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlock();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nUnlock read, semaphore manipulation." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_POST; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_POST[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_POST[i] - 1);
+                script.push_back(TestImpl::k_POST);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlock();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nUnlock write." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_WRITE; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_WRITE[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_WRITE[i] - 100);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlock();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'unlockWrite'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'unlockWrite' operates correctly in the presence of other
+        //:   manipulations upon the lock.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths, with and without semaphore
+        //:   manipulation.  (C-1)
+        //
+        // Testing:
+        //   void unlockWrite();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'unlockWrite'" << endl
+                 << "=====================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_INITIAL[] = { 100, 101, 102,
+                                     110, 111, 112,
+                                     120, 121, 122 };
+
+        const bsl::size_t NUM_INITIAL =
+                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+
+        for (bsl::size_t i = 0; i < NUM_INITIAL; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_INITIAL[i] - 100);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlockWrite();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'unlockRead'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 That 'unlockRead' operates correctly in the presence of other
+        //:   manipulations upon the lock.
+        //
+        // Plan:
+        //: 1 Directly test the execution paths, with and without semaphore
+        //:   manipulation.  (C-1)
+        //
+        // Testing:
+        //   void unlockRead();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'unlockRead'" << endl
+                 << "====================" << endl;
+        }
+
+        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // number of pending writers, and the number of readers written as
+        // digits of the value (e.g., 123 represents 1 writer, 2 pending
+        // writers, and 3 readers).
+        
+        const int DATA_NO_POST[] = {  11,  12,  13,
+                                      21,  22,  23,
+                                      31,  32,  33,
+                                     102, 103, 104,
+                                     112, 113, 114,
+                                     122, 123, 124 };
+
+        const int DATA_POST[]    = { 101, 111, 121 };
+
+        const bsl::size_t NUM_NO_POST =
+                                    sizeof DATA_NO_POST / sizeof *DATA_NO_POST;
+        const bsl::size_t NUM_POST = sizeof DATA_POST / sizeof *DATA_POST;
+        
+        if (verbose) cout << "\nSemaphore is not manipulated." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_NO_POST; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_NO_POST[i]);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_NO_POST[i] - 1);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlockRead();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+        
+        if (verbose) cout << "\nSemaphore is manipulated." << endl;
+
+        for (bsl::size_t i = 0; i < NUM_POST; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_POST[i]);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_POST[i] - 1);
+                script.push_back(TestImpl::k_POST);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                obj.unlockRead();
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'lockWrite'
@@ -366,7 +884,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That 'lockWrite' operates correctly in the presence of other
-        //:   attempts to acquire read and/or write locks.
+        //:   manipulations upon the lock.
         //
         // Plan:
         //: 1 Directly test the execution paths, with and without semaphore
@@ -479,7 +997,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That 'lockRead' operates correctly in the presence of other
-        //:   attempts to acquire read and/or write locks.
+        //:   manipulations upon the lock.
         //
         // Plan:
         //: 1 Using the enumeration technique to a depth of 3, where depth
