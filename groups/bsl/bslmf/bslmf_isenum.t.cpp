@@ -82,7 +82,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER &&                    \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
     ASSERT(result == META_FUNC<                         TYPE       >::value); \
     ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
