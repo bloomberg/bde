@@ -82,7 +82,7 @@ namespace bslmf {
                    // =====================================
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
- && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1600)
+ && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1700)
     // Early MSVC compilers have an incomplete <type_traits> header
 template <class TYPE>
 struct IsNothrowMoveConstructible_Imp
