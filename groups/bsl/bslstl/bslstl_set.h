@@ -293,7 +293,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //      }
 //
-//      // ~MyDate() = default;
+//      //! ~MyDate() = default;
 //          // Destroy this object
 //
 //      // MANIPULATORS
@@ -634,7 +634,7 @@ class set {
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'BDEX' serialization
+    //:   except for 'BDEX' serialization
     //: o is *exception-neutral* (agnostic except for the 'at' method)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
