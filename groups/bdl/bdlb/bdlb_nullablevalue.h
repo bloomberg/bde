@@ -343,9 +343,18 @@ class NullableValue {
         // modifiable access to this object.  Note that this method will fail
         // to compile if 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
 
+    NullableValue<TYPE>& operator=(const TYPE& rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.
+
+    NullableValue<TYPE>& operator=(bslmf::MovableRef<TYPE> rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are either move-inserted into or move-assigned to this
+        // object.  'rhs' is left in a valid but unspecified state.
+
     template <class BDE_OTHER_TYPE>
-    NullableValue<TYPE>&
-    operator=(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs);
+    NullableValue<TYPE>& operator=(const BDE_OTHER_TYPE& rhs);
         // Assign to this object the value of the specified 'rhs' object (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE', and return a reference
         // providing modifiable access to this object.  Note that this method
@@ -1062,12 +1071,30 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
 }
 
 template <class TYPE>
+inline
+NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
+{
+    d_imp.makeValue(rhs);
+
+    return *this;
+}
+
+template <class TYPE>
+inline
+NullableValue<TYPE>&
+NullableValue<TYPE>::operator=(bslmf::MovableRef<TYPE> rhs)
+{
+    d_imp.makeValue(MoveUtil::move(rhs));
+
+    return *this;
+}
+
+template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
-NullableValue<TYPE>& NullableValue<TYPE>::
-operator=(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) rhs)
+NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
-    d_imp.makeValue(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, rhs));
+    d_imp.makeValue(rhs);
 
     return *this;
 }
