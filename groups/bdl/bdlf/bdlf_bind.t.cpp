@@ -2224,6 +2224,14 @@ DEFINE_TEST_CASE(5) {
             ASSERT(5 == bdlf::BindUtil::bind(f, _1)(5));
         }
 
+#if __cplusplus >= 201103L
+        if (verbose)
+             printf("\tUsing a lambda\n");
+        {
+            ASSERT(5 == bdlf::BindUtil::bind([](int x) { return x; }, _1)(5));
+        }
+#endif
+
         if (verbose)
             printf("\tRespecting const-correctness of the invocable\n");
         {
