@@ -1,29 +1,26 @@
-// bslmf_util.t.cpp                                                   -*-C++-*-
-#include <bslmf_util.h>
+// bslalg_hasstliterators.t.cpp                                       -*-C++-*-
 
-#include <bsls_objectbuffer.h>
+#include <bslalg_hasstliterators.h>
+
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <new>   // required to support use of "placement new"
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bslmf::Util' is a utility class, where each function will be tested in a
-// separate test case.  Any significant test machinery will be tested before
-// any function whose test case relies upon it.
+//                             Overview
+//                             --------
+// The type under testing is a primitive class, which is used as a tag type and
+// therefore is empty.  There is nothing to test except that the name of the
+// class is as expected, and the breathing test.
 //-----------------------------------------------------------------------------
-// CLASS METHODS
-// [ ] template <class T> forward(T&& value)
-//-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [ ] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -72,69 +69,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#   define BSLMF_UTIL_FORWARD_REF(T) const T&
-#   define BSLMF_UTIL_FORWARD(T,V) \
-        ::BloombergLP::bslmf::Util::forward(V)
-#else
-#   define BSLMF_UTIL_FORWARD_REF(T) T&&
-#   define BSLMF_UTIL_FORWARD(T,V)       \
-        ::BloombergLP::bsls::Util::forward<T>(V)
-#endif
-
-struct CUtil {
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=2
-    template <class TARGET, class ...Args>
-    static void construct(TARGET *address, Args&&...args)
-    {
-      new (address) TARGET(bslmf::Util::forward<Args>(args)...);
-    }
-#else
-    template <class TARGET, class Arg1>
-    static void construct(TARGET *address, BSLMF_UTIL_FORWARD_REF(Arg1) a1)
-    {
-      new (address) TARGET(BSLMF_UTIL_FORWARD(Arg1,a1));
-    }
-    template <class TARGET, class Arg1, class Arg2>
-    static void construct(TARGET *address,
-                          BSLMF_UTIL_FORWARD_REF(Arg1) a1,
-                          BSLMF_UTIL_FORWARD_REF(Arg2) a2)
-    {
-      new (address) TARGET(BSLMF_UTIL_FORWARD(Arg1,a1),
-                           BSLMF_UTIL_FORWARD(Arg2,a2));
-    }
-#endif
+template <class TYPE>
+struct HasStlIteratorsTrait : bslalg::HasStlIterators<TYPE>::type
+{
 };
 
-class Obj {
-    bool d_copied;
-    bool d_moved;
+struct RequiresStlIteratorsType
+{
+    BSLMF_NESTED_TRAIT_DECLARATION(RequiresStlIteratorsType,
+                                   bslalg::HasStlIterators);
+};
 
-  public:
-    Obj()
-    : d_copied(false)
-    , d_moved(false)
-    {
-    }
-
-    Obj(const Obj&)
-    : d_copied(true)
-    , d_moved(false)
-    {
-    }
-
-    Obj(bslmf::MovableRef<Obj>)
-    : d_copied(false)
-    , d_moved(true)
-    {
-    }
-
-    bool copied() const { return d_copied; }
-    bool moved() const { return d_moved; }
+struct DoesNotRequireStlIteratorsType
+{
 };
 
 //=============================================================================
@@ -143,13 +90,17 @@ class Obj {
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVerbose;
-    (void)veryVeryVerbose;
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -157,44 +108,32 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This test exercises basic functionality but *tests* *nothing*.
         //
         // Concerns:
-        //: 1 That the functions exist with the documented signatures.
-        //: 2 That the basic functionality works as documented.
+        //: 1 'HasStlIterators<TYPE> compiles and gives the expected result for
+        //:   every category of type.
         //
         // Plan:
-        //: 1 Exercise each function in turn and devise an elementary test
-        //:   sequence to ensure that the basic functionality is as documented.
+        //: 1 Implement a new class 'HasStlIteratorTrait' derived from
+        //:   'HasStlIterators<TYPE>::type' and attempt to detect this trait
+        //:   on a class that declares "nested traits" using
+        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
         //
-        // Testing:
-        //   BREATHING TEST
+        //: 2 Make sure that this trait is not detected on a class that does
+        //:   not declare "nested traits".
+        //
+        // Testing: struct bslalg::HasStlIterators;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        Obj mA; const Obj& A = mA;
-        ASSERT(false == A.copied());
-        ASSERT(false == A.moved());
+        ASSERT((HasStlIteratorsTrait<RequiresStlIteratorsType>::value));
+        ASSERT((false ==
+                HasStlIteratorsTrait<DoesNotRequireStlIteratorsType>::value ));
 
-        bsls::ObjectBuffer<Obj> buf;
-        Obj& mX = buf.object(); const Obj& X = mX;
-
-        CUtil::construct(buf.address(),  A);
-        ASSERT( true == X.copied());
-        ASSERT(false == X.moved());
-
-        CUtil::construct(buf.address(), mA);
-        ASSERT( true == X.copied());
-        ASSERT(false == X.moved());
-
-        CUtil::construct(buf.address(), bslmf::MovableRefUtil::move(mA));
-        ASSERT(false == X.copied());
-        ASSERT( true == X.moved());
-
-        ASSERT(sizeof(bool) == sizeof(bslmf::Util::declval<Obj>().copied()));
       } break;
+
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

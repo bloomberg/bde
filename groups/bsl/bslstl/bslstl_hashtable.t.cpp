@@ -4191,7 +4191,7 @@ inline
 bslma::TestAllocator *
 extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc)
 {
-    return alloc.testAllocator();
+    return dynamic_cast<bslma::TestAllocator *>(alloc.allocator());
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

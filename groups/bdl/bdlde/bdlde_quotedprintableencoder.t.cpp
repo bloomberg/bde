@@ -176,6 +176,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bdlde::QuotedPrintableEncoder Obj;
+static char IV = static_cast<char>(-1);
 
                         // ==================
                         // Named STATE Values
@@ -410,7 +411,7 @@ bool StateAccessor::isState(State state) const
 
     int enabled = globalAssertsEnabled;
 
-    char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+    char b[7] = { IV, IV, IV, IV, IV, IV, IV };
     int numOut = -1;
 
     bool rv = false;
@@ -434,13 +435,13 @@ bool StateAccessor::isState(State state) const
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
@@ -464,13 +465,13 @@ bool StateAccessor::isState(State state) const
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
@@ -585,13 +586,13 @@ bool StateAccessor::isState(State state) const
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
@@ -614,13 +615,13 @@ bool StateAccessor::isState(State state) const
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;
@@ -992,7 +993,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
 
     int enabled = globalAssertsEnabled;
 
-    char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+    char b[7] = { IV, IV, IV, IV, IV, IV, IV };
     int numOut = -1;
 
     switch (state) {
@@ -1014,13 +1015,13 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
@@ -1063,44 +1064,44 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
             d2 = '='  == b[2];                          ASSERT(d2 || !enabled);
             d3 =  isHex( b[3]);                         ASSERT(d3 || !enabled);
             d4 =  isHex( b[4]);                         ASSERT(d4 || !enabled);
-            d5 =  -1  == b[5];                          ASSERT(d5 || !enabled);
-            d6 =  -1  == b[6];                          ASSERT(d6 || !enabled);
+            d5 =  IV  == b[5];                          ASSERT(d5 || !enabled);
+            d6 =  IV  == b[6];                          ASSERT(d6 || !enabled);
           } break;
           case 3: {
             d0 = '\r' == b[0];                          ASSERT(d0 || !enabled);
             d1 = '\n' == b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  != b[2];                          ASSERT(d2 || !enabled);
-            d3 =  -1  == b[3];                          ASSERT(d3 || !enabled);
-            d4 =  -1  == b[4];                          ASSERT(d4 || !enabled);
-            d5 =  -1  == b[5];                          ASSERT(d5 || !enabled);
-            d6 =  -1  == b[6];                          ASSERT(d6 || !enabled);
+            d2 =  IV  != b[2];                          ASSERT(d2 || !enabled);
+            d3 =  IV  == b[3];                          ASSERT(d3 || !enabled);
+            d4 =  IV  == b[4];                          ASSERT(d4 || !enabled);
+            d5 =  IV  == b[5];                          ASSERT(d5 || !enabled);
+            d6 =  IV  == b[6];                          ASSERT(d6 || !enabled);
           } break;
           case 2: {
-            d0 =  -1  != b[0];                          ASSERT(d0 || !enabled);
-            d1 =  -1  != b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  == b[2];                          ASSERT(d2 || !enabled);
-            d3 =  -1  == b[3];                          ASSERT(d3 || !enabled);
-            d4 =  -1  == b[4];                          ASSERT(d4 || !enabled);
-            d5 =  -1  == b[5];                          ASSERT(d5 || !enabled);
-            d6 =  -1  == b[6];                          ASSERT(d6 || !enabled);
+            d0 =  IV  != b[0];                          ASSERT(d0 || !enabled);
+            d1 =  IV  != b[1];                          ASSERT(d1 || !enabled);
+            d2 =  IV  == b[2];                          ASSERT(d2 || !enabled);
+            d3 =  IV  == b[3];                          ASSERT(d3 || !enabled);
+            d4 =  IV  == b[4];                          ASSERT(d4 || !enabled);
+            d5 =  IV  == b[5];                          ASSERT(d5 || !enabled);
+            d6 =  IV  == b[6];                          ASSERT(d6 || !enabled);
           } break;
           case 1: {
-            d0 =  -1  != b[0];                          ASSERT(d0 || !enabled);
-            d1 =  -1  == b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  == b[2];                          ASSERT(d2 || !enabled);
-            d3 =  -1  == b[3];                          ASSERT(d3 || !enabled);
-            d4 =  -1  == b[4];                          ASSERT(d4 || !enabled);
-            d5 =  -1  == b[5];                          ASSERT(d5 || !enabled);
-            d6 =  -1  == b[6];                          ASSERT(d6 || !enabled);
+            d0 =  IV  != b[0];                          ASSERT(d0 || !enabled);
+            d1 =  IV  == b[1];                          ASSERT(d1 || !enabled);
+            d2 =  IV  == b[2];                          ASSERT(d2 || !enabled);
+            d3 =  IV  == b[3];                          ASSERT(d3 || !enabled);
+            d4 =  IV  == b[4];                          ASSERT(d4 || !enabled);
+            d5 =  IV  == b[5];                          ASSERT(d5 || !enabled);
+            d6 =  IV  == b[6];                          ASSERT(d6 || !enabled);
           } break;
           case 0: {
-            d0 =  -1  == b[0];                          ASSERT(d0 || !enabled);
-            d1 =  -1  == b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  == b[2];                          ASSERT(d2 || !enabled);
-            d3 =  -1  == b[3];                          ASSERT(d3 || !enabled);
-            d4 =  -1  == b[4];                          ASSERT(d4 || !enabled);
-            d5 =  -1  == b[5];                          ASSERT(d5 || !enabled);
-            d6 =  -1  == b[6];                          ASSERT(d6 || !enabled);
+            d0 =  IV  == b[0];                          ASSERT(d0 || !enabled);
+            d1 =  IV  == b[1];                          ASSERT(d1 || !enabled);
+            d2 =  IV  == b[2];                          ASSERT(d2 || !enabled);
+            d3 =  IV  == b[3];                          ASSERT(d3 || !enabled);
+            d4 =  IV  == b[4];                          ASSERT(d4 || !enabled);
+            d5 =  IV  == b[5];                          ASSERT(d5 || !enabled);
+            d6 =  IV  == b[6];                          ASSERT(d6 || !enabled);
           } break;
         }
 
@@ -1135,16 +1136,16 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
             d3 = '='  == b[0];                          ASSERT(d3 || !enabled);
             d4 = '0'  == b[1];                          ASSERT(d4 || !enabled);
             d5 = 'D'  == b[2];                          ASSERT(d5 || !enabled);
-            d6 = -1   == b[3];                          ASSERT(d6 || !enabled);
+            d6 = IV   == b[3];                          ASSERT(d6 || !enabled);
         }
         else {
             d0 = '=' == b[0];                           ASSERT(d0 || !enabled);
             d1 = '0' == b[1];                           ASSERT(d1 || !enabled);
             d2 = 'D' == b[2];                           ASSERT(d2 || !enabled);
-            d3 = -1  == b[3];                           ASSERT(d3 || !enabled);
-            d4 = -1  == b[4];                           ASSERT(d4 || !enabled);
-            d5 = -1  == b[5];                           ASSERT(d5 || !enabled);
-            d6 = -1  == b[6];                           ASSERT(d6 || !enabled);
+            d3 = IV  == b[3];                           ASSERT(d3 || !enabled);
+            d4 = IV  == b[4];                           ASSERT(d4 || !enabled);
+            d5 = IV  == b[5];                           ASSERT(d5 || !enabled);
+            d6 = IV  == b[6];                           ASSERT(d6 || !enabled);
         }
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
@@ -1179,9 +1180,9 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
             bb += 3;
         }
         else {
-            d0 = -1  == b[4];                           ASSERT(d0 || !enabled);
-            d1 = -1  == b[5];                           ASSERT(d1 || !enabled);
-            d2 = -1  == b[6];                           ASSERT(d2 || !enabled);
+            d0 = IV  == b[4];                           ASSERT(d0 || !enabled);
+            d1 = IV  == b[5];                           ASSERT(d1 || !enabled);
+            d2 = IV  == b[6];                           ASSERT(d2 || !enabled);
         }
 
         bool d3 = '='  == bb[0];                        ASSERT(d3 || !enabled);
@@ -1192,7 +1193,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d7 = '9' == bb[2];
         bool d8 = (d4 && d5 || d6 && d7);               ASSERT(d8 || !enabled);
 
-        bool d9 = -1  == bb[3];                         ASSERT(d9 || !enabled);
+        bool d9 = IV  == bb[3];                         ASSERT(d9 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;          // RETURN
@@ -1214,13 +1215,13 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
@@ -1242,13 +1243,13 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
-        bool d3 = -1 == b[3];                           ASSERT(d3 || !enabled);
-        bool d4 = -1 == b[4];                           ASSERT(d4 || !enabled);
-        bool d5 = -1 == b[5];                           ASSERT(d5 || !enabled);
-        bool d6 = -1 == b[6];                           ASSERT(d6 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
+        bool d4 = IV == b[4];                           ASSERT(d4 || !enabled);
+        bool d5 = IV == b[5];                           ASSERT(d5 || !enabled);
+        bool d6 = IV == b[6];                           ASSERT(d6 || !enabled);
 
         return a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2 && d3 && d4 && d5 && d6;    // RETURN
@@ -4210,22 +4211,22 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                     VVV("Verify printable characters are printed and not \
 encoded.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 1 == nOut);
                         LOOP_ASSERT(i, input == b[0]);
-                        LOOP_ASSERT(i, -1    == b[1]);
-                        LOOP_ASSERT(i, -1    == b[2]);
-                        LOOP_ASSERT(i, -1    == b[3]);
+                        LOOP_ASSERT(i, IV    == b[1]);
+                        LOOP_ASSERT(i, IV    == b[2]);
+                        LOOP_ASSERT(i, IV    == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, input == b[0]);
-                        LOOP_ASSERT(i, -1    == b[1]);
-                        LOOP_ASSERT(i, -1    == b[2]);
-                        LOOP_ASSERT(i, -1    == b[3]);
+                        LOOP_ASSERT(i, IV    == b[1]);
+                        LOOP_ASSERT(i, IV    == b[2]);
+                        LOOP_ASSERT(i, IV    == b[3]);
                     }
 
                     VVV("Verify if a single char '" << input <<
@@ -4233,7 +4234,7 @@ encoded.");
                     {
                         encode[0] = i;
                         encode[1] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4242,13 +4243,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if char '" << input << "' can be specified");
@@ -4258,7 +4259,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4267,13 +4268,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if preceding chararcters specified to be");
@@ -4283,7 +4284,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4293,13 +4294,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if trailing chararcters specified to be");
@@ -4309,7 +4310,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4319,13 +4320,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
                 }
             }
@@ -4344,7 +4345,7 @@ encoded.");
                     VVV("Verify delayed encoding of char '" <<
                         printHex(B, 1) << "'");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4355,7 +4356,7 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if a single char '" << printHex(B, 1) <<
@@ -4363,7 +4364,7 @@ encoded.");
                     {
                         encode[0] = i;
                         encode[1] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4372,13 +4373,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if char '" << printHex(B, 1) << "' can be");
@@ -4388,7 +4389,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4397,13 +4398,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if precediing chararcters specified to be");
@@ -4413,7 +4414,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'a';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4423,13 +4424,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify if trailing chararcters specified to be");
@@ -4439,7 +4440,7 @@ encoded.");
                         encode[1] = i;
                         encode[2] = 'A';
                         encode[3] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         input = 'A';
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4449,13 +4450,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
                 }
             }
@@ -4473,7 +4474,7 @@ encoded.");
 
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4483,19 +4484,19 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify delayed encoding of a stand-alone '\\r'");
                     VVV("in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4506,13 +4507,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify delayed encoding of a stand-alone '\\r'");
                     VVV("in MIXED_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4523,7 +4524,7 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     // Unlike whitespace characters which can be specified to
@@ -4544,7 +4545,7 @@ encoded.");
 
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_LF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4554,19 +4555,19 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify delayed encoding of a stand-alone '\\r'");
                     VVV("in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4577,13 +4578,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify delayed encoding of a stand-alone '\\r'");
                     VVV("in MIXED_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4594,7 +4595,7 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     // The case of a '\r' followed immediately by a '\n' is
@@ -4615,7 +4616,7 @@ encoded.");
 
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4625,79 +4626,79 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
-                        LOOP_ASSERT(i, -1 == b[0]);
-                        LOOP_ASSERT(i, -1 == b[1]);
-                        LOOP_ASSERT(i, -1 == b[2]);
-                        LOOP_ASSERT(i, -1 == b[3]);
+                        LOOP_ASSERT(i, IV == b[0]);
+                        LOOP_ASSERT(i, IV == b[1]);
+                        LOOP_ASSERT(i, IV == b[2]);
+                        LOOP_ASSERT(i, IV == b[3]);
                         input = i;  // i.e., '\n'
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
 
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
 
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
 
                     VVV("Repeat all 4 tests above to verify there is no");
@@ -4709,7 +4710,7 @@ encoded.");
 
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
@@ -4718,79 +4719,79 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify \"\\r\\n\" are output as CRLF in CRLF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         input = '\r';
                         LOOP_ASSERT(i, 3 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 0 == nOut);
-                        LOOP_ASSERT(i, -1 == b[0]);
-                        LOOP_ASSERT(i, -1 == b[1]);
-                        LOOP_ASSERT(i, -1 == b[2]);
-                        LOOP_ASSERT(i, -1 == b[3]);
+                        LOOP_ASSERT(i, IV == b[0]);
+                        LOOP_ASSERT(i, IV == b[1]);
+                        LOOP_ASSERT(i, IV == b[2]);
+                        LOOP_ASSERT(i, IV == b[3]);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
 
                     VVV("Verify '\\n' is output as CRLF in LF_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_LF_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
 
                     VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_MIXED_MODE);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '\r' == b[0]);
                         LOOP_ASSERT(i, '\n' == b[1]);
-                        LOOP_ASSERT(i, -1   == b[2]);
-                        LOOP_ASSERT(i, -1   == b[3]);
+                        LOOP_ASSERT(i, IV   == b[2]);
+                        LOOP_ASSERT(i, IV   == b[3]);
                     }
                 }
             }
@@ -4809,7 +4810,7 @@ encoded.");
 
                     VVV("Verify control characters are encoded.");
                     {
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4819,13 +4820,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
 
                     VVV("Verify there is no effect of specifying character");
@@ -4833,7 +4834,7 @@ encoded.");
                     {
                         encode[0] = i;
                         encode[1] = 0;
-                        char b[4] = { -1, -1, -1, -1 };
+                        char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
                         input = i;
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
@@ -4843,13 +4844,13 @@ encoded.");
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                         LOOP_ASSERT(i, 0 == obj.endConvert(b + nOut, &nOut));
                         LOOP_ASSERT(i, 0 == nOut);
                         LOOP_ASSERT(i, '='    == b[0]);
                         LOOP_ASSERT(i, hex[0] == b[1]);
                         LOOP_ASSERT(i, hex[1] == b[2]);
-                        LOOP_ASSERT(i, -1     == b[3]);
+                        LOOP_ASSERT(i, IV     == b[3]);
                     }
                 }
             }
@@ -5139,7 +5140,7 @@ encoded.");
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5153,13 +5154,13 @@ encoded.");
                 ASSERT(0 == obj.outputLength());
                 ASSERT(0 == result);
                 ASSERT(0 == numOut);
-                ASSERT(-1 == b[0]);
-                ASSERT(-1 == b[1]);
-                ASSERT(-1 == b[2]);
-                ASSERT(-1 == b[3]);
-                ASSERT(-1 == b[4]);
-                ASSERT(-1 == b[5]);
-                ASSERT(-1 == b[6]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
+                ASSERT(IV == b[4]);
+                ASSERT(IV == b[5]);
+                ASSERT(IV == b[6]);
             }
 
             if (verbose) cout << "\tSTATE_ZERO." << endl;
@@ -5175,7 +5176,7 @@ encoded.");
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 <  obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5189,13 +5190,13 @@ encoded.");
                 ASSERT(0 <  obj.outputLength());
                 ASSERT(0 == result);
                 ASSERT(0 == numOut);
-                ASSERT(-1 == b[0]);
-                ASSERT(-1 == b[1]);
-                ASSERT(-1 == b[2]);
-                ASSERT(-1 == b[3]);
-                ASSERT(-1 == b[4]);
-                ASSERT(-1 == b[5]);
-                ASSERT(-1 == b[6]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
+                ASSERT(IV == b[4]);
+                ASSERT(IV == b[5]);
+                ASSERT(IV == b[6]);
             }
 
             if (verbose) cout << "\tSAW_RETURN." << endl;
@@ -5211,7 +5212,7 @@ encoded.");
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5228,10 +5229,10 @@ encoded.");
                 ASSERT('=' == b[0]);
                 ASSERT('0' == b[1]);
                 ASSERT('D' == b[2]);
-                ASSERT(-1  == b[3]);
-                ASSERT(-1  == b[4]);
-                ASSERT(-1  == b[5]);
-                ASSERT(-1  == b[6]);
+                ASSERT(IV  == b[3]);
+                ASSERT(IV  == b[4]);
+                ASSERT(IV  == b[5]);
+                ASSERT(IV  == b[6]);
             }
 
             if (verbose) cout << "\tSAW_WHITE." << endl;
@@ -5247,7 +5248,7 @@ encoded.");
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5264,10 +5265,10 @@ encoded.");
                 ASSERT('=' == b[0]);
                 ASSERT('2' == b[1]);
                 ASSERT('0' == b[2]);
-                ASSERT(-1  == b[3]);
-                ASSERT(-1  == b[4]);
-                ASSERT(-1  == b[5]);
-                ASSERT(-1  == b[6]);
+                ASSERT(IV  == b[3]);
+                ASSERT(IV  == b[4]);
+                ASSERT(IV  == b[5]);
+                ASSERT(IV  == b[6]);
             }
 
             if (verbose) cout << "\tDONE_STATE." << endl;
@@ -5283,7 +5284,7 @@ encoded.");
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5297,13 +5298,13 @@ encoded.");
                 ASSERT(0 == obj.outputLength());
                 ASSERT(-1 == result);
                 ASSERT(0 == numOut);
-                ASSERT(-1 == b[0]);
-                ASSERT(-1 == b[1]);
-                ASSERT(-1 == b[2]);
-                ASSERT(-1 == b[3]);
-                ASSERT(-1 == b[4]);
-                ASSERT(-1 == b[5]);
-                ASSERT(-1 == b[6]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
+                ASSERT(IV == b[4]);
+                ASSERT(IV == b[5]);
+                ASSERT(IV == b[6]);
             }
 
             if (verbose) cout << "\tERROR_STATE." << endl;
@@ -5319,7 +5320,7 @@ encoded.");
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[7] = { -1, -1, -1, -1, -1, -1, -1 };
+                char b[7] = { IV, IV, IV, IV, IV, IV, IV };
                 int numOut = -1;
                 int result = obj.endConvert(b, &numOut);
 
@@ -5333,13 +5334,13 @@ encoded.");
                 ASSERT(0 == obj.outputLength());
                 ASSERT(-1 == result);
                 ASSERT(0 == numOut);
-                ASSERT(-1 == b[0]);
-                ASSERT(-1 == b[1]);
-                ASSERT(-1 == b[2]);
-                ASSERT(-1 == b[3]);
-                ASSERT(-1 == b[4]);
-                ASSERT(-1 == b[5]);
-                ASSERT(-1 == b[6]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
+                ASSERT(IV == b[4]);
+                ASSERT(IV == b[5]);
+                ASSERT(IV == b[6]);
             }
         }
 

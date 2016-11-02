@@ -215,7 +215,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
                               // the possibility of creating in-place
                               // uninitialized buffer, where it is possible to
                               // access memory beyond the 'd_instance'
-                              // footprint (refer to 'bsl::share_ptr::
+                              // footprint (refer to 'bsl::shared_ptr::
                               // createInplaceUninitializedBuffer' for sample
                               // usage)
 

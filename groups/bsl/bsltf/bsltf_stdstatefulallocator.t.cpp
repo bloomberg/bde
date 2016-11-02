@@ -8,6 +8,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorguard.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -92,7 +93,7 @@ using bsls::NameOf;
 // [15] void construct(ELEMENT_TYPE *address, Args&&... arguments);
 //
 // ACCESSORS
-// [ 4] bslma::TestAllocator *testAllocator() const;
+// [ 4] bslma::Allocator *allocator() const;
 // [12] StdStatefulAllocator select_on_container_copy_construction() const;
 // [16] size_type max_size() const;
 //
@@ -186,6 +187,33 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    constexpr bsl::bool_constant<EXPRESSION> NAME{}
+    // This leading branch is the preferred version for C++17, but the feature
+    // test macro is (currently) for documentation purposes only, and never
+    // defined.  This is the ideal (simplest) form for such declarations:
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
+    // This is the preferred C++11 form for the definition of integral constant
+    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // indication that brace-initialization and traits are available, as it has
+    // historically been one of the last C++11 features to ship.
+#else
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
+                 bsl::integral_constant<bool, EXPRESSION>()
+    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // the rules, so a C++03 compiler must explicitly initialize integral
+    // constant variables in a way that is unambiguously not a vexing parse
+    // that declares a function instead.
+#endif
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -311,7 +339,7 @@ class TestDriver {
         // Test equality operators ('operator==' and 'operator!=').
 
     static void testCase4();
-        // Test basic accessors ('testAllocator').
+        // Test basic accessors ('allocator').
 
     static void testCase2();
         // Test primary manipulators (value constructor and destructor).
@@ -334,18 +362,16 @@ template <int N_ARGS,
           int N10>
 void TestDriver<VALUE>::testCase15_RunTest(Obj *object)
 {
-    // In C++17 these become the simpler to name 'bool_constant'
-
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
 
     static const EmplacableTestType::ArgType01 V01(1);
     static const EmplacableTestType::ArgType02 V02(2);
@@ -1069,22 +1095,22 @@ void TestDriver<VALUE>::testCase12()
     ASSERT(X14 == COPY14);
     ASSERT(X15 == COPY15);
 
-    ASSERT(&da                 == COPY0.testAllocator());
-    ASSERT(&da                 == COPY1.testAllocator());
-    ASSERT(&da                 == COPY2.testAllocator());
-    ASSERT(&da                 == COPY3.testAllocator());
-    ASSERT(&da                 == COPY4.testAllocator());
-    ASSERT(&da                 == COPY5.testAllocator());
-    ASSERT(&da                 == COPY6.testAllocator());
-    ASSERT(&da                 == COPY7.testAllocator());
-    ASSERT(X8.testAllocator()  == COPY8.testAllocator());
-    ASSERT(X9.testAllocator()  == COPY9.testAllocator());
-    ASSERT(X10.testAllocator() == COPY10.testAllocator());
-    ASSERT(X11.testAllocator() == COPY11.testAllocator());
-    ASSERT(X12.testAllocator() == COPY12.testAllocator());
-    ASSERT(X13.testAllocator() == COPY13.testAllocator());
-    ASSERT(X14.testAllocator() == COPY14.testAllocator());
-    ASSERT(X15.testAllocator() == COPY15.testAllocator());
+    ASSERT(&da                 == COPY0.allocator());
+    ASSERT(&da                 == COPY1.allocator());
+    ASSERT(&da                 == COPY2.allocator());
+    ASSERT(&da                 == COPY3.allocator());
+    ASSERT(&da                 == COPY4.allocator());
+    ASSERT(&da                 == COPY5.allocator());
+    ASSERT(&da                 == COPY6.allocator());
+    ASSERT(&da                 == COPY7.allocator());
+    ASSERT(X8.allocator()  == COPY8.allocator());
+    ASSERT(X9.allocator()  == COPY9.allocator());
+    ASSERT(X10.allocator() == COPY10.allocator());
+    ASSERT(X11.allocator() == COPY11.allocator());
+    ASSERT(X12.allocator() == COPY12.allocator());
+    ASSERT(X13.allocator() == COPY13.allocator());
+    ASSERT(X14.allocator() == COPY14.allocator());
+    ASSERT(X15.allocator() == COPY15.allocator());
 }
 
 template <class VALUE>
@@ -1385,11 +1411,11 @@ void TestDriver<VALUE>::testCase7()
         Obj mZ(&allocX); const Obj& Z = mZ;
 
         ObjI mY1(X); const ObjI& Y1 = mY1;
-        ASSERT(X.testAllocator() == Y1.testAllocator());
+        ASSERT(X.allocator() == Y1.allocator());
         ASSERT(Z == X);
 
         ObjF mY2(X); const ObjF& Y2 = mY2;
-        ASSERT(X.testAllocator() == Y2.testAllocator());
+        ASSERT(X.allocator() == Y2.allocator());
         ASSERT(Z == X);
     }
 }
@@ -1503,19 +1529,19 @@ void TestDriver<VALUE>::testCase4()
     //   Ensure each basic accessor properly interprets object state.
     //
     // Concerns:
-    //: 1 The 'testAllocator' accessor returns the value of the corresponding
+    //: 1 The 'allocator' accessor returns the value of the corresponding
     //:   attribute of the object.
     //:
-    //: 2 The 'testAllocator' accessor method is declared 'const'.
+    //: 2 The 'allocator' accessor method is declared 'const'.
     //
     // Plan:
     //: 1 Use the value constructor, create an object having the expected
-    //:   attribute values.  Verify that the accessor for the 'testAllocator'
+    //:   attribute values.  Verify that the accessor for the 'allocator'
     //:   attribute invoked on a reference providing non-modifiable access to
     //:   the object return the expected value.  (C-1..2)
     //
     // Testing:
-    //   bslma::TestAllocator *testAllocator() const;
+    //   bslma::TestAllocator *allocator() const;
     // ------------------------------------------------------------------------
 
     if (verbose)
@@ -1523,8 +1549,11 @@ void TestDriver<VALUE>::testCase4()
 
     bslma::TestAllocator allocX("X", veryVeryVeryVerbose);
     const Obj            X(&allocX);
+    bslma::Allocator&    allocY = bslma::NewDeleteAllocator::singleton();
+    const Obj            Y(&allocY);
 
-    ASSERTV(&allocX, X.testAllocator(), &allocX == X.testAllocator());
+    ASSERTV(&allocX, X.allocator(), &allocX == X.allocator());
+    ASSERTV(&allocY, Y.allocator(), &allocY == Y.allocator());
 }
 
 template <class VALUE>
@@ -1585,7 +1614,7 @@ void TestDriver<VALUE>::testCase2()
 
         ASSERT(sizeof(Obj) == fa.numBytesInUse());
         ASSERT(0           == da.numBytesInUse());
-        ASSERT(&oa         == X.testAllocator());
+        ASSERT(&oa         == X.allocator());
 
         fa.deleteObject(objPtr);
 
@@ -1601,7 +1630,8 @@ void TestDriver<VALUE>::testCase2()
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
         ASSERT_SAFE_PASS((Obj(&oa)));
-        ASSERT_SAFE_FAIL((Obj(0  )));
+        ASSERT_SAFE_PASS((Obj(0)));
+        ASSERT_SAFE_PASS((Obj()));
     }
 }
 

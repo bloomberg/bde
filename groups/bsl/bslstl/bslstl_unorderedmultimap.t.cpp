@@ -983,11 +983,35 @@ struct TestIncompleteType {
     bsl::unordered_multimap<int, IncompleteType>            d_data1;
     bsl::unordered_multimap<IncompleteType, int>            d_data2;
     bsl::unordered_multimap<IncompleteType, IncompleteType> d_data3;
+
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+    ~TestIncompleteType();
+        // If building in 'SAFE_2' mode, the invariants-check in the destructor
+        // for 'bslstl::HashTable' requires the key type to be complete, and
+        // hashable.  Deferring the definition of this class's destructor until
+        // after the incomplete key type has been fully defined, with hashing
+        // support provided, resolves these issues.
+#endif
 };
 
 struct IncompleteType {
     int d_data;
 };
+
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM &hashAlg, const IncompleteType &object)
+    // Apply the specified 'hashAlg' to the specified 'object'
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlg, object.d_data);
+}
+
+inline
+TestIncompleteType::~TestIncompleteType()
+{
+}
+#endif
 
 }  // close unnamed namespace
 
@@ -4029,8 +4053,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
-          bool OTHER_FLAGS>
+template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG, bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
                    testCase27_propagate_on_container_move_assignment_dispatch()
 {
@@ -4063,7 +4086,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -4081,7 +4103,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -6569,7 +6590,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     // Create control and source objects.
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -6587,7 +6607,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -6996,7 +7015,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const ISPEC   = SPECS[ti];
-        const size_t      ILENGTH = strlen(ISPEC);
 
         TestValues IVALUES(ISPEC);
 
@@ -7015,7 +7033,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
             const char *const JSPEC   = SPECS[tj];
-            const size_t      JLENGTH = strlen(JSPEC);
 
             TestValues JVALUES(JSPEC);
 
@@ -11416,6 +11433,16 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("BREATHING TEST\n"
                             "==============\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        {
+            bsl::unordered_multimap<bsl::string,
+                                    bsl::pair<bsl::string, bsl::string> > mX;
+
+            mX.insert({bsl::string{"banana"},
+                      {bsl::string{"apple"}, bsl::string{"cherry"} } });
+        }
+#endif
 
         using namespace BREATHING_TEST;
 

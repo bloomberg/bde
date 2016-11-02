@@ -46,8 +46,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
-#include <bslmf_detectnestedtrait.h>
+#ifndef INCLUDED_BSLALG_HASSTLITERATORS
+#include <bslalg_hasstliterators.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -57,11 +57,6 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bslalg {
-
-template <class TYPE>
-struct HasStlIterators : bslmf::DetectNestedTrait<TYPE, HasStlIterators>
-{
-};
 
                         //================================
                         // struct TypeTraitHasStlIterators
