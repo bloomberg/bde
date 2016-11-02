@@ -4661,7 +4661,7 @@ struct Bind_OneResultTypeOrAnother {
     struct Return : public Return<decltype(&T::operator())> {
         // The general version of this class inherits from its specialization.
     };
-    template <typename CLASS_T, class RETURN_T, class... ARGS_T>
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
     struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> {
         // The specialized form of the 'Return' class defines a 'type' member
         // as the return type of the member function parameter.
