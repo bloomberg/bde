@@ -24,18 +24,21 @@ BSLS_IDENT("$Id: $")
 // 'bslmf::Fundamental' was devised before 'is_fundamental' was standardized.
 //
 // The two meta-functions are functionally equivalent except on reference of
-// fundamental types.  Reference on fundamental types are determined as
+// fundamental types.  Lvalue-references to fundamental types are determined as
 // fundamental types by 'bslmf::IsFundamental', but not by
-// 'bsl::is_fundamental'.  Another major difference between them is that the
+// 'bsl::is_fundamental'.  Rvalue-references, on compilers that support them,
+// are not deemed to be fundamental by either trait.  In expected use, the
 // result for 'bsl::is_fundamental' is indicated by the class member 'value',
 // while the result for 'bslmf::Fundamental' is indicated by the class member
-// 'VALUE'.
+// 'VALUE'.  In practice, both traits support both names of the result value,
+// althoug the all-caps 'VALUE' form is deprecated.
 //
 // Note that 'bsl::is_fundamental' should be preferred over
 // 'bslmf::Fundamental', and in general, should be used by new components.
 //
 // The C++ fundamental types are described in the C++ standard
-// [basic.fundamental], and consist of the following distinct types:
+// [basic.fundamental], and consist of the following distinct types, and
+// cv-qualified veriations of these types:
 //..
 //  bool
 //  char
@@ -58,8 +61,6 @@ BSLS_IDENT("$Id: $")
 //  void
 //  nullptr_t
 //..
-// Note that the 'char16_t', 'char32_t', and 'nullptr_t' types are not
-// supported yet.
 //
 ///Usage
 ///-----
@@ -97,6 +98,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_NULLPTR
+#include <bsls_nullptr.h>
 #endif
 
 namespace BloombergLP {
@@ -208,6 +217,26 @@ template <> struct IsFundamental_Imp<void> : bsl::true_type {
     // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
 };
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+template <> struct IsFundamental_Imp<bsl::nullptr_t> : bsl::true_type {
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
+};
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+template <> struct IsFundamental_Imp<char16_t> : bsl::true_type {
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
+};
+
+template <> struct IsFundamental_Imp<char32_t> : bsl::true_type {
+    // This partial specialization of 'IsFundamental_Imp' derives from
+    // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
+};
+#endif
+
+
                          // ====================
                          // struct IsFundamental
                          // ====================
@@ -223,8 +252,8 @@ struct IsFundamental
 template <class TYPE>
 struct IsFundamental<TYPE&>
     : IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::type {
-    // This specialization of 'IsFundamental' causes references to be treated
-    // as their underlying (non-reference) types.
+    // This specialization of 'IsFundamental' causes lvalue-references to be
+    // treated as their underlying (non-reference) types.
 };
 
 }  // close package namespace
@@ -239,13 +268,37 @@ namespace bsl {
 template <class TYPE>
 struct is_fundamental
     : integral_constant<bool,
-                        is_arithmetic<TYPE>::value
-                        || is_void<TYPE>::value> {
+                        is_arithmetic<TYPE>::value || is_void<TYPE>::value> {
     // This 'struct' template implements a meta-function for checking if a type
-    // is fundamental as defined in the C++11 standard [basic.fundamental] with
-    // the exceptions of 'char16_t', 'char32_t', and 'nullptr_t', which are not
-    // supported yet.
+    // is fundamental as defined in the C++11 standard [basic.fundamental].
 };
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+template <>
+struct is_fundamental<bsl::nullptr_t> : bsl::true_type {
+    // Explicit specialization to confirm that the type of 'nullptr' is
+    // fundamental.
+};
+
+template <>
+struct is_fundamental<const bsl::nullptr_t> : bsl::true_type {
+    // Explicit specialization to confirm that the type of 'const nullptr' is
+    // fundamental.
+};
+
+template <>
+struct is_fundamental<volatile bsl::nullptr_t> : bsl::true_type {
+    // Explicit specialization to confirm that the type of 'volatile nullptr'
+    // is fundamental.
+};
+
+template <>
+struct is_fundamental<const volatile bsl::nullptr_t> : bsl::true_type {
+    // Explicit specialization to confirm that the type of
+    // 'const volatile nullptr' is fundamental.
+};
+
+#endif
 
 }  // close namespace bsl
 
