@@ -10,6 +10,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_cpp11.h>
+#include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -331,7 +332,7 @@ int main(int argc, char *argv[])
         //:  4 The meta-function returns 'false' for cv-qualified 'void' types.
         //:
         //:  5 The meta-function returns 'false' for function types.
-        //
+        //:
         //:  6 The meta-function returns 'true' for pointer types.
         //:
         //:  7 The meta-function returns 'false' for reference types.
@@ -366,6 +367,12 @@ int main(int argc, char *argv[])
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double, true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bsl::nullptr_t, true);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t, true);
+#endif
 
         // C-2
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType, true);
@@ -402,8 +409,8 @@ int main(int argc, char *argv[])
         ASSERT(!bsl::is_nothrow_move_constructible<
                                                 int(float, double...)>::value);
 #if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT(bsl::is_nothrow_move_constructible<void(&)()>::value);
-        ASSERT(bsl::is_nothrow_move_constructible<
+        ASSERT( bsl::is_nothrow_move_constructible<void(&)()>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<
                                              int(&)(float, double...)>::value);
 #endif
 #endif
