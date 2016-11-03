@@ -15,6 +15,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -395,7 +396,7 @@ int main(int argc, char *argv[])
         const int numReaders = 10;
 
         ThreadData              writer;
-        std::vector<ThreadData> reader(numReaders);
+        bsl::vector<ThreadData> reader(numReaders);
 
         Obj obj;
 

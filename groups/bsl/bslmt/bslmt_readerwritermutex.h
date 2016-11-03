@@ -27,9 +27,9 @@ BSLS_IDENT("$Id: $")
 // "mutexes"), reader-writer locks provide two distinct but mutually exclusive
 // lock states: a *read* *lock* state, and a *write* *lock* state.
 //
-// This implementation does not give preference to readers or writers.  When
-// multiple threads are waiting to obtain the lock, the successful thread is
-// chosen by an underlying locking mechanism (i.e., a mutex).
+// This implementation is writer biased but, to the extent the implementation's
+// underlying mutex prevents a thread from starving, readers can not be starved
+// by writers.
 //
 ///Usage
 ///-----
