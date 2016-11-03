@@ -1,11 +1,14 @@
 // bslmt_readerwritermutex.t.cpp                                      -*-C++-*-
 
 #include <bslmt_readerwritermutex.h>
+#include <bslmt_rwmutex.h>
 
+#include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 
+#include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -21,12 +24,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bslmt::ReaderWriterMutexImpl' is the templated-for-testing implementation
-// of a reader-writer lock.  The templatization allows for the creation of a
-// script-based testing object, 'TestImpl', that enables simplified testing of
-// the concerns for each method.  The methods of 'bslmt::ReaderWriterMutexImpl'
-// are tested by directly exercising the functionality or by using the
-// depth-limited enumeration technique.
+// A 'bslmt::ReaderWriterMutex' uses an implementation class and hence testing
+// the forwarding to the implementation is all that is required.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] ReaderWriterMutex();
@@ -42,7 +41,8 @@ using namespace bsl;
 // [ 2] void unlockWrite();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] FAIR LOCK ACQUISITION
+// [ 3] WRITER BIAS
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -89,44 +89,240 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bslmt::ReaderWriterMutex Obj;
+
+// ============================================================================
 //                   GLOBAL STRUCTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 struct ThreadData {
-    bslmt::ReaderWriterMutex *d_mutex_p;
-    bsls::Types::size_type    d_writeCount;
-    bsls::Types::size_type    d_readCount;
+    bslmt::ThreadUtil::Handle  d_handle;
+    bslmt::Semaphore           d_step;
+    bslmt::Semaphore           d_stepDone;
+    Obj                       *d_mutex_p;
+    bsls::Types::size_type     d_count;
 
-    ThreadData() : d_mutex_p(0), d_writeCount(0), d_readCount(0) {}
+    ThreadData() : d_mutex_p(0), d_count(0) {}
 
-    bool isFair(bsls::Types::size_type numWriter,
-                bsls::Types::size_type numReader)
-    {
-        bsls::Types::size_type count         = d_writeCount + d_readCount;
-        bsls::Types::size_type num           = numWriter + numReader;
-        bsls::Types::size_type expWriteCount = numWriter * count / num;
-        bsls::Types::size_type expReadCount  = numReader * count / num;
-
-        return d_writeCount * 5 >= 4 * expWriteCount
-            && d_readCount  * 5 >= 4 * expReadCount;
-    }
+    ThreadData(Obj *pObj) : d_mutex_p(pObj), d_count(0) {}
 };
 
 // ============================================================================
 //                   GLOBAL METHODS FOR TESTING
 // ----------------------------------------------------------------------------
 
+static bsls::AtomicInt s_continue;
+
+const static int k_COMPLETION_COUNT = 100000;
+
+extern "C" void *watchdog(void *arg)
+{
+    const char *text = static_cast<const char *>(arg);
+
+    const int MAX = 10;
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(100000);
+        ++count;
+
+        ASSERTV(text, count < MAX);
+
+        if (MAX == count && s_continue) abort();
+    }
+
+    return 0;
+}
+
+extern "C" void *writeLock(void *arg)
+{
+    ThreadData *data = static_cast<ThreadData *>(arg);
+
+    while (s_continue == 2) {
+        data->d_step.wait();
+        data->d_mutex_p->lockWrite();
+        data->d_stepDone.post();
+
+        data->d_step.wait();
+        data->d_mutex_p->unlock();
+        data->d_stepDone.post();
+    }
+
+    return 0;
+}
+
+extern "C" void *readLock(void *arg)
+{
+    ThreadData *data = static_cast<ThreadData *>(arg);
+
+    while (s_continue == 2) {
+        data->d_step.wait();
+        data->d_mutex_p->lockRead();
+        data->d_stepDone.post();
+
+        data->d_step.wait();
+        data->d_mutex_p->unlock();
+        data->d_stepDone.post();
+    }
+
+    return 0;
+}
+
 extern "C" void *writeLockCount(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
+
+    while (s_continue == 2) {
+        data->d_mutex_p->lockWrite();
+        data->d_mutex_p->unlock();
+
+        ++data->d_count;
+
+        if (k_COMPLETION_COUNT == data->d_count) {
+            s_continue = 0;
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
+
+    return 0;
+}
+
+extern "C" void *starvationReadLockCount(void *arg)
+{
+    ThreadData *data = static_cast<ThreadData *>(arg);
+
+    while (s_continue == 2) {
+        data->d_mutex_p->lockRead();
+        bslmt::ThreadUtil::yield();
+        data->d_mutex_p->unlock();
+
+        ++data->d_count;
+
+        if (k_COMPLETION_COUNT == data->d_count) {
+            s_continue = 0;
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
+
     return 0;
 }
 
 // ============================================================================
-//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-typedef bslmt::ReaderWriterMutex Obj;
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Maintaining an Account Balance
+///- - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate the use of
+// 'bslmt::ReaderWriterMutex' to write a thread-safe class, 'my_Account'.  Note
+// the typical use of 'mutable' for the lock:
+//..
+    class my_Account {
+        // This 'class' represents a bank account with a single balance.
+
+        // DATA
+        double                            d_money;  // amount of money in the
+                                                    // account
+
+        mutable bslmt::ReaderWriterMutex  d_lock;   // guard access to
+                                                    // 'd_account_p'
+
+      public:
+        // CREATORS
+        my_Account();
+            // Create an account with zero balance.
+
+        my_Account(const my_Account& original);
+            // Create an account having the value of the specified 'original'
+            // account.
+
+        ~my_Account();
+            // Destroy this account.
+
+        // MANIPULATORS
+        my_Account& operator=(const my_Account& rhs);
+            // Atomically assign to this account the value of the specified
+            // 'rhs' account, and return a reference to this modifiable
+            // account.  Note that this operation is thread-safe; no 'lock' is
+            // needed.
+
+        void deposit(double amount);
+            // Atomically deposit the specified 'amount' of money into this
+            // account.  Note that this operation is thread-safe; no 'lock' is
+            // needed.
+
+        void withdraw(double amount);
+            // Atomically withdraw the specified 'amount' of money from this
+            // account.  Note that this operation is thread-safe; no 'lock' is
+            // needed.
+
+        // ACCESSORS
+        double balance() const;
+            // Atomically return the amount of money that is available for
+            // withdrawal from this account.
+    };
+
+    // CREATORS
+    my_Account::my_Account()
+    : d_money(0.0)
+    {
+    }
+
+    my_Account::my_Account(const my_Account& original)
+    : d_money(original.d_money)
+    {
+    }
+
+    my_Account::~my_Account()
+    {
+    }
+
+    // MANIPULATORS
+    my_Account& my_Account::operator=(const my_Account& rhs)
+    {
+//..
+// Where appropriate, clients should use a lock-guard to ensure that an
+// acquired mutex is always properly released, even if an exception is thrown.
+//..
+        d_lock.lockWrite();
+        d_money = rhs.d_money;
+        d_lock.unlockWrite();
+        return *this;
+    }
+
+    void my_Account::deposit(double amount)
+    {
+        d_lock.lockWrite();
+        d_money += amount;
+        d_lock.unlockWrite();
+    }
+
+    void my_Account::withdraw(double amount)
+    {
+        d_lock.lockWrite();
+        d_money -= amount;
+        d_lock.unlockWrite();
+    }
+
+    // ACCESSORS
+    double my_Account::balance() const
+    {
+        d_lock.lockRead();
+        double rv = d_money;
+        d_lock.unlockRead();
+        return rv;
+    }
+//..
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -135,11 +331,204 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    //int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+// The atomic 'my_Account' methods are used as expected:
+//..
+    my_Account account;
+
+    account.deposit(100.50);
+    ASSERT(100.50 == account.balance());
+
+    double paycheck = 50.25;
+
+    account.deposit(paycheck);
+    ASSERT(150.75 == account.balance());
+//..
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // WRITER BIAS
+        //   This case verifies the lock is biased torwards writers.
+        //
+        // Concerns:
+        //: 1 The lock is writer biased.
+        //
+        // Plan:
+        //: 1 Create one writer and a number of reader threads that count the
+        //:   number of times they are able to obtain the lock.  Evaluate the
+        //:   resultant counts to ensure the lock exhibits a writer bias.
+        //:   (C-1)
+        //
+        // Testing:
+        //   WRITER BIAS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "WRITER BIAS" << endl
+                          << "===========" << endl;
+
+        const int numReaders = 10;
+
+        ThreadData              writer;
+        std::vector<ThreadData> reader(numReaders);
+
+        Obj obj;
+
+        s_continue = 2;
+
+        for (int nr = 0; nr < numReaders; ++nr) {
+            reader[nr].d_mutex_p = &obj;
+            bslmt::ThreadUtil::create(&reader[nr].d_handle,
+                                      starvationReadLockCount,
+                                      &reader[nr]);
+        }
+        {
+            writer.d_mutex_p = &obj;
+            bslmt::ThreadUtil::create(&writer.d_handle,
+                                      writeLockCount,
+                                      &writer);
+        }
+
+        {
+            bslmt::ThreadUtil::join(writer.d_handle);
+        }
+
+        for (int i = 0; i < numReaders; ++i) {
+            bslmt::ThreadUtil::join(reader[i].d_handle);
+        }
+
+        ASSERTV(writer.d_count, writer.d_count == k_COMPLETION_COUNT);
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // CREATORS AND MANIPULATORS
+        //   This case verifies the forwarding to the implementation class.
+        //
+        // Concerns:
+        //: 1 The methods function as expected.
+        //
+        // Plan:
+        //: 1 Use multiple threads to distinguish the behavior of each methods
+        //:   and hence validate the forwarding.  (C-1)
+        //
+        // Testing:
+        //   ReaderWriterMutex();
+        //   ~ReaderWriterMutex();
+        //   void lockRead();
+        //   void lockWrite();
+        //   int tryLockRead();
+        //   int tryLockWrite();
+        //   void unlock();
+        //   void unlockRead();
+        //   void unlockWrite();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CREATORS AND MANIPULATORS" << endl
+                          << "=========================" << endl;
+
+        {
+            Obj                       obj;
+            bslmt::ThreadUtil::Handle wd;
+            ThreadData                t(&obj);
+
+            s_continue = 2;
+
+            bslmt::ThreadUtil::create(&wd,
+                                      watchdog,
+                                      const_cast<char *>("readLock"));
+            bslmt::ThreadUtil::create(&t.d_handle, readLock, &t);
+
+            t.d_step.post();
+            t.d_stepDone.wait();
+
+            obj.lockRead();
+            obj.unlockRead();
+
+            ASSERT(0 == obj.tryLockRead());
+            obj.unlockRead();
+
+            ASSERT(1 == obj.tryLockWrite());
+
+            s_continue = 1;
+
+            t.d_step.post();
+            t.d_stepDone.wait();
+
+            ASSERT(0 == obj.tryLockRead());
+            obj.unlockRead();
+
+            ASSERT(0 == obj.tryLockWrite());
+            obj.unlockWrite();
+
+            bslmt::ThreadUtil::join(t.d_handle);
+
+            s_continue = 0;
+
+            bslmt::ThreadUtil::join(wd);
+        }
+
+        {
+            Obj                       obj;
+            bslmt::ThreadUtil::Handle wd;
+            ThreadData                t(&obj);
+
+            s_continue = 2;
+
+            bslmt::ThreadUtil::create(&wd,
+                                      watchdog,
+                                      const_cast<char *>("writeLock"));
+            bslmt::ThreadUtil::create(&t.d_handle, writeLock, &t);
+
+            t.d_step.post();
+            t.d_stepDone.wait();
+
+            ASSERT(1 == obj.tryLockRead());
+            ASSERT(1 == obj.tryLockWrite());
+
+            s_continue = 1;
+
+            t.d_step.post();
+            t.d_stepDone.wait();
+
+            ASSERT(0 == obj.tryLockRead());
+            obj.unlock();  // NOTE: not 'unlockRead'
+
+            ASSERT(0 == obj.tryLockWrite());
+            obj.unlockWrite();
+
+            bslmt::ThreadUtil::join(t.d_handle);
+
+            s_continue = 0;
+
+            bslmt::ThreadUtil::join(wd);
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

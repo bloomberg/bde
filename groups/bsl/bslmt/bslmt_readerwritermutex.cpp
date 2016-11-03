@@ -2,6 +2,7 @@
 
 #include <bslmt_readerwritermutex.h>
 
+#include <bslmt_semaphore.h>   // for testing only
 #include <bslmt_threadutil.h>  // for testing only
 
 #include <bsls_ident.h>
