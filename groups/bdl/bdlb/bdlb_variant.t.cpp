@@ -155,7 +155,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [27] USAGE EXAMPLE
-// [18] CLASSES: 'bdlb::VariantN', 'bdlb::Variant'
+// [18] CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
 // [ 3] int ggg(Variant *, const char *, bool = true);
 // [ 3] VariantImp& gg(VariantImp *, const char *);
 // [ 8] VariantImp   g(const char *spec);
@@ -1426,8 +1426,8 @@ class my_UnsetVariantReturningVisitor : public my_UnsetVariantVisitor {
 
 class my_NilAssertVisitor {
     // This class is crafted to reproduce "The variable nil has not yet been
-    // assigned a value" warning on Solaris, where 'nil' refers to an object in
-    // the 'bdlb::Variant::apply' method.
+    // assigned a value" warning on Solaris, where "nil" refers to an object in
+    // the 'bdlb::VariantImp::apply' method.
 
     void *d_result_p;
 
@@ -2034,7 +2034,7 @@ const int EXPECTED_VISITOR_RETURN_VALUE = 7;
 
 struct TestVisitorWithResultType {
     // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', and has a non-void 'ResultType'.
+    // 'bslmf::Nil', and has a non-'void' 'ResultType'.
 
     typedef int ResultType;
 
@@ -2096,7 +2096,7 @@ struct TestUtil {
         // Test traits.
 
     static void testCase18();
-        // Test 'bdlb::VariantN' classes.
+        // Test 'bdlb::VariantN' and 'bdlb::Variant' classes (copy semantics).
 
     static void testCase17();
         // Test 'isUnset'.
@@ -26932,13 +26932,53 @@ int main(int argc, char *argv[])
         // VALUE MOVE-ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The signature and return type are standard.
+        //:
+        //: 2 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 3 The value move-assignment operator can change the value and type
+        //:   held by a modifiable target object to that of any source object.
+        //:
+        //: 4 For variants that use an allocator: The object has its internal
+        //:   memory management system hooked up properly so that *all*
+        //:   internally allocated memory draws from a user-supplied allocator
+        //:   whenever one is specified.
+        //:
+        //: 5 The allocator address (if any) held by the target object is
+        //:   unchanged.
+        //:
+        //: 6 The move-assignment operator is called on the contained object if
+        //:   the types of the source object and that of the object held by the
+        //:   target are the same.
+        //:
+        //: 7 The move constructor is called on the source object if either:
+        //:   (a) the types of the source object and that of the object held by
+        //:   the target are not the same, in which case the object held by the
+        //:   target is first destroyed, or (b) the target object is unset.
+        //:
+        //: 8 The source object is left in a valid but unspecified state and
+        //:   the allocator address (if any) held by the source object is
+        //:   unchanged.
+        //:
+        //: 9 Subsequent changes to or destruction of the source object have no
+        //:   effect on the target object and vice versa.
+        //:
+        //:10 Every object releases any allocated memory at destruction.
+        //:
+        //:11 Any memory allocation is exception neutral.
+        //:
+        //:12 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:13 The 'bdlb::VariantN' and 'bdlb::Variant' value move-assignment
+        //:   operators correctly forward to the 'bdlb::VariantImp' value
+        //:   move-assignment operator.
         //
         // Plan:
         //: 1 TBD
         //
         // Testing:
         //   VariantImp& operator=(TYPE&& value);
+        //   'bdlb::VariantN' and 'bdlb::Variant'
         // --------------------------------------------------------------------
 
         TestUtil::testCase26();
@@ -26949,13 +26989,58 @@ int main(int argc, char *argv[])
         // MOVE-ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The signature and return type are standard.
+        //:
+        //: 2 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 3 The move-assignment operator can change the value of a modifiable
+        //:   target object to that of any source object.
+        //:
+        //: 4 For variants that use an allocator: The object has its internal
+        //:   memory management system hooked up properly so that *all*
+        //:   internally allocated memory draws from a user-supplied allocator
+        //:   whenever one is specified.
+        //:
+        //: 5 The allocator address (if any) held by the target object is
+        //:   unchanged.
+        //:
+        //: 6 The move-assignment operator is called on the contained object if
+        //:   the source and target objects are both set and hold objects of
+        //:   the same type.
+        //:
+        //: 7 The move constructor is called on the source object if either:
+        //:   (a) the source and target objects are both set and hold objects
+        //:   that are not of the same type, in which case the object held by
+        //:   the target is first destroyed, or (b) the source object is set
+        //:   and the target object is unset.
+        //:
+        //: 8 A set variant that is move-assigned to from an unset variant is
+        //:   made unset by first destroying the object held by the target
+        //:   object.
+        //:
+        //: 9 The source object is left in a valid but unspecified state and
+        //:   the allocator address (if any) held by the source object is
+        //:   unchanged.
+        //:
+        //:10 Subsequent changes to or destruction of the source object have no
+        //:   effect on the target object and vice versa.
+        //:
+        //:11 Every object releases any allocated memory at destruction.
+        //:
+        //:12 Any memory allocation is exception neutral.
+        //:
+        //:13 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:14 The 'bdlb::VariantN' and 'bdlb::Variant' move-assignment
+        //:   operators correctly forward to the 'bdlb::VariantImp'
+        //:   move-assignment operator.
         //
         // Plan:
         //: 1 TBD
         //
         // Testing:
         //   VariantImp& operator=(VariantImp&& rhs);
+        //   'bdlb::VariantN' and 'bdlb::Variant'
         // --------------------------------------------------------------------
 
         TestUtil::testCase25();
@@ -26966,7 +27051,40 @@ int main(int argc, char *argv[])
         // MOVE ASSIGN
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 2 The move 'assign' method can change the value and type held by a
+        //:   modifiable target object to that of any source object.
+        //:
+        //: 3 For variants that use an allocator: The object has its internal
+        //:   memory management system hooked up properly so that *all*
+        //:   internally allocated memory draws from a user-supplied allocator
+        //:   whenever one is specified.
+        //:
+        //: 4 The allocator address (if any) held by the target object is
+        //:   unchanged.
+        //:
+        //: 5 The move-assignment operator is called on the contained object if
+        //:   the types of the source object and that of the object held by the
+        //:   target are the same.
+        //:
+        //: 6 The move constructor is called on the source object if either:
+        //:   (a) the types of the source object and that of the object held by
+        //:   the target are not the same, in which case the object held by the
+        //:   target is first destroyed, or (b) the target object is unset.
+        //:
+        //: 7 The source object is left in a valid but unspecified state and
+        //:   the allocator address (if any) held by the source object is
+        //:   unchanged.
+        //:
+        //: 8 Subsequent changes to or destruction of the source object have no
+        //:   effect on the target object and vice versa.
+        //:
+        //: 9 Every object releases any allocated memory at destruction.
+        //:
+        //:10 Any memory allocation is exception neutral.
+        //:
+        //:11 Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
         //: 1 TBD
@@ -26983,7 +27101,41 @@ int main(int argc, char *argv[])
         // VALUE MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The object contained by the newly created variant has the same
+        //:   value (using the equality operator) as that of the source object
+        //:   before the call.
+        //:
+        //: 2 All internal representations of a given value can be used to
+        //:   create a new object of equivalent value.
+        //:
+        //: 3 For variants that use an allocator:
+        //:
+        //:   1 If no allocator (or an explicit 0) is supplied, the default
+        //:     allocator is used by the newly created object to supply memory.
+        //:
+        //:   2 If an allocator is supplied, it is used by the newly created
+        //:     object to supply memory.
+        //:
+        //: 4 The move constructor is called on the source object.
+        //:
+        //: 5 The source object is left in a valid but unspecified state and
+        //:   the allocator address (if any) held by the source object is
+        //:   unchanged.
+        //:
+        //: 6 Subsequent changes to or destruction of the source object have
+        //:   no effect on the move-constructed object and vice versa.
+        //:
+        //: 7 The object has its internal memory management system hooked up
+        //:   properly so that *all* internally allocated memory draws from a
+        //:   user-supplied allocator whenever one is specified.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 Any memory allocation is exception neutral.
+        //:
+        //:10 The 'bdlb::VariantN' and 'bdlb::Variant' value move constructors
+        //:   correctly forward to the corresponding 'bdlb::VariantImp'
+        //:   constructors.
         //
         // Plan:
         //: 1 TBD
@@ -26991,6 +27143,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   VariantImp(TYPE&& value);
         //   VariantImp(TYPE&& value, bslma::Allocator *ba);
+        //   'bdlb::VariantN' and 'bdlb::Variant'
         // --------------------------------------------------------------------
 
         TestUtil::testCase23();
@@ -27001,7 +27154,48 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The newly created object has the same value (using the equality
+        //:   operator) as that of the original object before the call.
+        //:
+        //: 2 All internal representations of a given value can be used to
+        //:   create a new object of equivalent value.
+        //:
+        //: 3 For variants that use an allocator:
+        //:
+        //:   1 If neither an allocator nor an explicit 0 is specified in the
+        //:     call to the move constructor, the allocator of the source
+        //:     object is propagated to the newly created object.
+        //:
+        //:   2 If an allocator is supplied, it is used by the newly created
+        //:     object to supply memory.
+        //:
+        //:   3 If an explicit 0 is supplied, the default allocator is used by
+        //:     the newly created object to supply memory.
+        //:
+        //: 4 The move constructor is called on the source object if it is set
+        //:   (i.e., '!isUnset()').
+        //:
+        //: 5 A variant that is move-constructed from an unset variant is
+        //:   initially unset.
+        //:
+        //: 6 The original object is left in a valid but unspecified state and
+        //:   the allocator address (if any) held by the original object is
+        //:   unchanged.
+        //:
+        //: 7 Subsequent changes to, or destruction of, the original object
+        //:   have no effect on the move-constructed object and vice versa.
+        //:
+        //: 8 The object has its internal memory management system hooked up
+        //:   properly so that *all* internally allocated memory draws from a
+        //:   user-supplied allocator whenever one is specified.
+        //:
+        //: 9 Every object releases any allocated memory at destruction.
+        //:
+        //:10 Any memory allocation is exception neutral.
+        //:
+        //:11 The 'bdlb::VariantN' and 'bdlb::Variant' move constructors
+        //:   correctly forward to the corresponding 'bdlb::VariantImp'
+        //:   constructors.
         //
         // Plan:
         //: 1 TBD
@@ -27009,6 +27203,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   VariantImp(VariantImp&& original);
         //   VariantImp(VariantImp&& original, bslma::Allocator *ba);
+        //   'bdlb::VariantN' and 'bdlb::Variant'
         // --------------------------------------------------------------------
 
         TestUtil::testCase22();
@@ -27085,18 +27280,18 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. If no allocator pointer is needed, it will not be a part of the
-        //      variant members, i.e., 'sizeof(bdlb::Variant)' should go down
-        //      by 'sizeof(bslma::Allocator *)'.
+        //      variant members, i.e., 'sizeof(bdlb::Variant)' should be
+        //      diminished by 'sizeof(bslma::Allocator *)'.
         //   2. That the 'bslma::UsesBslmaAllocator' trait is declared for the
-        //      variant when any types it holds has the trait.  If none of the
+        //      variant when any type it holds has the trait.  If none of the
         //      types has the trait, then the variant itself will not have the
         //      trait.
-        //   3. When any types held by the variant does not have the
+        //   3. When any type held by the variant does not have the
         //      'bsl::is_trivially_copyable' trait, then the variant itself
-        //      will not have the bitwise moveable trait.
-        //   4. When any types held by the variant does not have the
+        //      will not have the bitwise copyable trait.
+        //   4. When any type held by the variant does not have the
         //      'bslmf::IsBitwiseMoveable' trait, then the variant itself will
-        //      not have the bitwise moveable trait.
+        //      not have the bitwise movable trait.
         //
         // Plan:
         //   To address all the concerns, create a variety of types that have
@@ -27124,21 +27319,20 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING CLASSES 'bdlb::VariantN'
-        //   So far, our testing has tested the core functionality of the
-        //   'bdlb::VariantImp' class, through the thin 'bdlb::Variant'
-        //   wrapper.  We have focused on the value-semantic portion of the
-        //   functionality offered by this component.  We now address the
-        //   concerns related to the implementation of the core
+        // TESTING CLASSES 'bdlb::VariantN' and 'bdlb::Variant'
+        //   So far, we have tested the core functionality of the
+        //   'bdlb::VariantImp' class.  We have focused on the value-semantic
+        //   portion of the functionality offered by this component.  We now
+        //   address the concerns related to the implementation of the core
         //   'bdlb::VariantImp' and a multitude of thin wrappers (that derive
         //   from 'bdlb::VariantImp') that offer extra constructors and traits.
         //
         // Concerns:
         //   1. That the 'bdlb::VariantN' class templates take exactly 'N'
         //      template arguments.
-        //   2. That the 'bdlb::VariantN' class constructor takes a single
+        //   2. That the 'bdlb::VariantN' value constructor takes a single
         //      argument of one of the 'N' types specified in its type list.
-        //   3. That the 'bdlb::VariantN' class 'operator=' takes a single
+        //   3. That the 'bdlb::VariantN' copy 'operator=' takes a single
         //      argument of one of the 'N' types specified in its type list.
         //   4. That the 'bdlb::Variant' class template takes a variable
         //      number of template arguments.
@@ -27166,7 +27360,7 @@ int main(int argc, char *argv[])
         //   'TypeList' and 'TypeN' types.
         //
         // Testing:
-        //   CLASSES: 'bdlb::VariantN', 'bdlb::Variant'
+        //   CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -27183,8 +27377,8 @@ int main(int argc, char *argv[])
         //   1. That 'isUnset' returns 'true' for an unset variant (default
         //      constructed or after 'reset'), and 'false' otherwise.
         //   2. That when 'bslmf::Nil' is used as one of the types in the
-        //      type list, 'isUnset' still returns false even when the variant
-        //      is initialized to 'bslmf::Nil'.
+        //      type list, 'isUnset' still returns 'false' even when the
+        //      variant is initialized to 'bslmf::Nil'.
         //
         // Plan:
         //   To address concern 1, create two variants, both default
@@ -27259,9 +27453,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. Visitors can modify the value currently held by the variant
         //      (meaning visitors are not read-only).
-        //   2. When no 'ResultType' is defined as a class type of the
-        //      visitor, the 'apply' method will not return anything.
-        //   3. When 'ResultType' is defined as a class type of the visitor,
+        //   2. When no 'ResultType' is defined as a member type of the
+        //      visitor, the 'apply' method will return 'void'.
+        //   3. When 'ResultType' is defined as a member type of the visitor,
         //      the 'apply' method returns 'ResultType'.
         //   4. When 'RET_TYPE' is specified as an explicit function template
         //      parameter, the 'apply' method returns 'RET_TYPE', overriding
@@ -27347,7 +27541,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Define a 'Copyable' class whose copy constructor is monitored and
         //   has a constructor that takes up to 14 arguments.  Also provide an
-        //   accessor to the 15 arguments being passed in.  Then invoke all 15
+        //   accessor to the 14 arguments being passed in.  Then invoke all 15
         //   versions of 'createInPlace' and verify the arguments are forwarded
         //   properly.  Also assert that the copy constructor is never invoked.
         //
@@ -27366,9 +27560,9 @@ int main(int argc, char *argv[])
         // TESTING VALUE ASSIGNMENT
         //
         // Concerns:
-        //   1. The value represented by any object of a variant-type can be
-        //      assigned to by any other object of a type specified on
-        //      that variant-type's type list.
+        //   1. The value represented by any object of a variant can be
+        //      assigned to by any other object of a type specified on that
+        //      variant's type list.
         //   2. The assignment operator returns a reference to the destination
         //      object.
         //   3. The 'value' passed to 'operator=' must not be affected by the
@@ -27418,12 +27612,12 @@ int main(int argc, char *argv[])
         //      to the one-argument constructor, the variant should be
         //      constructed with the specified type and value.  The currently
         //      installed default allocator should be used to supply memory for
-        //      construction (if the default constructed variant uses an
+        //      construction (if one or more of the variant types uses an
         //      allocator).
         //   3. When the two-argument constructor is invoked, the variant
         //      should be constructed with the specified type and value.
-        //      Memory should be supplied by the specified allocator (if the
-        //      default constructed variant uses an allocator).
+        //      Memory should be supplied by the specified allocator (implying
+        //      one or more of the variant types uses an allocator).
         //
         // Plan:
         //   To address concern 1, we make use of both the default allocator
@@ -27437,11 +27631,11 @@ int main(int argc, char *argv[])
         //   For concern 2, using the table-driven technique, construct every
         //   type in the type list of the variant by passing in a
         //   preconstructed object of that type.  Verify that the type and
-        //   value are same as the preconstructed object, and also verify that
-        //   the type and value are the same as a variant object that is first
-        //   default constructed, then assigned to the preconstructed object.
-        //   Finally, verify that all memory comes from the default allocator
-        //   using a default allocator guard and a test allocator.
+        //   value are the same as the preconstructed object, and also verify
+        //   that the type and value are the same as a variant object that is
+        //   first default constructed, then assigned to the preconstructed
+        //   object.  Finally, verify that all memory comes from the default
+        //   allocator using a default allocator guard and a test allocator.
         //
         //   For concern 3, construct a variant using the two-argument
         //   constructor and verify both concerns 1 and 2 at the same time.
@@ -27467,10 +27661,9 @@ int main(int argc, char *argv[])
         //   should not invoke the copy constructor.
         //
         // Plan:
-        //   Define a 'copyable' class whose copy constructor is monitored.
-        //   Invoke the 'assign' method of a variant that wraps this
-        //   'copyable' class.  Verify that the copy constructor has not been
-        //   called.
+        //   Define a 'Copyable' class whose copy constructor is monitored.
+        //   Invoke the 'assign' method of a variant that wraps this 'Copyable'
+        //   class.  Verify that the copy constructor has not been called.
         //
         // Testing:
         //   VariantImp& assignTo(const SOURCE& value);
@@ -27643,7 +27836,7 @@ int main(int argc, char *argv[])
                         ASSERTV(U_SPEC, V_SPEC, bdexInStream.isValid());
                         ASSERTV(U_SPEC, V_SPEC, !bdexInStream.isEmpty());
 
-                        TObj mV(g(V_SPEC)); const TObj& V = mV;
+                        TObj mV(g(V_SPEC));  const TObj& V = mV;
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
@@ -27672,7 +27865,7 @@ int main(int argc, char *argv[])
                         const bsls::Types::Int64 AL = oa.allocationLimit();
                         oa.setAllocationLimit(-1);
 
-                        TObj mV(g(V_SPEC)); const TObj& V = mV;
+                        TObj mV(g(V_SPEC));  const TObj& V = mV;
 
                         if (veryVerbose) { cout << "\t |"; P_(U); P(V); }
 
@@ -27696,8 +27889,8 @@ int main(int argc, char *argv[])
                 // Create control object X.
 
                 Obj mV;  const Obj& V = gg(&mV, SPEC);
-                TObj mX(V); const TObj& X = mX;
-                TObj t; const TObj UNSET;
+                TObj mX(V);  const TObj& X = mX;
+                TObj t;  const TObj UNSET;
 
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(bdexInStream) {
                     bdexInStream.reset();
@@ -27875,15 +28068,16 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. The value represented by any object of a variant type can be
         //      assigned to by another object of the same variant type and that
-        //      the assignment operator returns a reference to the destination
-        //      object.
+        //      the copy-assignment operator returns a reference to the
+        //      destination object.
         //   2. The 'rhs' value must not be affected by the operation.
         //   3. 'rhs' going out of scope has no effect on the value of 'lhs'
         //      after the assignment.
-        //   4. Aliasing (x = x): The assignment operator must always work --
-        //      even when the 'lhs' and 'rhs' are identically the same object.
+        //   4. Aliasing (x = x): The copy-assignment operator must always work
+        //      -- even when the 'lhs' and 'rhs' are identically the same
+        //      object.
         //   5. The allocator value is not part of the assignment.
-        //   6. The assignment operator must be exception neutral with no
+        //   6. The copy-assignment operator must be exception neutral with no
         //      guarantee of rollback.
         //
         // Plan:
@@ -27891,8 +28085,8 @@ int main(int argc, char *argv[])
         //   values with substantial and varied differences.  Construct tests
         //   X = Y for all (X, Y) in S x S.  For each of these test, generate Y
         //   and YY using the same 'SPEC'.  After the assignment, assert that
-        //   X, Y, and the value returned by the assignment operator all equal
-        //   YY.  Let Y go out of scope and confirm that YY equals X.
+        //   X, Y, and the value returned by the copy-assignment operator all
+        //   equal YY.  Let Y go out of scope and confirm that YY equals X.
         //
         //   To address concern 4, we perform Y = Y and verify that both the
         //   return value of the assignment and Y itself equal YY.
@@ -28026,7 +28220,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each SPEC in a short list of specifications, compare the
-        //   object returned (by value) from the generator function, 'g(SPEC)'
+        //   object returned (by value) from the generator function, 'g(SPEC)',
         //   with the value of a newly constructed OBJECT configured using
         //   'gg(&OBJECT, SPEC)'.  Compare the results of calling the
         //   allocator's 'numBlocksTotal' and 'numBlocksInUse' methods before
@@ -28237,13 +28431,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
         //
-        // Concern:
+        // Concerns:
         //   For 'operator==', we have the following concerns:
         //   1. Return 'false' for two variants holding different types.
         //   2. Return 'false' for two variants holding the same type but not
         //      holding the same value.
         //   3. Return 'true' for two variants holding the same type and the
         //      same value.
+        //   4. Return 'true' for two unset variants.
+        //
         //   For 'operator!=', we have the same concerns, except the method
         //   should return 'false' whenever 'operator==' returns 'true' and
         //   'true' whenever 'operator==' returns 'false'.
@@ -28321,10 +28517,10 @@ int main(int argc, char *argv[])
                     T_ T_ P_(LINE2) P_(INPUT2) P_(TYPE2_IDX) P(VALUE2_IDX)
                 }
 
-                Obj mX; const Obj& X = mX;
+                Obj mX;  const Obj& X = mX;
                 gg(&mX, INPUT1);
 
-                Obj mY; const Obj& Y = mY;
+                Obj mY;  const Obj& Y = mY;
                 gg(&mY, INPUT2);
 
                 ASSERTV(LINE1, LINE2, (ti == tj) == (X == Y));
@@ -28542,7 +28738,7 @@ int main(int argc, char *argv[])
                 T_ P_(LINE); P_(INPUT); P_(TYPE_IDX); P(VALUE_IDX);
             }
 
-            Obj mX; const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
             gg(&mX, INPUT);
 
             ASSERTV(LINE, TYPE_IDX, X.typeIndex(), TYPE_IDX == X.typeIndex());
@@ -28650,17 +28846,17 @@ int main(int argc, char *argv[])
         // TESTING PRIMITIVE GENERATOR FUNCTIONS
         //
         // Developing a generator also means developing a test case to verify
-        // it.  We will need to select an appropriate suite of inputs specs
-        // and, using basic accessors, verify that valid syntax drives the
-        // object to its desired state.
+        // it.  We will need to select an appropriate suite of input specs and,
+        // using basic accessors, verify that valid syntax drives the object to
+        // its desired state.
         //
         // We will also want to verify that simple typos are detected and
         // reported reliably.  In order to test that aspect, we will need to
         // supply invalid syntax.  But supplying invalid syntax to 'gg' will,
         // by design, result in a diagnostic message and a test failure.  To
         // address this testing issue, notice that the implementation of the
-        // primitive generator 'gg' has been broken into two functions 'ggg'
-        // and 'gg' with the latter implemented trivially in terms of the
+        // primitive generator 'gg' has been broken into two functions, 'ggg'
+        // and 'gg', with the latter implemented trivially in terms of the
         // former.  The primitive generator *implementation* 'ggg' exposes one
         // additional parameter that can be used to suppress output during what
         // is sometimes called "negative testing" -- i.e., making sure that the
@@ -28770,7 +28966,7 @@ int main(int argc, char *argv[])
                 T_ P_(LINE); P_(INPUT); P_(RC); P_(TYPE_IDX); P(VALUE_IDX);
             }
 
-            Obj mX; const Obj& X = mX;
+            Obj mX;  const Obj& X = mX;
 
             int retCode = ggg(&mX, INPUT, false);
 
@@ -28812,7 +29008,7 @@ int main(int argc, char *argv[])
                 bsl::string strInput(INPUT);
                 strInput.push_back('~');
 
-                Obj mY; const Obj& Y = mY;
+                Obj mY;  const Obj& Y = mY;
 
                 int ret = ggg(&mY, strInput.c_str(), false);
                 ASSERTV(LINE, -1 == ret);
@@ -28832,7 +29028,7 @@ int main(int argc, char *argv[])
         //     b. does not allocate and does not throw.
         //     c. properly wires the optionally-specified allocator.
         //
-        //  2. That 'assign<TYPE>'
+        //  2. That 'assign<TYPE>':
         //     a. properly assigns a value of the variant 'TYPE'.
         //     b. properly destroys the current value of the current type.
         //     c. uses assignment (not dtor+ctor) if assigning the same type.
@@ -28847,25 +29043,25 @@ int main(int argc, char *argv[])
         //  To address concerns for 1, create an object using the default
         //  constructor:
         //    - Without passing an allocator, in which case the object will
-        //      allocate memory using the default allocator (if default
-        //      construction of the default type uses an allocator).
+        //      allocate memory using the default allocator (if one or more of
+        //      the variant types uses an allocator).
         //    - With an allocator, in which case the object will allocate
-        //      memory using the specified allocator (if default construction
-        //      of the default type uses an allocator).
+        //      memory using the specified allocator (implying one or more of
+        //      the variant types uses an allocator).
         //    - Repeat the above two points using a first type that allocates
         //      memory.
         //    - In the presence of exceptions during memory allocations using
         //      a 'bslma::TestAllocator' and varying its allocation limit.
         //  Use 'typeIndex' to verify that the newly-created variant has the
         //  proper type.  Also use 'numBlocksTotal' of the default allocator
-        //  and the specified allocator to verify that the constructor
-        //  allocates memory from the correct source.
+        //  and the specified allocator to verify that the object allocates
+        //  memory from the correct source.
         //
         //  To address concerns for 2, create an object, use 'assign' to change
         //  the value, including a value of the same type and morphing
         //  between different types, and check if the variant type and value
         //  have been properly changed with 'is<TYPE>' and 'the<TYPE>'.  Use
-        //  the exception safety test macros to verify that when a memory
+        //  the exception-safety test macros to verify that when a memory
         //  exception is thrown, the variant object is left in a consistent
         //  state.  Finally, use the allocator to make sure that when assigning
         //  to a variant object that owns memory, the object is properly
@@ -29263,10 +29459,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We want to exercise basic value-semantic functionality.  In
-        //   particular we want to demonstrate a base-line level of correct
+        //   particular, we want to demonstrate a base-line level of correct
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
-        //      - the assignment operator (including aliasing)
+        //      - the copy-assignment operator (including aliasing)
         //      - equality operators: 'operator==' and 'operator!='
         //      - primary manipulators: 'assign'
         //      - basic accessors: 'is<TYPE>' and 'the<TYPE>' methods
@@ -29274,14 +29470,14 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create four objects using both the default and copy constructors.
         //   Exercise these objects using primary manipulators, basic
-        //   accessors, equality operators, and the assignment operator.
+        //   accessors, equality operators, and the copy-assignment operator.
         //   Invoke the primary (black box) manipulator [3, 5], copy
-        //   constructor [2, 8], and assignment operator [9, 10] in situations
-        //   where the internal data (i) does *not* and (ii) *does* have to
-        //   morph.  Try aliasing with assignment for a non-null object [11]
-        //   and allow the result to leave scope, enabling the destructor to
-        //   assert internal object invariants.  Display object values
-        //   frequently in verbose mode:
+        //   constructor [2, 8], and copy-assignment operator [9, 10] in
+        //   situations where the internal data (i) does *not* and (ii) *does*
+        //   have to morph.  Try aliasing with copy-assignment for a non-null
+        //   object [11] and allow the result to leave scope, enabling the
+        //   destructor to assert internal object invariants.  Display object
+        //   values frequently in verbose mode:
         //    1. Create an object x1 (default ctor).       x1:
         //    2. Create a second object x2 (copy from x1). x1:  x2:
         //    3. Append an element value A to x1).         x1:A x2:
@@ -29310,7 +29506,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 1. Create an object x1 (default ctor).       "
                              "          { x1: }" << endl;
 
-        Obj mX1; const Obj& X1 = mX1;
+        Obj mX1;  const Obj& X1 = mX1;
         if (verbose) { T_ P(X1) }
 
         if (verbose) cout << "\ta. Check initial state of x1." << endl;
@@ -29326,7 +29522,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 2. Create a second object x2 (copy from x1). "
                              "          { x1: x2: }" << endl;
-        Obj mX2(X1); const Obj& X2 = mX2;
+        Obj mX2(X1);  const Obj& X2 = mX2;
         if (verbose) { T_ P(X2) }
 
         if (verbose) cout << "\ta. Check the initial state of x2." << endl;
@@ -29399,7 +29595,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 6. Create a third object x3 (default ctor).  "
                              "          { x1:A x2:B x3: }" << endl;
 
-        Obj mX3; const Obj& X3 = mX3;
+        Obj mX3;  const Obj& X3 = mX3;
         if (verbose) { T_ P(X3) }
 
         if (verbose) cout << "\ta. Check new state of x3." << endl;
@@ -29418,7 +29614,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 7. Create a fourth object x4 (copy of x2).   "
                              "          { x1:A x2:B x3: x4:B }" << endl;
 
-        Obj mX4(X2); const Obj& X4 = mX4;
+        Obj mX4(X2);  const Obj& X4 = mX4;
         if (verbose) { T_ P(X4) }
 
         if (verbose) cout << "\ta. Check new state of x4." << endl;
