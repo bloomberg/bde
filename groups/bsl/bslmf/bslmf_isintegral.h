@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 namespace BloombergLP {
@@ -92,6 +92,20 @@ struct IsIntegral_Imp<wchar_t> : bsl::true_type {
      // This specialization of 'IsIntegral_Imp', for when the (template
      // parameter) 'TYPE' is 'wchar_t', derives from 'bsl::true_type'.
 };
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+template <>
+struct IsIntegral_Imp<char16_t> : bsl::true_type {
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is 'wchar_t', derives from 'bsl::true_type'.
+};
+
+template <>
+struct IsIntegral_Imp<char32_t> : bsl::true_type {
+     // This specialization of 'IsIntegral_Imp', for when the (template
+     // parameter) 'TYPE' is 'wchar_t', derives from 'bsl::true_type'.
+};
+#endif // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
 template <>
 struct IsIntegral_Imp<signed char> : bsl::true_type {
@@ -143,14 +157,14 @@ struct IsIntegral_Imp<unsigned long int> : bsl::true_type {
 };
 
 template <>
-struct IsIntegral_Imp<bsls::Types::Int64> : bsl::true_type {
+struct IsIntegral_Imp<long long> : bsl::true_type {
      // This specialization of 'IsIntegral_Imp', for when the (template
      // parameter) 'TYPE' is 'bsls::Types::Int64', derives from
      // 'bsl::true_type'.
 };
 
 template <>
-struct IsIntegral_Imp<bsls::Types::Uint64> : bsl::true_type {
+struct IsIntegral_Imp<unsigned long long> : bsl::true_type {
      // This specialization of 'IsIntegral_Imp', for when the (template
      // parameter) 'TYPE' is 'bsls::Types::Uint64', derives from
      // 'bsl::true_type'.

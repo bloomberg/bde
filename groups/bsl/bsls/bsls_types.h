@@ -67,10 +67,6 @@ BSLS_IDENT("$Id: $")
 //            << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -98,13 +94,8 @@ struct Types{
         // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
         // size as pointers.
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    typedef          __int64 Int64;
-    typedef unsigned __int64 Uint64;
-#else
     typedef          long long Int64;
     typedef unsigned long long Uint64;
-#endif
         // The aliases 'Int64' and 'Uint64' stand for the appropriate types
         // that define signed and unsigned 64-bit integers, respectively, for
         // the appropriate supported platforms.

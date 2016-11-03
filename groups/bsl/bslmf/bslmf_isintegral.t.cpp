@@ -1,7 +1,13 @@
 // bslmf_isintegral.t.cpp                                             -*-C++-*-
 #include <bslmf_isintegral.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addvolatile.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_nullptr.h>
+#include <bsls_types.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +74,29 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+ //=============================================================================
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_ISINTEGRAL_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
+    // Old microsoft compilers compilers do not support references to arrays of
+    // unknown bound.
+#endif
+
+#define TYPE_ASSERT_CVQ(METAFUNC, MEMBER, TYPE, RESULT)                       \
+    ASSERT(RESULT == METAFUNC<TYPE>::MEMBER);                                 \
+    ASSERT(RESULT == METAFUNC<bsl::add_const<TYPE>::type>::MEMBER);           \
+    ASSERT(RESULT == METAFUNC<bsl::add_volatile<TYPE>::type>::MEMBER);        \
+    ASSERT(RESULT == METAFUNC<bsl::add_cv<TYPE>::type>::MEMBER);
+    // This macro allows for efficient testing of all cv-qualified combinations
+    // of a type.  Note the 'typename' is NOT missing from the invocations of
+    // the 'add_qualifier' traits, as 'TYPE' will be textually substituted as
+    // the exact type, rather than a type parameter, so this is NOT a dependant
+    // contextt.  Conforming C++03 compilers would be required to reject this
+    // code if the 'typename' were present; C++11 compilers should quietly
+    // ignore it.
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -75,7 +104,11 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 struct TestType {
-    // This user-defined type is for testing.
+    // This 'struct' provides a user-defined type is for testing.
+
+    operator int() const { return 0; }
+        // Return 0.  This function provides an implicit conversion-to-integer
+        // operator to confirm that the trait under test is not fooled.
 };
 
 enum EnumTestType {
@@ -84,17 +117,16 @@ enum EnumTestType {
     ENUM_TEST_VALUE1
 };
 
-typedef int (*RetIntegralFunctionPtrType) ();
-    // This pointer to function type that returns an integral type is
-    // used for testing.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+enum class EnumClassType {
+    // This 'enum' type is used for testing.
+};
+#endif
+
+typedef int RetIntegralFunctionType();
+    // This function type that returns an integral type is used for testing.
 
 }  // close unnamed namespace
-
-#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
-    ASSERT(result == metaFunc<type>::member);                                 \
-    ASSERT(result == metaFunc<const type>::member);                           \
-    ASSERT(result == metaFunc<volatile type>::member);                        \
-    ASSERT(result == metaFunc<const volatile type>::member);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -166,31 +198,43 @@ int main(int argc, char *argv[])
         //   variety of template parameter types.
         //
         // Concerns:
-        //: 1 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) non-integral primitive type.
-        //
-        //: 2 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
+        //:  1 'is_integral::value' is 'false' when 'TYPE' is a (possibly
+        //:    cv-qualified) non-integral primitive type.
         //:
-        //: 3 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) enum type.
+        //:  2 'is_integral::value' is 'false' when 'TYPE' is a (possibly
+        //:    cv-qualified) user-defined type.
         //:
-        //: 4 'is_integral::value' is 'false' when 'TYPE' is a pointer to
-        //:   (possibly cv-qualified) integral type.
+        //:  3 'is_integral::value' is 'false' when 'TYPE' is a (possibly
+        //:    cv-qualified) enum type.
         //:
-        //: 5 'is_integral::value' is 'false' when 'TYPE' is a reference to
-        //:   (possibly cv-qualified) integral type.
+        //:  4 'is_integral::value' is 'false' when 'TYPE' is a pointer to
+        //:    (possibly cv-qualified) integral type.
         //:
-        //: 6 'is_integral::value' is 'false' when 'TYPE' is a function type
-        //:   returning an integral type.
+        //:  5 'is_integral::value' is 'false' when 'TYPE' is a reference to
+        //:    (possibly cv-qualified) integral type.
         //:
-        //: 7 'is_integral::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) integral type.
+        //:  6 'is_integral::value' is 'false' when 'TYPE' is an array of an
+        //:    integral type.
         //:
+        //:  7 'is_integral::value' is 'false' when 'TYPE' is a function type
+        //:    returning an integral type.
+        //:
+        //:  8 'is_integral::value' is 'false' when 'TYPE' is a pointer-to-data-
+        //:    member returning an integral type.
+        //:
+        //:  9 'is_integral::value' is 'true' when 'TYPE' is a (possibly
+        //:    cv-qualified) integral type.
+        //:
+        //: 10 The type names defined by 'bsls::Types' alias existing integral
+        //:    types.  (This test is deferred from 'bsls_types' to this
+        //:    component, as we need the machinery at this level for the test.)
         //
         // Plan:
-        //   Verify that 'bsl::is_integral::value' has the correct value for
-        //   each concern.
+        //: 1 Verify that 'bsl::is_integral<TYPE>::value' has the correct value
+        //:   for types representative of each negative concern.
+        //:
+        //: 2 Verify that 'bsl::is_integral<TYPE>::value' has the correct value
+        //:   for all the types which would produce a 'true' result.
         //
         // Testing:
         //   bsl::is_integral::value
@@ -200,6 +244,7 @@ int main(int argc, char *argv[])
                             "\n=========================\n");
 
         // C-1
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, float, false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, double, false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, long double, false);
 
@@ -208,11 +253,16 @@ int main(int argc, char *argv[])
 
         // C-3
         TYPE_ASSERT_CVQ(bsl::is_integral, value, EnumTestType, false);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, EnumClassType, false);
+#endif
 
         // C-4
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bool *, false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, int *, false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long int *, false);
+
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bsl::nullptr_t, false);
 
         // C-5
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bool&, false);
@@ -220,15 +270,53 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long int&, false);
 
         // C-6
-        TYPE_ASSERT_CVQ(bsl::is_integral,
-                        value,
-                        RetIntegralFunctionPtrType,
-                        false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bool[5], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, int[5][4], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long[], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, short[][12], false);
+
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bool(*)[5], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, int(*)[5][4], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long(*)[], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, short(*)[][12], false);
+
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, bool(&)[5], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, int(&)[5][4], false);
+#if !defined(BSLMF_ISINTEGRAL_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long(&)[], false);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, short(&)[][12], false);
+#endif
 
         // C-7
+        TYPE_ASSERT_CVQ(bsl::is_integral,
+                        value,
+                        RetIntegralFunctionType,
+                        false);
+
+        TYPE_ASSERT_CVQ(bsl::is_integral,
+                        value,
+                        RetIntegralFunctionType *,
+                        false);
+
+        TYPE_ASSERT_CVQ(bsl::is_integral,
+                        value,
+                        RetIntegralFunctionType &,
+                        false);
+
+        // C-8
+        TYPE_ASSERT_CVQ(bsl::is_integral,
+                        value,
+                        int TestType::*,
+                        false);
+
+        // C-9
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bool, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, char, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, wchar_t, true);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, char16_t, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, char32_t, true);
+#endif
 
         TYPE_ASSERT_CVQ(bsl::is_integral, value, signed char, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, short, true);
@@ -240,8 +328,13 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned int, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long int, true);
 
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, long long, true);
+        TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long long, true);
+
+        // C-10
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bsls::Types::Int64, true);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bsls::Types::Uint64, true);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
