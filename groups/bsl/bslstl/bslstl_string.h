@@ -688,11 +688,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
@@ -706,8 +701,13 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_LIMITS
-#include <limits>
+#include <limits>   // for 'std::numeric_limits'
 #define INCLUDED_LIMITS
+#endif
+
+#ifndef INCLUDED_LOCALE
+#include <locale>   // for 'std::ctype', 'locale'
+#define INCLUDED_LOCALE
 #endif
 
 #ifndef INCLUDED_OSTREAM
@@ -722,6 +722,11 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
+#endif
 
 #ifndef INCLUDED_EXCEPTION
 #include <exception>
@@ -1341,11 +1346,11 @@ class basic_string
                           size_type        otherNumChars) const;
         // Lexicographically compare the substring of this string starting at
         // the specified 'lhsPosition' of length 'lhsNumChars' with the string
-        // constructed from the specified 'numChars' characters in the array
-        // starting at the specified 'other' address, and return a negative
-        // value if this string is less than 'other', a positive value if it is
-        // more than 'other', and 0 in case of equality.  The behavior is
-        // undefined unless 'lhsPosition <= length()',
+        // constructed from the specified 'otherNumChars' characters in the
+        // array starting at the specified 'other' address, and return a
+        // negative value if this string is less than 'other', a positive value
+        // if it is more than 'other', and 0 in case of equality.  The behavior
+        // is undefined unless 'lhsPosition <= length()',
         // 'lhsNumChars <= length()', and
         // 'lhsPosition <= length() - lhsNumChars'.
 
@@ -1581,15 +1586,6 @@ class basic_string
         // the last position in this string.  The behavior is undefined if this
         // string is empty.  Note that the last position is 'length() - 1'.
 
-    template <class ALLOC2>
-    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const;
-        // Convert this object to a string type native to the compiler's
-        // library, instantiated with the same character type and traits type,
-        // but not necessarily the same allocator type.  The return string will
-        // contain the same sequence of characters as 'orig' and will have a
-        // default-constructed allocator.  Note that this conversion operator
-        // can be invoked implicitly (e.g., during argument passing).
-
                          // *** 21.3.6 modifiers: ***
 
     basic_string& operator+=(const basic_string&  rhs);
@@ -1652,7 +1648,7 @@ class basic_string
         // string.
 
     basic_string& assign(
-                     BloombergLP::bslmf::MovableRef<basic_string> replacement)
+                      BloombergLP::bslmf::MovableRef<basic_string> replacement)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'replacement'
         // string, and return a reference providing modifiable access to this
@@ -2306,6 +2302,17 @@ class basic_string
         // 'other', a positive value if it is more than 'other', and 0 in case
         // of equality.  Throw 'out_of_range' if 'lhsPosition > length()'.  See
         // "Lexicographical Comparisons" for definitions.
+
+                // *** BDE compatibility with platform libraries: ***
+
+    template <class ALLOC2>
+    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const;
+        // Convert this object to a string type native to the compiler's
+        // library, instantiated with the same character type and traits type,
+        // but not necessarily the same allocator type.  The return string will
+        // contain the same sequence of characters as 'orig' and will have a
+        // default-constructed allocator.  Note that this conversion operator
+        // can be invoked implicitly (e.g., during argument passing).
 };
 
 // FREE OPERATORS
@@ -2705,8 +2712,8 @@ enum MaxDecimalStringLengths{
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void hashAppend(HASHALG& hashAlg,
-                const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input);
+void hashAppend(HASHALG&                                               hashAlg,
+                const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
     // algorithm of (template parameter) type 'HASHALG'.
 
@@ -2813,9 +2820,11 @@ void String_Imp<CHAR_TYPE, SIZE_TYPE>::swap(String_Imp& other)
 {
     if (!isShortString() && !other.isShortString()) {
         // If both strings are long, swap the individual fields.
-        std::swap(d_length,   other.d_length);
-        std::swap(d_capacity, other.d_capacity);
-        std::swap(d_start_p,  other.d_start_p);
+        BloombergLP::bslalg::ScalarPrimitives::swap(d_length, other.d_length);
+        BloombergLP::bslalg::ScalarPrimitives::swap(d_capacity,
+                                                    other.d_capacity);
+        BloombergLP::bslalg::ScalarPrimitives::swap(d_start_p,
+                                                    other.d_start_p);
     }
     else {
         // Otherwise bitwise-swap the whole objects (relies on the
@@ -3468,8 +3477,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
     }
 
     // Create a temp string because the 'first'/'last' iterator pair can alias
-    // the current string; not using ctor with two iterators because it
-    // recurses back here.
+    // the current string; not using the constructor with two iterators because
+    // it recurses back here.
     basic_string temp(numChars, CHAR_TYPE());
 
     for (size_type pos = 0; pos != numChars; ++first, ++pos) {
@@ -6074,10 +6083,10 @@ bsl::operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 
     if (sentry) {
         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = is.rdbuf();
-        typedef std::ctype<CHAR_TYPE> _C_type;
+        typedef std::ctype<CHAR_TYPE> CType;
 
         const std::locale& loc   = is.getloc();
-        const _C_type&     ctype = std::use_facet<_C_type>(loc);
+        const CType&       ctype = std::use_facet<CType>(loc);
 
         str.clear();
         std::streamsize n = is.width(0);
@@ -6097,7 +6106,7 @@ bsl::operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
             else {
                 CHAR_TYPE c = CHAR_TRAITS::to_char_type(c1);
 
-                if (ctype.is(_C_type::space, c)) {
+                if (ctype.is(CType::space, c)) {
                     if (CHAR_TRAITS::eq_int_type(buf->sputbackc(c),
                                                  CHAR_TRAITS::eof())) {
                         is.setstate(Istrm::failbit);
