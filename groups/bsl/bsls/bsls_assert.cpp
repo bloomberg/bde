@@ -143,13 +143,13 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
             AtomicOperations::setInt(&failureReturnCount, 1 << 29);
         }
 
-        Log::logFormattedMessage(LogSeverity::e_FATAL,
+        Log::logFormattedMessage(LogSeverity::e_ERROR,
                                  file,
                                  line,
                                  "BSLS_ASSERT failure: '%s'",
                                  text);
 
-        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
+        BSLS_LOG_ERROR("Bad 'bsls_assert' configuration: "
                        "violation handler at %p must not return.",
                        failureHandlerPtr);
     }
