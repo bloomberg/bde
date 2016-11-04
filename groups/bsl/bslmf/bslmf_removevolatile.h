@@ -150,8 +150,10 @@ struct remove_volatile<volatile TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
 };
-#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900) \
-    || defined(BSLS_PLATFORM_CMP_SUN)
+#elif defined(BSLS_PLATFORM_CMP_SUN) ||             \
+     (defined(BSLS_PLATFORM_CMP_MSVC)  &&           \
+              BSLS_PLATFORM_CMP_VERSION <= 1900 &&  \
+              _MSC_FULL_VER < 190023918)
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing
@@ -160,7 +162,10 @@ struct remove_volatile<volatile TYPE[]> {
 // compiler bug, rather than try to report compiler behavior, as the compiler
 // itself is inconsistent depending on how the trait might be used.  This also
 // corresponds to how Microsoft itself implements the trait in VC2010 and
-// later.  Last tested against VC 2015 (Release Candidate).
+// later.  Note that Microsoft fixed this bug in Update 2 for MSVC2015, which
+// requires checking the '_MSC_FULL_VER' macro; the workaround below would be
+// ambiguous when trying to remove 'volatile' from an array of 'volatile'
+// elements with a conforming compiler.
 
 template <class TYPE>
 struct remove_volatile<TYPE[]> {
