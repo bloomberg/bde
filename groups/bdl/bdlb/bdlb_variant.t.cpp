@@ -2251,6 +2251,35 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+// TBD HERE !OK runtime (replicate throughout this test case)
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;  // TBD this did a move in C++11 mode!
+
+            // TBD ASSERT(TT('A') == mZ);
+            ASSERT(TT() == mZ || TT('A') == mZ);
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            // TBD ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(TT() == Y.the<TT>() || TT('A') == Y.the<TT>());
+        }
     }
 
     // declare place-filler types for testing 'VariantN' and 'Variant'
@@ -4660,6 +4689,31 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+// TBD HERE OK (replicate throughout this test case)
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
         }
     }
 
@@ -7461,6 +7515,43 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+// TBD HERE OK (replicate throughout this test case)
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+            }
         }
     }
 
@@ -10535,6 +10626,20 @@ void TestUtil::testCase22()
 
         typedef bdlb::VariantImp<MoveVariantTypes> Obj;
 
+        if (verbose) cout << "\tMove an unset variant." << endl;
+        {
+            typedef bsltf::MovableTestType TT;  // test type
+
+            Obj mY;  const Obj& Y = mY;
+
+            ASSERT(Y.isUnset());
+
+            const Obj X(MoveUtil::move(mY));
+
+            ASSERT(X.isUnset());
+            ASSERT(Y.isUnset());
+        }
+
         if (verbose) cout << "\tWith type not taking an allocator." << endl;
 
         if (verbose) cout << "\t\tNot supplying an allocator." << endl;
@@ -10700,6 +10805,43 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+// TBD HERE OK (replicate throughout this test case)
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+            }
         }
     }
 

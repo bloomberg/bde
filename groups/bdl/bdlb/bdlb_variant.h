@@ -655,6 +655,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
 #endif
@@ -1378,7 +1382,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     explicit VariantImp(TYPE&&                  value,
                         typename bsl::enable_if<
                                !bsl::is_convertible<TYPE,
-                                                    bslma::Allocator *>::value,
+                                                    bslma::Allocator *>::value
+                                &&
+                               !bsl::is_reference<TYPE>::value,
                                void>::type * = 0);
 #else
     explicit VariantImp(bslmf::MovableRef<TYPE> value);
@@ -1393,10 +1399,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     VariantImp(TYPE&&                   value,
+               typename bsl::enable_if<
+                   !bsl::is_reference<TYPE>::value,
+               bslma::Allocator>::type *basicAllocator);
 #else
     VariantImp(bslmf::MovableRef<TYPE>  value,
-#endif
                bslma::Allocator        *basicAllocator);
+#endif
         // Create a variant object having the specified 'value' of template
         // parameter 'TYPE' that uses the specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -9744,7 +9753,9 @@ template <class TYPE>
 VariantImp<TYPES>::VariantImp(TYPE&&                  value,
                               typename bsl::enable_if<
                                !bsl::is_convertible<TYPE,
-                                                    bslma::Allocator *>::value,
+                                                    bslma::Allocator *>::value
+                                &&
+                               !bsl::is_reference<TYPE>::value,
                                void>::type *)
 #else
 VariantImp<TYPES>::VariantImp(bslmf::MovableRef<TYPE> value)
@@ -9765,10 +9776,13 @@ template <class TYPES>
 template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 VariantImp<TYPES>::VariantImp(TYPE&&                   value,
+                              typename bsl::enable_if<
+                                  !bsl::is_reference<TYPE>::value,
+                              bslma::Allocator>::type *basicAllocator)
 #else
 VariantImp<TYPES>::VariantImp(bslmf::MovableRef<TYPE>  value,
-#endif
                               bslma::Allocator        *basicAllocator)
+#endif
 : Base(Variant_TypeIndex<TYPES, TYPE>::value, basicAllocator)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
