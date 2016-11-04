@@ -57,11 +57,44 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
+// Several compiler tool-chains have problems removing the 'volatile'
+// qualifiers from arrays.
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+
+# define BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_MULTIDIMENSIONAL_ARRAY 1
+    // The IBM xlC compiler has an odd issue trying to remove 'volatile'
+    // qualifiers from multidimensional arrays.  This workaround was last
+    // verified as required for the xlC 12.1 compiler - more recent compilers
+    // still need testing.
+
+#elif defined(BSLS_PLATFORM_CMP_SUN) ||             \
+     (defined(BSLS_PLATFORM_CMP_MSVC)  &&           \
+              BSLS_PLATFORM_CMP_VERSION <= 1900 &&  \
+              _MSC_FULL_VER < 190023918)
+
+# define BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_ARRAY 1
+    // The Microsoft compiler does not recognize array-types as cv-qualified
+    // when the element type is cv-qualified when performing matching for
+    // partial template specialization, but does get the correct result when
+    // performing overload resolution for functions (taking arrays by
+    // reference).  Given the function dispatch behavior being correct, we
+    // choose to work around this compiler bug, rather than try to report
+    // compiler behavior, as the compiler itself is inconsistent depending on
+    // how the trait might be used.  This also corresponds to how Microsoft
+    // itself implements the trait in VC2010 and later.  Note that Microsoft
+    // fixed this bug in Update 2 for MSVC2015, which requires checking the
+    // '_MSC_FULL_VER' macro; the workaround below would be ambiguous when
+    // trying to remove 'volatile' from an array of 'volatile' elements with a
+    // conforming compiler.
+
+#endif
+
 namespace bsl {
 
-                         // ======================
-                         // struct remove_volatile
-                         // ======================
+                        // ======================
+                        // struct remove_volatile
+                        // ======================
 
 template <class TYPE>
 struct remove_volatile {
@@ -80,6 +113,10 @@ struct remove_volatile {
         // This 'typedef' is an alias to the (template parameter) 'TYPE'.
 };
 
+                        // =====================================
+                        // struct remove_volatile<TYPE volatile>
+                        // =====================================
+
 template <class TYPE>
 struct remove_volatile<TYPE volatile> {
      // This partial specialization of 'bsl::remove_volatile', for when the
@@ -92,11 +129,7 @@ struct remove_volatile<TYPE volatile> {
         // parameter) 'TYPE' except with the 'volatile'-qualifier removed.
 };
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// The IBM xlC compiler has an odd issue trying to remove 'volatile' qualifiers
-// from multidimensional arrays.  This workaround was last verified as required
-// for the xlC 12.1 compiler - more recent compilers still need testing.
-
+#if defined(BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_MULTIDIMENSIONAL_ARRAY)
 template <class TYPE, size_t N>
 struct remove_volatile<TYPE[N]> {
      // This partial specialization of 'bsl::remove_volatile', for when the
@@ -148,18 +181,7 @@ struct remove_volatile<volatile TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
 };
-#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900) \
-    || defined(BSLS_PLATFORM_CMP_SUN)
-// The Microsoft compiler does not recognize array-types as cv-qualified when
-// the element type is cv-qualified when performing matching for partial
-// template specialization, but does get the correct result when performing
-// overload resolution for functions (taking arrays by reference).  Given the
-// function dispatch behavior being correct, we choose to work around this
-// compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depending on how the trait might be used.  This also
-// corresponds to how Microsoft itself implements the trait in VC2010 and
-// later.  Last tested against VC 2015 (Release Candidate).
-
+#elif defined(BSLS_REMOVEVOLATILE_WORKAROUND_VOLATILE_ARRAY)
 template <class TYPE>
 struct remove_volatile<TYPE[]> {
      // This partial specialization of 'bsl::remove_volatile', for when the
@@ -186,6 +208,7 @@ struct remove_volatile<TYPE[LENGTH]> {
         // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
 };
 #endif
+
 }  // close namespace bsl
 
 #endif
