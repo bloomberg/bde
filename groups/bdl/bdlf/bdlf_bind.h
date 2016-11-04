@@ -4670,9 +4670,9 @@ struct Bind_OneResultTypeOrAnother {
     template <class T>
     struct Result2<T, typename Void<decltype(&T::operator())>::type> {
         // This is a specialization of 'Result2' above.  If the 'T' parameter
-        // has an 'operator()' member, then 'Result2<T, void>' prefers this
-        // specialization over the general template.  This class declares a
-        // 'type' member as the return type of 'T::operator()'.
+        // has a single unique 'operator()' member, then 'Result2<T, void>'
+        // prefers this specialization over the general template.  This class
+        // declares a 'type' member as the return type of 'T::operator()'.
         typedef typename Return<T>::type type;
     };
 #endif

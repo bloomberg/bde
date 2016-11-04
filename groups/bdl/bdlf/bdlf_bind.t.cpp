@@ -364,7 +364,7 @@ struct MyFunctionObjectWithBothResultTypes {
     typedef int  ResultType;
 
     // ACCESSORS
-    int operator()(int x) const
+    long operator()(int x) const
     {
         return x;
     }
