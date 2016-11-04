@@ -1147,7 +1147,7 @@ if (verbose) {  // added in test driver
         //
         // Plan:
         //: 1 Verify that the enumerator values are sequential, starting from
-        //:   0.  (C-1)
+        //:   1.  (C-1)
         //: 2 Verify that the 'toAscii' method returns the expected string
         //:   representation for each enumerator.  (C-2)
         //: 3 Verify that the 'toAscii' method returns a distinguished string
