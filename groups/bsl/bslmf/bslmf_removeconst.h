@@ -64,12 +64,31 @@ BSLS_IDENT("$Id: $")
 // used).
 #if defined(BSLS_PLATFORM_CMP_IBM)
 
-#define BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY 1
+# define BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY 1
+    // The IBM xlC compiler has an odd issue trying to remove 'const'
+    // qualifiers from multidimensional arrays.  This workaround was last
+    // verified as required for the xlC 12.1 compiler - more recent compilers
+    // still need testing.
 
-#elif (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900) \
-    || defined(BSLS_PLATFORM_CMP_SUN)
+#elif defined(BSLS_PLATFORM_CMP_SUN) ||             \
+     (defined(BSLS_PLATFORM_CMP_MSVC)  &&           \
+              BSLS_PLATFORM_CMP_VERSION <= 1900 &&  \
+              _MSC_FULL_VER < 190023918)
 
-#define BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY 1
+# define BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY 1
+    // The Microsoft compiler does not recognize array-types as cv-qualified
+    // when the element type is cv-qualified when performing matching for
+    // partial template specialization, but does get the correct result when
+    // performing overload resolution for functions (taking arrays by
+    // reference).  Given the function dispatch behavior being correct, we
+    // choose to work around this compiler bug, rather than try to report
+    // compiler behavior, as the compiler itself is inconsistent depending on
+    // how the trait might be used.  This also corresponds to how Microsoft
+    // itself implements the trait in VC2010 and later.  Note that Microsoft
+    // fixed this bug in Update 2 for MSVC2015, which requires checking the
+    // '_MSC_FULL_VER' macro; the workaround below would be ambiguous when
+    // trying to remove 'const' from an array of 'const' elements with a
+    // conforming compiler.
 
 #endif
 
@@ -112,10 +131,6 @@ struct remove_const<TYPE const> {
 };
 
 #if defined(BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY)
-// The IBM xlC compiler has an odd issue trying to remove 'const' qualifiers
-// from multidimensional arrays.  This workaround was last verified as required
-// for the xlC 12.1 compiler - more recent compilers still need testing.
-
 template <class TYPE, size_t N>
 struct remove_const<TYPE[N]> {
      // This partial specialization of 'bsl::remove_const', for when the
@@ -167,23 +182,7 @@ struct remove_const<const TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
 };
-#elif defined(BSLS_PLATFORM_CMP_SUN) ||             \
-     (defined(BSLS_PLATFORM_CMP_MSVC)  &&           \
-              BSLS_PLATFORM_CMP_VERSION <= 1900 &&  \
-              _MSC_FULL_VER < 190023918)
-// The Microsoft compiler does not recognize array-types as cv-qualified when
-// the element type is cv-qualified when performing matching for partial
-// template specialization, but does get the correct result when performing
-// overload resolution for functions (taking arrays by reference).  Given the
-// function dispatch behavior being correct, we choose to work around this
-// compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depending on how the trait might be used.  This also
-// corresponds to how Microsoft itself implements the trait in VC2010 and
-// later.  Note that Microsoft fixed this bug in Update 2 for MSVC2015, which
-// requires checking the '_MSC_FULL_VER' macro; the workaround below would be
-// ambiguous when trying to remove 'const' from an array of 'const' elements
-// with a conforming compiler.
-
+#elif defined(BSLS_REMOVECONST_WORKAROUND_CONST_ARRAY)
 template <class TYPE>
 struct remove_const<TYPE[]> {
      // This partial specialization of 'bsl::remove_const', for when the
