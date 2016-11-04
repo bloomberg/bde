@@ -7,24 +7,20 @@
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_defaultallocatorguard.h>
-#include <bslma_managedptr.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_assert.h>
-#include <bslmf_isconvertible.h>
 #include <bslmf_integralconstant.h>
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentutil.h>
-#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 #include <bsltf_allocargumenttype.h>
@@ -49,6 +45,10 @@
 # ifdef _MSC_EXTENSIONS          // Microsoft Extensions Enabled
 #   include <new>                  // if so, need to include <new> as well
 # endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# include <type_traits>
 #endif
 
 // BDE_VERIFY pragma: -FE01  // Testing throws exceptions not derived from std
@@ -77,7 +77,7 @@
 
 #if defined(BSLS_PLATFORM_CMP_IBM)                                            \
 || (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__)) \
-|| (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1900)
+|| (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 # define BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a
@@ -144,42 +144,56 @@ using namespace BloombergLP;
 //
 // bsl::shared_ptr
 //----------------
+// TYPE NAMES
+// [  ] element_type
+// [  ] weak_type
+//
 // CREATORS
 // [ 2] shared_ptr()
-// [ 3] shared_ptr(nullptr_t)
 // [ 3] shared_ptr(OTHER *ptr)
+// [ 3] shared_ptr(OTHER *ptr, DELETER *deleter)
+// [ 3] shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
+// [ 3] shared_ptr(nullptr_t, DELETER, bslma::Allocator * = 0)
+// [ 3] shared_ptr(nullptr_t, DELETER, ALLOCATOR, SFINAE)
+// [12] shared_ptr(const shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
+// [ 7] shared_ptr(const shared_ptr& original) noexcept
+// [ 7] shared_ptr(const shared_ptr<OTHER>& other) noexcept
+// [ 7] shared_ptr(shared_ptr&& other) noexcept
+// [ 7] shared_ptr(shared_ptr<OTHER>&& other) noexcept
+// [  ] shared_ptr(const weak_ptr<OTHER>& alias)
+// [  ] shared_ptr(unique_ptr<OTHER, DELETER>&& adoptee)
+// [ 3] shared_ptr(nullptr_t)
+// [ 2] ~shared_ptr()
+//
+// DEPRECATED CREATORS
+// [ 3] shared_ptr(std::auto_ptr<OTHER> autoPtr, bslma::Allocator*=0)
+// [  ] shared_ptr(std::auto_ptr_ref<TYPE>, bslma::Allocator * = 0)
+//
+// BDE SPECIFIC CREATORS
 // [ 3] shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
 // [ 3] shared_ptr(ELEM_TYPE *ptr, bslma::SharedPtrRep *rep)
 // [ 3] shared_ptr(ELEM_TYPE *, bslma::SharedPtrRep *, FromSharedTag)
-// [ 3] shared_ptr(OTHER *ptr, DELETER *deleter)
 // [ 3] shared_ptr(OTHER *ptr, DELETER, bslma::Allocator* = 0)
-// [ 3] shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
 // [ 3] shared_ptr(nullptr_t, bslma::Allocator *)
-// [ 3] shared_ptr(nullptr_t, DELETER, bslma::Allocator * = 0)
-// [ 3] shared_ptr(nullptr_t, DELETER, ALLOCATOR, SFINAE)
+// [  ] shared_ptr(unique_ptr<OTHER, DELETER>&&, bslma::Allocator *)
 // [20] shared_ptr(bslma::ManagedPtr<OTHER>&, bslma::Allocator * = 0)
-// [ 3] shared_ptr(std::auto_ptr<OTHER> autoPtr, bslma::Allocator*=0)
-// [  ] shared_ptr(std::auto_ptr_ref<TYPE>, bslma::Allocator * = 0)
-// [12] shared_ptr(const shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
-// [ 7] shared_ptr(const shared_ptr<OTHER>& other) noexcept
-// [ 7] shared_ptr(bslmf::MovableRef<shared_ptr> other) noexcept
-// [ 7] shared_ptr(shared_ptr<OTHER>&& other) noexcept
-// [ 7] shared_ptr(const shared_ptr& original) noexcept
-// [  ] shared_ptr(const weak_ptr<OTHER>& alias)
-// [ 2] ~shared_ptr()
 //
 // MANIPULATORS
 // [ 9] shared_ptr& operator=(const shared_ptr& rhs) noexcept
-// [ 9] shared_ptr& operator=(bslmf::MovableRef<shared_ptr> rhs) noexcept
 // [ 9] shared_ptr& operator=(const shared_ptr<OTHER>& rhs) noexcept
+// [ 9] shared_ptr& operator=(shared_ptr&& rhs) noexcept
 // [ 9] shared_ptr& operator=(shared_ptr<OTHER>&& rhs) noexcept
-// [ 9] shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
-// [ 2] void reset()
+// [ 9] shared_ptr& operator=(std::unique_ptr<OTHER, DELETER>&& rhs)
+// [ 8] void swap(shared_ptr& src) noexcept
+// [ 2] void reset() noexcept
 // [ 2] void reset(OTHER *ptr)
 // [ 2] void reset(OTHER *ptr, DELETER deleter)
 // [ 2] void reset(OTHER *ptr, DELETER deleter, ALLOCATOR basicAllocator)
-// [15] void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
-// [ 8] void swap(shared_ptr& src) noexcept
+//
+// DEPRECATED MANIPULATORS
+// [ 9] shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
+//
+// BDE SPECIFIC MANIPULATORS
 // [23] void createInplace(bslma::Allocator *allocator=0)
 // [23] void createInplace(bslma::Allocator *, const A1& a1)
 // [23] void createInplace(bslma::Allocator *, const A1& a1, ...& a2)
@@ -197,17 +211,20 @@ using namespace BloombergLP;
 // [23] void createInplace(bslma::Allocator *, const A1& a1, ...& a14)
 // [14] void loadAlias(const bsl::shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
 // [17] pair<TYPE *, bslma::SharedPtrRep *> release()
+// [14] void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
 //
 // ACCESSORS
-// [16] operator BoolType() const
-// [ 4] add_lvalue_reference<ELEM_TYPE>::type operator[](ptrdiff_t) const
+// [ 4] TYPE *get() const
 // [ 4] add_lvalue_reference<ELEM_TYPE>::type operator*() const
 // [ 4] TYPE *operator->() const
-// [ 4] TYPE *get() const
+// [ 4] long use_count() const
+// [ 4] bool unique() const
+// [16] operator BoolType() const
 // [29] bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
 // [29] bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
-// [ 4] bool unique() const
-// [ 4] long use_count() const
+//
+// BDE SPECIFIC ACCESSORS
+// [ 4] add_lvalue_reference<ELEM_TYPE>::type operator[](ptrdiff_t) const
 // [ 4] bslma::SharedPtrRep *rep() const
 // [13] bslma::ManagedPtr<TYPE> managedPtr() const
 //
@@ -292,12 +309,16 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST (shared_ptr)
 // [ 3] shared_ptr(TYPE *ptr) // synthesized
 // [ 3] shared_ptr(TYPE *ptr, bslma::Allocator *allocator)  // synthesized
-// [15] CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
+// [  ] CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
 // [30] CONCERN: Shared -> Managed -> Shared uses same 'rep' object
 // [21] DRQS 26465543 [void reset()]
 // [22] shared_ptr<cv-void>
+// [36] CONCERN: 'shared_ptr' constructors SFINAE on compatible pointers
+// [36] CONCERN: 'shared_ptr' assignment operators SFINAE on compatible pointers
+// [37] CONCERN: 'shared_ptr<bslma::Allocator>' behaves correctly
+// [  ] CONCERN: 'shared_ptr<FactoryClass>' behaves correctly
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
-// [40] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [38] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 // [-1] PERFORMANCE
 //-----------------------------------------------------------------------------
 //
@@ -348,9 +369,11 @@ using namespace BloombergLP;
 // [29] bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (weak_ptr)
-// [36] USAGE EXAMPLE 1: weak_ptr
-// [37] USAGE EXAMPLE 2: weak_ptr
-// [38] USAGE EXAMPLE 3: weak_ptr
+// [39] USAGE EXAMPLE 1: weak_ptr
+// [40] USAGE EXAMPLE 2: weak_ptr
+// [41] USAGE EXAMPLE 3: weak_ptr
+// [36] 'weak_ptr' constructors SFINAE on compatible pointers
+// [36] 'weak_ptr' assignment operators SFINAE on compatible pointers
 //-----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -568,6 +591,30 @@ void aSsErT(bool condition, const char *message, int line)
 #else
 # define ASSERT_NOEXCEPT(...)
 #endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    constexpr bsl::bool_constant<EXPRESSION> NAME{}
+    // This leading branch is the preferred version for C++17, but the feature
+    // test macro is (currently) for documentation purposes only, and never
+    // defined.  This is the ideal (simplest) form for such declarations:
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
+    // This is the preferred C++11 form for the definition of integral constant
+    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // indication that brace-initialization and traits are available, as it has
+    // historically been one of the last C++11 features to ship.
+#else
+# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
+    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
+                 bsl::integral_constant<bool, EXPRESSION>()
+    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // the rules, so a C++03 compiler must explicitly initialize integral
+    // constant variables in a way that is unambiguously not a vexing parse
+    // that declares a function instead.
+#endif
+
 // ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -1497,6 +1544,89 @@ bsl::shared_ptr<int> ptrNilFun()
 
 }  // close namespace NAMESPACE_TEST_CASE_16
 
+namespace support {
+
+class CommaTest {
+    CommaTest() {}
+
+  public:
+    static const CommaTest value;
+};
+
+const CommaTest CommaTest::value;
+
+class Evil {
+    Evil(const Evil&);
+    void operator=(const Evil&);
+
+  public:
+    // PUBLIC TYPEDEFS
+    typedef Evil Fail;
+};
+
+template <class OTHER>
+Evil::Fail operator,(const CommaTest&, const OTHER&) BSLS_CPP11_DELETED;
+
+
+struct FactoryDeleter {
+
+    template <class TYPE>
+    const CommaTest& deleteObject(TYPE *)
+        // Return a type that overloads the comma operator in an attempt to
+        // catch the most awkward metaprogramming corners.  Similarly, this
+        // method is not 'const'-qualified.
+    {
+        return CommaTest::value;
+    }
+
+#if 0   // This matches current test driver expectations, but should actually
+        // be removed to provide a more interesting test case
+    const CommaTest& deleteObject(bsl::nullptr_t)
+        // Return a type that overloads the comma operator in an attempt to
+        // catch the most awkward metaprogramming corners.  Similarly, this
+        // method is not 'const'-qualified.
+    {
+        return CommaTest::value;
+    }
+#endif
+};
+
+
+template <class TYPE>
+struct TypedFactory {
+
+    void deleteObject(TYPE *) const
+        // This function has no effect.
+    {
+    }
+};
+
+
+struct UniversalPointer {
+
+    void *d_data;
+
+    operator const void *() const { return d_data; }
+
+    template <class T>
+    operator T *() const { return 0; }
+};
+
+struct DoNotDeleter {
+    typedef UniversalPointer pointer;
+
+    void operator()(const void *) const {}  // do nothing deleter
+};
+
+template <class T>
+struct TypedDeleter{
+    typedef T * pointer;
+
+    void operator()(T *) const {}  // do nothing deleter
+};
+
+}  // close namespace support
+
                    // *** 'MyTestObject' CLASS HIERARCHY ***
 
                            // ======================
@@ -1976,7 +2106,7 @@ class NonOwningRep : public bslma::SharedPtrRep {
         // Construct a non-owning shared ptr test-rep object referring to (but
         // not owning) the object pointed to by the specified 'dataPtr_p', and
         // reporting the every call to 'disposeObject' by incrementing the
-        // specified 'disposeObjectCount', and reportingevery call to the
+        // specified 'disposeObjectCount', and reporting every call to the
         // 'disposeRep' method by incrementing the specified 'disposeRepCount'.
         // Optionally specify the 'basicAllocator' that was used to supply the
         // memory that holds this object.  If 'basicAllocator' is 0, the
@@ -2947,7 +3077,7 @@ class SelfReference
 };
 
 
-#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
 
 # ifdef BSLS_PLATFORM_CMP_GNU
 #   pragma GCC diagnostic push
@@ -2972,8 +3102,9 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 #   pragma GCC diagnostic pop
 # endif
 #endif
+
 //=============================================================================
-//                          TEST CASE TEMPLATES
+//                      TEST CASE TEMPLATES
 //-----------------------------------------------------------------------------
 
 // One allocator or an array of 14?
@@ -3176,7 +3307,7 @@ struct Harness {
         // test plan.
 
     template <class T, class Y>
-    static void testCase40(int value);
+    static void testCase38(int value);
         // Test 'noexcept' specifications
 
     template <class T>
@@ -3240,21 +3371,20 @@ void Harness::prepareObject(MyInplaceAllocatableObject *target,
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT(da);
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     switch (N_ARGS) {
       case 0: {
@@ -3458,22 +3588,20 @@ void Harness::testCase23_RunTest(
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT(da);
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
-
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     // First prepare a test object to compare against the shared object
     // constructed by allocate_shared.  In particular, we want to pay attention
@@ -3483,7 +3611,7 @@ void Harness::testCase23_RunTest(
     bslma::TestAllocator localArgAlloc("local arguments allocator",
                                                veryVeryVeryVerbose);
 
-    // 14 argumments, all using a local test allocator
+    // 14 arguments, all using a local test allocator
     MyAllocatableArg01 A01(VA01, &localArgAlloc);
     MyAllocatableArg02 A02(VA02, &localArgAlloc);
     MyAllocatableArg03 A03(VA03, &localArgAlloc);
@@ -3503,10 +3631,10 @@ void Harness::testCase23_RunTest(
 
     prepareObject<
               N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
-    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+    buffer.address(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
 
     bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
-                                                             &buffer.object());
+                                                             buffer.address());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
     ASSERTV(MOVE_01, A01.movedFrom(),
@@ -3551,7 +3679,7 @@ void Harness::testCase23_RunTest(
         bslma::TestAllocator testArgAlloc("test arguments allocator",
                                           veryVeryVeryVerbose);
 
-        // 14 argumments, all using a specific test allocator
+        // 14 arguments, all using a specific test allocator
         MyAllocatableArg01 B01(VA01, &testArgAlloc);
         MyAllocatableArg02 B02(VA02, &testArgAlloc);
         MyAllocatableArg03 B03(VA03, &testArgAlloc);
@@ -3731,20 +3859,34 @@ void Harness::testCase23_RunTest(
         ASSERT(EXP == *X);
         ASSERTV(da, X->allocator(), da == X->allocator() );
 
-        ASSERT(A01.movedFrom() == B01.movedFrom());
-        ASSERT(A02.movedFrom() == B02.movedFrom());
-        ASSERT(A03.movedFrom() == B03.movedFrom());
-        ASSERT(A04.movedFrom() == B04.movedFrom());
-        ASSERT(A05.movedFrom() == B05.movedFrom());
-        ASSERT(A06.movedFrom() == B06.movedFrom());
-        ASSERT(A07.movedFrom() == B07.movedFrom());
-        ASSERT(A08.movedFrom() == B08.movedFrom());
-        ASSERT(A09.movedFrom() == B09.movedFrom());
-        ASSERT(A10.movedFrom() == B10.movedFrom());
-        ASSERT(A11.movedFrom() == B11.movedFrom());
-        ASSERT(A12.movedFrom() == B12.movedFrom());
-        ASSERT(A13.movedFrom() == B13.movedFrom());
-        ASSERT(A14.movedFrom() == B14.movedFrom());
+        ASSERTV(A01.movedFrom(),   B01.movedFrom(),
+                A01.movedFrom() == B01.movedFrom());
+        ASSERTV(A02.movedFrom(),   B02.movedFrom(),
+                A02.movedFrom() == B02.movedFrom());
+        ASSERTV(A03.movedFrom(),   B03.movedFrom(),
+                A03.movedFrom() == B03.movedFrom());
+        ASSERTV(A04.movedFrom(),   B04.movedFrom(),
+                A04.movedFrom() == B04.movedFrom());
+        ASSERTV(A05.movedFrom(),   B05.movedFrom(),
+                A05.movedFrom() == B05.movedFrom());
+        ASSERTV(A06.movedFrom(),   B06.movedFrom(),
+                A06.movedFrom() == B06.movedFrom());
+        ASSERTV(A07.movedFrom(),   B07.movedFrom(),
+                A07.movedFrom() == B07.movedFrom());
+        ASSERTV(A08.movedFrom(),   B08.movedFrom(),
+                A08.movedFrom() == B08.movedFrom());
+        ASSERTV(A09.movedFrom(),   B09.movedFrom(),
+                A09.movedFrom() == B09.movedFrom());
+        ASSERTV(A10.movedFrom(),   B10.movedFrom(),
+                A10.movedFrom() == B10.movedFrom());
+        ASSERTV(A11.movedFrom(),   B11.movedFrom(),
+                A11.movedFrom() == B11.movedFrom());
+        ASSERTV(A12.movedFrom(),   B12.movedFrom(),
+                A12.movedFrom() == B12.movedFrom());
+        ASSERTV(A13.movedFrom(),   B13.movedFrom(),
+                A13.movedFrom() == B13.movedFrom());
+        ASSERTV(A14.movedFrom(),   B14.movedFrom(),
+                A14.movedFrom() == B14.movedFrom());
 
         if (1 == initialUseCount) {
             // TBD: confirm that the original shared object was destroyed, that
@@ -4090,29 +4232,27 @@ void Harness::testCase32_DefaultAllocator()
              dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT(da);
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
-
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     // First prepare a test object to compare against the shared object
     // constructed by allocate_shared.  In particular, we want to pay attention
     // to the moved-from state of each argument, and the final value of the
     // whole test object.
 
-    // 14 argumments, all using a local test allocator
+    // 14 arguments, all using a local test allocator
     MyAllocatableArg01 A01(VA01);
     MyAllocatableArg02 A02(VA02);
     MyAllocatableArg03 A03(VA03);
@@ -4131,10 +4271,10 @@ void Harness::testCase32_DefaultAllocator()
     bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
     prepareObject<
               N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
-    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+    buffer.address(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
 
     bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
-                                                             &buffer.object());
+                                                             buffer.address());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
     ASSERTV(MOVE_01, A01.movedFrom(),
@@ -4174,7 +4314,7 @@ void Harness::testCase32_DefaultAllocator()
 
     // In the next block of code we will create 14 argument objects using the
     // default allocator, and then either copy or move a certain number of them
-    // accorting to the template arguments N1 -> N14.  When we move an "arg"
+    // according to the template arguments N1 -> N14.  When we move an "arg"
     // object, no new allocation occurs, but when we copy an "arg" object an
     // additional allocation will occur.  We need to account the additional
     // allocations within the scope below, but we also need to account for the
@@ -4205,7 +4345,7 @@ void Harness::testCase32_DefaultAllocator()
         bslma::TestAllocator testArgAlloc("test arguments allocator",
                                           veryVeryVeryVerbose);
 
-        // 14 argumments, all using a specific test allocator
+        // 14 arguments, all using a specific test allocator
         MyAllocatableArg01 B01(VA01);
         MyAllocatableArg02 B02(VA02);
         MyAllocatableArg03 B03(VA03);
@@ -4435,21 +4575,20 @@ void Harness::testCase32_LocalAllocator()
     bslma::TestAllocator ta("test allocator for allocator-aware testCase34",
                             veryVeryVeryVerbose);
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     // First prepare a test object to compare against the shared object
     // constructed by allocate_shared.  In particular, we want to pay attention
@@ -4458,7 +4597,7 @@ void Harness::testCase32_LocalAllocator()
 
     bslma::TestAllocator localArgAlloc("local arguments allocator",
                                                veryVeryVeryVerbose);
-    // 14 argumments, all using a local test allocator
+    // 14 arguments, all using a local test allocator
     MyAllocatableArg01 A01(VA01, &localArgAlloc);
     MyAllocatableArg02 A02(VA02, &localArgAlloc);
     MyAllocatableArg03 A03(VA03, &localArgAlloc);
@@ -4477,10 +4616,10 @@ void Harness::testCase32_LocalAllocator()
     bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
     prepareObject<
               N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
-    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+    buffer.address(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
 
     bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
-                                                             &buffer.object());
+                                                             buffer.address());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
     ASSERTV(MOVE_01, A01.movedFrom(),
@@ -4522,7 +4661,7 @@ void Harness::testCase32_LocalAllocator()
         bslma::TestAllocator testArgAlloc("test arguments allocator",
                                           veryVeryVeryVerbose);
 
-        // 14 argumments, all using a specific test allocator
+        // 14 arguments, all using a specific test allocator
         MyAllocatableArg01 B01(VA01, &testArgAlloc);
         MyAllocatableArg02 B02(VA02, &testArgAlloc);
         MyAllocatableArg03 B03(VA03, &testArgAlloc);
@@ -4696,13 +4835,13 @@ void Harness::testCase32_LocalAllocator()
         // Argument types are always moved, if passed through a movable
         // reference, as our test type takes its constructor arguments by
         // value.  However, the emplaced members of the test type used the
-        // default alloocator used by 'make_shared', rather than propagating
-        // the allocator from the argument, so the overall observation is that
-        // the default allocator always allocates 1 item for the 'rep' object,
-        // plus one allocation per 'N_ARGS'.  A matching number of
-        // deallocations occur on exiting the block.  We do not attempt to
-        // track the specific local allocator allocations, as they do not
-        // transmit into the shared object itself.
+        // default allocator used by 'make_shared', rather than propagating the
+        // allocator from the argument, so the overall observation is that the
+        // default allocator always allocates 1 item for the 'rep' object, plus
+        // one allocation per 'N_ARGS'.  A matching number of deallocations
+        // occur on exiting the block.  We do not attempt to track the specific
+        // local allocator allocations, as they do not transmit into the shared
+        // object itself.
 
         ASSERTV(numAllocations + N_ARGS + 1,   da->numAllocations(),
                 numAllocations + N_ARGS + 1 == da->numAllocations());
@@ -5077,21 +5216,20 @@ void Harness::testCase33_RunTest(ALLOCATOR basicAllocator)
 
     bslma::TestAllocator&  ta = *wrappedTest;
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     MyTestArg01 A01(V01);
     MyTestArg02 A02(V02);
@@ -5540,22 +5678,20 @@ void Harness::testCase34_AllocatorAware()
     bslma::TestAllocator ta("test allocator for allocator-aware testCase34",
                             veryVeryVeryVerbose);
 
-    // In C++17 these become the simpler to name 'bool_constant'
-    static const bsl::integral_constant<bool, N01 == 1> MOVE_01 = {};
-    static const bsl::integral_constant<bool, N02 == 1> MOVE_02 = {};
-    static const bsl::integral_constant<bool, N03 == 1> MOVE_03 = {};
-    static const bsl::integral_constant<bool, N04 == 1> MOVE_04 = {};
-    static const bsl::integral_constant<bool, N05 == 1> MOVE_05 = {};
-    static const bsl::integral_constant<bool, N06 == 1> MOVE_06 = {};
-    static const bsl::integral_constant<bool, N07 == 1> MOVE_07 = {};
-    static const bsl::integral_constant<bool, N08 == 1> MOVE_08 = {};
-    static const bsl::integral_constant<bool, N09 == 1> MOVE_09 = {};
-    static const bsl::integral_constant<bool, N10 == 1> MOVE_10 = {};
-    static const bsl::integral_constant<bool, N11 == 1> MOVE_11 = {};
-    static const bsl::integral_constant<bool, N12 == 1> MOVE_12 = {};
-    static const bsl::integral_constant<bool, N13 == 1> MOVE_13 = {};
-    static const bsl::integral_constant<bool, N14 == 1> MOVE_14 = {};
-
+    DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_02, N02 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_03, N03 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_04, N04 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_05, N05 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_06, N06 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_07, N07 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_08, N08 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_09, N09 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_10, N10 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_11, N11 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_12, N12 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_13, N13 == 1);
+    DECLARE_BOOL_CONSTANT(MOVE_14, N14 == 1);
 
     // First prepare a test object to compare against the shared object
     // constructed by allocate_shared.  In particular, we want to pay attention
@@ -5565,7 +5701,7 @@ void Harness::testCase34_AllocatorAware()
     bslma::TestAllocator localArgAlloc("local arguments allocator",
                                                veryVeryVeryVerbose);
 
-    // 14 argumments, all using a local test allocator
+    // 14 arguments, all using a local test allocator
     MyAllocatableArg01 A01(VA01, &localArgAlloc);
     MyAllocatableArg02 A02(VA02, &localArgAlloc);
     MyAllocatableArg03 A03(VA03, &localArgAlloc);
@@ -5584,10 +5720,10 @@ void Harness::testCase34_AllocatorAware()
     bsls::ObjectBuffer<MyInplaceAllocatableObject> buffer;
     prepareObject<
               N_ARGS,N01,N02,N03,N04,N05,N06,N07,N08,N09,N10,N11,N12,N13,N14>(
-    &buffer.object(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
+    buffer.address(),A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14 );
 
     bslalg::AutoScalarDestructor<MyInplaceAllocatableObject> proctor(
-                                                             &buffer.object());
+                                                             buffer.address());
     const MyInplaceAllocatableObject& EXP = buffer.object();
 
     ASSERTV(MOVE_01, A01.movedFrom(),
@@ -5629,7 +5765,7 @@ void Harness::testCase34_AllocatorAware()
         bslma::TestAllocator testArgAlloc("test arguments allocator",
                                           veryVeryVeryVerbose);
 
-        // 14 argumments, all using a specific test allocator
+        // 14 arguments, all using a specific test allocator
         MyAllocatableArg01 B01(VA01, &testArgAlloc);
         MyAllocatableArg02 B02(VA02, &testArgAlloc);
         MyAllocatableArg03 B03(VA03, &testArgAlloc);
@@ -5850,7 +5986,7 @@ void Harness::testCase34_AllocatorAware()
 }
 
 template <class T, class Y>
-void Harness::testCase40(int value)
+void Harness::testCase38(int value)
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -5860,7 +5996,7 @@ void Harness::testCase40(int value)
     //:   required by the standard.
     //
     // Plan:
-    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //: 1 Apply the unary 'noexcept' operator to expressions that mimic those
     //:   appearing in the standard and confirm that calculated boolean value
     //:   matches the expected value.
     //:
@@ -5917,11 +6053,10 @@ void Harness::testCase40(int value)
             == BSLS_CPP11_NOEXCEPT_OPERATOR(
                           bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
 
-#if 0 // Per AJM
-        bsl::nullptr_t     n;
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(n)));
-#endif // Per AJM
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(0)));
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     }
 
     // page 590
@@ -6377,8 +6512,8 @@ void testMyAllocatableArg()
     bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
 
     {
-        const bsltf::AllocArgumentType<N>  V1;       // +1 use of default allocator
-        const bsltf::AllocArgumentType<N>  V2 = V1;  // +1 use of default allocator
+        const bsltf::AllocArgumentType<N> V1;        // +1 use of default alloc
+        const bsltf::AllocArgumentType<N> V2 = V1;   // +1 use of default alloc
         ASSERT(V1 == V2);
         ASSERT(-1 == V1);
         ASSERT(-1 == V2);
@@ -6406,8 +6541,8 @@ void testMyAllocatableArg(const int value)
     bsls::Types::Int64 numDeallocations = da_p->numDeallocations();
 
     {
-        const bsltf::AllocArgumentType<N>  V1(value);  // +1 use of default allocator
-        const bsltf::AllocArgumentType<N>  V2 = V1;    // +1 use of default allocator
+        const bsltf::AllocArgumentType<N> V1(value); // +1 use of default alloc
+        const bsltf::AllocArgumentType<N> V2 = V1;   // +1 use of default alloc
         ASSERT(value == V1);
         ASSERT(value == V2);
     }
@@ -6535,18 +6670,7 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 40: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        Harness::testCase40<MyTestBaseObject, MyTestDerivedObject>(40);
-
-      } break;
-      case 39: {
+      case 42: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
         //   This test case will test all of the test machinery supplied by the
@@ -6575,10 +6699,8 @@ int main(int argc, char *argv[])
                                                   bslma::Default::allocator());
         ASSERT(0 != da_p);
 
-
-
       } break;
-      case 38: {
+      case 41: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -6613,7 +6735,7 @@ int main(int argc, char *argv[])
             search(&result, peerCache, keywords);
         }
       } break;
-      case 37: {
+      case 40: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2: 'weak_ptr'
         //   We know this example demonstrates a memory leak, so put the
@@ -6683,7 +6805,7 @@ int main(int argc, char *argv[])
 
         // No memory leak now
       } break;
-      case 36: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -6762,8 +6884,3212 @@ int main(int argc, char *argv[])
     ASSERT(intWeakPtr2.expired());
     ASSERT(!intWeakPtr2.lock());
         }
-    } break;
-    case 35:{
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        Harness::testCase38<MyTestBaseObject, MyTestObject2>(40);
+
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING 'shared_ptr' OF BDE ALLOCATORS
+        //   Confirm that there are no complications for 'shared_ptr's of BDE
+        //   style allocators, where a pointer to an intended target object may
+        //   be confused with use as an allocator or factory deleter.
+        //
+        // Concerns:
+        //: 1 There are no ambiguities when constructing a shared (or weak)
+        //:   pointer to a 'bslma::Allocator' when passes a pointer to the
+        //:   exact base type, or to an allocator implementing the protocol.
+        //: 2 There are no ambiguities when constructing a shared (or weak)
+        //:   pointer to a 'bslma::TestAllocator', or to any other type that
+        //:   implements the 'bslma::Allocator' protocol
+        //
+        // Plan:
+        //: 1 Exercise all the tests from test case 36, substituting
+        //:   'bslma::Allocator' for 'const int', and substituting
+        //:   'bslma::TestAllocator' for 'int', as this preserves the sane
+        //:   rules for convertability of pointers.  Strike any duplicate tests
+        //:   for constructing a 'bsl::shared_ptr<void>' (or the equivalent
+        //:   weak pointer).
+        //
+        //
+        // Testing:
+        //  CONCERN: 'shared_ptr<bslma::Allocator>' behaves correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SFINAE CONCERNS"
+                            "\n=======================\n");
+
+        // Test with pointers that are an exact match, a valid conversion, and
+        // a failing conversion.  Deleters may be function-pointers or
+        // functors.  Allocators may be standard allocators,
+        // 'bslma::Allocator *', or convertible to 'bslma::Allocator *'.  There
+        // should be an overload taking a (convertible to) 'bslma::Allocator *'
+        // for each constructor that might create a new rep object.  There are
+        // a limited number of constructors that also support a std allocator.
+
+#if defined(BSLS_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+        using std::is_constructible;
+
+        // TBD: TESTS STILL MISSING
+        //  SharedPtrRep * constructors
+        //  class-type convertible to pointer (to catch over-eager deductions)
+        //
+        //  actual runtime checks with '0' as null literal, to see if any issue
+        //      deducing as 'int' or a SFINAE-tag.
+
+
+        // Basic default-constructible tests: breathing test for types that
+        // follow.
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>>::value));
+
+        // Copying constructors
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::Allocator>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::Allocator>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<     void>>::value));
+
+
+        // Moving constructors
+
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<bslma::Allocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<bslma::Allocator>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<bslma::Allocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<bslma::Allocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<bslma::TestAllocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<bslma::Allocator>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<bslma::TestAllocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<bslma::TestAllocator>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+
+        // Aliasing constructors
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bsl::nullptr_t>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bsl::nullptr_t>::value));
+
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bslma::Allocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bslma::Allocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bslma::Allocator *>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bslma::Allocator *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bslma::Allocator *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bslma::Allocator *>::value));
+
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bslma::TestAllocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bslma::TestAllocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bslma::TestAllocator *>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  bslma::TestAllocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  bslma::TestAllocator *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<     void>,
+                                  bslma::TestAllocator *>::value));
+
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>,
+                                  bsl::shared_ptr<     void>,
+                                  void *>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::Allocator>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<bslma::TestAllocator>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::TestAllocator>,
+                                  bsl::shared_ptr<     void>,
+                                  void *>::value));
+
+
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                          bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                                   bslma::TestAllocator *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                             bslma::Allocator *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                                  void *>::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                     std::auto_ptr<bslma::TestAllocator> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                               std::auto_ptr<bslma::Allocator> >::value));
+        // Note that this converts through auto_ptr_ref, and cannot be blocked.
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                   std::unique_ptr<bslma::TestAllocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                             std::unique_ptr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                 bsl::shared_ptr<bslma::TestAllocator>,
+                 std::unique_ptr<int, support::TypedDeleter<void> > >::value));
+        ASSERT( (is_constructible<
+                 bsl::shared_ptr<bslma::TestAllocator>,
+                 std::unique_ptr<bslma::Allocator, support::DoNotDeleter > >::value));
+#endif
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                     bsl::weak_ptr<bslma::TestAllocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                               bsl::weak_ptr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                    bsl::weak_ptr<void> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                 bslma::ManagedPtr<bslma::TestAllocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                           bslma::ManagedPtr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::TestAllocator>,
+                                bslma::ManagedPtr<void> >::value));
+
+
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                          bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                                   bslma::TestAllocator *>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                             bslma::Allocator *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                                  void *>::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                     std::auto_ptr<bslma::TestAllocator> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                               std::auto_ptr<bslma::Allocator> >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                   std::unique_ptr<bslma::TestAllocator> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                             std::unique_ptr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                 bsl::shared_ptr<bslma::Allocator>,
+                 std::unique_ptr<bslma::TestAllocator, support::TypedDeleter<void> > >::value));
+        ASSERT( (is_constructible<
+                 bsl::shared_ptr<bslma::Allocator>,
+                 std::unique_ptr<bslma::Allocator, support::DoNotDeleter > >::value));
+#endif
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                     bsl::weak_ptr<bslma::TestAllocator> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                               bsl::weak_ptr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                    bsl::weak_ptr<void> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                 bslma::ManagedPtr<bslma::TestAllocator> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                           bslma::ManagedPtr<bslma::Allocator> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<bslma::Allocator>,
+                                bslma::ManagedPtr<void> >::value));
+
+
+
+
+        // 2 arguments: [target, bslma-factory deleter]
+        // Note that sometimes the factory-deleter is really an allocator.
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 2 arguments: [target, factory deleter object]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::TestAllocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      >::value));
+
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , support::FactoryDeleter *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , support::FactoryDeleter *
+                                      >::value));
+
+
+        // 2 arguments: [target, functor-pointer deleter]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+
+
+        // 2 arguments: [target, function-pointer deleter]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(void *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::TestAllocator *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      >::value));
+
+
+
+        // 3 arguments: [target, bslma-factory, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+
+        // 3 arguments: [target, functor-deleter, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::TestAllocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::Allocator *
+                                      >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, function-pointer, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::Allocator *
+                                      >::value));
+
+        // 3 arguments: [target, bslma factory, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, functor-deleter, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::TestAllocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , support::TypedFactory<bslma::TestAllocator> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, function-deleter, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, bslma-factory, std allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // 3 arguments: [target, functor-deleter, std allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // 3 arguments: [target, function-deleter, std allocator]
+
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::TestAllocator>
+                                , bsl::nullptr_t
+                                , support::TypedFactory<bslma::TestAllocator> *
+                                , bsl::allocator<char>
+                                >::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
+                                , bsl::nullptr_t
+                                , support::TypedFactory<bslma::TestAllocator> *
+                                , bsl::allocator<char>
+                                >::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<bslma::Allocator>
+                                , bslma::TestAllocator *
+                                , support::TypedFactory<bslma::TestAllocator> *
+                                , bsl::allocator<char>
+                                >::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<bslma::Allocator>
+                                , bslma::Allocator *
+                                , support::TypedFactory<bslma::TestAllocator> *
+                                , bsl::allocator<char>
+                                >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::TestAllocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::nullptr_t
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::TestAllocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::Allocator *
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , void *
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::auto_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , std::unique_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::TestAllocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<bslma::Allocator>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(bslma::Allocator *)
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // WEAK POINTER CONSTRUCTORS
+
+
+        // Basic default-constructible tests: breathing test for types that
+        // follow.
+
+        ASSERT( (is_constructible<bsl::weak_ptr<bslma::Allocator>>::value));
+        ASSERT( (is_constructible<
+                                 bsl::weak_ptr<bslma::TestAllocator>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<void>>::value));
+
+        // Copying constructors
+
+        ASSERT( (is_constructible<
+                                 bsl::weak_ptr<bslma::Allocator    >,
+                                 bsl::weak_ptr<bslma::Allocator    >>::value));
+        ASSERT( (is_constructible<
+                                 bsl::weak_ptr<bslma::Allocator    >,
+                                 bsl::weak_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<
+                                 bsl::weak_ptr<bslma::Allocator    >,
+                                 bsl::weak_ptr<       void         >>::value));
+
+        ASSERT(!(is_constructible<
+                                 bsl::weak_ptr<bslma::TestAllocator>,
+                                 bsl::weak_ptr<bslma::Allocator    >>::value));
+        ASSERT( (is_constructible<
+                                 bsl::weak_ptr<bslma::TestAllocator>,
+                                 bsl::weak_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<
+                                 bsl::weak_ptr<bslma::TestAllocator>,
+                                 bsl::weak_ptr<       void         >>::value));
+
+
+        ASSERT( (is_constructible<
+                               bsl::weak_ptr  <bslma::Allocator    >,
+                               bsl::shared_ptr<bslma::Allocator    >>::value));
+        ASSERT( (is_constructible<
+                               bsl::weak_ptr  <bslma::Allocator    >,
+                               bsl::shared_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<
+                               bsl::weak_ptr  <bslma::Allocator    >,
+                               bsl::shared_ptr<       void         >>::value));
+
+        ASSERT(!(is_constructible<
+                               bsl::weak_ptr  <bslma::TestAllocator>,
+                               bsl::shared_ptr<bslma::Allocator    >>::value));
+        ASSERT( (is_constructible<
+                               bsl::weak_ptr  <bslma::TestAllocator>,
+                               bsl::shared_ptr<bslma::TestAllocator>>::value));
+        ASSERT(!(is_constructible<
+                               bsl::weak_ptr  <bslma::TestAllocator>,
+                               bsl::shared_ptr<       void         >>::value));
+
+
+        // Moving constructors
+
+        ASSERT( (is_constructible<
+              bsl::weak_ptr<bslma::Allocator>,
+              bslmf::MovableRef<bsl::weak_ptr<bslma::Allocator    >>>::value));
+        ASSERT( (is_constructible<
+              bsl::weak_ptr<bslma::Allocator>,
+              bslmf::MovableRef<bsl::weak_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+              bsl::weak_ptr<bslma::Allocator>,
+              bslmf::MovableRef<bsl::weak_ptr<       void         >>>::value));
+
+        ASSERT(!(is_constructible<
+              bsl::weak_ptr<bslma::TestAllocator>,
+              bslmf::MovableRef<bsl::weak_ptr<bslma::Allocator    >>>::value));
+        ASSERT( (is_constructible<
+              bsl::weak_ptr<bslma::TestAllocator>,
+              bslmf::MovableRef<bsl::weak_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+              bsl::weak_ptr<bslma::TestAllocator>,
+              bslmf::MovableRef<bsl::weak_ptr<       void         >>>::value));
+
+
+        ASSERT( (is_constructible<
+            bsl::weak_ptr<bslma::Allocator>,
+            bslmf::MovableRef<bsl::shared_ptr<bslma::Allocator    >>>::value));
+        ASSERT( (is_constructible<
+            bsl::weak_ptr<bslma::Allocator>,
+            bslmf::MovableRef<bsl::shared_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+            bsl::weak_ptr<bslma::Allocator>,
+            bslmf::MovableRef<bsl::shared_ptr<       void         >>>::value));
+
+        ASSERT(!(is_constructible<
+            bsl::weak_ptr<bslma::TestAllocator>,
+            bslmf::MovableRef<bsl::shared_ptr<bslma::Allocator    >>>::value));
+        ASSERT( (is_constructible<
+            bsl::weak_ptr<bslma::TestAllocator>,
+            bslmf::MovableRef<bsl::shared_ptr<bslma::TestAllocator>>>::value));
+        ASSERT(!(is_constructible<
+            bsl::weak_ptr<bslma::TestAllocator>,
+            bslmf::MovableRef<bsl::shared_ptr<       void         >>>::value));
+#endif
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING SFINAE CONCERNS
+        //   Confirm that the operations mandated by the standard to not be
+        //   available to overload resolution fail as expected according to the
+        //   SFINAE rules.  This is most evident when testing using the C++11
+        //   type trait 'is_constructible'.
+        //
+        // Concerns:
+        //: 1 All overloads can be called with pointer types that satisfy the
+        //:   convertability constraints specified in the standard, without
+        //:   introducing ambiguities in the overload set.
+        //: 2 An overload that would rely on an incompatible conversion fails
+        //:   due to not finding an appropriate overload, rather than matching
+        //:   and causing a 'hard' failing to instantiate the template.
+        //: 3 The constructors taking 'unique_ptr' properly account for fancy
+        //:   pointers indicated by the 'unique_ptr' deleter policy.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   'shared_ptr' constructors SFINAE on compatible pointers
+        //   'shared_ptr' assignment operators SFINAE on compatible pointers
+        //   'weak_ptr' constructors SFINAE on compatible pointers
+        //   'weak_ptr' assignment operators SFINAE on compatible pointers
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SFINAE CONCERNS"
+                            "\n=======================\n");
+
+        // Test with pointers that are an exact match, a valid conversion, and
+        // a failing conversion.  Deleters may be function-pointers or
+        // functors.  Allocators may be standard allocators,
+        // 'bslma::Allocator *', or convertible to 'bslma::Allocator *'.  There
+        // should be an overload taking a (convertible to) 'bslma::Allocator *'
+        // for each constructor that might create a new rep object.  There are
+        // a limited number of constructors that also support a std allocator.
+
+#if defined(BSLS_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
+        using std::is_constructible;
+
+        // TBD: TESTS STILL MISSING
+        //  SharedPtrRep * constructors
+        //  class-type convertible to pointer (to catch over-eager deductions)
+        //
+        //  actual runtime checks with '0' as null literal, to see if any issue
+        //      deducing as 'int' and a SFINAE-tag.
+
+
+        // First, some quick checks of the component-specific traits classes.
+
+        ASSERT( (bslstl::SharedPtr_IsCallable<void (int *),  int *>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<void (int *), void *>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int (void *), char *>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int (void *),
+                                                    bsl::nullptr_t>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int(&)(void *),
+                                                            char *>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<int(&)(void *),
+                                                      const char *>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int(&)(void *),
+                                                    bsl::nullptr_t>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int(*)(void *),
+                                                            char *>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<int(*)(void *),
+                                                      const char *>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<int(*)(void *),
+                                                    bsl::nullptr_t>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<
+                               bslstl::SharedPtrNilDeleter, char *>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsCallable<
+                               bslstl::SharedPtrNilDeleter,
+                                                    bsl::nullptr_t>::k_VALUE));
+
+        ASSERT(!(bslstl::SharedPtr_IsCallable< int, int           >::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable< int, bsl::nullptr_t>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable< int, void          >::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<void, int           >::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<void, bsl::nullptr_t>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsCallable<void, void          >::k_VALUE));
+
+
+        ASSERT( (bslstl::SharedPtr_IsFactoryFor<
+                              BloombergLP::bslma::Allocator *, int>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsFactoryFor<
+                              BloombergLP::bslma::Allocator,   int>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsFactoryFor<int *,         int>::k_VALUE));
+        ASSERT( (bslstl::SharedPtr_IsFactoryFor<
+                                               BloombergLP::bslma::Allocator *, 
+                                               bsl::nullptr_t>::k_VALUE));
+        ASSERT(!(bslstl::SharedPtr_IsFactoryFor<BloombergLP::bslma::Allocator,
+                                                bsl::nullptr_t>::k_VALUE));
+
+
+        // Basic default-constructible tests: breathing test for types that
+        // follow.
+
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>>::value));
+
+        // Copying constructors
+
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<     void>>::value));
+
+
+        // Moving constructors
+
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                       bsl::shared_ptr<     void>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<      void>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::shared_ptr<     void>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+
+        // Aliasing constructors
+
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<const int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<      int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<     void>,
+                                  bsl::nullptr_t>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<const int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<      int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<     void>,
+                                  bsl::nullptr_t>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<const int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<      int>,
+                                  bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<     void>,
+                                  bsl::nullptr_t>::value));
+
+
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<const int>,
+                                  const int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<      int>,
+                                  const int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<     void>,
+                                  const int *>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<const int>,
+                                  const int *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<      int>,
+                                  const int *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<     void>,
+                                  const int *>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<const int>,
+                                  const int *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<      int>,
+                                  const int *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<     void>,
+                                  const int *>::value));
+
+
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<const int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<      int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<     void>,
+                                  int *>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<const int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<      int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<     void>,
+                                  int *>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<const int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<      int>,
+                                  int *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<     void>,
+                                  int *>::value));
+
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<const int>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<      int>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<const int>,
+                                  bsl::shared_ptr<     void>,
+                                  void *>::value));
+
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<const int>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<      int>,
+                                  void *>::value));
+        ASSERT(!(is_constructible<bsl::shared_ptr<      int>,
+                                  bsl::shared_ptr<     void>,
+                                  void *>::value));
+
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<const int>,
+                                  void *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<      int>,
+                                  void *>::value));
+        ASSERT( (is_constructible<bsl::shared_ptr<     void>,
+                                  bsl::shared_ptr<     void>,
+                                  void *>::value));
+
+
+
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                          bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                                   int *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                                             const int *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                                                  void *>::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                     std::auto_ptr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                               std::auto_ptr<const int> >::value));
+        // Note that this converts through auto_ptr_ref, and cannot be blocked.
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                   std::unique_ptr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                             std::unique_ptr<const int> >::value));
+        ASSERT(!(is_constructible<
+                 bsl::shared_ptr<      int>,
+                 std::unique_ptr<int, support::TypedDeleter<void> > >::value));
+        ASSERT( (is_constructible<
+                 bsl::shared_ptr<      int>,
+                 std::unique_ptr<const int, support::DoNotDeleter > >::value));
+#endif
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                     bsl::weak_ptr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                               bsl::weak_ptr<const int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                                    bsl::weak_ptr<void> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<      int>,
+                                 bslma::ManagedPtr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                           bslma::ManagedPtr<const int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<      int>,
+                                bslma::ManagedPtr<void> >::value));
+
+
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                          bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                                   int *>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                             const int *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<const int>,
+                                                  void *>::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                     std::auto_ptr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                               std::auto_ptr<const int> >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                   std::unique_ptr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                             std::unique_ptr<const int> >::value));
+        ASSERT(!(is_constructible<
+                 bsl::shared_ptr<const int>,
+                 std::unique_ptr<int, support::TypedDeleter<void> > >::value));
+        ASSERT( (is_constructible<
+                 bsl::shared_ptr<const int>,
+                 std::unique_ptr<const int, support::DoNotDeleter > >::value));
+#endif
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                     bsl::weak_ptr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                               bsl::weak_ptr<const int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<const int>,
+                                    bsl::weak_ptr<void> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                                 bslma::ManagedPtr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<const int>,
+                           bslma::ManagedPtr<const int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<const int>,
+                                bslma::ManagedPtr<void> >::value));
+
+
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                          bsl::nullptr_t>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                                   int *>::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<     void>,
+                                             const int *>::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                                  void *>::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                     std::auto_ptr<int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                               std::auto_ptr<const int> >::value));
+        // Note that this converts through auto_ptr_ref, and cannot be blocked.
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                   std::unique_ptr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<     void>,
+                             std::unique_ptr<const int> >::value));
+        ASSERT(!(is_constructible<
+           bsl::shared_ptr<     void>,
+           std::unique_ptr<int, support::TypedDeleter<const void> > >::value));
+        ASSERT( (is_constructible<
+                 bsl::shared_ptr<     void>,
+                 std::unique_ptr<const int, support::DoNotDeleter > >::value));
+#endif
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                     bsl::weak_ptr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<     void>,
+                               bsl::weak_ptr<const int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                    bsl::weak_ptr<void> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                 bslma::ManagedPtr<int> >::value));
+        ASSERT(!(is_constructible<
+                             bsl::shared_ptr<     void>,
+                           bslma::ManagedPtr<const int> >::value));
+        ASSERT( (is_constructible<
+                             bsl::shared_ptr<     void>,
+                                bslma::ManagedPtr<void> >::value));
+
+
+
+        // 2 arguments: [target, bslma-factory deleter]
+        // Note that sometimes the factory-deleter is really an allocator.
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<     void>
+                                      , std::unique_ptr<const int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 2 arguments: [target, factory deleter object]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<      int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , support::TypedFactory<int> *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , support::TypedFactory<int> *
+                                      >::value));
+
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , support::FactoryDeleter *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , support::FactoryDeleter *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , support::FactoryDeleter *
+                                      >::value));
+
+
+        // 2 arguments: [target, functor-pointer deleter]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      >::value));
+
+
+        // 2 arguments: [target, function-pointer deleter]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(void *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(int *)
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(const int *)
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , void(*)(const int *)
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , void(*)(const int *)
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , void(*)(const int *)
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(const int *)
+                                      >::value));
+
+
+
+        // 3 arguments: [target, bslma-factory, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bslma::Allocator *
+                                      >::value));
+
+        // 3 arguments: [target, functor-deleter, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<      int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , support::TypedFactory<int> *
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , support::TypedFactory<int> *
+                                      , bslma::Allocator *
+                                      >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::Allocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, function-pointer, bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , void(*)(int *)
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(const int *)
+                                      , bslma::Allocator *
+                                      >::value));
+
+        // 3 arguments: [target, bslma factory, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, functor-deleter, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<      int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , support::TypedFactory<int> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , support::TypedFactory<int> *
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, function-deleter, derived-bslma allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , void(*)(int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(const int *)
+                                      , bslma::TestAllocator *
+                                      >::value));
+
+
+        // 3 arguments: [target, bslma-factory, std allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslma::Allocator *
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // 3 arguments: [target, functor-deleter, std allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , bslstl::SharedPtrNilDeleter
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // 3 arguments: [target, function-deleter, std allocator]
+
+        ASSERT( (is_constructible< bsl::shared_ptr<      int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , support::TypedFactory<int> *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , support::TypedFactory<int> *
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , support::TypedFactory<int> *
+                                      , bsl::allocator<char>
+                                      >::value));
+
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(void *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::nullptr_t
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , int *
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT( (is_constructible< bsl::shared_ptr<const int>
+                                      , const int *
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , void *
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::auto_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , std::unique_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+#endif
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<const int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bsl::weak_ptr<void>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<const int>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+        ASSERT(!(is_constructible< bsl::shared_ptr<const int>
+                                      , bslma::ManagedPtr<void>
+                                      , void(*)(const int *)
+                                      , bsl::allocator<char>
+                                      >::value));
+
+
+        // WEAK POINTER CONSTRUCTORS
+
+
+        // Basic default-constructible tests: breathing test for types that
+        // follow.
+
+        ASSERT( (is_constructible<bsl::weak_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<      int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<     void>>::value));
+
+        // Copying constructors
+
+        ASSERT( (is_constructible<bsl::weak_ptr<const int>,
+                                  bsl::weak_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<const int>,
+                                  bsl::weak_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::weak_ptr<const int>,
+                                  bsl::weak_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::weak_ptr<      int>,
+                                  bsl::weak_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<      int>,
+                                  bsl::weak_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::weak_ptr<      int>,
+                                  bsl::weak_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::weak_ptr<     void>,
+                                  bsl::weak_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<     void>,
+                                  bsl::weak_ptr<      int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr<     void>,
+                                  bsl::weak_ptr<     void>>::value));
+
+
+        ASSERT( (is_constructible<bsl::weak_ptr  <const int>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr  <const int>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::weak_ptr  <const int>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::weak_ptr  <      int>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr  <      int>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT(!(is_constructible<bsl::weak_ptr  <      int>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        ASSERT(!(is_constructible<bsl::weak_ptr  <     void>,
+                                  bsl::shared_ptr<const int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr  <     void>,
+                                  bsl::shared_ptr<      int>>::value));
+        ASSERT( (is_constructible<bsl::weak_ptr  <     void>,
+                                  bsl::shared_ptr<     void>>::value));
+
+        // Moving constructors
+
+        ASSERT( (is_constructible<
+                         bsl::weak_ptr<const int>,
+                         bslmf::MovableRef<bsl::weak_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                         bsl::weak_ptr<const int>,
+                         bslmf::MovableRef<bsl::weak_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                         bsl::weak_ptr<const int>,
+                         bslmf::MovableRef<bsl::weak_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                         bsl::weak_ptr<      int>,
+                         bslmf::MovableRef<bsl::weak_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                         bsl::weak_ptr<      int>,
+                         bslmf::MovableRef<bsl::weak_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                         bsl::weak_ptr<      int>,
+                         bslmf::MovableRef<bsl::weak_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                         bsl::weak_ptr<     void>,
+                         bslmf::MovableRef<bsl::weak_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                         bsl::weak_ptr<      void>,
+                         bslmf::MovableRef<bsl::weak_ptr<      int>>>::value));
+        ASSERT( (is_constructible<
+                         bsl::weak_ptr<     void>,
+                         bslmf::MovableRef<bsl::weak_ptr<     void>>>::value));
+
+
+        ASSERT( (is_constructible<
+                       bsl::weak_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::weak_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::weak_ptr<const int>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                       bsl::weak_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::weak_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT(!(is_constructible<
+                       bsl::weak_ptr<      int>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+
+        ASSERT(!(is_constructible<
+                       bsl::weak_ptr<     void>,
+                       bslmf::MovableRef<bsl::shared_ptr<const int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::weak_ptr<      void>,
+                       bslmf::MovableRef<bsl::shared_ptr<      int>>>::value));
+        ASSERT( (is_constructible<
+                       bsl::weak_ptr<     void>,
+                       bslmf::MovableRef<bsl::shared_ptr<     void>>>::value));
+#endif
+      } break;
+      case 35:{
         // --------------------------------------------------------------------
         // TESTING 'enable_shared_from_this<T>'
         //   Test the whole 'enable_shared_from_this' facility, which includes
@@ -7092,7 +10418,7 @@ int main(int argc, char *argv[])
 
             {
                 // Establish the pre-condition of a rep already owned by a
-                // 'shaerd_ptr' object.
+                // 'shared_ptr' object.
                 SharedPtr firstPtr(pThis, pRep);
                 ASSERTV(disposeRepCount,      0 == disposeRepCount);
                 ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
@@ -7190,7 +10516,7 @@ int main(int argc, char *argv[])
 
             {
                 // Establish the pre-condition of a rep already owned by a
-                // 'shaerd_ptr' object.
+                // 'shared_ptr' object.
                 SharedPtr firstPtr(pThis, rep);
                 ASSERTV(disposeRepCount,      0 == disposeRepCount);
                 ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
@@ -7581,7 +10907,7 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -8391,9 +11717,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'allocate_shared<T>(A *, ...)'
         //   This test is concerned with the 'allocate_shared' free-function
-        //   that takes BDE allocators, as an extension to the standard..
-        //   Concern for the overloads taking standard-confocrming  allocators
-        //   is handled by the immediately preceding test case.
+        //   that takes BDE allocators, as an extension to the standard.
+        //   Concern for the overloads taking standard-conforming allocators is
+        //   handled by the immediately preceding test case.
         //
         // Concerns:
         //: 1.  'allocate_shared' returns a 'shared_ptr' pointing to a new
@@ -8420,10 +11746,10 @@ int main(int argc, char *argv[])
         //: 11. 'allocate_shared<POD-TYPE> passed no arguments other than the
         //:     allocator value-initializes the shared object.
         //: 12  'allocate_shared<const TYPE>' compiles and respects all the
-        //:      conerns above.
+        //:      concerns above.
         //
         // Plan:
-        //: 1. Intstall a test allocator as the default, to verify that the
+        //: 1. Install a test allocator as the default, to verify that the
         //:    default is never used.
         //:
         //: 2. The (lack of) use of the global allocator is tested as a global
@@ -8451,7 +11777,7 @@ int main(int argc, char *argv[])
         //   provide each an instrumented 'bslma::TestAllocator'
         //   and supply it with the
         //   appropriate arguments and an instrumented test allocator.  Then
-        //   verify that only one allocation is performned, and the object
+        //   verify that only one allocation is performed, and the object
         //   created inside the representation is initialized using the
         //   arguments supplied,.
         //
@@ -8832,7 +12158,7 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            // 14 argumments, all using the object allocator
+            // 14 arguments, all using the object allocator
             MyAllocatableArg01 A01(VA01, &ta);
             MyAllocatableArg02 A02(VA02, &ta);
             MyAllocatableArg03 A03(VA03, &ta);
@@ -8910,7 +12236,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(da);
 
             {
-                // 14 argumments, all using the object allocator
+                // 14 arguments, all using the object allocator
                 MyAllocatableArg01 B01(VA01, &ta);
                 MyAllocatableArg02 B02(VA02, &ta);
                 MyAllocatableArg03 B03(VA03, &ta);
@@ -9772,71 +13098,75 @@ int main(int argc, char *argv[])
         ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
 #endif
     } break;
-    case 31: {
-      // --------------------------------------------------------------------
-      // TESTING 'hash' FUNCTOR ('shared_ptr')
-      //
-      // Concerns:
-      //   Test that the 'hash' specialization works as expected.
-      //   'hash' is a CopyConstructible POD
-      //   'operator()' produces distinct hash values for distinct inputs
-      //   'operator()' produces the same result for shared pointers aliasing
-      //      the same object, regardless of ownership
-      //   'operator()' supports empty shared pointers
-      //   'operator()' is const-qualified and can be called with const objects
-      //   'operator()' does not modify its argument
-      //
-      // Plan:
-      //
-      // Testing:
-      //   size_t operator()(const shared_ptr<TYPE>& ptr) const
-      // --------------------------------------------------------------------
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING 'hash' FUNCTOR ('shared_ptr')
+        //   Test that the 'hash' specialization works as expected.
+        //
+        // Concerns:
+        //: 1 'hash' is a CopyConstructible POD.
+        //:
+        //: 2 'operator()' produces distinct hash values for distinct inputs.
+        //:
+        //: 3 'operator()' produces the same result for shared pointers
+        //:   aliasing the same object, regardless of ownership.
+        //:
+        //: 4 'operator()' supports empty shared pointers.
+        //:
+        //: 5 'operator()' is 'const'-qualified and can be called with 'const'
+        //:   objects.
+        //:
+        //: 6 'operator()' does not modify its argument.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   size_t operator()(const shared_ptr<TYPE>& ptr) const
+        // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'hash' FUNCTOR ('shared_ptr')"
-                          "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'hash' FUNCTOR ('shared_ptr')"
+                            "\n=====================================\n");
 
-      {
-          bslma::TestAllocator ta;
-          MyTestObject *OBJ_PTR_1 = new(ta) MyTestObject(&numDeletes);
-          const Obj obj1(OBJ_PTR_1, &ta);
+        bslma::TestAllocator ta;
+        MyTestObject *OBJ_PTR_1 = new(ta) MyTestObject(&numDeletes);
+        const Obj obj1(OBJ_PTR_1, &ta);
 
-          MyTestObject *OBJ_PTR_2 = new(ta) MyTestObject(&numDeletes);
-          const Obj obj2(OBJ_PTR_2, &ta);
+        MyTestObject *OBJ_PTR_2 = new(ta) MyTestObject(&numDeletes);
+        const Obj obj2(OBJ_PTR_2, &ta);
 
-          // wacky aliased hybrid relies on nested object lifetime for validity
-          const Obj obj3(obj2, obj1.get());
+        // wacky aliased hybrid relies on nested object lifetime for validity
+        const Obj obj3(obj2, obj1.get());
 
-          {
-              const bsl::hash<Obj> hashX = bsl::hash<Obj>();
-              bsl::hash<Obj> hashY = hashX;
-              (void) hashY;  // Suppress 'unused variable' warning
+        {
+            const bsl::hash<Obj> hashX = bsl::hash<Obj>();
+            bsl::hash<Obj> hashY = hashX;
+            (void) hashY;  // Suppress 'unused variable' warning
 
-              Obj x;
-              const size_t hashValueNull = bsl::hash<Obj>()(x);
-              ASSERT(!x);
+            Obj x;
+            const size_t hashValueNull = bsl::hash<Obj>()(x);
+            ASSERT(!x);
 
-              const size_t hashValue_1   = bsl::hash<Obj>()(obj1);
-              const size_t hashValue_2   = bsl::hash<Obj>()(obj2);
+            const size_t hashValue_1   = bsl::hash<Obj>()(obj1);
+            const size_t hashValue_2   = bsl::hash<Obj>()(obj2);
 
-              ASSERTV(hashValueNull,   hashValue_1,
-                      hashValueNull != hashValue_1);
+            ASSERTV(hashValueNull,   hashValue_1,
+                    hashValueNull != hashValue_1);
 
-              ASSERTV(hashValueNull,   hashValue_2,
-                      hashValueNull != hashValue_2);
+            ASSERTV(hashValueNull,   hashValue_2,
+                    hashValueNull != hashValue_2);
 
-              ASSERTV(hashValue_1, hashValue_2, hashValue_1 != hashValue_2);
+            ASSERTV(hashValue_1, hashValue_2, hashValue_1 != hashValue_2);
 
-              const size_t hashValue_3 = bsl::hash<Obj>()(obj3);
-              ASSERTV(hashValue_1, hashValue_3, hashValue_1 == hashValue_3);
+            const size_t hashValue_3 = bsl::hash<Obj>()(obj3);
+            ASSERTV(hashValue_1, hashValue_3, hashValue_1 == hashValue_3);
 
-              x = obj1;
-              const Obj X = x;
-              const size_t hashValue_4 = bsl::hash<Obj>()(x);
-              ASSERTV(hashValue_1, hashValue_4, hashValue_1 == hashValue_4);
-              ASSERT(X == x);
-          }
-      }
-    } break;
+            x = obj1;
+            const Obj X = x;
+            const size_t hashValue_4 = bsl::hash<Obj>()(x);
+            ASSERTV(hashValue_1, hashValue_4, hashValue_1 == hashValue_4);
+            ASSERT(X == x);
+        }
+      } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING ROUND-TRIP THROUGH 'bslma::ManagedPtr'
@@ -10156,204 +13486,202 @@ int main(int argc, char *argv[])
         ASSERT(dam.isTotalSame());
       } break;
       case 29: {
-      // --------------------------------------------------------------------
-      // TESTING 'owner_before' METHODS
-      //
-      // Concerns:
-      //   Test that the 'owner_before' function works as expected.
-      //
-      // Plan:
-      //
-      // Testing:
-      //   bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-      //   bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
-      //   bool weak_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
-      //   bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
-      // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // TESTING 'owner_before' METHODS
+        //
+        // Concerns:
+        //   Test that the 'owner_before' function works as expected.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bool shared_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
+        //   bool shared_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_before(const shared_ptr<OTHER_TYPE>& rhs)
+        //   bool weak_ptr::owner_before(const weak_ptr<OTHER_TYPE>& rhs)
+        // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'owner_before' METHODS"
-                          "\n==============================\n");
+        if (verbose) printf("\nTESTING 'owner_before' METHODS"
+                            "\n==============================\n");
 
-      {
-          bslma::TestAllocator ta;
-          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
+        bslma::TestAllocator ta;
+        MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
+        TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
+        const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
 
-          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
+        MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
+        TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
+        const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
 
-          MyTestObject *PTR1 = REP1.ptr();
-          MyTestObject *PTR2 = REP2.ptr();
-          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
-          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
-          {
-              const ObjWP EWP1;
-              const ObjWP EWP2;
-              const ObjSP ESP;
+        MyTestObject *PTR1 = REP1.ptr();
+        MyTestObject *PTR2 = REP2.ptr();
+        ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+        ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+        {
+            const ObjWP EWP1;
+            const ObjWP EWP2;
+            const ObjSP ESP;
 
-              ObjSP mSA(PTR1, &rep1); const ObjSP& SA = mSA;
-              ObjSP mSB(PTR2, &rep2); const ObjSP& SB = mSB;
+            ObjSP mSA(PTR1, &rep1); const ObjSP& SA = mSA;
+            ObjSP mSB(PTR2, &rep2); const ObjSP& SB = mSB;
 
-              ObjWP mWA(SA); const ObjWP& WA = mWA;
-              ObjWP mWB(SB); const ObjWP& WB = mWB;
+            ObjWP mWA(SA); const ObjWP& WA = mWA;
+            ObjWP mWB(SB); const ObjWP& WB = mWB;
 
-              ASSERT(false == EWP1.owner_before(EWP1));
-              ASSERT(false == EWP1.owner_before(EWP2));
-              ASSERT(false == EWP1.owner_before(ESP));
-              ASSERT(true  == EWP1.owner_before(SA));
-              ASSERT(true  == EWP1.owner_before(WA));
-              ASSERT(true  == EWP1.owner_before(SB));
-              ASSERT(true  == EWP1.owner_before(WB));
+            ASSERT(false == EWP1.owner_before(EWP1));
+            ASSERT(false == EWP1.owner_before(EWP2));
+            ASSERT(false == EWP1.owner_before(ESP));
+            ASSERT(true  == EWP1.owner_before(SA));
+            ASSERT(true  == EWP1.owner_before(WA));
+            ASSERT(true  == EWP1.owner_before(SB));
+            ASSERT(true  == EWP1.owner_before(WB));
 
-              ASSERT(false == WA.owner_before(EWP1));
-              ASSERT(false == WA.owner_before(ESP));
-              ASSERT(false == WA.owner_before(SA));
-              ASSERT(false == WA.owner_before(WA));
-              ASSERT(WA.owner_before(SB) == (&REP1 < &REP2));
-              ASSERT(WA.owner_before(WB) == (&REP1 < &REP2));
+            ASSERT(false == WA.owner_before(EWP1));
+            ASSERT(false == WA.owner_before(ESP));
+            ASSERT(false == WA.owner_before(SA));
+            ASSERT(false == WA.owner_before(WA));
+            ASSERT(WA.owner_before(SB) == (&REP1 < &REP2));
+            ASSERT(WA.owner_before(WB) == (&REP1 < &REP2));
 
-              ASSERT(false == SA.owner_before(EWP1));
-              ASSERT(false == SA.owner_before(ESP));
-              ASSERT(false == SA.owner_before(SA));
-              ASSERT(false == SA.owner_before(WA));
-              ASSERT(SA.owner_before(SB) == (&REP1 < &REP2));
-              ASSERT(SA.owner_before(WB) == (&REP1 < &REP2));
-          }
-      }
-    } break;
-    case 28: {
-      // --------------------------------------------------------------------
-      // TESTING 'swap' ('weak_ptr')
-      //
-      // Concerns:
-      //   Test that the 'swap' function works as expected.
-      //
-      // Plan:
-      //
-      // Testing:
-      //   void swap(weak_ptr& src)
-      // --------------------------------------------------------------------
+            ASSERT(false == SA.owner_before(EWP1));
+            ASSERT(false == SA.owner_before(ESP));
+            ASSERT(false == SA.owner_before(SA));
+            ASSERT(false == SA.owner_before(WA));
+            ASSERT(SA.owner_before(SB) == (&REP1 < &REP2));
+            ASSERT(SA.owner_before(WB) == (&REP1 < &REP2));
+        }
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING 'swap' ('weak_ptr')
+        //
+        // Concerns:
+        //   Test that the 'swap' function works as expected.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void swap(weak_ptr& src)
+        // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'swap' ('weak_ptr')"
-                          "\n===========================\n");
+        if (verbose) printf("\nTESTING 'swap' ('weak_ptr')"
+                            "\n===========================\n");
 
-      {
-          bslma::TestAllocator ta;
-          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP = rep;
-          MyTestObject *PTR = REP.ptr();
-          ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
-          {
-              ObjWP mX; const ObjWP& X = mX;
-              ObjWP mY; const ObjWP& Y = mY;
+        {
+            bslma::TestAllocator ta;
+            MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP = rep;
+            MyTestObject *PTR = REP.ptr();
+            ASSERTV(REP_PTR, PTR,          REP_PTR == PTR);
+            {
+                ObjWP mX; const ObjWP& X = mX;
+                ObjWP mY; const ObjWP& Y = mY;
 
-              ASSERT(X.expired());
-              ASSERT(0 == X.rep());
+                ASSERT(X.expired());
+                ASSERT(0 == X.rep());
 
-              ASSERT(Y.expired());
-              ASSERT(0 == Y.rep());
+                ASSERT(Y.expired());
+                ASSERT(0 == Y.rep());
 
-              mX.swap(mY);
+                mX.swap(mY);
 
-              ASSERT(X.expired());
-              ASSERT(0 == X.rep());
+                ASSERT(X.expired());
+                ASSERT(0 == X.rep());
 
-              ASSERT(Y.expired());
-              ASSERT(0 == Y.rep());
+                ASSERT(Y.expired());
+                ASSERT(0 == Y.rep());
 
-              ObjSP mS(PTR, &rep);
-              const ObjSP& S = mS;
+                ObjSP mS(PTR, &rep);
+                const ObjSP& S = mS;
 
-              mX = S;
+                mX = S;
 
-              ASSERT(!X.expired());
-              ASSERT(&REP == X.rep());
-              ASSERT(1 == REP.numReferences());
-              ASSERT(1 == REP.numWeakReferences());
+                ASSERT(!X.expired());
+                ASSERT(&REP == X.rep());
+                ASSERT(1 == REP.numReferences());
+                ASSERT(1 == REP.numWeakReferences());
 
-              mX.swap(mY);
-              ASSERT(X.expired());
-              ASSERT(!Y.expired());
-              ASSERT(0    == X.rep());
-              ASSERT(&REP == Y.rep());
-              ASSERT(1 == REP.numReferences());
-          }
-          LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),
-                      1 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      1 == REP.disposeObjectCount());
-      }
+                mX.swap(mY);
+                ASSERT(X.expired());
+                ASSERT(!Y.expired());
+                ASSERT(0    == X.rep());
+                ASSERT(&REP == Y.rep());
+                ASSERT(1 == REP.numReferences());
+            }
+            LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),
+                        1 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        1 == REP.disposeObjectCount());
+        }
 
-      {
-          bslma::TestAllocator ta;
-          MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
+        {
+            bslma::TestAllocator ta;
+            MyTestObject *REP_PTR1 = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep1(REP_PTR1, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP1 = rep1;
 
-          MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
+            MyTestObject *REP_PTR2 = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep2(REP_PTR2, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP2 = rep2;
 
-          MyTestObject *PTR1 = REP1.ptr();
-          MyTestObject *PTR2 = REP2.ptr();
-          ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
-          ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
-          {
-              ObjSP mS1(PTR1, &rep1);
-              const ObjSP& S1 = mS1;
+            MyTestObject *PTR1 = REP1.ptr();
+            MyTestObject *PTR2 = REP2.ptr();
+            ASSERTV(REP_PTR1, PTR1,        REP_PTR1 == PTR1);
+            ASSERTV(REP_PTR2, PTR2,        REP_PTR2 == PTR2);
+            {
+                ObjSP mS1(PTR1, &rep1);
+                const ObjSP& S1 = mS1;
 
-              ObjSP mS2(PTR2, &rep2);
-              const ObjSP& S2 = mS2;
+                ObjSP mS2(PTR2, &rep2);
+                const ObjSP& S2 = mS2;
 
-              ObjWP mX(S1); const ObjWP& X = mX;
-              ObjWP mY(S2); const ObjWP& Y = mY;
+                ObjWP mX(S1); const ObjWP& X = mX;
+                ObjWP mY(S2); const ObjWP& Y = mY;
 
-              ASSERT(&REP1  == X.rep());
-              ASSERT(&REP2  == Y.rep());
+                ASSERT(&REP1  == X.rep());
+                ASSERT(&REP2  == Y.rep());
 
-              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
-              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+                LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+                LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
 
-              mX.swap(mY);
+                mX.swap(mY);
 
-              ASSERT(&REP2  == X.rep());
-              ASSERT(&REP1  == Y.rep());
+                ASSERT(&REP2  == X.rep());
+                ASSERT(&REP1  == Y.rep());
 
-              LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
-              LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
-          }
+                LOOP_ASSERT(REP1.numReferences(), 1 == REP1.numReferences());
+                LOOP_ASSERT(REP2.numReferences(), 1 == REP2.numReferences());
+            }
 
-          LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
-          LOOP_ASSERT(REP1.disposeRepCount(), 1 == REP1.disposeRepCount());
-          LOOP_ASSERT(REP1.disposeObjectCount(),
-                                             1 == REP1.disposeObjectCount());
+            LOOP_ASSERT(REP1.numReferences(), 0 == REP1.numReferences());
+            LOOP_ASSERT(REP1.disposeRepCount(), 1 == REP1.disposeRepCount());
+            LOOP_ASSERT(REP1.disposeObjectCount(),
+                                               1 == REP1.disposeObjectCount());
 
-          LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
-          LOOP_ASSERT(REP2.disposeRepCount(), 1 == REP2.disposeRepCount());
-          LOOP_ASSERT(REP2.disposeObjectCount(),
-                                             1 == REP2.disposeObjectCount());
-      }
-    } break;
-    case 27: {
-      // --------------------------------------------------------------------
-      // TESTING 'lock'
-      //
-      // Concerns:
-      //   Test that 'lock' works as expected.
-      //
-      // Plan:
-      //   TBD
-      //
-      // Testing:
-      //   shared_ptr<TYPE> lock() const
+            LOOP_ASSERT(REP2.numReferences(), 0 == REP2.numReferences());
+            LOOP_ASSERT(REP2.disposeRepCount(), 1 == REP2.disposeRepCount());
+            LOOP_ASSERT(REP2.disposeObjectCount(),
+                                               1 == REP2.disposeObjectCount());
+        }
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING 'lock'
+        //
+        // Concerns:
+        //   Test that 'lock' works as expected.
+        //
+        // Plan:
+        //   TBD
+        //
+        // Testing:
+        //   shared_ptr<TYPE> lock() const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      //   shared_ptr<TYPE> acquireSharedPtr() const
+        //   shared_ptr<TYPE> acquireSharedPtr() const
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
       if (verbose) printf("\nTESTING 'lock'"
                           "\n==============\n");
@@ -10545,7 +13873,7 @@ int main(int argc, char *argv[])
               ASSERT(0 == ta.numDeallocations());
 
               // locking expired 'weak_ptr' objects should not produce an empty
-              // 'shared_ptr' aliasing the origina values, but always a null
+              // 'shared_ptr' aliasing the original values, but always a null
               // and empty 'shared_ptr'
 
               lockOriginal = X.lock();
@@ -10670,7 +13998,7 @@ int main(int argc, char *argv[])
               ASSERT(0 == ta.numDeallocations());
 
               // locking expired 'weak_ptr' objects should not produce an empty
-              // 'shared_ptr' aliasing the origina values, but always a null
+              // 'shared_ptr' aliasing the original values, but always a null
               // and empty 'shared_ptr'
 
               lockOriginal = X.lock();
@@ -10737,122 +14065,122 @@ int main(int argc, char *argv[])
       }
 
       ASSERT(dam.isTotalSame());
-    } break;
-    case 26: {
-      // --------------------------------------------------------------------
-      // TESTING 'reset' ('weak_ptr')
-      //
-      // Concerns:
-      //   Test that the 'reset' works as expected.
-      //
-      // Plan:
-      //
-      // Testing:
-      //   void reset()
-      // --------------------------------------------------------------------
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'reset' ('weak_ptr')
+        //
+        // Concerns:
+        //   Test that the 'reset' works as expected.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void reset()
+        // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'reset' ('weak_ptr')"
-                          "\n============================\n");
+        if (verbose) printf("\nTESTING 'reset' ('weak_ptr')"
+                            "\n============================\n");
 
-      {
-          ObjWP mX; const ObjWP& X = mX;
-          ObjWP mY; const ObjWP& Y = mY;
+        {
+            ObjWP mX; const ObjWP& X = mX;
+            ObjWP mY; const ObjWP& Y = mY;
 
-          ASSERT(X.expired());
-          ASSERT(0 == X.rep());
+            ASSERT(X.expired());
+            ASSERT(0 == X.rep());
 
-          ASSERT(Y.expired());
-          ASSERT(0 == Y.rep());
+            ASSERT(Y.expired());
+            ASSERT(0 == Y.rep());
 
-          mY.reset();
-          ASSERT(Y.expired());
-          ASSERT(0 == Y.rep());
-      }
+            mY.reset();
+            ASSERT(Y.expired());
+            ASSERT(0 == Y.rep());
+        }
 
-      {
-          bslma::TestAllocator ta;
-          MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
-          TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
-          const TestSharedPtrRep<MyTestObject>& REP = rep;
-          LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      0 == REP.disposeObjectCount());
-          MyTestObject *PTR = REP.ptr();
-          ASSERTV(REP_PTR, PTR,                REP_PTR == PTR);
-          {
-              ObjWP mZ; const ObjWP& Z = mZ;
-              ASSERT(0 == Z.rep());
-              {
-                  ObjSP mS(PTR, &rep); const ObjSP& S = mS;
-                  {
-                      ObjWP mX(S); const ObjWP& X = mX;
-                      ObjWP mY(S); const ObjWP& Y = mY;
-                      LOOP_ASSERT(REP.numReferences(),
-                                                   1 == REP.numReferences());
-                      LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                      LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
-                      ASSERT(&REP == X.rep());
-                      ASSERT(&REP == Y.rep());
+        {
+            bslma::TestAllocator ta;
+            MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP = rep;
+            LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        0 == REP.disposeObjectCount());
+            MyTestObject *PTR = REP.ptr();
+            ASSERTV(REP_PTR, PTR,                REP_PTR == PTR);
+            {
+                ObjWP mZ; const ObjWP& Z = mZ;
+                ASSERT(0 == Z.rep());
+                {
+                    ObjSP mS(PTR, &rep); const ObjSP& S = mS;
+                    {
+                        ObjWP mX(S); const ObjWP& X = mX;
+                        ObjWP mY(S); const ObjWP& Y = mY;
+                        LOOP_ASSERT(REP.numReferences(),
+                                                     1 == REP.numReferences());
+                        LOOP_ASSERT(REP.disposeRepCount(),
+                                                   0 == REP.disposeRepCount());
+                        LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+                        ASSERT(&REP == X.rep());
+                        ASSERT(&REP == Y.rep());
 
-                      mX.reset();
-                      LOOP_ASSERT(REP.numReferences(),
-                                                   1 == REP.numReferences());
-                      LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                      LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
-                      ASSERT(0    == X.rep());
-                      ASSERT(&REP == Y.rep());
+                        mX.reset();
+                        LOOP_ASSERT(REP.numReferences(),
+                                                     1 == REP.numReferences());
+                        LOOP_ASSERT(REP.disposeRepCount(),
+                                                   0 == REP.disposeRepCount());
+                        LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+                        ASSERT(0    == X.rep());
+                        ASSERT(&REP == Y.rep());
 
-                      mY.reset();
-                      LOOP_ASSERT(REP.numReferences(),
-                                                   1 == REP.numReferences());
-                      LOOP_ASSERT(REP.disposeRepCount(),
-                                                 0 == REP.disposeRepCount());
-                      LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
-                      ASSERT(0 == X.rep());
-                      ASSERT(0 == Y.rep());
-                  }
+                        mY.reset();
+                        LOOP_ASSERT(REP.numReferences(),
+                                                     1 == REP.numReferences());
+                        LOOP_ASSERT(REP.disposeRepCount(),
+                                                   0 == REP.disposeRepCount());
+                        LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+                        ASSERT(0 == X.rep());
+                        ASSERT(0 == Y.rep());
+                    }
 
-                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                  LOOP_ASSERT(REP.disposeRepCount(),
-                              0 == REP.disposeRepCount());
-                  LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
+                    LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                    LOOP_ASSERT(REP.disposeRepCount(),
+                                0 == REP.disposeRepCount());
+                    LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
 
-                  mZ = S;
-                  LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
-                  LOOP_ASSERT(REP.disposeRepCount(),
-                              0 == REP.disposeRepCount());
-                  LOOP_ASSERT(REP.disposeObjectCount(),
-                                              0 == REP.disposeObjectCount());
-                  ASSERT(&REP == Z.rep());
-              }
+                    mZ = S;
+                    LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
+                    LOOP_ASSERT(REP.disposeRepCount(),
+                                0 == REP.disposeRepCount());
+                    LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+                    ASSERT(&REP == Z.rep());
+                }
 
-              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              1 == REP.disposeObjectCount());
+                LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+                LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+                LOOP_ASSERT(REP.disposeObjectCount(),
+                                                1 == REP.disposeObjectCount());
 
-              mZ.reset();
-              LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
-              LOOP_ASSERT(REP.disposeRepCount(), 1 == REP.disposeRepCount());
-              LOOP_ASSERT(REP.disposeObjectCount(),
-                                              1 == REP.disposeObjectCount());
-              ASSERT(0 == Z.rep());
-          }
+                mZ.reset();
+                LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+                LOOP_ASSERT(REP.disposeRepCount(), 1 == REP.disposeRepCount());
+                LOOP_ASSERT(REP.disposeObjectCount(),
+                                                1 == REP.disposeObjectCount());
+                ASSERT(0 == Z.rep());
+            }
 
-          LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
-          LOOP_ASSERT(REP.disposeRepCount(),  1 == REP.disposeRepCount());
-          LOOP_ASSERT(REP.disposeObjectCount(),
-                      1 == REP.disposeObjectCount());
-      }
-    } break;
-    case 25: {
+            LOOP_ASSERT(REP.numReferences(), 0 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),  1 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        1 == REP.disposeObjectCount());
+        }
+      } break;
+      case 25: {
       // ----------------------------------------------------------------------
       // TESTING ASSIGNMENT OPERATORS ('weak_ptr')
       //
@@ -11067,31 +14395,31 @@ int main(int argc, char *argv[])
           LOOP_ASSERT(REP2.disposeObjectCount(),
                                               1 == REP2.disposeObjectCount());
       }
-    } break;
-    case 24: {
-      // --------------------------------------------------------------------
-      // TESTING CREATORS AND ACCESSORS ('weak_ptr')
-      //
-      // Concerns:
-      //   Test that the creators work as expected.
-      //
-      // Plan:
-      //
-      // Testing:
-      //   weak_ptr() noexcept
-      //   weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) noexcept
-      //   weak_ptr(const weak_ptr& original) noexcept
-      //   weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) noexcept
-      //   weak_ptr(weak_ptr&& original) noexcept
-      //   weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) noexcept
-      //   ~weak_ptr()
-      //   bslma::SharedPtrRep *rep() const
-      //   bool expired() const
-      //   long use_count() const
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING CREATORS AND ACCESSORS ('weak_ptr')
+        //
+        // Concerns:
+        //   Test that the creators work as expected.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   weak_ptr() noexcept
+        //   weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) noexcept
+        //   weak_ptr(const weak_ptr& original) noexcept
+        //   weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) noexcept
+        //   weak_ptr(weak_ptr&& original) noexcept
+        //   weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) noexcept
+        //   ~weak_ptr()
+        //   bslma::SharedPtrRep *rep() const
+        //   bool expired() const
+        //   long use_count() const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      //   int numReferences() const
+        //   int numReferences() const
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
       if (verbose) printf("\nTESTING CREATORS AND ACCESSORS ('weak_ptr')"
                           "\n===========================================\n");
@@ -11346,7 +14674,7 @@ int main(int argc, char *argv[])
           ASSERTV(REP.disposeRepCount(),    1 == REP.disposeRepCount());
           ASSERTV(REP.disposeObjectCount(), 1 == REP.disposeObjectCount());
       }
-    } break;
+      } break;
       case 23: {
         // --------------------------------------------------------------------
         // TESTING 'createInplace'
@@ -11533,7 +14861,8 @@ int main(int argc, char *argv[])
 #if 0   // volatile types are not yet supported in general.  The test case is
         // retained as a demonstration of what might need fixing if support for
         // volatile types becomes desirable, such as for standard conformance.
-        // Note that the current failures occur in the out-of-place rep type.
+        // Note that the current failures occur only in the out-of-place rep
+        // type.
 
         if (verbose) printf(
                        "Confirming bsl::shared_ptr<volatile void> support.\n");
@@ -11959,12 +15288,12 @@ int main(int argc, char *argv[])
       case 18: {
         // --------------------------------------------------------------------
         // TESTING 'bslma::SharedPtrOutofplaceRep' CONSTRUCTORS
+        //  This appears to be properly the concern of the out-of-place rep
+        //  component's test driver, and should be removed from here.
         //
-        // CONCERN: bslma::SharedPtrOutofplaceRep passes allocator to the
-        // deleter's constructor.
-        //
-        // This appears to be properly the concern of the out-of-place rep
-        // component's test driver, and should be removed from here.
+        // Concerns:
+        //: 1 'bslma::SharedPtrOutofplaceRep' passes allocator to the deleter's
+        //:   constructor.
         //
         // Plan:
         //  TBD
@@ -12232,86 +15561,56 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
-        //   Note that these tests assume that the default allocator is the
-        //   NewDelete allocator; installing a test allocator for the default
-        //   will break this test.
+        // TESTING 'get_deleter'
         //
         // Concerns:
         //
         // Plan:
-        //   Check that the 'reset' function works, by simply exercising
-        //   them on a non-empty shared pointer, and checking that the result
-        //   and reference counts are as expected.  Also check that the 'swap'
-        //   global function works, using the same test plan as in case 11.
-        //
-        //   No longer tested because no longer part of this component, but
-        //   part of the C++ compliance test, we would check that the
-        //   '..._pointer_cast' global functions work, using the same test plan
-        //   as in case 9.  For 'get_deleter' we would need to test that
+        //   For 'get_deleter' we would need to test that
         //   'get_deleter' of objects created empty, or with the default or
         //   test allocator, a factory, or function-like deleters does return a
         //   pointer to the deleter if the correct type is passed as template
-        //   argument of 'get_deleter' and 0 otherwise.  Next, we would test
-        //   that the comparison operators and functors do return the correct
-        //   comparison results.  Finally, we would test the 'make_shared' and
-        //   'allocate_shared' functions using the same test plan as in case 5.
+        //   argument of 'get_deleter' and 0 otherwise.
         //
         // Testing:
-        //   CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE
-        //   void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
         //   DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>&)
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING 'get_deleter'"
+                            "\n=====================\n");
+
+        int    x = 42;
+        double y = 3.14;
+
+        support::TypedFactory<double> factoryDeleter = {};
+
+        bsl::shared_ptr<int> pX(&x, bslstl::SharedPtrNilDeleter());
+        ASSERT(0 != bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pX));
+        ASSERT(0 == bsl::get_deleter<support::TypedFactory<double> *>(pX));
+
+        bsl::shared_ptr<void> pY;
+        ASSERT(0 == bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pY));
+        ASSERT(0 == bsl::get_deleter<support::TypedFactory<double> *>(pY));
+
+        pY.reset(&y, &factoryDeleter);
+        support::TypedFactory<double> **pDeleter =
+                         bsl::get_deleter<support::TypedFactory<double> *>(pY);
+        ASSERT(0 == bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pY));
+        ASSERT(pDeleter && (&factoryDeleter == *pDeleter));
+
+        pX.loadAlias(pY, &x);
+        pDeleter = bsl::get_deleter<support::TypedFactory<double> *>(pX);
+        ASSERT(0 == bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pX));
+        ASSERT(pDeleter && (&factoryDeleter == *pDeleter));
+
         if (verbose) printf(
-                 "\nTESTING CONCERN: C++ 'bsl::shared_ptr' ISO CONFORMANCE"
-                 "\n======================================================\n");
-
-        if (verbose) printf("\nTesting 'reset(source, ptr)'."
-                            "\n-----------------------------\n");
-
-        numDeallocations = ta.numDeallocations();
-        {
-            numDeletes = 0;
-            TObj *p = new(ta) TObj(&numDeletes);
-            Obj x(p,&ta, 0); const Obj& X = x;
-
-            numAllocations = ta.numAllocations();
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-
-            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
-            double dummy;
-
-            y.reset(X, &dummy);
-            ASSERT(&dummy == Y.get());
-            ASSERT(2 == X.use_count());
-            ASSERT(2 == Y.use_count());
-            ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(0 == numDeletes);
-
-            int dummy2;
-            bsl::shared_ptr<int> z;
-            const bsl::shared_ptr<int>& Z=z;
-            z.loadAlias(Y, &dummy2);
-            ASSERT(&dummy2 == Z.get());
-            ASSERT(3 == Z.use_count());
-            ASSERT(3 == Y.use_count());
-            ASSERT(&dummy == Y.get());
-            ASSERT(3 == X.use_count());
-            ASSERT(p == X.get());
-            ASSERT(numAllocations == ta.numAllocations());
-            ASSERT(numDeallocations == ta.numDeallocations());
-            ASSERT(0 == numDeletes);
-
-            ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
-        }
-        ASSERT(++numDeallocations == ta.numDeallocations());
-        ASSERT(1 == numDeletes);
-        if (veryVerbose) {
-            T_ P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
-        }
+               "Confirm that 'pY.reset()' has no effect on the 'pX' deleter.");
+        pY.reset();
+        pDeleter = bsl::get_deleter<support::TypedFactory<double> *>(pX);
+        ASSERT(pDeleter && (&factoryDeleter == *pDeleter));
+        ASSERT(0 == bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pX));
+        ASSERT(0 == bsl::get_deleter<bslstl::SharedPtrNilDeleter>(pY));
+        ASSERT(0 == bsl::get_deleter<support::TypedFactory<double> *>(pY));
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -12325,6 +15624,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void loadAlias(const bsl::shared_ptr<ANY_TYPE>&, ELEMENT_TYPE *)
+        //   void reset(const shared_ptr<OTHER>& source, TYPE *ptr)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ALIAS OPERATIONS"
@@ -12332,8 +15632,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'loadAlias' (unset target)"
                             "\n----------------------------------\n");
-
-//        bslma::TestAllocator ta(veryVeryVerbose);
 
         numDeallocations = ta.numDeallocations();
         {
@@ -12453,6 +15751,126 @@ int main(int argc, char *argv[])
         ASSERT(++numDeallocations == ta.numDeallocations());
         ASSERT(1 == numDeletes);
 
+        if (verbose) printf("\nTesting 'reset' (unset target)"
+                            "\n------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new(ta) TObj(&numDeletes);
+            Obj x(p, &ta, 0); const Obj& X=x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
+
+            double dummy;
+            y.reset(X, &dummy);
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == Y.use_count());
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'reset' (unset target and src)"
+                            "\n--------------------------------------\n");
+        {
+            bsl::shared_ptr<MyTestObject2> x;
+            const bsl::shared_ptr<MyTestObject2>& X=x;
+
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
+
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
+
+            double dummy;
+            y.reset(X, &dummy);
+
+            ASSERT(&dummy == Y.get());
+            ASSERT(0 == Y.use_count());
+        }
+
+        if (verbose) printf("\nTesting 'reset' (partially unset)"
+                            "\n---------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new(ta) TObj(&numDeletes);
+            Obj x(p, &ta, 0); const Obj& X=x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            double dummy;
+            bsl::shared_ptr<double> y(X, &dummy);
+            const bsl::shared_ptr<double>& Y=y;
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
+
+            y.reset(X, static_cast<double *>(0));
+            ASSERT(0 == Y.get());
+            ASSERT(2 == Y.use_count());
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+        }
+        ASSERT(1 == numDeletes);
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'reset'(set)"
+                            "\n--------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new(ta) TObj(&numDeletes);
+            Obj x(p,&ta, 0); const Obj& X = x;
+
+            numAllocations = ta.numAllocations();
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
+            double dummy;
+
+            y.reset(X, &dummy);
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(0 == numDeletes);
+
+            int dummy2;
+            bsl::shared_ptr<int> z;
+            const bsl::shared_ptr<int>& Z=z;
+            z.reset(Y, &dummy2);
+            ASSERT(&dummy2 == Z.get());
+            ASSERT(3 == Z.use_count());
+            ASSERT(3 == Y.use_count());
+            ASSERT(&dummy == Y.get());
+            ASSERT(3 == X.use_count());
+            ASSERT(p == X.get());
+            ASSERT(numAllocations == ta.numAllocations());
+            ASSERT(numDeallocations == ta.numDeallocations());
+            ASSERT(0 == numDeletes);
+
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+        ASSERT(1 == numDeletes);
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -13546,10 +16964,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   shared_ptr& operator=(const shared_ptr& rhs) noexcept
-        //   shared_ptr& operator=(bslmf::MovableRef<shared_ptr> rhs) noexcept
+        //   shared_ptr& operator=(shared_ptr&& rhs) noexcept
         //   shared_ptr& operator=(const shared_ptr<OTHER>& rhs) noexcept
         //   shared_ptr& operator=(shared_ptr<OTHER>&& rhs) noexcept
         //   shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
+        //   shared_ptr& operator=(std::unique_ptr<OTHER, DELETER>&& rhs)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ASSIGNMENT OPERATORS"
@@ -14036,7 +17455,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -14289,7 +17708,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   shared_ptr(const shared_ptr& original) noexcept
         //   shared_ptr(const shared_ptr<OTHER>& other) noexcept
-        //   shared_ptr(bslmf::MovableRef<shared_ptr> other) noexcept
+        //   shared_ptr(shared_ptr&& other) noexcept
         //   shared_ptr(shared_ptr<OTHER>&& other) noexcept
         // --------------------------------------------------------------------
 
@@ -14630,6 +18049,13 @@ int main(int argc, char *argv[])
         //:
         //: 3 Can correctly compare a shared pointer with a null pointer in
         //:   either order.
+        //:
+        //: 4 Comparison compares only the addresses of the pointed-to objects,
+        //:   and not the owned objects.
+        //:
+        //: 5 Shared pointer aliasing has no effect on comparison operators.
+        //:   (Note that this concern cannot be tested until alias constructors
+        //:   and 'reset' functions are tested at higher-numbered test cases.)
         //
         // Plan:
         //: 1 TBD
@@ -15004,7 +18430,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
 
-#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -15084,7 +18510,7 @@ int main(int argc, char *argv[])
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
 
-#if !defined BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR
+#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -15834,7 +19260,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   shared_ptr()
         //   ~shared_ptr()
-        //   void reset()
+        //   void reset() noexcept
         //   void reset(OTHER *ptr)
         //   void reset(OTHER *ptr, DELETER deleter)
         //   void reset(OTHER *ptr, DELETER deleter, ALLOCATOR basicAllocator)
@@ -16446,11 +19872,11 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This test exercises basic functionality but tests nothing.
+        //   This case exercises (but does not fully test) basic functionality.
         //
-        //   Note that these tests assume that the default allocator is the
-        //   NewDelete allocator; installing a test allocator for the default
-        //   will break this test.
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Testing:
         //   BREATHING TEST (shared_ptr)
