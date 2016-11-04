@@ -1026,17 +1026,23 @@ const TestInt     VH(789);
 const TestInt     VI(147);
 const TestInt     VJ(369);
 
-const TestString  VK("This is a string long enough to trigger allocation"
-                     " even if Small-String-Optimization is used"
-                     " in the 'bsl::string' implementation.");
+// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+const TestString  VK(SUFFICIENTLY_LONG_STRING);
 const TestString  VL("StringL");
 const TestString  VM("StringM");
 const TestString  VN("StringN");
 const TestString  VO("StringO");
 
-const bsl::string VS("This is a string long enough to trigger allocation"
-                     " even if Small-String-Optimization is used"
-                     " in the 'bsl::string' implementation.");
+const bsl::string VS(SUFFICIENTLY_LONG_STRING);
 const bsl::string VT("StringT");
 const bsl::string VU("StringU");
 const bsl::string VV("StringV");
@@ -27675,11 +27681,88 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nWith custom 'Copyable' type." << endl;
         {
+            typedef bdlb::VariantImp<bslmf::TypeList<Copyable> > Obj;
+
             ASSERT(false == Copyable::s_copyConstructorCalled);
-            bdlb::VariantImp<bslmf::TypeList<Copyable> > variant;
-            variant.assignTo<Copyable>(0);
+
+            Obj mX;  const Obj& X = mX;
+            ASSERT( X.isUnset());
+
+            mX.assignTo<Copyable>(true);
+
+            ASSERT(!X.isUnset());
+            ASSERT( X.is<Copyable>());
             ASSERT(false == Copyable::s_copyConstructorCalled);
+
+            checkCopyableParameters(X.the<Copyable>(), 1);
         }
+
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+        if (verbose) cout << "\nWith other types." << endl;
+        {
+            Obj mX(&oa);  const Obj& X = mX;
+            ASSERT(X.isUnset());
+
+            Obj *mR = &mX.assignTo<TestInt>(77.7);
+            ASSERT(               X.is<TestInt>());
+            ASSERT(TestInt(77) == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            mR = &mX.assignTo<TestInt>(33.4);
+            ASSERT(               X.is<TestInt>());
+            ASSERT(TestInt(33) == X.the<TestInt>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());
+            ASSERT(oam.isTotalSame());
+
+            mR = &mX.assignTo<TestString>(VS);
+            ASSERT(      X.is<TestString>());
+            ASSERT(VK == X.the<TestString>());
+            ASSERT(VS == X.the<TestString>().theString());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());  // no temporaries
+            ASSERT(oam.isInUseUp());
+
+            mX.reset();
+            ASSERT(X.isUnset());
+
+            dam.reset();
+            oam.reset();
+
+            mR = &mX.assignTo<bsl::string>(
+                                       (const char *)SUFFICIENTLY_LONG_STRING);
+            ASSERT(      X.is<bsl::string>());
+            ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isTotalSame());  // no temporaries
+            ASSERT(oam.isInUseUp());
+
+            mX.reset();
+            ASSERT(X.isUnset());
+
+            dam.reset();
+            oam.reset();
+
+            // Deliberately call 'assign' instead of 'assignTo'.
+
+            mR = &mX.assign<bsl::string>(
+                                       (const char *)SUFFICIENTLY_LONG_STRING);
+            ASSERT(      X.is<bsl::string>());
+            ASSERT(VS == X.the<bsl::string>());
+            ASSERT(mR == &mX);
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalUp());    // 'assign' incurs a temporary
+            ASSERT(oam.isInUseUp());
+        }
+        ASSERT(0 == da.numBlocksInUse());
+        ASSERT(0 == oa.numBlocksInUse());
 
       } break;
       case 10: {
