@@ -1454,7 +1454,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
               !bsl::is_same<VariantImp<TYPES>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_reference<TYPE>::value,
               VariantImp<TYPES> >::type&
     operator=(TYPE&&                              value);
 #else
@@ -9858,7 +9860,9 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
               !bsl::is_same<VariantImp<TYPES>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_reference<TYPE>::value,
               VariantImp<TYPES> >::type&
 VariantImp<TYPES>::operator=(TYPE&&                  value)
 #else
