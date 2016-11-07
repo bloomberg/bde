@@ -49,8 +49,13 @@ namespace bsl {
     using native_std::copy;
     using native_std::copy_backward;
     USING_CPP11_NATIVE_STD(copy_if)
+
+    // 'copy_n' is implemented separately in 'bslstp_exalgorithm' for backwards
+    // compatibility with the previous STLport definition (which differs from
+    // the platform implementation).
+    //
     // USING_CPP11_NATIVE_STD(copy_n)
-    // copy_n is implemented separately.
+   
 
     // 'count' and 'count_if' are provided in 'bslstl_algorithmworkaround' in
     // order to work-around the Sun standard library, libCstd.
