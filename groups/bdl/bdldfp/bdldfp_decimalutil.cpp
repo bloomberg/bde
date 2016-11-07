@@ -940,19 +940,17 @@ int DecimalUtil::decompose(int                 *sign,
     BSLS_ASSERT(significand);
     BSLS_ASSERT(exponent);
 
-    enum {
-        k_SIGN_MASK             = 0x8000000000000000ull,
-        k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
-        k_INFINITY_MASK         = 0x7800000000000000ull,
-        k_NAN_MASK              = 0x7c00000000000000ull,
-        k_SMALL_COEFF_MASK      = 0x0007ffffffffffffull,
-        k_LARGE_COEFF_MASK      = 0x001fffffffffffffull,
-        k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
-        k_EXPONENT_MASK         = 0x3ff,
-        k_EXPONENT_SHIFT_LARGE  = 51,
-        k_EXPONENT_SHIFT_SMALL  = 53,
-        k_DECIMAL_EXPONENT_BIAS = 398,
-    };
+    const bsls::Types::Uint64 k_SIGN_MASK             = 0x8000000000000000ull;
+    const bsls::Types::Uint64 k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull;
+    const bsls::Types::Uint64 k_INFINITY_MASK         = 0x7800000000000000ull;
+    const bsls::Types::Uint64 k_NAN_MASK              = 0x7c00000000000000ull;
+    const bsls::Types::Uint64 k_SMALL_COEFF_MASK      = 0x0007ffffffffffffull;
+    const bsls::Types::Uint64 k_LARGE_COEFF_MASK      = 0x001fffffffffffffull;
+    const bsls::Types::Uint64 k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull;
+    const bsls::Types::Uint64 k_EXPONENT_MASK         = 0x3ff;
+    const int k_EXPONENT_SHIFT_LARGE                  = 51;
+    const int k_EXPONENT_SHIFT_SMALL                  = 53;
+    const int k_DECIMAL_EXPONENT_BIAS                 = 398;
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
     bsls::Types::Uint64 x = value.data()->d_raw;
@@ -978,13 +976,13 @@ int DecimalUtil::decompose(int                 *sign,
         // get exponent
         tmp = x >> k_EXPONENT_SHIFT_LARGE;
         *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
-                    - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+                    - k_DECIMAL_EXPONENT_BIAS;
         return cl;
     }
     // exponent
     tmp = x >> k_EXPONENT_SHIFT_SMALL;
     *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
-                - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+                - k_DECIMAL_EXPONENT_BIAS;
     // coefficient
     *significand = x & k_LARGE_COEFF_MASK;
 
@@ -996,19 +994,17 @@ int DecimalUtil::decompose(int                 *sign,
                            int                 *exponent,
                            Decimal128           value)
 {
-    enum {
-        k_SIGN_MASK             = 0x8000000000000000ull,
-        k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull,
-        k_INFINITY_MASK         = 0x7800000000000000ull,
-        k_NAN_MASK              = 0x7c00000000000000ull,
-        k_SMALL_COEFF_MASK      = 0x00007fffffffffffull,
-        k_LARGE_COEFF_MASK      = 0x0001ffffffffffffull,
-        k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull,
-        k_EXPONENT_MASK         = 0x3fff,
-        k_EXPONENT_SHIFT_LARGE  = 47,
-        k_EXPONENT_SHIFT_SMALL  = 49,
-        k_DECIMAL_EXPONENT_BIAS = 6176,
-    };
+    const bsls::Types::Uint64 k_SIGN_MASK             = 0x8000000000000000ull;
+    const bsls::Types::Uint64 k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull;
+    const bsls::Types::Uint64 k_INFINITY_MASK         = 0x7800000000000000ull;
+    const bsls::Types::Uint64 k_NAN_MASK              = 0x7c00000000000000ull;
+    const bsls::Types::Uint64 k_SMALL_COEFF_MASK      = 0x00007fffffffffffull;
+    const bsls::Types::Uint64 k_LARGE_COEFF_MASK      = 0x0001ffffffffffffull;
+    const bsls::Types::Uint64 k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull;
+    const bsls::Types::Uint64 k_EXPONENT_MASK         = 0x3fff;
+    const int k_EXPONENT_SHIFT_LARGE                  = 47;
+    const int k_EXPONENT_SHIFT_SMALL                  = 49;
+    const int k_DECIMAL_EXPONENT_BIAS                 = 6176;
 
     BSLS_ASSERT(sign);
     BSLS_ASSERT(significand);
@@ -1049,7 +1045,7 @@ int DecimalUtil::decompose(int                 *sign,
 
     tmp = xH >> k_EXPONENT_SHIFT_SMALL;
     *exponent = static_cast<int>(tmp & k_EXPONENT_MASK)
-                - static_cast<int>(k_DECIMAL_EXPONENT_BIAS);
+                - k_DECIMAL_EXPONENT_BIAS;
     // coefficient
     significand->setHigh(xH & k_LARGE_COEFF_MASK);
     significand->setLow(xL);
