@@ -112,6 +112,10 @@
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTILITY
+#include <bsls_utility.h> // for std::forward
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
