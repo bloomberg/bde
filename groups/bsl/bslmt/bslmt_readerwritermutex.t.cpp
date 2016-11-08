@@ -232,11 +232,11 @@ extern "C" void *starvationReadLockCount(void *arg)
         // This 'class' represents a bank account with a single balance.
 
         // DATA
-        double                            d_money;  // amount of money in the
-                                                    // account
+        bsls::Types::Uint64               d_pennies;  // amount of money in the
+                                                      // account
 
-        mutable bslmt::ReaderWriterMutex  d_lock;   // guard access to
-                                                    // 'd_account_p'
+        mutable bslmt::ReaderWriterMutex  d_lock;     // guard access to
+                                                      // 'd_account_p'
 
       public:
         // CREATORS
@@ -257,30 +257,31 @@ extern "C" void *starvationReadLockCount(void *arg)
             // account.  Note that this operation is thread-safe; no 'lock' is
             // needed.
 
-        void deposit(double amount);
-            // Atomically deposit the specified 'amount' of money into this
-            // account.  Note that this operation is thread-safe; no 'lock' is
-            // needed.
+        void deposit(bsls::Types::Uint64 pennies);
+            // Atomically deposit the specified 'pennies' into this account.
+            // Note that this operation is thread-safe; no 'lock' is needed.
 
-        void withdraw(double amount);
-            // Atomically withdraw the specified 'amount' of money from this
-            // account.  Note that this operation is thread-safe; no 'lock' is
-            // needed.
+        int withdraw(bsls::Types::Uint64 pennies);
+            // Attempt to atomically withdraw the specified 'pennies' from this
+            // account.  Return 0 on success and update this account to reflect
+            // the withdrawal.  Otherwise, return a non-zero value and do not
+            // update the balance of this account.  Note that this operation is
+            // thread-safe; no 'lock' is needed.
 
         // ACCESSORS
-        double balance() const;
-            // Atomically return the amount of money that is available for
+        bsls::Types::Uint64 balanceInPennies() const;
+            // Atomically return the number of pennies that are available for
             // withdrawal from this account.
     };
 
     // CREATORS
     my_Account::my_Account()
-    : d_money(0.0)
+    : d_pennies(0)
     {
     }
 
     my_Account::my_Account(const my_Account& original)
-    : d_money(original.d_money)
+    : d_pennies(original.balanceInPennies())
     {
     }
 
@@ -296,30 +297,41 @@ extern "C" void *starvationReadLockCount(void *arg)
 // acquired mutex is always properly released, even if an exception is thrown.
 //..
         d_lock.lockWrite();
-        d_money = rhs.d_money;
+        d_pennies = rhs.balanceInPennies();
         d_lock.unlockWrite();
         return *this;
     }
 
-    void my_Account::deposit(double amount)
+    void my_Account::deposit(bsls::Types::Uint64 pennies)
     {
         d_lock.lockWrite();
-        d_money += amount;
+        d_pennies += pennies;
         d_lock.unlockWrite();
     }
 
-    void my_Account::withdraw(double amount)
+    int my_Account::withdraw(bsls::Types::Uint64 pennies)
     {
+        int rv = 0;
+
         d_lock.lockWrite();
-        d_money -= amount;
+
+        if (pennies <= d_pennies) {
+            d_pennies -= pennies;
+        }
+        else {
+            rv = 1;
+        }
+
         d_lock.unlockWrite();
+
+        return rv;
     }
 
     // ACCESSORS
-    double my_Account::balance() const
+    bsls::Types::Uint64 my_Account::balanceInPennies() const
     {
         d_lock.lockRead();
-        double rv = d_money;
+        bsls::Types::Uint64 rv = d_pennies;
         d_lock.unlockRead();
         return rv;
     }
@@ -362,13 +374,13 @@ int main(int argc, char *argv[])
 //..
     my_Account account;
 
-    account.deposit(100.50);
-    ASSERT(100.50 == account.balance());
+    account.deposit(10050);
+    ASSERT(10050 == account.balanceInPennies());
 
-    double paycheck = 50.25;
+    bsls::Types::Uint64 paycheckInPennies = 5025;
 
-    account.deposit(paycheck);
-    ASSERT(150.75 == account.balance());
+    account.deposit(paycheckInPennies);
+    ASSERT(15075 == account.balanceInPennies());
 //..
       } break;
       case 3: {
@@ -434,7 +446,7 @@ int main(int argc, char *argv[])
         //: 1 The methods function as expected.
         //
         // Plan:
-        //: 1 Use multiple threads to distinguish the behavior of each methods
+        //: 1 Use multiple threads to distinguish the behavior of each method
         //:   and hence validate the forwarding.  (C-1)
         //
         // Testing:
