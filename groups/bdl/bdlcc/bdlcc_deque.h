@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a thread-enabled deque of items of parameterized 'TYPE'.
+//@PURPOSE: Provide a fully thread-safe deque of items of parameterized 'TYPE'.
 //
 //@CLASSES:
 //   bdlcc::Deque: thread-safe 'bsl::deque' wrapper
@@ -16,18 +16,35 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl::deque
 //
-//@DESCRIPTION: This component provides 'bdlcc::Deque<TYPE>', a thread-safe
-// implementation of an efficient, in-place, indexable, double-ended queue of
+//@DESCRIPTION: This component provides 'bdlcc::Deque<TYPE>', a fully
+// thread-safe implementation of an efficient, double-ended queue of
 // parameterized 'TYPE' values.  'bdlcc::Deque' is effectively a thread-safe
 // wrapper for 'bsl::deque', whose interface is also made available through
 // proctor types that are nested classes.
 //
-///Thread-Enabled Idioms in the 'bdlcc::Deque' Interface
-///-----------------------------------------------------
-// The thread-enabled 'bdlcc::Queue' is similar to 'bsl::deque' in many
+///Thread Safety
+///-------------
+// 'bdlcc::Deque' is fully *thread-safe*, meaning that all non-creator
+// operations on an object can be safely invoked simultaneously from multiple
+// threads.
+//
+///Exception Safety
+///----------------
+// Provided the template parameter 'TYPE' provides the following exception
+// safety guarantees:
+//: 1 The destructor provides the no-throw guarantee.
+//: 2 Copy-assignment provides the strong guarantee.
+// then 'bdlcc::Deque' provides the strong exception guarantees, both for its
+// own salient state and the salient state of the 'bsl::vector', if any, passed
+// to its manipulators.  However, the non-salient 'capacity' of the underlying
+// 'bsl::deque' and of the passed 'bsl::vector' may be modified.
+//
+///Design Rationale for 'bdlcc::Deque'
+///-----------------------------------
+// The fully thread-safe 'bdlcc::Deque' is similar to 'bsl::deque' in many
 // regards, but there are several differences in method behavior and signature
-// that arise due to the thread-enabled nature of the queue and its anticipated
-// usage pattern.
+// that arise due to the thread-aware nature of the container and its
+// anticipated usage pattern.
 //
 // A user of 'bsl::deque' is expected to consult the 'size' or 'empty'
 // accessors before reading or popping to determine whether elements are
@@ -41,76 +58,57 @@ BSLS_IDENT("$Id: $")
 // 'popBack' methods, which return a 'TYPE' object *by* *value*, rather than
 // returning 'void', as 'pop_front' and 'pop_back' in 'bsl::deque' do.
 // Moreover, if a 'bdlcc::Deque' object is empty, 'popFront' and 'popBack' will
-// block indefinitely until an item is added to the queue.
+// block indefinitely until an item is added to the container.
 //
-// As a corollary to this behavior choice, 'bdlcc::Deque' also provides
-// 'timedPopFront' and 'timedPopBack' methods.  These methods wait until a
-// specified timeout expires if the queue is empty, returning an item if one
-// becomes available before the specified timeout; otherwise, they return a
-// non-zero value to indicate that the specified timeout expired before an item
-// was available.  Note that *all* timeouts are expressed as values of type
-// 'bsls::TimeInterval' that represent !ABSOLUTE! times.  Timeout times are
-// influenced by the optional 'clockType' argument to the constructor, which is
-// described below under Supported Clock-Types.
+///'High-Water Mark' Feature
+///-------------------------
+// The behaviors of the 'push' methods differ from those of 'bsl::deque' in a
+// similar manner.  'bdlcc::Deque' supports the notion of a *suggested* maximum
+// capacity known as the *high-water* *mark*, a value supplied at construction,
+// that affects some of the various forms of 'push*' methods.  The container is
+// considered to be *full* if it contains (at least) the high-water mark number
+// of items, and the container has *space* *available* if it is not full.  The
+// high-water mark is set at construction and cannot be changed afterward.  If
+// no high-water mark is specified, the high-water mark of the container is
+// inifinite.  For those types of pushes that may fail, success, partial
+// success, or failure of a push is reflected in the function's return value.
 //
-// We also provide 'tryPopFront' and 'tryPopBack' methods, of two types:
-//: 1 Single-value, which return 0 on success to indicate that the queue wasn't
-//:   empty and an item was copied out, and a non-zero value if the container
-//:   was empty.
-//: 2 Pop-to-vector, which copy multiple items, if present, to a vector.
+//: o 'pushBack' and 'pushFront': block until space is available, then push.
+//:
+//: o 'tryPushBack' and 'tryPushFront': push to the extent that space is
+//:   available, or fail immediately.
+//:
+//: o 'timedPushBack' and 'timedPushFront': block for up to a specified time
+//:   waiting for space to become available.  If space does become available
+//:   within that time, the push succeeds, otherwise the operation will time
+//:   out and fail.
+//:
+//: o 'forcePushBack' and 'forcePushFront': ignore the high-water mark and
+//:   always succeed in adding the item(s) to the container, increasing its
+//:   size potentially above the high-water mark.
 //
-// The behavior of the 'push' methods differs in a similar manner.
-// 'bdlcc::Queue' supports the notion of a suggested maximum queue size, called
-// the "high-water mark", a value supplied at construction.  The 'pushFront'
-// and 'pushBack' methods will block indefinitely if the queue contains (at
-// least) the high-water mark number of items, until the number of items falls
-// below the high-water mark.  The 'timedPushFront' and 'timedPushBack' are
-// provided to limit the duration of blocking; note, however, that these
-// methods can fail to add an item to the queue.  For this reason,
-// 'bdlcc::Deque' also provides 'forcePushBack' and 'forcePushFront' methods
-// that will override the high-water mark, if needed, in order to succeed
-// without blocking.  Note that this design decision makes the high-water mark
-// concept a suggestion and not an invariant.  If no high-water mark is
-// specified, the capacity of the container can keep growing until process
-// memory is exhausted.  The high-water mark is set at construction and cannot
-// be changed afterward.
+// Note that the availability of force pushes makes the high-water mark into a
+// suggestion and not an invariant.
 //
-// We also provide two types of 'tryPushBack' and 'tryPushFront' methods:
-//: 1 Single-value, which return non-zero without effect if the container
-//:   contained at least as many items as indicated by the high-water mark, and
-//:   push the item and return 0 otherwise.
-//: 2 Range-based, which will attempt to push as many items from a range until
-//:   the high water mark is reached (or all of the range if no high water mark
-//:   is set), returning the number of items pushed.
+// The purpose of a high-water mark is to enable the client to use the
+// container as a fixed-length container, where pushes that will grow it above
+// a certain size will block.  The purpose of the force pushes is to allow
+// high-priority items to be pushed regardless of capacity.
 //
-///Tips For Porting From 'bcec_Queue':
-///-----------------------------------
-//: o 'InitialCapacity' has been eliminated.  Instead, construct your
-//:   'bdlcc::Deque' object and then use proctor access to call 'reserve' on
-//:   the contained 'bsl::deque' to reserve the desired initial capacity.
-//:   (Note that 'deque::reserve' is not part of the C++ standard, though
-//:   'bsl::deque' does implement it).
-//: o The mutex and condition variables are no longer directly exposed, in
-//:   favor of the new proctor access, which gives direct access to the
-//:   underlying 'bsl::deque', automatically locking the mutex and updating the
-//:   condition variables as necessary.
-//
-///Throw Guarantees:
-///-----------------
-// Assuming the following throw guarantees of the parametrized 'TYPE':
-//: 1 The destructor provides the no-throw guarantee.
-//: 2 Copy-assignment provides the strong guarantee.
-// then 'bdlcc::Deque' provide the following throw guarantees:
-//: 1 All single-object push and pop operations provide the strong guarantee.
-//: 2 If the 'tryPop*' operation to a vector, the 'removeAll' operator to a
-//:   vector throw:
-//:   o The strong guarantee with regard to the 'bdlcc::Deque' container is
-//:     provided.
-//:   o The previous contents of the vector will remain at the front of the
-//:     vector.
-//:   o The rest of the vector will be in a valid but unknown state -- the
-//:     capacity may have grown, and it may contain copies of some of the
-//:     elements that were in the 'bdlcc::Deque' container.
+///Proctor Access
+///--------------
+// There are public nested classes 'bdlcc::Deque::Proctor' and
+// 'bdlcc::Deque::ConstProctor' through which the client can directly access
+// the underlying 'bsl::deque' contained in the 'bdlcc::Deque'.  When a proctor
+// object is created, it acquires the container's mutex, and allows the client
+// to use the overloaded '->' and '*' operators on the proctor object to access
+// the underlying 'bsl::deque'.  Because the mutex is locked, manipulators of
+// 'bdlcc::Deque' called by other threads will block, thus allowing safe access
+// to the underlying thread-unsafe container.  When the proctor is destroyed
+// (or released via the 'release' method), the proctor signals the thread-aware
+// container's condition variables to inform manipulators in other threads of
+// new items being available for pops or new space becoming available for
+// pushes.
 //
 ///Supported Clock-Types
 ///---------------------
@@ -124,6 +122,20 @@ BSLS_IDENT("$Id: $")
 // should be expressed as an absolute offset since the epoch of this clock
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+//
+///Tips For Porting From 'bcec_Queue'
+///----------------------------------
+//: o 'InitialCapacity' has been eliminated.  Instead, construct your
+//:   'bdlcc::Deque' object and then use proctor access to call 'reserve' on
+//:   the contained 'bsl::deque' to reserve the desired initial capacity.
+//:   (Note that 'deque::reserve' is not part of the C++ standard, though
+//:   'bsl::deque' does implement it).
+//: o The mutex and condition variables are no longer directly exposed, in
+//:   favor of the new proctor access, which gives direct access to the
+//:   underlying 'bsl::deque', automatically locking the mutex and updating the
+//:   condition variables as necessary.
+//: o A new, thread-safe 'length' accessor is provided, eliminating the need to
+//:   access the underlying thread-unsafe container to obtain its length.
 //
 ///Usage
 ///-----
@@ -464,7 +476,7 @@ namespace bdlcc {
 
 template <class TYPE>
 class Deque {
-    // This class provides a thread-enabled implementation of an efficient,
+    // This class provides a fully thread-safe implementation of an efficient,
     // in-place, indexable, double-ended queue of parameterized 'TYPE' values.
     // Direct access to the underlying 'bsl::deque<TYPE>' object is provided
     // through the nested 'Proctor' and 'ConstProctor' classes.  While this
@@ -479,6 +491,63 @@ class Deque {
     class ConstProctor;   // defined below
 
   private:
+    // PRIVATE TYPES
+    class ThrowGuard {
+        // This private 'class' is used to manage one object, either a
+        // 'MonoDeque' or a 'vector', during the course of an operation by a
+        // 'bdlcc::Deque'.  Because it has a 'release' method, it is actually a
+        // proctor, but we call it a 'guard' to avoid having clients confuse it
+        // with the 'Proctor' and 'ConstProctor' types.  If a 'deque' is being
+        // managed, it may only grow, and only on one end or the other.  If a
+        // vector is being managed, it may only grow on the back end.  If a
+        // throw happens during the course of the operation and 'ThrowGuard's
+        // destructor is called while still managing the object, it will
+        // restore the managed object to its initial state via operations that
+        // are guaranteed not to throw.
+
+        // PRIVATE TYPES
+        typedef typename MonoDeque::const_iterator    MDCIter;
+        typedef typename bsl::vector<TYPE>::size_type VSize;
+
+        // DATA
+        MonoDeque          *d_monoDeque_p;
+        const MDCIter       d_mdBegin;
+        const MDCIter       d_mdEnd;
+        const bool          d_mdWasEmpty;
+        bsl::vector<TYPE>  *d_vector_p;
+        const VSize         d_vSize;
+
+      private:
+        // NOT IMPLEMENTED
+        ThrowGuard(const ThrowGuard&);
+        ThrowGuard& operator=(const ThrowGuard&);
+
+      public:
+        // CREATORS
+        explicit
+        ThrowGuard(MonoDeque *monoDeque_p);
+            // Create a 'ThrowGuard' object that will manage the specified
+            // '*monoDeque_p'.  The behavior is undefined if
+            // '0 == monoDeque_p'.
+
+        explicit
+        ThrowGuard(bsl::vector<TYPE> *vector_p);
+            // Create a 'ThrowGuard' object that will manage the specified
+            // '*vector_p'.  Note that the case where '0 == vector_p' is
+            // explicitly permitted, in which case this object will not manage
+            // anything.
+
+        ~ThrowGuard();
+            // If a container is being managed by this 'ThrowGuard', restore it
+            // to the state it was in when this object was created.
+
+        // MANIPULATOR
+        void release();
+            // Release the monitored container from management by this
+            // 'ThrowGuard' object.
+    };
+
+  private:
     // DATA
     mutable
     bslmt::Mutex       d_mutex;              // mutex object used to
@@ -487,25 +556,25 @@ class Deque {
 
     bslmt::Condition   d_notEmptyCondition;  // condition variable used to
                                              // signal that new data is
-                                             // available in the queue
+                                             // available in the container
 
     bslmt::Condition   d_notFullCondition;   // condition variable used to
                                              // signal when there is room
                                              // available to add new data to
-                                             // the queue
+                                             // the container
 
     MonoDeque          d_monoDeque;          // the underlying deque.
 
     const size_type    d_highWaterMark;      // positive maximum number of
-                                             // items that can be queued before
-                                             // insertions will be blocked.
+                                             // items that can be contained
+                                             // before insertions will be
+                                             // blocked.
 
     bsls::SystemClockType::Enum
                        d_clockType;          // clock type used
 
   private:
     // NOT IMPLEMENTED
-    Deque(const Deque<TYPE>&);
     Deque<TYPE>& operator=(const Deque<TYPE>&);
 
   public:
@@ -521,12 +590,11 @@ class Deque {
     explicit
     Deque(bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a queue of objects of parameterized 'TYPE', with no high
-        // water mark.  Optionally specify a 'clockType' to govern timed
-        // operations, if none is specified, a clock type of
-        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a container of objects of parameterized 'TYPE', with no high
+        // water mark, and use the specified 'clockType' to indicate the epoch
+        // used for all time intervals (see {Supported Clock-Types} in the
+        // component documentation).  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     explicit
     Deque(bsl::size_t                  highWaterMark,
@@ -534,10 +602,10 @@ class Deque {
     Deque(bsl::size_t                  highWaterMark,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a queue of objects of parameterized 'TYPE', with the
-        // specified 'highWaterMark'.  Optionally specify a 'clockType' to
-        // govern timed operations, if none is specified, a clock type of
-        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
+        // Create a container of objects of parameterized 'TYPE', with the
+        // specified 'highWaterMark', and use the specified 'clockType' to
+        // indicate the epoch used for all time intervals (see {Supported
+        // Clock-Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  The behavior is
         // undefined unless 'highWaterMark > 0'.
@@ -551,11 +619,11 @@ class Deque {
           INPUT_ITER                   end,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a queue of objects of parameterized 'TYPE' containing the
-        // sequence of elements in the specified range '[ begin, end )' and
-        // having no high water mark.  Optionally specify a 'clockType' to
-        // govern timed operations, if none is specified, a clock type of
-        // 'bsls::SystemClockType::e_REALTIME' is used.  Optionally specify a
+        // Create a container of objects of parameterized 'TYPE' containing the
+        // sequence of elements in the specified range '[ begin, end )', having
+        // no high water mark, and use the specified 'clockType' to indicate
+        // the epoch used for all time intervals (see {Supported Clock-Types}
+        // in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
@@ -570,79 +638,81 @@ class Deque {
           bsl::size_t                  highWaterMark,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a queue of objects of parameterized 'TYPE' containing the
+        // Create a container of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values in the specified range '[ begin, end )'
-        // and having the specified 'highWaterMark'.  Optionally specify a
-        // 'clockType' to govern timed operations, if none is specified, a
-        // clock type of 'bsls::SystemClockType::e_REALTIME' is used.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // having the specified 'highWaterMark', and use the specified
+        // 'clockType' to indicate the epoch used for all time intervals (see
+        // {Supported Clock-Types} in the component documentation).  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless 'highWaterMark > 0'.  Note
         // that if the number of elements in the range '[begin, end)' exceeds
         // 'highWaterMark', the effect will be the same as if the extra
         // elements were added by forced pushes.
 
+    Deque(const Deque<TYPE>& original, bslma::Allocator *basicAllocator = 0);
+        // Create a const having the same value as the specified 'original'
+        // object.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
     ~Deque();
-        // Destroy this queue.
+        // Destroy this container.
 
     // MANIPULATORS
     void forcePushBack(const TYPE& item);
-        // Append the specified 'item' to the back of this queue without regard
-        // for the high-water mark.  Note that this method is provided to allow
-        // high priority items to be inserted when the queue is full (i.e., has
-        // a number of items greater than or equal to its high-water mark);
-        // 'pushFront' and 'pushBack' should be used for general use.
+        // Append the specified 'item' to the back of this container without
+        // regard for the high-water mark.  Note that this method is provided
+        // to allow high priority items to be inserted when the container is
+        // full; 'pushFront' and 'pushBack' should be used for general use.
 
     template <class INPUT_ITER>
     void forcePushBack(INPUT_ITER begin,
                        INPUT_ITER end);
         // Append the specified specified range '[begin, end)' of items to the
-        // back of this queue without regard for the high-water mark.
+        // back of this container without regard for the high-water mark.
 
     void forcePushFront(const TYPE& item);
-        // Append the specified 'item' to the front of this queue without
+        // Append the specified 'item' to the front of this container without
         // regard for the high-water mark.  Note that this method is provided
-        // to allow high priority items to be inserted when the queue is full
-        // (i.e., has a number of items greater than or equal to its high-water
-        // mark); 'pushFront' and 'pushBack' should be used for general use.
+        // to allow high priority items to be inserted when the container is
+        // full; 'pushFront' and 'pushBack' should be used for general use.
 
     template <class INPUT_ITER>
     void forcePushFront(INPUT_ITER begin,
                         INPUT_ITER end);
         // Append the specified specified range '[begin, end)' of items to the
-        // front of this queue without regard for the high-water mark.  Note
-        // that the items will be in the queue in the reverse of the order in
-        // which they occur in the range.
+        // front of this container without regard for the high-water mark.
+        // Note that pushed the items will be in the container in the reverse
+        // of the order in which they occur in the range.
 
     TYPE popBack();
-        // Return the last item in this container and remove it.  If this queue
-        // is empty, block until an item is available.
+        // Return the last item in this container and remove it.  If this
+        // container is empty, block until an item is available.
 
     void popBack(TYPE *item);
-        // Remove the last item in this queue and load that item into the
-        // specified '*item'.  If this queue is empty, block until an item is
-        // available.
+        // Remove the last item in this container and load that item into the
+        // specified '*item'.  If this container is empty, block until an item
+        // is available.
 
     TYPE popFront();
         // Return the first item in this container and remove it.  If this
-        // queue is empty, block until an item is available.
+        // container is empty, block until an item is available.
 
     void popFront(TYPE *item);
-        // Remove the first item in this queue and load that item into the
-        // specified '*item'.  If the queue is empty, block until an item is
-        // available.
+        // Remove the first item in this container and load that item into the
+        // specified '*item'.  If the container is empty, block until an item
+        // is available.
 
     void pushBack(const TYPE& item);
-        // Append the specified 'item' to the back of this queue.  If the
-        // number of items in this queue is greater than or equal to the
-        // high-water mark, then block until the number of items in this queue
-        // is less than the high-water mark.
+        // Block until space in this container becomes available (see
+        // 'high-water mark' section above), then append the specified 'item'
+        // to the back of this container.
 
     void pushFront(const TYPE& item);
-        // Append the specified 'item' to the front of this queue.  If the
-        // number of items in this queue is greater than or equal to the
-        // high-water mark, then block until the number of items in this queue
-        // is less than the high-water mark.
+        // Block until space in this container becomes available (see
+        // 'high-water mark' section above), then append the specified 'item'
+        // to the front of this container.
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
@@ -652,9 +722,9 @@ class Deque {
         // removed items are appended to it.
 
     int timedPopBack(TYPE *item, const bsls::TimeInterval& timeout);
-        // Remove the last item in this queue and load that item value into the
-        // specified '*item'.  If this queue is empty, block until an item is
-        // available or until the specified 'timeout' (expressed as the
+        // Remove the last item in this container and load that item value into
+        // the specified '*item'.  If this container is empty, block until an
+        // item is available or until the specified 'timeout' (expressed as the
         // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.  Return
         // 0 on success, and a non-zero value if the call timed out before an
         // item was available.  Note that this method can block indefinitely if
@@ -663,46 +733,44 @@ class Deque {
         // 'timeout'.
 
     int timedPopFront(TYPE *item, const bsls::TimeInterval& timeout);
-        // Remove the first item in this queue and load that item value into
-        // the specified '*item'.  If this queue is empty, block until an item
-        // is available or until the specified 'timeout' (expressed as the
-        // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.  Return
-        // 0 on success, and a non-zero value if the call timed out before an
-        // item was available.  Note that this method can block indefinitely if
-        // another thread has the mutex locked, particularly by a proctor
-        // object -- there is no guarantee that this method will return after
-        // 'timeout'.
+        // Remove the first item in this container and load that item value
+        // into the specified '*item'.  If this container is empty, block until
+        // an item is available or until the specified 'timeout' (expressed as
+        // the !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.
+        // Return 0 on success, and a non-zero value if the call timed out
+        // before an item was available.  Note that this method can block
+        // indefinitely if another thread has the mutex locked, particularly by
+        // a proctor object -- there is no guarantee that this method will
+        // return after 'timeout'.
 
     int timedPushBack(const TYPE& item, const bsls::TimeInterval& timeout);
-        // Append the specified 'item' to the back of this queue.  If the
-        // number of items in this queue is greater than or equal to the
-        // high-water mark, then block until the number of items in this queue
-        // is less than the high-water mark or until the specified 'timeout'
+        // Block until there is space available in this container (see
+        // 'high-water mark' section above) or until the specified 'timeout'
         // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) expires.  Return 0 on success, and a non-zero value if the
-        // call timed out before the number of items in this queue fell below
-        // the high-water mark.  Note that this method can block indefinitely
-        // if another thread has the mutex locked, particularly by a proctor
-        // object -- there is no guarantee that this method will return after
-        // 'timeout'.
+        // 1970) expires.  If space becomes available, push the specified
+        // 'item' to the back of the container, otherwise leave the container
+        // unchanged.  Return 0 if the container was updated, and a non-zero
+        // value if the call timed out before space became available.  Note
+        // that this method can block indefinitely if another thread has the
+        // mutex locked, particularly by a proctor object -- there is no
+        // guarantee that this method will return after 'timeout'.
 
     int timedPushFront(const TYPE& item,  const bsls::TimeInterval& timeout);
-        // Append the specified 'item' to the front of this queue.  If the
-        // number of items in this queue is greater than or equal to the
-        // high-water mark, then block until the number of items in this queue
-        // is less than the high-water mark or until the specified 'timeout'
+        // Block until there is space available in this container (see
+        // 'high-water mark' section above) or until the specified 'timeout'
         // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) expires.  Return 0 on success, and a non-zero value if the
-        // call timed out before the number of items in this queue fell below
-        // the high-water mark.  Note that this method can block indefinitely
-        // if another thread has the mutex locked, particularly by a proctor
-        // object -- there is no guarantee that this method will return after
-        // 'timeout'.
+        // 1970) expires.  If space becomes available, push the specified
+        // 'item' to the front of the container, otherwise leave the container
+        // unchanged.  Return 0 if the container was updated, and a non-zero
+        // value if the call timed out before space became available.  Note
+        // that this method can block indefinitely if another thread has the
+        // mutex locked, particularly by a proctor object -- there is no
+        // guarantee that this method will return after 'timeout'.
 
     int tryPopBack(TYPE *item);
-        // If this queue is non-empty, remove the last item, load that item
+        // If this container is non-empty, remove the last item, load that item
         // into the specified '*item', and return 0 indicating success.  If
-        // this queue is empty, return a non-zero value with no effect on
+        // this container is empty, return a non-zero value with no effect on
         // 'item' or the state of this container.
 
     void tryPopBack(size_type maxNumItems, bsl::vector<TYPE> *buffer = 0);
@@ -720,10 +788,10 @@ class Deque {
         // vector 'v', use 'd.removeAll(&v);'.
 
     int tryPopFront(TYPE *item);
-        // If this queue is non-empty, remove the first item, load that item
-        // into the specified '*item', and return 0 indicating success.  If
-        // this queue is empty, return a non-zero value with no effect on
-        // '*item' or the state of this queue.
+        // If this container is non-empty, remove the first item, load that
+        // item into the specified '*item', and return 0 indicating success.
+        // If this container is empty, return a non-zero value with no effect
+        // on '*item' or the state of this container.
 
     void tryPopFront(size_type maxNumItems, bsl::vector<TYPE> *buffer = 0);
         // Remove up to the specified 'maxNumItems' from the front of this
@@ -739,28 +807,34 @@ class Deque {
         // vector 'v', use 'd.removeAll(&v);'.
 
     int tryPushBack(const TYPE& item);
-        // If the queue is not full, append the specified 'item' to the back of
-        // the queue, otherwise leave the queue unchanged.  Return 0 if the
-        // queue was updated and a non-zero value otherwise.
+        // If the container is not full (see 'high-water mark' section above),
+        // append the specified 'item' to the back of the container, otherwise
+        // leave the container unchanged.  Return 0 if the container was
+        // updated and a non-zero value otherwise.
 
     template <class INPUT_ITER>
     size_type tryPushBack(INPUT_ITER begin,
                           INPUT_ITER end);
         // Push as many of the items in the specified range '[begin, end)' as
-        // possible to the back of the container, stopping if the high water
+        // there is space available for (see 'high-water mark' section above)
+        // to the back of the container, stopping if the container high-water
         // mark is reached.  Return the number of items pushed.
 
     int tryPushFront(const TYPE& item);
-        // If the queue is not full, append the specified 'item' to the front
-        // of the queue, otherwise leave the queue unchanged.  Return 0 if the
-        // queue was updated and a non-zero value otherwise.
+        // If the container is not full (see 'high-water mark' section above),
+        // append the specified 'item' to the front of the container, otherwise
+        // leave the container unchanged.  Return 0 if the container was
+        // updated and a non-zero value otherwise.
 
     template <class INPUT_ITER>
     size_type tryPushFront(INPUT_ITER begin,
                            INPUT_ITER end);
         // Push as many of the items in the specified range '[begin, end)' as
-        // possible to the back of the container, stopping if the high water
-        // mark is reached.  Return the number of items pushed.
+        // there is space available for (see 'high-water mark' section above)
+        // to the front of the container, stopping if the container high-water
+        // mark is reached.  Return the number of items pushed.  Note that the
+        // pushed items will be in the container in the reverse of the order in
+        // which they occur in the range.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -771,7 +845,7 @@ class Deque {
         // this object.
 
     size_type highWaterMark() const;
-        // Return the high-water mark value for this queue.
+        // Return the high-water mark value for this container.
 
     size_type length() const;
         // Return the number of elements contained in this container.  Note
@@ -1102,6 +1176,111 @@ bool Deque<TYPE>::ConstProctor::isNull() const
     return 0 == d_container_p;
 }
 
+                            // ------------------------
+                            // bdlcc::Deque::ThrowGuard
+                            // ------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+Deque<TYPE>::ThrowGuard::ThrowGuard(
+                                  typename Deque<TYPE>::MonoDeque *monoDeque_p)
+: d_monoDeque_p(monoDeque_p)
+, d_mdBegin(   monoDeque_p->cbegin())
+, d_mdEnd(     monoDeque_p->cend())
+, d_mdWasEmpty(monoDeque_p->empty())
+, d_vector_p(0)
+, d_vSize()
+{
+    BSLS_ASSERT(0 != monoDeque_p);
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::ThrowGuard::ThrowGuard(bsl::vector<TYPE> *vector_p)
+: d_monoDeque_p(0)
+, d_mdBegin()
+, d_mdEnd()
+, d_mdWasEmpty()
+, d_vector_p(vector_p)
+, d_vSize(vector_p ? vector_p->size() : 0)
+{
+}
+
+template <class TYPE>
+inline
+Deque<TYPE>::ThrowGuard::~ThrowGuard()
+{
+    if (d_monoDeque_p)  {
+        BSLS_ASSERT(0 == d_vector_p);
+
+        if (d_mdWasEmpty) {
+            // In the case where the mono deque started out empty, pushing to
+            // it can invalidate the iterators that were copied to 'd_mdBegin'
+            // and 'd_mdEnd' when it was empty, so comparisons between
+            // 'newBegin' & 'newEnd' and the old iterators will yield undefined
+            // results.  So we kept a separate boolean, 'd_mdWasEmpty', to
+            // track that case, which we handle specially here.
+
+            d_monoDeque_p->clear();
+
+            return;                                                   // RETURN
+        }
+
+        const MDCIter newBegin = d_monoDeque_p->cbegin();
+        const MDCIter newEnd   = d_monoDeque_p->cend();
+
+        // While range-based 'erase' of 'bsl::deque' does not always provide
+        // the no-throw guarantee, all the erasing here is done at the ends of
+        // the 'bsl::deque', so no items have to be copied around, so no
+        // throwing should occur.
+
+        // The 'MonoDeque' may have been pushed to, but only on one of the
+        // ends.  It should never have been deleted from.
+
+        if (newBegin < d_mdBegin) {
+            BSLS_ASSERT(d_mdEnd == newEnd);
+
+            d_monoDeque_p->erase(newBegin, d_mdBegin);
+        }
+        else {
+            BSLS_ASSERT(newBegin == d_mdBegin);
+
+            if (d_mdEnd < newEnd) {
+                d_monoDeque_p->erase(d_mdEnd, newEnd);
+            }
+            else {
+                BSLS_ASSERT(d_mdEnd == newEnd);
+            }
+        }
+    }
+    else if (d_vector_p) {
+        const VSize newSize = d_vector_p->size();
+
+        // While 'vector::resize' does not always provide the no-throw
+        // guarantee, here we are always shrinking the vector, so it should not
+        // throw.
+
+        // The vector may have grown, it should never have been shrunk.
+
+        if (d_vSize < newSize) {
+            d_vector_p->resize(d_vSize);
+        }
+        else {
+            BSLS_ASSERT(d_vSize == newSize);
+        }
+    }
+}
+
+// MANIPULATOR
+template <class TYPE>
+inline
+void Deque<TYPE>::ThrowGuard::release()
+{
+    d_monoDeque_p = 0;
+    d_vector_p    = 0;
+}
+
                                   // ------------
                                   // bdlcc::Deque
                                   // ------------
@@ -1237,6 +1416,22 @@ Deque<TYPE>::Deque(INPUT_ITER                   begin,
 
 template <class TYPE>
 inline
+Deque<TYPE>::Deque(const Deque<TYPE>&  original,
+                   bslma::Allocator   *basicAllocator)
+: d_mutex()
+, d_notEmptyCondition()
+, d_notFullCondition()
+, d_monoDeque(basicAllocator)
+, d_highWaterMark(maxSizeT())
+, d_clockType(original.d_clockType)
+{
+    ConstProctor proctor(&original);
+
+    d_monoDeque.insert(d_monoDeque.end(), proctor->begin(), proctor->end());
+}
+
+template <class TYPE>
+inline
 Deque<TYPE>::~Deque()
 {
 }
@@ -1261,6 +1456,8 @@ void Deque<TYPE>::forcePushBack(INPUT_ITER begin,
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
+    ThrowGuard tg(&d_monoDeque);
+
     const size_type initialSize = d_monoDeque.size();
     d_monoDeque.insert(d_monoDeque.end(), begin, end);
     size_type growth = d_monoDeque.size() - initialSize;
@@ -1268,6 +1465,8 @@ void Deque<TYPE>::forcePushBack(INPUT_ITER begin,
     for (; growth > 0; --growth) {
         d_notEmptyCondition.signal();
     }
+
+    tg.release();
 }
 
 template <class TYPE>
@@ -1289,10 +1488,19 @@ void Deque<TYPE>::forcePushFront(INPUT_ITER begin,
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
+    ThrowGuard tg(&d_monoDeque);
+
+    const size_type initialSize = d_monoDeque.size();
     for (; end != begin; ++begin) {
         d_monoDeque.push_front(*begin);
+    }
+    size_type growth = d_monoDeque.size() - initialSize;
+
+    for (; growth > 0; --growth) {
         d_notEmptyCondition.signal();
     }
+
+    tg.release();
 }
 
 template <class TYPE>
@@ -1395,12 +1603,16 @@ void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
     Proctor proctor(this);
 
+    ThrowGuard tg(buffer);
+
     if (buffer) {
         buffer->reserve(buffer->size() + d_monoDeque.size());
         buffer->insert(buffer->end(), d_monoDeque.begin(), d_monoDeque.end());
     }
 
     proctor->clear();
+
+    tg.release();
 }
 
 template <class TYPE>
@@ -1504,6 +1716,7 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                              bsl::vector<TYPE>               *buffer)
 {
     Proctor proctor(this);
+    ThrowGuard tg(buffer);
 
     // First, calculate 'toMove', which drives how the rest of the function
     // behaves.
@@ -1517,6 +1730,8 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                        d_monoDeque.rbegin() + toMove);
     }
     d_monoDeque.erase(d_monoDeque.end() - toMove, d_monoDeque.end());
+
+    tg.release();
 
     // Signalling will happen automatically when proctor is destroyed.
 }
@@ -1546,6 +1761,7 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
     typedef typename MonoDeque::iterator Iterator;
 
     Proctor proctor(this);
+    ThrowGuard tg(buffer);
 
     // First, calculate 'toMove', which drives how the rest of the function
     // behaves.
@@ -1559,6 +1775,8 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
         buffer->insert(buffer->end(), beginRange, endRange);
     }
     proctor->erase(beginRange, endRange);
+
+    tg.release();
 
     // Signalling will happen automatically when proctor is destroyed.
 }
@@ -1587,15 +1805,23 @@ Deque<TYPE>::tryPushBack(INPUT_ITER begin,
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
+    ThrowGuard tg(&d_monoDeque);
+
     const size_type startLength = d_monoDeque.size();
     size_type       length = startLength;
 
     for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
         d_monoDeque.push_back(*begin);
+    }
+
+    tg.release();
+
+    const size_type growth = length - startLength;
+    for (size_type ii = 0; ii < growth; ++ii) {
         d_notEmptyCondition.signal();
     }
 
-    return length - startLength;
+    return growth;
 }
 
 template <class TYPE>
@@ -1622,15 +1848,23 @@ Deque<TYPE>::tryPushFront(INPUT_ITER begin,
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
+    ThrowGuard tg(&d_monoDeque);
+
     const size_type startLength = d_monoDeque.size();
     size_type       length = startLength;
 
     for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
         d_monoDeque.push_front(*begin);
+    }
+
+    tg.release();
+
+    const size_type growth = length - startLength;
+    for (size_type ii = 0; ii < growth; ++ii) {
         d_notEmptyCondition.signal();
     }
 
-    return length - startLength;
+    return growth;
 }
 
 // ACCESSORS
