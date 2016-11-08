@@ -884,7 +884,6 @@ int DecimalUtil::decompose(int          *sign,
         k_SIGN_MASK             = 0x80000000ul,
         k_SPECIAL_ENCODING_MASK = 0x60000000ul,
         k_INFINITY_MASK         = 0x78000000ul,
-        k_NAN_MASK              = 0x7c000000ul,
         k_SMALL_COEFF_MASK      = 0x001ffffful,
         k_LARGE_COEFF_MASK      = 0x007ffffful,
         k_LARGE_COEFF_HIGH_BIT  = 0x00800000ul,
@@ -943,7 +942,6 @@ int DecimalUtil::decompose(int                 *sign,
     const bsls::Types::Uint64 k_SIGN_MASK             = 0x8000000000000000ull;
     const bsls::Types::Uint64 k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull;
     const bsls::Types::Uint64 k_INFINITY_MASK         = 0x7800000000000000ull;
-    const bsls::Types::Uint64 k_NAN_MASK              = 0x7c00000000000000ull;
     const bsls::Types::Uint64 k_SMALL_COEFF_MASK      = 0x0007ffffffffffffull;
     const bsls::Types::Uint64 k_LARGE_COEFF_MASK      = 0x001fffffffffffffull;
     const bsls::Types::Uint64 k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull;
@@ -996,8 +994,6 @@ int DecimalUtil::decompose(int                 *sign,
 {
     const bsls::Types::Uint64 k_SIGN_MASK             = 0x8000000000000000ull;
     const bsls::Types::Uint64 k_SPECIAL_ENCODING_MASK = 0x6000000000000000ull;
-    const bsls::Types::Uint64 k_INFINITY_MASK         = 0x7800000000000000ull;
-    const bsls::Types::Uint64 k_NAN_MASK              = 0x7c00000000000000ull;
     const bsls::Types::Uint64 k_SMALL_COEFF_MASK      = 0x00007fffffffffffull;
     const bsls::Types::Uint64 k_LARGE_COEFF_MASK      = 0x0001ffffffffffffull;
     const bsls::Types::Uint64 k_LARGE_COEFF_HIGH_BIT  = 0x0020000000000000ull;
