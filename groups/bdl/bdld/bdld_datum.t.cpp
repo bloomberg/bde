@@ -36,6 +36,9 @@
 #include <time.h>
 #if defined(_WIN32)
 #include <Windows.h>
+#ifdef ERROR
+#undef ERROR
+#endif
 #elif defined(__unix__) || defined(__unix) || defined(unix) \
     || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
