@@ -2473,7 +2473,7 @@ int main(int argc, char *argv[])
             rc = mX.readValue(&x);
             ASSERT(0 != rc);    // fails
             ASSERT(12 == x);    // unchanged
-            ASSERT(X.offset() == endPos);    // unchanged
+            ASSERTV(X.offset(), endPos, X.offset() == endPos);    // unchanged
         }
       } break;
       case 1: {
