@@ -159,7 +159,7 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
                                                                 e_PLAT_WIN=0 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 1, e_FORMAT_DLADDR = 0 }
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 1, e_FORMAT_DLADDR = 0 };
     enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
                                                                 e_PLAT_WIN=1 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
