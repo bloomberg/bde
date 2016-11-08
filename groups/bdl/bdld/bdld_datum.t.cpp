@@ -1844,6 +1844,8 @@ int main(int argc, char *argv[])
 
         const bdlt::Date threshold(2020, 1, 1);
 
+        // No allocations
+
         const bdlt::Datetime lowNoAllocThreshold =
                                  threshold + bsl::numeric_limits<short>::min();
         Datum d = Datum::createDatetime(lowNoAllocThreshold, &qa);
@@ -1859,6 +1861,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(d,
                     d.isDatetime() && d.theDatetime() == highNoAllocThreshold);
 
+        // Has allocations
 
         const bdlt::Datetime lowAllocThreshold =
                                lowNoAllocThreshold - bdlt::DatetimeInterval(1);
@@ -1874,6 +1877,27 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
         LOOP_ASSERT(d, d.isDatetime() &&
                     d.theDatetime() == highAllocThreshold);
+        Datum::destroy(d, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+
+        // Has allocations due to non-zero microseconds (high resolution)
+
+        bdlt::Datetime mSec = lowNoAllocThreshold;
+        mSec.setMicrosecond(156);
+
+        d = Datum::createDatetime(mSec, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
+        LOOP_ASSERT(d,
+                    d.isDatetime() && d.theDatetime() == mSec);
+        Datum::destroy(d, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+
+        mSec = highAllocThreshold;
+        mSec.setMicrosecond(156);
+        d = Datum::createDatetime(mSec, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
+        LOOP_ASSERT(d,
+                    d.isDatetime() && d.theDatetime() == mSec);
         Datum::destroy(d, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
 #else
@@ -7530,7 +7554,7 @@ int main(int argc, char *argv[])
         {
             const static bdlt::Datetime DATA[] = {
                 Datetime(),
-                Datetime(1999, 12, 31, 12, 45, 31,  18),
+                Datetime(1999, 12, 31, 12, 45, 31,  18, 317),
                 Datetime(2015,  2,  2,  1,  1,  1,   1),
                 Datetime(2200,  9, 11, 18, 10, 59, 458),
                 Datetime(9999,  9,  9,  9,  9,  9, 999),
@@ -7587,8 +7611,8 @@ int main(int argc, char *argv[])
                 DatetimeInterval(1, 1, 1, 1, 1),
                 DatetimeInterval(-1, -1, -1, -1, -1),
                 DatetimeInterval(1000, 12, 24),
-                DatetimeInterval(100000000, 1, 1, 32, 587),
-                DatetimeInterval(-100000000, 3, 2, 14, 319),
+                DatetimeInterval(100000, 1, 1, 32, 587),
+                DatetimeInterval(-100000, 3, 2, 14, 319),
             };
 
             const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
