@@ -44,6 +44,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
 #endif
@@ -295,6 +299,9 @@ template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 inline
 void ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::unlockRead()
 {
+    BSLS_ASSERT_SAFE(0 < (ATOMIC_OP::getInt64Acquire(&d_state)
+                                                             & k_READER_MASK));
+
     bsls::Types::Int64 state = ATOMIC_OP::addInt64Nv(&d_state, -k_READER_INC);
 
     // If this is the last reader and there is a pending writer who obtained
@@ -311,6 +318,9 @@ template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 inline
 void ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::unlockWrite()
 {
+    BSLS_ASSERT_SAFE(k_WRITER == (ATOMIC_OP::getInt64Acquire(&d_state)
+                                                                  & k_WRITER));
+
     ATOMIC_OP::addInt64AcqRel(&d_state, -k_WRITER);
     d_mutex.unlock();
 }

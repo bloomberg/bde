@@ -6,6 +6,8 @@
 
 #include <bslma_default.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_types.h>
 
@@ -91,10 +93,23 @@ int veryVerbose = 0;
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-///Usage
-///-----
-// There is no usage example for this component since it is not meant for
-// direct client use.
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                   GLOBAL STRUCTS FOR TESTING
@@ -397,6 +412,15 @@ bsls::Types::size_type                      TestImpl::s_scriptAt = 0;
 // ----------------------------------------------------------------------------
 
 typedef bslmt::ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>  Obj;
+
+// ============================================================================
+//                                USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+// There is no usage example for this component since it is not meant for
+// direct client use.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -763,6 +787,11 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_NO_POST[i]);
                 script.push_back(TestImpl::k_GET);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_NO_POST[i] - 1);
             }
@@ -788,6 +817,11 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_POST[i]);
                 script.push_back(TestImpl::k_GET);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_POST[i] - 1);
                 script.push_back(TestImpl::k_POST);
@@ -814,6 +848,11 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_WRITE[i]);
                 script.push_back(TestImpl::k_GET);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_WRITE[i] - 100);
                 script.push_back(TestImpl::k_UNLOCK);
@@ -872,6 +911,11 @@ int main(int argc, char *argv[])
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
                 script.push_back(DATA_INITIAL[i]);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_INITIAL[i] - 100);
                 script.push_back(TestImpl::k_UNLOCK);
@@ -886,6 +930,54 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(0);
+                    script.push_back(100);
+                    script.push_back(TestImpl::k_GET);
+                    script.push_back(TestImpl::k_ADD);
+                    script.push_back(0);
+                    script.push_back(TestImpl::k_UNLOCK);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    ASSERT_SAFE_PASS(obj.unlockWrite());
+                }
+
+                TestImpl::assertScriptComplete();
+            }
+            {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(TestImpl::k_GET);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    ASSERT_SAFE_FAIL(obj.unlockWrite());
+                }
+            }
+        }
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -939,6 +1031,11 @@ int main(int argc, char *argv[])
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
                 script.push_back(DATA_NO_POST[i]);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_NO_POST[i] - 1);
             }
@@ -963,6 +1060,11 @@ int main(int argc, char *argv[])
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
                 script.push_back(DATA_POST[i]);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                script.push_back(TestImpl::k_GET);
+#endif
+
                 script.push_back(TestImpl::k_ADD);
                 script.push_back(DATA_POST[i] - 1);
                 script.push_back(TestImpl::k_POST);
@@ -977,6 +1079,51 @@ int main(int argc, char *argv[])
 
             TestImpl::assertScriptComplete();
         }
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(0);
+                    script.push_back(1);
+                    script.push_back(TestImpl::k_GET);
+                    script.push_back(TestImpl::k_ADD);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    ASSERT_SAFE_PASS(obj.unlockRead());
+                }
+
+                TestImpl::assertScriptComplete();
+            }
+            {
+                bsl::vector<int> script;
+                {
+                    // Produce the script for the method attempt.
+
+                    script.push_back(TestImpl::k_INIT);
+                    script.push_back(TestImpl::k_GET);
+                }
+
+                TestImpl::assignScript(script);
+
+                {
+                    Obj obj;
+                    ASSERT_SAFE_FAIL(obj.unlockRead());
+                }
+            }
+        }
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1397,6 +1544,11 @@ int main(int argc, char *argv[])
                   script.push_back(TestImpl::k_ADD);
                   script.push_back( 11);
                   script.push_back(TestImpl::k_UNLOCK);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                  script.push_back(TestImpl::k_GET);
+#endif
+
                   script.push_back(TestImpl::k_ADD);
                   script.push_back( 10);
               }
@@ -1417,6 +1569,11 @@ int main(int argc, char *argv[])
                   script.push_back(TestImpl::k_CAS);
                   script.push_back(  1);
                   script.push_back(101);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                  script.push_back(TestImpl::k_GET);
+#endif
+
                   script.push_back(TestImpl::k_ADD);
                   script.push_back(100);
                   script.push_back(TestImpl::k_POST);
@@ -1439,6 +1596,11 @@ int main(int argc, char *argv[])
                   script.push_back(TestImpl::k_LOCK);
                   script.push_back(TestImpl::k_ADD);
                   script.push_back(100);
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                  script.push_back(TestImpl::k_GET);
+#endif
+
                   script.push_back(TestImpl::k_ADD);
                   script.push_back(  0);
                   script.push_back(TestImpl::k_UNLOCK);
