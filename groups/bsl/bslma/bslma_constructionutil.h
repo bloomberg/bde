@@ -295,19 +295,19 @@ struct ConstructionUtil {
     template <class TARGET_TYPE, class Arg1>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1);
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument);
 
     template <class TARGET_TYPE, class Arg1, class Args_01>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 
     template <class TARGET_TYPE, class Arg1, class Args_01,
                                              class Args_02>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 
@@ -316,7 +316,7 @@ struct ConstructionUtil {
                                              class Args_03>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
@@ -327,7 +327,7 @@ struct ConstructionUtil {
                                              class Args_04>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -340,7 +340,7 @@ struct ConstructionUtil {
                                              class Args_05>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -355,7 +355,7 @@ struct ConstructionUtil {
                                              class Args_06>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -372,7 +372,7 @@ struct ConstructionUtil {
                                              class Args_07>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -391,7 +391,7 @@ struct ConstructionUtil {
                                              class Args_08>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -412,7 +412,7 @@ struct ConstructionUtil {
                                              class Args_09>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -435,7 +435,7 @@ struct ConstructionUtil {
                                              class Args_10>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -460,7 +460,7 @@ struct ConstructionUtil {
                                              class Args_11>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -487,7 +487,7 @@ struct ConstructionUtil {
                                              class Args_12>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -516,7 +516,7 @@ struct ConstructionUtil {
                                              class Args_13>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -547,7 +547,7 @@ struct ConstructionUtil {
                                              class Args_14>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -580,7 +580,7 @@ struct ConstructionUtil {
                                              class Args_15>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -600,19 +600,19 @@ struct ConstructionUtil {
     template <class TARGET_TYPE, class Arg1>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1);
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument);
 
     template <class TARGET_TYPE, class Arg1, class Args_01>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 
     template <class TARGET_TYPE, class Arg1, class Args_01,
                                              class Args_02>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 
@@ -621,7 +621,7 @@ struct ConstructionUtil {
                                              class Args_03>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
@@ -632,7 +632,7 @@ struct ConstructionUtil {
                                              class Args_04>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -645,7 +645,7 @@ struct ConstructionUtil {
                                              class Args_05>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -660,7 +660,7 @@ struct ConstructionUtil {
                                              class Args_06>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -677,7 +677,7 @@ struct ConstructionUtil {
                                              class Args_07>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -696,7 +696,7 @@ struct ConstructionUtil {
                                              class Args_08>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -717,7 +717,7 @@ struct ConstructionUtil {
                                              class Args_09>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -740,7 +740,7 @@ struct ConstructionUtil {
                                              class Args_10>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -765,7 +765,7 @@ struct ConstructionUtil {
                                              class Args_11>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -792,7 +792,7 @@ struct ConstructionUtil {
                                              class Args_12>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -821,7 +821,7 @@ struct ConstructionUtil {
                                              class Args_13>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -852,7 +852,7 @@ struct ConstructionUtil {
                                              class Args_14>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -885,7 +885,7 @@ struct ConstructionUtil {
                                              class Args_15>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -908,12 +908,12 @@ struct ConstructionUtil {
     template <class TARGET_TYPE, class Arg1, class... Args>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
     template <class TARGET_TYPE, class Arg1, class... Args>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
@@ -947,9 +947,8 @@ struct ConstructionUtil_Imp {
         // that 'TARGET_TYPE' has the traits for which the enumerator equal to
         // 'N' is named.
 
-        e_USES_ALLOCATOR_ARG_T_TRAITS     = 6, // Implies USES_BSLMA_ALLOCATOR
-        e_USES_BSLMA_ALLOCATOR_TRAITS     = 5,
-        e_PAIR_TRAITS                     = 4,
+        e_USES_ALLOCATOR_ARG_T_TRAITS     = 5, // Implies USES_BSLMA_ALLOCATOR
+        e_USES_BSLMA_ALLOCATOR_TRAITS     = 4,
         e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS = 3,
         e_BITWISE_COPYABLE_TRAITS         = 2,
         e_BITWISE_MOVABLE_TRAITS          = 1,
@@ -971,29 +970,12 @@ struct ConstructionUtil_Imp {
                                 TARGET_TYPE *original);
         // TBD: comment this
 
-    // In order to implement 'allocator_traits<A>::construct(m, p)'
-    //                       if 'PAIR_TRAITS'
-    //                       or 'HAS_TRIVIAL_DEFAULT_CTOR_TRAITS'
-
-    template <class TARGET_TYPE>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *);
-        // Create a default-constructed 'pair'-like object of (template
-        // parameter) type 'TARGET_TYPE' at the specified (uninitialized
-        // memory) address.  If 'allocator' is of type 'bslma::Allocator' and
-        // either of the 'first' and 'second' sub-elements of 'TARGET_TYPE'
-        // supports 'bslma'-style allocation, the 'allocator' is passed to the
-        // default constructor when creating the sub-element.  If the
-        // constructor throws, the 'address' is left in an uninitialized state.
-        // Note that the behavior is undefined if 'TARGET_TYPE' directly
-        // supports 'bslma'-style allocators.
-
     template <class TARGET_TYPE>
     static void construct(
              TARGET_TYPE      *address,
              bslma::Allocator *allocator,
              bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
+
     template <class TARGET_TYPE>
     static void construct(
              TARGET_TYPE *address,
@@ -1011,15 +993,16 @@ struct ConstructionUtil_Imp {
 
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE      *address,
-              bslma::Allocator *allocator,
+    construct(TARGET_TYPE        *address,
+              bslma::Allocator   *allocator,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              const TARGET_TYPE& original);
+              const TARGET_TYPE&  original);
+
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE *address,
+    construct(TARGET_TYPE        *address,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              const TARGET_TYPE& original);
+              const TARGET_TYPE&  original);
         // Create an object of a bit-wise copyable (template parameter) type
         // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
         // with the same value as the specified 'original' object.  If the
@@ -1029,15 +1012,16 @@ struct ConstructionUtil_Imp {
 
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE      *address,
-              bslma::Allocator *allocator,
+    construct(TARGET_TYPE                    *address,
+              bslma::Allocator               *allocator,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              bslmf::MovableRef<TARGET_TYPE> original);
+              bslmf::MovableRef<TARGET_TYPE>  original);
+
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE *address,
+    construct(TARGET_TYPE                    *address,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              bslmf::MovableRef<TARGET_TYPE> original);
+              bslmf::MovableRef<TARGET_TYPE>  original);
         // Create an object of a bit-wise copyable (template parameter) type
         // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
         // with the same value as the specified 'original' object.  If the
@@ -1045,104 +1029,6 @@ struct ConstructionUtil_Imp {
         // Note that the behavior is undefined if 'TARGET_TYPE' supports
         // 'bslma'-style allocators.
 
-    // In order to implement 'allocator_traits<A>::construct(m, p, rv)'
-    //                       'allocator_traits<A>::construct(m, p,  v)'
-    //                  if 'PAIR_TRAITS'
-
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    template <class TARGET_TYPE, class Arg1>
-    static void construct(TARGET_TYPE                            *address,
-                          bslma::Allocator                       *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) original);
-#else
-    template <template <class, class> class TARGET_TYPE,
-              template <class, class> class SOURCE_TYPE,
-              class T1,
-              class T2,
-              class U1,
-              class U2>
-    static void construct(TARGET_TYPE<T1, T2> *address,
-                          bslma::Allocator    *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          const SOURCE_TYPE<U1, U2>& original);
-        // Construct an object of 'pair'-like (template parameter) type
-        // 'TARGET_TYPE' at the specified (uninitialized memory) 'address'
-        // with the same value as the specified 'original' object, by invoking
-        // either the move (if 'Arg' is a modifiable rvalue) or copy (if 'Arg'
-        // is an lvalue or non-modifiable rvalue) constructor.  If 'allocator'
-        // is of type 'bslma::Allocator' and any of the 'first' and 'second'
-        // sub-elements of 'TARGET_TYPE' support 'bslma'-style allocators,
-        // the 'allocator' is passed to the (move or copy) constructor when
-        // creating the sub-element.  If the constructor throws, 'address' is
-        // left in an uninitialized state.  Note that the behavior is undefined
-        // if 'TARGET_TYPE' directly supports 'bslma'-style allocators.  Note
-        // that this function is enabled only if the decayed type of the
-        // argument to the constructor is the same as 'TARGET_TYPE'.
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    template <class TARGET_TYPE, class Arg1>
-    static void construct(TARGET_TYPE            *address,
-                          bslma::Allocator       *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          bslmf::MovableRef<Arg1> original);
-#else
-#if defined (BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    template <template <class, class> class TARGET_TYPE,
-              template <class, class> class SOURCE_TYPE,
-              class T1,
-              class T2,
-              class U1,
-              class U2>
-    static void construct(TARGET_TYPE<T1, T2> *address,
-                          bslma::Allocator    *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          SOURCE_TYPE<U1, U2>&& original);
-#else
-    template <template<class, class> class TARGET_TYPE,
-              template<class, class> class SOURCE_TYPE,
-              class T1,
-              class T2,
-              class U1,
-              class U2>
-    static void construct(TARGET_TYPE<T1, T2> *address,
-                          bslma::Allocator    *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          bslmf::MovableRef<SOURCE_TYPE<U1, U2> > original);
-#endif
-#endif
-        // TBD: add comment
-
-    template <class TARGET_TYPE, class Arg1, class Arg2>
-    static void construct(TARGET_TYPE                            *address,
-                          bslma::Allocator                       *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) first,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg2) second);
-        // Construct an object of 'pair'-like (template parameter) type
-        // 'TARGET_TYPE' at the specified (uninitialized memory) 'address'
-        // initialized to the specified 'first' and 'second' sub-elements.
-        // If 'allocator' is of type 'bslma::Allocator' and any of the 'first'
-        // and 'second' sub-elements of 'TARGET_TYPE' support 'bslma'-style
-        // allocators, the 'allocator' is passed to the constructor when
-        // creating the sub-element.  If the constructor throws, 'address' is
-        // left in an uninitialized state.  Note that the behavior is undefined
-        // if 'TARGET_TYPE' directly supports 'bslma'-style allocators.  Note
-        // that this function is enabled only if the decayed type of the
-        // argument to the constructor is the same as 'TARGET_TYPE'.
-
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
-    template <class TARGET_TYPE, class Piecewise, class Tuple1, class Tuple2>
-    static void construct(
-             TARGET_TYPE                                 *address,
-             bslma::Allocator                            *allocator,
-             bsl::integral_constant<int, e_PAIR_TRAITS> *,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Piecewise) piecewise,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Tuple1)    first,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Tuple2)    second);
-        // TBD: comment this
-#endif
 
     // In order to implement
     //             'allocator_traits<A>::construct(m, p    )'
@@ -2497,7 +2383,7 @@ ConstructionUtil::destructiveMove(TARGET_TYPE *address,
 template <class TARGET_TYPE>
 inline
 void
-ConstructionUtil::construct(TARGET_TYPE *address,
+ConstructionUtil::construct(TARGET_TYPE      *address,
                             bslma::Allocator *allocator)
 {
     enum {
@@ -2507,9 +2393,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
                 : bsl::is_trivially_default_constructible<TARGET_TYPE>::value
                     ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-                    : bslmf::IsPair<TARGET_TYPE>::value
-                        ? Imp::e_PAIR_TRAITS
-                        : Imp::e_NIL_TRAITS
+                    : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2543,9 +2427,28 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
                 : bsl::is_trivially_copyable<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
-                    : bslmf::IsPair<TARGET_TYPE>::value
-                        ? Imp::e_PAIR_TRAITS
-                        : Imp::e_NIL_TRAITS
+                    : Imp::e_NIL_TRAITS
+    };
+    Imp::construct(address,
+                   allocator,
+                   (bsl::integral_constant<int, k_VALUE> *)0,
+                   original);
+}
+
+template <class TARGET_TYPE>
+inline
+void ConstructionUtil::construct(TARGET_TYPE      *address,
+                                 bslma::Allocator *allocator,
+                                 TARGET_TYPE&      original)
+{
+    enum {
+        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
+                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
+                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
+                : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                    ? Imp::e_BITWISE_COPYABLE_TRAITS
+                    : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2556,31 +2459,8 @@ void ConstructionUtil::construct(TARGET_TYPE        *address,
 template <class TARGET_TYPE>
 inline
 void ConstructionUtil::construct(TARGET_TYPE        *address,
-                                 bslma::Allocator   *allocator,
-                                 TARGET_TYPE&  original)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bsl::is_trivially_copyable<TARGET_TYPE>::value
-                    ? Imp::e_BITWISE_COPYABLE_TRAITS
-                    : bslmf::IsPair<TARGET_TYPE>::value
-                        ? Imp::e_PAIR_TRAITS
-                        : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE> *)0,
-                   original);
-}
-
-template <class TARGET_TYPE>
-inline
-void ConstructionUtil::construct(TARGET_TYPE       *address,
-                                 void              *,
-                                 const TARGET_TYPE& original)
+                                 void               *,
+                                 const TARGET_TYPE&  original)
 {
     enum {
         k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
@@ -2621,9 +2501,7 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
                 : bsl::is_trivially_copyable<TARGET_TYPE>::value
                     ? Imp::e_BITWISE_COPYABLE_TRAITS
-                    : bslmf::IsPair<TARGET_TYPE>::value
-                        ? Imp::e_PAIR_TRAITS
-                        : Imp::e_NIL_TRAITS
+                    : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2661,9 +2539,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2701,9 +2577,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2724,9 +2598,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2750,9 +2622,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2779,9 +2649,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2811,9 +2679,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2846,9 +2712,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2884,9 +2748,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2925,9 +2787,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -2969,9 +2829,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3016,9 +2874,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3066,9 +2922,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3119,9 +2973,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3175,9 +3027,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3234,9 +3084,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3296,9 +3144,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3361,9 +3207,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -3940,9 +3784,7 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                 ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : bslmf::IsPair<TARGET_TYPE>::value
-                    ? Imp::e_PAIR_TRAITS
-                    : Imp::e_NIL_TRAITS
+                : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
@@ -4003,28 +3845,9 @@ ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
                                 allocator,
                                 bslmf::MovableRefUtil::move(*original));
 #else
-    ConstructionUtil::construct(address,
-                                allocator,
-                                *original);
+    ConstructionUtil::construct(address, allocator, *original);
 #endif
     DestructionUtil::destroy(original);
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *allocator,
-                                bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator);
-    DestructorProctor<typename bsl::remove_cv<
-                                   typename TARGET_TYPE::first_type>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator);
-    proctor.release();
 }
 
 template <class TARGET_TYPE>
@@ -4083,18 +3906,16 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
-        memcpy(address,
-               BSLS_UTIL_ADDRESSOF(original),
-               sizeof original);
+        memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
 }
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
-                                     bslma::Allocator *,
+void ConstructionUtil_Imp::construct(TARGET_TYPE                    *address,
+                                     bslma::Allocator               *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     bslmf::MovableRef<TARGET_TYPE> original)
+                                     bslmf::MovableRef<TARGET_TYPE>  original)
 {
     const TARGET_TYPE& lvalue = original;
     construct(address,
@@ -4104,175 +3925,15 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
+void ConstructionUtil_Imp::construct(TARGET_TYPE                    *address,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     bslmf::MovableRef<TARGET_TYPE> original)
+                                     bslmf::MovableRef<TARGET_TYPE>  original)
 {
     const TARGET_TYPE& lvalue = original;
     construct(address,
               (bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>*)0,
                lvalue);
 }
-
-#if defined(BSLS_PLATFORM_CMP_SUN)
-template <class TARGET_TYPE, class Arg1>
-inline
-void ConstructionUtil_Imp::construct(
-                            TARGET_TYPE                            *address,
-                            bslma::Allocator                       *allocator,
-                            bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) original)
-{
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                original.first);
-    DestructorProctor<typename bsl::remove_cv<
-                                      typename TARGET_TYPE::first_type>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                original.second);
-    proctor.release();
-}
-#else
-template <template <class, class> class TARGET_TYPE,
-          template <class, class> class SOURCE_TYPE,
-          class T1,
-          class T2,
-          class U1,
-          class U2>
-inline
-void ConstructionUtil_Imp::construct(
-                                  TARGET_TYPE<T1, T2> *address,
-                                  bslma::Allocator    *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                                  const SOURCE_TYPE<U1, U2>& original)
-{
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                original.first);
-    DestructorProctor<typename bsl::remove_cv<T1>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                original.second);
-    proctor.release();
-}
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_SUN)
-template <class TARGET_TYPE, class Arg1>
-inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE            *address,
-                               bslma::Allocator       *allocator,
-                               bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                               bslmf::MovableRef<Arg1> original)
-{
-    Arg1& lvalue = original;
-
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(lvalue.first));
-    DestructorProctor<typename bsl::remove_cv<
-                                      typename TARGET_TYPE::first_type>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(lvalue.second));
-    proctor.release();
-}
-#else
-#if defined (BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <template <class, class> class TARGET_TYPE,
-          template <class, class> class SOURCE_TYPE,
-          class T1,
-          class T2,
-          class U1,
-          class U2>
-inline
-void ConstructionUtil_Imp::construct(
-                                  TARGET_TYPE<T1, T2> *address,
-                                  bslma::Allocator    *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                                  SOURCE_TYPE<U1, U2>&& original)
-{
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(original.first));
-    DestructorProctor<typename bsl::remove_cv<T1>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(original.second));
-    proctor.release();
-}
-#else
-template <template <class, class> class TARGET_TYPE,
-          template <class, class> class SOURCE_TYPE,
-          class T1,
-          class T2,
-          class U1,
-          class U2>
-inline
-void ConstructionUtil_Imp::construct(
-                                  TARGET_TYPE<T1, T2> *address,
-                                  bslma::Allocator    *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                              bslmf::MovableRef<SOURCE_TYPE<U1, U2> > original)
-{
-    SOURCE_TYPE<U1, U2>& lvalue = original;
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(lvalue.first));
-    DestructorProctor<typename bsl::remove_cv<T1>::type> proctor(
-                                 unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                bslmf::MovableRefUtil::move(lvalue.second));
-    proctor.release();
-}
-#endif
-#endif
-
-template <class TARGET_TYPE, class Arg1, class Arg2>
-inline
-void ConstructionUtil_Imp::construct(
-                             TARGET_TYPE                            *address,
-                             bslma::Allocator                       *allocator,
-                             bsl::integral_constant<int, e_PAIR_TRAITS> *,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) first,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Arg2) second)
-{
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                allocator,
-                                BSLS_COMPILERFEATURES_FORWARD(Arg1,first));
-    DestructorProctor<typename bsl::remove_cv<
-                                  typename TARGET_TYPE::first_type>::type>
-                         proctor(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ConstructionUtil::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                allocator,
-                                BSLS_COMPILERFEATURES_FORWARD(Arg2,second));
-    proctor.release();
-}
-
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
-template <class TARGET_TYPE, class Piecewise, class Tuple1, class Tuple2>
-inline
-void ConstructionUtil_Imp::construct(
-             TARGET_TYPE                                 *address,
-             bslma::Allocator                            *allocator,
-             bsl::integral_constant<int, e_PAIR_TRAITS> *,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Piecewise) piecewise,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Tuple1)    first,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Tuple2)    second)
-{
-    construct(address, allocator,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *) 0,
-              BSLS_COMPILERFEATURES_FORWARD(Piecewise, piecewise),
-              BSLS_COMPILERFEATURES_FORWARD(Tuple1,    first),
-              BSLS_COMPILERFEATURES_FORWARD(Tuple2,    second));
-}
-#endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
 template <class TARGET_TYPE, class... Args>
