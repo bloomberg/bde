@@ -222,6 +222,25 @@ template <class ATOMIC_OP, class MUTEX, class SEMAPHORE>
 inline
 int ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::tryLockRead()
 {
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64(&d_state);
+
+    // If there are no actual or pending writers, the lock can be obtained by
+    // simply incrementing the reader count.  Since this method must return
+    // "immediately" if the lock is not obtained, only one attempt will be
+    // performed.
+
+    if (0 == (state & (k_WRITER | k_PENDING_WRITER_MASK))) {
+        if (state == ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
+                                                       state,
+                                                       state + k_READER_INC)) {
+            return 0;                                                 // RETURN
+        }
+    }
+
+    // To accomodate the possibility of mutex re-acquisition being important
+    // for the performance characteristics of this lock, the mutex acquisition
+    // must be attempted.
+
     if (0 == d_mutex.tryLock()) {
         ATOMIC_OP::addInt64AcqRel(&d_state, k_READER_INC);
         d_mutex.unlock();
@@ -235,12 +254,17 @@ inline
 int ReaderWriterMutexImpl<ATOMIC_OP, MUTEX, SEMAPHORE>::tryLockWrite()
 {
     // To obtain a write lock, 'd_mutex' must be obtained *and* there must be
-    // no readers (verified in the 'testAndSwapInt64').
+    // no readers.
 
     if (0 == d_mutex.tryLock()) {
-        if (0 == ATOMIC_OP::testAndSwapInt64(&d_state,
-                                             0,
-                                             k_WRITER)) {
+        bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+
+        if (0 == (state & k_READER_MASK)) {
+            // Since the mutex is obtained and there are no readers (and none
+            // can enter while the mutex is held), the lock has been obtained.
+
+            ATOMIC_OP::addInt64AcqRel(&d_state, k_WRITER);
+
             return 0;                                                 // RETURN
         }
         d_mutex.unlock();

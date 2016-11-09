@@ -437,28 +437,31 @@ int main(int argc, char *argv[])
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
 
-        const int DATA_INITIAL[]   = {        1,   2,
-                                        10,  11,  12,
-                                        20,  21,  22,
-                                       100, 101, 102,
-                                       110, 111, 112,
-                                       120, 121, 122 };
+        const int DATA_NO_READER[] = {   0,  10,  20 };
 
-        const bsls::Types::size_type NUM_INITIAL =
-                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+        const int DATA_READER[]    = {   1,   2,   3,
+                                        11,  12,  13,
+                                        21,  22,  23 };
+
+        const bsls::Types::size_type NUM_NO_READER =
+                                sizeof DATA_NO_READER / sizeof *DATA_NO_READER;
+        const bsls::Types::size_type NUM_READER =
+                                      sizeof DATA_READER / sizeof *DATA_READER;
 
         if (verbose) cout << "\nSuccess." << endl;
 
-        {
+        for (bsls::Types::size_type i = 0; i < NUM_NO_READER; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
 
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
+                script.push_back(DATA_NO_READER[i]);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
-                script.push_back(TestImpl::k_CAS);
-                script.push_back(100);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_NO_READER[i] + 100);
             }
 
             TestImpl::assignScript(script);
@@ -474,14 +477,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nFailure on 'tryLock'." << endl;
 
-        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+        {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
 
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
-                script.push_back(DATA_INITIAL[i]);
                 script.push_back(TestImpl::k_TRYLOCK_FAIL);
             }
 
@@ -496,19 +498,18 @@ int main(int argc, char *argv[])
             TestImpl::assertScriptComplete();
         }
 
-        if (verbose) cout << "\nFailure on compare-and-swap." << endl;
+        if (verbose) cout << "\nFailure due to readers." << endl;
 
-        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_READER; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
 
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
-                script.push_back(DATA_INITIAL[i]);
+                script.push_back(DATA_READER[i]);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
-                script.push_back(TestImpl::k_CAS);
-                script.push_back(DATA_INITIAL[i]);
+                script.push_back(TestImpl::k_GET);
                 script.push_back(TestImpl::k_UNLOCK);
             }
 
@@ -550,29 +551,64 @@ int main(int argc, char *argv[])
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
 
-        const int DATA_INITIAL[]   = {   0,   1,   2,
-                                        10,  11,  12,
-                                        20,  21,  22,
-                                       100, 101, 102,
-                                       110, 111, 112,
-                                       120, 121, 122 };
+        const int DATA_CAS[]    = {   0,  1,  2 };
 
-        const bsls::Types::size_type NUM_INITIAL =
-                                    sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
+        const int DATA_NO_CAS[] = {  10,  11,  12,
+                                     20,  21,  22,
+                                    100, 101, 102,
+                                    110, 111, 112,
+                                    120, 121, 122 };
 
-        if (verbose) cout << "\nSuccess." << endl;
+        const bsls::Types::size_type NUM_CAS =
+                                            sizeof DATA_CAS / sizeof *DATA_CAS;
 
-        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+        const bsls::Types::size_type NUM_NO_CAS =
+                                      sizeof DATA_NO_CAS / sizeof *DATA_NO_CAS;
+
+        if (verbose) cout << "\nAttempt CAS, CAS succeeds." << endl;
+
+        for (bsls::Types::size_type i = 0; i < NUM_CAS; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
 
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
-                script.push_back(DATA_INITIAL[i]);
+                script.push_back(DATA_CAS[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(DATA_CAS[i] + 1);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockRead();
+                ASSERT(0 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+
+        if (verbose) cout << "\nAttempt CAS, CAS fails, mutex succeeds."
+                          << endl;
+
+        for (bsls::Types::size_type i = 0; i < NUM_CAS; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_CAS[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(DATA_CAS[i]);
+                script.push_back(DATA_CAS[i] + 1);
+                script.push_back(TestImpl::k_CAS);
                 script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
                 script.push_back(TestImpl::k_ADD);
-                script.push_back(DATA_INITIAL[i] + 1);
+                script.push_back(DATA_CAS[i] + 2);
                 script.push_back(TestImpl::k_UNLOCK);
             }
 
@@ -587,16 +623,74 @@ int main(int argc, char *argv[])
             TestImpl::assertScriptComplete();
         }
 
-        if (verbose) cout << "\nFailure." << endl;
+        if (verbose) cout << "\nAttempt CAS, CAS fails, mutex fails."
+                          << endl;
 
-        for (bsls::Types::size_type i = 0; i < NUM_INITIAL; ++i) {
+        for (bsls::Types::size_type i = 0; i < NUM_CAS; ++i) {
             bsl::vector<int> script;
             {
                 // Produce the script for the method attempt.
 
                 script.push_back(TestImpl::k_INIT);
                 script.push_back(0);
-                script.push_back(DATA_INITIAL[i]);
+                script.push_back(DATA_CAS[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(DATA_CAS[i]);
+                script.push_back(DATA_CAS[i] + 1);
+                script.push_back(TestImpl::k_CAS);
+                script.push_back(TestImpl::k_TRYLOCK_FAIL);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockRead();
+                ASSERT(1 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+
+        if (verbose) cout << "\nDo not attempt CAS, mutex succeeds." << endl;
+
+        for (bsls::Types::size_type i = 0; i < NUM_NO_CAS; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_NO_CAS[i]);
+                script.push_back(TestImpl::k_GET);
+                script.push_back(TestImpl::k_TRYLOCK_SUCCEED);
+                script.push_back(TestImpl::k_ADD);
+                script.push_back(DATA_NO_CAS[i] + 1);
+                script.push_back(TestImpl::k_UNLOCK);
+            }
+
+            TestImpl::assignScript(script);
+
+            {
+                Obj obj;
+                int rv = obj.tryLockRead();
+                ASSERT(0 == rv);
+            }
+
+            TestImpl::assertScriptComplete();
+        }
+
+        if (verbose) cout << "\nDo not attempt CAS, mutex fails." << endl;
+
+        for (bsls::Types::size_type i = 0; i < NUM_NO_CAS; ++i) {
+            bsl::vector<int> script;
+            {
+                // Produce the script for the method attempt.
+
+                script.push_back(TestImpl::k_INIT);
+                script.push_back(0);
+                script.push_back(DATA_NO_CAS[i]);
+                script.push_back(TestImpl::k_GET);
                 script.push_back(TestImpl::k_TRYLOCK_FAIL);
             }
 
@@ -927,7 +1021,7 @@ int main(int argc, char *argv[])
                                        131, 132, 133 };
 
         const int DATA_NO_READER[] = {  10,  20,  30,
-                                       110, 120, 130};
+                                       110, 120, 130 };
 
         const bsls::Types::size_type NUM_INITIAL =
                                     sizeof DATA_INITIAL / sizeof *DATA_INITIAL;
