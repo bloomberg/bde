@@ -1293,6 +1293,11 @@ void startStopConcurrencyTest()
     // executed while 'stop' is trying to join (and shut down) a dispatcher
     // thread that's busy executing an event, it will start a second dispatcher
     // thread with the result that there can be two dispatcher threads running.
+    //
+    // To expose this issue, block the scheduler's dispatcher thread using
+    // a job that waits on a semaphore, and from another thread, stop it.
+    // At that point, starting it will (in the current implementation)
+    // corrupt the scheduler's state.
 
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(bsls::SystemClockType::e_MONOTONIC, &ta);
@@ -4017,7 +4022,8 @@ int main(int argc, char *argv[])
         //   expected).
         //
         //   Invoke 'startStopConcurrencyTest' (see function-level doc for
-        //   plan)
+        //   plan). This tests for a race condition and doesn't catch it
+        //   every time, so run it a few times.
         //
         //   Restart scheduler after stopping and make sure that the
         //   scheduler is still in good state (this is done by starting
@@ -4095,7 +4101,10 @@ int main(int argc, char *argv[])
             ASSERT(1 == testObj.numExecuted());
         }
 
-        enum { NUM_START_STOP_TESTS = 2 };
+        if (veryVerbose) {
+            cout << "Start/stop concurrency test\n";
+        }
+        enum { NUM_START_STOP_TESTS = 3 };
 
         for (int i = 0; i < NUM_START_STOP_TESTS; ++i) {
             startStopConcurrencyTest();
