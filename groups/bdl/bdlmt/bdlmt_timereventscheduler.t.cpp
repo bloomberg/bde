@@ -1297,7 +1297,8 @@ void startStopConcurrencyTest()
     // To expose this issue, block the scheduler's dispatcher thread using
     // a job that waits on a semaphore, and from another thread, stop it.
     // At that point, starting it will (in the current implementation)
-    // corrupt the scheduler's state.
+    // corrupt the scheduler's state, the most likely manifestation of which
+    // will be that it can no longer be stopped.
 
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(bsls::SystemClockType::e_MONOTONIC, &ta);
@@ -1343,6 +1344,11 @@ void startStopConcurrencyTest()
     x.scheduleEvent(bsls::SystemTime::nowMonotonicClock(),
                     bdlf::BindUtil::bind(&postSema, &jobSema));
 
+    // Depending on just how the thread above are interleaved, the scheduler
+    // may be either stopped or started at this point.  Invoke 'start' again
+    // (harmlessly) to make sure.
+    ASSERT(0 == x.start());
+    
     // Job should have been executed
     rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
