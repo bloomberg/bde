@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
                 const char *sym = stackTrace[i].symbolName().c_str();
 
                 const char *name = stackTrace[i].sourceFileName().c_str();
-                LOOP_ASSERT(i, !e_IS_DWARF || '/' == *name);
+                LOOP2_ASSERT(i, name, !e_IS_DWARF || '/' == *name);
                 LOOP2_ASSERT(i, name, !e_IS_DWARF ||
                                            bdls::FilesystemUtil::exists(name));
 

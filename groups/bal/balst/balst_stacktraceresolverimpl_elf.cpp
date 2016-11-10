@@ -2089,6 +2089,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
           case DW_AT_base_types:                          // DWARF doc 3.1.1.9
           case DW_AT_use_UTF8:                            // DWARF doc 3.1.1.10
           case u::e_DW_AT_main_subprogram:                // DWARF doc 3.1.1.11
+          case DW_AT_entry_pc:                            // not in doc, but
+                                                          // crops up
           case DW_AT_description:
           case DW_AT_segment: {
             rc = d_infoReader.skipForm(form);
@@ -2556,7 +2558,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     u::UintPtr    address = 0, prevAddress = 0;
     unsigned int opIndex = 0;
     int          fileIdx = 0;
-    unsigned int line = 1, prevLine = 1;        // The spec says to begin line
+    int line = 1, prevLine = 1;                 // The spec says to begin line
                                                 // numbers at 0, but they come
                                                 // out right this way.
 
@@ -2580,8 +2582,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
     bool nullPrevStatement = true;
     bool endOfSequence = false;
+    int statementsSinceSetFile = 100;
 
-    while (!d_lineReader.atEndOfSection()) {
+    for (; !d_lineReader.atEndOfSection(); ++statementsSinceSetFile) {
         unsigned char opcode;
         rc = d_lineReader.readValue(&opcode);
         u_ASSERT_BAIL(0 == rc);
@@ -2598,7 +2601,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             const int          lineAdvance = lineBase + opAdjust % lineRange;
 
             u_TRACES && u_zprintf("%s special opcode %u, opAdj: %u, opAdv: %u,"
-                                            " addrAdv: %lu, lineAdv: %u\n", rn,
+                                            " addrAdv: %lu, lineAdv: %d\n", rn,
                                                    opcode, opAdjust, opAdvance,
                                             u::l(addressAdvance), lineAdvance);
 
@@ -2607,6 +2610,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             address += addressAdvance;
             opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
             line += lineAdvance;
+
+            u_ASSERT_BAIL(line >= 0);
         }
         else if (0 < opcode) {
             // standard opcode          // DWARF doc 6.2.5.2
@@ -2649,6 +2654,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_TRACES && u_zprintf("%s advanceLnBy: %d\n", rn, lineAdvance);
 
                 line += lineAdvance;
+
+                u_ASSERT_BAIL(line >= 0);
               } break;
               case DW_LNS_set_file: {    // 4
                 rc = d_lineReader.readULEB128(&fileIdx);
@@ -2657,8 +2664,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_ASSERT_BAIL(     fileIdx <
                                            static_cast<int>(fileNames.size()));
 
-                line = prevLine = 1;
                 nullPrevStatement = true;
+                statementsSinceSetFile = 0;
 
                 u_TRACES && u_zprintf("%s set file to %u %s%s\n", rn, fileIdx,
                                          dirPaths[dirIndexes[fileIdx]].c_str(),
@@ -2757,6 +2764,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_ASSERT_BAIL(0 == rc);
                 address += d_adjustment;
                 opIndex = 0;
+		if (statementsSinceSetFile <= 1) {
+                    line = prevLine = 1;
+                }
                 nullPrevStatement = true;
               } break;
               case DW_LNE_define_file: {    // 3

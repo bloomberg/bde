@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[])
             { 0, 1 }, { 1, 1 }, { 10, 1 }, { 0x7f, 1 },
             { 0x80, 2 }, { 0xfff, 2 }, { 0x3fff, 2 },
             { 0x7fff, 3 }, { 0x1fffff, 3 }, { 0x200000, 4 },
-            { 0xfffffff, 4 }, { 0x8000000, 4 }, { 0x3ffffffff, 5 },
+            { 0xfffffff, 4 }, { 0x8000000, 4 }, { 0x3ffffffffULL, 5 },
             { 0x400000000ULL, 5 }, { 0x7ffffffffULL, 5 },
             { 0x800000000ULL, 6 }, { 0xfffffffffULL, 6 },
             { 0x7ffffffffffULL, 7 }
@@ -1626,7 +1626,7 @@ int main(int argc, char *argv[])
             { 0x7fff, 3}, { -0x7fff, 3}, { 0xfffff, 3 }, { -0xfffff, 3 },
             { -0x100000, 3 }, { 0x200000, 4 }, { -0x200001, 4 },
             { 0x7ffffff, 4 }, { -0x7ffffff, 4 }, { -0x8000000, 4 },
-            { 0x8000000, 5 }, { 0x3ffffffff, 5 }, { -0x3ffffffff, 5 },
+            { 0x8000000, 5 }, { 0x3ffffffffLL, 5 }, { -0x3ffffffffLL, 5 },
             { -0x400000000LL, 5 }, { 0x400000000LL, 6 }, { -0x400000001LL, 6 }
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };

@@ -130,9 +130,12 @@ struct ObjectFileFormat {
     typedef Elf Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
+# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
+    && BSLS_PLATFORM_CMP_VERSION != 40802
     // DWARF support on clang is problematic and not currrently implemented,
-    // see comment in balst_stacktraceresolverimpl_elf.cpp.
+    // see comment in balst_stacktraceresolverimpl_elf.cpp. g++ 4.8.2 is using
+    // some user-extended 'DW_LNE_*' opcode that is not defined in 'dwarf.h'
+    // and that we don't know how to interpret.
 
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
         // DWARF is not a complete object file format, it is a format for
