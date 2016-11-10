@@ -17,6 +17,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent RW mutex class.
 //
+//@DEPRECATED: Use 'bslmt_readerwritermutex' instead.
+//
 //@CLASSES:
 //   bslmt::RWMutex: platform-independent wrapper of an RW mutex
 //
@@ -121,9 +123,8 @@ class RWMutex {
     // ("RW mutex").  Multiple readers can safely hold the lock simultaneously,
     // whereas only one writer is allowed to hold the lock at a time.  This
     // class uses the most efficient RW mutex implementation available for the
-    // current platform that provides a "writer bias."  A "writer bias" is a
-    // guarantee that writers will not be starved by having reader threads
-    // continuously acquiring the shared lock.
+    // current platform.  Note that the implementation may allow readers to
+    // starve writers.
 
     // DATA
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLMT_PLATFORM_WIN32_THREADS)
