@@ -655,10 +655,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISREFERENCE
-#include <bslmf_isreference.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
 #endif
@@ -1260,7 +1256,11 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // 'SOURCE_TYPE' must be convertible to 'TYPE'.
 
     template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    void assignImp(TYPE&&                  value);
+#else
     void assignImp(bslmf::MovableRef<TYPE> value);
+#endif
         // Assign to this variant the specified 'value' of template parameter
         // 'TYPE'.  The contents of 'value' are moved to this object with
         // 'value' left in a valid but unspecified state.  'TYPE' must be the
@@ -1455,9 +1455,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
               !bsl::is_same<VariantImp<TYPES>,
-                            typename bsl::remove_reference<TYPE>::type>::value
-              &&
-              !bsl::is_reference<TYPE>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value,
               VariantImp<TYPES> >::type&
     operator=(TYPE&&                              value);
 #else
@@ -9233,18 +9231,33 @@ void VariantImp<TYPES>::assignImp(const SOURCE_TYPE& value)
 
 template <class TYPES>
 template <class TYPE>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+void VariantImp<TYPES>::assignImp(TYPE&&                  value)
+#else
 void VariantImp<TYPES>::assignImp(bslmf::MovableRef<TYPE> value)
+#endif
 {
-    typedef bsls::ObjectBuffer<TYPE> BufferType;
-
-    TYPE& lvalue = value;
+    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
+                                                                    BufferType;
 
     reset();
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    bslma::ConstructionUtil::construct(
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
     bslma::ConstructionUtil::construct(
                      reinterpret_cast<BufferType *>(&this->d_value)->address(),
                      this->getAllocator(),
                      bslmf::MovableRefUtil::move(lvalue));
-    this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+#endif
+
+    this->d_type =
+          Variant_TypeIndex<TYPES,
+                            typename bsl::remove_reference<TYPE>::type>::value;
 }
 
 template <class TYPES>
@@ -9882,9 +9895,7 @@ inline
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 typename bsl::enable_if<
               !bsl::is_same<VariantImp<TYPES>,
-                            typename bsl::remove_reference<TYPE>::type>::value
-              &&
-              !bsl::is_reference<TYPE>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value,
               VariantImp<TYPES> >::type&
 VariantImp<TYPES>::operator=(TYPE&&                  value)
 #else
@@ -9892,9 +9903,13 @@ VariantImp<TYPES>&
 VariantImp<TYPES>::operator=(bslmf::MovableRef<TYPE> value)
 #endif
 {
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    return assign(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
     TYPE& lvalue = value;
 
     return assign(MoveUtil::move(lvalue));
+#endif
 }
 
 template <class TYPES>
@@ -10048,8 +10063,20 @@ VariantImp<TYPES>& VariantImp<TYPES>::assign(TYPE&&                  value)
 VariantImp<TYPES>& VariantImp<TYPES>::assign(bslmf::MovableRef<TYPE> value)
 #endif
 {
-    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
+                                                                    BufferType;
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    if (Variant_TypeIndex<TYPES,
+                          typename bsl::remove_reference<TYPE>::type>::value
+                                                             == this->d_type) {
+        reinterpret_cast<BufferType *>(&this->d_value)->object() =
+                                    BSLS_COMPILERFEATURES_FORWARD(TYPE, value);
+    }
+    else {
+        assignImp<TYPE>(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+    }
+#else
     TYPE& lvalue = value;
 
     if (Variant_TypeIndex<TYPES, TYPE>::value == this->d_type) {
@@ -10059,6 +10086,7 @@ VariantImp<TYPES>& VariantImp<TYPES>::assign(bslmf::MovableRef<TYPE> value)
     else {
         assignImp<TYPE>(MoveUtil::move(lvalue));
     }
+#endif
 
     return *this;
 }
