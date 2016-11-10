@@ -1381,11 +1381,11 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit VariantImp(TYPE&&                  value,
                         typename bsl::enable_if<
-                               !bsl::is_convertible<TYPE,
-                                                    bslma::Allocator *>::value
-                                &&
-                               !bsl::is_reference<TYPE>::value,
-                               void>::type * = 0);
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<VariantImp<TYPES>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                                                            void>::type * = 0);
 #else
     explicit VariantImp(bslmf::MovableRef<TYPE> value);
 #endif
@@ -1400,7 +1400,8 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
-                   !bsl::is_reference<TYPE>::value,
+              !bsl::is_same<VariantImp<TYPES>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
                bslma::Allocator>::type *basicAllocator);
 #else
     VariantImp(bslmf::MovableRef<TYPE>  value,
@@ -9754,47 +9755,68 @@ template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 VariantImp<TYPES>::VariantImp(TYPE&&                  value,
                               typename bsl::enable_if<
-                               !bsl::is_convertible<TYPE,
-                                                    bslma::Allocator *>::value
-                                &&
-                               !bsl::is_reference<TYPE>::value,
-                               void>::type *)
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<VariantImp<TYPES>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                                                                 void>::type *)
 #else
 VariantImp<TYPES>::VariantImp(bslmf::MovableRef<TYPE> value)
 #endif
-: Base(Variant_TypeIndex<TYPES, TYPE>::value, 0)
+: Base(Variant_TypeIndex<TYPES,
+                         typename bsl::remove_reference<TYPE>::type>::value,
+       0)
 {
-    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
+                                                                    BufferType;
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    bslma::ConstructionUtil::construct(
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
     TYPE& lvalue = value;
 
     bslma::ConstructionUtil::construct(
                      reinterpret_cast<BufferType *>(&this->d_value)->address(),
                      this->getAllocator(),
                      bslmf::MovableRefUtil::move(lvalue));
+#endif
 }
 
 template <class TYPES>
 template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 VariantImp<TYPES>::VariantImp(TYPE&&                   value,
-                              typename bsl::enable_if<
-                                  !bsl::is_reference<TYPE>::value,
+               typename bsl::enable_if<
+              !bsl::is_same<VariantImp<TYPES>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
                               bslma::Allocator>::type *basicAllocator)
 #else
 VariantImp<TYPES>::VariantImp(bslmf::MovableRef<TYPE>  value,
                               bslma::Allocator        *basicAllocator)
 #endif
-: Base(Variant_TypeIndex<TYPES, TYPE>::value, basicAllocator)
+: Base(Variant_TypeIndex<TYPES,
+                         typename bsl::remove_reference<TYPE>::type>::value,
+       basicAllocator)
 {
-    typedef bsls::ObjectBuffer<TYPE> BufferType;
+    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
+                                                                    BufferType;
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    bslma::ConstructionUtil::construct(
+                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
+                     this->getAllocator(),
+                     BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
     TYPE& lvalue = value;
 
     bslma::ConstructionUtil::construct(
                      reinterpret_cast<BufferType *>(&this->d_value)->address(),
                      this->getAllocator(),
                      bslmf::MovableRefUtil::move(lvalue));
+#endif
 }
 
 template <class TYPES>
