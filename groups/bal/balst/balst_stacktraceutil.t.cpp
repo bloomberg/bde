@@ -191,10 +191,16 @@ typedef balst::StackTraceUtil           Util;
 # error unknown object file format
 #endif
 
-#ifdef BDE_BUILD_TARGET_DBG
+#if defined(BDE_BUILD_TARGET_DBG) && defined(BDE_BUILD_TARGET_OPT)
     enum { DEBUG_ON = 1 };
 #else
     enum { DEBUG_ON = 0 };
+#endif
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    enum { OPT_ON = 1 };
+#else
+    enum { OPT_ON = 0 };
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -1889,10 +1895,12 @@ int main(int argc, char *argv[])
                     // on the return address on the stack, which is the
                     // statement after the call.
 
+                    const int fudge = OPT_ON ? 10 : 0;
+
                     LOOP3_ASSERT(i, lineNumber, lnsCall[i],
-                                                     lineNumber >= lnsCall[i]);
+                                             lineNumber >= lnsCall[i] - fudge);
                     LOOP3_ASSERT(i, lineNumber, lnsRet[i],
-                                                      lineNumber <= lnsRet[i]);
+                                              lineNumber <= lnsRet[i] + fudge);
                 }
                 else {
                     LOOP3_ASSERT(i, lineNumber, lnsCall[i],

@@ -2764,7 +2764,11 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_ASSERT_BAIL(0 == rc);
                 address += d_adjustment;
                 opIndex = 0;
-		if (statementsSinceSetFile <= 1) {
+                if (statementsSinceSetFile <= 1) {
+                    // Apparently, if this statement immediately follows a
+                    // 'set file', we are to reset the line #, otherwise leave
+                    // it alone.
+
                     line = prevLine = 1;
                 }
                 nullPrevStatement = true;

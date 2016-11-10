@@ -215,10 +215,10 @@ int StackTraceResolver_DwarfReader::reload(bsl::size_t numBytes)
 {
     static const char rn[] = { "Reader::reload:" };    (void) rn;
 
+    u_ASSERT_BAIL(static_cast<Offset>(numBytes) <= d_endOffset - offset());
+
     BSLS_ASSERT_SAFE(d_buffer_p);
     u_ASSERT_BAIL_SAFE(numBytes <= k_SCRATCH_BUF_LEN);
-    u_ASSERT_BAIL_SAFE(static_cast<Offset>(numBytes) <=
-                                                       d_endOffset - offset());
     u_ASSERT_BAIL_SAFE(d_readPtr <= d_endPtr);
 
     d_offset += d_readPtr - d_buffer_p;

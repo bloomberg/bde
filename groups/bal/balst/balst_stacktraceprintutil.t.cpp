@@ -182,6 +182,11 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { e_DEBUG_ON = 0 };
 #endif
 
+#if defined(BDE_BUILD_TARGET_OPT)
+    enum { e_OPT_ON = 1 };
+#else
+    enum { e_OPT_ON = 0 };
+#endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
@@ -252,6 +257,15 @@ UintPtr foilOptimizer(const UintPtr u)
     return u2;
 }
 
+template <class FUNC_PTR>
+inline
+FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
+{
+    UintPtr ret = reinterpret_cast<UintPtr>(funcPtr);
+
+    return reinterpret_cast<FUNC_PTR>(foilOptimizer(ret));
+}
+
 //-----------------------------------------------------------------------------
 
 void checkOutput(const bsl::string&               str,
@@ -302,7 +316,7 @@ void top()
     (*testDumpUnion.d_funcPtr)(&dump);
 
     if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
-                                             !e_FORMAT_WINDOWS && e_DEBUG_ON) {
+                                !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
@@ -538,11 +552,11 @@ int highMiddle(int i)
     for (; i < 40; ++i) {
         if (i & 16) {
             i += 5;
-            ASSERT(top() >= 6);
+            ASSERT((*funcFoilOptimizer(&top))() >= 6);
         }
         else if (i & 8) {
             i += 7;
-            ASSERT(top() >= 7);
+            ASSERT((*funcFoilOptimizer(&top))() >= 7);
         }
     }
 
@@ -564,11 +578,11 @@ int lowMiddle()
     for (; i < 30; ++i) {
         if (i & 4) {
             i += 12;
-            ASSERT(highMiddle(10) >= 40);
+            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 40);
         }
         else if ((i & 2) && (i & 16)) {
             i += 5;
-            ASSERT(highMiddle(10) >= 39);
+            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 39);
         }
     }
 
@@ -586,11 +600,11 @@ int bottom()
     for (; i < 20; ++i) {
         if (i & 8) {
             i += 7;
-            ASSERT(lowMiddle() >= 30);
+            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 30);
         }
         if ((i & 2) && (i & 4)) {
             i += 4;
-            ASSERT(lowMiddle() >= 28);
+            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 28);
         }
     }
 
@@ -900,7 +914,7 @@ int main(int argc, char *argv[])
         {
             namespace TC = CASE_2;
 
-            (void) TC::bottom();
+            (void) (*funcFoilOptimizer(&TC::bottom))();
 
             ASSERT(0 == defaultAllocator.numAllocations());
         }

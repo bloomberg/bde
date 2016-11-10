@@ -102,7 +102,8 @@ enum { e_IS_LINUX = 1 };
 #else
 enum { e_IS_LINUX = 0 };
 #endif
-#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF) &&                         \
+                                                 !defined(BDE_BUILD_TARGET_OPT)
 enum { e_IS_DWARF = 1 };
 #else
 enum { e_IS_DWARF = 0 };
