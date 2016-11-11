@@ -638,7 +638,7 @@ int main(int argc, char* argv[])
           Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
           Type MAX   =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-          Type MIN =    DEC(1e-383);
+          Type MIN   =  DEC(1e-383);
 
           static const struct {
               int         d_line;
