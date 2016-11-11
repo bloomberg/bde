@@ -33,6 +33,45 @@ BSLS_IDENT("$Id: $")
 // handler function.  Note that this component is intended to be used only when
 // a more fully-featured logger is not available.
 //
+///Macro Reference
+///---------------
+// This section provides documentation for the macros defined in this component.
+//..
+//  BSLS_LOG(severity, ...)
+//     If the specified 'severity' is at least as severe as
+//     'Log::severityThreshold', write a message having 'severity' to the
+//     currently installed log message handler, which contains a formatted
+//     string that would result from applying the 'printf'-style formatting
+//     rules to the specified '...', using the first parameter as the format
+//     string and any further parameters as the expected substitutions.  If
+//     'severity' is less severe than 'severityThreshold' then this macro has
+//     no effect.  The file name and line number of the point of expansion of
+//     the macro are automatically used as the file name and line number for
+//     the log message.  The behavior is undefined unless the first parameter
+//     of '...' is a valid 'printf'-style format string, and all substitutions
+//     needed by the format string are in the subsequent elements of '...'.
+//
+//  BSLS_LOG_FATAL(...)
+//  BSLS_LOG_ERROR(...)
+//  BSLS_LOG_WARN(...)
+//  BSLS_LOG_INFO(...)
+//  BSLS_LOG_DEBUG(...)
+//  BSLS_LOG_TRACE(...)
+//     Instantiate the 'BSLS_LOG' macro with the severity appropriate for
+//     the macros name.  Note that this is syntactic sugar, to avoid the
+//     complete text "bsls::LogSeverity::e_" being needed each time a message
+//     is logged with 'BSLS_LOG'.
+//
+//  BSLS_LOG_SIMPLE(severity, msg)		
+//     If the specified 'severity' is at least as severe as
+//     'Log::severityThreshold', write a message having 'severity' and the
+//     specified 'msg' to the currently installed log message handler, with the
+//     file name and line number of the point of expansion of the macro
+//     automatically used as the file name and line number of the log.  If
+//     'severity' is less severe than 'severityThreshold' then this macro has
+//     no effect.
+//..
+//
 ///Motivation
 ///----------
 // Using the functionality of this component instead of writing messages
@@ -186,52 +225,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-                         // ==========================
-                         // BSLS_LOG Macro Definitions
-                         // ==========================
-
-
-#define BSLS_LOG(severity, ...)                                               \
-(BloombergLP::bsls::Log::logFormattedMessage((severity),                      \
-                                             __FILE__,                        \
-                                             __LINE__,                        \
-                                             __VA_ARGS__))                    \
-    // If the specified 'severity' is at least as severe as
-    // 'Log::severityThreshold', write a message having 'severity' to the
-    // currently installed log message handler, which contains a formatted
-    // string that would result from applying the 'printf'-style formatting
-    // rules to the specified '...', using the first parameter as the format
-    // string and any further parameters as the expected substitutions.  If
-    // 'severity' is less severe than 'severityThreshold' then this macro has
-    // no effect.  The file name and line number of the point of expansion of
-    // the macro are automatically used as the file name and line number for
-    // the log message.  The behavior is undefined unless the first parameter
-    // of '...' is a valid 'printf'-style format string, and all substitutions
-    // needed by the format string are in the subsequent elements of '...'.
-
-#define BSLS_LOG_FATAL(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_FATAL,\
-                                      __VA_ARGS__)
-#define BSLS_LOG_ERROR(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_ERROR,\
-                                      __VA_ARGS__)
-#define BSLS_LOG_WARN(...)   BSLS_LOG(BloombergLP::bsls::LogSeverity::e_WARN, \
-                                      __VA_ARGS__)
-#define BSLS_LOG_INFO(...)   BSLS_LOG(BloombergLP::bsls::LogSeverity::e_INFO, \
-                                      __VA_ARGS__)
-#define BSLS_LOG_DEBUG(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_DEBUG,\
-                                      __VA_ARGS__)
-#define BSLS_LOG_TRACE(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_TRACE,\
-                                      __VA_ARGS__)
-
-#define BSLS_LOG_SIMPLE(severity, msg)                                        \
-    (BloombergLP::bsls::Log::logMessage((severity), __FILE__, __LINE__, (msg)))
-    // If the specified 'severity' is at least as severe as
-    // 'Log::severityThreshold', write a message having 'severity' and the
-    // specified 'msg' to the currently installed log message handler, with the
-    // file name and line number of the point of expansion of the macro
-    // automatically used as the file name and line number of the log.  If
-    // 'severity' is less severe than 'severityThreshold' then this macro has
-    // no effect.
-
 namespace BloombergLP {
 namespace bsls {
 
@@ -350,6 +343,43 @@ class Log {
         // function prototype, and will write the message irrespective of the
         // current 'severityThreshold'.
 };
+
+}  // close package namespace
+}  // close enterprise namespace
+
+                         // ==========================
+                         // BSLS_LOG Macro Definitions
+                         // ==========================
+
+
+#define BSLS_LOG(severity, ...)                                               \
+  do {                                                                        \
+    if (severity <= BloombergLP::bsls::Log::severityThreshold()) {            \
+      BloombergLP::bsls::Log::logFormattedMessage((severity),		      \
+						  __FILE__,		      \
+                                                  __LINE__,                   \
+                                                  __VA_ARGS__);               \
+    }                                                                         \
+  } while(false)
+
+#define BSLS_LOG_FATAL(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_FATAL,\
+                                      __VA_ARGS__)
+#define BSLS_LOG_ERROR(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_ERROR,\
+                                      __VA_ARGS__)
+#define BSLS_LOG_WARN(...)   BSLS_LOG(BloombergLP::bsls::LogSeverity::e_WARN, \
+                                      __VA_ARGS__)
+#define BSLS_LOG_INFO(...)   BSLS_LOG(BloombergLP::bsls::LogSeverity::e_INFO, \
+                                      __VA_ARGS__)
+#define BSLS_LOG_DEBUG(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_DEBUG,\
+                                      __VA_ARGS__)
+#define BSLS_LOG_TRACE(...)  BSLS_LOG(BloombergLP::bsls::LogSeverity::e_TRACE,\
+                                      __VA_ARGS__)
+
+#define BSLS_LOG_SIMPLE(severity, msg)                                        \
+    (BloombergLP::bsls::Log::logMessage((severity), __FILE__, __LINE__, (msg)))
+
+namespace BloombergLP {
+namespace bsls {
 
 // ============================================================================
 //                          INLINE DEFINITIONS
