@@ -550,11 +550,11 @@ int main(int argc, char* argv[])
 
           typedef bdldfp::Decimal32 Type;
 
-          Type INF_P = bsl::numeric_limits<Type>::infinity();
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
           Type INF_N = -bsl::numeric_limits<Type>::infinity();
-          Type NAN_Q = bsl::numeric_limits<Type>::quiet_NaN();
-          Type MAX   = DEC(9.999999e+96);
-          Type MIN   = DEC(-1e-95);
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type MAX   =  DEC(9.999999e+96);
+          Type MIN   =  DEC(-1e-95);
 
           static const struct {
               int         d_line;
@@ -597,7 +597,7 @@ int main(int argc, char* argv[])
                   ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
 
                   BDEC::Decimal32 INPUT;
-                  const int       rc = Util::parseDecimal32(&INPUT, ACTUAL);
+                  const int rc = Util::parseDecimal32(&INPUT, ACTUAL);
 
                   ASSERTV(LINE, EXPECTED, rc == 0);
                   if (Util::isNan(VALUE)) {
@@ -633,12 +633,12 @@ int main(int argc, char* argv[])
 #define DEC(lit) BDLDFP_DECIMAL_DD(lit)
           typedef bdldfp::Decimal64 Type;
 
-          Type INF_P = bsl::numeric_limits<Type>::infinity();
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
           Type INF_N = -bsl::numeric_limits<Type>::infinity();
-          Type NAN_Q = bsl::numeric_limits<Type>::quiet_NaN();
-          Type MAX   = bdldfp::DecimalImpUtil::parse64(
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type MAX   =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-          Type MIN = DEC(1e-383);
+          Type MIN =    DEC(1e-383);
 
           static const struct {
               int         d_line;
@@ -681,7 +681,7 @@ int main(int argc, char* argv[])
                   ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
 
                   BDEC::Decimal64 INPUT;
-                  const int       rc = Util::parseDecimal64(&INPUT, ACTUAL);
+                  const int rc = Util::parseDecimal64(&INPUT, ACTUAL);
 
                   ASSERTV(LINE, EXPECTED, rc == 0);
                   if (Util::isNan(VALUE)) {
@@ -707,13 +707,13 @@ int main(int argc, char* argv[])
 #define DEC(lit) BDLDFP_DECIMAL_DL(lit)
           typedef bdldfp::Decimal128 Type;
 
-          Type INF_P = bsl::numeric_limits<Type>::infinity();
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
           Type INF_N = -bsl::numeric_limits<Type>::infinity();
-          Type NAN_Q = bsl::numeric_limits<Type>::quiet_NaN();
-          Type NAN_S = bsl::numeric_limits<Type>::signaling_NaN();
-          Type MAX   = bdldfp::DecimalImpUtil::parse128(
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
+          Type MAX   =  bdldfp::DecimalImpUtil::parse128(
                                                      "9.999999999999999e+500");
-          Type MIN   = DEC(-1e-500);
+          Type MIN   =  DEC(-1e-500);
 
           static const struct {
               int         d_line;
@@ -756,7 +756,7 @@ int main(int argc, char* argv[])
                   ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
 
                   BDEC::Decimal128 INPUT;
-                  const int        rc = Util::parseDecimal128(&INPUT, ACTUAL);
+                  const int rc = Util::parseDecimal128(&INPUT, ACTUAL);
 
                   ASSERTV(LINE, EXPECTED, rc == 0);
                   if (Util::isNan(VALUE)) {
