@@ -1,7 +1,10 @@
 // baljsn_decoder.t.cpp                                               -*-C++-*-
 #include <baljsn_decoder.h>
 
+#include <baljsn_decoderoptions.h>
+
 #include <bslim_testutil.h>
+#include <bslim_printer.h>
 
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -40,6 +43,7 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+using namespace baljsn;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
@@ -34889,6 +34893,680 @@ const int& Employee::age() const
 
 }  // close namespace test
 
+namespace test {
+
+                                // ============
+                                // class Colors
+                                // ============
+
+struct Colors {
+
+  public:
+    // TYPES
+    enum Value {
+        BLUE_QUOTE_YELLOW                                               = 0
+      , GREY_BACKSLASH_BLUE                                             = 1
+      , RED_SLASH_GREEN                                                 = 2
+      , RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N = 3
+      , WHITE_TICK_BLACK                                                = 4
+    };
+
+    enum {
+        NUM_ENUMERATORS = 5
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    static bsl::ostream& print(bsl::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+};
+
+// FREE OPERATORS
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, Colors::Value rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDEAT_DECL_ENUMERATION_TRAITS(test::Colors)
+
+
+namespace test {
+
+                               // =============
+                               // class Palette
+                               // =============
+
+class Palette {
+
+    // INSTANCE DATA
+    bsl::vector<Colors::Value>  d_colors;
+    Colors::Value               d_color;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_COLOR  = 0
+      , ATTRIBUTE_ID_COLORS = 1
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 2
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_COLOR  = 0
+      , ATTRIBUTE_INDEX_COLORS = 1
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Palette(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Palette' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Palette(const Palette& original,
+            bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Palette' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    ~Palette();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Palette& operator=(const Palette& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    Colors::Value& color();
+        // Return a reference to the modifiable "Color" attribute of this
+        // object.
+
+    bsl::vector<Colors::Value>& colors();
+        // Return a reference to the modifiable "Colors" attribute of this
+        // object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    Colors::Value color() const;
+        // Return a reference to the non-modifiable "Color" attribute of this
+        // object.
+
+    const bsl::vector<Colors::Value>& colors() const;
+        // Return a reference to the non-modifiable "Colors" attribute of this
+        // object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Palette& lhs, const Palette& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Palette& lhs, const Palette& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Palette& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::Palette)
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace test {
+
+                                // ------------
+                                // class Colors
+                                // ------------
+
+// CLASS METHODS
+inline
+int Colors::fromString(Value *result, const bsl::string& string)
+{
+    return fromString(result, string.c_str(), string.length());
+}
+
+inline
+bsl::ostream& Colors::print(bsl::ostream&      stream,
+                                 Colors::Value value)
+{
+    return stream << toString(value);
+}
+
+
+
+                               // -------------
+                               // class Palette
+                               // -------------
+
+// CLASS METHODS
+template <class MANIPULATOR>
+int Palette::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Palette::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_COLOR: {
+        return manipulator(&d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
+      } break;
+      case ATTRIBUTE_ID_COLORS: {
+        return manipulator(&d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Palette::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+Colors::Value& Palette::color()
+{
+    return d_color;
+}
+
+inline
+bsl::vector<Colors::Value>& Palette::colors()
+{
+    return d_colors;
+}
+
+// ACCESSORS
+template <class ACCESSOR>
+int Palette::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Palette::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_COLOR: {
+        return accessor(d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
+      } break;
+      case ATTRIBUTE_ID_COLORS: {
+        return accessor(d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Palette::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+Colors::Value Palette::color() const
+{
+    return d_color;
+}
+
+inline
+const bsl::vector<Colors::Value>& Palette::colors() const
+{
+    return d_colors;
+}
+
+}  // close package namespace
+
+// FREE FUNCTIONS
+
+inline
+bsl::ostream& test::operator<<(
+        bsl::ostream& stream,
+        test::Colors::Value rhs)
+{
+    return test::Colors::print(stream, rhs);
+}
+
+
+inline
+bool test::operator==(
+        const test::Palette& lhs,
+        const test::Palette& rhs)
+{
+    return  lhs.color() == rhs.color()
+         && lhs.colors() == rhs.colors();
+}
+
+inline
+bool test::operator!=(
+        const test::Palette& lhs,
+        const test::Palette& rhs)
+{
+    return  lhs.color() != rhs.color()
+         || lhs.colors() != rhs.colors();
+}
+
+inline
+bsl::ostream& test::operator<<(
+        bsl::ostream& stream,
+        const test::Palette& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+namespace test {
+
+                                // ------------
+                                // class Colors
+                                // ------------
+
+// CONSTANTS
+
+const char Colors::CLASS_NAME[] = "Colors";
+
+const bdeat_EnumeratorInfo Colors::ENUMERATOR_INFO_ARRAY[] = {
+    {
+        Colors::BLUE_QUOTE_YELLOW,
+        "BLUE\"YELLOW",
+        sizeof("BLUE\"YELLOW") - 1,
+        ""
+    },
+    {
+        Colors::GREY_BACKSLASH_BLUE,
+        "GREY\\BLUE",
+        sizeof("GREY\\BLUE") - 1,
+        ""
+    },
+    {
+        Colors::RED_SLASH_GREEN,
+        "RED/GREEN",
+        sizeof("RED/GREEN") - 1,
+        ""
+    },
+    {
+        Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N,
+        "RED\b\r\t\f\n",
+        sizeof("RED\b\r\t\f\n") - 1,
+        ""
+    },
+    {
+        Colors::WHITE_TICK_BLACK,
+        "WHITE'BLACK",
+        sizeof("WHITE'BLACK") - 1,
+        ""
+    }
+};
+
+// CLASS METHODS
+
+int Colors::fromInt(Colors::Value *result, int number)
+{
+    switch (number) {
+      case Colors::BLUE_QUOTE_YELLOW:
+      case Colors::GREY_BACKSLASH_BLUE:
+      case Colors::RED_SLASH_GREEN:
+      case Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N:
+      case Colors::WHITE_TICK_BLACK:
+        *result = (Colors::Value)number;
+        return 0;
+      default:
+        return -1;
+    }
+}
+
+int Colors::fromString(
+        Colors::Value *result,
+        const char         *string,
+        int                 stringLength)
+{
+    for (int i = 0; i < 5; ++i) {
+        const bdeat_EnumeratorInfo& enumeratorInfo =
+                    Colors::ENUMERATOR_INFO_ARRAY[i];
+
+        if (stringLength == enumeratorInfo.d_nameLength
+        &&  0 == bsl::memcmp(enumeratorInfo.d_name_p, string, stringLength))
+        {
+            *result = (Colors::Value)enumeratorInfo.d_value;
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+const char *Colors::toString(Colors::Value value)
+{
+    switch (value) {
+      case BLUE_QUOTE_YELLOW: {
+        return "BLUE\"YELLOW";
+      } break;
+      case GREY_BACKSLASH_BLUE: {
+        return "GREY\\BLUE";
+      } break;
+      case RED_SLASH_GREEN: {
+        return "RED/GREEN";
+      } break;
+      case RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N: {
+        return "RED\b\r\t\f\n";
+      } break;
+      case WHITE_TICK_BLACK: {
+        return "WHITE'BLACK";
+      } break;
+    }
+
+    BSLS_ASSERT(!"invalid enumerator");
+    return 0;
+}
+
+
+                               // -------------
+                               // class Palette
+                               // -------------
+
+// CONSTANTS
+
+const char Palette::CLASS_NAME[] = "Palette";
+
+const bdeat_AttributeInfo Palette::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_COLOR,
+        "color",
+        sizeof("color") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_COLORS,
+        "colors",
+        sizeof("colors") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Palette::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 2; ++i) {
+        const bdeat_AttributeInfo& attributeInfo =
+                    Palette::ATTRIBUTE_INFO_ARRAY[i];
+
+        if (nameLength == attributeInfo.d_nameLength
+        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
+        {
+            return &attributeInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdeat_AttributeInfo *Palette::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_COLOR:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR];
+      case ATTRIBUTE_ID_COLORS:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Palette::Palette(bslma::Allocator *basicAllocator)
+: d_colors(basicAllocator)
+, d_color(static_cast<Colors::Value>(0))
+{
+}
+
+Palette::Palette(const Palette& original,
+                 bslma::Allocator *basicAllocator)
+: d_colors(original.d_colors, basicAllocator)
+, d_color(original.d_color)
+{
+}
+
+Palette::~Palette()
+{
+}
+
+// MANIPULATORS
+
+Palette&
+Palette::operator=(const Palette& rhs)
+{
+    if (this != &rhs) {
+        d_color = rhs.d_color;
+        d_colors = rhs.d_colors;
+    }
+
+    return *this;
+}
+
+void Palette::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_color);
+    bdeat_ValueTypeFunctions::reset(&d_colors);
+}
+
+// ACCESSORS
+
+bsl::ostream& Palette::print(
+        bsl::ostream& stream,
+        int           level,
+        int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("color", d_color);
+    printer.printAttribute("colors", d_colors);
+    printer.end();
+    return stream;
+}
+
+}  // close package namespace
+
 }  // close enterprise namespace
 
 void constructFeatureTestMessage(
@@ -36365,12 +37043,12 @@ namespace test {
                        // -----------------------------
 
 // PRIVATE CLASS METHODS
-int HexBinaryCustomizedType::checkRestrictions(const char *value, int size)
+int HexBinaryCustomizedType::checkRestrictions(const char *, int)
 {
     return 0;
 }
 
-int HexBinaryCustomizedType::checkRestrictions(const bsl::vector<char>& value)
+int HexBinaryCustomizedType::checkRestrictions(const bsl::vector<char>&)
 {
     return 0;
 }
@@ -36430,8 +37108,8 @@ bsl::vector<char>& HexBinaryCustomizedType::array()
 // ACCESSORS
 bsl::ostream& HexBinaryCustomizedType::print(
                                             bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+                                            int,
+                                            int) const
 {
     if (d_value.empty()) {
         stream << "";
@@ -36464,7 +37142,7 @@ bool operator==(const HexBinaryCustomizedType& lhs,
         return false;                                                 // RETURN
     }
 
-    for (int i = 0; i < lhsArray.size(); ++i) {
+    for (size_t i = 0; i < lhsArray.size(); ++i) {
         if (lhsArray[i] != rhsArray[i]) {
             return false;                                             // RETURN
         }
@@ -36931,7 +37609,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -37037,6 +37715,111 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 //..
+      } break;
+      case 7: {
+        // ------------------------------------------------------------------
+        // TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS
+        //
+        // Concerns:
+        //: 1 Decoding of an enum type with escaped characters works as
+        //:   expected.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a table with JSON text
+        //:   that contains an enum string with escaped chars.
+        //:
+        //: 2 For each row in the tables of P-1:
+        //:
+        //:   1 Create a 'baejsn_Decoder' object.
+        //:
+        //:   2 Create a 'bsl::istringstream' object with the JSON text.
+        //:
+        //:   3 Decode that JSON into a 'test::Palette' object.
+        //:
+        //:   4 Verify that the return code from 'decode' and the decoded
+        //:     object is as expected.
+        //
+        // Testing:
+        // ------------------------------------------------------------------
+
+        if (verbose) cout << endl
+            << "TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS" << endl
+            << "=================================================" << endl;
+
+        const char *S1 = "RED/GREEN";
+        const char *S2 = "GREY\\BLUE";
+        const char *S3 = "WHITE'BLACK";
+        const char *S4 = "BLUE\"YELLOW";
+        const char *S5 = "RED\b\r\t\f\n";
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_text_p;   // text string
+            const char *d_output_p; // json output
+        } DATA[] = {
+            // line  text   output
+            // ----  ----   ----
+            {   L_,   S1,   "{ \"color\" : \"RED\\/GREEN\" }"    },
+            {   L_,   S2,   "{ \"color\" : \"GREY\\\\BLUE\" }"   },
+            {   L_,   S3,   "{ \"color\" : \"WHITE\'BLACK\" }"   },
+            {   L_,   S4,   "{ \"color\" : \"BLUE\\\"YELLOW\" }" },
+            {   L_,   S5,   "{ \"color\" : \"RED\b\r\t\f\n\" }"  }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE   = DATA[ti].d_lineNum;
+            const bsl::string& TEXT   = DATA[ti].d_text_p;
+            const bsl::string& OUTPUT = DATA[ti].d_output_p;
+
+            test::Palette obj;
+            bsl::istringstream iss(OUTPUT);
+
+            DecoderOptions options;
+            Decoder        decoder;
+            const int rc = decoder.decode(iss, &obj, options);
+            ASSERTV(LINE, rc, 0 == rc);
+            ASSERTV(LINE, TEXT,
+                    TEXT == bsl::string(test::Colors::toString(obj.color())));
+            if (veryVerbose) {
+                P(decoder.loggedMessages())
+                P(obj)
+            }
+        }
+
+        {
+            const bsl::string& ALL_OUTPUT   =
+                "{ \"colors\" : [\n"
+                                   "\"RED\\/GREEN\",    \n"
+                                   "\"GREY\\\\BLUE\",   \n"
+                                   "\"WHITE\'BLACK\",   \n"
+                                   "\"BLUE\\\"YELLOW\", \n"
+                                   "\"RED\b\r\t\f\n\"   \n"
+                               "]\n"
+                 "}";
+
+            test::Palette obj;
+
+            bsl::istringstream iss(ALL_OUTPUT);
+
+            DecoderOptions options;
+            Decoder        decoder;
+            const int rc = decoder.decode(iss, &obj, options);
+            ASSERTV(rc, 0 == rc);
+            const bsl::vector<test::Colors::Value>& V = obj.colors();
+
+            ASSERTV(5  == V.size());
+            ASSERTV(string(S1) == string(test::Colors::toString(V[0])));
+            ASSERTV(string(S2) == string(test::Colors::toString(V[1])));
+            ASSERTV(string(S3) == string(test::Colors::toString(V[2])));
+            ASSERTV(string(S4) == string(test::Colors::toString(V[3])));
+            ASSERTV(string(S5) == string(test::Colors::toString(V[4])));
+
+            if (veryVerbose) {
+                P(decoder.loggedMessages())
+                P(obj)
+            }
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
