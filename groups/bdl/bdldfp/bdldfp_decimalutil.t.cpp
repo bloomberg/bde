@@ -563,18 +563,18 @@ int main(int argc, char* argv[])
           } DATA[] = {
               // L      NUMBER               EXPECTED
               // ---    ---------            --------
-              {L_,       DEC(0.0),             "0.0" },
-              {L_,       DEC(1.0),             "1.0" },
-              {L_,    DEC(9.3E23),         "9.3E+23" },
-              {L_,      DEC(-1.0),            "-1.0" },
-              {L_,      DEC(-0.1),            "-0.1" },
-              {L_,      DEC(4.25),            "4.25" },
-              {L_,     DEC(-4.25),           "-4.25" },
-              {L_,            MAX,    "9.999999E+96" },
-              {L_,            MIN,          "-1E-95" },
-              {L_,          INF_P,        "Infinity" },
-              {L_,          INF_N,       "-Infinity" },
-              {L_,          NAN_Q,             "NaN" }
+              {  L_,     DEC(0.0),             "0.0" },
+              {  L_,     DEC(1.0),             "1.0" },
+              {  L_,  DEC(9.3E23),         "9.3E+23" },
+              {  L_,    DEC(-1.0),            "-1.0" },
+              {  L_,    DEC(-0.1),            "-0.1" },
+              {  L_,    DEC(4.25),            "4.25" },
+              {  L_,   DEC(-4.25),           "-4.25" },
+              {  L_,          MAX,    "9.999999E+96" },
+              {  L_,          MIN,          "-1E-95" },
+              {  L_,        INF_P,        "Infinity" },
+              {  L_,        INF_N,       "-Infinity" },
+              {  L_,        NAN_Q,             "NaN" }
           };
           const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
