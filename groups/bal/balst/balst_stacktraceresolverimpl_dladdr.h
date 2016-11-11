@@ -64,10 +64,6 @@ BSLS_IDENT("$Id: $")
 #include <balst_stacktraceframe.h>
 #endif
 
-#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
-#include <bdlma_heapbypassallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -105,14 +101,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
                                             // as many other fields of them as
                                             // possible.
 
-    char              *d_demangleBuf_p;     // scratch space for demangling,
-                                            // length is 'DEMANGLING_BUF_LEN'
-                                            // in the imp file.
-
     bool               d_demangleFlag;      // whether we demangle names
-
-    bdlma::HeapBypassAllocator
-                       d_hbpAlloc;          // heap bypass allocator -- owned
 
   private:
     // NOT IMPLEMENTED
