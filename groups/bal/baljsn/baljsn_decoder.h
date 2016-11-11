@@ -181,6 +181,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
+#ifndef INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
+#include <bdlma_localsequentialallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -726,10 +730,19 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    dataValue.assign(dataValue.begin() + 1, dataValue.end() - 1);
+    const int                                 BUF_SIZE = 128;
+    bdlma::LocalSequentialAllocator<BUF_SIZE> bufferAllocator;
+    bsl::string                               tmpString(&bufferAllocator);
+
+    rc = baljsn::ParserUtil::getValue(&tmpString, dataValue);
+    if (rc) {
+        d_logStream << "Error reading enumeration value\n";
+        return -1;                                                    // RETURN
+    }
+
     rc = bdlat_EnumFunctions::fromString(value,
-                                         dataValue.data(),
-                                         static_cast<int>(dataValue.length()));
+                                         tmpString.data(),
+                                         static_cast<int>(tmpString.size()));
 
     if (rc) {
         d_logStream << "Could not decode Enum String, value not allowed \""
