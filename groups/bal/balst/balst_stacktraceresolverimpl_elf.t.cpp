@@ -479,16 +479,22 @@ int main(int argc, char *argv[])
 
             if (demangle) {
 #undef  SM
-#define SM(i, match) {                                                 \
+#define SM(i, match) {                                                     \
                     const char *name = stackTrace[i].symbolName().c_str(); \
-                    LOOP_ASSERT(name, safeCmp(name, match));           \
+                    LOOP_ASSERT(name, safeCmp(name, match));               \
                 }
 
                 SM(0, "funcGlobalOne(int)");
-#if !defined(BSLS_PLATFORM_OS_LINUX)
-                // The linux demangler has a bug where it fails on file-scope
-                // statics.
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
+                // Our machines have a configuration problem where the linux
+                // Clang compiler and demangler are out of sync with respect to
+                // how they handle file-scope static id's.  This is not
+                // currently a very important platform for us, perhaps before
+                // it becomes one the compiler and demangler lib will be in
+                // sync.
 
+                Q(Linux clang demangle test of file-scope statics disabled);
+#else
                 SM(1, "funcStaticOne(int)");
                 SM(2, "funcStaticInlineOne(int)");
 #endif
