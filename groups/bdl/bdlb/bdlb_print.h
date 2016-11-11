@@ -148,20 +148,25 @@ struct Print {
     static bsl::ostream& indent(bsl::ostream& stream,
                                 int           level,
                                 int           spacesPerLevel = 4);
-        // Emit to the specified output 'stream' the number of spaces (i.e.,
-        // '\b') specified by absolute value of the product of the specified
-        // 'level' and 'spacesPerLevel'.  Return a reference providing
-        // modifiable access to 'stream'.  If the 'level' is negative, this
-        // function has no effect.
+        // Emit to the specified output 'stream' the number of spaces (' ')
+        // equal to the absolute value of the product of the specified 'level'
+        // and 'spacesPerLevel' or, if 'level' is negative, nothing at all.
+        // Return a reference providing modifiable access to 'stream'.  The
+        // behavior is undefined unless the absolute value of the product of
+        // the specified 'level' and 'spacesPerLevel' is representable as
+        // 'int'.
 
     static bsl::ostream& newlineAndIndent(bsl::ostream& stream,
                                           int           level,
                                           int           spacesPerLevel = 4);
         // Emit to the specified 'stream' a newline ('\n') followed by the
-        // number of spaces ('\b') equal to the absolute value of the specified
-        // 'level' and 'spacesPerLevel' or, if 'spacesPerLevel' is negative,
-        // emit a single space (and *no* newline).  Return a reference
-        // providing modifiable access to 'stream'.
+        // number of spaces (' ') equal to the absolute value of the product
+        // of the specified 'level' and 'spacesPerLevel' or, if
+        // 'spacesPerLevel' is negative, emit a single space (and *no*
+        // newline).  Return a reference providing modifiable access to
+        // 'stream'.  The behavior is undefined unless the absolute value of
+        // the product of the specified 'level' and 'spacesPerLevel' is
+        // representable as 'int'.
 
     static void printPtr(bsl::ostream& stream, const void *value);
         // Print to the specified 'stream' the specified pointer 'value' in a
