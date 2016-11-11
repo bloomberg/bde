@@ -719,46 +719,46 @@ int main(int argc, char* argv[])
             // --- ---------- -------     ----   -------------------- --------
 
             // Test zero values
-            {  L_, DEC( 0.0), FP_ZERO,       1,                 0,     -1 },
-            {  L_, DEC(-0.0), FP_ZERO,      -1,                 0,     -1 },
+            {  L_, DEC( 0.0), FP_ZERO,       1,                    0,     -1 },
+            {  L_, DEC(-0.0), FP_ZERO,      -1,                    0,     -1 },
 
             // Test special encoding values
-            {  L_,  INF_P,    FP_INFINITE,   1,  0x20000000000000,  0x300 },
-            {  L_,  INF_N,    FP_INFINITE,  -1,  0x20000000000000,  0x300 },
-            {  L_,  NAN_Q_P,  FP_NAN,        1,  0x20000000000000,  0x380 },
-            {  L_,  NAN_Q_N,  FP_NAN,       -1,  0x20000000000000,  0x380 },
-            {  L_,  NAN_S_P,  FP_NAN,        1,  0x20000000000000,  0x3c0 },
-            {  L_,  NAN_S_N,  FP_NAN,       -1,  0x20000000000000,  0x3c0 },
-            {  L_,  SUBN_P,   FP_SUBNORMAL,  1,                 1,   -398 },
-            {  L_,  SUBN_N,   FP_SUBNORMAL, -1,                 1,   -398 },
-            {  L_,  SPE_8_P,  FP_NORMAL,     1,  8999999999999999,    -15 },
-            {  L_,  SPE_8_N,  FP_NORMAL,    -1,  8999999999999999,    -15 },
-            {  L_,  SPE_9_P,  FP_NORMAL,     1,  9000000000000001,     -5 },
-            {  L_,  SPE_9_N,  FP_NORMAL,    -1,  9000000000000001,     -5 },
+            {  L_,  INF_P,    FP_INFINITE,   1,  0x20000000000000ull,  0x300 },
+            {  L_,  INF_N,    FP_INFINITE,  -1,  0x20000000000000ull,  0x300 },
+            {  L_,  NAN_Q_P,  FP_NAN,        1,  0x20000000000000ull,  0x380 },
+            {  L_,  NAN_Q_N,  FP_NAN,       -1,  0x20000000000000ull,  0x380 },
+            {  L_,  NAN_S_P,  FP_NAN,        1,  0x20000000000000ull,  0x3c0 },
+            {  L_,  NAN_S_N,  FP_NAN,       -1,  0x20000000000000ull,  0x3c0 },
+            {  L_,  SUBN_P,   FP_SUBNORMAL,  1,                    1,   -398 },
+            {  L_,  SUBN_N,   FP_SUBNORMAL, -1,                    1,   -398 },
+            {  L_,  SPE_8_P,  FP_NORMAL,     1,  8999999999999999ull,    -15 },
+            {  L_,  SPE_8_N,  FP_NORMAL,    -1,  8999999999999999ull,    -15 },
+            {  L_,  SPE_9_P,  FP_NORMAL,     1,  9000000000000001ull,     -5 },
+            {  L_,  SPE_9_N,  FP_NORMAL,    -1,  9000000000000001ull,     -5 },
 
             // Test boundary values
-            {  L_,   MIN,     FP_NORMAL,     1,                 1,   -383 },
-            {  L_,  -MIN,     FP_NORMAL,    -1,                 1,   -383 },
-            {  L_,   MAX,     FP_NORMAL,     1,  9999999999999999,    369 },
-            {  L_,  -MAX,     FP_NORMAL,    -1,  9999999999999999,    369 },
+            {  L_,   MIN,     FP_NORMAL,     1,                    1,   -383 },
+            {  L_,  -MIN,     FP_NORMAL,    -1,                    1,   -383 },
+            {  L_,   MAX,     FP_NORMAL,     1,  9999999999999999ull,    369 },
+            {  L_,  -MAX,     FP_NORMAL,    -1,  9999999999999999ull,    369 },
 
             // Test arbitrary values
-            {  L_,   DEC( 1.0),  FP_NORMAL,  1,                10,     -1 },
-            {  L_,   DEC(-1.0),  FP_NORMAL, -1,                10,     -1 },
-            {  L_,   DEC( 0.1),  FP_NORMAL,  1,                 1,     -1 },
-            {  L_,   DEC(-0.1),  FP_NORMAL, -1,                 1,     -1 },
-            {  L_,   DEC( 4.25), FP_NORMAL,  1,               425,     -2 },
-            {  L_,   DEC(-4.25), FP_NORMAL, -1,               425,     -2 },
+            {  L_,   DEC( 1.0),  FP_NORMAL,  1,                   10,     -1 },
+            {  L_,   DEC(-1.0),  FP_NORMAL, -1,                   10,     -1 },
+            {  L_,   DEC( 0.1),  FP_NORMAL,  1,                    1,     -1 },
+            {  L_,   DEC(-0.1),  FP_NORMAL, -1,                    1,     -1 },
+            {  L_,   DEC( 4.25), FP_NORMAL,  1,                  425,     -2 },
+            {  L_,   DEC(-4.25), FP_NORMAL, -1,                  425,     -2 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                LINE        = DATA[ti].d_line;
-            const Type               DECIMAL64   = DATA[ti].d_decimalValue;
-            const int                CLASS       = DATA[ti].d_class;
-            const int                SIGN        = DATA[ti].d_sign;
+            const int                LINE         = DATA[ti].d_line;
+            const Type               DECIMAL64    = DATA[ti].d_decimalValue;
+            const int                CLASS        = DATA[ti].d_class;
+            const int                SIGN         = DATA[ti].d_sign;
             const bsls::Types::Uint64 SIGNIFICAND = DATA[ti].d_significand;
-            const int                EXPONENT    = DATA[ti].d_exponent;
+            const int                EXPONENT     = DATA[ti].d_exponent;
 
             if (veryVerbose) {
                 P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P_(EXPONENT);
@@ -851,7 +851,7 @@ int main(int argc, char* argv[])
         Type NAN_S_N = -bsl::numeric_limits<Type>::signaling_NaN();
         Type MAX     =  bsl::numeric_limits<Type>::max();
         Type MIN     =  bsl::numeric_limits<Type>::min();
-        Type V1      = Type(0xffffffffffffffff) + 1;
+        Type V1      = Type(0xFFFFFFFFFFFFFFFFull) + 1;
 
         static const struct {
             int                 d_line;
@@ -862,67 +862,66 @@ int main(int argc, char* argv[])
             bsls::Types::Uint64 d_significandL;
             int                 d_exponent;
         } DATA[] = {
-            // L   NUMBER     CLASS        SIGN   SIGNIFICAND HIGH,  EXPONENT
-            //                                    SIGNIFICAND LOW
-            // --- ---------- -------      ----   -----------------  --------
+        // L   NUMBER      CLASS        SIGN  SIGNIFICAND HIGH,    EXPONENT
+        //                                    SIGNIFICAND LOW
+        // --- ----------  -------      ----  -------------------  ---------
 
-            // Test zero values
-            {  L_, DEC( 0.0),  FP_ZERO,       1,                 0,
+        // Test zero values
+        {  L_, DEC( 0.0),  FP_ZERO,       1,                     0,
                                                                  0,       -1 },
-            {  L_, DEC(-0.0),  FP_ZERO,      -1,                 0,
+        {  L_, DEC(-0.0),  FP_ZERO,      -1,                     0,
                                                                  0,       -1 },
 
-            // Test special encoding values
-            {  L_,  INF_P,     FP_INFINITE,   1,   0x20000000000000,
-                                                                  0,  0x3000 },
-            {  L_,  INF_N,     FP_INFINITE,  -1,   0x20000000000000,
-                                                                  0,  0x3000 },
-            {  L_,  NAN_Q_P,   FP_NAN,        1,   0x20000000000000,
-                                                                  0,  0x3800 },
-            {  L_,  NAN_Q_N,   FP_NAN,       -1,   0x20000000000000,
-                                                                  0,  0x3800 },
-            {  L_,  NAN_S_P,   FP_NAN,        1,   0x20000000000000,
-                                                                  0,  0x3c00 },
-            {  L_,  NAN_S_N,   FP_NAN,       -1,   0x20000000000000,
-                                                                  0,  0x3c00 },
-            {  L_,  SUBN_P,    FP_SUBNORMAL,  1,                  0,
-                                                                  1,   -6176 },
-            {  L_,  SUBN_N,    FP_SUBNORMAL, -1,                  0,
-                                                                  1,   -6176 },
+        // Test special encoding values
+        {  L_,  INF_P,     FP_INFINITE,   1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_,  INF_N,     FP_INFINITE,  -1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_,  NAN_Q_P,   FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_,  NAN_Q_N,   FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_,  NAN_S_P,   FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_,  NAN_S_N,   FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_,  SUBN_P,    FP_SUBNORMAL,  1,                     0,
+                                                                 1,    -6176 },
+        {  L_,  SUBN_N,    FP_SUBNORMAL, -1,                     0,
+                                                                 1,    -6176 },
 
             // // Test boundary values
-            {  L_,   MIN,      FP_NORMAL,     1,                  0,
-                                                                  1,   -6143 },
-            {  L_,  -MIN,      FP_NORMAL,    -1,                  0,
-                                                                  1,   -6143 },
-            {  L_,   MAX,      FP_NORMAL,     1,    0x1ED09BEAD87C0,
-                                                 0x378D8E63FFFFFFFF,    6111 },
-            {  L_,  -MAX,      FP_NORMAL,    -1,    0x1ED09BEAD87C0,
-                                                 0x378D8E63FFFFFFFF,    6111 },
-
+        {  L_,   MIN,      FP_NORMAL,     1,                     0,
+                                                                 1,    -6143 },
+        {  L_,  -MIN,      FP_NORMAL,    -1,                     0,
+                                                                 1,    -6143 },
+        {  L_,   MAX,      FP_NORMAL,     1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
+        {  L_,  -MAX,      FP_NORMAL,    -1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
             // // Test arbitrary values
-            {  L_, DEC( 1.0),  FP_NORMAL,     1,                  0,
-                                                                 10,      -1 },
-            {  L_, DEC(-1.0),  FP_NORMAL,    -1,                  0,
-                                                                 10,      -1 },
-            {  L_, DEC( 0.1),  FP_NORMAL,     1,                  0,
-                                                                  1,      -1 },
-            {  L_, DEC(-0.1),  FP_NORMAL,    -1,                  0,
-                                                                  1,      -1 },
-            {  L_, DEC( 4.25), FP_NORMAL,     1,                  0,
-                                                                425,      -2 },
-            {  L_, DEC(-4.25), FP_NORMAL,    -1,                  0,
-                                                                425,      -2 },
-            {  L_, V1,         FP_NORMAL,     1,                  1,
-                                                                  0,       0 },
-            {  L_, -V1,        FP_NORMAL,    -1,                  1,
-                                                                  0,       0 },
-            {  L_, V1 * 0x10 + 0x50,
-                               FP_NORMAL,     1,               0x10,
-                                                               0x50,       0 },
-            {  L_, -(V1 * 0x10 + 0x50),
-                               FP_NORMAL,    -1,               0x10,
-                                                               0x50,       0 },
+        {  L_, DEC( 1.0),  FP_NORMAL,     1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC(-1.0),  FP_NORMAL,    -1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC( 0.1),  FP_NORMAL,     1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC(-0.1),  FP_NORMAL,    -1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC( 4.25), FP_NORMAL,     1,                     0,
+                                                               425,       -2 },
+        {  L_, DEC(-4.25), FP_NORMAL,    -1,                     0,
+                                                               425,       -2 },
+        {  L_, V1,         FP_NORMAL,     1,                     1,
+                                                                 0,        0 },
+        {  L_, -V1,        FP_NORMAL,    -1,                     1,
+                                                                 0,        0 },
+        {  L_, V1 * 0x10 + 0x50,
+                           FP_NORMAL,     1,                  0x10,
+                                                              0x50,        0 },
+        {  L_, -(V1 * 0x10 + 0x50),
+                           FP_NORMAL,    -1,                  0x10,
+                                                              0x50,        0 },
         };
         const int NUM_DATA = sizeof DATA / sizeof * DATA;
 
