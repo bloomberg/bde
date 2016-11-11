@@ -442,6 +442,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -475,6 +479,7 @@ class MultipriorityQueue_Node {
     bslalg::ConstructorProxy<TYPE>      d_item;    // object stored in node
     MultipriorityQueue_Node<TYPE> *d_next_p;  // next node on linked list
 
+  private:
     // NOT IMPLEMENTED
     MultipriorityQueue_Node(const MultipriorityQueue_Node&);
     MultipriorityQueue_Node& operator=(const MultipriorityQueue_Node&);
@@ -579,6 +584,7 @@ class MultipriorityQueue {
 
     bslma::Allocator   *d_allocator_p;    // memory allocator (held)
 
+  private:
     // NOT IMPLEMENTED
     MultipriorityQueue(const MultipriorityQueue&);
     MultipriorityQueue& operator=(const MultipriorityQueue&);
@@ -891,13 +897,18 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
     // queue is disabled, in which case we'll throw the new node away.
     //     Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
-    Node *newNode = (Node *)d_pool.allocate();
-    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode, &d_pool);
 
-    bslalg::ScalarPrimitives::construct(newNode,
+    Node *newNode = (Node *)d_pool.allocate();
+    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(newNode,
+                                                                 &d_pool);
+
+    bslalg::ScalarPrimitives::construct(newNode,            // might throw
                                         item,
                                         (Node *)0,
                                         d_allocator_p);
+
+    deallocator.release();
+    bslma::ManagedPtr<Node> deleter(newNode, &d_pool);
 
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -940,15 +951,15 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             Node *& head = d_heads[itemPriority];
             if (!head) {
@@ -979,15 +990,15 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             if (d_notEmptyFlags & mask) {
                 d_tails[itemPriority]->nextPtr() = newNode;
