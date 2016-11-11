@@ -170,13 +170,13 @@ void EventScheduler::releaseCurrentEvents()
 
 // CREATORS
 EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
-: d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator, 
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -188,12 +188,12 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
                                bslma::Allocator            *basicAllocator)
-: d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_queueCondition(clockType)
 , d_running(false)
@@ -207,13 +207,13 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bslma::Allocator                  *basicAllocator)
-: d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -227,12 +227,12 @@ EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bsls::SystemClockType::Enum        clockType,
                           bslma::Allocator                  *basicAllocator)
-: d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_queueCondition(clockType)
 , d_running(false)
@@ -258,6 +258,13 @@ int EventScheduler::start()
 
 int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+                                            d_dispatcherThread));
+
+    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
+    // d_mutex and must be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+    
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running ||
         bslmt::ThreadUtil::invalidHandle() != d_dispatcherThread) {
@@ -281,7 +288,11 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 void EventScheduler::stop()
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                           d_dispatcherThread));
+                                            d_dispatcherThread));
+
+    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
+    // d_mutex and must be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (!d_running) {
@@ -413,7 +424,7 @@ int EventScheduler::cancelEvent(RecurringEventHandle *handle)
 int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                           d_dispatcherThread));
+                                            d_dispatcherThread));
 
     const RecurringEventQueue::Pair *itemPtr =
                        reinterpret_cast<const RecurringEventQueue::Pair *>(
@@ -450,7 +461,7 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 int EventScheduler::cancelEventAndWait(const Event *handle)
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                           d_dispatcherThread));
+                                            d_dispatcherThread));
 
     const EventQueue::Pair *itemPtr =
                              reinterpret_cast<const EventQueue::Pair *>(
@@ -568,7 +579,7 @@ void EventScheduler::cancelAllEvents()
 void EventScheduler::cancelAllEventsAndWait()
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                           d_dispatcherThread));
+                                            d_dispatcherThread));
 
     d_eventQueue.removeAll();
     d_recurringQueue.removeAll();

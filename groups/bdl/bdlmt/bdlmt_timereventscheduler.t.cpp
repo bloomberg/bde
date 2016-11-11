@@ -1344,7 +1344,7 @@ void startStopConcurrencyTest()
     x.scheduleEvent(bsls::SystemTime::nowMonotonicClock(),
                     bdlf::BindUtil::bind(&postSema, &jobSema));
 
-    // Depending on just how the thread above are interleaved, the scheduler
+    // Depending on just how the threads above are interleaved, the scheduler
     // may be either stopped or started at this point.  Invoke 'start' again
     // (harmlessly) to make sure.
     ASSERT(0 == x.start());

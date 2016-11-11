@@ -658,41 +658,38 @@ class TimerEventScheduler {
 
     // MANIPULATORS
     int start();
-        // Start dispatching events on this scheduler.  If another thread
-        // is currently executing 'stop', wait until the dispatcher thread
-        // stops before starting a new one.  The dispatcher thread will have
-        // default attributes.  Return 0 on success, and a non-zero result
-        // otherwise.  If this scheduler has already started (and is not
-        // currently being stopped by another thread) then this
-        // invocation has no effect and 0 is returned.  This scheduler can be
-        // stopped by invoking 'stop'.  The behavior is undefined if this
-        // method is invoked by a job executed by this scheduler.  Note that
-        // any event whose time has already passed is pending and will be
+        // Begin dispatching events on this scheduler using default attributes
+        // for the dispatcher thread.  Return 0 on success, and a nonzero value
+        // otherwise.  If another thread is currently executing 'stop', wait
+        // until the dispatcher thread stops before starting a new one.  If this
+        // scheduler has already started (and is not currently being stopped by
+        // another thread) then this invocation has no effect and 0 is returned.
+        // The behavior is undefined if this method is invoked in the
+        // dispatcher thread (i.e., in a job executed by this scheduler).  Note
+        // that any event whose time has already passed is pending and will be
         // dispatched immediately.
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
-        // Start dispatching events on this scheduler, using the specified
-        // 'threadAttributes' for the dispatcher thread, except the DETACHED
-        // attribute will always be overridden to be joinable.  If another
-        // thread is currently executing 'stop', wait until the dispatcher
-        // thread stops before starting a new one.  Return 0 on success, and a
-        // non-zero result otherwise.  If this scheduler has already started
-        // (and is not currently being stopped by another thread) then this
-        // invocation has no effect and 0 is returned.  This scheduler can be
-        // stopped by invoking 'stop'.  The behavior is undefined if this method
-        // is invoked by a job executed by this scheduler.  Note that any event
-        // whose time has already passed is pending and will be dispatched
-        // immediately.
+        // Begin dispatching events on this scheduler using the specified
+        // 'threadAttributes' for the dispatcher thread (except that the
+        // DETACHED attribute is ignored).  Return 0 on success, and a nonzero
+        // value otherwise.  If another thread is currently executing 'stop',
+        // wait until the dispatcher thread stops before starting a new one.
+        // If this scheduler has already started (and is not currently being
+        // stopped by another thread) then this invocation has no effect and 0
+        // is returned.  The behavior is undefined if this method is invoked in
+        // the dispatcher thread (i.e., in a job executed by this scheduler).
+        // Note that any event whose time has already passed is pending and
+        // will be dispatched immediately.
 
     void stop();
-        // Stop dispatching events on this scheduler, but do not remove any
-        // pending event.  If the dispatcher thread is in the middle of
-        // dispatching some events, block until those events are dispatched.
-        // Then terminate the dispatcher thread and return.  If this scheduler
-        // is already stopped then this invocation has no effect.  The behavior
-        // is undefined if this function is called by a job executed by the
-        // scheduler that is to be stopped.  This scheduler can be restarted by
-        // invoking 'start'.
+        // End the dispatching of events on this scheduler, but do not remove
+        // End the dispatching of events on this scheduler (but do not remove
+        // any pending events), and wait for any (one) currently executing
+        // event to complete.  If the scheduler is already stopped then this
+        // method has no effect.  This scheduler can be restarted by invoking
+        // 'start'.  The behavior is undefined if this method is invoked from
+        // the dispatcher thread.
 
     Handle scheduleEvent(const bsls::TimeInterval&    time,
                          const bsl::function<void()>& callback,
