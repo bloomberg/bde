@@ -172,7 +172,8 @@ namespace MULTIPRIORITYTHREADPOOL_CASE_13 {
 bsls::AtomicInt     urgentJobsDone;
 bsls::AtomicInt lessUrgentJobsDone;
 
-extern "C" void *urgentJob(void *) {
+extern "C" void *urgentJob(void *)
+{
     bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
 
     ++urgentJobsDone;
@@ -180,7 +181,8 @@ extern "C" void *urgentJob(void *) {
     return 0;
 }
 
-extern "C" void *lessUrgentJob(void *) {
+extern "C" void *lessUrgentJob(void *)
+{
     bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
 
     ++lessUrgentJobsDone;
@@ -240,6 +242,7 @@ struct Functor {
     int                d_priority;
     int                d_limit;
 
+    explicit
     Functor(int numToScan)
     : d_numToScan(numToScan)
     , d_priority(0)
@@ -248,7 +251,8 @@ struct Functor {
                                                         (double) TOP_NUMBER);
     }
 
-    void setNewPrime(int newPrime) {
+    void setNewPrime(int newPrime)
+    {
         maxPrimeFound = newPrime;
         primeNumbers[numPrimeNumbers] = newPrime;
         ++numPrimeNumbers;
@@ -260,7 +264,8 @@ struct Functor {
         }
     }
 
-    void evaluateCandidatesForPrime() {
+    void evaluateCandidatesForPrime()
+    {
         if (maxPrimeFound > d_limit) {
             return;                                                   // RETURN
         }
@@ -327,7 +332,8 @@ struct Functor {
         }
     }
 
-    void operator()() {
+    void operator()()
+    {
         if (0 == d_priority) {
             bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
 #if 0
@@ -366,7 +372,8 @@ namespace MULTIPRIORITYTHREADPOOL_CASE_11 {
 struct Functor {
     bslmt::Barrier  *d_barrier;
     bsls::AtomicInt *d_jobsCompleted;
-    void operator()() {
+    void operator()()
+    {
         d_barrier->wait();
 
         bslmt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
@@ -401,11 +408,14 @@ struct Worker {
     static bdlcc::Queue<Worker>           *s_doneQueue;
     static bsls::AtomicInt                s_time;
 
-    Worker(int priority) {
+    explicit
+    Worker(int priority)
+    {
         d_priority = priority;
     }
 
-    int submitMe() {
+    int submitMe()
+    {
         d_submittedTime = ++s_time;
         if (s_pool->enqueueJob(*this, d_priority)) {
             return -1;                                                // RETURN
@@ -414,7 +424,8 @@ struct Worker {
         return 0;
     }
 
-    void operator()() {
+    void operator()()
+    {
         d_doneTime = ++s_time;
         s_doneQueue->pushBack(*this);
     }
@@ -428,10 +439,13 @@ struct ProducerThread {
 
     static bslmt::Barrier *s_barrier;
 
+    explicit
     ProducerThread(int workersPerProducer)
-    : d_workersPerProducer(workersPerProducer) {}
+    : d_workersPerProducer(workersPerProducer)
+    {}
 
-    void operator()() {
+    void operator()()
+    {
         s_barrier->wait();
 
         int i;
@@ -468,7 +482,8 @@ bslmt::Barrier barrier2(2);
 bslmt::Barrier barrier8(8);
 
 struct BlockFunctor {
-    void operator()() {
+    void operator()()
+    {
         barrier2.wait();
         barrier8.wait();
 
@@ -510,14 +525,16 @@ extern "C" void *pushInt(void *arg)
 struct PushIntFunctor {
     int d_arg;
 
-    void operator()() {
+    void operator()()
+    {
         resultsVec[resultsVecIdx++] = d_arg;
     }
 };
 
 // Generally check out that a threadpool is healthy, given the state it thinks
 // it's in.
-void checkOutPool(bdlmt::MultipriorityThreadPool *pool) {
+void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
+{
     ASSERT(pool->isEnabled());
     ASSERT(0 == pool->numActiveThreads());
     LOOP_ASSERT(pool->numPendingJobs(), 0 == pool->numPendingJobs());
@@ -598,7 +615,8 @@ extern "C" void *amassCounterBy(void *arg)
     return 0;
 }
 
-extern "C" void *waiter(void *arg) {
+extern "C" void *waiter(void *arg)
+{
     static_cast<bslmt::Barrier *>(arg)->wait();
 
     return 0;
@@ -1094,29 +1112,29 @@ int main(int argc, char *argv[])
 
         static const long scramble[] = { 5, 8, 3, 1, 7, 9, 0, 4, 6, 2 };
             // ints 0-9 in scrambled order
-        const int scrambleLen = sizeof scramble / sizeof scramble[0];
-        const char garbageVal = 0x8f;
+        enum { k_SCRAMBLE_LEN = sizeof scramble / sizeof scramble[0] };
+        const char garbageVal = static_cast<char>(0x8f);
 
-        bdlmt::MultipriorityThreadPool pool(1,            // single thread
-                                            scrambleLen,  // priorities
+        bdlmt::MultipriorityThreadPool pool(1,               // single thread
+                                            k_SCRAMBLE_LEN,  // priorities
                                             &ta);
 
         memset(resultsVec, garbageVal, sizeof resultsVec);
         resultsVecIdx = 0;
 
-        for (int i = 0; scrambleLen > i; ++i) {
+        for (int i = 0; k_SCRAMBLE_LEN > i; ++i) {
             pool.enqueueJob(&pushInt,
                             (void *)(scramble[i] * scramble[i]),
                             (int)scramble[i]);
         }
 
-        ASSERT(scrambleLen == pool.numPendingJobs());
+        ASSERT(k_SCRAMBLE_LEN == pool.numPendingJobs());
         pool.startThreads();
         pool.drainJobs();
 
-        ASSERT(scrambleLen == resultsVecIdx);
+        ASSERT(k_SCRAMBLE_LEN == resultsVecIdx);
 
-        for (int i = 0; scrambleLen > i; ++i) {
+        for (int i = 0; i < k_SCRAMBLE_LEN; ++i) {
             LOOP2_ASSERT(i, resultsVec[i], i * i == resultsVec[i]);
         }
 
@@ -1573,7 +1591,7 @@ int main(int argc, char *argv[])
 
         static const int numArray[] = { 1, 2, 3, 7, 10, 15, 32 };
             // numbers to use as priorities as well as numThreads
-        const int numArrayLen = sizeof numArray / sizeof numArray[0];
+        enum { k_NUM_ARRAY_LEN = sizeof numArray / sizeof numArray[0] };
 
         bslma::TestAllocator taDefault;
 
@@ -1583,8 +1601,8 @@ int main(int argc, char *argv[])
 
         for (int allocS = DEBUG_ALLOC; DEFAULT_ALLOC >= allocS; ++allocS) {
             for (int aS = ATTRIBS_NONE; ATTRIBS_YES >= aS; ++aS) {
-                for (int i = 0; numArrayLen > i; ++i) {
-                    for (int j = 0; numArrayLen > j; ++j) {
+                for (int i = 0; i < k_NUM_ARRAY_LEN; ++i) {
+                    for (int j = 0; j < k_NUM_ARRAY_LEN; ++j) {
                         bdlmt::MultipriorityThreadPool *pool = 0;
 
                         const int numThreads = numArray[i];
@@ -1714,17 +1732,17 @@ int main(int argc, char *argv[])
         using namespace MULTIPRIORITYTHREADPOOL_CASE_3;
 
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
-        const int incByLength = sizeof incBy / sizeof incBy[0];
+        enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
 
         bslmt::Barrier barrier(2);
-        bdlmt::MultipriorityThreadPool pool(1 /* threads */,
-                                            1 /* priorities */,
+        bdlmt::MultipriorityThreadPool pool(1, // threads
+                                            1, // priorities
                                             &ta);
 
         counter = 0;
         long otherCounter = 0;
 
-        for (int i = 0; incByLength > i; ++i) {
+        for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
             int sts =
                 pool.enqueueJob(&sleepAndAmassCounterBy, (void *)incBy[i], 0);
             ASSERT(!sts);
@@ -1732,7 +1750,7 @@ int main(int argc, char *argv[])
 
         ASSERT(!counter && !otherCounter);
 
-        for (int i = 0; incByLength > i; ++i) {
+        for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
             otherCounter += incBy[i];
             otherCounter *= otherCounter;
         }
@@ -1774,18 +1792,18 @@ int main(int argc, char *argv[])
         using namespace MULTIPRIORITYTHREADPOOL_CASE_2;
 
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
-        const int incByLength = sizeof incBy / sizeof incBy[0];
+        enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
 
         bslmt::Barrier barrier(2);
-        bdlmt::MultipriorityThreadPool pool(1 /* threads */,
-                                            1 /* priorities */,
+        bdlmt::MultipriorityThreadPool pool(1, // threads
+                                            1, // priorities
                                             &ta);
 
         for (int j = 0; 100 > j; ++j) {
             counter = 0;
             long otherCounter = 0;
 
-            for (int i = 0; incByLength > i; ++i) {
+            for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
                 ASSERT(!pool.enqueueJob(&amassCounterBy, (void *) incBy[i],0));
                 ASSERT(!pool.enqueueJob(&waiter, &barrier, 0));
                 ASSERT(!pool.enqueueJob(&waiter, &barrier, 0));
@@ -1795,7 +1813,7 @@ int main(int argc, char *argv[])
 
             pool.startThreads();
 
-            for (int i = 0; incByLength > i; ++i) {
+            for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
                 barrier.wait();
 
                 otherCounter += incBy[i];
@@ -1835,8 +1853,8 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard guard(&taDefault);
             bslma::TestAllocator ta;
             bdlmt::MultipriorityThreadPool *pool =
-                new (ta) bdlmt::MultipriorityThreadPool(1 /* threads */,
-                                                        1 /* priorities */,
+                new (ta) bdlmt::MultipriorityThreadPool(1, // threads
+                                                        1, // priorities
                                                         &ta);
 
             pool->startThreads();
