@@ -2252,7 +2252,6 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-// TBD HERE OK (replicate throughout this test case)
         if (verbose) cout << "\tWith non-'const' source (compile only)."
                           << endl;
         {
@@ -2412,6 +2411,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -2523,6 +2548,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -2637,6 +2688,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
@@ -2749,6 +2826,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -2863,6 +2966,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
@@ -2975,6 +3104,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -3090,6 +3245,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
@@ -3203,6 +3384,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -3318,6 +3525,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
@@ -3431,6 +3664,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -3547,6 +3806,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
@@ -3661,6 +3946,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -3777,6 +4088,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
@@ -3891,6 +4228,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -4008,6 +4371,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
@@ -4123,6 +4512,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -4240,6 +4655,32 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
@@ -4355,6 +4796,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -4472,6 +4939,32 @@ void TestUtil::testCase26()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            TT mZ('A');  const TT& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
         }
     }
 
@@ -4689,7 +5182,6 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-// TBD HERE OK (replicate throughout this test case)
         if (verbose) cout << "\tWith non-'const' source (compile only)."
                           << endl;
         {
@@ -4860,6 +5352,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -4982,6 +5500,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -5107,6 +5651,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
@@ -5230,6 +5800,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -5355,6 +5951,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
@@ -5478,6 +6100,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -5604,6 +6252,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
@@ -5728,6 +6402,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -5854,6 +6554,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
@@ -5978,6 +6704,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -6105,6 +6857,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
@@ -6230,6 +7008,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -6357,6 +7161,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
@@ -6482,6 +7312,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -6610,6 +7466,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
@@ -6736,6 +7618,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -6864,6 +7772,32 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
@@ -6990,6 +7924,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -7118,6 +8078,32 @@ void TestUtil::testCase25()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+            Obj mX;  const Obj& X = mX;
+
+            mX = mZ;
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A')     == X.the<TT>());
+            ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+            Obj& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY = rmZ;
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A')     == Y.the<TT>());
+            ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
         }
     }
 
@@ -7517,7 +8503,6 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-// TBD HERE OK (replicate throughout this test case)
         if (verbose) cout << "\tWith non-'const' source (compile only)."
                           << endl;
         {
@@ -7731,6 +8716,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -7882,6 +8907,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -8036,6 +9101,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
@@ -8188,6 +9293,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -8342,6 +9487,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
@@ -8494,6 +9679,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -8649,6 +9874,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
@@ -8802,6 +10067,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -8957,6 +10262,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
@@ -9110,6 +10455,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -9266,6 +10651,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
@@ -9420,6 +10845,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -9576,6 +11041,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
@@ -9730,6 +11235,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -9887,6 +11432,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
@@ -10042,6 +11627,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -10199,6 +11824,46 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
@@ -10354,6 +12019,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -10511,6 +12216,46 @@ void TestUtil::testCase23()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                TT mZ('A');  const TT& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A') == X.the<TT>());
+                ASSERT(Z       == X.the<TT>());  // not moved
+
+                TT& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A') == Y.the<TT>());
+                ASSERT(Z       == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -10811,7 +12556,6 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-// TBD HERE OK (replicate throughout this test case)
         if (verbose) cout << "\tWith non-'const' source (compile only)."
                           << endl;
         {
@@ -11049,6 +12793,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
@@ -11224,6 +13008,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -11402,6 +13226,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
@@ -11578,6 +13442,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -11756,6 +13660,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
@@ -11932,6 +13876,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -12111,6 +14095,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
@@ -12288,6 +14312,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -12467,6 +14531,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
@@ -12644,6 +14748,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -12824,6 +14968,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
@@ -13002,6 +15186,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -13182,6 +15406,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
@@ -13360,6 +15624,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -13541,6 +15845,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
@@ -13720,6 +16064,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -13901,6 +16285,46 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+        }
     }
 
     if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
@@ -14080,6 +16504,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
@@ -14261,6 +16725,46 @@ void TestUtil::testCase22()
 
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
+        }
+
+        if (verbose) cout << "\tWith non-'const' source (compile only)."
+                          << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+
+            // not supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
+
+            // supplying an allocator
+            {
+                Obj mZ(TT('A'));  const Obj& Z = mZ;
+
+                const Obj X(mZ, &da);
+                ASSERT(X.is<TT>());
+                ASSERT(TT('A')     == X.the<TT>());
+                ASSERT(Z.the<TT>() == X.the<TT>());  // not moved
+
+                Obj& rmZ = mZ;
+
+                const Obj Y(rmZ, &da);
+                ASSERT(Y.is<TT>());
+                ASSERT(TT('A')     == Y.the<TT>());
+                ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+            }
         }
     }
 
