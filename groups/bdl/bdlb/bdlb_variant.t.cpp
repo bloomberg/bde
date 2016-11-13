@@ -1054,6 +1054,16 @@ const TestInt     TEST_INT_DATA[]    = { VF, VG, VH, VI, VJ };
 const TestString  TEST_STRING_DATA[] = { VK, VL, VM, VN, VO };
 const bsl::string STRING_DATA[]      = { VS, VT, VU, VV, VW };
 
+// Define the expected move state for tests that involve "true" rvalue
+// references (i.e., 'bslmf::MovableRefUtil' is not used to explicitly impose
+// move semantics).
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#define EXPECTED_MOVE_STATE MoveState::e_MOVED
+#else
+#define EXPECTED_MOVE_STATE MoveState::e_NOT_MOVED
+#endif
+
 //=============================================================================
 //                      WRAPPERS AND VISITORS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -2252,8 +2262,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2276,6 +2285,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -2412,8 +2431,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2436,6 +2454,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -2550,8 +2578,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2574,6 +2601,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -2689,8 +2726,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2713,6 +2749,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -2828,8 +2874,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2852,6 +2897,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -2967,8 +3022,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -2991,6 +3045,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3106,8 +3170,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3130,6 +3193,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3246,8 +3319,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3270,6 +3342,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3386,8 +3468,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3410,6 +3491,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3526,8 +3617,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3550,6 +3640,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3666,8 +3766,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3690,6 +3789,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3807,8 +3916,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3831,6 +3939,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -3948,8 +4066,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -3972,6 +4089,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4089,8 +4216,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4113,6 +4239,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4230,8 +4366,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4254,6 +4389,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4372,8 +4517,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4396,6 +4540,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4514,8 +4668,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4538,6 +4691,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4656,8 +4819,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4680,6 +4842,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4798,8 +4970,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4822,6 +4993,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -4941,8 +5122,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -4965,6 +5145,16 @@ void TestUtil::testCase26()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A') == Y.the<TT>());
             ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = TT('A');                    // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5182,8 +5372,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5206,6 +5395,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5353,8 +5552,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5377,6 +5575,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5502,8 +5710,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5526,6 +5733,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5652,8 +5869,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5676,6 +5892,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5802,8 +6028,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5826,6 +6051,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -5952,8 +6187,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5976,6 +6210,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6102,8 +6346,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6126,6 +6369,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6253,8 +6506,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6277,6 +6529,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6404,8 +6666,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6428,6 +6689,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6555,8 +6826,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6579,6 +6849,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6706,8 +6986,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6730,6 +7009,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -6858,8 +7147,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6882,6 +7170,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7010,8 +7308,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7034,6 +7331,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7162,8 +7469,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7186,6 +7492,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7314,8 +7630,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7338,6 +7653,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7467,8 +7792,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7491,6 +7815,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7620,8 +7954,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7644,6 +7977,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7773,8 +8116,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7797,6 +8139,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -7926,8 +8278,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7950,6 +8301,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -8080,8 +8441,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8104,6 +8464,16 @@ void TestUtil::testCase25()
             ASSERT(Y.is<TT>());
             ASSERT(TT('A')     == Y.the<TT>());
             ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW = Obj(TT('A'));                   // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
 
@@ -8336,6 +8706,41 @@ void TestUtil::testCase24()
             ASSERT(MoveState::e_MOVED == mStateX);
             ASSERT(MoveState::e_MOVED == mStateY);
         }
+
+        if (verbose) cout << "\tWith non-'const' source." << endl;
+        {
+            typedef bsltf::MovableTestType TT;
+            typedef int                    OT;
+
+            Obj mX(OT(77));  const Obj& X = mX;
+            TT  mZ('A');     const TT&  Z = mZ;
+
+            mX.assign(mZ);
+
+            ASSERT(X.is<TT>());
+            ASSERT(TT('A') == X.the<TT>());
+            ASSERT(Z       == X.the<TT>());  // not moved
+
+            TT& rmZ = mZ;
+
+            Obj mY;  const Obj& Y = mY;
+
+            mY.assign(rmZ);
+
+            ASSERT(Y.is<TT>());
+            ASSERT(TT('A') == Y.the<TT>());
+            ASSERT(Z       == Y.the<TT>());  // not moved
+
+            Obj mW;  const Obj& W = mW;
+            mW.assign(TT('A'));              // rvalue reference
+
+            ASSERT(W.is<TT>());
+            ASSERT(TT('A') == W.the<TT>());
+
+            MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+            ASSERT(EXPECTED_MOVE_STATE == mStateW);
+        }
     }
 }
 
@@ -8503,8 +8908,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8523,6 +8927,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -8540,6 +8952,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -8717,8 +9137,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8737,6 +9156,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -8754,6 +9181,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -8909,8 +9344,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8929,6 +9363,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -8946,6 +9388,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -9102,8 +9552,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9122,6 +9571,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -9139,6 +9596,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -9295,8 +9760,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9315,6 +9779,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -9332,6 +9804,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -9488,8 +9968,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9508,6 +9987,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -9525,6 +10012,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -9681,8 +10176,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9701,6 +10195,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -9718,6 +10220,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -9875,8 +10385,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9895,6 +10404,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -9912,6 +10429,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -10069,8 +10594,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10089,6 +10613,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -10106,6 +10638,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -10263,8 +10803,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10283,6 +10822,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -10300,6 +10847,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -10457,8 +11012,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10477,6 +11031,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -10494,6 +11056,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -10652,8 +11222,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10672,6 +11241,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -10689,6 +11266,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -10847,8 +11432,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10867,6 +11451,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -10884,6 +11476,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -11042,8 +11642,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11062,6 +11661,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -11079,6 +11686,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -11237,8 +11852,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11257,6 +11871,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -11274,6 +11896,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -11433,8 +12063,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11453,6 +12082,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -11470,6 +12107,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -11629,8 +12274,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11649,6 +12293,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -11666,6 +12318,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -11825,8 +12485,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11845,6 +12504,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -11862,6 +12529,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -12021,8 +12696,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12041,6 +12715,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -12058,6 +12740,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -12218,8 +12908,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12238,6 +12927,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'));            // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -12255,6 +12952,14 @@ void TestUtil::testCase23()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A') == Y.the<TT>());
                 ASSERT(Z       == Y.the<TT>());  // not moved
+
+                const Obj W(TT('A'), &da);       // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -12377,8 +13082,6 @@ void TestUtil::testCase22()
 
         if (verbose) cout << "\tMove an unset variant." << endl;
         {
-            typedef bsltf::MovableTestType TT;  // test type
-
             Obj mY;  const Obj& Y = mY;
 
             ASSERT(Y.isUnset());
@@ -12556,8 +13259,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12576,6 +13278,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -12593,6 +13303,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -12794,8 +13512,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12814,6 +13531,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -12831,6 +13556,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -13010,8 +13743,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13030,6 +13762,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -13047,6 +13787,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -13227,8 +13975,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13247,6 +13994,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -13264,6 +14019,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -13444,8 +14207,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13464,6 +14226,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -13481,6 +14251,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -13661,8 +14439,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13681,6 +14458,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -13698,6 +14483,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -13878,8 +14671,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13898,6 +14690,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -13915,6 +14715,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -14096,8 +14904,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14116,6 +14923,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -14133,6 +14948,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -14314,8 +15137,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14334,6 +15156,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -14351,6 +15181,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -14532,8 +15370,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14552,6 +15389,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -14569,6 +15414,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -14750,8 +15603,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14770,6 +15622,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -14787,6 +15647,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -14969,8 +15837,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14989,6 +15856,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -15006,6 +15881,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -15188,8 +16071,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15208,6 +16090,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -15225,6 +16115,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -15407,8 +16305,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15427,6 +16324,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -15444,6 +16349,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -15626,8 +16539,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15646,6 +16558,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -15663,6 +16583,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -15846,8 +16774,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15866,6 +16793,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -15883,6 +16818,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -16066,8 +17009,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16086,6 +17028,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -16103,6 +17053,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -16286,8 +17244,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16306,6 +17263,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -16323,6 +17288,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -16506,8 +17479,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16526,6 +17498,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -16543,6 +17523,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
@@ -16727,8 +17715,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source (compile only)."
-                          << endl;
+        if (verbose) cout << "\tWith non-'const' source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16747,6 +17734,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')));           // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
 
             // supplying an allocator
@@ -16764,6 +17759,14 @@ void TestUtil::testCase22()
                 ASSERT(Y.is<TT>());
                 ASSERT(TT('A')     == Y.the<TT>());
                 ASSERT(Z.the<TT>() == Y.the<TT>());  // not moved
+
+                const Obj W(Obj(TT('A')), &da);      // rvalue reference
+                ASSERT(W.is<TT>());
+                ASSERT(TT('A') == W.the<TT>());
+
+                MoveState::Enum mStateW = TstFacility::getMovedIntoState(
+                                                                  W.the<TT>());
+                ASSERT(EXPECTED_MOVE_STATE == mStateW);
             }
         }
     }
