@@ -1190,10 +1190,11 @@ int main(int argc, char *argv[])
 #endif
 
               { L_, "Double", (double)3.14e200, 0 },
-              { L_, "Datetime", bdlt::Datetime(1, 1, 1, 0, 0, 0, 0),
-                    "0001-01-01T00:00:00.000" },
-              { L_, "Datetime", bdlt::Datetime(2005, 1, 22, 23, 59, 59, 999),
-                    "2005-01-22T23:59:59.999" },
+              { L_, "Datetime", bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0),
+                    "0001-01-01T00:00:00.000000" },
+              { L_, "Datetime",
+                    bdlt::Datetime(2005, 1, 22, 23, 59, 59, 999, 999),
+                    "2005-01-22T23:59:59.999999" },
               { L_, "Date", bdlt::Date(), "0001-01-01" },
               { L_, "Date", bdlt::Date(2005, 1, 22), "2005-01-22" },
               { L_, "Time", bdlt::Time(0, 0, 0, 1), "00:00:00.001" },
