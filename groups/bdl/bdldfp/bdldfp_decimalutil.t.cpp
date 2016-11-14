@@ -969,7 +969,7 @@ int main(int argc, char* argv[])
                         ACTUAL_EXPONENT == EXPONENT);
 
                 if (Util::isFinite(VALUE)) {
-                    const Type MOVE_LEFT_64 = Type(0xffffffffffffffff) + 1;
+                    const Type MOVE_LEFT_64 = Type(0xFFFFFFFFFFFFFFFFull) + 1;
                     const Type SIGNIFICAND =
                         Type(ACTUAL_SIGNIFICAND.high()) * MOVE_LEFT_64
                         + Type(ACTUAL_SIGNIFICAND.low());
