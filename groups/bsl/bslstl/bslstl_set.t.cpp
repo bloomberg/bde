@@ -1052,7 +1052,9 @@ class TestDriver {
         return e_BSLMA == s_allocCategory ? "bslma"
                                           : e_ADAPTOR == s_allocCategory
                                           ? "adaptor"
-                                          : "stateful";
+                                          : e_STATEFUL == s_allocCategory
+                                          ? "stateful"
+                                          : "<INVALID>";
     }
 
     static int ggg(Obj *object, const char *spec, int verbose = 1);
@@ -7784,12 +7786,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
 
     // We can print the banner now:
 
-    if (verbose) printf("%sTESTING SWAP '%s' OTHER:%c PROP:%c Stateful: %c\n",
+    if (verbose) printf("%sTESTING SWAP '%s' OTHER:%c PROP:%c ALLOC: %s\n",
                         veryVerbose ? "\n" : "",
                         NameOf<KEY>().name(), otherTraitsSet ? 'T' : 'F',
                         isPropagate ? 'T' : 'F',
-                        bsl::is_same<ALLOC, bsl::allocator<KEY> >::value
-                        ? 'F' : 'T');
+                        allocCategoryAsStr());
 
     BSLMF_ASSERT(otherTraitsSet ==
                AllocatorTraits::propagate_on_container_move_assignment::value);
@@ -7799,7 +7800,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
     // memory, it will be from the default allocator.
 
     const bool keyUsesDefaultAlloc = bslma::UsesBslmaAllocator<KEY>::value &&
-                             !bsl::is_same<ALLOC, bsl::allocator<KEY> >::value;
+                                                 e_STATEFUL == s_allocCategory;
 
     // Types that have move c'tors.
 
@@ -9778,6 +9779,9 @@ struct MetaTestDriver {
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
+    typedef bsl::allocator<KEY>             BAP;
+    typedef bsltf::StdAllocatorAdaptor<BAP> SAA;
+
     static void testCase27();
         // Test move-assign.
 
@@ -9790,7 +9794,7 @@ void MetaTestDriver<KEY, COMP>::testCase27()
 {
     // The low-order bit of the identifier specifies whether the fourth boolean
     // arg of the stateful allocator, which indicates propagate on move
-    // swap, is set.
+    // assign, is set.
 
     typedef bsltf::StdStatefulAllocator<KEY, false, false, false, false> A00;
     typedef bsltf::StdStatefulAllocator<KEY, false, false, false, true>  A01;
@@ -9799,10 +9803,9 @@ void MetaTestDriver<KEY, COMP>::testCase27()
 
     if (verbose) printf("\n");
 
-    TestDriver<KEY, COMP, bsl::allocator<KEY> >::testCase27_dispatch();
+    TestDriver<KEY, COMP, BAP>::testCase27_dispatch();
 
-    TestDriver<KEY, COMP, bsltf::StdAllocatorAdaptor<bsl::allocator<KEY> > >::
-                                                         testCase27_dispatch();
+    TestDriver<KEY, COMP, SAA>::testCase27_dispatch();
 
     TestDriver<KEY, COMP, A00>::testCase27_dispatch();
     TestDriver<KEY, COMP, A01>::testCase27_dispatch();
@@ -9813,9 +9816,6 @@ void MetaTestDriver<KEY, COMP>::testCase27()
 template <class KEY, class COMP>
 void MetaTestDriver<KEY, COMP>::testCase8()
 {
-
-    if (verbose) printf("\n");
-
     // The low-order bit of the identifier specifies whether the third boolean
     // arg of the stateful allocator, which inidactes propagate on container
     // swap, is set.
@@ -9825,7 +9825,11 @@ void MetaTestDriver<KEY, COMP>::testCase8()
     typedef bsltf::StdStatefulAllocator<KEY, true,  true,  false, true>  A10;
     typedef bsltf::StdStatefulAllocator<KEY, true,  true,  true,  true>  A11;
 
-    TestDriver<KEY, COMP, bsl::allocator<KEY> >::testCase8_dispatch();
+    if (verbose) printf("\n");
+
+    TestDriver<KEY, COMP, BAP>::testCase8_dispatch();
+
+    TestDriver<KEY, COMP, SAA>::testCase8_dispatch();
 
     TestDriver<KEY, COMP, A00>::testCase8_dispatch();
     TestDriver<KEY, COMP, A01>::testCase8_dispatch();
