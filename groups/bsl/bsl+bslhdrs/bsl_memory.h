@@ -17,11 +17,21 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
 #include <memory>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
+    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
+#else
+    #define USING_CPP11_NATIVE_STD(algo)
+#endif
 
 // 'std::unique_ptr' is available:
 //:  o GCC 4.4+, C++11 builds.
@@ -55,6 +65,7 @@ namespace bsl {
     using native_std::raw_storage_iterator;
     using native_std::return_temporary_buffer;
     using native_std::uninitialized_copy;
+    USING_CPP11_NATIVE_STD(uninitialized_copy_n);
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
@@ -64,6 +75,8 @@ namespace bsl {
 
 
 }  // close package namespace
+
+#undef USING_CPP11_NATIVE_STD
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
