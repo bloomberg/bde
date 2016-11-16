@@ -683,7 +683,6 @@ class TimerEventScheduler {
         // will be dispatched immediately.
 
     void stop();
-        // End the dispatching of events on this scheduler, but do not remove
         // End the dispatching of events on this scheduler (but do not remove
         // any pending events), and wait for any (one) currently executing
         // event to complete.  If the scheduler is already stopped then this
