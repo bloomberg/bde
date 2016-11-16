@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
         //      parameter supplied to the pool at construction.
         //
         //   4) That 'reserveCapacity' followed by a much smaller allocation
-        //      does not allocate memory (DRQS 92491241).
+        //      or reservation does not allocate memory (DRQS 92491241).
         //
         // Plan:
         //   Create a 'bdlma::SequentialPool' using a test allocator and
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nTesting 'reserveCapacity' followed by a "
-                             "much smaller allocation." << endl;
+                             "much smaller allocation/reservation." << endl;
         {
             Obj mX(&objectAllocator);
             ASSERT(0 == objectAllocator.numBytesInUse());
@@ -733,6 +733,16 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.allocate(k_DEFAULT_SIZE * 4);
+            ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
+        }
+        {
+            Obj mX(&objectAllocator);
+            ASSERT(0 == objectAllocator.numBytesInUse());
+
+            mX.reserveCapacity(k_DEFAULT_SIZE * 16);
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
+
+            mX.reserveCapacity(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
         }
       } break;
