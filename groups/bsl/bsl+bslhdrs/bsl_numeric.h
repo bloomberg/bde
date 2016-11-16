@@ -19,17 +19,28 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
 #include <numeric>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
+    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
+#else
+    #define USING_CPP11_NATIVE_STD(algo)
+#endif
+
 namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::accumulate;
     using native_std::adjacent_difference;
     using native_std::inner_product;
+    USING_CPP11_NATIVE_STD(iota);
     using native_std::partial_sum;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -43,6 +54,8 @@ namespace bsl {
     using native_std::random_access_iterator_tag;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
+
+#undef USING_CPP11_NATIVE_STD
 
 #endif
 
