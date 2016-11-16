@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::join(reader[i].d_handle);
         }
 
-        ASSERTV(writer.d_count, writer.d_count == k_COMPLETION_COUNT);
+        ASSERTV(writer.d_count, writer.d_count >= k_COMPLETION_COUNT / 2);
       } break;
       case 2: {
         // --------------------------------------------------------------------
