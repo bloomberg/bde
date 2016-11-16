@@ -9,9 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a generic reference-counted shared pointer wrapper.
 //
-//@REVIEW_FOR_MASTER:
-// review doc for make_shared/allocate_shared, test movable weak_ptr,
-//
 //@CLASSES:
 //  bsl::enable_shared_from_this: base class to allow shared ownership of self
 //  bsl::shared_ptr: shared pointer
@@ -608,12 +605,12 @@ BSLS_IDENT("$Id$ $CSID$")
 ///-----------------------
 // This component provides an (extended) standard-compliant implementation of
 // 'std::shared_ptr' and 'std::weak_ptr' (section 20.7.2, [util.smartptr], of
-// the ISO C++11 standard)).  When using a C++03 compiler, its interface is
-// limited to the set of operations that can be implemented by an
-// implementation of the C++03 language, e,g., there are no exception
-// specifications, nor 'constexpr' constructors.  However, it does not support
-// the atomic shared pointer interface, nor provide the C++17 interface for
-// 'shared_ptr' of an array type.
+// the ISO C++11 standard)).  However, it does not support the atomic shared
+// pointer interface, nor provide the C++17 interface for 'shared_ptr' of an
+// array type.  When using a C++03 compiler, its interface is limited to the
+// set of operations that can be implemented by an implementation of the C++03
+// language, e,g., there are no exception specifications, nor 'constexpr'
+// constructors, and move operations are emulated with 'bslmf::MovableRef'.
 //
 // In addition to the standar interface, this component supports allocators
 // following the 'bslma::Allocator' protocol in addition to the C++ Standard
@@ -1632,34 +1629,42 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) \
  && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1900)
 # define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS 1
+// If the macro 'BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS' is defined, then a
+// conforming C++11 compiler will define the constructors in this component in
+// such a way that they will not be selected during overload resolution unless
+// they would instantiate correctly.  This means that code depending on the
+// result of 'is_constructible' and similar traits will have the expected
+// behavior.  There is no attempt to support this feature in C++03.
+//
 // Support for SFINAE-queries on the constructability of a 'shared_ptr' depend
-// on a variety of C++11 language features, including "expression-SFINAE".  As
-// BDE has opted to not support SFINAE-checks in C++03 builds, the main feature
-// that controls the ability to enable a SFINAE-check in a constructor is the
-// ability to use default template arguments in a function template.  It is
-// significantly preferred to use the template parameter list, rather than add
-// additional default arguments to the constructor signatures, as there are so
-// many constructor overloads to begin with that there is a real risk of
-// introducing ambiguities that would otherwise need to be worked around.
+// on a variety of C++11 language features, including "expression-SFINAE".
+// However, the main language feature that enables SFINAE elimination of a
+// constructor is the ability to use default template arguments in a function
+// template.  It is significantly preferred to use the template parameter list,
+// rather than add additional default arguments to the constructor signatures,
+// as there are so many constructor overloads in this component that there is a
+// real risk of introducing ambiguities that would need to be worked around.
 // Therefore, the 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS' macro
 // serves as our proxy for whether SFINAE-constructors are enabled in this
-// component.
-//
-// Note that the MSVC 2015 compiler almost supported "expression-SFINAE", to
-// the extent that it works for this component, unlike earlier versions of that
-// compiler.  We therefore make a special version-test on Microsoft in addition
-// to the feature testing.
+// component.  Note that the MSVC 2015 compiler almost supported
+// "expression-SFINAE", to the extent that it works for this component, unlike
+// earlier versions of that compiler.  We therefore make a special version-test
+// on Microsoft in addition to the feature testing.
 #endif
 
 # if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER 1
-// Tested as recently as GCC 4.9.2, and IBM xlC 12.2.  Both of these compilers
-// have a problem partially ordering function templates that differ only by the
-// first argument deducing as any object type, or deducting to the a pointer to
-// something (presumed to be an allocator).  The rules for partial ordering
-// should make the second overload a stronger match when passed a pointer;
-// however, both of these compilers complain about ambiguities when additional
-// parameters are invovled.
+// If the macro 'BSLSTL_SHAREDPTR_NO_PARTIAL_ORDER_ON_ALLOCATOR_POINTER' is
+// defined, we recognize that some compilers need an extra hint to disambiguate
+// overload resolution when passed a 'bslma::Allocator *' pointer, that might
+// also deduce (incorrectly) as a C++11-style allocator.  Compilers known to
+// have this problem are gcc and IBM xlC, which were tested as recently as gcc
+// 4.9.2, and xlC 12.2.  Both of these compilers have a problem partially
+// ordering function templates that differ only by the first argument deducing
+// as any object type ('T'), or deducting to the a pointer to something ('T*'),
+// The rules for partial ordering should make the second overload a stronger
+// match when passed a pointer; however, both of these compilers complain about
+// ambiguities when additional parameters are invovled.
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
@@ -2348,7 +2353,7 @@ class shared_ptr {
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     explicit shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& ptr);
         // Create a shared pointer that refers to and manages the same object
-        // as the specified 'ptr' if 'false == ptr.expired()'; otherwise,
+        // as the specified 'ptr' if 'ptr.expired()' is 'false'; otherwise,
         // create a shared pointer in the empty state.  Note that the
         // referenced and managed objects may be different if 'ptr' was created
         // from a 'shared_ptr' in an aliasing state.
@@ -2359,7 +2364,7 @@ class shared_ptr {
     explicit shared_ptr(
                BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > ptr);
         // Create a shared pointer that refers to and manages the same object
-        // as the specified 'ptr' if 'false == ptr.expired()'; otherwise,
+        // as the specified 'ptr' if  'ptr.expired()' is 'false'; otherwise,
         // create a shared pointer in the empty state.  Note that the
         // referenced and managed objects may be different if 'ptr' was created
         // from a 'shared_ptr' in an aliasing state.  Also note that this
@@ -2499,8 +2504,9 @@ class shared_ptr {
         // convertible to 'ELEMENT_TYPE *'.  Note that if 'rhs' is empty, then
         // this shared pointer will be empty after the assignment.  Also note
         // that this function creates a 'shared_ptr' with an unspecified
-        // deleter type that has satisfies this contract, which might not be
-        // the deleter of 'rhs', which is specified by the C++ standard.
+        // deleter type that satisfies this contract; the C++11 standard
+        // specifies the exact deleter that should be in use after assignment,
+        // so this implementation may be non-conforming.
 #endif
 
     void reset() BSLS_CPP11_NOEXCEPT;
@@ -3140,11 +3146,9 @@ class shared_ptr {
         // not refer to an object.
 
     template<class ANY_TYPE>
-    bool owner_before(const shared_ptr<ANY_TYPE>& other) const
-                                                           BSLS_CPP11_NOEXCEPT;
+    bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
     template<class ANY_TYPE>
-    bool owner_before(const weak_ptr<ANY_TYPE>& other) const
-                                                           BSLS_CPP11_NOEXCEPT;
+    bool owner_before(const weak_ptr<ANY_TYPE>& other) const;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
         // pointer is ordered before the address of the
@@ -4508,11 +4512,9 @@ class weak_ptr {
         // state otherwise.
 
     template <class ANY_TYPE>
-    bool owner_before(const shared_ptr<ANY_TYPE>& other) const
-                                                           BSLS_CPP11_NOEXCEPT;
+    bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
     template <class ANY_TYPE>
-    bool owner_before(const weak_ptr<ANY_TYPE>& other) const
-                                                           BSLS_CPP11_NOEXCEPT;
+    bool owner_before(const weak_ptr<ANY_TYPE>& other) const;
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by this weak pointer
         // is ordered before the address of the
@@ -4683,7 +4685,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     void constCast(bsl::shared_ptr<TARGET>        *target,
-                   const bsl::shared_ptr<SOURCE>&  source) BSLS_CPP11_NOEXCEPT;
+                   const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' an aliased shared pointer sharing
         // ownership of the object managed by the specified 'source' shared
         // pointer and referring to 'const_cast<TARGET *>(source.get())'.  If
@@ -4708,8 +4710,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     void dynamicCast(bsl::shared_ptr<TARGET>        *target,
-                     const bsl::shared_ptr<SOURCE>&  source)
-                                                           BSLS_CPP11_NOEXCEPT;
+                     const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' an aliased shared pointer sharing
         // ownership of the object managed by the specified 'source' shared
         // pointer and referring to 'dynamic_cast<TARGET *>(source.get())'.  If
@@ -4738,8 +4739,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     void staticCast(bsl::shared_ptr<TARGET>        *target,
-                    const bsl::shared_ptr<SOURCE>&  source)
-                                                           BSLS_CPP11_NOEXCEPT;
+                    const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' an aliased shared pointer sharing
         // ownership of the object managed by the specified 'source' shared
         // pointer and referring to 'static_cast<TARGET *>(source.get())'.  If
@@ -4895,6 +4895,10 @@ struct SharedPtr_TestIsCallable {
 
     struct TrueType  { char d_padding; };
     struct FalseType { char d_padding[17]; };
+        // The two structs 'TrueType' and 'FalseType' are guaranteed to have
+        // distinct sizes, so that a 'sizeof(expression)' query, where
+        // 'expression' returns one of these two types, will give different
+        // answers depending on which type is returned.
 
   public:
     // CLASS METHODS
@@ -6501,7 +6505,6 @@ template<class ANY_TYPE>
 inline
 bool shared_ptr<ELEMENT_TYPE>::owner_before(
                                        const shared_ptr<ANY_TYPE>& other) const
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
                                                                   other.rep());
@@ -6512,7 +6515,6 @@ template<class ANY_TYPE>
 inline
 bool
 shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(rep(),
                                                                   other.rep());
@@ -6849,7 +6851,6 @@ template <class ANY_TYPE>
 inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const shared_ptr<ANY_TYPE>& other) const
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(d_rep_p,
                                                                   other.rep());
@@ -6860,7 +6861,6 @@ template <class ANY_TYPE>
 inline
 bool
 weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<BloombergLP::bslma::SharedPtrRep *>()(
                                                                 d_rep_p,
@@ -6958,7 +6958,6 @@ template <class TARGET, class SOURCE>
 inline
 void SharedPtrUtil::constCast(bsl::shared_ptr<TARGET>        *target,
                               const bsl::shared_ptr<SOURCE>&  source)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT(0 != target);
 
@@ -6979,7 +6978,6 @@ template <class TARGET, class SOURCE>
 inline
 void SharedPtrUtil::dynamicCast(bsl::shared_ptr<TARGET>        *target,
                                 const bsl::shared_ptr<SOURCE>&  source)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT(0 != target);
 
@@ -7008,7 +7006,6 @@ template <class TARGET, class SOURCE>
 inline
 void SharedPtrUtil::staticCast(bsl::shared_ptr<TARGET>        *target,
                                const bsl::shared_ptr<SOURCE>&  source)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT(0 != target);
 
