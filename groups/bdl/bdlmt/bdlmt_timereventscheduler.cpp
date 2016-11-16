@@ -17,7 +17,6 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
-#include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
 #include <bdlt_timeunitratio.h>
@@ -101,7 +100,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
 
         {
             bslmt::LockGuard<bslmt::Mutex> lock(&scheduler->d_mutex);
-            if (!scheduler->d_running) {
+            if (!scheduler->d_running.loadRelaxed()) {
                 return;                                               // RETURN
             }
             ++scheduler->d_iterations;
@@ -242,12 +241,17 @@ namespace bdlmt {
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()
 {
-    if (d_running && !bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                                d_dispatcherThread)) {
-        const int it = d_iterations;
-        while (it == d_iterations && d_running) {
-            d_condition.signal();
-            bslmt::ThreadUtil::yield();
+    if (d_running.loadRelaxed()) {
+        bsls::Types::Uint64 dispatcherId = static_cast<bsls::Types::Uint64>(
+                                                  d_dispatcherId.loadRelaxed());
+
+        if (bslmt::ThreadUtil::selfIdAsUint64() != dispatcherId) {
+            const int it = d_iterations.loadRelaxed();
+            while (it == d_iterations.loadRelaxed() &&
+                   d_running.loadRelaxed()) {
+                d_condition.signal();
+                bslmt::ThreadUtil::yield();
+            }
         }
     }
 }
@@ -255,15 +259,17 @@ void TimerEventScheduler::yieldToDispatcher()
 // CREATORS
 TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator, 
+                      &defaultDispatcherFunction)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -278,8 +284,7 @@ TimerEventScheduler::TimerEventScheduler(
                                    bsls::SystemClockType::Enum  clockType,
                                    bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
                        basicAllocator)
@@ -287,7 +292,10 @@ TimerEventScheduler::TimerEventScheduler(
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
 , d_condition(clockType)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -302,15 +310,17 @@ TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator, 
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -326,15 +336,17 @@ TimerEventScheduler::TimerEventScheduler(
                      bsls::SystemClockType::Enum             clockType,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
 , d_condition(clockType)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -349,8 +361,7 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
                                          int               numClocks,
                                          bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
@@ -359,7 +370,10 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 , d_clockTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numClocks)),
                    basicAllocator)
 , d_clocks(basicAllocator)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -378,8 +392,7 @@ TimerEventScheduler::TimerEventScheduler(
                                    bsls::SystemClockType::Enum  clockType,
                                    bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
                        basicAllocator)
@@ -389,7 +402,10 @@ TimerEventScheduler::TimerEventScheduler(
                    basicAllocator)
 , d_clocks(basicAllocator)
 , d_condition(clockType)
-, d_dispatcherFunctor(&defaultDispatcherFunction)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -408,8 +424,7 @@ TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
@@ -419,7 +434,10 @@ TimerEventScheduler::TimerEventScheduler(
 , d_clockTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numClocks)),
                    basicAllocator)
 , d_clocks(basicAllocator)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -439,8 +457,7 @@ TimerEventScheduler::TimerEventScheduler(
                      bsls::SystemClockType::Enum             clockType,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(),
-                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
@@ -449,7 +466,10 @@ TimerEventScheduler::TimerEventScheduler(
                    basicAllocator)
 , d_clocks(basicAllocator)
 , d_condition(clockType)
-, d_dispatcherFunctor(dispatcherFunctor)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherId(0)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
 , d_pendingEventItems(basicAllocator)
@@ -477,8 +497,15 @@ int TimerEventScheduler::start()
 
 int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
+    // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
+    // 'd_mutex' and must always be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+
+    BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+                                             d_dispatcherThread));    
+    
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_running) {
+    if (d_running.loadRelaxed()) {
         return 0;                                                     // RETURN
     }
 
@@ -492,6 +519,8 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     {
         return -1;                                                    // RETURN
     }
+    d_dispatcherId = bslmt::ThreadUtil::idAsUint64(
+                            bslmt::ThreadUtil::handleToId(d_dispatcherThread));
     d_running = 1;
 
     return 0;
@@ -499,12 +528,16 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 
 void TimerEventScheduler::stop()
 {
+    // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
+    // 'd_mutex' and must always be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+    
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                              d_dispatcherThread));
 
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        if (!d_running) {
+        if (!d_running.loadRelaxed()) {
             return;                                                   // RETURN
         }
 

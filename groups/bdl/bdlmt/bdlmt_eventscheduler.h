@@ -396,6 +396,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -496,6 +500,9 @@ class EventScheduler {
     bslmt::ThreadUtil::Handle
                           d_dispatcherThread;   // dispatcher thread handle
 
+    bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
+                                                // dispatcher thread
+    
     bslmt::Mutex          d_mutex;              // synchronizes access to
                                                 // condition variables
 
@@ -511,10 +518,10 @@ class EventScheduler {
                                                 // iteration (synchronizes
                                                 // 'wait' methods)
 
-    volatile bool         d_running;            // controls the looping of the
+    bool                  d_running;            // controls the looping of the
                                                 // dispatcher thread
 
-    volatile bool         d_dispatcherAwaited;  // A thread is waiting for the
+    bool                  d_dispatcherAwaited;  // A thread is waiting for the
                                                 // dispatcher to complete an
                                                 // iteration
 
@@ -754,22 +761,29 @@ class EventScheduler {
         // seconds.
 
     int start();
-        // Begin dispatching events on this scheduler.  The dispatcher thread
-        // will have default attributes.  Return 0 on success, and a non-zero
-        // value otherwise.  If this scheduler is already started then return
-        // 0 with no effect.  The scheduler must be stopped by invoking 'stop'
-        // before it is destroyed.  Note that any events scheduled in the past
-        // will be dispatched immediately upon starting.
+        // Begin dispatching events on this scheduler using default attributes
+        // for the dispatcher thread.  Return 0 on success, and a nonzero value
+        // otherwise.  If another thread is currently executing 'stop', wait
+        // until the dispatcher thread stops before starting a new one.  If this
+        // scheduler has already started (and is not currently being stopped by
+        // another thread) then this invocation has no effect and 0 is returned.
+        // The behavior is undefined if this method is invoked in the
+        // dispatcher thread (i.e., in a job executed by this scheduler).  Note
+        // that any event whose time has already passed is pending and will be
+        // dispatched immediately.
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
-        // Begin dispatching events on this scheduler, using the specified
-        // 'threadAttributes' for the dispatcher thread, except the DETACHED
-        // attribute will always be overridden to be joinable.  Return 0 on
-        // success, and a non-zero value otherwise.  If this scheduler is
-        // already started then return 0 with no effect.  The scheduler must be
-        // stopped by invoking 'stop' before it is destroyed.  Note that any
-        // events scheduled in the past will be dispatched immediately upon
-        // starting.
+        // Begin dispatching events on this scheduler using the specified
+        // 'threadAttributes' for the dispatcher thread (except that the
+        // DETACHED attribute is ignored).  Return 0 on success, and a nonzero
+        // value otherwise.  If another thread is currently executing 'stop',
+        // wait until the dispatcher thread stops before starting a new one.
+        // If this scheduler has already started (and is not currently being
+        // stopped by another thread) then this invocation has no effect and 0
+        // is returned.  The behavior is undefined if this method is invoked in
+        // the dispatcher thread (i.e., in a job executed by this scheduler).
+        // Note that any event whose time has already passed is pending and
+        // will be dispatched immediately.
 
     void stop();
         // End the dispatching of events on this scheduler (but do not remove
