@@ -1647,6 +1647,10 @@ int main(int argc, char *argv[])
             // always on Windows
 
             demangleExpected = true;
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)                                       \
+ && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+
+            demangleExpected = false;
 #endif
 
             bsl::stringstream ss;
