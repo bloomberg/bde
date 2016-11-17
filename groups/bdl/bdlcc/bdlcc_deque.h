@@ -593,6 +593,7 @@ class Deque {
     class Proctor;            // defined after this 'class'
     class ConstProctor;       // defined after this 'class'
 
+  private:
     // PRIVATE TYPES
     typedef Deque_DequeThrowGuard<TYPE>  DequeThrowGuard;
     typedef Deque_VectorThrowGuard<TYPE> VectorThrowGuard;
@@ -600,28 +601,28 @@ class Deque {
   private:
     // DATA
     mutable
-    bslmt::Mutex     d_mutex;                // mutex object used to
+    bslmt::Mutex       d_mutex;              // mutex object used to
                                              // synchronize access to the
                                              // underlying 'deque'.
 
-    bslmt::Condition d_notEmptyCondition;    // condition variable used to
+    bslmt::Condition   d_notEmptyCondition;  // condition variable used to
                                              // signal that new data is
                                              // available in the container
 
-    bslmt::Condition d_notFullCondition;     // condition variable used to
+    bslmt::Condition   d_notFullCondition;   // condition variable used to
                                              // signal when there is room
                                              // available to add new data to
                                              // the container
 
-    MonoDeque        d_monoDeque;            // the underlying deque.
+    MonoDeque          d_monoDeque;          // the underlying deque.
 
-    const size_type  d_highWaterMark;        // positive maximum number of
+    const size_type    d_highWaterMark;      // positive maximum number of
                                              // items that can be contained
                                              // before insertions will be
                                              // blocked.
 
     bsls::SystemClockType::Enum
-                     d_clockType;            // clock type used
+                       d_clockType;          // clock type used
 
   private:
     // NOT IMPLEMENTED
