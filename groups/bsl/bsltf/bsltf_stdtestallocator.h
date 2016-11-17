@@ -247,17 +247,17 @@ class StdTestAllocator {
     typedef const TYPE&           const_reference;
     typedef TYPE                  value_type;
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
-        // is convertible to and from 'other' for any 'OTHER_TYPE' including
-        // 'void'.
+        // This nested 'struct' template, parameterized by some
+        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
+        // which is an allocator type following the same template as this one
+        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
+        // allocator type is convertible to and from 'other' for any
+        // 'BDE_OTHER_TYPE' including 'void'.
 
-        typedef StdTestAllocator<OTHER_TYPE> other;
+        typedef StdTestAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
@@ -269,8 +269,8 @@ class StdTestAllocator {
         // compare equal to the default constructed object, because this type
         // has no state.
 
-    template <class OTHER_TYPE>
-    StdTestAllocator(const StdTestAllocator<OTHER_TYPE>&);
+    template <class BDE_OTHER_TYPE>
+    StdTestAllocator(const StdTestAllocator<BDE_OTHER_TYPE>&);
         // Create a 'StdTestAllocator' object.  Note that this object will
         // compare equal to the default constructed object, because this type
         // has no state.
@@ -599,17 +599,17 @@ class StdTestAllocator<void> {
     typedef const void           *const_pointer;
     typedef void                  value_type;
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
-        // is convertible to and from 'other' for any 'OTHER_TYPE' including
-        // 'void'.
+        // This nested 'struct' template, parameterized by some
+        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
+        // which is an allocator type following the same template as this one
+        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
+        // allocator type is convertible to and from 'other' for any
+        // 'BDE_OTHER_TYPE' including 'void'.
 
-        typedef StdTestAllocator<OTHER_TYPE> other;
+        typedef StdTestAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
@@ -621,8 +621,8 @@ class StdTestAllocator<void> {
         // compare equal to the default constructed object because, because
         // this type has no state.
 
-    template <class OTHER_TYPE>
-    StdTestAllocator(const StdTestAllocator<OTHER_TYPE>&);
+    template <class BDE_OTHER_TYPE>
+    StdTestAllocator(const StdTestAllocator<BDE_OTHER_TYPE>&);
         // Create a 'StdTestAllocator' object.  Note that this object will
         // compare equal to the default constructed object because, because
         // this type has no state.

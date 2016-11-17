@@ -234,18 +234,18 @@ class StdStatefulAllocator {
                                    PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
                                         propagate_on_container_move_assignment;
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
-        // is convertible to and from 'other' for any 'OTHER_TYPE' including
-        // 'void'.
+        // This nested 'struct' template, parameterized by some
+        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
+        // which is an allocator type following the same template as this one
+        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
+        // allocator type is convertible to and from 'other' for any
+        // 'BDE_OTHER_TYPE' including 'void'.
 
         typedef StdStatefulAllocator<
-                                 OTHER_TYPE,
+                                 BDE_OTHER_TYPE,
                                  PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                                  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                                  PROPAGATE_ON_CONTAINER_SWAP,
@@ -261,9 +261,9 @@ class StdStatefulAllocator {
         // Create an allocator having the same value as the specified
         // 'original' object.
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     StdStatefulAllocator(const StdStatefulAllocator<
-                            OTHER_TYPE,
+                            BDE_OTHER_TYPE,
                             PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                             PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                             PROPAGATE_ON_CONTAINER_SWAP,
@@ -653,7 +653,7 @@ template <class TYPE,
           bool  PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
           bool  PROPAGATE_ON_CONTAINER_SWAP,
           bool  PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>
-template <class OTHER_TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
@@ -661,7 +661,7 @@ StdStatefulAllocator<TYPE,
                      PROPAGATE_ON_CONTAINER_SWAP,
                      PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT>::
 StdStatefulAllocator(const StdStatefulAllocator<
-                             OTHER_TYPE,
+                             BDE_OTHER_TYPE,
                              PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION,
                              PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT,
                              PROPAGATE_ON_CONTAINER_SWAP,

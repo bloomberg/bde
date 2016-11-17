@@ -702,18 +702,18 @@ class StdAllocatorAdaptor : public ALLOCATOR {
     typedef typename ALLOCATOR::const_reference const_reference;
     typedef typename ALLOCATOR::value_type      value_type;
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
     struct rebind
     {
-        // This nested 'struct' template, parameterized by some 'OTHER_TYPE',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of 'OTHER_TYPE'.  Note that this allocator type
-        // is convertible to and from 'other' for any 'OTHER_TYPE' including
-        // 'void'.
+        // This nested 'struct' template, parameterized by some
+        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
+        // which is an allocator type following the same template as this one
+        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
+        // allocator type is convertible to and from 'other' for any
+        // 'BDE_OTHER_TYPE' including 'void'.
 
         typedef StdAllocatorAdaptor<
-                 typename ALLOCATOR::template rebind<OTHER_TYPE>::other> other;
+             typename ALLOCATOR::template rebind<BDE_OTHER_TYPE>::other> other;
     };
 
     // CREATORS
