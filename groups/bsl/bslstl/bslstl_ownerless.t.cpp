@@ -113,6 +113,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                      COMPILER FEATURE DETECTION MACROS
+// ----------------------------------------------------------------------------
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700) \
+  || defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT 1
+#endif
+
 //=============================================================================
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -283,7 +292,7 @@ SimpleRep & SimpleRepArray::operator[](int index)
 
     BSLS_ASSERT_OPT(!"Array index is out of bounds");
     // silence bad return path warning
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1700
+#if !defined(BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT)
     abort();
 #else
     struct CannotCatchMe {};
@@ -303,7 +312,7 @@ const SimpleRep & SimpleRepArray::operator[](int index) const
 
     BSLS_ASSERT_OPT(!"Array index is out of bounds");
     // silence bad return path warning
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1700
+#if !defined(BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT)
     abort();
 #else
     struct CannotCatchMe {};
