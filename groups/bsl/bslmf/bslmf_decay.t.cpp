@@ -74,8 +74,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
 # define BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
+// Old microsoft compilers do not support references to arrays of unknown
+// bound.
 #endif
 
 //=============================================================================
