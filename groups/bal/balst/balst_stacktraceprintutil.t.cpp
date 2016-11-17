@@ -139,37 +139,54 @@ typedef balst::StackTracePrintUtil           PrintUtil;
 typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
+    enum { e_FORMAT_ELF = 1, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
-    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=1, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=1, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_HPUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=1, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # else
 #   error unknown platform
 # endif
 
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 1 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 1, e_FORMAT_DLADDR = 0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=1 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=1,
+                                                                e_PLAT_WIN=0 };
 #else
 # error unknown object file format
 #endif
 
-#ifdef BDE_BUILD_TARGET_DBG
-    enum { DEBUG_ON = 1 };
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
+    enum { e_FORMAT_DWARF = 1 };
 #else
-    enum { DEBUG_ON = 0 };
+    enum { e_FORMAT_DWARF = 0 };
 #endif
 
+#ifdef BDE_BUILD_TARGET_DBG
+    enum { e_DEBUG_ON = 1 };
+#else
+    enum { e_DEBUG_ON = 0 };
+#endif
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    enum { e_OPT_ON = 1 };
+#else
+    enum { e_OPT_ON = 0 };
+#endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
@@ -240,6 +257,15 @@ UintPtr foilOptimizer(const UintPtr u)
     return u2;
 }
 
+template <class FUNC_PTR>
+inline
+FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
+{
+    UintPtr ret = reinterpret_cast<UintPtr>(funcPtr);
+
+    return reinterpret_cast<FUNC_PTR>(foilOptimizer(ret));
+}
+
 //-----------------------------------------------------------------------------
 
 void checkOutput(const bsl::string&               str,
@@ -250,7 +276,7 @@ void checkOutput(const bsl::string&               str,
     bslma::TestAllocator localAllocator;
     bdlma::SequentialAllocator sa(&localAllocator);
 
-    if (PLAT_WIN && !DEBUG_ON) {
+    if (e_PLAT_WIN && !e_DEBUG_ON) {
         return;                                                       // RETURN
     }
 
@@ -289,7 +315,8 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-    if (!FORMAT_ELF && !FORMAT_DLADDR && !FORMAT_WINDOWS && DEBUG_ON) {
+    if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
+                                !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
@@ -352,7 +379,7 @@ extern "C" {
 
 BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 {
-    if (!DEBUG_ON) {
+    if (!e_DEBUG_ON) {
         return FALSE;                                                 // RETURN
     }
 
@@ -428,7 +455,7 @@ static int phonyCompare(const void *, const void *)
         { L_, false, "phonyCompare" },
         { L_, false, "qsort" },
         { L_, true,  " in " },
-        { L_, true,  FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
+        { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
     enum { NUM_STRINGS = sizeof STRINGS / sizeof *STRINGS };
 
@@ -525,11 +552,11 @@ int highMiddle(int i)
     for (; i < 40; ++i) {
         if (i & 16) {
             i += 5;
-            ASSERT(top() >= 6);
+            ASSERT((*funcFoilOptimizer(&top))() >= 6);
         }
         else if (i & 8) {
             i += 7;
-            ASSERT(top() >= 7);
+            ASSERT((*funcFoilOptimizer(&top))() >= 7);
         }
     }
 
@@ -551,11 +578,11 @@ int lowMiddle()
     for (; i < 30; ++i) {
         if (i & 4) {
             i += 12;
-            ASSERT(highMiddle(10) >= 40);
+            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 40);
         }
         else if ((i & 2) && (i & 16)) {
             i += 5;
-            ASSERT(highMiddle(10) >= 39);
+            ASSERT((*funcFoilOptimizer(&highMiddle))(10) >= 39);
         }
     }
 
@@ -573,11 +600,11 @@ int bottom()
     for (; i < 20; ++i) {
         if (i & 8) {
             i += 7;
-            ASSERT(lowMiddle() >= 30);
+            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 30);
         }
         if ((i & 2) && (i & 4)) {
             i += 4;
-            ASSERT(lowMiddle() >= 28);
+            ASSERT((*funcFoilOptimizer(&lowMiddle))() >= 28);
         }
     }
 
@@ -887,7 +914,7 @@ int main(int argc, char *argv[])
         {
             namespace TC = CASE_2;
 
-            (void) TC::bottom();
+            (void) (*funcFoilOptimizer(&TC::bottom))();
 
             ASSERT(0 == defaultAllocator.numAllocations());
         }
