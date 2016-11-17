@@ -590,8 +590,8 @@ class Deque {
     typedef bsl::deque<TYPE>               MonoDeque;
     typedef typename MonoDeque::size_type  size_type;
 
-    class Proctor;            // defined after thius 'class'
-    class ConstProctor;       // defined after thius 'class'
+    class Proctor;            // defined after this 'class'
+    class ConstProctor;       // defined after this 'class'
 
     // PRIVATE TYPES
     typedef Deque_DequeThrowGuard<TYPE>  DequeThrowGuard;
