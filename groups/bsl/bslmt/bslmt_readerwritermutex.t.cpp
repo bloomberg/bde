@@ -435,7 +435,12 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::join(reader[i].d_handle);
         }
 
-        ASSERTV(writer.d_count, writer.d_count >= k_COMPLETION_COUNT / 2);
+        // For a reader-preffering lock, the above test will result in,
+        // typically, 'writer.d_count < k_COMPLETION_COUNT / 10000'.  To avoid
+        // potential intermittant failures, the threshold will be set (only) a
+        // hundred times higher than this measure.
+
+        ASSERTV(writer.d_count, writer.d_count >= k_COMPLETION_COUNT / 100);
       } break;
       case 2: {
         // --------------------------------------------------------------------
