@@ -988,14 +988,14 @@ class ManagedPtr {
         // 'original' (if any) to this managed pointer, and reset 'original' to
         // empty.
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
-    ManagedPtr(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original)
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original)
                                                            BSLS_CPP11_NOEXCEPT;
 #else
-    ManagedPtr(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original,
+    ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
                typename bsl::enable_if<
-                   bsl::is_convertible<OTHER_TYPE *, TARGET_TYPE *>::value,
+                   bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
                    void>::type * = 0) BSLS_CPP11_NOEXCEPT;
 #endif
         // Create a managed pointer having the same target object as the
@@ -1154,15 +1154,15 @@ class ManagedPtr {
         // reset 'rhs' to empty, and return a reference to this managed
         // pointer.
 
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
     ManagedPtr<TARGET_TYPE>&
 #else
     typename bsl::enable_if<
-        bsl::is_convertible<OTHER_TYPE *, TARGET_TYPE *>::value,
+        bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
         ManagedPtr<TARGET_TYPE> >::type&
 #endif
-    operator=(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > rhs)
+    operator=(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs)
                                                            BSLS_CPP11_NOEXCEPT;
         // If this object and the specified 'rhs' manage the same object,
         // return a reference to this managed pointer; otherwise, destroy the
@@ -1589,16 +1589,16 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(bslmf::MovableRef<ManagedPtr> original)
 }
 
 template <class TARGET_TYPE>
-template <class OTHER_TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 #if defined(BSLS_PLATFORM_CMP_SUN)
 ManagedPtr<TARGET_TYPE>::ManagedPtr(
-    bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original) BSLS_CPP11_NOEXCEPT
+   bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original) BSLS_CPP11_NOEXCEPT
 #else
 ManagedPtr<TARGET_TYPE>::ManagedPtr(
-    bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > original,
+    bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
     typename bsl::enable_if<
-        bsl::is_convertible<OTHER_TYPE *, TARGET_TYPE *>::value,
+        bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
         void>::type *) BSLS_CPP11_NOEXCEPT
 #endif
 : d_members(MoveUtil::access(original).d_members)
@@ -1779,19 +1779,19 @@ ManagedPtr<TARGET_TYPE>::operator=(bslmf::MovableRef<ManagedPtr> rhs)
 }
 
 template <class TARGET_TYPE>
-template <class OTHER_TYPE>
+template <class BDE_OTHER_TYPE>
 inline
 #if defined(BSLS_PLATFORM_CMP_SUN)
 ManagedPtr<TARGET_TYPE>&
 #else
-typename bsl::enable_if<bsl::is_convertible<OTHER_TYPE *,
-                                            TARGET_TYPE *>::value,
-                        ManagedPtr<TARGET_TYPE> >::type&
+typename bsl::enable_if<
+    bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
+    ManagedPtr<TARGET_TYPE> >::type&
 #endif
-ManagedPtr<TARGET_TYPE>::
-operator=(bslmf::MovableRef<ManagedPtr<OTHER_TYPE> > rhs) BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::operator =(
+        bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > rhs) BSLS_CPP11_NOEXCEPT
 {
-    ManagedPtr<OTHER_TYPE>& lvalue = rhs;
+    ManagedPtr<BDE_OTHER_TYPE>& lvalue = rhs;
     d_members.moveAssign(&lvalue.d_members);
     return *this;
 }
