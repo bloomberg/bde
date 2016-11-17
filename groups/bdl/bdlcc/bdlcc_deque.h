@@ -629,13 +629,14 @@ class Deque {
 
   public:
     // CLASS METHODS
-    static size_type maxSizeT();
+    static
+    size_type maxSizeT();
         // Return the maximum value that can be stored in a veriable of type
         // 'size_type'.  The high water mark defaults to having this value.
 
     // CREATORS
     explicit
-    Deque(bslma::Allocator *basicAllocator = 0);
+    Deque(bslma::Allocator            *basicAllocator = 0);
     explicit
     Deque(bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
