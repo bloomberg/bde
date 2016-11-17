@@ -173,21 +173,24 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_voidtype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
 
-template <class FALLBACK>
-struct ResultType_Fallback;
+template <class FUNC, class FALLBACK, class = void>
+struct ResultType_BdeIdiom;
     // Forward declaration
 
                         // ================
                         // class ResultType
                         // ================
 
-template <class FUNC, class FALLBACK = bslmf::Nil,
-          class V1 = void, class V2 = void>
-struct ResultType : ResultType_Fallback<FALLBACK> {
+template <class FUNC, class FALLBACK = bslmf::Nil, class = void>
+struct ResultType : ResultType_BdeIdiom<FUNC, FALLBACK> {
     // Metafunction to return the result type of the specified functor type
     // 'FUNC'. The nested 'type' is identical to 'FUNC::result_type' if such a
     // type exists; otherwise, it is identical to 'FUNC::ResultType' if that
@@ -195,32 +198,11 @@ struct ResultType : ResultType_Fallback<FALLBACK> {
     // paramter if it was specified; otherwise it is undefined.
 };
 
-template <class FUNC, class FALLBACK, class V2>
-struct ResultType<FUNC, FALLBACK,
-                  typename VoidType<typename FUNC::result_type>::type, V2> {
-    // Specialization of 'ResultType' for when 'FUNC::result_type' exists.
-
-    typedef typename FUNC::result_type type;
-};
-
-template <class FUNC, class FALLBACK, class V1>
-struct ResultType<FUNC, FALLBACK,
-                  V1, typename VoidType<typename FUNC::ResultType>::type> {
-    // Specialization of 'ResultType' for when 'FUNC::ResultType' exists.
-
-    typedef typename FUNC::ResultType type;
-};
-
 template <class FUNC, class FALLBACK>
 struct ResultType<FUNC, FALLBACK,
-                  typename VoidType<typename FUNC::result_type>::type,
-                  typename VoidType<typename FUNC::ResultType>::type> {
-    // Specialization of 'ResultType' for when both 'FUNC::result_type' and
-    // 'FUNC::ResultType' exist. 'FUNC::result_type' takes precidence.
-    // Note: It is not possible to use a single instantiation of 'VoidType'
-    // with two arguments because that is not considered to be more
-    // specialized than 'VoidType' with only one argument. (This may be a
-    // limitation of the implementation of 'VoidType' in bsl.)
+                  typename VoidType<typename FUNC::result_type>::type> {
+    // Specialization of 'ResultType' for when 'FUNC::result_type' exists,
+    // i.e., when the C++ standard idiom for 'result_type' is used.
 
     typedef typename FUNC::result_type type;
 };
@@ -241,6 +223,27 @@ template <>
 struct ResultType_Fallback<bslmf::Nil> {
     // Specialization of 'ResultType_Fallback' which does not define 'type' if
     // 'bslmf::Nil' is specified as the fallback parameter.
+};
+
+
+template <class FUNC, class FALLBACK, class>
+struct ResultType_BdeIdiom : ResultType_Fallback<FALLBACK> {
+    // Metafunction to detect the BDE 'ResultType' idiom as part of the
+    // implementation of 'bslmf::ResultType'.  This stuct is instantiated when
+    // 'FUNC::result_type' doesn't exist. This primary template is matched
+    // when 'FUNC::ResultType' also does not exist. The 'FALLBACK' type, if
+    // any, is produced.
+};
+
+template <class FUNC, class FALLBACK>
+struct ResultType_BdeIdiom<FUNC, FALLBACK,
+                  typename VoidType<typename FUNC::ResultType>::type> {
+    // Metafunction to detect the BDE 'ResultType' idiom as part of the
+    // implementation of 'bslmf::ResultType'.  This specializatoin is
+    // instantiated by 'ResultType' only if 'FUNC::result_type' does not exist
+    // and 'FUNC::ResultType' does exist.
+
+    typedef typename FUNC::ResultType type;
 };
 
 }  // close package namespace
