@@ -10451,9 +10451,9 @@ int main(int argc, char *argv[])
 
                 {
                     SharedPtr testPtr(
-                                  pThis,
-                                  pRep,
-                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                                 pThis,
+                                 pRep,
+                                 bslstl::SharedPtr_RepFromExistingSharedPtr());
                     ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
                     ASSERTV(disposeRepCount,     0 == disposeRepCount);
                     ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
@@ -10549,9 +10549,9 @@ int main(int argc, char *argv[])
 
                 {
                     SharedPtr testPtr(
-                                  pThis,
-                                  rep,
-                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                                 pThis,
+                                 rep,
+                                 bslstl::SharedPtr_RepFromExistingSharedPtr());
                     ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
                     ASSERTV(disposeRepCount,     0 == disposeRepCount);
                     ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
@@ -19128,7 +19128,7 @@ int main(int argc, char *argv[])
             bslma::SharedPtrRep *rep = x.rep();
             x.release();
 
-            Obj xx(p, rep, bslstl::SharedPtrRepFromExistingSharedPtr());
+            Obj xx(p, rep, bslstl::SharedPtr_RepFromExistingSharedPtr());
             const Obj& XX = xx;
             ASSERT(p == XX.get());
             ASSERT(rep ==  XX.rep());

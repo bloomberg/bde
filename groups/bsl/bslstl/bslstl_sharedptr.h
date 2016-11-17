@@ -1729,10 +1729,10 @@ BSL_OVERRIDES_STD mode"
 namespace BloombergLP {
 namespace bslstl {
 
-struct SharedPtrRepFromExistingSharedPtr {
-    // This 'struct' provides a tag for 'shared_ptr' constructors to recognize
-    // that a passed 'SharedPtrRep' was obtained from an existing 'shared_ptr'
-    // object.
+struct SharedPtr_RepFromExistingSharedPtr {
+    // This 'struct' is for internal use only, providing a tag for 'shared_ptr'
+    // constructors to recognize that a passed 'SharedPtrRep' was obtained from
+    // an existing 'shared_ptr' object.
 };
 
 struct SharedPtr_ImpUtil;
@@ -1959,7 +1959,7 @@ class shared_ptr {
 
     shared_ptr(ELEMENT_TYPE                     *ptr,
                BloombergLP::bslma::SharedPtrRep *rep,
-               BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr);
+               BloombergLP::bslstl::SharedPtr_RepFromExistingSharedPtr);
         // Create a shared pointer that takes ownership of the specified 'rep'
         // and refers to the modifiable object at the specified 'ptr' address.
         // The number of references to 'rep' is *NOT* incremented.  The
@@ -5244,9 +5244,9 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                        ELEMENT_TYPE                     *ptr,
-                        BloombergLP::bslma::SharedPtrRep *rep,
-                        BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr)
+                       ELEMENT_TYPE                     *ptr,
+                       BloombergLP::bslma::SharedPtrRep *rep,
+                       BloombergLP::bslstl::SharedPtr_RepFromExistingSharedPtr)
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
@@ -6838,9 +6838,9 @@ shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::lock() const
 {
     if (d_rep_p && d_rep_p->tryAcquireRef()) {
         return shared_ptr<ELEMENT_TYPE>(
-                     d_ptr_p,
-                     d_rep_p,
-                     BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr());
+                    d_ptr_p,
+                    d_rep_p,
+                    BloombergLP::bslstl::SharedPtr_RepFromExistingSharedPtr());
                                                                       // RETURN
     }
     return shared_ptr<ELEMENT_TYPE>();
