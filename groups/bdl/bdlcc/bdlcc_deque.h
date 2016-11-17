@@ -71,27 +71,29 @@ BSLS_IDENT("$Id: $")
 // and the container has *space* *available* if it is not full.  The high-water
 // mark is set at construction and cannot be changed afterward.  If no
 // high-water mark is specified, the high-water mark of the container is
-// inifinite.  Some types of pushes may fail, and for those operations,
-// success, partial success, or failure of the push is reflected in the
-// function's return value.
+// effectively inifinite.  Some types of pushes may fail, and for those
+// operations, success, partial success (of a range push), or failure of the
+// push is reflected in the function's return value.
 //
-// 'bdlcc::Deque' supports four categories of 'push' operations that interact
-// with the high-water mark in different ways:
+// 'bdlcc::Deque' supports four variants of the two 'push' methods, whose
+// behaviors differ when the container is *full* (i.e. when the push would
+// raise the length of the container above the high-water mark).
 //
-//: 1 *straight*: ('pushBack', 'pushFront'): block until space is available,
-//:   then push.
+//: 1 *standard*: ('pushBack', 'pushFront'): If the container is full, block
+//:   until space is available, then push, otherwise push immediately.
 //:
-//: 2 *try* ('tryPushBack', 'tryPushFront'): push to the extent that space is
-//:   available, or fail immediately.
+//: 2 *try* ('tryPushBack', 'tryPushFront'): If the container is full, fail
+//:   immediately.  If space is available, succeed immediately.  Note that
+//:   partial success is possible in the case of a range try push.
 //:
-//: 3 *timed*: ('timedPushBack', 'timedPushFront'): block for up to a specified
-//:   time, waiting for space to become available.  If space does become
-//:   available within that time, the push succeeds, otherwise the operation
-//:   will time out and fail.
+//: 3 *timed*: ('timedPushBack', 'timedPushFront'): If the container is full,
+//:   block until either space is available or the specified timeout has been
+//:   reached.  If space was, or became, available, push and succeed, otherwise
+//:   fail.
 //:
-//: 4 *force*: ('forcePushBack', 'forcePushFront'): ignore the high-water mark
-//:   and always succeed in adding the item(s) to the container, increasing its
-//:   size potentially above the high-water mark.
+//: 4 *force*: ('forcePushBack', 'forcePushFront'): If the container is full,
+//:   push anyway, increasing the container's size above its high-water mark,
+//:   always succeeding immediately.
 //
 // Note that the availability of force pushes means that the high-water mark is
 // a suggestion and not an invariant.
@@ -790,28 +792,28 @@ class Deque {
         // return after 'timeout'.
 
     int timedPushBack(const TYPE& item, const bsls::TimeInterval& timeout);
-        // If the container is full, block until space is available or until
-        // the specified 'timeout' (expressed as the !ABSOLUTE! time from
-        // 00:00:00 UTC, January 1, 1970) expires.  If the container was not
-        // full or if space becomes available prior to 'timeout', push the
-        // specified 'item' to the back of the container, otherwise leave the
-        // container unchanged.  Return 0 if the container was updated, and a
-        // non-zero value if the call timed out before space became available.
-        // Note that this method can block indefinitely if another thread has
-        // the mutex locked, particularly by a proctor object -- there is no
-        // guarantee that this method will return after 'timeout'.
+        // Append the specified 'item' to the back of this container if space
+        // is available, otherwise (if the container is full) block waiting for
+        // space to become available or until the specified 'timeout'
+        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
+        // 1970) expires.  Return 0 if space was or became available and this
+        // container was updated, and a non-zero value if the call timed out
+        // before space became available and this container was left
+        // unmodified.  Note that this method can block indefinitely if another
+        // thread has the mutex locked, particularly by a proctor object --
+        // there is no guarantee that this method will return after 'timeout'.
 
     int timedPushFront(const TYPE& item,  const bsls::TimeInterval& timeout);
-        // If the container is full, block until space is available or until
-        // the specified 'timeout' (expressed as the !ABSOLUTE! time from
-        // 00:00:00 UTC, January 1, 1970) expires.  If the container was not
-        // full or if space becomes available prior to 'timeout', push the
-        // specified 'item' to the front of the container, otherwise leave the
-        // container unchanged.  Return 0 if the container was updated, and a
-        // non-zero value if the call timed out before space became available.
-        // Note that this method can block indefinitely if another thread has
-        // the mutex locked, particularly by a proctor object -- there is no
-        // guarantee that this method will return after 'timeout'.
+        // Append the specified 'item' to the front of this container if space
+        // is available, otherwise (if the container is full) block waiting for
+        // space to become available or until the specified 'timeout'
+        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
+        // 1970) expires.  Return 0 if space was or became available and this
+        // container was updated, and a non-zero value if the call timed out
+        // before space became available and this container was left
+        // unmodified.  Note that this method can block indefinitely if another
+        // thread has the mutex locked, particularly by a proctor object --
+        // there is no guarantee that this method will return after 'timeout'.
 
     int tryPopBack(TYPE *item);
         // If this container is non-empty, remove the last item, load that item
