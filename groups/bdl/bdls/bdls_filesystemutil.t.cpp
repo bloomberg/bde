@@ -942,7 +942,7 @@ int main(int argc, char *argv[])
             rc = stringFlag ? Obj::visitPaths(bsl::string(str), woofVisitor)
                             : Obj::visitPaths(str, woofVisitor);
 # ifdef BSLS_PLATFORM_OS_WINDOWS
-            LOOP2_ASSERT(stringFlag, rc, -2 == rc);
+            LOOP2_ASSERT(stringFlag, rc, 0 != rc);
 # else
             ASSERT(0 == rc);
 # endif
