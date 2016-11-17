@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a fully thread-safe deque of items of parameterized 'TYPE'.
+//@PURPOSE: Provide a fully thread-safe deque template of items of type 'TYPE'.
 //
 //@CLASSES:
 //   bdlcc::Deque: thread-safe 'bsl::deque' wrapper
@@ -18,9 +18,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides 'bdlcc::Deque<TYPE>', a fully
 // thread-safe implementation of an efficient, double-ended queue of
-// parameterized 'TYPE' values.  'bdlcc::Deque' is effectively a thread-safe
-// wrapper for 'bsl::deque', whose interface is also made available through
-// proctor types that are nested classes.
+// (template parameter) 'TYPE' values.  'bdlcc::Deque' is effectively a
+// thread-safe wrapper for 'bsl::deque', whose interface is also made available
+// through proctor types that are nested classes.
 //
 ///Thread Safety
 ///-------------
@@ -79,17 +79,18 @@ BSLS_IDENT("$Id: $")
 // behaviors differ when the container is *full* (i.e. when the push would
 // raise the length of the container above the high-water mark).
 //
-//: 1 *standard*: ('pushBack', 'pushFront'): If the container is full, block
-//:   until space is available, then push, otherwise push immediately.
+//: 1 *unlimited* *blocking*: ('pushBack', 'pushFront'): If the container is
+//:   full, block until space is available, then push, otherwise push
+//:   immediately.
 //:
 //: 2 *try* ('tryPushBack', 'tryPushFront'): If the container is full, fail
 //:   immediately.  If space is available, succeed immediately.  Note that
 //:   partial success is possible in the case of a range try push.
 //:
-//: 3 *timed*: ('timedPushBack', 'timedPushFront'): If the container is full,
-//:   block until either space is available or the specified timeout has been
-//:   reached.  If space was, or became, available, push and succeed, otherwise
-//:   fail.
+//: 3 *timed* *blocking*: ('timedPushBack', 'timedPushFront'): If the container
+//:   is full, block until either space is available or the specified timeout
+//:   has been reached.  If space was, or became, available, push and succeed,
+//:   otherwise fail.
 //:
 //: 4 *force*: ('forcePushBack', 'forcePushFront'): If the container is full,
 //:   push anyway, increasing the container's size above its high-water mark,
@@ -578,48 +579,49 @@ class Deque_VectorThrowGuard {
 template <class TYPE>
 class Deque {
     // This class provides a fully thread-safe implementation of an efficient,
-    // in-place, indexable, double-ended queue of parameterized 'TYPE' values.
-    // Direct access to the underlying 'bsl::deque<TYPE>' object is provided
-    // through the nested 'Proctor' and 'ConstProctor' classes.  While this
-    // class is not value-semantic, the underlying 'bsl::deque<TYPE>' class is.
+    // in-place, indexable, double-ended queue of (template parameter) 'TYPE'
+    // values.  Direct access to the underlying 'bsl::deque<TYPE>' object is
+    // provided through the nested 'Proctor' and 'ConstProctor' classes.  While
+    // this class is not value-semantic, the underlying 'bsl::deque<TYPE>'
+    // class is.
 
   public:
     // PUBLIC TYPES
-    typedef bsl::deque<TYPE>              MonoDeque;
-    typedef typename MonoDeque::size_type size_type;
+    typedef bsl::deque<TYPE>               MonoDeque;
+    typedef typename MonoDeque::size_type  size_type;
 
-    class Proctor;        // defined below
-    class ConstProctor;   // defined below
+    class Proctor;            // defined after thius 'class'
+    class ConstProctor;       // defined after thius 'class'
 
     // PRIVATE TYPES
-    typedef Deque_DequeThrowGuard<TYPE>   DequeThrowGuard;
-    typedef Deque_VectorThrowGuard<TYPE>  VectorThrowGuard;
+    typedef Deque_DequeThrowGuard<TYPE>  DequeThrowGuard;
+    typedef Deque_VectorThrowGuard<TYPE> VectorThrowGuard;
 
   private:
     // DATA
     mutable
-    bslmt::Mutex       d_mutex;              // mutex object used to
+    bslmt::Mutex     d_mutex;                // mutex object used to
                                              // synchronize access to the
                                              // underlying 'deque'.
 
-    bslmt::Condition   d_notEmptyCondition;  // condition variable used to
+    bslmt::Condition d_notEmptyCondition;    // condition variable used to
                                              // signal that new data is
                                              // available in the container
 
-    bslmt::Condition   d_notFullCondition;   // condition variable used to
+    bslmt::Condition d_notFullCondition;     // condition variable used to
                                              // signal when there is room
                                              // available to add new data to
                                              // the container
 
-    MonoDeque          d_monoDeque;          // the underlying deque.
+    MonoDeque        d_monoDeque;            // the underlying deque.
 
-    const size_type    d_highWaterMark;      // positive maximum number of
+    const size_type  d_highWaterMark;        // positive maximum number of
                                              // items that can be contained
                                              // before insertions will be
                                              // blocked.
 
     bsls::SystemClockType::Enum
-                       d_clockType;          // clock type used
+                     d_clockType;            // clock type used
 
   private:
     // NOT IMPLEMENTED
@@ -627,22 +629,21 @@ class Deque {
 
   public:
     // CLASS METHODS
-    static
-    size_type maxSizeT();
+    static size_type maxSizeT();
         // Return the maximum value that can be stored in a veriable of type
         // 'size_type'.  The high water mark defaults to having this value.
 
     // CREATORS
     explicit
-    Deque(bslma::Allocator            *basicAllocator = 0);
+    Deque(bslma::Allocator *basicAllocator = 0);
     explicit
     Deque(bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a container of objects of parameterized 'TYPE', with no high
-        // water mark, and use the specified 'clockType' to indicate the epoch
-        // used for all time intervals (see {Supported Clock-Types} in the
-        // component documentation).  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // Create a container of objects of (template parameter) 'TYPE', with
+        // no high water mark, and use the specified 'clockType' to indicate
+        // the epoch used for all time intervals (see {Supported Clock-Types}
+        // in the component documentation).  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     explicit
     Deque(bsl::size_t                  highWaterMark,
@@ -650,8 +651,8 @@ class Deque {
     Deque(bsl::size_t                  highWaterMark,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a container of objects of parameterized 'TYPE', with the
-        // specified 'highWaterMark', and use the specified 'clockType' to
+        // Create a container of objects of (template parameter) 'TYPE', with
+        // the specified 'highWaterMark', and use the specified 'clockType' to
         // indicate the epoch used for all time intervals (see {Supported
         // Clock-Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -667,13 +668,14 @@ class Deque {
           INPUT_ITER                   end,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a container of objects of parameterized 'TYPE' containing the
-        // sequence of elements in the specified range '[ begin, end )', having
-        // no high water mark, and use the specified 'clockType' to indicate
-        // the epoch used for all time intervals (see {Supported Clock-Types}
-        // in the component documentation).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a container of objects of (template parameter) 'TYPE'
+        // containing the sequence of elements in the specified range
+        // '[begin .. end)', having no high water mark, and use the specified
+        // 'clockType' to indicate the epoch used for all time intervals (see
+        // {Supported Clock-Types} in the component documentation).  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     template <class INPUT_ITER>
     Deque(INPUT_ITER                   begin,
@@ -686,20 +688,20 @@ class Deque {
           bsl::size_t                  highWaterMark,
           bsls::SystemClockType::Enum  clockType,
           bslma::Allocator            *basicAllocator = 0);
-        // Create a container of objects of parameterized 'TYPE' containing the
-        // sequence of 'TYPE' values in the specified range '[ begin, end )'
-        // having the specified 'highWaterMark', and use the specified
-        // 'clockType' to indicate the epoch used for all time intervals (see
-        // {Supported Clock-Types} in the component documentation).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'highWaterMark > 0'.  Note
-        // that if the number of elements in the range '[begin, end)' exceeds
-        // 'highWaterMark', the effect will be the same as if the extra
-        // elements were added by forced pushes.
+        // Create a container of objects of (template parameter) 'TYPE'
+        // containing the sequence of 'TYPE' values in the specified range
+        // '[begin .. end)' having the specified 'highWaterMark', and use the
+        // specified 'clockType' to indicate the epoch used for all time
+        // intervals (see {Supported Clock-Types} in the component
+        // documentation).  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'highWaterMark > 0'.  Note that if the number of elements in the
+        // range '[begin, end)' exceeds 'highWaterMark', the effect will be the
+        // same as if the extra elements were added by forced pushes.
 
     Deque(const Deque<TYPE>& original, bslma::Allocator *basicAllocator = 0);
-        // Create a const having the same value as the specified 'original'
+        // Create a container having the same value as the specified 'original'
         // object.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
@@ -717,8 +719,8 @@ class Deque {
     template <class INPUT_ITER>
     void forcePushBack(INPUT_ITER begin,
                        INPUT_ITER end);
-        // Append the specified specified range '[begin, end)' of items to the
-        // back of this container without regard for the high-water mark.
+        // Append the specified specified range '[begin .. end)' of items to
+        // the back of this container without regard for the high-water mark.
 
     void forcePushFront(const TYPE& item);
         // Append the specified 'item' to the front of this container without
@@ -729,8 +731,8 @@ class Deque {
     template <class INPUT_ITER>
     void forcePushFront(INPUT_ITER begin,
                         INPUT_ITER end);
-        // Append the specified specified range '[begin, end)' of items to the
-        // front of this container without regard for the high-water mark.
+        // Append the specified specified range '[begin .. end)' of items to
+        // the front of this container without regard for the high-water mark.
         // Note that pushed the items will be in the container in the reverse
         // of the order in which they occur in the range.
 
@@ -754,13 +756,13 @@ class Deque {
 
     void pushBack(const TYPE& item);
         // Block until space in this container becomes available (see
-        // 'high-water mark' section above), then append the specified 'item'
-        // to the back of this container.
+        // {'High-Water Mark' Feature}), then append the specified 'item' to
+        // the back of this container.
 
     void pushFront(const TYPE& item);
         // Block until space in this container becomes available (see
-        // 'high-water mark' section above), then append the specified 'item'
-        // to the front of this container.
+        // {'High-Water Mark' Feature}), then append the specified 'item' to
+        // the front of this container.
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
@@ -855,7 +857,7 @@ class Deque {
         // vector 'v', use 'd.removeAll(&v);'.
 
     int tryPushBack(const TYPE& item);
-        // If the container is not full (see 'high-water mark' section above),
+        // If the container is not full (see {'High-Water Mark' Feature}),
         // append the specified 'item' to the back of the container, otherwise
         // leave the container unchanged.  Return 0 if the container was
         // updated and a non-zero value otherwise.
@@ -863,13 +865,13 @@ class Deque {
     template <class INPUT_ITER>
     size_type tryPushBack(INPUT_ITER begin,
                           INPUT_ITER end);
-        // Push as many of the items in the specified range '[begin, end)' as
-        // there is space available for (see 'high-water mark' section above)
-        // to the back of the container, stopping if the container high-water
-        // mark is reached.  Return the number of items pushed.
+        // Push as many of the items in the specified range '[begin .. end)' as
+        // there is space available for (see {'High-Water Mark' Feature}) to
+        // the back of the container, stopping if the container high-water mark
+        // is reached.  Return the number of items pushed.
 
     int tryPushFront(const TYPE& item);
-        // If the container is not full (see 'high-water mark' section above),
+        // If the container is not full (see {'High-Water Mark' Feature}),
         // append the specified 'item' to the front of the container, otherwise
         // leave the container unchanged.  Return 0 if the container was
         // updated and a non-zero value otherwise.
@@ -877,9 +879,9 @@ class Deque {
     template <class INPUT_ITER>
     size_type tryPushFront(INPUT_ITER begin,
                            INPUT_ITER end);
-        // Push as many of the items in the specified range '[begin, end)' as
-        // there is space available for (see 'high-water mark' section above)
-        // to the front of the container, stopping if the container high-water
+        // Push as many of the items in the specified range '[begin .. end)' as
+        // there is space available for (see {'High-Water Mark' Feature}) to
+        // the front of the container, stopping if the container high-water
         // mark is reached.  Return the number of items pushed.  Note that the
         // pushed items will be in the container in the reverse of the order in
         // which they occur in the range.
@@ -898,11 +900,11 @@ class Deque {
     size_type length() const;
         // Return the number of elements contained in this container.  Note
         // that this method temporarily acquires the mutex, so that this method
-        // must not be called while a proctor has this container locked, and
-        // the value returned is potentially obsolete before it is returned if
-        // any other threads are simultaneously modifying this container.  To
-        // find the length while a proctor has the container locked, call
-        // 'proctor->size()'.
+        // must not be called while a proctor in the same thread has this
+        // container locked, and the value returned is potentially obsolete
+        // before it is returned if any other threads are simultaneously
+        // modifying this container.  To find the length while a proctor has
+        // the container locked, call 'proctor->size()'.
 };
 
                               // ====================
