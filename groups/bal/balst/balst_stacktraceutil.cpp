@@ -64,8 +64,6 @@ const char *findBasename(const char *pathName)
 }
 
 namespace BloombergLP {
-
-
 namespace balst {
 
 template <class RESOLVER_POLICY>
@@ -284,7 +282,7 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     bslma::DeallocatorGuard<bslma::Allocator> guard(addresses, allocator);
 
     int numAddresses = StackAddressUtil::getStackAddresses(addresses,
-                                                                 maxFrames);
+                                                           maxFrames);
     if (numAddresses <= ignoreFrames) {
         return stream;                                                // RETURN
     }

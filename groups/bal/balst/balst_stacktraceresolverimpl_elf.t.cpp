@@ -13,6 +13,8 @@
 
 #include <balst_objectfileformat.h>
 
+#include <bdls_filesystemutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
@@ -31,6 +33,7 @@ using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -93,6 +96,18 @@ static void aSsErT(int c, const char *s, int i)
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf> Obj;
 typedef balst::StackTraceFrame                                      Frame;
 typedef bsls::Types::UintPtr                                        UintPtr;
+
+#if defined(BSLS_PLATFORM_OS_LINUX)
+enum { e_IS_LINUX = 1 };
+#else
+enum { e_IS_LINUX = 0 };
+#endif
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF) &&                         \
+                                                 !defined(BDE_BUILD_TARGET_OPT)
+enum { e_IS_DWARF = 1 };
+#else
+enum { e_IS_DWARF = 0 };
+#endif
 
 // ============================================================================
 //                    GLOBAL HELPER VARIABLES FOR TESTING
@@ -234,10 +249,10 @@ UintPtr bigRand()
     typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
-    UintPtr lowBits = next >> 32;
+    UintPtr lowBits = static_cast<UintPtr>(next >> 32);
     bigRandSeed = randA * next + randC;
 
-    return (UintPtr) bigRandSeed ^ lowBits;
+    return static_cast<UintPtr>(bigRandSeed) ^ lowBits;
 }
 
 void stuffRandomAddresses(balst::StackTrace *stackTrace)
@@ -273,6 +288,8 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
@@ -331,13 +348,13 @@ int main(int argc, char *argv[])
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared
-        // libraries to 'balst_stacktraceutil.t.cpp.
+        // libraries to 'balst_stacktraceprintutil.t.cpp.
 
         typedef bsls::Types::UintPtr UintPtr;
 
         for (bool demangle = false; true; demangle = true) {
             balst::StackTrace stackTrace;
-            stackTrace.resize(4);
+            stackTrace.resize(5);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
             stackTrace[1].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
 
@@ -376,6 +393,7 @@ int main(int argc, char *argv[])
 #endif
 
             stackTrace[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
+            stackTrace[4].setAddress(addFixedOffset((UintPtr) &Obj::test));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -440,64 +458,64 @@ int main(int argc, char *argv[])
             // found this source file name.
 
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (0 == i || 3 == i) {
-                    LOOP_ASSERT(i, !stackTrace[i].isSourceFileNameKnown());
+                if (!e_IS_DWARF && 1 != i) {
                     continue;
                 }
 
-                const char *name = stackTrace[i].sourceFileName().c_str();
-                LOOP_ASSERT(i, name);
-                if (name) {
-                    LOOP_ASSERT(i, *name);
-                }
-                if (name) {
-                    const char *pc = name + bsl::strlen(name);
-                    while (pc > name && '/' != pc[-1]) {
-                        --pc;
-                    }
+                LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
 
-                    LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
-                                    "balst_stacktraceresolverimpl_elf.t.cpp"));
+                const char *sym = stackTrace[i].symbolName().c_str();
+
+                const char *name = stackTrace[i].sourceFileName().c_str();
+                LOOP2_ASSERT(i, name, !e_IS_DWARF || '/' == *name);
+                LOOP2_ASSERT(i, name, !e_IS_DWARF ||
+                                           bdls::FilesystemUtil::exists(name));
+
+                const char *pc = name + bsl::strlen(name);
+                while (pc > name && '/' != pc[-1]) {
+                    --pc;
                 }
+
+                int line = stackTrace[i].lineNumber();
+
+                if (veryVerbose) cout << i << ", " << sym << ", " << name <<
+                                                           ':' << line << endl;
+
+                LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
+                           3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
+                         : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
+                                  : "balst_stacktraceresolverimpl_elf.t.cpp"));
             }
 
 #undef  SM
-#define SM(nm, match) {                                             \
-                const char *name = nm.c_str();                      \
-                LOOP2_ASSERT(name, match, safeStrStr(name, match)); \
+#define SM(ii, match) {                                                       \
+                const char *msn = stackTrace[ii].mangledSymbolName().c_str(); \
+                LOOP2_ASSERT(msn, match, safeStrStr(msn, match));             \
+                const char *sn = stackTrace[ii].symbolName().c_str();         \
+                LOOP2_ASSERT(sn, match, safeStrStr(sn, match));               \
             }
 
-            SM(stackTrace[0].mangledSymbolName(), "funcGlobalOne");
-            SM(stackTrace[1].mangledSymbolName(), "funcStaticOne");
-            SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
-            SM(stackTrace[3].mangledSymbolName(), "resolve");
-
-            SM(stackTrace[0].symbolName(), "funcGlobalOne");
-            SM(stackTrace[1].symbolName(), "funcStaticOne");
-            SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
-            SM(stackTrace[3].symbolName(), "resolve");
+            SM(0, "funcGlobalOne");
+            SM(1, "funcStaticOne");
+            SM(2, "funcStaticInlineOne");
+            SM(3, "resolve");
+#undef  SM
 
             if (demangle) {
-#undef  SM
-#define SM(i, match) {                                                     \
-                    const char *name = stackTrace[i].symbolName().c_str(); \
-                    LOOP_ASSERT(name, safeCmp(name, match));               \
+#define SM(ii, match) {                                                       \
+                    const char *name = stackTrace[ii].symbolName().c_str();   \
+                    LOOP_ASSERT(name, safeCmp(name, match));                  \
                 }
 
                 SM(0, "funcGlobalOne(int)");
-#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
-                // Our machines have a configuration problem where the linux
-                // Clang compiler and demangler are out of sync with respect to
-                // how they handle file-scope static id's.  This is not
-                // currently a very important platform for us, perhaps before
-                // it becomes one the compiler and demangler lib will be in
-                // sync.
+                if (!e_IS_LINUX) {
+                    // The linux demangler has a bug where it fails on
+                    // file-scope statics.
 
-                Q(Linux clang demangle test of file-scope statics disabled);
-#else
-                SM(1, "funcStaticOne(int)");
-                SM(2, "funcStaticInlineOne(int)");
-#endif
+                    SM(1, "funcStaticOne(int)");
+                    SM(2, "funcStaticInlineOne(int)");
+                }
+#undef  SM
                 const char *resName = "BloombergLP::"
                                       "balst::StackTraceResolverImpl"
                                       "<BloombergLP::"
