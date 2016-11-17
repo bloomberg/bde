@@ -211,13 +211,6 @@ void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
     vector->push_back(item);
 }
 
-static
-void nullWrapper(const char *item)
-    // A no-op 'thunk' to visit the path specified by 'item' and do nothing.
-{
-    (void) item;
-}
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 static inline
 void invokeFindClose(void *handle, void *)
@@ -852,7 +845,7 @@ int FilesystemUtil::visitPaths(
     bsl::string dirName;
     if (0 != PathUtil::getDirname(&dirName, patternStr)) {
         // There is no leaf, therefore there can be nothing to do (but not an
-        // error).  Return # of files found.
+        // error).  Return # of files found, which is 0.
 
         return 0;                                                     // RETURN
     }
@@ -923,7 +916,7 @@ int FilesystemUtil::visitPaths(
             // If the user passed invalid UTF-8 in 'patternStr', return
             // failure.
 
-            return -2;                                                // RETURN
+            return -1;                                                // RETURN
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
@@ -2046,13 +2039,6 @@ int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                       bdlf::BindUtil::bind(&pushBackWrapper,
                                            result,
                                            bdlf::PlaceHolders::_1));
-}
-
-int FilesystemUtil::numMatchingPaths(const char *pattern)
-{
-    BSLS_ASSERT(pattern);
-
-    return visitPaths(pattern, &nullWrapper);
 }
 
 }  // close package namespace

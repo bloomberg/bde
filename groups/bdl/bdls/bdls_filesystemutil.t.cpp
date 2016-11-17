@@ -64,8 +64,6 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
-// [ 3] int Obj::findMatchingPaths(vector<string>*, const char *)
-// [ 3] int Obj::numMatchingPaths(const char *)
 // [ 4] bool isRegularFile(const bsl::string&, bool)
 // [ 4] bool isRegularFile(const char *, bool)
 // [ 4] bool isDirectory(const bsl::string&, bool)
@@ -2981,7 +2979,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int Obj::findMatchingPaths(vector<string>*, const char *)
-        //   int Obj::numMatchingPaths(const char *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing pattern matching\n"
@@ -3075,10 +3072,6 @@ int main(int argc, char *argv[])
                 replace_if(rollup.begin(), rollup.end(), ::isForwardSlash,*PS);
 #endif
                 LOOP2_ASSERT(path, rollup, path == rollup);
-
-                rc = jj ? Obj::numMatchingPaths(path.c_str())
-                        : Obj::numMatchingPaths(path);
-                ASSERT(1 == rc);
             }
 
             bdls::PathUtil::popLeaf(&path);
@@ -3119,10 +3112,6 @@ int main(int argc, char *argv[])
                 replace_if(rollup.begin(), rollup.end(), ::isForwardSlash,*PS);
 #endif
                 LOOP2_ASSERT(path, rollup, path == rollup);
-
-                rc = jj ? Obj::numMatchingPaths(path.c_str())
-                        : Obj::numMatchingPaths(path);
-                ASSERT(1 == rc);
             }
 
             bdls::PathUtil::popLeaf(&path);
@@ -3155,10 +3144,6 @@ int main(int argc, char *argv[])
                 string rollup = ::rollupPaths(resultPaths);
                 LOOP3_ASSERT(LINE, p.result, rollup,
                                                    string(p.result) == rollup);
-
-                rc = jj ? Obj::numMatchingPaths(pattern)
-                        : Obj::numMatchingPaths(pattern.c_str());
-                ASSERT(np == rc);
             }
         }
 
@@ -3172,10 +3157,6 @@ int main(int argc, char *argv[])
                         : Obj::findMatchingPaths(&resultPaths, "idontexist*");
             ASSERT(0 == rc);
             ASSERT(resultPaths.empty());
-
-            rc = jj ? Obj::numMatchingPaths(bsl::string("idontexist*"))
-                    : Obj::numMatchingPaths("idontexist*");
-            ASSERT(0 == rc);
         }
 
         ASSERT(0 == Obj::remove(path, true));
@@ -5096,8 +5077,6 @@ int main(int argc, char *argv[])
             logFiles.clear();
             rc = Obj::findMatchingPaths(&logFiles,
                                        "tmp.non_existent_file.txt");
-            LOOP_ASSERT(rc, 0 == rc);    // no such file
-            rc = Obj::numMatchingPaths("tmp.non_existent_file.txt");
             LOOP_ASSERT(rc, 0 == rc);    // no such file
 
             // Clean up
