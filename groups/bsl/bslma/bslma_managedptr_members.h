@@ -41,10 +41,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
-#endif
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -83,11 +79,11 @@ class ManagedPtr_Members {
 
   public:
     // CREATORS
-    ManagedPtr_Members() BSLS_CPP11_NOEXCEPT;
+    ManagedPtr_Members();
         // Create a 'ManagedPtr_Members' object in an unset state, i.e., where
         // 'pointer' is null and 'deleter' has an unspecified value.
 
-    explicit ManagedPtr_Members(ManagedPtr_Members& other) BSLS_CPP11_NOEXCEPT;
+    explicit ManagedPtr_Members(ManagedPtr_Members& other);
         // Create a 'ManagedPtr_Members' object having the same 'pointer' as
         // the specified 'other' object, and, if '0 != other.pointer()', the
         // same deleter as 'other', then put 'other' into an unset state.
@@ -115,7 +111,7 @@ class ManagedPtr_Members {
         // is compiler generated.
 
     // MANIPULATORS
-    void clear() BSLS_CPP11_NOEXCEPT;
+    void clear();
         // Reset this object to an unset state with no effect on the previously
         // managed object (if any).
 
@@ -145,7 +141,7 @@ class ManagedPtr_Members {
         // previously managed object (if any).  The behavior is undefined
         // unless '0 == pointer()' if and only if '0 == alias'.
 
-    void swap(ManagedPtr_Members& other) BSLS_CPP11_NOEXCEPT;
+    void swap(ManagedPtr_Members& other);
         // Efficiently exchange the state of this object with the state of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  Note that if either object is in an
@@ -158,7 +154,7 @@ class ManagedPtr_Members {
         // used to destroy the currently managed object (if any).  The behavior
         // is undefined unless 'pointer' is not null.
 
-    void *pointer() const BSLS_CPP11_NOEXCEPT;
+    void *pointer() const;
         // Return the address providing modifiable access to the currently
         // managed object, or 0 if this object is in an unset state.  Note that
         // the returned pointer may be an alias to the managed object.
@@ -181,14 +177,13 @@ class ManagedPtr_Members {
 
 // CREATORS
 inline
-ManagedPtr_Members::ManagedPtr_Members() BSLS_CPP11_NOEXCEPT
+ManagedPtr_Members::ManagedPtr_Members()
 : d_obj_p(0)
 {
 }
 
 inline
 ManagedPtr_Members::ManagedPtr_Members(ManagedPtr_Members& other)
-                                                            BSLS_CPP11_NOEXCEPT
 : d_obj_p(other.d_obj_p)
 {
     if (d_obj_p) {
@@ -221,7 +216,7 @@ ManagedPtr_Members::ManagedPtr_Members(void        *object,
 
 // MANIPULATORS
 inline
-void ManagedPtr_Members::clear() BSLS_CPP11_NOEXCEPT
+void ManagedPtr_Members::clear()
 {
     d_obj_p = 0;
 }
@@ -288,7 +283,7 @@ const ManagedPtrDeleter& ManagedPtr_Members::deleter() const
 }
 
 inline
-void *ManagedPtr_Members::pointer() const BSLS_CPP11_NOEXCEPT
+void *ManagedPtr_Members::pointer() const
 {
     return d_obj_p;
 }
