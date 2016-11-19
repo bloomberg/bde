@@ -1010,8 +1010,7 @@ class ManagedPtr {
 #else
     ManagedPtr(bslmf::MovableRef<ManagedPtr<ALIASED_TYPE> >  alias,
 #endif
-               TARGET_TYPE                                  *ptr)
-                                                           BSLS_CPP11_NOEXCEPT;
+               TARGET_TYPE                                  *ptr);
         // Create a managed pointer that takes ownership of the object managed
         // by the specified 'alias', but which uses the specified 'ptr' to
         // refer to its target object, unless '0 == ptr', in which case create
@@ -1622,7 +1621,6 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(
                            bslmf::MovableRef<ManagedPtr<ALIASED_TYPE> >  alias,
 #endif
                            TARGET_TYPE                                  *ptr)
-                                                            BSLS_CPP11_NOEXCEPT
 : d_members()
 {
     ManagedPtr<ALIASED_TYPE>& lvalue = alias;
