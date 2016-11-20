@@ -3,21 +3,26 @@
 #include "bslmf_resulttype.h"
 
 #include <bslmf_issame.h>
-#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+
+#include <cstring>   // strcmp
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
-#include <cstring>
 
 using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-//
-//
-
+// This component defines a metafunction. Testing involves defining types that
+// model the concepts that this metafunction is trying to detect and verifying
+// that it detects them correctly. A small amount of infrastructure is needed
+// to detect whether the metefunction produced any result at all.
+//-----------------------------------------------------------------------------
+// [1] TEST TESTING INFRASTRUCTURE
+// [2] FULL TEST
+// [3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -52,25 +57,6 @@ void aSsErT(bool b, const char *s, int i)
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
-//-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
-//=============================================================================
-//                                VERBOSITY
-//-----------------------------------------------------------------------------
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0; // For test allocators
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -164,6 +150,9 @@ struct WithType {
         struct BadArgs { }; // Exception class
 
         const char* operator()(long a1, long a2);
+            // For the specified long integers 'a1' and 'a2', return the
+            // null-terminated string "less" if 'a1 < a2', and "greater" if
+            // 'a2 < a1'; otherwise throw 'BadArgs()'.
     };
 
     const char* LessGreater::operator()(long a1, long a2) {
@@ -261,10 +250,10 @@ struct WithType {
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    bool verbose = argc > 2;
+    // bool veryVerbose = argc > 3;
+    // bool veryVeryVerbose = argc > 4;
+    // bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -280,7 +269,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Copy the usage example verbetim but replace 'assert' with
         //   'ASSERT'.
-	//
+        //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -309,6 +298,8 @@ int main(int argc, char *argv[])
         //: 5 'ResultType<T,F>::type' names 'F' when neither
         //:   'T::result_type' nor 'T::ResultType' exist. 'F' is ignored if
         //:   either or both of 'T::result_type' and 'T::ResultType' exist.
+        //: 6 'ResultType<T,F>::type' is insensitive to cv-qualifications on
+        //    'T'
         //
         // Plan:
         //: 1 For concerns 1 - 3, insantiate 'ResultType<T>' for
@@ -321,7 +312,9 @@ int main(int argc, char *argv[])
         //:   types as step 1. Verify that the result is the same as in step
         //:   1. Instantiate 'ResultType<T, float>' on the same type as step
         //:   2. Verify that 'type' is 'float'.
-	//
+        //: 4 For concern 6, repeat the above steps using cv-qualified
+        //:   versions of 'T'. Verify that the results are unchanged.
+        //
         // Testing:
         //     FULL TEST
         // --------------------------------------------------------------------
@@ -353,6 +346,18 @@ int main(int argc, char *argv[])
         ASSERT_SAME(ResultType<BothResultTypes, float>::type , unsigned short);
         ASSERT_SAME(ResultType<NoResultType   , float>::type , float);
 
+        // cv-qualified types
+        ASSERT_SAME(ResultType<const volatile STDResultType>::type, short);
+        ASSERT_SAME(ResultType<volatile BDEResultType      >::type, int  );
+        ASSERT_SAME(ResultType<const BothResultTypes>::type, unsigned short);
+        ASSERT(! HasType<ResultType<const NoResultType   > >::VALUE);
+
+        ASSERT_SAME(ResultType<const STDResultType   , float>::type , short);
+        ASSERT_SAME(ResultType<volatile BDEResultType, float>::type , int  );
+        ASSERT_SAME(ResultType<const volatile BothResultTypes, float>::type,
+                    unsigned short);
+        ASSERT_SAME(ResultType<volatile NoResultType, float>::type , float);
+
       } break;
 
       case 1: {
@@ -366,7 +371,7 @@ int main(int argc, char *argv[])
         //    Declare structs with and without a nested 'type' typedef.
         //    Instantiate 'HasType<T>' with each of them and verify that
         //    'VALUE' is true iff the nested typedef exists.
-	//
+        //
         // Testing:
         //     TESTING INFRASTRUCTURE
         // --------------------------------------------------------------------

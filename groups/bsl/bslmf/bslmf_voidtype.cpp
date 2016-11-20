@@ -1,6 +1,6 @@
 // bslmf_voidtype.cpp                  -*-C++-*-
 
-#include <bslmf_voidtype.h> // Testing only
+#include <bslmf_voidtype.h>
 #include <bslmf_issame.h>   // Testing only
 
 #include <bsls_ident.h>

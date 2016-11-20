@@ -3,7 +3,6 @@
 #include "bslmf_voidtype.h"
 
 #include "bslmf_issame.h"
-#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>   // 'printf'
@@ -55,16 +54,6 @@ void aSsErT(bool b, const char *s, int i)
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  SEMI-STANDARD NEGATIVE-TESTING MACROS
-//-----------------------------------------------------------------------------
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -199,7 +188,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Copy the usage example verbetim but replace 'assert' with
         //   'ASSERT'.
-	//
+        //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -229,7 +218,7 @@ int main(int argc, char *argv[])
         //:   'void'.
         //: 2 For concern 2, ensure that step 1 has a healthy mix of parameter
         //:   types.
-	//
+        //
         // Testing:
         //     FULL TEST
         // --------------------------------------------------------------------

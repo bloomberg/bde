@@ -7,16 +7,16 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions
+//@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions.
 //
-//@CLASSES: bslmf::VoidType<T>
+//@CLASSES: bslmf::VoidType<T>:  Helper class for SFINAE-based metafunctions
 //
 //@SEE_ALSO: bslmf::ResultType
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION:  This component provides a trivial metafunction, 'VoidType',
-// that takes up to 14 type paramters. The template always yields a
+// that takes up to 14 type parameters. The template always yields a
 // member type, 'type', which is always 'void'. The usefulness of this
 // do-nothing metafunction is that, when it is instantiated, all of its
 // template parameters must be valid. By putting the template instantiation in
@@ -46,7 +46,8 @@ BSLS_IDENT("$Id: $")
 // a given type 'T' as a member type 'T::iterator'. Our goal is to create a
 // metafunction, 'HasIteratorType' such that 'HasIteratorType<T>::VALUE' is
 // 'true' if 'T::iterator' is a valid type and 'false' otherwise.  This
-// example is adapted from the paper proposing 'std::void_t', N3911.
+// example is adapted from the paper proposing 'std::void_t' for the C++
+// Standard, N3911.
 //
 // First, we define the base-case metafunction, which returns 'false':
 //..

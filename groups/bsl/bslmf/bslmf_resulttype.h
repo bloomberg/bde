@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide access to 'result_type' or 'ResultType' nested type
+//@PURPOSE: Provide access to 'result_type' or 'ResultType' nested type.
 //
 //@CLASSES:
-//     bslmf::ResultType<FUNC, FALLBACK>
+//     bslmf::ResultType<FUNC, FALLBACK>: Metafunction to return result type.
 //
 //@SEE_ALSO:
 //
@@ -27,6 +27,10 @@ BSLS_IDENT("$Id: $")
 // specified such that 'bslmf::ResultType<FUNC, FALLBACK>::type' is identical
 // to 'FALLBACK' if neither 'FUNC::result_type' nor 'FUNC::ResultType' are
 // defined.
+//
+// Note that 'ResultType' checks only for a nested type within its parameter;
+// it is does not attempt to deduce the return type of calling 'operator()',
+// the way C++11 'std::result_of' does.
 //
 ///Usage
 ///-----
@@ -71,6 +75,9 @@ BSLS_IDENT("$Id: $")
 //      struct BadArgs { }; // Exception class
 //
 //      const char* operator()(long a1, long a2);
+//          // For the specified long integers 'a1' and 'a2', return the
+//          // null-terminated string "less" if 'a1 < a2', and "greater" if
+//          // 'a2 < a1'; otherwise throw 'BadArgs()'.
 //  };
 //
 //  const char* LessGreater::operator()(long a1, long a2) {
@@ -195,7 +202,7 @@ struct ResultType : ResultType_BdeIdiom<FUNC, FALLBACK> {
     // 'FUNC'. The nested 'type' is identical to 'FUNC::result_type' if such a
     // type exists; otherwise, it is identical to 'FUNC::ResultType' if that
     // type exists; otherwise it is identical to the 'FALLBACK' template
-    // paramter if it was specified; otherwise it is undefined.
+    // parameter if it was specified; otherwise it is undefined.
 };
 
 template <class FUNC, class FALLBACK>
