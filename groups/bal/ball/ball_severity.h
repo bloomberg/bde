@@ -197,15 +197,6 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 
 }  // close enterprise namespace
 
-#if defined(MSVC_REQUEST_POP_MACRO_DEBUG)
-#pragma pop_macro("DEBUG")
-#undef MSVC_REQUEST_POP_MACRO_DEBUG
-#endif
-
-#if defined(MSVC_REQUEST_POP_MACRO_ERROR)
-#pragma pop_macro("ERROR")
-#undef MSVC_REQUEST_POP_MACRO_ERROR
-#endif
 
 #endif
 
