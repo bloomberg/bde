@@ -1811,10 +1811,8 @@ class shared_ptr {
         // 'SelfType' is an alias to this 'class', for compilers that do not
         // recognize plain 'shared_ptr'.
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
     typedef typename BloombergLP::bsls::UnspecifiedBool<shared_ptr>::BoolType
                                                                       BoolType;
-#endif
 
     // FRIENDS
     template <class COMPATIBLE_TYPE>
@@ -3109,14 +3107,6 @@ class shared_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // ACCESSORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
-    explicit operator bool() const BSLS_CPP11_NOEXCEPT;
-        // Return 'false' if this shared pointer does not refer to an object,
-        // and 'true' otherwise.  Note that this conversion operator allows a
-        // shared pointer to be used within a conditional context (e.g., within
-        // an 'if' or 'while' statement), but does not implicitly convert to
-        // 'bool', such as when calling a function taking a 'bool' argument.
-#else
     operator BoolType() const BSLS_CPP11_NOEXCEPT;
         // Return a value of an "unspecified bool" type that evaluates to
         // 'false' if this shared pointer does not refer to an object, and
@@ -3124,7 +3114,6 @@ class shared_ptr {
         // shared pointer to be used within a conditional context (e.g., within
         // an 'if' or 'while' statement), but does *not* allow shared pointers
         // to unrelated types to be compared (e.g., via '<' or '>').
-#endif
 
     typename add_lvalue_reference<ELEMENT_TYPE>::type
     operator*() const BSLS_CPP11_NOEXCEPT;
@@ -6455,14 +6444,6 @@ shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ACCESSORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::operator bool() const BSLS_CPP11_NOEXCEPT
-{
-    return d_ptr_p;
-}
-#else
 template <class ELEMENT_TYPE>
 inline
 # if defined(BSLS_PLATFORM_CMP_IBM)
@@ -6474,7 +6455,6 @@ shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bsls::UnspecifiedBool<shared_ptr>::makeValue(d_ptr_p);
 }
-#endif
 
 template <class ELEMENT_TYPE>
 inline
