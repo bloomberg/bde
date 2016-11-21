@@ -1,11 +1,26 @@
-bsl-internal (3.0.8.0) unstable; urgency=low
+bsl-internal (3.0.9.0) unstable; urgency=low
 
+  * 9bbcb31 Merge pull request #866 from mgiroux/review/bump-version-to-3.0.9
+  * 0e33254 bump version to 3.0.9
+  * e072260 Merge pull request #855 from jmendelsohn4/drqs-92491241/bdlma_sequentialpool_reserveCapacity
+  * b3d2b16 Merge pull request #729 from bchapman/bdlcc_objectcatalog-punning-drqs-88681998
+  * e56feb4 Merge pull request #845 from hversche/pr/843-rebased-releases/3.0.x
+  * cd17d2d Merge pull request #842 from hversche/pr/799-rebased-releases/3.0.x
+  * 3aa7740 Merge pull request #840 from bde/revert-838-pr/823-rebased-releases/3.0.x
+  * dee62aa Revert "C++11 algorithms in bsl_algorithm. [rebased releases/3.0.x]"
+  * 5c2ee02 Merge pull request #838 from hversche/pr/823-rebased-releases/3.0.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 21 Nov 2016 12:56:28 -0500
+
+bsl-internal (3.0.8.0) git; urgency=low
+
+  * 20fc350 Changelog for version 3.0.8.0
   * 0a89af9 Merge pull request #837 from mgiroux/review/bump-version-to-3.0.8
   * cc8ba37 bump version to 3.0.8
   * a75077e Merge pull request #829 from jmendelsohn4/drqs-90511308/bdlde_quotedprintablencoder_fix_conversion_add_test_driver
   * fe28230 Merge pull request #783 from jmendelsohn4/drqs-90511308/bdlde_quotedprintablencoder_fix_conversion_add_test_driver
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 7 Nov 2016 14:13:17 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 7 Nov 2016 14:33:32 -0500
 
 bsl-internal (3.0.7.1) git; urgency=low
 
