@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if BSLS_PLATFORM_MACRO_PUSH_POP
+#if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
 
 #pragma push_macro("OFF")
 #undef OFF
@@ -245,7 +245,8 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 
 }  // close enterprise namespace
 
-#if BSLS_PLATFORM_MACRO_PUSH_POP
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
 
 #pragma pop_macro("OFF")
 #pragma pop_macro("FATAL")
@@ -256,6 +257,7 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 #pragma pop_macro("TRACE")
 #pragma pop_macro("NONE")
 
+#endif
 #endif
 
 #endif

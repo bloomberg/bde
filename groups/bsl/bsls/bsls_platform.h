@@ -875,7 +875,12 @@ struct bsls_Platform_Assert;
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40406 ||   \
     defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_MSVC)
-    #define BSLS_PLATFORM_MACRO_PUSH_POP 1
+    // Support for preserving macro values through the following pragmas:
+    //     #pragma push_macro("NAME")   // Save macro definition of NAME
+    //     #pragma pop_macro("NAME")    // Restore macro definition of NAME
+    // Note that if NAME is undefined, the sequence push/define NAME/pop may
+    // leave NAME defined at the end, depending on compiler version.
+    #define BSLS_PLATFORM_HAS_MACRO_PUSH_POP 1
 #endif
 
 // ----------------------------------------------------------------------------
