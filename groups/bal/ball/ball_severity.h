@@ -111,20 +111,24 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    // Note: on Windows -> WinGDI.h:#define ERROR 0
+#if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
 
-#if defined(DEBUG)
-#pragma push_macro("DEBUG")
-#undef DEBUG
-#define MSVC_REQUEST_POP_MACRO_DEBUG
-#endif
-
-#if defined(ERROR)
+#pragma push_macro("OFF")
+#undef OFF
+#pragma push_macro("FATAL")
+#undef FATAL
 #pragma push_macro("ERROR")
 #undef ERROR
-#define MSVC_REQUEST_POP_MACRO_ERROR
-#endif
+#pragma push_macro("WARN")
+#undef WARN
+#pragma push_macro("INFO")
+#undef INFO
+#pragma push_macro("DEBUG")
+#undef DEBUG
+#pragma push_macro("TRACE")
+#undef TRACE
+#pragma push_macro("NONE")
+#undef NONE
 
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -241,14 +245,19 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, Severity::Level rhs)
 
 }  // close enterprise namespace
 
-#if defined(MSVC_REQUEST_POP_MACRO_DEBUG)
-#pragma pop_macro("DEBUG")
-#undef MSVC_REQUEST_POP_MACRO_DEBUG
-#endif
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
 
-#if defined(MSVC_REQUEST_POP_MACRO_ERROR)
+#pragma pop_macro("OFF")
+#pragma pop_macro("FATAL")
 #pragma pop_macro("ERROR")
-#undef MSVC_REQUEST_POP_MACRO_ERROR
+#pragma pop_macro("WARN")
+#pragma pop_macro("INFO")
+#pragma pop_macro("DEBUG")
+#pragma pop_macro("TRACE")
+#pragma pop_macro("NONE")
+
+#endif
 #endif
 
 #endif
