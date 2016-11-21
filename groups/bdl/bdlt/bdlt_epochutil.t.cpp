@@ -119,8 +119,8 @@ typedef bdlt::EpochUtil     Util;
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
-int epochAddressIsNotZero = 0;
-int epochBuffer[sizeof(bdlt::Datetime) / sizeof(int) + 1] = { 0 };
+int                epochAddressIsNotZero = 0;
+bsls::Types::Int64 epochBuffer[1] = { 0 };
 
 class EarlyEpochCopier
 {
