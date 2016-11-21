@@ -12,6 +12,8 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_ispair.h>               // for testing only
+
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
@@ -375,7 +377,7 @@ template <> struct UsesAllocatorArgT<my_Class2a> : bsl::true_type { };
 
 class my_Class3 {
     // This 'class' takes allocators similarly to 'my_Class2', but does not
-    // have an explicit move constructor (moves call the corresponding copy
+    // have an explicit move constructor (move calls the corresponding copy
     // operation).
 
     // DATA
@@ -840,11 +842,10 @@ struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
 
 template <class T1, class T2>
 struct my_PairBB {
-    // Test pair type without the allocator trait.  Note that although this
-    // pair type will not allow to construct its two members with an allocator,
-    // via its pair constructor, the 'Obj::copyConstruct' and 'Obj::construct'
-    // will nevertheless construct the two members, correctly passing the
-    // allocator, because this class has the pair trait.
+    // Test pair type with the 'IsPair' trait.  This type is used to test that
+    // this trait is NOT used by the construction utility to separately
+    // construct pair's elements (without calling any of the pair's
+    // contructors).
 
     // TYPES
     typedef T1  first_type;
@@ -1565,8 +1566,6 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
-
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
         // --------------------------------------------------------------------
@@ -1782,7 +1781,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_Class2 *srcPtr = (my_Class2 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V2, TA);
-            TEST_OP(2, destructiveMove(objPtr, srcPtr, TA),  2, TA  );
+            TEST_OP(2, destructiveMove(objPtr, srcPtr, TA),  2, TA);
             ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
@@ -1790,7 +1789,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_Class2a *srcPtr = (my_Class2a *)&rawBuf;
             Obj::copyConstruct(srcPtr, V2A, TA);
-            TEST_OP(2a, destructiveMove(objPtr, srcPtr, TA), 0x2a, TA  );
+            TEST_OP(2a, destructiveMove(objPtr, srcPtr, TA), 0x2a, TA);
             ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
@@ -1798,7 +1797,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_Class3 *srcPtr = (my_Class3 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V3, TA);
-            TEST_OP(3, destructiveMove(objPtr, srcPtr, TA),  3, TA  );
+            TEST_OP(3, destructiveMove(objPtr, srcPtr, TA),  3, TA);
             ASSERTV(rawBuf.d_value, 93 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
@@ -1913,6 +1912,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'construct'"
                             "\n===================\n");
 
+        bslma::Allocator     *const DA = bslma::Default::allocator();
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // Dummy, non-bslma allocator
@@ -2201,18 +2201,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
+        // Testing that 'TA' is not passed to the pair constructor and the
+        // default allocator is used instead.
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::construct(objPtr, PBBV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 == testAllocator.numAllocations());
 
         const bsls::Types::Int64 NUM_ALLOC2 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -2220,12 +2222,12 @@ int main(int argc, char *argv[])
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::construct(objPtr, V4, V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC2 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC2 == testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -2281,9 +2283,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'moveConstruct'"
                             "\n=======================\n");
 
+        bslma::Allocator     *const DA = bslma::Default::allocator();
         bslma::TestAllocator testAllocator(veryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
-        bslma::Allocator     *const FA = bslma::Default::allocator();
         int                  dummyAllocator;  // Dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
 
@@ -2316,9 +2318,9 @@ int main(int argc, char *argv[])
             fromObj = PAAV4V4;
             Obj::moveConstruct(objPtr, fromObj, XA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(FA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(FA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             ASSERT(isMovedFrom(fromObj.first));
             ASSERT(isMovedFrom(fromObj.second));
             objPtr->~my_PairAA_4_4();
@@ -2326,6 +2328,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
+        // Testing that 'TA' is not passed to the pair constructor and the
+        // default allocator is used instead.
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
@@ -2333,9 +2337,9 @@ int main(int argc, char *argv[])
             my_PairBB_4_4 fromObj(PBBV4V4);
             Obj::moveConstruct(objPtr, fromObj, TA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             ASSERT(isMovedFrom(fromObj.first));
             ASSERT(isMovedFrom(fromObj.second));
             objPtr->~my_PairBB_4_4();
@@ -2343,14 +2347,14 @@ int main(int argc, char *argv[])
             fromObj = PBBV4V4;
             Obj::moveConstruct(objPtr, fromObj, XA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(FA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(FA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             ASSERT(isMovedFrom(fromObj.first));
             ASSERT(isMovedFrom(fromObj.second));
             objPtr->~my_PairBB_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 == testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -2390,10 +2394,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'copyConstruct'"
                             "\n=======================\n");
 
+        bslma::Allocator     *const DA = bslma::Default::allocator();
         bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
-        int                   dummyAllocator;  // Dummy, non-bslma allocator
-
         bslma::TestAllocator *const TA = &testAllocator;
+        int                   dummyAllocator;  // Dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
 
         // my_Class                               Expected
@@ -2423,18 +2427,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
+        // Testing that 'TA' is not passed to the pair constructor and the
+        // default allocator is used instead.
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::copyConstruct(objPtr, PBBV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 == testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {
@@ -2477,6 +2483,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'defaultConstruct'"
                             "\n==========================\n");
 
+        bslma::Allocator     *const DA = bslma::Default::allocator();
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // dummy, non-bslma allocator
@@ -2537,18 +2544,20 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
+        // Testing that 'TA' is not passed to the pair constructor and the
+        // default allocator is used instead.
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::defaultConstruct(objPtr, TA);
             ASSERT(0  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(DA == rawBuf[0].d_allocator_p);
             ASSERT(0  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT(DA == rawBuf[1].d_allocator_p);
             objPtr->~my_PairBB_4_4();
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+        ASSERT(NUM_ALLOC1 == testAllocator.numAllocations());
 
         if (verbose) printf("Trait selection testing.\n");
         {

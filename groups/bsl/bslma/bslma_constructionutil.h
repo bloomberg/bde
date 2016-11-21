@@ -54,9 +54,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
-//
-//  bslmf::IsPair                                 "TYPE has the pair trait"
-//                                                or "TYPE is a pair-like"
 //..
 //
 ///Usage
@@ -98,10 +95,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPAIR
-#include <bslmf_ispair.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
