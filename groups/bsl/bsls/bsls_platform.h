@@ -873,6 +873,11 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_AGGRESSIVE_INLINE
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40406 ||   \
+    defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_MSVC)
+    #define BSLS_PLATFORM_MACRO_PUSH_POP 1
+#endif
+
 // ----------------------------------------------------------------------------
 
                                  // Validation
