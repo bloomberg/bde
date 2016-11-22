@@ -36,7 +36,7 @@ namespace bslma {
                        // ---------------------
 
 // CLASS METHODS
-void ManagedPtrUtil::noOpDeleter(void *, void *) BSLS_CPP11_NOEXCEPT
+void ManagedPtrUtil::noOpDeleter(void *, void *)
 {
 }
 

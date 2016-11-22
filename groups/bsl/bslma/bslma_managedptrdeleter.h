@@ -54,10 +54,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
-#endif
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -100,7 +96,7 @@ class ManagedPtrDeleter {
 
   public:
     // CREATORS
-    ManagedPtrDeleter() BSLS_CPP11_NOEXCEPT;
+    ManagedPtrDeleter();
         // Create a default 'ManagedPtrDeleter' object that does not refer to
         // any object or factory instance.
 
@@ -128,7 +124,7 @@ class ManagedPtrDeleter {
         // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
-    void clear() BSLS_CPP11_NOEXCEPT;
+    void clear();
         // Reset this 'ManagedPtrDeleter' to its default-constructed state.
 
     void set(void *object, void *factory, Deleter deleter);
@@ -144,27 +140,25 @@ class ManagedPtrDeleter {
         // 'deleter' is not 0 and has not already been called on the managed
         // object associated with this deleter.
 
-    Deleter deleter() const BSLS_CPP11_NOEXCEPT;
+    Deleter deleter() const;
         // Return the deleter function associated with this deleter.
 
-    void *factory() const BSLS_CPP11_NOEXCEPT;
+    void *factory() const;
         // Return a pointer to the factory instance associated with this
         // deleter.
 
-    void *object() const BSLS_CPP11_NOEXCEPT;
+    void *object() const;
         // Return a pointer to the managed object associated with this deleter.
 };
 
 // FREE OPERATORS
-bool operator==(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+bool operator==(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'ManagedPtrDeleter' objects have the
     // same value if the corresponding values of their 'object', 'factory', and
     // 'deleter' attributes are the same.
 
-bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'ManagedPtrDeleter' objects do
     // not have the same value if any of the corresponding values of their
@@ -180,7 +174,7 @@ bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs)
 
 // CREATORS
 inline
-ManagedPtrDeleter::ManagedPtrDeleter() BSLS_CPP11_NOEXCEPT
+ManagedPtrDeleter::ManagedPtrDeleter()
 : d_object_p(0)
 , d_factory_p(0)
 , d_deleter(0)
@@ -199,7 +193,7 @@ ManagedPtrDeleter::ManagedPtrDeleter(void    *object,
 
 // MANIPULATORS
 inline
-void ManagedPtrDeleter::clear() BSLS_CPP11_NOEXCEPT
+void ManagedPtrDeleter::clear()
 {
     d_object_p  = 0;
     d_factory_p = 0;
@@ -225,19 +219,19 @@ void ManagedPtrDeleter::deleteManagedObject() const
 
 inline
 ManagedPtrDeleter::Deleter
-ManagedPtrDeleter::deleter() const BSLS_CPP11_NOEXCEPT
+ManagedPtrDeleter::deleter() const
 {
     return d_deleter;
 }
 
 inline
-void *ManagedPtrDeleter::factory() const BSLS_CPP11_NOEXCEPT
+void *ManagedPtrDeleter::factory() const
 {
     return d_factory_p;
 }
 
 inline
-void *ManagedPtrDeleter::object() const BSLS_CPP11_NOEXCEPT
+void *ManagedPtrDeleter::object() const
 {
     return d_object_p;
 }
@@ -247,7 +241,7 @@ void *ManagedPtrDeleter::object() const BSLS_CPP11_NOEXCEPT
 // FREE OPERATORS
 inline
 bool bslma::operator==(const ManagedPtrDeleter& lhs,
-                       const ManagedPtrDeleter& rhs) BSLS_CPP11_NOEXCEPT
+                       const ManagedPtrDeleter& rhs)
 {
     return lhs.object()  == rhs.object()
         && lhs.factory() == rhs.factory()
@@ -256,7 +250,7 @@ bool bslma::operator==(const ManagedPtrDeleter& lhs,
 
 inline
 bool bslma::operator!=(const ManagedPtrDeleter& lhs,
-                       const ManagedPtrDeleter& rhs) BSLS_CPP11_NOEXCEPT
+                       const ManagedPtrDeleter& rhs)
 {
     return lhs.object()  != rhs.object()
         || lhs.factory() != rhs.factory()
