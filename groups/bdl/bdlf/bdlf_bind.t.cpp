@@ -2219,7 +2219,7 @@ DEFINE_TEST_CASE(5) {
 #if __cplusplus >= 201103L
             native_std::function<int(int)> f = &Func::f;
 #else
-            std::function<int(int)> f = &Func::f;
+            bsl::function<int(int)> f = &Func::f;
 #endif
             ASSERT(5 == bdlf::BindUtil::bind(f, _1)(5));
         }
