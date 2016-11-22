@@ -16,7 +16,7 @@ namespace bslma {
                     // ------------------------
 
 // MANIPULATORS
-void ManagedPtr_Members::swap(ManagedPtr_Members& other) BSLS_CPP11_NOEXCEPT
+void ManagedPtr_Members::swap(ManagedPtr_Members& other)
 {
     if (!d_obj_p) {
         d_obj_p       = other.d_obj_p;

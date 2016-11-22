@@ -757,17 +757,18 @@ namespace bslma {
 
 template <class TARGET_TYPE>
 class ManagedPtr_Ref {
-    // This struct holds a managed pointer reference, returned by the implicit
-    // conversion operator in the class 'ManagedPtr'.  This struct is used to
+    // This class holds a managed pointer reference, returned by the implicit
+    // conversion operator in the class 'ManagedPtr'.  This class is used to
     // allow the construction of managed pointers from temporary managed
     // pointer objects, since temporaries cannot bind to the reference to a
-    // modifiable object used in the "copy constructor" and "copy assignment
-    // operator" for 'ManagedPtr'.  Note that while no members or methods of
+    // modifiable object used in the copy constructor and copy-assignment
+    // operator for 'ManagedPtr'.  Note that while no members or methods of
     // this class template depend on the specified 'TARGET_TYPE', it is
     // important to carry this type into conversions to support passing
     // ownership of 'ManagedPtr_Members' pointers when assigning or
     // constructing 'ManagedPtr' objects.
 
+    // DATA
     ManagedPtr_Members *d_base_p;  // non-null pointer to the managed state of
                                    // a 'ManagedPtr' object
 
@@ -791,16 +792,17 @@ class ManagedPtr_Ref {
         // Destroy this object.  Note that the referenced managed object is
         // *not* destroyed.
 
+    // MANIPULATORS
     //! ManagedPtr_Ref& operator=(const ManagedPtr_Ref& original) = default;
         // Create a 'ManagedPtr_Ref' object having the same 'd_base_p' as the
         // specified 'original'.  Note that this trivial copy-assignment
         // operator's definition is compiler generated.
 
     // ACCESSORS
-    ManagedPtr_Members *base() const BSLS_CPP11_NOEXCEPT;
+    ManagedPtr_Members *base() const;
         // Return a pointer to the managed state of a 'ManagedPtr' object.
 
-    TARGET_TYPE *target() const BSLS_CPP11_NOEXCEPT;
+    TARGET_TYPE *target() const;
         // Return a pointer to the referenced object.
 };
 
@@ -864,7 +866,7 @@ class ManagedPtr {
     ManagedPtr_Members d_members;  // state managed by this object
 
     // PRIVATE CLASS METHODS
-    static void *stripBasePointerType(TARGET_TYPE *ptr) BSLS_CPP11_NOEXCEPT;
+    static void *stripBasePointerType(TARGET_TYPE *ptr);
         // Return the value of the specified 'ptr' as a 'void *', after
         // stripping all 'const' and 'volatile' qualifiers from 'TARGET_TYPE'.
         // This function avoids accidental type-safety errors when performing
@@ -875,8 +877,7 @@ class ManagedPtr {
         // is not a left-most base of the complete object type.
 
     template <class MANAGED_TYPE>
-    static void *stripCompletePointerType(MANAGED_TYPE *ptr)
-                                                           BSLS_CPP11_NOEXCEPT;
+    static void *stripCompletePointerType(MANAGED_TYPE *ptr);
         // Return the value of the specified 'ptr' as a 'void *', after
         // stripping all 'const' and 'volatile' qualifiers from 'MANAGED_TYPE'.
         // This function avoids accidental type-safety errors when performing
@@ -937,7 +938,7 @@ class ManagedPtr {
 
   public:
     // CREATORS
-    ManagedPtr() BSLS_CPP11_NOEXCEPT;
+    ManagedPtr();
         // Create an empty managed pointer.
 
     template <class MANAGED_TYPE>
@@ -969,7 +970,7 @@ class ManagedPtr {
         // from 'COMPATIBLE_TYPE *' to 'TARGET_TYPE *' is defined, e.g.,
         // 'derived *' to 'base *', 'T *' to 'const T *', or 'T *' to 'void *'.
 
-    ManagedPtr(ManagedPtr& original) BSLS_CPP11_NOEXCEPT;
+    ManagedPtr(ManagedPtr& original)                   BSLS_CPP11_NOEXCEPT;
     ManagedPtr(bslmf::MovableRef<ManagedPtr> original) BSLS_CPP11_NOEXCEPT;
         // Create a managed pointer having the same target object as the
         // specified 'original', transfer ownership of the object managed by
@@ -984,7 +985,7 @@ class ManagedPtr {
     ManagedPtr(bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
                typename bsl::enable_if<
                    bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
-                   void>::type * = 0) BSLS_CPP11_NOEXCEPT;
+                   void>::type * = 0)                      BSLS_CPP11_NOEXCEPT;
 #endif
         // Create a managed pointer having the same target object as the
         // specified 'original', transfer ownership of the object managed by
@@ -1027,15 +1028,14 @@ class ManagedPtr {
         // and any class publicly and unambiguously derived from
         // 'bslma::Allocator', meets the requirements for 'FACTORY_TYPE'.
 
-    explicit ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0)
-                                                           BSLS_CPP11_NOEXCEPT;
+    explicit ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
         // Create an empty managed pointer.  Note that this constructor is
         // necessary to match null-pointer literal arguments, in order to break
         // ambiguities and provide valid type deduction with the other
         // constructor templates in this class.
 
     template <class FACTORY_TYPE>
-    ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory) BSLS_CPP11_NOEXCEPT;
+    ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory);
         // Create an empty managed pointer.  Note that the specified 'factory'
         // is ignored, as an empty managed pointer does not call its deleter.
 
@@ -1074,7 +1074,7 @@ class ManagedPtr {
         // be called.
 
     // MANIPULATORS
-    ManagedPtr& operator=(ManagedPtr& rhs) BSLS_CPP11_NOEXCEPT;
+    ManagedPtr& operator=(ManagedPtr& rhs)                 BSLS_CPP11_NOEXCEPT;
     ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs)
                                                            BSLS_CPP11_NOEXCEPT;
         // If this object and the specified 'rhs' manage the same object,
@@ -1118,18 +1118,18 @@ class ManagedPtr {
         // 'TARGET_TYPE *' is defined, e.g., 'derived *' to 'base *', 'T *' to
         // 'const T *', or 'T *' to 'void *'.
 
-    ManagedPtr& operator=(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT;
+    ManagedPtr& operator=(bsl::nullptr_t);
         // Destroy the current managed object (if any) and reset this managed
         // pointer to empty.
 
     template <class REFERENCED_TYPE>
-    operator ManagedPtr_Ref<REFERENCED_TYPE>() BSLS_CPP11_NOEXCEPT;
+    operator ManagedPtr_Ref<REFERENCED_TYPE>();
         // Return a managed pointer reference, referring to this object.  Note
         // that this conversion operator is used implicitly to allow the
         // construction of managed pointers from rvalues because temporaries
         // cannot be passed by references offering modifiable access.
 
-    void clear() BSLS_CPP11_NOEXCEPT;
+    void clear();
         // [!DEPRECATED!] Use 'reset' instead.
         //
         // Destroy the current managed object (if any) and reset this managed
@@ -1186,8 +1186,7 @@ class ManagedPtr {
         // This function will be restored on that platform once the deprecated
         // signatures are finally removed.
 
-    void load(bsl::nullptr_t = 0, void *cookie = 0, DeleterFunc deleter = 0)
-                                                           BSLS_CPP11_NOEXCEPT;
+    void load(bsl::nullptr_t = 0, void *cookie = 0, DeleterFunc deleter = 0);
         // Destroy the current managed object (if any) and reset this managed
         // pointer to empty.  Note that the optionally specified 'cookie' and
         // 'deleter' will be ignored, as empty managed pointers do not invoke a
@@ -1210,8 +1209,7 @@ class ManagedPtr {
         // will ultimately be destroyed, and the destructor for 'ptr' is not
         // called directly.
 
-    ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> release()
-                                                           BSLS_CPP11_NOEXCEPT;
+    ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> release();
         // Return a raw pointer to the current target object (if any) and the
         // deleter for the currently managed object, and reset this managed
         // pointer to empty.  It is undefined behavior to run the returned
@@ -1224,16 +1222,16 @@ class ManagedPtr {
         // behavior to run the returned deleter unless the returned pointer to
         // target object is not null.
 
-    void reset() BSLS_CPP11_NOEXCEPT;
+    void reset();
         // Destroy the current managed object (if any) and reset this managed
         // pointer to empty.
 
-    void swap(ManagedPtr& other) BSLS_CPP11_NOEXCEPT;
+    void swap(ManagedPtr& other);
         // Exchange the value and ownership of this managed pointer with the
         // specified 'other' managed pointer.
 
     // ACCESSORS
-    operator BoolType() const BSLS_CPP11_NOEXCEPT;
+    operator BoolType() const;
         // Return a value of "unspecified bool" type that evaluates to 'false'
         // if this managed pointer is empty, and 'true' otherwise.  Note that
         // this conversion operator allows a managed pointer to be used within
@@ -1249,7 +1247,7 @@ class ManagedPtr {
         // if this managed pointer is empty, or if 'TARGET_TYPE' is 'void' or
         // 'const void'.
 
-    TARGET_TYPE *operator->() const BSLS_CPP11_NOEXCEPT;
+    TARGET_TYPE *operator->() const;
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
@@ -1258,11 +1256,11 @@ class ManagedPtr {
         // associated with this managed pointer.  The behavior is undefined if
         // this managed pointer is empty.
 
-    TARGET_TYPE *get() const BSLS_CPP11_NOEXCEPT;
+    TARGET_TYPE *get() const;
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
-    TARGET_TYPE *ptr() const BSLS_CPP11_NOEXCEPT;
+    TARGET_TYPE *ptr() const;
         // [!DEPRECATED!]: Use 'get' instead.
         //
         // Return the address of the target object, or 0 if this managed
@@ -1271,8 +1269,7 @@ class ManagedPtr {
 
 // FREE FUNCTIONS
 template <class TARGET_TYPE>
-void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
-                                                           BSLS_CPP11_NOEXCEPT;
+void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
@@ -1285,7 +1282,7 @@ struct ManagedPtrUtil {
     // when creating managed pointers to stack-allocated objects.
 
     // CLASS METHODS
-    static void noOpDeleter(void *, void *) BSLS_CPP11_NOEXCEPT;
+    static void noOpDeleter(void *, void *);
         // Deleter function that does nothing.
 };
 
@@ -1304,7 +1301,7 @@ struct ManagedPtrNilDeleter {
     // behavior.
 
     // CLASS METHODS
-    static void deleter(void *, void *) BSLS_CPP11_NOEXCEPT;
+    static void deleter(void *, void *);
         // Deleter function that does nothing.
 };
 
@@ -1373,14 +1370,13 @@ ManagedPtr_Ref<TARGET_TYPE>::~ManagedPtr_Ref()
 template <class TARGET_TYPE>
 inline
 ManagedPtr_Members *ManagedPtr_Ref<TARGET_TYPE>::base() const
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_base_p;
 }
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr_Ref<TARGET_TYPE>::target() const BSLS_CPP11_NOEXCEPT
+TARGET_TYPE *ManagedPtr_Ref<TARGET_TYPE>::target() const
 {
     return d_cast_p;
 }
@@ -1407,7 +1403,6 @@ class ManagedPtr<TARGET_TYPE&>;
 template <class TARGET_TYPE>
 inline
 void *ManagedPtr<TARGET_TYPE>::stripBasePointerType(TARGET_TYPE *ptr)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_cast<void *>(static_cast<const void *>(ptr));
 }
@@ -1417,7 +1412,6 @@ template <class MANAGED_TYPE>
 inline
 void *
 ManagedPtr<TARGET_TYPE>::stripCompletePointerType(MANAGED_TYPE *ptr)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_cast<void *>(static_cast<const void *>(ptr));
 }
@@ -1441,7 +1435,7 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
 // CREATORS
 template <class TARGET_TYPE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr() BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::ManagedPtr()
 : d_members()
 {
 }
@@ -1469,7 +1463,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref)
 
 template <class TARGET_TYPE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original) BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original)   BSLS_CPP11_NOEXCEPT
 : d_members(original.d_members)
 {
 }
@@ -1493,7 +1487,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(
     bslmf::MovableRef<ManagedPtr<BDE_OTHER_TYPE> > original,
     typename bsl::enable_if<
         bsl::is_convertible<BDE_OTHER_TYPE *, TARGET_TYPE *>::value,
-        void>::type *) BSLS_CPP11_NOEXCEPT
+        void>::type *)                                      BSLS_CPP11_NOEXCEPT
 #endif
 : d_members(MoveUtil::access(original).d_members)
 {
@@ -1553,7 +1547,6 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t, bsl::nullptr_t)
-                                                            BSLS_CPP11_NOEXCEPT
 : d_members()
 {
 }
@@ -1562,7 +1555,6 @@ template <class TARGET_TYPE>
 template <class FACTORY_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
-                                                            BSLS_CPP11_NOEXCEPT
 : d_members()
 {
 }
@@ -1605,7 +1597,7 @@ ManagedPtr<TARGET_TYPE>::~ManagedPtr()
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>&
-ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr& rhs) BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr& rhs)         BSLS_CPP11_NOEXCEPT
 {
     d_members.moveAssign(&rhs.d_members);
     return *this;
@@ -1654,7 +1646,7 @@ ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr_Ref<TARGET_TYPE> ref)
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>&
-ManagedPtr<TARGET_TYPE>::operator=(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::operator=(bsl::nullptr_t)
 {
     this->reset();
     return *this;
@@ -1664,7 +1656,6 @@ template <class TARGET_TYPE>
 template <class REFERENCED_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::operator ManagedPtr_Ref<REFERENCED_TYPE>()
-                                                            BSLS_CPP11_NOEXCEPT
 {
     BSLMF_ASSERT((bsl::is_convertible<TARGET_TYPE *,
                                       REFERENCED_TYPE *>::VALUE));
@@ -1676,7 +1667,7 @@ ManagedPtr<TARGET_TYPE>::operator ManagedPtr_Ref<REFERENCED_TYPE>()
 
 template <class TARGET_TYPE>
 inline
-void ManagedPtr<TARGET_TYPE>::clear() BSLS_CPP11_NOEXCEPT
+void ManagedPtr<TARGET_TYPE>::clear()
 {
     reset();
 }
@@ -1725,7 +1716,6 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
 template <class TARGET_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, void *, DeleterFunc)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     this->reset();
 }
@@ -1750,7 +1740,7 @@ void ManagedPtr<TARGET_TYPE>::loadAlias(ManagedPtr<ALIASED_TYPE>&  alias,
 
 template <class TARGET_TYPE>
 ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
-ManagedPtr<TARGET_TYPE>::release() BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::release()
 {
     typedef ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> ResultType;
 
@@ -1787,7 +1777,7 @@ TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
 
 template <class TARGET_TYPE>
 inline
-void ManagedPtr<TARGET_TYPE>::reset() BSLS_CPP11_NOEXCEPT
+void ManagedPtr<TARGET_TYPE>::reset()
 {
     d_members.runDeleter();
     d_members.clear();
@@ -1795,7 +1785,7 @@ void ManagedPtr<TARGET_TYPE>::reset() BSLS_CPP11_NOEXCEPT
 
 template <class TARGET_TYPE>
 inline
-void ManagedPtr<TARGET_TYPE>::swap(ManagedPtr& other) BSLS_CPP11_NOEXCEPT
+void ManagedPtr<TARGET_TYPE>::swap(ManagedPtr& other)
 {
     d_members.swap(other.d_members);
 }
@@ -1805,9 +1795,8 @@ template <class TARGET_TYPE>
 inline
 #if defined(BSLS_PLATFORM_CMP_IBM)
 ManagedPtr<TARGET_TYPE>::operator typename ManagedPtr::BoolType() const
-                                                            BSLS_CPP11_NOEXCEPT
 #else
-ManagedPtr<TARGET_TYPE>::operator BoolType() const BSLS_CPP11_NOEXCEPT
+ManagedPtr<TARGET_TYPE>::operator BoolType() const
 #endif
 {
     return d_members.pointer()
@@ -1827,7 +1816,7 @@ ManagedPtr<TARGET_TYPE>::operator*() const
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::operator->() const BSLS_CPP11_NOEXCEPT
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::operator->() const
 {
     return static_cast<TARGET_TYPE *>(d_members.pointer());
 }
@@ -1843,14 +1832,14 @@ const ManagedPtrDeleter& ManagedPtr<TARGET_TYPE>::deleter() const
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::get() const BSLS_CPP11_NOEXCEPT
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::get() const
 {
     return static_cast<TARGET_TYPE *>(d_members.pointer());
 }
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const BSLS_CPP11_NOEXCEPT
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
 {
     return get();
 }
@@ -1859,7 +1848,6 @@ TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const BSLS_CPP11_NOEXCEPT
 template <class TARGET_TYPE>
 inline
 void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
-                                                            BSLS_CPP11_NOEXCEPT
 {
     a.swap(b);
 }
@@ -1872,7 +1860,6 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
 template <class TARGET_TYPE>
 inline
 void ManagedPtrNilDeleter<TARGET_TYPE>::deleter(void *, void *)
-                                                            BSLS_CPP11_NOEXCEPT
 {
 }
 
