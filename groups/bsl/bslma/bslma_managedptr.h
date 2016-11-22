@@ -769,17 +769,18 @@ namespace bslma {
 
 template <class TARGET_TYPE>
 class ManagedPtr_Ref {
-    // This struct holds a managed pointer reference, returned by the implicit
-    // conversion operator in the class 'ManagedPtr'.  This struct is used to
+    // This class holds a managed pointer reference, returned by the implicit
+    // conversion operator in the class 'ManagedPtr'.  This class is used to
     // allow the construction of managed pointers from temporary managed
     // pointer objects, since temporaries cannot bind to the reference to a
-    // modifiable object used in the "copy constructor" and "copy assignment
-    // operator" for 'ManagedPtr'.  Note that while no members or methods of
+    // modifiable object used in the copy constructor and copy-assignment
+    // operator for 'ManagedPtr'.  Note that while no members or methods of
     // this class template depend on the specified 'TARGET_TYPE', it is
     // important to carry this type into conversions to support passing
     // ownership of 'ManagedPtr_Members' pointers when assigning or
     // constructing 'ManagedPtr' objects.
 
+    // DATA
     ManagedPtr_Members *d_base_p;  // non-null pointer to the managed state of
                                    // a 'ManagedPtr' object
 
@@ -803,6 +804,7 @@ class ManagedPtr_Ref {
         // Destroy this object.  Note that the referenced managed object is
         // *not* destroyed.
 
+    // MANIPULATORS
     //! ManagedPtr_Ref& operator=(const ManagedPtr_Ref& original) = default;
         // Create a 'ManagedPtr_Ref' object having the same 'd_base_p' as the
         // specified 'original'.  Note that this trivial copy-assignment
@@ -969,7 +971,7 @@ class ManagedPtr {
         // to call the correct destructor for the managed object, even if the
         // destructor for 'TARGET_TYPE' is not declared as 'virtual'.
 
-    ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);                    // IMPLICIT
+    ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref) BSLS_CPP11_NOEXCEPT;// IMPLICIT
         // Create a managed pointer having the same target object as the
         // managed pointer referenced by the specified 'ref', transfer
         // ownership of the managed object owned by the managed pointer
@@ -980,7 +982,7 @@ class ManagedPtr {
         // from 'COMPATIBLE_TYPE *' to 'TARGET_TYPE *' is defined, e.g.,
         // 'derived *' to 'base *', 'T *' to 'const T *', or 'T *' to 'void *'.
 
-    ManagedPtr(ManagedPtr& original);
+    ManagedPtr(ManagedPtr& original)                   BSLS_CPP11_NOEXCEPT;
     ManagedPtr(bslmf::MovableRef<ManagedPtr> original) BSLS_CPP11_NOEXCEPT;
         // Create a managed pointer having the same target object as the
         // specified 'original', transfer ownership of the object managed by
@@ -1141,7 +1143,7 @@ class ManagedPtr {
         // be called.
 
     // MANIPULATORS
-    ManagedPtr& operator=(ManagedPtr& rhs);
+    ManagedPtr& operator=(ManagedPtr& rhs)                 BSLS_CPP11_NOEXCEPT;
     ManagedPtr& operator=(bslmf::MovableRef<ManagedPtr> rhs)
                                                            BSLS_CPP11_NOEXCEPT;
         // If this object and the specified 'rhs' manage the same object,
@@ -1170,7 +1172,7 @@ class ManagedPtr {
         // reset 'rhs' to empty, and return a reference to this managed
         // pointer.
 
-    ManagedPtr& operator=(ManagedPtr_Ref<TARGET_TYPE> ref);
+    ManagedPtr& operator=(ManagedPtr_Ref<TARGET_TYPE> ref) BSLS_CPP11_NOEXCEPT;
         // If this object and the managed pointer reference by the specified
         // 'ref' manage the same object, return a reference to this managed
         // pointer; otherwise, destroy the managed object owned by this managed
@@ -1559,6 +1561,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref)
+                                                            BSLS_CPP11_NOEXCEPT
 : d_members(*ref.base())
 {
     d_members.setAliasPtr(stripBasePointerType(ref.target()));
@@ -1566,7 +1569,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref)
 
 template <class TARGET_TYPE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original)
+ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original)   BSLS_CPP11_NOEXCEPT
 : d_members(original.d_members)
 {
 }
@@ -1750,7 +1753,7 @@ ManagedPtr<TARGET_TYPE>::~ManagedPtr()
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>&
-ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr& rhs)
+ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr& rhs)         BSLS_CPP11_NOEXCEPT
 {
     d_members.moveAssign(&rhs.d_members);
     return *this;
@@ -1789,6 +1792,7 @@ template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>&
 ManagedPtr<TARGET_TYPE>::operator=(ManagedPtr_Ref<TARGET_TYPE> ref)
+                                                            BSLS_CPP11_NOEXCEPT
 {
     d_members.moveAssign(ref.base());
     d_members.setAliasPtr(stripBasePointerType(ref.target()));
