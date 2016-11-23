@@ -24,13 +24,23 @@ BSLS_IDENT("$Id: $")
 // cryptography.  The strength of these random numbers and the performance of
 // these calls is strongly dependent on the underlying system.  On UNIX-like
 // platforms 'genRandomBytes()' reads from '/dev/random' and
-// 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
+// 'genRandomBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
 // methods use 'CryptGenRandom'.
 //
-// Note that it is not appropriate to use these functions to generate many
-// random numbers, because they are likely to exhaust available entropy and
-// then be slow.  Instead, these functions should be used to seed pseudo-random
-// random number generators.
+// Note that (at least on UNIX-like systems) it is not appropriate to call
+// these functions repeatedly to generate many random numbers.  A call to
+// 'getRandomBytes()' can block if available entropy is exhausted, and both
+// 'getRandomBytes()' and 'genRandomBytesNonBlocking()' open and close their
+// respective devices on each call.  Instead, these functions should be used
+// for seeding pseudo-random random number generators.  (E.g., promiscuous use
+// of 'getRandomBytes()' appears to have caused the WP in '{DRQS 92851043}'.)
+//
+// There is discussion about which of '/dev/random' or '/dev/urandom' is best,
+// especially on modern Linux systems, while 'man' pages on other UNIX systems
+// continue to make claims about '/dev/random' providing "more secure" numbers
+// than '/dev/urandom'.  See '{http://www.2uo.de/myths-about-urandom/}', for
+// example.  This component deliberately takes no stand on the issue, making
+// both available and leaving it for users to decide which to use.
 //
 ///Usage
 ///-----
