@@ -48,6 +48,12 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#define BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+    // This macro definition parallels that defined in the header file.
+#endif
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -24611,7 +24617,37 @@ void TestUtil::testCase17()
 
     if (verbose) cout << "\nTesting 'isUnset' with 'bslmf::Nil'." << endl;
     {
+        typedef bdlb::Variant<bslmf::Nil, int> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
+
+        ASSERT(false == X.isUnset());
+        ASSERT(    1 == X.typeIndex());
+        ASSERT(         X.is<bslmf::Nil>());
+    }
+
+    {
         typedef bdlb::Variant<int, bslmf::Nil> Obj;
+
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+        ASSERT(2 == Obj::TypeList::LENGTH);  
+#else
+        // See the definition of 'Variant_TypeIndex' in the '.h' file.
+
+        ASSERT(1 == Obj::TypeList::LENGTH);  
+#endif
+
+        Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
+
+        ASSERT(false == X.isUnset());
+        ASSERT(    2 == X.typeIndex());
+        ASSERT(         X.is<bslmf::Nil>());
+    }
+
+    {
+        typedef bdlb::Variant2<int, bslmf::Nil> Obj;
 
         ASSERT(2 == Obj::TypeList::LENGTH);
 
@@ -24619,12 +24655,37 @@ void TestUtil::testCase17()
 
         ASSERT(false == X.isUnset());
         ASSERT(    2 == X.typeIndex());
-
-        mX.reset();
-
-        ASSERT( true == X.isUnset());
-        ASSERT(    0 == X.typeIndex());
+        ASSERT(         X.is<bslmf::Nil>());
     }
+
+#if !defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+    // The following undesirable behavior cannot be easily prevented in C++03.
+    // See the definition of 'Variant_TypeIndex' in the '.h' file.
+
+    {
+        typedef bdlb::Variant<int, double> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+
+        Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
+
+        ASSERT(false == X.isUnset());
+        ASSERT(    3 == X.typeIndex());       // out of bounds
+        ASSERT(         X.is<bslmf::Nil>());
+    }
+
+    {
+        typedef bdlb::Variant2<int, double> Obj;
+
+        ASSERT(2 == Obj::TypeList::LENGTH);
+    
+        Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
+
+        ASSERT(false == X.isUnset());
+        ASSERT(    3 == X.typeIndex());       // out of bounds
+        ASSERT(         X.is<bslmf::Nil>());
+    }
+#endif
 }
 
 void TestUtil::testCase16()

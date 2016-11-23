@@ -2935,10 +2935,6 @@ operator=(bslmf::MovableRef<Variant> rhs)
 
 #endif
 
-#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-#undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-#endif
-
                        // ===================
                        // class Variant2<...>
                        // ===================
@@ -9215,7 +9211,26 @@ struct Variant_TypeIndex {
     };
 
     BSLMF_ASSERT(value);
+
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+    // See 'testCase17' in the test driver for code snippets that motivate this
+    // compile-time assertion (see the "out of bounds" comments).  In C++03,
+    // 'TYPES::LENGTH' yields an incorrect value if 'TYPES' has a trailing
+    // 'bslmf::Nil' (unless the variant is declared using 'VariantN').  It is
+    // arguably dubious to allow 'bslmf::Nil' as one of the types that a
+    // variant may hold, but there is such use in production code that needs to
+    // be considered if that "feature" is to be suppressed.  This would do it:
+    //..
+    //  BSLMF_ASSERT((!bsl::is_same<TYPE, bslmf::Nil>::value));
+    //..
+
+    BSLMF_ASSERT((value <= TYPES::LENGTH || 21 == value));
+#endif
 };
+
+#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#endif
 
                // ======================================
                // struct Variant_DefaultConstructVisitor
