@@ -1552,8 +1552,17 @@ void Calendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 inline
 void Calendar::setValidRange(const Date& firstDate, const Date& lastDate)
 {
-    d_nonBusinessDays.reserveCapacity(lastDate - firstDate + 1);
+    BSLS_ASSERT_SAFE(firstDate <= lastDate);
+
+    if (firstDate <= lastDate) {
+        // For backwards compatibility, 'firstDate > lastDate' results in an
+        // empty calendar (when asserts are not enabled).
+
+        d_nonBusinessDays.reserveCapacity(lastDate - firstDate + 1);
+    }
+
     d_packedCalendar.setValidRange(firstDate, lastDate);
+
     synchronizeCache();
 }
 
