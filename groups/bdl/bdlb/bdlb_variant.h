@@ -9224,7 +9224,7 @@ struct Variant_TypeIndex {
     //  BSLMF_ASSERT((!bsl::is_same<TYPE, bslmf::Nil>::value));
     //..
 
-    BSLMF_ASSERT((value <= TYPES::LENGTH || 21 == value));
+    BSLMF_ASSERT(((int)value <= (int)TYPES::LENGTH || 21 == value));
 #endif
 };
 
