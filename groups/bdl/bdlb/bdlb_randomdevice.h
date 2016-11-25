@@ -21,14 +21,14 @@ BSLS_IDENT("$Id: $")
 // which does not block, but which potentially should not be used for
 // cryptography.  The strength of these random numbers and the performance of
 // these calls is strongly dependent on the underlying system.  On UNIX-like
-// platforms 'genRandomBytes()' reads from '/dev/random' and
-// 'genRandomBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
+// platforms 'getRandomBytes()' reads from '/dev/random' and
+// 'getRandomBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
 // methods use 'CryptGenRandom'.
 //
 // Note that (at least on UNIX-like systems) it is not appropriate to call
 // these functions repeatedly to generate many random numbers.  A call to
 // 'getRandomBytes()' can block if available entropy is exhausted, and both
-// 'getRandomBytes()' and 'genRandomBytesNonBlocking()' open and close their
+// 'getRandomBytes()' and 'getRandomBytesNonBlocking()' open and close their
 // respective devices on each call.  Instead, these functions should be used
 // for seeding pseudo-random random number generators.  (E.g., promiscuous use
 // of 'getRandomBytes()' appears to have caused the WP in '{DRQS 92851043}'.)
