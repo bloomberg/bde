@@ -1128,8 +1128,9 @@ class unordered_multimap {
         // size of this unordered multimap.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' both be
         // 'copy-insertable' into this unordered multimap (see {Requirements on
-        // 'KEY' and 'VALUE'}).  The behavior is undefined unless 'hint' is a
-        // valid iterator into this unordered multimap.
+        // 'KEY' and 'VALUE'}).  The behavior is undefined unless 'hint' is an
+        // iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
     template <class ALT_VALUE_TYPE>
@@ -1155,8 +1156,9 @@ class unordered_multimap {
         // 'KEY' and 'VALUE' both be 'move-insertable' into this unordered
         // multimap (see {Requirements on 'KEY' and 'VALUE'}), and the
         // (template parameter) type 'ALT_VALUE_TYPE' be implicitly convertible
-        // to 'value_type'.  The behavior is undefined unless 'hint' is a valid
-        // iterator into this unordered multimap.
+        // to 'value_type'.  The behavior is undefined unless 'hint' is an
+        // iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
     {
         // Note that some compilers fail when this method is defined
         // out-of-line.
@@ -1216,7 +1218,9 @@ class unordered_multimap {
         // complexity, where 'N' is the size of this unordered multimap.  This
         // method requires that the (template parameter) types 'KEY' and
         // 'VALUE' both be 'emplace-constructible' from 'args' (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2342,11 +2346,11 @@ void bsl::swap(bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
 
 // Type traits for STL *unordered* *associative* containers:
 //: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bitwise moveable if both functors
-//:      and the allocator are bitwise moveable.
+//: o An unordered associative container is bitwise movable if both functors
+//:   and the allocator are bitwise movable.
 //: o An unordered associative container uses 'bslma' allocators if the
-//:      (template parameter) type 'ALLOCATOR' is convertible from
-//:      'bslma::Allocator*'.
+//:   (template parameter) type 'ALLOCATOR' is convertible from
+//:   'bslma::Allocator*'.
 
 namespace BloombergLP {
 

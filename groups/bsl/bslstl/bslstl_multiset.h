@@ -972,8 +972,8 @@ class multiset {
         // operation has 'O[log(N)]' complexity, where 'N' is the size of this
         // multiset.  This method requires that the (template parameter) type
         // 'KEY' be 'copy-insertable' into this multiset (see {Requirements on
-        // 'KEY'}).  The behavior is undefined unless 'hint' is a valid
-        // iterator into this multiset.
+        // 'KEY'}).  The behavior is undefined unless 'hint' is an iterator in
+        // the range '[begin() .. end()]' (both endpoints included).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
@@ -986,8 +986,8 @@ class multiset {
         // 'O[log(N)]' complexity, where 'N' is the size of this multiset.
         // This method requires that the (template parameter) type 'KEY' be
         // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
-        // The behavior is undefined unless 'hint' is a valid iterator into
-        // this multiset.
+        // The behavior is undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1035,7 +1035,9 @@ class multiset {
         // implied by 'args', this operation has 'O[log(N)]' complexity where
         // 'N' is the size of this multiset.  This method requires that the
         // (template parameter) type 'KEY' be 'emplace-constructible' from
-        // 'args' (see {Requirements on 'KEY'}).
+        // 'args' (see {Requirements on 'KEY'}).  The behavior is undefined
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1320,8 +1322,8 @@ class multiset {
     size_type erase(const key_type& key);
         // Remove from this multiset all 'value_type' objects equivalent to the
         // specified 'key', if they exist, and return the number of erased
-        // objects; otherwise, if there is no 'value_type' objects having an
-        // equivalent key, return 0 with no other effect.
+        // objects; otherwise, if there are no 'value_type' objects equivalent
+        // to 'key', return 0 with no other effect.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this multiset the 'value_type' objects starting at the
@@ -1493,7 +1495,7 @@ class multiset {
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this multiset that are
-        // equivalent to the specified 'key', where the the first iterator is
+        // equivalent to the specified 'key', where the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  The first returned
         // iterator will be 'lower_bound(key)'; the second returned iterator
@@ -3496,8 +3498,8 @@ void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,
 
 // Type traits for STL *ordered* containers:
 //: o An ordered container defines STL iterators.
-//: o An ordered container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+//: o An ordered container uses 'bslma' allocators if the (template parameter)
+//:   type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
 
 namespace BloombergLP {
 
