@@ -4,6 +4,7 @@
 
 #include <bslmf_issame.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_exceptionutil.h>
 
 #include <cstring>   // strcmp
 
@@ -132,11 +133,11 @@ struct WithType {
     typename bslmf::ResultType<FUNC>::type
     wrapInvoke(A1 a1, A2 a2) {
         FUNC f;
-        try {
+        BSLS_TRY {
             return f(a1, a2);
         }
-        catch (...) {
-            throw InvocationException();
+        BSLS_CATCH (...) {
+            BSLS_THROW(InvocationException());
         }
     }
 //..
@@ -163,7 +164,7 @@ struct WithType {
             return "greater";
         }
         else {
-            throw BadArgs();
+            BSLS_THROW(BadArgs());
         }
     }
 //..
@@ -223,12 +224,12 @@ struct WithType {
     wrapInvoke2(A1 a1, A2 a2) {
         typedef typename bslmf::ResultType<FUNC, void>::type RetType;
         FUNC f;
-        try {
+        BSLS_TRY {
             // C-style cast needed for some compilers
             return ((RetType) f(a1, a2));
         }
-        catch (...) {
-            throw InvocationException();
+        BSLS_CATCH (...) {
+            BSLS_THROW(InvocationException());
         }
     }
 //..
