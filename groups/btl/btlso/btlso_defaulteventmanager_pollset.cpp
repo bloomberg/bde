@@ -41,6 +41,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/pollset.h>
 #include <bsl_c_errno.h>
 
 // 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>

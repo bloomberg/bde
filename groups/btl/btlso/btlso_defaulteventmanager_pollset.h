@@ -327,11 +327,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_SYS_POLL
 #endif
 
-#ifndef INCLUDED_SYS_POLLSET
-#include <sys/pollset.h>
-#define INCLUDED_SYS_POLLSET
-#endif
-
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
@@ -357,7 +352,7 @@ class DefaultEventManager<Platform::POLLSET> : public EventManager {
                                                                    CallbackMap;
 
     // DATA
-    ::pollset_t                   d_ps;           // (integral) id of pollset
+    int                           d_ps;           // (integral) id of pollset
 
     int                           d_fdCount;      // Number of file descriptors
                                                   // tracked by this event
