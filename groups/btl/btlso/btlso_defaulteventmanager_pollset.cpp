@@ -14,9 +14,12 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_AIX)
 
-#ifndef __64BIT__
-    #define events reqevents   // renamed field in struct pollfd
-    #define revents rtnevents  // renamed field in struct pollfd
+#if _XOPEN_SOURCE_EXTENDED == 1 &&                                            \
+    defined(_ALL_SOURCE) &&                                                   \
+    !defined(__64BIT__) &&                                                    \
+    !defined(__HIDE_SVR4_POLLFD_NAMES)
+#define events reqevents   // renamed field in struct pollfd
+#define revents rtnevents  // renamed field in struct pollfd
 #endif
 
 #include <btlso_flag.h>
