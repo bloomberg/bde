@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a fully thread-safe deque template of items of type 'TYPE'.
+//@PURPOSE: Provide a fully thread-safe deque container.
 //
 //@CLASSES:
 //   bdlcc::Deque: thread-safe 'bsl::deque' wrapper
@@ -71,17 +71,17 @@ BSLS_IDENT("$Id: $")
 // and the container has *space* *available* if it is not full.  The high-water
 // mark is set at construction and cannot be changed afterward.  If no
 // high-water mark is specified, the high-water mark of the container is
-// effectively inifinite.  Some types of pushes may fail, and for those
-// operations, success, partial success (of a range push), or failure of the
-// push is reflected in the function's return value.
+// effectively inifinite.  Some of the variants of push operations (described
+// below) may fail, and the return status of those operations indicates whether
+// the operation succeeded, failed, or partially succeeded (which may happen,
+// for example, when pushing a range of values).
 //
 // 'bdlcc::Deque' supports four variants of the two 'push' methods, whose
 // behaviors differ when the container is *full* (i.e. when the push would
 // raise the length of the container above the high-water mark).
 //
-//: 1 *unlimited* *blocking*: ('pushBack', 'pushFront'): If the container is
-//:   full, block until space is available, then push, otherwise push
-//:   immediately.
+//: 1 *blocking*: ('pushBack', 'pushFront'): If the container is full, block
+//:   until space is available, then push, otherwise push immediately.
 //:
 //: 2 *try* ('tryPushBack', 'tryPushFront'): If the container is full, fail
 //:   immediately.  If space is available, succeed immediately.  Note that
