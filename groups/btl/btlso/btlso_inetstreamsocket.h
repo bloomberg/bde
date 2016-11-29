@@ -190,10 +190,10 @@ BSLS_IDENT("$Id: $")
     #endif
 
     #ifndef INCLUDED_SYS_POLL
-    #ifdef events
+    #ifndef events
     #define BTLSO_INETSTREAMSOCKET_UNDEF_EVENTS
     #endif
-    #ifdef revents
+    #ifndef revents
     #define BTLSO_INETSTREAMSOCKET_UNDEF_REVENTS
     #endif
     #include <sys/poll.h>
