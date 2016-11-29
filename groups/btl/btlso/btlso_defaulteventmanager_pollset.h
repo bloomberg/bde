@@ -317,6 +317,12 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_OS_AIX)
 
 #ifndef INCLUDED_SYS_POLL
+#ifndef events
+#define BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#endif
+#ifndef revents
+#define BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#endif
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
 #endif
@@ -500,6 +506,15 @@ class DefaultEventManager<Platform::POLLSET> : public EventManager {
 }  // close package namespace
 
 }  // close namespace BloombergLP
+
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#undef events
+#undef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#endif
 
 #endif // BSLS_PLATFORM_OS_AIX
 

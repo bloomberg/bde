@@ -2,6 +2,10 @@
 
 #include <btlso_inetstreamsocket.h>
 
+#if defined(events) || defined(revents)
+#error 'events' or 'revents' macros have leaked (probably from <sys/poll.h>)
+#endif
+
 #include <btlso_streamsocketfactory.h>
 
 #include <btlso_socketimputil.h>

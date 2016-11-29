@@ -190,6 +190,12 @@ BSLS_IDENT("$Id: $")
     #endif
 
     #ifndef INCLUDED_SYS_POLL
+    #ifdef events
+    #define BTLSO_INETSTREAMSOCKET_UNDEF_EVENTS
+    #endif
+    #ifdef revents
+    #define BTLSO_INETSTREAMSOCKET_UNDEF_REVENTS
+    #endif
     #include <sys/poll.h>
     #define INCLUDED_SYS_POLL
     #endif
@@ -1186,6 +1192,15 @@ void InetStreamSocketCloseGuard::release()
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#ifdef BTLSO_INETSTREAMSOCKET_UNDEF_EVENTS
+#undef events
+#undef BTLSO_INETSTREAMSOCKET_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_INETSTREAMSOCKET_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_INETSTREAMSOCKET_UNDEF_REVENTS
+#endif
 
 #endif
 

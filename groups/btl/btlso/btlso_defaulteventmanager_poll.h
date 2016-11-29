@@ -314,6 +314,12 @@ BSLS_IDENT("$Id: $")
     || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #ifndef INCLUDED_SYS_POLL
+#ifndef events
+#define BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#endif
+#ifndef revents
+#define BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#endif
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
 #endif
@@ -488,6 +494,15 @@ bool DefaultEventManager<Platform::POLL>::hasLimitedSocketCapacity() const
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#undef events
+#undef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#endif
 
 #endif // BSLS_PLATFORM_OS_SOLARIS
        // || BSLS_PLATFORM_OS_LINUX || BSLS_PLATFORM_OS_AIX
