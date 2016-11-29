@@ -1040,8 +1040,6 @@ class BitArray {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
-
-    // CLASS METHOD
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -1863,8 +1861,6 @@ STREAM& BitArray::bdexStreamOut(STREAM& stream, int version) const
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // DEPRECATED METHODS
-
-// CLASS METHOD
 inline
 int BitArray::maxSupportedBdexVersion()
 {
