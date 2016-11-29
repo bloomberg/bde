@@ -14,6 +14,11 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_AIX)
 
+#ifndef __64BIT__
+    #define events reqevents   // renamed field in struct pollfd
+    #define revents rtnevents  // renamed field in struct pollfd
+#endif
+
 #include <btlso_flag.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>

@@ -43,6 +43,10 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     #include <sys/timers.h>       // timespec
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
+    #ifndef __64BIT__
+        #define events reqevents   // renamed field in struct pollfd
+        #define revents rtnevents  // renamed field in struct pollfd
+    #endif
 #elif defined(BSLS_PLATFORM_OS_LINUX)  ||  \
       defined(BSLS_PLATFORM_OS_CYGWIN) ||  \
       defined(BSLS_PLATFORM_OS_DARWIN)
