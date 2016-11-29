@@ -3971,12 +3971,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
 
     // We can print the banner now:
 
-    if (verbose) printf("%sTESTING SWAP '%s' ALLOC: %s OTHER:%c PROP:%c\n",
+    if (verbose) printf("%sTESTING MOVE ASSIGN '%s' OTHER:%c PROP:%c"
+                                                                " ALLOC: %s\n",
                         veryVerbose ? "\n" : "",
                         NameOf<KEY>().name(),
-                        allocCategoryAsStr(),
                         otherTraitsSet ? 'T' : 'F',
-                        isPropagate ? 'T' : 'F');
+                        isPropagate ? 'T' : 'F',
+                        allocCategoryAsStr());
 
 
     const int isTypeOtherAlloc = bsl::uses_allocator<KEY, ALLOC>::value;

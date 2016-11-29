@@ -3824,9 +3824,18 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
 
     bslma::DefaultAllocatorGuard dag(&doa);
 
+    ALLOC da(&doa);
     ALLOC sa(&soa);
     ALLOC oa(&ooa);
     ALLOC za(&zoa);
+
+    // Check remaining properties of allocator to make sure they all match
+    // 'otherTraitsSet'.
+
+    BSLMF_ASSERT(otherTraitsSet ==
+                          AllocatorTraits::propagate_on_container_swap::value);
+    ASSERT((otherTraitsSet ? sa : da) ==
+                   AllocatorTraits::select_on_container_copy_construction(sa));
 
     Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
     (void) operatorMAg;  // quash potential compiler warning

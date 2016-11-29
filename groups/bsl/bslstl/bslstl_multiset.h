@@ -3173,7 +3173,7 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             multiset toOtherCopy(MoveUtil::move(*this),
-                            other.nodeFactory().allocator());
+                                 other.nodeFactory().allocator());
             multiset toThisCopy(MoveUtil::move(other),
                                 nodeFactory().allocator());
 
