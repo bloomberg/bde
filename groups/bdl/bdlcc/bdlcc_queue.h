@@ -22,6 +22,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlc_queue
 //
+//@DEPRECATED: use 'bdlcc::Deque' instead.
+//
 //@DESCRIPTION: This component provides a thread-enabled implementation of an
 // efficient, in-place, indexable, double-ended queue of parameterized 'TYPE'
 // values, namely the 'bdlcc::Queue<TYPE>' container.  'bdlcc::Queue' is
