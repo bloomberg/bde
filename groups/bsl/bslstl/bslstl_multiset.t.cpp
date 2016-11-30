@@ -1848,7 +1848,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
     //..
 
     {
-        Obj mX, mY;    (void) mX;    (void) mY;
+        Obj mX, mY;    const Obj& X = mX;    (void) X;    (void) mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =

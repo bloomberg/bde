@@ -2045,7 +2045,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX;
+        Obj mX;    const Obj& X = mX;
         Obj mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
@@ -2074,7 +2074,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX;
+        Obj mX;    const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
@@ -2116,7 +2116,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX;
+        Obj mX;    const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));

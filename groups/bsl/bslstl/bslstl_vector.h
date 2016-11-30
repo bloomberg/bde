@@ -5930,7 +5930,18 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Some platforms might not be willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 // HASH SPECIALIZATIONS
@@ -6024,7 +6035,18 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
     typedef Vector_Imp<void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
              // -------------------------------------------
@@ -6171,7 +6193,18 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 }  // close namespace bsl

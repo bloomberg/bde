@@ -4755,7 +4755,7 @@ void TestDriver<TYPE, ALLOC>::testCase30()
                 { L_,   "AB",     2,   { V[0], V[1], V[2] },   "ABABC"   },
                 { L_,   "ABC",    0,   { V[3]             },    "DABC"   },
         };
-        end { NUM_DATA = sizeof DATA / sizeof *DATA };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor dam(&da);
@@ -15228,49 +15228,65 @@ struct MetaTestDriver {
 template <class TYPE>
 void MetaTestDriver<TYPE>::testCase25()
 {
+    // Limit the # of tests if we're in C++11 to avoid running out of compiler
+    // memory.
+
     // The low-order bit of the identifier specifies whether the fourth boolean
     // arg of the stateful allocator, which indicates propagate on move
     // assign, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, true>  A01;
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     typedef bsltf::StdStatefulAllocator<TYPE, true,  true,  true,  false> A10;
     typedef bsltf::StdStatefulAllocator<TYPE, true,  true,  true,  true>  A11;
+#endif
 
     if (verbose) printf("\n");
 
     TestDriver<TYPE, BAP>::testCase25_dispatch();
 
-    TestDriver<TYPE, SAA>::testCase25_dispatch();
-
     TestDriver<TYPE, A00>::testCase25_dispatch();
     TestDriver<TYPE, A01>::testCase25_dispatch();
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    TestDriver<TYPE, SAA>::testCase25_dispatch();
+
     TestDriver<TYPE, A10>::testCase25_dispatch();
     TestDriver<TYPE, A11>::testCase25_dispatch();
+#endif
 }
 
 template <class TYPE>
 void MetaTestDriver<TYPE>::testCase21()
 {
+    // Limit the # of tests if we're in C++11 to avoid running out of compiler
+    // memory.
+
     // The low-order bit of the identifier specifies whether the third boolean
     // arg of the stateful allocator, which inidactes propagate on container
     // swap, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, true,  false> A01;
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     typedef bsltf::StdStatefulAllocator<TYPE, true,  true,  false, true>  A10;
     typedef bsltf::StdStatefulAllocator<TYPE, true,  true,  true,  true>  A11;
+#endif
 
     if (verbose) printf("\n");
 
     TestDriver<TYPE, BAP>::testCase21_dispatch();
 
-    TestDriver<TYPE, SAA>::testCase21_dispatch();
-
     TestDriver<TYPE, A00>::testCase21_dispatch();
     TestDriver<TYPE, A01>::testCase21_dispatch();
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    TestDriver<TYPE, SAA>::testCase21_dispatch();
+
     TestDriver<TYPE, A10>::testCase21_dispatch();
     TestDriver<TYPE, A11>::testCase21_dispatch();
+#endif
 }
 
 // ============================================================================
