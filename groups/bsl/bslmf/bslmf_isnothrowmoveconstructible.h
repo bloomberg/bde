@@ -30,24 +30,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
-#include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
@@ -85,7 +73,7 @@ namespace bslmf {
  && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1700)
     // Early MSVC compilers have an incomplete <type_traits> header
 template <class TYPE>
-struct IsNothrowMoveConstructible_Imp
+struct IsNothrowMoveConstructible_Impl
     : bsl::integral_constant<
         bool,
         ::native_std::is_nothrow_move_constructible<TYPE>::value
@@ -98,13 +86,10 @@ struct IsNothrowMoveConstructible_Imp
 };
 #else
 template <class TYPE>
-struct IsNothrowMoveConstructible_Imp
+struct IsNothrowMoveConstructible_Impl
     : bsl::integral_constant<
-           bool, bsl::is_reference<TYPE>::value
-              || bsl::is_fundamental<TYPE>::value
-              || IsEnum<TYPE>::value
-              || bsl::is_pointer<TYPE>::value
-              || IsPointerToMember<TYPE>::value
+           bool, bsl::is_trivially_copyable<TYPE>::value
+              || bsl::is_reference<TYPE>::value
               || DetectNestedTrait<TYPE,
                                    bsl::is_nothrow_move_constructible>::value>
 {
@@ -115,7 +100,7 @@ struct IsNothrowMoveConstructible_Imp
 #endif
 
 template <>
-struct IsNothrowMoveConstructible_Imp<void> : bsl::false_type
+struct IsNothrowMoveConstructible_Impl<void> : bsl::false_type
 {
     // This explicit specialization reports that 'void' does not have a
     // 'nothrow' move constructor, despite being a fundamental type.
@@ -132,7 +117,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_nothrow_move_constructible
-: BloombergLP::bslmf::IsNothrowMoveConstructible_Imp<TYPE>::type {
+: BloombergLP::bslmf::IsNothrowMoveConstructible_Impl<TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' has a 'nothrow' move constructor.  This
     // 'struct' derives from 'bsl::true_type' if the 'TYPE' has a 'nothrow'

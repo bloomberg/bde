@@ -6,6 +6,7 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
@@ -175,12 +176,15 @@ struct UserDefinedNothrowTestType {
     // This user-defined type, which is marked to have a nothrow move
     // constructor using template specialization (below), is used for testing.
 
+    // CREATORS
     UserDefinedNothrowTestType() {}
-    UserDefinedNothrowTestType(const UserDefinedNothrowTestType&) {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedNothrowTestType(UserDefinedNothrowTestType&&)
-                                                         BSLS_CPP11_NOEXCEPT {}
-#endif
+    UserDefinedNothrowTestType(const UserDefinedNothrowTestType& original)
+    {
+        (void) original;
+    }
+    UserDefinedNothrowTestType(bslmf::MovableRef<UserDefinedNothrowTestType>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -194,12 +198,15 @@ struct UserDefinedNothrowTestType2 {
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedNothrowTestType2,
                                    bsl::is_nothrow_move_constructible);
 
+    // CREATORS
     UserDefinedNothrowTestType2() {}
-    UserDefinedNothrowTestType2(const UserDefinedNothrowTestType2&) {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedNothrowTestType2(UserDefinedNothrowTestType2&&)
-                                                        BSLS_CPP11_NOEXCEPT {}
-#endif
+    UserDefinedNothrowTestType2(const UserDefinedNothrowTestType2& original)
+    {
+        (void) original;
+    }
+    UserDefinedNothrowTestType2(bslmf::MovableRef<UserDefinedNothrowTestType2>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -208,11 +215,16 @@ struct UserDefinedNothrowTestType2 {
 struct UserDefinedThrowTestType {
     // This user-defined type, which is not marked to be 'nothrow' move
     // constructible, is used for testing.
+
+    // CREATORS
     UserDefinedThrowTestType() {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedThrowTestType(UserDefinedThrowTestType&&) {}
-#endif
-    UserDefinedThrowTestType(const UserDefinedThrowTestType&) {}
+    UserDefinedThrowTestType(
+                       bslmf::MovableRef<UserDefinedThrowTestType>) // IMPLICIT
+    {}
+    UserDefinedThrowTestType(const UserDefinedThrowTestType& original)
+    {
+        (void) original;
+    }
 };
 
 enum EnumTestType {

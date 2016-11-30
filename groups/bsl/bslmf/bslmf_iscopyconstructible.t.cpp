@@ -174,6 +174,8 @@ class UserDefinedNcTestType {
     // This user-defined type, which is marked to have a no-throw move
     // constructor using template specialization (below), is used for testing.
 
+  private:
+    // NOT IMPLEMENTED
     UserDefinedNcTestType(const UserDefinedNcTestType&);  // private
   public:
     UserDefinedNcTestType() {}
@@ -187,6 +189,8 @@ class UserDefinedNcTestType2 {
     // constructor using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used
     // for testing.
 
+  private:
+    // NOT IMPLEMENTED
     UserDefinedNcTestType2(const UserDefinedNcTestType2&);  // private
   public:
     // BSLMF_NESTED_TRAIT_DECLARATION_IF(UserDefinedNcTestType2,
@@ -202,8 +206,12 @@ class UserDefinedNcTestType2 {
 struct UserDefinedCopyableTestType {
     // This user-defined type, which is not marked to be 'nothrow' move
     // constructible, is used for testing.
+
     UserDefinedCopyableTestType() {}
-    UserDefinedCopyableTestType(const UserDefinedCopyableTestType&) {}
+    UserDefinedCopyableTestType(const UserDefinedCopyableTestType& original)
+    {
+        (void) original;
+    }
 };
 
 enum EnumTestType {

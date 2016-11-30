@@ -53,28 +53,24 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
-#include <bslmf_ismemberpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISVOLATILE
 #include <bslmf_isvolatile.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
@@ -139,12 +135,11 @@ namespace bslmf {
 template <class TYPE>
 struct IsCopyConstructible_Imp
     : bsl::integral_constant<bool,
-                            (!(bsl::is_volatile<TYPE>::value
-                           && !(bsl::is_fundamental<TYPE>::value
-                             || bsl::is_enum<TYPE>::value
-                             || bsl::is_member_pointer<TYPE>::value))
-                          && !(!bsl::is_reference<TYPE>::value
-                             && bsl::is_function<TYPE>::value))>
+                             bsl::is_trivially_copyable<TYPE>::value
+                          || bsl::is_reference<TYPE>::value
+                          || !(bsl::is_volatile<TYPE>::value
+                            || bsl::is_void<TYPE>::value
+                            || bsl::is_function<TYPE>::value)>
 {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' has a copy
