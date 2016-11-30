@@ -6,14 +6,6 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
-#include <bsltf_movablealloctesttype.h>
-#include <bsltf_movabletesttype.h>
-#include <bsltf_moveonlyalloctesttype.h>
-#include <bsltf_stdstatefulallocator.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
-
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
@@ -41,6 +33,15 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
+
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_nonoptionalalloctesttype.h>
+#include <bsltf_stdstatefulallocator.h>
+#include <bsltf_stdtestallocator.h>
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <algorithm>
 #include <functional>
@@ -7605,9 +7606,13 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
             for (size_t tj = 0; tj < NUM_LOAD_FACTORS; ++tj) {
                 const float MAX_LOAD_FACTOR = loadFactors[tj];
 
-                Obj mX(&sa);    const Obj& X = mX;
+                Obj        mX(&sa);
+                const Obj& X = mX;
+
                 mX.max_load_factor(MAX_LOAD_FACTOR);
+
                 ASSERTV(X.max_load_factor() == MAX_LOAD_FACTOR);
+
                 gg(&mX, SPEC);
 
                 const size_t BC = X.bucket_count();
@@ -7615,7 +7620,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase35()
                 ASSERTV(X.load_factor() <= X.max_load_factor());
                 ASSERTV(u::nearlyEqual<double>(
                                           X.load_factor(),
-                                          static_cast<double>(X.size()) / BC));
+                                          static_cast<double>(X.size()) /
+                                          static_cast<double>(BC)));
 
                 if (LENGTH > 0) {
                     if (LENGTH > 3) {
@@ -7748,16 +7754,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
     const TestValues yz("yz");
 
-    // Note: this was 'const VALUE& D = VALUE();', but AIX gave warnings
-    // complaining that the copy c'tor was required (even though it was not
-    // used).
-
-    VALUE  d;    const VALUE& D = d;  // default value
-    if (bsl::is_trivially_default_constructible<VALUE>::value) {
-        // Force value-initialization of trivial type without IBM warning
-        ::new (bsls::Util::addressOf(d)) VALUE();
-    }
-
     const KEY&   ZK = yz[0].first;   // A value not in any spec.
     const VALUE& ZM = yz[1].second;  // A value not in any spec.
 
@@ -7865,10 +7861,23 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase34()
 
                 const bsls::Types::Int64 B = oa.numBlocksInUse();
 
-                bslma::TestAllocator scratch("scratch",
-                                             veryVeryVeryVerbose);
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mW(&scratch);  const Obj& W = gg(&mW, SPEC);
+                // Constructing default 'VALUE' to compare with.  Note, that we
+                // construct default value this way to support some types that
+                // do not meet C++ requirement of 'default-insertable'.
+                bslma::TestAllocator value("value", veryVeryVeryVerbose);
+                ALLOC                xvalue(&value);
+
+                bsls::ObjectBuffer<VALUE> d;
+                bsl::allocator_traits<ALLOC>::construct(xvalue, d.address());
+                bslma::DestructorGuard<VALUE> defaultValueGuard(d.address());
+
+                const VALUE& D = d.object();
+
+                Obj        mW(&scratch);
+                const Obj& W = gg(&mW, SPEC);
+
                 VALUE *ret;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     u::CompareProctor<Obj> compProctor(X, W);
@@ -8033,7 +8042,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
 
     const struct {
         int         d_line;
-        int         d_expectedSize;
+        size_t      d_expectedSize;
         InitList    d_list;
         const char *d_expSpec_p;
     } DATA[] = {
@@ -8051,23 +8060,23 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
 
     bool done = false;
     int totalThrows = 0;
-    for (char ctor = 'a'; ctor <= 'h' ; ++ctor) {
+    for (char ctor = 'a'; ctor <= 'h'; ++ctor) {
         if (veryVeryVerbose) printf("    c'tor '%c'\n", ctor);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            int LINE             = DATA[ti].d_line;
-            int EXPECTED_SIZE    = DATA[ti].d_expectedSize;
-            const InitList& LIST = DATA[ti].d_list;
-            const char *EXP_SPEC = DATA[ti].d_expSpec_p;
+            int              LINE          = DATA[ti].d_line;
+            size_t           EXPECTED_SIZE = DATA[ti].d_expectedSize;
+            const InitList&  LIST          = DATA[ti].d_list;
+            const char      *EXP_SPEC      = DATA[ti].d_expSpec_p;
 
-            bsls::Types::Int64 listLen = std::distance(LIST.begin(),
-                                                       LIST.end());
+            size_t listLen = std::distance(LIST.begin(), LIST.end());
+
             ASSERTV(LINE, listLen >= EXPECTED_SIZE);
             ASSERT(listLen <= MAX_LIST_LEN);
 
             if (veryVeryVerbose) {
-                printf("    Line: %d, dist: %lld, esz: %d\n", LINE, listLen,
-                                                                EXPECTED_SIZE);
+                printf("    Line: %d, dist: " ZU ", esz: " ZU "\n",
+                       LINE, listLen, EXPECTED_SIZE);
             }
 
             bslma::TestAllocator da("da", veryVeryVeryVerbose);    // default
@@ -8194,13 +8203,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
 
     done = false; numIters = 0;
 
-    const char *OTHER_SPECS[] = { "", "G", "JIH", "ABG" };
-    const int NUM_OTHER_SPECS = u::arrayLength(OTHER_SPECS);
-    const int MAX_OTHER_SPEC_LEN = 3;
+    const char *OTHER_SPECS[]      = { "", "G", "JIH", "ABG" };
+    const int   NUM_OTHER_SPECS    = u::arrayLength(OTHER_SPECS);
+    const int   MAX_OTHER_SPEC_LEN = 3;
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const InitList& LIST = DATA[ti].d_list;
-        const char *EXP_SPEC = DATA[ti].d_expSpec_p;
+        const InitList&  LIST     = DATA[ti].d_list;
+        const char      *EXP_SPEC = DATA[ti].d_expSpec_p;
 
         for (int tj = 0; tj < NUM_OTHER_SPECS; ++tj) {
             const char *OTHER_SPEC = OTHER_SPECS[tj];
@@ -8230,9 +8239,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
     if (veryVerbose) printf("    Assign from initializer list, no throw\n");
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        unsigned EXPECTED_SIZE = DATA[ti].d_expectedSize;
-        const InitList& LIST   = DATA[ti].d_list;
-        const char *EXP_SPEC   = DATA[ti].d_expSpec_p;
+        size_t           EXPECTED_SIZE = DATA[ti].d_expectedSize;
+        const InitList&  LIST          = DATA[ti].d_list;
+        const char      *EXP_SPEC      = DATA[ti].d_expSpec_p;
 
         for (int tj = 0; tj < NUM_OTHER_SPECS; ++tj) {
             const char *OTHER_SPEC = OTHER_SPECS[tj];
@@ -8251,14 +8260,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_outOfLine()
     if (veryVerbose) printf("    Assign from initializer list, throw\n");
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        unsigned EXPECTED_SIZE = DATA[ti].d_expectedSize;
-        const InitList& LIST   = DATA[ti].d_list;
-        const char *EXP_SPEC   = DATA[ti].d_expSpec_p;
+        size_t           EXPECTED_SIZE = DATA[ti].d_expectedSize;
+        const InitList&  LIST          = DATA[ti].d_list;
+        const char      *EXP_SPEC      = DATA[ti].d_expSpec_p;
 
         for (int tj = 0; tj < NUM_OTHER_SPECS; ++tj) {
             const char *OTHER_SPEC = OTHER_SPECS[tj];
 
-            Obj mX(&oa);    const Obj& X = gg(&mX, OTHER_SPEC);
+            Obj        mX(&oa);
+            const Obj& X = gg(&mX, OTHER_SPEC);
+
             Obj Y(X);
 
             ASSERTV(u::verifySpec(X, OTHER_SPEC));
@@ -11348,11 +11359,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
 
     TestValues tv("z");
 
-    VALUE  d;    const VALUE& D = d;  // default value
-    if (bsl::is_trivially_default_constructible<VALUE>::value) {
-        new (bsls::Util::addressOf(d)) VALUE();
-    }
-
     const KEY&   ZK = tv[0].first;       // A value not in any spec.
     const VALUE& ZM = tv[0].second;      // A value not in any spec.
 
@@ -11373,12 +11379,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
             ++numTests;
 
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
-
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+            Obj        mX(&oa);
+            const Obj& X = gg(&mX, SPEC);
 
             if (veryVerbose) { T_ P_(LINE) P_(SPEC) P(LENGTH); }
 
@@ -11418,7 +11424,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mY(&scratch);    const Obj& Y = gg(&mY, SPEC);
+            Obj        mY(&scratch);
+            const Obj& Y = gg(&mY, SPEC);
 
             ASSERT(X == Y);
 
@@ -11453,6 +11460,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
                 ASSERTV(LINE, true == exceptionCaught);
             }
 #endif
+
+            // Constructing default 'VALUE' to compare with.  Note, that we
+            // construct default value this way to support some types that do
+            // not meet C++ requirement of 'default-insertable'.
+            bslma::TestAllocator value("default value", veryVeryVeryVerbose);
+            ALLOC                xvalue(&value);
+
+            bsls::ObjectBuffer<VALUE> d;
+            bsl::allocator_traits<ALLOC>::construct(xvalue, d.address());
+            bslma::DestructorGuard<VALUE> dGuard(d.address());
+
+            const VALUE& D = d.object();
 
             if (veryVerbose) printf(
                                    "Test 'operator[]' on out-of-range key.\n");
@@ -14611,12 +14630,19 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    VALUE  d;    const VALUE& D = d;  // default value
-    if (bsl::is_trivially_default_constructible<VALUE>::value) {
-        ::new (bsls::Util::addressOf(d)) VALUE();
-    }
-
     const TestValues VALUES(TV_SPEC);
+
+    // Constructing default 'VALUE' to compare with.  Note, that we construct
+    // default value this way to support some types that do not meet C++
+    // requirement of 'default-insertable'.
+    bslma::TestAllocator value("default value", veryVeryVeryVerbose);
+    ALLOC                xvalue(&value);
+
+    bsls::ObjectBuffer<VALUE> d;
+    bsl::allocator_traits<ALLOC>::construct(xvalue, d.address());
+    bslma::DestructorGuard<VALUE> defaultValueGuard(d.address());
+
+    const VALUE& D = d.object();
 
     bool done = false;
 
@@ -14698,22 +14724,30 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                         unsigned count = 0;
                         const Iter end = mX.end();
                         for (Iter it = mX.begin(); end != it; ++it, ++count) {
-                            VALUE m;
-                            u::copyAssignTo(bsls::Util::addressOf(m),
-                                            it->second);
+                            // Constructing temp default 'VALUE' object.
+                            bsls::ObjectBuffer<VALUE> m;
+                            bsl::allocator_traits<ALLOC>::construct(xvalue,
+                                                                  m.address());
+                            bslma::DestructorGuard<VALUE> mGuard(m.address());
+
+                            u::copyAssignTo(m.address(), it->second);
 
                             // Note this will even work for 'MethodPtr', which
                             // default constructs to a garbage value.
 
-                            if (D != m) {
+                            if (D != m.object()) {
                                 u::copyAssignTo(
                                          bsls::Util::addressOf(it->second), D);
+
                                 ASSERTV(!(X == Y));
                                 ASSERTV(!(Y == X));
                                 ASSERTV(  X != Y);
                                 ASSERTV(  Y != X);
+
                                 u::copyAssignTo(
-                                         bsls::Util::addressOf(it->second), m);
+                                             bsls::Util::addressOf(it->second),
+                                             m.object());
+
                                 ASSERTV(  X == Y);
                                 ASSERTV(  Y == X);
                                 ASSERTV(!(X != Y));
@@ -14744,14 +14778,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                         unsigned count = 0;
                         const Iter end = mX.end();
                         for (Iter it = mX.begin(); end != it; ++it, ++count) {
-                            VALUE m;
-                            u::copyAssignTo(bsls::Util::addressOf(m),
-                                            it->second);
+                            // Constructing temp default 'VALUE' object.
+                            bsls::ObjectBuffer<VALUE> m;
+                            bsl::allocator_traits<ALLOC>::construct(xvalue,
+                                                                  m.address());
+                            bslma::DestructorGuard<VALUE> mGuard(m.address());
+
+                            u::copyAssignTo(m.address(), it->second);
 
                             // Note this will even work for 'MethodPtr', which
                             // default constructs to a garbage value.
 
-                            if (D != m) {
+                            if (D != m.object()) {
                                 u::copyAssignTo(
                                          bsls::Util::addressOf(it->second), D);
                                 ASSERTV(!(X == Y));
@@ -14759,7 +14797,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                                 ASSERTV(  X != Y);
                                 ASSERTV(  Y != X);
                                 u::copyAssignTo(
-                                         bsls::Util::addressOf(it->second), m);
+                                             bsls::Util::addressOf(it->second),
+                                             m.object());
                                 ASSERTV(  X == Y);
                                 ASSERTV(  Y == X);
                                 ASSERTV(!(X != Y));
@@ -15241,14 +15280,23 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3_verifySpec()
 
         const Iter end = mX.end();
         for (Iter it = mX.begin(); end != it; ++it) {
+            // Constructing temp default 'VALUE' object.
+            bslma::TestAllocator value("default value", veryVeryVeryVerbose);
+            ALLOC                xvalue(&value);
+
+            bsls::ObjectBuffer<VALUE> v;
+            bsl::allocator_traits<ALLOC>::construct(xvalue, v.address());
+            bslma::DestructorGuard<VALUE> mGuard(v.address());
+
             Pair  p = *it;
-            VALUE v;
-            u::copyAssignTo(bsls::Util::addressOf(v), it->second);
+
+            u::copyAssignTo(v.address(), it->second);
             u::copyAssignTo(bsls::Util::addressOf(it->second), Z.second);
+
             const char vf = static_cast<char>(u::valueOf(it->first));
             const char vs = static_cast<char>(u::valueOf(it->second));
             ASSERTV(vf, vs, vf != vs);
-            ASSERTV(it->second != v);
+            ASSERTV(it->second != v.object());
             ASSERTV(*it != p);
 
             ASSERTV(!u::verifySpec(X, SPEC));
@@ -16829,14 +16877,12 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase35,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase35,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase35();
       } break;
@@ -16848,6 +16894,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -16867,27 +16914,26 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase33_inline,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase33_inline,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase33_inline();
 
         RUN_EACH_TYPE(TestDriver,
                       testCase33_outOfLine,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase33_outOfLine,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase33_outOfLine();
       } break;
@@ -16921,11 +16967,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase31,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase31,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -16961,10 +17005,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase29,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -16987,10 +17029,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase28,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17010,10 +17050,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase28_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase28_propagate_on_container_move_assignment,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17037,10 +17075,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase27,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17061,10 +17097,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase26,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17085,18 +17119,17 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase24,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase24,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
         // Key type must be copy constructible.
-
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TestDriver<signed char, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase24();
-        TestDriver<TestKeyType, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase24();
+        TestDriver<signed char,
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase24();
+        TestDriver<TestKeyType,
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase24();
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase24();
@@ -17115,7 +17148,7 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase23();
       } break;
@@ -17126,14 +17159,11 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(StdAllocTestDriver,
-                      testCase22,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         // TestDriver<TestKeyType, TestValueType>::testCase22();
       } break;
@@ -17161,6 +17191,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17194,6 +17225,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
@@ -17212,14 +17244,12 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase17,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase17,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase17();
       } break;
@@ -17235,14 +17265,12 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase15,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
+        //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) no copy
 
         TestDriver<TestKeyType, TestValueType>::testCase15();
       } break;

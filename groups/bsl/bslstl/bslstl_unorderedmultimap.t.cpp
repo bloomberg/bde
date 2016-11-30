@@ -30,6 +30,7 @@
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
+#include <bsltf_nonoptionalalloctesttype.h>
 #include <bsltf_stdallocatoradaptor.h>
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
@@ -9248,7 +9249,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERTV(LENGTH, CONFIG, BB == AA);
                 // 2x time due to inserting full set of duplicated values
                 ASSERTV(LENGTH, CONFIG, B, A,
-                        B - LENGTH * TYPE_ALLOC * 2 == A);
+                        0 == B - LENGTH * TYPE_ALLOC * 2 - A);
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int id = TstFacility::getIdentifier(VALUES[tj].first);
@@ -11116,7 +11117,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -11128,13 +11132,17 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase33,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 32: {
         // --------------------------------------------------------------------
         // TESTING METHODS TAKING INITIALIZER LISTS
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       testCase32_outOfLine,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
@@ -11151,6 +11159,13 @@ int main(int argc, char *argv[])
                       testCase32_inline,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      testCase32,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
       } break;
       case 31: {
         // --------------------------------------------------------------------
@@ -11159,13 +11174,16 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase31,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase31,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         RUN_EACH_TYPE(TestDriver,
                       testCase31a,
@@ -11179,13 +11197,16 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase30,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase30,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         RUN_EACH_TYPE(TestDriver,
                       testCase30a,
@@ -11198,11 +11219,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<int, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase29();
         TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
@@ -11217,11 +11245,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<int, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase28();
         TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
@@ -11237,12 +11272,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<int, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase27();
         TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
@@ -11256,12 +11298,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase27_propagate_on_container_move_assignment,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase27_propagate_on_container_move_assignment,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
 // TBD get this working?
 #if 0
@@ -11281,12 +11330,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
         // elements, so cannot have move-only 'KEY'.
@@ -11312,12 +11368,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11333,12 +11396,18 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(StdAllocTestDriver,
                       testCase22,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
       } break;
@@ -11352,12 +11421,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase21,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase21,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11373,12 +11449,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase20,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11401,12 +11484,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11419,12 +11509,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase17,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase17,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11440,12 +11537,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase16,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase16,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::testCase16();
       } break;
@@ -11456,12 +11560,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         //            BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- no copy c'tor
 
@@ -11477,7 +11588,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
       } break;
       case 13: {
@@ -11487,12 +11601,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase13,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::testCase13();
       } break;
@@ -11506,7 +11627,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -11537,18 +11661,28 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
         // 'propagate_on_container_copy_assignment' testing
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::
                             testCase9_propagate_on_container_copy_assignment();
@@ -11563,18 +11697,28 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
         // 'propagate_on_container_swap' testing
 
         RUN_EACH_TYPE(TestDriver,
                       testCase8_propagate_on_container_swap,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase8_propagate_on_container_swap,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         // TBD test 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)' here
 
@@ -11591,7 +11735,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
 
         // 'select_on_container_copy_construction' testing
 
@@ -11600,12 +11747,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::
                              testCase7_select_on_container_copy_construction();
@@ -11620,12 +11774,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::testCase6();
       } break;
@@ -11650,12 +11811,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::testCase4();
       } break;
@@ -11669,12 +11837,19 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
 
         TestDriver<TestKeyType, TestValueType>::testCase3();
       } break;
@@ -11688,11 +11863,18 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
+<<<<<<< 86dc20a3228ce52d80c8c0304dd5584c5b08073e
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+=======
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      bsltf::NonOptionalAllocTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
+>>>>>>> Support for special non-default-constructible types in containers.
       } break;
       case 1: {
         // --------------------------------------------------------------------

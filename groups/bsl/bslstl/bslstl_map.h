@@ -2250,7 +2250,12 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
     BloombergLP::bslalg::RbTreeNode *node =
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
     if (d_tree.sentinel() == node) {
-        return insert(iterator(node), value_type(key, VALUE()))->second;
+        BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                     temp.address(),
+                                     BloombergLP::bslma::Default::allocator());
+        BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
+        return insert(iterator(node), value_type(key, temp.object()))->second;
                                                                       // RETURN
     }
     return toNode(node)->value().second;
