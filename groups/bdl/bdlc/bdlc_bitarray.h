@@ -487,6 +487,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -1173,12 +1177,10 @@ int BitArray::maxSupportedBdexVersion(int)
 inline
 BitArray& BitArray::operator=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        // The allocator used by the temporary copy must be the same as the
-        // allocator of this object.
-
-        BitArray(rhs, allocator()).swap(*this);
-    }
+    setLength(rhs.length());
+    memcpy(d_array.data(),
+           rhs.d_array.data(),
+           d_array.size() * sizeof(bsl::uint64_t));
 
     return *this;
 }
