@@ -1,22 +1,6 @@
 // bslstl_vector.t.cpp                                                -*-C++-*-
 #include <bslstl_vector.h>
 
-#include <bslstl_forwarditerator.h>               // for testing only
-#include <bslstl_iterator.h>
-
-#include <bsltf_allocemplacabletesttype.h>
-#include <bsltf_emplacabletesttype.h>
-#include <bsltf_movablealloctesttype.h>
-#include <bsltf_movabletesttype.h>
-#include <bsltf_moveonlyalloctesttype.h>
-#include <bsltf_movestate.h>
-#include <bsltf_nontypicaloverloadstesttype.h>
-#include <bsltf_stdallocatoradaptor.h>
-#include <bsltf_stdstatefulallocator.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_testvaluesarray.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -43,6 +27,22 @@
 #include <bsls_types.h>
 #include <bsls_stopwatch.h>
 #include <bsls_util.h>
+
+#include <bslstl_forwarditerator.h>               // for testing only
+#include <bslstl_iterator.h>
+
+#include <bsltf_allocemplacabletesttype.h>
+#include <bsltf_emplacabletesttype.h>
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_movestate.h>
+#include <bsltf_nontypicaloverloadstesttype.h>
+#include <bsltf_stdallocatoradaptor.h>
+#include <bsltf_stdstatefulallocator.h>
+#include <bsltf_stdtestallocator.h>
+#include <bsltf_testvaluesarray.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'

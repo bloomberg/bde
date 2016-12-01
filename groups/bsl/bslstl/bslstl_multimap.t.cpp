@@ -4,15 +4,6 @@
 #include <bslalg_rangecompare.h>
 #include <bslalg_scalarprimitives.h>
 
-#include <bsltf_allocargumenttype.h>
-#include <bsltf_argumenttype.h>
-#include <bsltf_convertiblevaluewrapper.h>
-#include <bsltf_testvaluesarray.h>
-#include <bsltf_stdallocatoradaptor.h>
-#include <bsltf_stdstatefulallocator.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -33,6 +24,15 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
+
+#include <bsltf_allocargumenttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_convertiblevaluewrapper.h>
+#include <bsltf_testvaluesarray.h>
+#include <bsltf_stdallocatoradaptor.h>
+#include <bsltf_stdstatefulallocator.h>
+#include <bsltf_stdtestallocator.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <limits.h>
 

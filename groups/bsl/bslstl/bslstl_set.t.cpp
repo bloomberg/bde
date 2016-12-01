@@ -3,14 +3,6 @@
 
 #include <bslalg_rangecompare.h>
 
-#include <bsltf_allocargumenttype.h>
-#include <bsltf_argumenttype.h>
-#include <bsltf_stdallocatoradaptor.h>
-#include <bsltf_stdstatefulallocator.h>
-#include <bsltf_stdtestallocator.h>
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
-
 #include <bslma_default.h>
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
@@ -29,6 +21,14 @@
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
+#include <bsltf_allocargumenttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_stdallocatoradaptor.h>
+#include <bsltf_stdstatefulallocator.h>
+#include <bsltf_stdtestallocator.h>
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <algorithm>
 #include <functional>
