@@ -1002,18 +1002,25 @@ struct IntToPairConverter {
             value = key - 'A' + '0';
         }
 
-        // If the 'VALUE' type is a move-enabled allocating type, we want to
-        // pass 'allocator' to the 'emplace' methods, since with some of the
-        // strange allocators this function gets called with, no allocator
-        // gets passed to the move c'tors, in which case the object in the
-        // container will ultimately be using the allocator we used which
-        // creating 'tempKey' and 'tempValue'.  Otherwise, the move will call
-        // a copy c'tor, in which case the allocator use in the original case
-        // won't be propagate regardless.  However, if we wound up using the
-        // container allocator for 'tempKey' and 'tempValue' in the cases
-        // where they are copied and not moved, it would throw off some cases
-        // which are very closely monitoring the number of allocations from
-        // that allocator.
+        // Tests have been written that exactly calculate the number of
+        // expected allocations and we don't want to rewrite those tests.  This
+        // code was originally written only supporting the 'bsl::allocator'
+        // allocator type, but we want to expand it to support other allocator
+        // types.  The tests were assuming the allocator used here was a
+        // scratch allocator, so allocations in this routine weren't counted
+        // by the test code that counts allocations.  Then when the objects are
+        // copied or moved into the container, the container allocator is
+        // passed to the copy or move c'tors so that the right allocator is
+        // used in that case.
+
+        // Then we wanted to expand the range of this function to be able to
+        // handle other types for 'ALLOC', including std stateful allocators.
+        // The problem then is that for that type of the allocator the move and
+        // copy c'tors aren't passed an allocator, so in the case of movable
+        // allocating types, the allocator we use here will be the allocator
+        // the object has within the container.  So, in the case of movable
+        // allocating types, we use the 'allocator' passed in as an arg,
+        // otherwise we use the scratch singleton.
 
         bslma::TestAllocator *pss = scratchSingleton();
         const bool useSingleton =
@@ -1022,7 +1029,7 @@ struct IntToPairConverter {
 
         // Note that 'allocator' and 'pss' are of different types, and
         // sometimes this function is called with 'ALLOC' being a type that has
-        // not c'tor that takes at 'bslma::Allocator *' arg, so we can't use a
+        // no c'tor that takes at 'bslma::Allocator *' arg, so we can't use a
         // ternary on 'useSingleton' to choose which allocator to pass to the
         // 'emplace' methods.
 
@@ -12245,7 +12252,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // verify integrity of 'DEFAULt_DATA'
+            // verify integrity of 'DEFAULT_DATA'
 
             const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
