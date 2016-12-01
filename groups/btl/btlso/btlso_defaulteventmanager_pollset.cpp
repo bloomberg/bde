@@ -31,6 +31,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_timeinterval.h>
@@ -43,6 +44,10 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <sys/file.h>
 #include <sys/pollset.h>
 #include <bsl_c_errno.h>
+
+// We use 'int' instead of 'pollset_t' in the header to avoid including
+// <sys/pollset.h> there.  Verify that they're the same type.
+BSLMF_ASSERT((bsl::is_same<pollset_t, int>::value));
 
 // 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>
 
