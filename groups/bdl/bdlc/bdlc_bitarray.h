@@ -1177,10 +1177,11 @@ int BitArray::maxSupportedBdexVersion(int)
 inline
 BitArray& BitArray::operator=(const BitArray& rhs)
 {
-    setLength(rhs.length());
-    memcpy(d_array.data(),
-           rhs.d_array.data(),
-           d_array.size() * sizeof(bsl::uint64_t));
+    d_array.resize(rhs.d_array.size());
+    bsl::memcpy(d_array.data(),
+                rhs.d_array.data(),
+                d_array.size() * sizeof(bsl::uint64_t));
+    d_length = rhs.d_length;
 
     return *this;
 }
