@@ -1091,7 +1091,7 @@ class unordered_multiset
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered multiset
-        // equivalent to the specified 'key', where the the first iterator is
+        // equivalent to the specified 'key', where the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered
         // multiset contains no 'value_type' objects equivalent to the 'key',
@@ -1128,49 +1128,59 @@ class unordered_multiset
         // entries exist, and the past-the-end ('end') iterator otherwise.
 
     iterator insert(const value_type& value);
-        // Insert the specified 'value' into this unordered multiset.  If a key
-        // equivalent to 'value' already exists in this unordered multiset,
-        // this method is guaranteed to insert 'value' in a position contiguous
-        // to another value having equivalent key.  Return an iterator
+        // Insert the specified 'value' into this unordered multiset.  If one
+        // or more keys equivalent to 'value' already exist in this unordered
+        // multiset, this method is guaranteed to insert 'value' in a position
+        // contiguous to one of those equivalent keys.  Return an iterator
         // referring to the newly inserted 'value_type' object that is
         // equivalent to 'value.  Note that this method requires that the
         // (template parameter) type 'KEY' be 'copy-insertable' into this
         // unordered multiset (see {Requirements on 'KEY'}).
 
     iterator insert(BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this unordered multiset.  If a key
-        // equivalent to 'value' already exists in this unordered multiset,
-        // this method is guaranteed to insert 'value' in a position contiguous
-        // to another value having equivalent key.  Return an iterator
+        // Insert the specified 'value' into this unordered multiset.  If one
+        // or more keys equivalent to 'value' already exist in this unordered
+        // multiset, this method is guaranteed to insert 'value' in a position
+        // contiguous to one of those equivalent keys.  Return an iterator
         // referring to the newly inserted 'value_type' object that is
         // equivalent to 'value'.  This method requires that the (template
         // parameter) type 'KEY' be 'move-insertable' into this unordered
         // multiset (see {Requirements on 'KEY'}).
 
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this unordered multiset.  If a key
-        // equivalent to 'value' already exists in this unordered multiset,
-        // this method is guaranteed to insert 'value' in a position contiguous
-        // to another value having equivalent key.  Return an iterator
-        // referring to the newly inserted 'value_type' object that is
-        // equivalent to 'value'.  The behavior is undefined unless the
-        // specified 'hint' is a valid iterator into this unordered multiset.
-        // This method requires that the (template parameter) type 'KEY' be
-        // 'copy-insertable' into this unordered multiset (see {Requirements on
-        // 'KEY'}).
+        // Insert the specified 'value' into this unordered multiset (in
+        // constant time if the specified 'hint' refers to an element in this
+        // container equivalent to 'value').  If one or more keys equivalent to
+        // 'value' already exist in this unordered multiset, this method is
+        // guaranteed to insert 'value' in a position contiguous to one of
+        // those equivalent keys.  Return an iterator referring to the newly
+        // inserted 'value_type' object that is equivalent to 'value'.  If
+        // 'hint' does not refer to an element in this container equivalent to
+        // 'value', this operation has worst case 'O[N]' and average case
+        // constant-time complexity, where 'N' is the size of this unordered
+        // multiset.  This method requires that the (template parameter) type
+        // 'KEY' be 'copy-insertable' into this unordered multiset (see
+        // {Requirements on 'KEY'}).  The behavior is undefined unless 'hint'
+        // is an iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-        // Insert the specified 'value' into this unordered multiset.  If a key
-        // equivalent to 'value' already exists in this unordered multiset,
-        // this method is guaranteed to insert 'value' in a position contiguous
-        // to another value having equivalent key.  Return an iterator
-        // referring to the newly inserted 'value_type' object that is
-        // equivalent to 'value'.  The behavior is undefined unless the
-        // specified 'hint' is a valid iterator into this unordered multiset.
-        // This method requires that the (template parameter) type 'KEY' be
-        // 'move-insertable' into this unordered multiset (see {Requirements on
-        // 'KEY'}).
+        // Insert the specified 'value' into this unordered multiset (in
+        // constant time if the specified 'hint' refers to an element in this
+        // container equivalent to 'value').  If one or more keys equivalent to
+        // 'value' already exist in this unordered multiset, this method is
+        // guaranteed to insert 'value' in a position contiguous to one of
+        // those equivalent keys.  Return an iterator referring to the newly
+        // inserted 'value_type' object that is equivalent to 'value'.  If
+        // 'hint' does not refer to an element in this container equivalent to
+        // 'value', this operation has worst case 'O[N]' and average case
+        // constant-time complexity, where 'N' is the size of this unordered
+        // multiset.  This method requires that the (template parameter) type
+        // 'KEY' be 'move-insertable' into this unordered multiset (see
+        // {Requirements on 'KEY'}).  The behavior is undefined unless 'hint'
+        // is an iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1214,12 +1224,20 @@ class unordered_multiset
         // Insert into this unordered multiset a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'args' to the corresponding
-        // constructor of 'value_type'.  Return an iterator referring to the
-        // newly created and inserted object in this unordered multiset whose
-        // value is equivalent to that of an object constructed from 'args'.
-        // This method requires that the (template parameter) type 'KEY' be
+        // constructor of 'value_type' (in constant time if the specified
+        // 'hint' refers to an element in this container equivalent to the
+        // newly created 'value_type' object).  Return an iterator referring to
+        // the newly created and inserted object in this unordered multiset
+        // whose value is equivalent to that of an object constructed from
+        // 'args'.  If 'hint' does not refer to an element in this container
+        // equivalent to the newly created 'value_type' object, this operation
+        // has worst case 'O[N]' and average case constant-time complexity,
+        // where 'N' is the size of this unordered multiset.  This method
+        // requires that the (template parameter) type 'KEY' be
         // 'emplace-constructible' into this unordered multiset from 'args'
-        // (see {Requirements on 'KEY'}).
+        // (see {Requirements on 'KEY'}).  The behavior is undefined unless
+        // 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1586,7 +1604,7 @@ class unordered_multiset
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this unordered multiset
-        // equivalent to the specified 'key', where the the first iterator is
+        // equivalent to the specified 'key', where the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered
         // multiset contains no 'value_type' objects equivalent to the 'key',
@@ -3026,10 +3044,11 @@ bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
 
 // Type traits for STL *unordered* *associative* containers:
 //: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bitwise moveable if the both
-//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container is bitwise movable if both functors
+//:   and the allocator are bitwise movable.
 //: o An unordered associative container uses 'bslma' allocators if the
-//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+//:   (template parameter) type 'ALLOCATOR' is convertible from
+//:   'bslma::Allocator *'.
 
 namespace BloombergLP {
 

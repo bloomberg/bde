@@ -320,7 +320,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  class PhoneBook {
 //      // This class provides a mapping of a person's name to their phone
-//      // number.  Names within a 'Phonebook' are represented using a using
+//      // number.  Names within a 'PhoneBook' are represented using a using
 //      // 'FirstAndLastName' object, and phone numbers are represented using a
 //      // 'bsls::Types::Uint64' value.
 //..
@@ -1120,8 +1120,9 @@ class multimap {
         // complexity, where 'N' is the size of this multimap.  This method
         // requires that the (template parameter) types 'KEY' and 'VALUE' both
         // be 'copy-insertable' into this multimap (see {Requirements on 'KEY'
-        // and 'VALUE'}).  The behavior is undefined unless 'hint' is a valid
-        // iterator into this multimap.
+        // and 'VALUE'}).  The behavior is undefined unless 'hint' is an
+        // iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
     template <class ALT_VALUE_TYPE>
@@ -1146,8 +1147,8 @@ class multimap {
         // 'KEY' and 'VALUE' both be 'move-insertable' into this multimap (see
         // {Requirements on 'KEY' and 'VALUE'}), and the (template parameter)
         // type 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
-        // The behavior is undefined unless 'hint' is a valid iterator into
-        // this multimap.
+        // The behavior is undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).
     {
         // Note that some compilers fail when this method is defined
         // out-of-line.
@@ -1179,7 +1180,7 @@ class multimap {
         // the value type associated with the map.  Without such a check, in
         // certain cases, the same compiler complains of ambiguity between
         // the 'insert' method taking two input iterators and the 'insert'
-        // method taking a 'const_iterator' and a forwarding refernce; such
+        // method taking a 'const_iterator' and a forwarding reference; such
         // an ambiguity is resolved by providing this method, which is
         // equivalent to the 'insert' method (above) taking two input iterators
         // of template parameter type.
@@ -1220,7 +1221,8 @@ class multimap {
         // 'N' is the size of this multimap.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' both be
         // 'emplace-constructible' from 'args' (see {Requirements on 'KEY' and
-        // 'VALUE'}).
+        // 'VALUE'}).  The behavior is undefined unless 'hint' is an iterator
+        // in the range '[begin() .. end()]' (both endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2766,8 +2768,8 @@ void bsl::swap(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
 
 // Type traits for STL *ordered* containers:
 //: o An ordered container defines STL iterators.
-//: o An ordered container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+//: o An ordered container uses 'bslma' allocators if the (template parameter)
+//:   type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
 
 namespace BloombergLP {
 

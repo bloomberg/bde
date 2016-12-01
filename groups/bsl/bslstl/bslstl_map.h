@@ -1132,7 +1132,8 @@ class map {
         // this map.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be 'copy-insertable' into this map (see
         // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
-        // unless 'hint' is a valid iterator into this map.
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
@@ -1147,7 +1148,8 @@ class map {
         // size of this map.  This method requires that the (template
         // parameter) types 'KEY' and 'VALUE' both be 'move-insertable' into
         // this map (see {Requirements on 'KEY' and 'VALUE'}).  The behavior is
-        // undefined unless 'hint' is a valid iterator into this map.
+        // undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).
 
     template <class ALT_VALUE_TYPE>
 #if defined(BSLS_PLATFORM_CMP_SUN)
@@ -1173,8 +1175,8 @@ class map {
         // and 'VALUE' both be 'move-insertable' into this map (see
         // {Requirements on 'KEY' and 'VALUE'}), and the (template parameter)
         // type 'ALT_VALUE_TYPE' be implicitly convertible to 'value_type'.
-        // The behavior is undefined unless 'hint' is a valid iterator into
-        // this map.
+        // The behavior is undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).
     {
         // This function has to be implemented inline, in violation of BDE
         // convention, as the MSVC compiler cannot match the out-of-class
@@ -1210,7 +1212,7 @@ class map {
         // the value type associated with the map.  Without such a check, in
         // certain cases, the same compiler complains of ambiguity between
         // the 'insert' method taking two input iterators and the 'insert'
-        // method taking a 'const_iterator' and a forwarding refernce; such
+        // method taking a 'const_iterator' and a forwarding reference; such
         // an ambiguity is resolved by providing this method, which is
         // equivalent to the 'insert' method (above) taking two input iterators
         // of template parameter type.
@@ -1262,7 +1264,9 @@ class map {
         // this operation has 'O[log(N)]' complexity where 'N' is the size of
         // this map.  This method requires that the (template parameter) types
         // 'KEY' and 'VALUE' both be 'emplace-constructible' from 'args' (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
