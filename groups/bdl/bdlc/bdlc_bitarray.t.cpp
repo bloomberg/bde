@@ -7693,6 +7693,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 The assignment operator must be neutral with respect to memory
         //:   allocation exceptions.
+        //:
+        //: 6 The assignment operator only allocates when needed.
         //
         // Plan:
         //: 1 Specify a set S of unique object values with substantial and
@@ -7717,6 +7719,9 @@ int main(int argc, char *argv[])
         //:
         //: 4 After assignment, have the object on the rhs going out of scope
         //:   and verify this doesn't change the result.  (C-3)
+        //:
+        //: 5 An additional set of assignments are performed to ensure
+        //:   allocations occur only when needed.  (C-6)
         //
         // Testing:
         //   BitArray& operator=(const BitArray& rhs);
@@ -7725,11 +7730,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING ASSIGNMENT OPERATOR\n"
                                "===========================\n";
 
-        if (verbose) cout <<
-             "\nAssign cross product of values with varied representations.\n";
-
-        {
-            static const char *SPECS[] = {
+        static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
                 "0110001",         "01100011",         "011000110",
                 "011000110001100", "0110001100011000", "01100011000110001",
@@ -7740,6 +7741,10 @@ int main(int argc, char *argv[])
            "00001000111000010011000001001101000010001110000100110000010011001",
             0}; // Null string required as last element.
 
+        if (verbose) cout <<
+             "\nAssign cross product of values with varied representations.\n";
+
+        {
             static const int EXTEND[]   = {
                 0, 1, 2, 3, 4, 5, 8, 16, 31, 32, 33, 63, 64, 65, 100
             };
@@ -7826,17 +7831,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting self assignment (Aliasing)." << endl;
 
         {
-            static const char *SPECS[] = {
-                "",      "0",      "01",     "011",    "0110",   "01100",
-                "0110001",         "01100011",         "011000110",
-                "011000110001100", "0110001100011000", "01100011000110001",
-                "0000100011100001001100000100110",
-                "00001000111000010011000001001101",
-           "000010001110000100110000010011010000100011100001001100000100110",
-           "0000100011100001001100000100110100001000111000010011000001001100",
-           "00001000111000010011000001001101000010001110000100110000010011001",
-            0}; // Null string required as last element.
-
             static const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 8, 16, 31, 32, 33, 63, 64, 65, 100
             };
@@ -7882,6 +7876,57 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting allocate only when needed." << endl;
+
+        {
+            static const int EXTEND[] = {
+                0, 1, 2, 3, 4, 5, 8, 16, 31, 32, 33, 63, 64, 65, 100
+            };
+            enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
+
+            for (int ti = 0; SPECS[ti]; ++ti) {
+                const char *const SPEC1 = SPECS[ti];
+
+                for (int tj = 0; tj < NUM_EXTEND; ++tj) {
+                    const int  N = EXTEND[tj];
+                    Obj        mX(&testAllocator);  stretchRemoveAll(&mX, N);
+                    const Obj& X = gg(&mX, SPEC1);
+                    size_t     XLEN = (strlen(SPEC1) + k_BITS_PER_UINT64 - 1)
+                                                           / k_BITS_PER_UINT64;
+
+                    if (0 == XLEN) {
+                        XLEN = 1;
+                    }
+
+                    for (int tk = 0; SPECS[tk]; ++tk) {
+                        const char *const SPEC2 = SPECS[tk];
+
+                        Obj        mY(&testAllocator);
+                        const Obj& Y = gg(&mY, SPEC2);
+                        size_t     YLEN =
+                                        (strlen(SPEC2) + k_BITS_PER_UINT64 - 1)
+                                                           / k_BITS_PER_UINT64;
+
+                        if (0 == YLEN) {
+                            YLEN = 1;
+                        }
+
+                        const Int64 IN_USE_BYTES_BEFORE =
+                                                 testAllocator.numBytesInUse();
+
+                        mY = X;
+
+                        const Int64 IN_USE_BYTES_AFTER =
+                                                 testAllocator.numBytesInUse();
+
+                        LOOP3_ASSERT(SPEC1, N, SPEC2, X == Y);
+                        LOOP3_ASSERT(SPEC1, N, SPEC2,
+                                          YLEN < XLEN || IN_USE_BYTES_BEFORE ==
+                                                           IN_USE_BYTES_AFTER);
+                    }
+                }
+            }
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
