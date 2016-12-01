@@ -1370,12 +1370,6 @@ class TestDriver {
     static void testCase9();
         // Test assignment operator ('operator=').
 
-    template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
-              bool OTHER_FLAGS>
-    static void testCase8_propagate_on_container_swap_dispatch();
-    static void testCase8_propagate_on_container_swap();
-        // Test 'propagate_on_container_swap'.
-
     static void testCase8_dispatch();
         // Test 'swap' member.
 
@@ -2045,8 +2039,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase35()
     //..
 
     {
-        Obj mX;    const Obj& X = mX;
-        Obj mY;
+        Obj mX;    const Obj& X = mX;    (void) X;
+        Obj mY;    (void) mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -7629,205 +7623,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase9()
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
-template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
-          bool OTHER_FLAGS>
-void TestDriver<KEY, VALUE, COMP, ALLOC>::
-                               testCase8_propagate_on_container_swap_dispatch()
-{
-    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
-    // under test in this test case to 'false'.
-
-    typedef bsltf::StdStatefulAllocator<KEY,
-                                        OTHER_FLAGS,
-                                        OTHER_FLAGS,
-                                        PROPAGATE_ON_CONTAINER_SWAP_FLAG,
-                                        OTHER_FLAGS>  StdAlloc;
-
-    typedef bsl::multimap<KEY, VALUE, COMP, StdAlloc> Obj;
-
-    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_SWAP_FLAG;
-
-    static const char *SPECS[] = {
-        "",
-        "A",
-        "BC",
-        "CDE",
-    };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
-
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    for (int ti = 0; ti < NUM_SPECS; ++ti) {
-        const char *const ISPEC   = SPECS[ti];
-
-        TestValues IVALUES(ISPEC);
-
-        bslma::TestAllocator xoa("x-original", veryVeryVeryVerbose);
-        bslma::TestAllocator yoa("y-original", veryVeryVeryVerbose);
-
-        StdAlloc xma(&xoa);
-        StdAlloc yma(&yoa);
-
-        StdAlloc scratch(&da);
-
-        const Obj ZZ(IVALUES.begin(), IVALUES.end(), COMP(), scratch);
-                                                                     // control
-
-        for (int tj = 0; tj < NUM_SPECS; ++tj) {
-            const char *const JSPEC   = SPECS[tj];
-
-            TestValues JVALUES(JSPEC);
-
-            const Obj WW(JVALUES.begin(), JVALUES.end(), COMP(), scratch);
-                                                                     // control
-
-            {
-                IVALUES.resetIterators();
-
-                Obj mX(IVALUES.begin(), IVALUES.end(), COMP(), xma);
-                const Obj& X = mX;
-
-                if (veryVerbose) { T_ P_(ISPEC) P_(X) P(ZZ) }
-
-                JVALUES.resetIterators();
-
-                Obj mY(JVALUES.begin(), JVALUES.end(), COMP(), yma);
-                const Obj& Y = mY;
-
-                ASSERTV(ISPEC, JSPEC, ZZ, X, ZZ == X);
-                ASSERTV(ISPEC, JSPEC, WW, Y, WW == Y);
-
-                // member 'swap'
-                {
-                    bslma::TestAllocatorMonitor dam(&da);
-                    bslma::TestAllocatorMonitor xoam(&xoa);
-                    bslma::TestAllocatorMonitor yoam(&yoa);
-
-                    mX.swap(mY);
-
-                    ASSERTV(ISPEC, JSPEC, WW, X, WW == X);
-                    ASSERTV(ISPEC, JSPEC, ZZ, Y, ZZ == Y);
-
-                    if (PROPAGATE) {
-                        ASSERTV(ISPEC, JSPEC, yma == X.get_allocator());
-                        ASSERTV(ISPEC, JSPEC, xma == Y.get_allocator());
-
-                        ASSERTV(ISPEC, JSPEC, dam.isTotalSame());
-                        ASSERTV(ISPEC, JSPEC, xoam.isTotalSame());
-                        ASSERTV(ISPEC, JSPEC, yoam.isTotalSame());
-                    }
-                    else {
-                        ASSERTV(ISPEC, JSPEC, xma == X.get_allocator());
-                        ASSERTV(ISPEC, JSPEC, yma == Y.get_allocator());
-                    }
-                }
-
-                // free function 'swap'
-                {
-                    bslma::TestAllocatorMonitor dam(&da);
-                    bslma::TestAllocatorMonitor xoam(&xoa);
-                    bslma::TestAllocatorMonitor yoam(&yoa);
-
-                    swap(mX, mY);
-
-                    ASSERTV(ISPEC, JSPEC, ZZ, X, ZZ == X);
-                    ASSERTV(ISPEC, JSPEC, WW, Y, WW == Y);
-
-                    ASSERTV(ISPEC, JSPEC, xma == X.get_allocator());
-                    ASSERTV(ISPEC, JSPEC, yma == Y.get_allocator());
-
-                    if (PROPAGATE) {
-                        ASSERTV(ISPEC, JSPEC, dam.isTotalSame());
-                        ASSERTV(ISPEC, JSPEC, xoam.isTotalSame());
-                        ASSERTV(ISPEC, JSPEC, yoam.isTotalSame());
-                    }
-                }
-            }
-            ASSERTV(ISPEC, 0 == xoa.numBlocksInUse());
-            ASSERTV(ISPEC, 0 == yoa.numBlocksInUse());
-        }
-    }
-    ASSERTV(0 == da.numBlocksInUse());
-}
-
-template <class KEY, class VALUE, class COMP, class ALLOC>
-void TestDriver<KEY, VALUE, COMP, ALLOC>::
-                                        testCase8_propagate_on_container_swap()
-{
-    // ------------------------------------------------------------------------
-    // SWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION
-    //
-    // Concerns:
-    //: 1 If the 'propagate_on_container_swap' trait is 'false', the
-    //:   allocators used by the source and target objects remain unchanged
-    //:   (i.e., the allocators are *not* exchanged).
-    //:
-    //: 2 If the 'propagate_on_container_swap' trait is 'true', the
-    //:   allocator used by the target (source) object is updated to be a copy
-    //:   of that used by the source (target) object (i.e., the allocators
-    //:   *are* exchanged).
-    //:
-    //: 3 If the allocators are propagated (i.e., exchanged), there is no
-    //:   additional allocation from any allocator.
-    //:
-    //: 4 The effect of the 'propagate_on_container_swap' trait is independent
-    //:   of the other three allocator propagation traits.
-    //:
-    //: 5 Following the swap operation, neither object holds on to memory
-    //:   allocated from the other object's allocator.
-    //
-    // Plan:
-    //: 1 Specify a set S of object values with varied differences, ordered by
-    //:   increasing length, to be used in the following tests.
-    //:
-    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
-    //:   'propagate_on_container_swap' property configured to 'false'.  In two
-    //:   successive iterations of P-3, first configure the three properties
-    //:   not under test to be 'false', then configure them all to be 'true'.
-    //:
-    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
-    //:
-    //:   1 Initialize two objects from 'x', a control object 'ZZ' using a
-    //:     scratch allocator and an object 'X' using one of the allocators
-    //:     from P-2.
-    //:
-    //:   2 Initialize two objects from 'y', a control object 'WW' using a
-    //:     scratch allocator and an object 'Y' using the other allocator from
-    //:     P-2.
-    //:
-    //:   3 Using both member 'swap' and free function 'swap', swap 'X' with
-    //:     'Y' and use 'operator==' to verify that 'X' and 'Y' have the
-    //:     expected values.
-    //:
-    //:   4 Use the 'get_allocator' method to verify that the allocators of 'X'
-    //:     and 'Y' are *not* exchanged.  (C-1)
-    //:
-    //: 4 Repeat P-2..3 except that this time configure the allocator property
-    //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
-    //:   *are* exchanged.  Also verify that there is no additional allocation
-    //:   from any allocator.  (C-2..5)
-    //
-    // Testing:
-    //   propagate_on_container_swap
-    // ------------------------------------------------------------------------
-
-    if (verbose)
-        printf("\nSWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION"
-               "\n=====================================================\n");
-
-    if (verbose) printf("\n'propagate_on_container_swap::value == false'\n");
-
-    testCase8_propagate_on_container_swap_dispatch<false, false>();
-    testCase8_propagate_on_container_swap_dispatch<false, true>();
-
-    if (verbose) printf("\n'propagate_on_container_swap::value == true'\n");
-
-    testCase8_propagate_on_container_swap_dispatch<true, false>();
-    testCase8_propagate_on_container_swap_dispatch<true, true>();
-}
-
-template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
 {
     // ------------------------------------------------------------------------
@@ -9903,7 +9698,7 @@ template <class KEY,
           class VALUE = KEY,
           class COMP  = TestComparator<KEY> >
 struct MetaTestDriver {
-    // This 'struct' is to be call by the 'RUN_EACH_TEST' macro, and the
+    // This 'struct' is to be call by the 'RUN_EACH_TYPE' macro, and the
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
@@ -10526,6 +10321,7 @@ int main(int argc, char *argv[])
                       testCase31,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType);
+
         RUN_EACH_TYPE(TestDriver,
                       testCase31a,
                       bsltf::EmplacableTestType,
@@ -10539,6 +10335,7 @@ int main(int argc, char *argv[])
                       testCase30,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType);
+
         RUN_EACH_TYPE(TestDriver,
                       testCase30a,
                       bsltf::EmplacableTestType,
@@ -10550,12 +10347,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase29,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase29,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 28: {
         // --------------------------------------------------------------------
@@ -10563,12 +10358,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase28,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -10576,37 +10369,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase27,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType)
+
         MetaTestDriver<bsltf::MovableAllocTestType,
                        bsltf::MoveOnlyAllocTestType>::testCase27();
         MetaTestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase27();
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase27,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-#if 0
-        // 'propagate_on_container_move_assignment' testing
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase27_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase27_propagate_on_container_move_assignment,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
-
-// TBD get this working?
-#if 0
-        TestDriver<bsltf::MovableAllocTestType,
-                   bsltf::MoveOnlyAllocTestType>::
-                           testCase27_propagate_on_container_move_assignment();
-
-        TestDriver<int, bsltf::MoveOnlyAllocTestType>::
-                           testCase27_propagate_on_container_move_assignment();
-#endif
-#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -10615,10 +10384,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase26,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
@@ -10812,30 +10578,12 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        MetaTestDriver<TestKeyType, TestValueType>::testCase8();
-
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
         MetaTestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase8();
-
-        // 'propagate_on_container_swap' testing
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase8_propagate_on_container_swap,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase8_propagate_on_container_swap,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
-
-        // TBD test 'bsltf::MoveOnlyAllocTestType' here
-
-        TestDriver<TestKeyType, TestValueType>::
-                                       testCase8_propagate_on_container_swap();
+        MetaTestDriver<TestKeyType, TestValueType>::testCase8();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -10847,9 +10595,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase7,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
         TestDriver<TestKeyType, TestValueType>::testCase7();
@@ -10861,10 +10607,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase7_select_on_container_copy_construction,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
@@ -10881,9 +10624,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -10910,9 +10651,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -10928,9 +10667,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -10946,12 +10683,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase2,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase2,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         TestDriver<TestKeyType, TestValueType>::testCase2();
       } break;
       case 1: {

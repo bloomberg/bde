@@ -14523,7 +14523,7 @@ bool operator!=(const HI<T, N>& lhs, const HI<T, N>& rhs)
 
 template <class TYPE>
 struct MetaTestDriver {
-    // This 'struct' is to be call by the 'RUN_EACH_TEST' macro, and the
+    // This 'struct' is to be call by the 'RUN_EACH_TYPE' macro, and the
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
@@ -14690,7 +14690,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
                       testCase34,
-
                       signed char,
                       size_t,
                       bsltf::TemplateTestFacility::ObjectPtr
@@ -15073,9 +15072,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase26,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase26,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15089,9 +15086,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase25,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase25,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15103,17 +15098,14 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase24,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::MoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase24_dispatch,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED);
-
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase24,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -15125,9 +15117,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase23,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase23,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15215,10 +15205,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase19,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase19,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15570,10 +15557,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase12,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
@@ -15684,10 +15668,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
-                      REDUCED_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase9_propagate_on_container_copy_assignment,
+                      REDUCED_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
@@ -15741,10 +15722,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
-                      REDUCED_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase7_select_on_container_copy_construction,
+                      REDUCED_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;
@@ -15772,10 +15750,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase6,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15815,19 +15790,14 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase4,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(TestDriver,
                       testCase4a,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-        RUN_EACH_TYPE(TestDriver,
-                      testCase4a,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -15849,10 +15819,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase3,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase3,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);

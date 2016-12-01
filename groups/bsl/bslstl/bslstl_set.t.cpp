@@ -9776,7 +9776,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 template <class KEY,
           class COMP = TestComparator<KEY> >
 struct MetaTestDriver {
-    // This 'struct' is to be call by the 'RUN_EACH_TEST' macro, and the
+    // This 'struct' is to be call by the 'RUN_EACH_TYPE' macro, and the
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
@@ -10386,10 +10386,12 @@ int main(int argc, char *argv[])
                       testCase31,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType);
+
         RUN_EACH_TYPE(TestDriver,
                       testCase31a,
                       bsltf::EmplacableTestType,
                       bsltf::AllocEmplacableTestType);
+
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase31,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
@@ -10732,10 +10734,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase8,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase8,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
