@@ -1007,7 +1007,8 @@ class set {
         // complexity, where 'N' is the size of this set.  This method requires
         // that the (template parameter) type 'KEY' be 'copy-insertable' into
         // this set (see {Requirements on 'KEY'}).  The behavior is undefined
-        // unless 'hint' is a valid iterator into this set.
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
@@ -1021,8 +1022,8 @@ class set {
         // to 'value', this operation has 'O[log(N)]' complexity, where 'N' is
         // the size of this set.  This method requires that the (template
         // parameter) type 'KEY' be 'move-insertable' (see {Requirements on
-        // 'KEY'}).  The behavior is undefined unless 'hint' is a valid
-        // iterator into this set.
+        // 'KEY'}).  The behavior is undefined unless 'hint' is an iterator in
+        // the range '[begin() .. end()]' (both endpoints included).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1084,7 +1085,9 @@ class set {
         // 'arguments', this operation has 'O[log(N)]' complexity where 'N' is
         // the size of this set.  This method requires that the (template
         // parameter) type 'KEY' be 'emplace-constructible' from 'arguments'
-        // (see {Requirements on 'KEY'}).
+        // (see {Requirements on 'KEY'}).  The behavior is undefined unless
+        // 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1436,9 +1439,9 @@ class set {
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the the first iterator is positioned at
-        // the start of the sequence, and the second is positioned one past the
-        // end of the sequence.  The first returned iterator will be
+        // the specified 'key', where the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
@@ -1550,9 +1553,9 @@ class set {
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the the first iterator is positioned at
-        // the start of the sequence, and the second is positioned one past the
-        // end of the sequence.  The first returned iterator will be
+        // the specified 'key', where the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will

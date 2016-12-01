@@ -674,14 +674,13 @@ template <class KEY,
           class HASH  = bsl::hash<KEY>,
           class EQUAL = bsl::equal_to<KEY>,
           class ALLOCATOR = bsl::allocator<KEY> >
-class unordered_set
-{
+class unordered_set {
     // This class template implements a value-semantic container type holding
     // an unordered set of unique values (of template parameter type 'KEY').
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
+    //:   o except for BDEX serialization
     //: o is *exception-neutral* (agnostic except for the 'at' method)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
@@ -696,13 +695,13 @@ class unordered_set
 
     typedef KEY                                              ValueType;
         // This typedef is an alias for the type of values maintained by this
-        // set.
+        // unordered set.
 
     typedef ::BloombergLP::bslstl::UnorderedSetKeyConfiguration<ValueType>
                                                              ListConfiguration;
         // This typedef is an alias for the policy used internally by this
         // container to extract the 'KEY' value from the values maintained by
-        // this set.
+        // this unordered set.
 
     typedef ::BloombergLP::bslstl::HashTable<ListConfiguration,
                                              HASH,
@@ -890,7 +889,7 @@ class unordered_set
         // input iterator defined in the C++11 standard [24.2.3] providing
         // access to values of a type convertible to 'value_type', and
         // 'value_type' must be 'emplace-constructible' from '*i' into this
-        // set, where 'i' is a dereferenceable iterator in the range
+        // unordered set, where 'i' is a dereferenceable iterator in the range
         // '[first .. last)' (see {Requirements on 'KEY'}).  The behavior is
         // undefined unless 'first' and 'last' refer to a sequence of valid
         // values where 'first' is at a position at or before 'last'.  Note
@@ -971,10 +970,10 @@ class unordered_set
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     unordered_set& operator=(std::initializer_list<KEY> values);
-        // Assign to this object the vale resulting from first clearing this
-        // set and then inserting each 'value_type' object in the specified
-        // 'values' initializer list, ignoring those keys having a value
-        // equivalent to that which appears earlier in the list; return a
+        // Assign to this object the value resulting from first clearing this
+        // unordered set and then inserting each 'value_type' object in the
+        // specified 'values' initializer list, ignoring those keys having a
+        // value equivalent to that which appears earlier in the list; return a
         // reference providing modifiable access to this object.  This method
         // requires that the (template parameter) type 'KEY' type be
         // 'copy-insertable' into this set (see {Requirements on 'KEY'}).
@@ -988,7 +987,7 @@ class unordered_set
     iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the sequence of 'value_type' objects maintained by this
-        // set.
+        // unordered set.
 
     local_iterator begin(size_type index);
         // Return a local iterator providing modifiable access to the first
@@ -1032,12 +1031,13 @@ class unordered_set
         // equivalent to 'value' already exists in this set, this method has no
         // effect.  Return an iterator referring to the (possibly newly
         // inserted) 'value_type' object in this set that is equivalent to
-        // 'value'.  The behavior is undefined unless the specified 'hint' is a
-        // valid iterator into this unordered set.  This method requires that
-        // the (template parameter) type 'KEY' be 'copy-constructible' into
-        // this set (see {Requirements on 'KEY'}).  Note that the specification
-        // of 'hint' for an unordered set (of unique values) does not provide a
-        // performance benefit.
+        // 'value'.  The average and worst case complexity of this operation is
+        // not affected by the specified 'hint'.  This method requires that the
+        // (template parameter) type 'KEY' be 'copy-constructible' into this
+        // set (see {Requirements on 'KEY'}).  The behavior is undefined unless
+        // 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).  Note that 'hint' is ignored (other than
+        // possibly asserting its validity in some build modes).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
@@ -1046,12 +1046,14 @@ class unordered_set
         // equivalent to 'value' already exists in this set, this method has no
         // effect.  'value' is left in a valid but unspecified state.  Return
         // an iterator referring to the (possibly newly inserted) 'value_type'
-        // object in this set that is equivalent to 'value'.  The behavior is
-        // undefined unless the specified 'hint' is a valid iterator into this
-        // unordered set.  This method requires that the (template parameter)
-        // type 'KEY' be 'move-insertable' (see {Requirements on 'KEY'}) into
-        // this set.  Note that the specification of 'hint' for an unordered
-        // set (of unique values) does provide a performance benefit.
+        // object in this set that is equivalent to 'value'.  The average and
+        // worst case complexity of this operation is not affected by the
+        // specified 'hint'.  This method requires that the (template
+        // parameter) type 'KEY' be 'move-insertable' (see {Requirements on
+        // 'KEY'}) into this set.  The behavior is undefined unless 'hint' is
+        // an iterator in the range '[begin() .. end()]' (both endpoints
+        // included).  Note that 'hint' is ignored (other than possibly
+        // asserting its validity in some build modes).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1106,10 +1108,14 @@ class unordered_set
         // object).  Return an iterator referring to the (possibly newly
         // created and inserted) object in this set whose value is equivalent
         // to that of an object constructed from 'arguments'.  The average and
-        // worst case complexity of this operation is not affected by the the
+        // worst case complexity of this operation is not affected by the
         // specified 'hint'.  This method requires that the (template
         // parameter) type 'KEY' be 'emplace-constructible' into this set from
-        // 'arguments' (see {Requirements on 'KEY'}).
+        // 'arguments' (see {Requirements on 'KEY'}).  The behavior is
+        // undefined unless 'hint' is an iterator in the range
+        // '[begin() .. end()]' (both endpoints included).  Note that 'hint' is
+        // ignored (other than possibly asserting its validity in some build
+        // modes).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1444,7 +1450,7 @@ class unordered_set
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered set that are
-        // equivalent to the specified 'key', where the the first iterator is
+        // equivalent to the specified 'key', where the first iterator is
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered set
         // contains no 'value_type' objects equivalent to 'key', then the two
@@ -1476,7 +1482,7 @@ class unordered_set
     // ACCESSORS
     ALLOCATOR get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
-        // set.
+        // unordered set.
 
     const_iterator begin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
@@ -1535,9 +1541,9 @@ class unordered_set
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the the first iterator is positioned at
-        // the start of the sequence and the second iterator is positioned one
-        // past the end of the sequence.  If this set contains no 'value_type'
+        // the specified 'key', where the first iterator is positioned at the
+        // start of the sequence and the second iterator is positioned one past
+        // the end of the sequence.  If this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
         // have the same value.  Note that since a set maintains unique keys,
         // the range will contain at most one element.
@@ -1610,7 +1616,7 @@ bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // value-element that is contained in 'lhs' there is a value-element
     // contained in 'rhs' having the same value, and vice-versa.  Note that
     // this method requires that the (template parameter) type 'KEY' be
-    // "equality-comparable" (see {Requirements on 'KEY'}).
+    // 'equality-comparable' (see {Requirements on 'KEY'}).
 
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1622,7 +1628,7 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // value-elements, or that for some value-element contained in 'lhs' there
     // is not a value-element in 'rhs' having the same value, and vice-versa.
     // Note that this method requires that the (template parameter) type 'KEY'
-    // and be "equality-comparable" (see {Requirements on 'KEY'}).
+    // and be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1965,7 +1971,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                                                          Args&&... arguments)
 {
-    // There is no realistic use-case for the 'hint' in an unordered_set of
+    // There is no realistic use-case for the 'hint' in an 'unordered_set' of
     // unique values.  We could quickly test for a duplicate key, and have a
     // fast return path for when the method fails, but in the typical use case
     // where a new element is inserted, we are adding an extra key-check for no
@@ -2734,7 +2740,7 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(const_iterator,
                                                    const value_type& value)
 {
-    // There is no realistic use-case for the 'hint' in an unordered_set of
+    // There is no realistic use-case for the 'hint' in an 'unordered_set' of
     // unique values.  We could quickly test for a duplicate key, and have a
     // fast return path for when the method fails, but in the typical use case
     // where a new element is inserted, we are adding an extra key-check for no
@@ -2752,7 +2758,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(
                               const_iterator,
                               BloombergLP::bslmf::MovableRef<value_type> value)
 {
-    // There is no realistic use-case for the 'hint' in an unordered_set of
+    // There is no realistic use-case for the 'hint' in an 'unordered_set' of
     // unique values.  We could quickly test for a duplicate key, and have a
     // fast return path for when the method fails, but in the typical use case
     // where a new element is inserted, we are adding an extra key-check for no
@@ -3070,10 +3076,11 @@ void bsl::swap(bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
 
 // Type traits for STL *unordered* *associative* containers:
 //: o An unordered associative container defines STL iterators.
-//: o An unordered associative container is bitwise moveable if the both
-//:      functors and the allocator are bitwise moveable.
+//: o An unordered associative container is bitwise movable if both functors
+//:   and the allocator are bitwise movable.
 //: o An unordered associative container uses 'bslma' allocators if the
-//:      parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+//:   (template parameter) type 'ALLOCATOR' is convertible from
+//:   'bslma::Allocator *'.
 
 namespace BloombergLP {
 
