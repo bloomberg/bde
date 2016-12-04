@@ -20,23 +20,23 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::Variant:    variant of up to   20 types
 //  bdlb::Variant2:   variant of exactly  2 types
-//  bdlb::Variant3:      "    "     "     3   "
-//  bdlb::Variant4:      "    "     "     4   "
-//  bdlb::Variant5:      "    "     "     5   "
-//  bdlb::Variant6:      "    "     "     6   "
-//  bdlb::Variant7:      "    "     "     7   "
-//  bdlb::Variant8:      "    "     "     8   "
-//  bdlb::Variant9:      "    "     "     9   "
-//  bdlb::Variant10:     "    "     "    10   "
-//  bdlb::Variant11:     "    "     "    11   "
-//  bdlb::Variant12:     "    "     "    12   "
-//  bdlb::Variant13:     "    "     "    13   "
-//  bdlb::Variant14:     "    "     "    14   "
-//  bdlb::Variant15:     "    "     "    15   "
-//  bdlb::Variant16:     "    "     "    16   "
-//  bdlb::Variant17:     "    "     "    17   "
-//  bdlb::Variant18:     "    "     "    18   "
-//  bdlb::Variant19:     "    "     "    19   "
+//  bdlb::Variant3:   variant of exactly  3 types
+//  bdlb::Variant4:   variant of exactly  4 types
+//  bdlb::Variant5:   variant of exactly  5 types
+//  bdlb::Variant6:   variant of exactly  6 types
+//  bdlb::Variant7:   variant of exactly  7 types
+//  bdlb::Variant8:   variant of exactly  8 types
+//  bdlb::Variant9:   variant of exactly  9 types
+//  bdlb::Variant10:  variant of exactly 10 types
+//  bdlb::Variant11:  variant of exactly 11 types
+//  bdlb::Variant12:  variant of exactly 12 types
+//  bdlb::Variant13:  variant of exactly 13 types
+//  bdlb::Variant14:  variant of exactly 14 types
+//  bdlb::Variant15:  variant of exactly 15 types
+//  bdlb::Variant16:  variant of exactly 16 types
+//  bdlb::Variant17:  variant of exactly 17 types
+//  bdlb::Variant18:  variant of exactly 18 types
+//  bdlb::Variant19:  variant of exactly 19 types
 //  bdlb::VariantImp: variant from a type list
 //
 //@SEE_ALSO:
@@ -716,6 +716,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
+#endif
+
 #ifndef INCLUDED_BSL_TYPEINFO
 #include <bsl_typeinfo.h>
 #endif
@@ -1402,9 +1410,11 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.  Note that this method is defined inline to work around a
-        // Windows compiler bug with SFINAE functions.
-
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).  Also note that
+        // this method is defined inline to work around a Windows compiler bug
+        // with SFINAE functions.
     : Base(Variant_TypeIndex<
                             TYPES,
                             typename bsl::remove_reference<TYPE>::type>::value,
@@ -1445,7 +1455,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     VariantImp(const VariantImp&  original,
                bslma::Allocator  *basicAllocator = 0);
@@ -1500,7 +1512,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     VariantImp& operator=(const VariantImp& rhs);
         // Assign to this object the type and value currently held by the
@@ -2466,7 +2480,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2492,7 +2508,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant(const Variant& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -2551,7 +2569,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant& operator=(const Variant& rhs);
         // Assign to this object the type and value currently held by the
@@ -2569,371 +2589,6 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-template <class ...TYPES>
-inline
-Variant<TYPES...>::Variant()
-{
-}
-
-template <class ...TYPES>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class ...TYPES>
-template <class TYPE>
-inline
-Variant<TYPES...>::Variant(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class ...TYPES>
-template <class TYPE>
-inline
-Variant<TYPES...>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant(TYPE&&                   value,
-        typename bsl::enable_if<
-            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-            &&
-            !bsl::is_same<Variant<TYPES...>,
-                          typename bsl::remove_reference<TYPE>::type>::value,
-                    void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class ...TYPES>
-template <class TYPE>
-inline
-Variant<TYPES...>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant(TYPE&&                   value,
-        typename bsl::enable_if<
-            !bsl::is_same<Variant<TYPES...>,
-                          typename bsl::remove_reference<TYPE>::type>::value,
-        bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant(bslmf::MovableRef<TYPE>  value,
-        bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class ...TYPES>
-inline
-Variant<TYPES...>::Variant(const Variant&    original,
-                           bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-{
-}
-
-template <class ...TYPES>
-inline
-Variant<TYPES...>::Variant(bslmf::MovableRef<Variant> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class ...TYPES>
-inline
-Variant<TYPES...>::Variant(bslmf::MovableRef<Variant>  original,
-                           bslma::Allocator           *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class ...TYPES>
-template <class TYPE>
-inline
-Variant<TYPES...>& Variant<TYPES...>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class ...TYPES>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant<TYPES...>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant<TYPES...> >::type&
-Variant<TYPES...>::operator=(TYPE&&                  value)
-#else
-Variant<TYPES...>&
-Variant<TYPES...>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class ...TYPES>
-inline
-Variant<TYPES...>& Variant<TYPES...>::operator=(const Variant& rhs)
-{
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class ...TYPES>
-inline
-Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<Variant> rhs)
-{
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-
-    Variant& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
-
-#else
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant()
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                     const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                              const TYPE&       value,
-                                              bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant(TYPE&&                   value,
-        typename bsl::enable_if<
-            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-            &&
-            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                  A8,  A9,  A10, A11, A12, A13, A14,
-                                  A15, A16, A17, A18, A19, A20>,
-                          typename bsl::remove_reference<TYPE>::type>::value,
-                    void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant(TYPE&&                   value,
-        typename bsl::enable_if<
-            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                  A8,  A9,  A10, A11, A12, A13, A14,
-                                  A15, A16, A17, A18, A19, A20>,
-                          typename bsl::remove_reference<TYPE>::type>::value,
-        bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant(bslmf::MovableRef<TYPE>  value,
-        bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                              const Variant&    original,
-                                              bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                           bslmf::MovableRef<Variant> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
-                                    bslmf::MovableRef<Variant>  original,
-                                    bslma::Allocator           *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>&
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                          A8,  A9,  A10, A11, A12, A13, A14,
-                          A15, A16, A17, A18, A19, A20>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-        A16, A17, A18, A19, A20> >::type&
-Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-        A16, A17, A18, A19, A20>::operator=(TYPE&&                  value)
-#else
-Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-        A16, A17, A18, A19, A20>&
-Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-        A16, A17, A18, A19, A20>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>&
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::operator=(const Variant& rhs)
-{
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19, class A20>
-inline
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>&
-Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
-        A13, A14, A15, A16, A17, A18, A19, A20>::
-operator=(bslmf::MovableRef<Variant> rhs)
-{
-    // Up-cast needed since template matching has higher overloading precedence
-    // than derived-to-base matching.
-
-    Variant& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
-
-#endif
 
                        // ===================
                        // class Variant2<...>
@@ -3016,7 +2671,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3036,7 +2693,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant2(const Variant2& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -3086,7 +2745,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant2& operator=(const Variant2& rhs);
         // Assign to this object the type and value currently held by the
@@ -3104,148 +2765,6 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2>
-inline
-Variant2<A1, A2>::Variant2()
-{
-}
-
-template <class A1, class A2>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant2<A1, A2>::Variant2(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2>
-template <class TYPE>
-inline
-Variant2<A1, A2>::Variant2(const TYPE&       value,
-                           bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2>
-template <class TYPE>
-inline
-Variant2<A1, A2>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant2(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant2<A1, A2>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant2(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2>
-template <class TYPE>
-inline
-Variant2<A1, A2>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant2(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant2<A1, A2>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant2(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2>
-inline
-Variant2<A1, A2>::Variant2(const Variant2&   original,
-                           bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2>
-inline
-Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2>
-inline
-Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2>  original,
-                           bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2>
-template <class TYPE>
-inline
-Variant2<A1, A2>&
-Variant2<A1, A2>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant2<A1, A2>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant2<A1, A2> >::type&
-Variant2<A1, A2>::operator=(TYPE&&                  value)
-#else
-Variant2<A1, A2>&
-Variant2<A1, A2>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2>
-inline
-Variant2<A1, A2>&
-Variant2<A1, A2>::operator=(const Variant2& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2>
-inline
-Variant2<A1, A2>&
-Variant2<A1, A2>::operator=(bslmf::MovableRef<Variant2> rhs)
-{
-    Variant2& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant3<...>
@@ -3329,7 +2848,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3349,7 +2870,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant3(const Variant3& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -3399,7 +2922,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant3& operator=(const Variant3& rhs);
         // Assign to this object the type and value currently held by the
@@ -3417,151 +2942,6 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>::Variant3()
-{
-}
-
-template <class A1, class A2, class A3>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant3<A1, A2, A3>::
-Variant3(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3>
-template <class TYPE>
-inline
-Variant3<A1, A2, A3>::
-Variant3(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3>
-template <class TYPE>
-inline
-Variant3<A1, A2, A3>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant3(TYPE&&                   value,
-         typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant3<A1, A2, A3>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant3(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3>
-template <class TYPE>
-inline
-Variant3<A1, A2, A3>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant3(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant3<A1, A2, A3>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-        bslma::Allocator>::type  *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant3(bslmf::MovableRef<TYPE>  value,
-        bslma::Allocator         *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>::
-Variant3(const Variant3& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>::
-Variant3(bslmf::MovableRef<Variant3> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>::
-Variant3(bslmf::MovableRef<Variant3>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3>
-template <class TYPE>
-inline
-Variant3<A1, A2, A3>&
-Variant3<A1, A2, A3>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant3<A1, A2, A3>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant3<A1, A2, A3> >::type&
-Variant3<A1, A2, A3>::operator=(TYPE&&                  value)
-#else
-Variant3<A1, A2, A3>&
-Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>&
-Variant3<A1, A2, A3>::operator=(const Variant3& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3>
-inline
-Variant3<A1, A2, A3>&
-Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<Variant3> rhs)
-{
-    Variant3& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant4<...>
@@ -3646,7 +3026,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3666,7 +3048,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant4(const Variant4& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -3716,7 +3100,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant4& operator=(const Variant4& rhs);
         // Assign to this object the type and value currently held by the
@@ -3734,151 +3120,6 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>::Variant4()
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant4<A1, A2, A3, A4>::
-Variant4(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-template <class TYPE>
-inline
-Variant4<A1, A2, A3, A4>::
-Variant4(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-template <class TYPE>
-inline
-Variant4<A1, A2, A3, A4>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant4(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant4<A1, A2, A3, A4>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant4(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-template <class TYPE>
-inline
-Variant4<A1, A2, A3, A4>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant4(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant4<A1, A2, A3, A4>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant4(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>::
-Variant4(const Variant4& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>::
-Variant4(bslmf::MovableRef<Variant4> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>::
-Variant4(bslmf::MovableRef<Variant4>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4>
-template <class TYPE>
-inline
-Variant4<A1, A2, A3, A4>&
-Variant4<A1, A2, A3, A4>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant4<A1, A2, A3, A4>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant4<A1, A2, A3, A4> >::type&
-Variant4<A1, A2, A3, A4>::operator=(TYPE&&                  value)
-#else
-Variant4<A1, A2, A3, A4>&
-Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>&
-Variant4<A1, A2, A3, A4>::operator=(const Variant4& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4>
-inline
-Variant4<A1, A2, A3, A4>&
-Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<Variant4> rhs)
-{
-    Variant4& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant5<...>
@@ -3963,7 +3204,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3983,7 +3226,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant5(const Variant5& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -4033,7 +3278,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant5& operator=(const Variant5& rhs);
         // Assign to this object the type and value currently held by the
@@ -4051,151 +3298,6 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>::Variant5()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-Variant5(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-Variant5(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant5(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant5(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant5(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant5(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-Variant5(const Variant5& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-Variant5(bslmf::MovableRef<Variant5> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>::
-Variant5(bslmf::MovableRef<Variant5>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE>
-inline
-Variant5<A1, A2, A3, A4, A5>&
-Variant5<A1, A2, A3, A4, A5>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant5<A1, A2, A3, A4, A5> >::type&
-Variant5<A1, A2, A3, A4, A5>::operator=(TYPE&&                  value)
-#else
-Variant5<A1, A2, A3, A4, A5>&
-Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>&
-Variant5<A1, A2, A3, A4, A5>::operator=(const Variant5& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5>
-inline
-Variant5<A1, A2, A3, A4, A5>&
-Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<Variant5> rhs)
-{
-    Variant5& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant6<...>
@@ -4280,7 +3382,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4300,7 +3404,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant6(const Variant6& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -4350,7 +3456,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant6& operator=(const Variant6& rhs);
         // Assign to this object the type and value currently held by the
@@ -4368,151 +3476,6 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::Variant6()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant6(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant6(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant6(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant6(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(const Variant6& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(bslmf::MovableRef<Variant6> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>::
-Variant6(bslmf::MovableRef<Variant6>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>&
-Variant6<A1, A2, A3, A4, A5, A6>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant6<A1, A2, A3, A4, A5, A6> >::type&
-Variant6<A1, A2, A3, A4, A5, A6>::operator=(TYPE&&                  value)
-#else
-Variant6<A1, A2, A3, A4, A5, A6>&
-Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>&
-Variant6<A1, A2, A3, A4, A5, A6>::operator=(const Variant6& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-inline
-Variant6<A1, A2, A3, A4, A5, A6>&
-Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<Variant6> rhs)
-{
-    Variant6& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant7<...>
@@ -4598,7 +3561,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4618,7 +3583,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant7(const Variant7& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -4668,7 +3635,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant7& operator=(const Variant7& rhs);
         // Assign to this object the type and value currently held by the
@@ -4686,153 +3655,6 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::Variant7()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant7(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant7(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant7(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant7(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(const Variant7& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(bslmf::MovableRef<Variant7> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-Variant7(bslmf::MovableRef<Variant7>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>&
-Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant7<A1, A2, A3, A4, A5, A6, A7> >::type&
-Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(TYPE&&                  value)
-#else
-Variant7<A1, A2, A3, A4, A5, A6, A7>&
-Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>&
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-operator=(const Variant7& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-inline
-Variant7<A1, A2, A3, A4, A5, A6, A7>&
-Variant7<A1, A2, A3, A4, A5, A6, A7>::
-operator=(bslmf::MovableRef<Variant7> rhs)
-{
-    Variant7& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant8<...>
@@ -4918,7 +3740,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4938,7 +3762,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant8(const Variant8& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -4988,7 +3814,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant8& operator=(const Variant8& rhs);
         // Assign to this object the type and value currently held by the
@@ -5006,167 +3834,6 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::Variant8()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant8(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant8(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant8(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant8(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(const Variant8& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(bslmf::MovableRef<Variant8> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-Variant8(bslmf::MovableRef<Variant8>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8> >::type&
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-operator=(TYPE&&                  value)
-#else
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-operator=(const Variant8& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-inline
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
-Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
-operator=(bslmf::MovableRef<Variant8> rhs)
-{
-    Variant8& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ===================
                        // class Variant9<...>
@@ -5252,7 +3919,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5272,7 +3941,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant9(const Variant9& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -5322,7 +3993,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant9& operator=(const Variant9& rhs);
         // Assign to this object the type and value currently held by the
@@ -5340,168 +4013,6 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::Variant9()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant9(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
-             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-                     void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant9(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant9(TYPE&&                   value,
-         typename bsl::enable_if<
-             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
-                           typename bsl::remove_reference<TYPE>::type>::value,
-         bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant9(bslmf::MovableRef<TYPE>  value,
-         bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(const Variant9& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(bslmf::MovableRef<Variant9> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-Variant9(bslmf::MovableRef<Variant9>  original,
-         bslma::Allocator            *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9> >::type&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-operator=(TYPE&&                  value)
-#else
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-operator=(const Variant9& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-inline
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
-Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
-operator=(bslmf::MovableRef<Variant9> rhs)
-{
-    Variant9& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant10<...>
@@ -5588,7 +4099,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5608,7 +4121,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant10(const Variant10& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -5658,7 +4173,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant10& operator=(const Variant10& rhs);
         // Assign to this object the type and value currently held by the
@@ -5676,168 +4193,6 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::Variant10()
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant10(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant10(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant10(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant10(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(const Variant10& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(bslmf::MovableRef<Variant10> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-Variant10(bslmf::MovableRef<Variant10>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> >::type&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-operator=(TYPE&&                  value)
-#else
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-operator=(const Variant10& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-inline
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
-Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
-operator=(bslmf::MovableRef<Variant10> rhs)
-{
-    Variant10& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant11<...>
@@ -5925,7 +4280,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5946,7 +4303,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant11(const Variant11& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -5996,7 +4355,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant11& operator=(const Variant11& rhs);
         // Assign to this object the type and value currently held by the
@@ -6014,171 +4375,6 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11()
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant11(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                            A11>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant11(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant11(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                            A11>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant11(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(const Variant11& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(bslmf::MovableRef<Variant11> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-Variant11(bslmf::MovableRef<Variant11>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> >::type&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-operator=(TYPE&&                  value)
-#else
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-operator=(const Variant11& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
-inline
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
-Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
-operator=(bslmf::MovableRef<Variant11> rhs)
-{
-    Variant11& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant12<...>
@@ -6266,7 +4462,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -6287,7 +4485,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant12(const Variant12& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -6338,7 +4538,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant12& operator=(const Variant12& rhs);
         // Assign to this object the type and value currently held by the
@@ -6356,171 +4558,6 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12()
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant12(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11, A12>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant12(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant12(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11, A12>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant12(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(const Variant12& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(bslmf::MovableRef<Variant12> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-Variant12(bslmf::MovableRef<Variant12>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> >::type&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-operator=(TYPE&&                  value)
-#else
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-operator=(const Variant12& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
-inline
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
-Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
-operator=(bslmf::MovableRef<Variant12> rhs)
-{
-    Variant12& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant13<...>
@@ -6609,7 +4646,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -6630,7 +4669,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant13(const Variant13& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -6681,7 +4722,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant13& operator=(const Variant13& rhs);
         // Assign to this object the type and value currently held by the
@@ -6699,184 +4742,6 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13()
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant13(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant13(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant13(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant13(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(const Variant13& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(bslmf::MovableRef<Variant13> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-Variant13(bslmf::MovableRef<Variant13>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
-                            A13>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> >::type&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-operator=(TYPE&&                  value)
-#else
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-operator=(const Variant13& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1, class A2, class A3, class A4,  class A5,  class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
-inline
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
-Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
-operator=(bslmf::MovableRef<Variant13> rhs)
-{
-    Variant13& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant14<...>
@@ -6968,7 +4833,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -6989,7 +4856,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant14(const Variant14& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -7041,7 +4910,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant14& operator=(const Variant14& rhs);
         // Assign to this object the type and value currently held by the
@@ -7059,184 +4930,6 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14()
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant14(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant14(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant14(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant14(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(const Variant14& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(bslmf::MovableRef<Variant14> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-Variant14(bslmf::MovableRef<Variant14>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant14<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
-                            A13, A14>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> >::type&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-operator=(TYPE&&                  value)
-#else
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-operator=(const Variant14& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
-          class A7,  class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
-inline
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
-Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
-operator=(bslmf::MovableRef<Variant14> rhs)
-{
-    Variant14& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant15<...>
@@ -7328,7 +5021,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -7349,7 +5044,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant15(const Variant15& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -7401,7 +5098,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant15& operator=(const Variant15& rhs);
         // Assign to this object the type and value currently held by the
@@ -7419,185 +5118,6 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15()
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant15(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant15(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant15(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant15(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(const Variant15& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(bslmf::MovableRef<Variant15> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-Variant15(bslmf::MovableRef<Variant15>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant15<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11,
-                            A12, A13, A14, A15>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15> >::type&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-operator=(TYPE&&                  value)
-#else
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-operator=(const Variant15& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9, class A10, class A11, class A12,
-          class A13, class A14, class A15>
-inline
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
-Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
-operator=(bslmf::MovableRef<Variant15> rhs)
-{
-    Variant15& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant16<...>
@@ -7690,7 +5210,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -7711,7 +5233,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant16(const Variant16& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -7763,7 +5287,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant16& operator=(const Variant16& rhs);
         // Assign to this object the type and value currently held by the
@@ -7781,200 +5307,6 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16()
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant16(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant16(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant16(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant16(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16(const Variant16& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16(bslmf::MovableRef<Variant16> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-Variant16(bslmf::MovableRef<Variant16>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>&
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11,
-                            A12, A13, A14, A15, A16>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16> >::type&
-Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16>::operator=(TYPE&&                  value)
-#else
-Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16>&
-Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>&
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-operator=(const Variant16& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16>
-inline
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>&
-Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16>::
-operator=(bslmf::MovableRef<Variant16> rhs)
-{
-    Variant16& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant17<...>
@@ -8068,7 +5400,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -8090,7 +5424,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant17(const Variant17& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -8142,7 +5478,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant17& operator=(const Variant17& rhs);
         // Assign to this object the type and value currently held by the
@@ -8161,201 +5499,6 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // in a valid but unspecified state.
 };
 
-// CREATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17()
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant17(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant17(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant17(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant17(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17(const Variant17& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17(bslmf::MovableRef<Variant17> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-Variant17(bslmf::MovableRef<Variant17>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>&
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9, A10, A11,
-                            A12, A13, A14, A15, A16, A17>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17> >::type&
-Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17>::operator=(TYPE&&                  value)
-#else
-Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17>&
-Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>&
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-operator=(const Variant17& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17>
-inline
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>&
-Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17>::
-operator=(bslmf::MovableRef<Variant17> rhs)
-{
-    Variant17& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
                        // ====================
                        // class Variant18<...>
                        // ====================
@@ -8448,7 +5591,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -8470,7 +5615,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant18(const Variant18& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -8522,7 +5669,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant18& operator=(const Variant18& rhs);
         // Assign to this object the type and value currently held by the
@@ -8540,202 +5689,6 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18()
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant18(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant18(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant18(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant18(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18(const Variant18& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18(bslmf::MovableRef<Variant18> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-Variant18(bslmf::MovableRef<Variant18>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>&
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10,
-                            A11, A12, A13, A14, A15, A16, A17, A18>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18> >::type&
-Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18>::operator=(TYPE&&                  value)
-#else
-Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18>&
-Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>&
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-operator=(const Variant18& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18>
-inline
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>&
-Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18>::
-operator=(bslmf::MovableRef<Variant18> rhs)
-{
-    Variant18& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
                        // ====================
                        // class Variant19<...>
@@ -8830,7 +5783,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // newly-created object.  Use the currently installed default allocator
         // to supply memory.  'value' is left in a valid but unspecified state.
         // 'TYPE' must be the same as one of the types that this variant can
-        // hold.
+        // hold.  Note that in C++11 mode, this method does not participate in
+        // overload resolution if it would lead to ambiguity with the move
+        // constructor that does not take an allocator (below).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -8852,7 +5807,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // allocator is used.  The contents of 'value' are moved to the
         // newly-created object with 'value' left in a valid but unspecified
         // state.  'TYPE' must be the same as one of the types that this
-        // variant can hold.
+        // variant can hold.  Note that in C++11 mode, this method does not
+        // participate in overload resolution if it would lead to ambiguity
+        // with the move constructor that takes an allocator (below).
 
     Variant19(const Variant19& original, bslma::Allocator *basicAllocator = 0);
         // Create a variant object having the type and value of the specified
@@ -8905,7 +5862,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // 'value' left in a valid but unspecified state.  The value currently
         // held by this variant (if any) is destroyed if that value's type is
         // not the same as 'TYPE'.  'TYPE' must be the same as one of the types
-        // that this variant can hold.
+        // that this variant can hold.  Note that in C++11 mode, this method
+        // does not participate in overload resolution if it would lead to
+        // ambiguity with the move-assignment operator (below).
 
     Variant19& operator=(const Variant19& rhs);
         // Assign to this object the type and value currently held by the
@@ -8923,214 +5882,6 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // move-inserted into or move-assigned to this object with 'rhs' left
         // in a valid but unspecified state.
 };
-
-// CREATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19()
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE_OR_ALLOCATOR>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19(const TYPE_OR_ALLOCATOR& valueOrAllocator)
-: Imp(valueOrAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19(const TYPE& value, bslma::Allocator *basicAllocator)
-: Imp(value, basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant19(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-                      void>::type *)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
-#else
-Variant19(bslmf::MovableRef<TYPE>  value)
-: Imp(MoveUtil::move(MoveUtil::access(value)))
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-Variant19(TYPE&&                   value,
-          typename bsl::enable_if<
-              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
-                            typename bsl::remove_reference<TYPE>::type>::value,
-          bslma::Allocator>::type *basicAllocator)
-: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
-#else
-Variant19(bslmf::MovableRef<TYPE>  value,
-          bslma::Allocator        *basicAllocator)
-: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
-#endif
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19(const Variant19& original, bslma::Allocator *basicAllocator)
-: Imp(static_cast<const Imp&>(original), basicAllocator)
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19(bslmf::MovableRef<Variant19> original)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
-{
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-Variant19(bslmf::MovableRef<Variant19>  original,
-          bslma::Allocator             *basicAllocator)
-: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
-      basicAllocator)
-{
-}
-
-// MANIPULATORS
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>&
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-operator=(const TYPE& value)
-{
-    Imp::operator=(value);
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-template <class TYPE>
-inline
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-typename bsl::enable_if<
-    !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
-                            A11, A12, A13, A14, A15, A16, A17, A18, A19>,
-                  typename bsl::remove_reference<TYPE>::type>::value,
-Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18, A19> >::type&
-Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18, A19>::operator=(TYPE&&                  value)
-#else
-Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18, A19>&
-Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
-          A16, A17, A18, A19>::operator=(bslmf::MovableRef<TYPE> value)
-#endif
-{
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
-#else
-    TYPE& lvalue = value;
-    Imp::operator=(MoveUtil::move(lvalue));
-#endif
-
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>&
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-operator=(const Variant19& rhs)
-{
-    Imp::operator=(static_cast<const Imp&>(rhs));
-    return *this;
-}
-
-template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
-          class A7,  class A8,  class A9,  class A10, class A11, class A12,
-          class A13, class A14, class A15, class A16, class A17, class A18,
-          class A19>
-inline
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>&
-Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-          A15, A16, A17, A18, A19>::
-operator=(bslmf::MovableRef<Variant19> rhs)
-{
-    Variant19& lvalue = rhs;
-
-    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
-    return *this;
-}
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
@@ -9227,10 +5978,6 @@ struct Variant_TypeIndex {
     BSLMF_ASSERT(((int)value <= (int)TYPES::LENGTH || 21 == value));
 #endif
 };
-
-#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-#undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-#endif
 
                // ======================================
                // struct Variant_DefaultConstructVisitor
@@ -11237,6 +7984,3467 @@ void bdlb::swap(VariantImp<TYPES>& a, VariantImp<TYPES>& b)
     a.swap(b);
 }
 
+namespace bdlb {
+
+                       // ------------------
+                       // class Variant<...>
+                       // ------------------
+
+// CREATORS
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant()
+{
+}
+
+template <class ...TYPES>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>::Variant(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                   value,
+        typename bsl::enable_if<
+            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+            &&
+            !bsl::is_same<Variant<TYPES...>,
+                          typename bsl::remove_reference<TYPE>::type>::value,
+                    void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                   value,
+        typename bsl::enable_if<
+            !bsl::is_same<Variant<TYPES...>,
+                          typename bsl::remove_reference<TYPE>::type>::value,
+        bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant(bslmf::MovableRef<TYPE>  value,
+        bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant(const Variant&    original,
+                           bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+{
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant(bslmf::MovableRef<Variant> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>::Variant(bslmf::MovableRef<Variant>  original,
+                           bslma::Allocator           *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class ...TYPES>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant<TYPES...>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant<TYPES...> >::type&
+Variant<TYPES...>::operator=(TYPE&&                  value)
+#else
+Variant<TYPES...>&
+Variant<TYPES...>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(const Variant& rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(bslmf::MovableRef<Variant> rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Variant& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+#else  // BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant()
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                     const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                              const TYPE&       value,
+                                              bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                   value,
+        typename bsl::enable_if<
+            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+            &&
+            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
+                                  A8,  A9,  A10, A11, A12, A13, A14,
+                                  A15, A16, A17, A18, A19, A20>,
+                          typename bsl::remove_reference<TYPE>::type>::value,
+                    void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant(TYPE&&                   value,
+        typename bsl::enable_if<
+            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
+                                  A8,  A9,  A10, A11, A12, A13, A14,
+                                  A15, A16, A17, A18, A19, A20>,
+                          typename bsl::remove_reference<TYPE>::type>::value,
+        bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant(bslmf::MovableRef<TYPE>  value,
+        bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                              const Variant&    original,
+                                              bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                           bslmf::MovableRef<Variant> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::Variant(
+                                    bslmf::MovableRef<Variant>  original,
+                                    bslma::Allocator           *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
+                          A8,  A9,  A10, A11, A12, A13, A14,
+                          A15, A16, A17, A18, A19, A20>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+        A16, A17, A18, A19, A20> >::type&
+Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+        A16, A17, A18, A19, A20>::operator=(TYPE&&                  value)
+#else
+Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+        A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+        A16, A17, A18, A19, A20>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::operator=(const Variant& rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19, class A20>
+inline
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>&
+Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
+        A13, A14, A15, A16, A17, A18, A19, A20>::
+operator=(bslmf::MovableRef<Variant> rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Variant& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+#endif  // BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+
+#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#endif
+
+                       // -------------------
+                       // class Variant2<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2()
+{
+}
+
+template <class A1, class A2>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant2<A1, A2>::Variant2(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2>
+template <class TYPE>
+inline
+Variant2<A1, A2>::Variant2(const TYPE&       value,
+                           bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2>
+template <class TYPE>
+inline
+Variant2<A1, A2>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant2(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant2<A1, A2>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant2(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2>
+template <class TYPE>
+inline
+Variant2<A1, A2>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant2(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant2<A1, A2>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant2(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2(const Variant2&   original,
+                           bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>::Variant2(bslmf::MovableRef<Variant2>  original,
+                           bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2>
+template <class TYPE>
+inline
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant2<A1, A2>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant2<A1, A2> >::type&
+Variant2<A1, A2>::operator=(TYPE&&                  value)
+#else
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(const Variant2& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2>
+inline
+Variant2<A1, A2>&
+Variant2<A1, A2>::operator=(bslmf::MovableRef<Variant2> rhs)
+{
+    Variant2& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant3<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::Variant3()
+{
+}
+
+template <class A1, class A2, class A3>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant3<A1, A2, A3>::
+Variant3(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+Variant3<A1, A2, A3>::
+Variant3(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+Variant3<A1, A2, A3>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant3(TYPE&&                   value,
+         typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant3<A1, A2, A3>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant3(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+Variant3<A1, A2, A3>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant3(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant3<A1, A2, A3>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+        bslma::Allocator>::type  *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant3(bslmf::MovableRef<TYPE>  value,
+        bslma::Allocator         *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::
+Variant3(const Variant3& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::
+Variant3(bslmf::MovableRef<Variant3> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>::
+Variant3(bslmf::MovableRef<Variant3>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant3<A1, A2, A3>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant3<A1, A2, A3> >::type&
+Variant3<A1, A2, A3>::operator=(TYPE&&                  value)
+#else
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(const Variant3& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3>
+inline
+Variant3<A1, A2, A3>&
+Variant3<A1, A2, A3>::operator=(bslmf::MovableRef<Variant3> rhs)
+{
+    Variant3& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant4<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::Variant4()
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+Variant4<A1, A2, A3, A4>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant4(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant4<A1, A2, A3, A4>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant4(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+Variant4<A1, A2, A3, A4>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant4(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant4<A1, A2, A3, A4>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant4(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(const Variant4& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(bslmf::MovableRef<Variant4> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>::
+Variant4(bslmf::MovableRef<Variant4>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant4<A1, A2, A3, A4>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant4<A1, A2, A3, A4> >::type&
+Variant4<A1, A2, A3, A4>::operator=(TYPE&&                  value)
+#else
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(const Variant4& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4>
+inline
+Variant4<A1, A2, A3, A4>&
+Variant4<A1, A2, A3, A4>::operator=(bslmf::MovableRef<Variant4> rhs)
+{
+    Variant4& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant5<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::Variant5()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant5(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant5(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant5(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant5(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(const Variant5& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(bslmf::MovableRef<Variant5> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>::
+Variant5(bslmf::MovableRef<Variant5>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant5<A1, A2, A3, A4, A5> >::type&
+Variant5<A1, A2, A3, A4, A5>::operator=(TYPE&&                  value)
+#else
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(const Variant5& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5>
+inline
+Variant5<A1, A2, A3, A4, A5>&
+Variant5<A1, A2, A3, A4, A5>::operator=(bslmf::MovableRef<Variant5> rhs)
+{
+    Variant5& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant6<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::Variant6()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant6(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant6(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant6(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant6(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(const Variant6& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(bslmf::MovableRef<Variant6> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>::
+Variant6(bslmf::MovableRef<Variant6>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant6<A1, A2, A3, A4, A5, A6> >::type&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(TYPE&&                  value)
+#else
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(const Variant6& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+inline
+Variant6<A1, A2, A3, A4, A5, A6>&
+Variant6<A1, A2, A3, A4, A5, A6>::operator=(bslmf::MovableRef<Variant6> rhs)
+{
+    Variant6& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant7<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::Variant7()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant7(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant7(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant7(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant7(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(const Variant7& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(bslmf::MovableRef<Variant7> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+Variant7(bslmf::MovableRef<Variant7>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant7<A1, A2, A3, A4, A5, A6, A7> >::type&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(TYPE&&                  value)
+#else
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+operator=(const Variant7& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+inline
+Variant7<A1, A2, A3, A4, A5, A6, A7>&
+Variant7<A1, A2, A3, A4, A5, A6, A7>::
+operator=(bslmf::MovableRef<Variant7> rhs)
+{
+    Variant7& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant8<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::Variant8()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant8(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant8(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant8(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant8(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(const Variant8& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(bslmf::MovableRef<Variant8> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+Variant8(bslmf::MovableRef<Variant8>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8> >::type&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(TYPE&&                  value)
+#else
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(const Variant8& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+inline
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>&
+Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
+operator=(bslmf::MovableRef<Variant8> rhs)
+{
+    Variant8& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // -------------------
+                       // class Variant9<...>
+                       // -------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::Variant9()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant9(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+             &&
+             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+                     void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant9(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant9(TYPE&&                   value,
+         typename bsl::enable_if<
+             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+                           typename bsl::remove_reference<TYPE>::type>::value,
+         bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant9(bslmf::MovableRef<TYPE>  value,
+         bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(const Variant9& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(bslmf::MovableRef<Variant9> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+Variant9(bslmf::MovableRef<Variant9>  original,
+         bslma::Allocator            *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9> >::type&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(TYPE&&                  value)
+#else
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(const Variant9& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+inline
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>&
+Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
+operator=(bslmf::MovableRef<Variant9> rhs)
+{
+    Variant9& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant10<...>
+                       // --------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::Variant10()
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant10(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant10(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant10(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant10(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(const Variant10& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(bslmf::MovableRef<Variant10> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+Variant10(bslmf::MovableRef<Variant10>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> >::type&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(TYPE&&                  value)
+#else
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(const Variant10& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+inline
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>&
+Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
+operator=(bslmf::MovableRef<Variant10> rhs)
+{
+    Variant10& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant11<...>
+                       // --------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11()
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant11(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                            A11>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant11(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant11(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                            A11>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant11(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(const Variant11& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(bslmf::MovableRef<Variant11> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+Variant11(bslmf::MovableRef<Variant11>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> >::type&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(TYPE&&                  value)
+#else
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(const Variant11& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5, class A6,
+          class A7, class A8, class A9, class A10, class A11>
+inline
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>&
+Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
+operator=(bslmf::MovableRef<Variant11> rhs)
+{
+    Variant11& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant12<...>
+                       // --------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12()
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant12(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                                      A11, A12>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant12(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant12(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                                      A11, A12>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant12(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(const Variant12& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(bslmf::MovableRef<Variant12> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+Variant12(bslmf::MovableRef<Variant12>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> >::type&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(TYPE&&                  value)
+#else
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(const Variant12& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12>
+inline
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>&
+Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
+operator=(bslmf::MovableRef<Variant12> rhs)
+{
+    Variant12& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant13<...>
+                       // --------------------
+
+// CREATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13()
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant13(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
+                                      A10, A11, A12, A13>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant13(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant13(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
+                                      A10, A11, A12, A13>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant13(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(const Variant13& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(bslmf::MovableRef<Variant13> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+Variant13(bslmf::MovableRef<Variant13>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
+                            A13>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> >::type&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(TYPE&&                  value)
+#else
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(const Variant13& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1, class A2, class A3, class A4,  class A5,  class A6,
+          class A7, class A8, class A9, class A10, class A11, class A12,
+          class A13>
+inline
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>&
+Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
+operator=(bslmf::MovableRef<Variant13> rhs)
+{
+    Variant13& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant14<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14()
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant14(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
+                                      A10, A11, A12, A13, A14>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant14(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant14(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
+                                      A10, A11, A12, A13, A14>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant14(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(const Variant14& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(bslmf::MovableRef<Variant14> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+Variant14(bslmf::MovableRef<Variant14>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant14<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12,
+                            A13, A14>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> >::type&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(TYPE&&                  value)
+#else
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(const Variant14& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2, class A3, class A4,  class A5,  class A6,
+          class A7,  class A8, class A9, class A10, class A11, class A12,
+          class A13, class A14>
+inline
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>&
+Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
+operator=(bslmf::MovableRef<Variant14> rhs)
+{
+    Variant14& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant15<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15()
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant15(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
+                                      A10, A11, A12, A13, A14, A15>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant15(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant15(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
+                                      A10, A11, A12, A13, A14, A15>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant15(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(const Variant15& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(bslmf::MovableRef<Variant15> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+Variant15(bslmf::MovableRef<Variant15>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant15<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11,
+                            A12, A13, A14, A15>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15> >::type&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(TYPE&&                  value)
+#else
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(const Variant15& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3, class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9, class A10, class A11, class A12,
+          class A13, class A14, class A15>
+inline
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>&
+Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
+operator=(bslmf::MovableRef<Variant15> rhs)
+{
+    Variant15& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant16<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16()
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant16(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9, A10, A11, A12, A13, A14, A15, A16>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant16(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant16(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9, A10, A11, A12, A13, A14, A15, A16>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant16(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(const Variant16& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(bslmf::MovableRef<Variant16> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+Variant16(bslmf::MovableRef<Variant16>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11,
+                            A12, A13, A14, A15, A16>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16> >::type&
+Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16>::operator=(TYPE&&                  value)
+#else
+Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16>&
+Variant16<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(const Variant16& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16>
+inline
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>&
+Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16>::
+operator=(bslmf::MovableRef<Variant16> rhs)
+{
+    Variant16& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant17<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17()
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant17(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
+                                      A9, A10, A11, A12, A13, A14, A15, A16,
+                                      A17>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant17(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant17(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
+                                      A9, A10, A11, A12, A13, A14, A15, A16,
+                                      A17>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant17(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(const Variant17& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(bslmf::MovableRef<Variant17> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+Variant17(bslmf::MovableRef<Variant17>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9, A10, A11,
+                            A12, A13, A14, A15, A16, A17>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17> >::type&
+Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17>::operator=(TYPE&&                  value)
+#else
+Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17>&
+Variant17<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(const Variant17& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17>
+inline
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>&
+Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17>::
+operator=(bslmf::MovableRef<Variant17> rhs)
+{
+    Variant17& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant18<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18()
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant18(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9,  A10, A11, A12, A13, A14, A15, A16,
+                                      A17, A18>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant18(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant18(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9,  A10, A11, A12, A13, A14, A15, A16,
+                                      A17, A18>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant18(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(const Variant18& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(bslmf::MovableRef<Variant18> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+Variant18(bslmf::MovableRef<Variant18>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10,
+                            A11, A12, A13, A14, A15, A16, A17, A18>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18> >::type&
+Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18>::operator=(TYPE&&                  value)
+#else
+Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18>&
+Variant18<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(const Variant18& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18>
+inline
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>&
+Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18>::
+operator=(bslmf::MovableRef<Variant18> rhs)
+{
+    Variant18& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+                       // --------------------
+                       // class Variant19<...>
+                       // --------------------
+
+// CREATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19()
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE_OR_ALLOCATOR>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(const TYPE_OR_ALLOCATOR& valueOrAllocator)
+: Imp(valueOrAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(const TYPE& value, bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant19(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
+              &&
+              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9,  A10, A11, A12, A13, A14, A15, A16,
+                                      A17, A18, A19>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+                      void>::type *)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
+#else
+Variant19(bslmf::MovableRef<TYPE>  value)
+: Imp(MoveUtil::move(MoveUtil::access(value)))
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+Variant19(TYPE&&                   value,
+          typename bsl::enable_if<
+              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
+                                      A9,  A10, A11, A12, A13, A14, A15, A16,
+                                      A17, A18, A19>,
+                            typename bsl::remove_reference<TYPE>::type>::value,
+          bslma::Allocator>::type *basicAllocator)
+: Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
+#else
+Variant19(bslmf::MovableRef<TYPE>  value,
+          bslma::Allocator        *basicAllocator)
+: Imp(MoveUtil::move(MoveUtil::access(value)), basicAllocator)
+#endif
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(const Variant19& original, bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp&>(original), basicAllocator)
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(bslmf::MovableRef<Variant19> original)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))))
+{
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+Variant19(bslmf::MovableRef<Variant19>  original,
+          bslma::Allocator             *basicAllocator)
+: Imp(MoveUtil::move(static_cast<Imp&>(MoveUtil::access(original))),
+      basicAllocator)
+{
+}
+
+// MANIPULATORS
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+template <class TYPE>
+inline
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+typename bsl::enable_if<
+    !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9, A10,
+                            A11, A12, A13, A14, A15, A16, A17, A18, A19>,
+                  typename bsl::remove_reference<TYPE>::type>::value,
+Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18, A19> >::type&
+Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18, A19>::operator=(TYPE&&                  value)
+#else
+Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
+          A16, A17, A18, A19>::operator=(bslmf::MovableRef<TYPE> value)
+#endif
+{
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    Imp::operator=(BSLS_COMPILERFEATURES_FORWARD(TYPE, value));
+#else
+    TYPE& lvalue = value;
+    Imp::operator=(MoveUtil::move(lvalue));
+#endif
+
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(const Variant19& rhs)
+{
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+
+template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
+          class A7,  class A8,  class A9,  class A10, class A11, class A12,
+          class A13, class A14, class A15, class A16, class A17, class A18,
+          class A19>
+inline
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>&
+Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
+          A15, A16, A17, A18, A19>::
+operator=(bslmf::MovableRef<Variant19> rhs)
+{
+    Variant19& lvalue = rhs;
+
+    Imp::operator=(MoveUtil::move(static_cast<Imp&>(lvalue)));
+    return *this;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
