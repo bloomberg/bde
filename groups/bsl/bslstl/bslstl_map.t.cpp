@@ -87,31 +87,6 @@ enum { PLAT_EXC = 1 };
 enum { PLAT_EXC = 0 };
 #endif
 
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  This method
-    // requires that the (template parameter) 'TYPE' has a 'get_allocator'
-    // method.  The behavior is undefined unless 'a' and 'b' were created with
-    // the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
-
-using namespace BloombergLP;
-using namespace bsl;
-using bsls::NameOf;
-
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Alisdair gave considerable feedback on this test driver (see Phabricator
 // https://all.phab.dev.bloomberg.com/D512209) that still needs to be
@@ -333,6 +308,57 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                             SWAP TEST HELPERS
+// ----------------------------------------------------------------------------
+
+namespace incorrect {
+
+template <class TYPE>
+void swap(TYPE&, TYPE&)
+    // Fail.  In a successful test, this 'swap' should never be called.  It is
+    // set up to be called (and fail) in the case where ADL fails to choose the
+    // right 'swap' in 'invokeAdlSwap' below.
+{
+    ASSERT(0 && "incorrect swap called");
+}
+
+}  // close namespace incorrect
+
+template <class TYPE>
+void invokeAdlSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by ADL (Argument Dependent Lookup).
+{
+    using incorrect::swap;
+
+    // A correct ADL will key off the types of '*a' and '*b', which will be of
+    // our 'bsl' container type, to find the right 'bsl::swap' and not
+    // 'incorrect::swap'.
+
+    swap(*a, *b);
+}
+
+template <class TYPE>
+void invokePatternSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by the recommended pattern for calling 'swap'.
+{
+    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+
+    using bsl::swap;
+
+    swap(*a, *b);
+}
+
+// The following 'using' directives must come *after* the definition of
+// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+
+using namespace BloombergLP;
+using bsl::pair;
+using bsl::map;
+using bsls::NameOf;
 
 // ============================================================================
 //                          GLOBAL TEST VALUES
@@ -1029,7 +1055,7 @@ struct IntToPairConverter {
 
         // Note that 'allocator' and 'pss' are of different types, and
         // sometimes this function is called with 'ALLOC' being a type that has
-        // no c'tor that takes at 'bslma::Allocator *' arg, so we can't use a
+        // no c'tor that takes an 'bslma::Allocator *' arg, so we can't use a
         // ternary on 'useSingleton' to choose which allocator to pass to the
         // 'emplace' methods.
 
@@ -5264,8 +5290,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase28_dispatch()
     bslma::TestAllocator         doa("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&doa);
 
-    Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
-    (void)operatorMAg;  // quash potential compiler warning
+    {
+        using namespace bsl;
+
+        Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
+        (void)operatorMAg;  // quash potential compiler warning
+    }
 
     bslma::TestAllocator soa("scratch",   veryVeryVeryVerbose);
     bslma::TestAllocator ooa("object",    veryVeryVeryVerbose);
@@ -6052,19 +6082,21 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
     Obj& (Obj::*operatorAg)(const Obj&) = &Obj::operator=;
     (void)operatorAg;  // quash potential compiler warning
 
-    // C++11 only:
-    // map<Key, T, Compare, Allocator>& operator=(
-    //                                    map<Key, T, Compare, Allocator>&& x);
-    Obj& (Obj::*operatorMAg)(bslmf::MovableRef<Obj>) = &Obj::operator=;
-    (void)operatorMAg;  // quash potential compiler warning
+    {
+        using namespace bsl;
+        // map<Key, T, Compare, Allocator>& operator=(
+        //                                map<Key, T, Compare, Allocator>&& x);
+        Obj& (Obj::*operatorMAg)(bslmf::MovableRef<Obj>) = &Obj::operator=;
+        (void)operatorMAg;  // quash potential compiler warning
 
-    // C++11 only:
-    // map& operator=(initializer_list<value_type>);
+        // C++11 only:
+        // map& operator=(initializer_list<value_type>);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    Obj& (Obj::*operatorILAg)(std::initializer_list<typename Obj::value_type>)
-                                                             = &Obj::operator=;
-    (void)operatorILAg;  // quash potential compiler warning
+        Obj& (Obj::*operatorILAg)(
+            std::initializer_list<typename Obj::value_type>) = &Obj::operator=;
+        (void)operatorILAg;  // quash potential compiler warning
 #endif
+    }
 
     // allocator_type get_allocator() const noexcept;
     typename Obj::allocator_type (Obj::*methodGetAllocator)() const =
@@ -6306,6 +6338,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase26()
         Obj::*methodEqualRangeConst)(const typename Obj::key_type&) const =
                                                              &Obj::equal_range;
     (void)methodEqualRangeConst;
+
+    using namespace bsl;
 
     // template <class Key, class T, class Compare, class Allocator>
     // bool operator==(const map<Key, T, Compare, Allocator>& x,
@@ -9457,14 +9491,28 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
         Obj mY(oa);          const Obj& Y  = gg(&mY,  "ABC");
         Obj mYY(sa);         const Obj& YY = gg(&mYY, "ABC");
 
+        if (veryVerbose) printf(
+            "Invoke free 'swap' function in a context where ADL is used.\n");
+
         if (veryVerbose) { T_ P_(X) P(Y) }
 
         bslma::TestAllocatorMonitor oam(&ooa);
 
-        invokeAdlSwap(mX, mY);
+        invokeAdlSwap(&mX, &mY);
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
+        ASSERT(oam.isTotalSame());
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+
+        if (veryVerbose) printf(
+               "Invoke free 'swap' function via that standard BDE pattern.\n");
+
+        invokePatternSwap(&mX, &mY);
+
+        ASSERTV(YY, X, XX == X);
+        ASSERTV(XX, Y, YY == Y);
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
@@ -10004,6 +10052,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
     if (verbose)
               printf("\nAssign the address of each operator to a variable.\n");
     {
+        using namespace bsl;
+
         typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
         // Verify that the signatures and return types are standard.
@@ -11251,9 +11301,9 @@ struct MetaTestDriver {
 template <class KEY, class VALUE, class COMP>
 void MetaTestDriver<KEY, VALUE, COMP>::testCase28()
 {
-    // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on move-assign,
-    // is set.
+    // The low-order bit of the identifier specifies whether the fourth boolean
+    // argument of the stateful allocator, which indicates propagate on
+    // move-assign, is set.
 
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false, false> S00;
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false,  true> S01;
@@ -11276,8 +11326,8 @@ template <class KEY, class VALUE, class COMP>
 void MetaTestDriver<KEY, VALUE, COMP>::testCase8()
 {
     // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on container
-    // swap, is set.
+    // argument of the stateful allocator, which indicates propagate on
+    // container swap, is set.
 
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false, false> S00;
     typedef bsltf::StdStatefulAllocator<Pair, false, false,  true, false> S01;
@@ -11692,7 +11742,7 @@ int main(int argc, char *argv[])
 
         // Because the 'KEY' type in the pair is 'const', the move c'tor for
         // 'bsl::map' calls the copy c'tor of 'KEY', and move-assign calls that
-        // move c'tor, we can't move-assign a container with a moveonly 'KEY'.
+        // move c'tor, we can't move-assign a container with a move-only 'KEY'.
 
         MetaTestDriver<bsltf::MovableAllocTestType,
                        bsltf::MoveOnlyAllocTestType>::testCase28();
@@ -11977,7 +12027,7 @@ int main(int argc, char *argv[])
 
         // Because the 'KEY' type in the pair is 'const', the move c'tor for
         // 'bsl::map' calls the copy c'tor of 'KEY'.  So we can't swap a
-        // container with a moveonly 'KEY'.
+        // container with a move-only 'KEY'.
 
         MetaTestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase8();
         MetaTestDriver<bsltf::MovableAllocTestType,

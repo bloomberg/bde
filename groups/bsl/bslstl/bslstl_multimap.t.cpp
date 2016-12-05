@@ -65,29 +65,6 @@ enum { PLAT_EXC = 0 };
 #endif
 
 // ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
-
-using namespace BloombergLP;
-using namespace bsl;
-using bsls::NameOf;
-
-// ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 //                             Overview
@@ -274,6 +251,57 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                             SWAP TEST HELPERS
+// ----------------------------------------------------------------------------
+
+namespace incorrect {
+
+template <class TYPE>
+void swap(TYPE&, TYPE&)
+    // Fail.  In a successful test, this 'swap' should never be called.  It is
+    // set up to be called (and fail) in the case where ADL fails to choose the
+    // right 'swap' in 'invokeAdlSwap' below.
+{
+    ASSERT(0 && "incorrect swap called");
+}
+
+}  // close namespace incorrect
+
+template <class TYPE>
+void invokeAdlSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by ADL (Argument Dependent Lookup).
+{
+    using incorrect::swap;
+
+    // A correct ADL will key off the types of '*a' and '*b', which will be of
+    // our 'bsl' container type, to find the right 'bsl::swap' and not
+    // 'incorrect::swap'.
+
+    swap(*a, *b);
+}
+
+template <class TYPE>
+void invokePatternSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by the recommended pattern for calling 'swap'.
+{
+    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+
+    using bsl::swap;
+
+    swap(*a, *b);
+}
+
+// The following 'using' directives must come *after* the definition of
+// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+
+using namespace BloombergLP;
+using bsl::pair;
+using bsl::multimap;
+using bsls::NameOf;
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -890,8 +918,8 @@ struct CharToPairConverter {
         // gets passed to the move c'tors, in which case the object in the
         // container will ultimately be using the allocator we used which
         // creating 'tempKey' and 'tempValue'.  Otherwise, the move will call
-        // a copy c'tor, in which case the allocator use in the original case
-        // won't be propagate regardless.  However, if we wound up using the
+        // a copy c'tor, in which case the allocator used in the original case
+        // won't be propagated regardless.  However, if we wound up using the
         // container allocator for 'tempKey' and 'tempValue' in the cases
         // where they are copied and not moved, it would throw off some cases
         // which are very closely monitoring the number of allocations from
@@ -904,7 +932,7 @@ struct CharToPairConverter {
 
         // Note that 'allocator' and 'pss' are of different types, and
         // sometimes this function is called with 'ALLOC' being a type that has
-        // not c'tor that takes at 'bslma::Allocator *' arg, so we can't use a
+        // no c'tor that takes an 'bslma::Allocator *' arg, so we can't use a
         // ternary on 'useSingleton' to choose which allocator to pass to the
         // 'emplace' methods.
 
@@ -4061,8 +4089,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27_dispatch()
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-    Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
-    (void) operatorMAg;  // quash potential compiler warning
+    {
+        using namespace bsl;
+
+        Obj& (Obj::*operatorMAg) (bslmf::MovableRef<Obj>) = &Obj::operator=;
+        (void) operatorMAg;  // quash potential compiler warning
+    }
 
     bslma::TestAllocator doa("default", veryVeryVeryVerbose);
     bslma::TestAllocator soa("scratch",   veryVeryVeryVerbose);
@@ -4832,10 +4864,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase25()
     // ~multimap();
     // destructor always exist
 
-    // multimap<Key,T,Compare,Allocator>& operator=(const
-    // multimap<Key,T,Compare,Allocator>& x);
-    Obj& (Obj::*operatorAg) (const Obj&) = &Obj::operator=;
-    (void) operatorAg;  // quash potential compiler warning
+    {
+        using namespace bsl;
+
+        // multimap<Key,T,Compare,Allocator>& operator=(const
+        // multimap<Key,T,Compare,Allocator>& x);
+        Obj& (Obj::*operatorAg) (const Obj&) = &Obj::operator=;
+        (void) operatorAg;  // quash potential compiler warning
+    }
 
     // multimap<Key,T,Compare,Allocator>& operator=(
     // multimap<Key,T,Compare,Allocator>&&
@@ -5031,6 +5067,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase25()
                                                              &Obj::equal_range;
     (void) methodEqualRangeConst;
 
+
+    using namespace bsl;
 
     // template <class Key, class T, class Compare, class Allocator>
     // bool operator==(const multimap<Key,T,Compare,Allocator>& x,
@@ -7964,8 +8002,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
         }
     }
 
-    if (veryVerbose) printf(
-            "\nInvoke free 'swap' function in a context where ADL is used.\n");
     {
         // 'A' values: Should cause memory allocation if possible.
 
@@ -7979,10 +8015,24 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
 
         bslma::TestAllocatorMonitor oam(&ooa);
 
-        invokeAdlSwap(mX, mY);
+        if (veryVerbose) printf(
+            "\nInvoke free 'swap' function in a context where ADL is used.\n");
+
+        invokeAdlSwap(&mX, &mY);
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
+        ASSERT(oam.isTotalSame());
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+
+        if (veryVerbose) printf(
+            "\nInvoke free 'swap' function using the standard BDE pattern.\n");
+
+        invokePatternSwap(&mX, &mY);
+
+        ASSERTV(YY, X, XX == X);
+        ASSERTV(XX, Y, YY == Y);
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
@@ -8514,6 +8564,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
     if (verbose)
               printf("\nAssign the address of each operator to a variable.\n");
     {
+        using namespace bsl;
+
         typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
         // Verify that the signatures and return types are standard.
@@ -9716,9 +9768,9 @@ struct MetaTestDriver {
 template <class KEY, class VALUE, class COMP>
 void MetaTestDriver<KEY, VALUE, COMP>::testCase27()
 {
-    // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on move-assign,
-    // is set.
+    // The low-order bit of the identifier specifies whether the fourth boolean
+    // argument of the stateful allocator, which indicates propagate on
+    // move-assign, is set.
 
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false, false> S00;
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false,  true> S01;
@@ -9741,8 +9793,8 @@ template <class KEY, class VALUE, class COMP>
 void MetaTestDriver<KEY, VALUE, COMP>::testCase8()
 {
     // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on container
-    // swap, is set.
+    // argument of the stateful allocator, which indicates propagate on
+    // container swap, is set.
 
     typedef bsltf::StdStatefulAllocator<Pair, false, false, false, false> S00;
     typedef bsltf::StdStatefulAllocator<Pair, false, false,  true, false> S01;

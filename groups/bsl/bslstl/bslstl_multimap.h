@@ -1,4 +1,3 @@
-
 // bslstl_multimap.h                                                  -*-C++-*-
 #ifndef INCLUDED_BSLSTL_MULTIMAP
 #define INCLUDED_BSLSTL_MULTIMAP

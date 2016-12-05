@@ -1510,7 +1510,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'VALUE_TYPE'}).
         //
         // NOTE: This function has been implemented inline due to an issue with
-        // the sun compiler.
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2406,7 +2406,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // valid values where 'first' is at a position at or before 'last'.
         //
         // NOTE: This function has been implemented inline due to an issue with
-        // the sun compiler.
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2837,6 +2837,12 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
     // This method requires that the (template parameter) 'VALUE_TYPE' be
     // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
     // this operator returns '!(lhs < rhs)'.
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
+          vector<VALUE_TYPE, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
                    // =====================================
                    // class vector<VALUE_TYPE *, ALLOCATOR>
@@ -6028,6 +6034,7 @@ bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
@@ -6186,6 +6193,7 @@ bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,

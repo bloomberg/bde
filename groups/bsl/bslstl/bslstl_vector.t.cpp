@@ -52,10 +52,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-using namespace BloombergLP;
-using namespace bsl;
-using bsls::NameOf;
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -304,6 +300,59 @@ void aSsErT(bool b, const char *s, int i)
 // platforms.
 #endif
 
+// ============================================================================
+//                             SWAP TEST HELPERS
+// ----------------------------------------------------------------------------
+
+namespace incorrect {
+
+template <class TYPE>
+void swap(TYPE&, TYPE&)
+    // Fail.  In a successful test, this 'swap' should never be called.  It is
+    // set up to be called (and fail) in the case where ADL fails to choose the
+    // right 'swap' in 'invokeAdlSwap' below.
+{
+    ASSERT(0 && "incorrect swap called");
+}
+
+}  // close namespace incorrect
+
+template <class TYPE>
+void invokeAdlSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by ADL (Argument Dependent Lookup).
+{
+    using incorrect::swap;
+
+    // A correct ADL will key off the types of '*a' and '*b', which will be of
+    // our 'bsl' container type, to find the right 'bsl::swap' and not
+    // 'incorrect::swap'.
+
+    swap(*a, *b);
+}
+
+template <class TYPE>
+void invokePatternSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by the recommended pattern for calling 'swap'.
+{
+    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+
+    using bsl::swap;
+
+    swap(*a, *b);
+}
+
+// The following 'using' directives must come *after* the definition of
+// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+
+using namespace BloombergLP;
+using bsl::vector;
+using bsl::Vector_Imp;
+using bsl::Vector_IsRandomAccessIterator;
+using bsl::Vector_Util;
+using bsls::NameOf;
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -419,22 +468,6 @@ static const int V07 = 878;
 static const int V08 = 8;
 static const int V09 = 912;
 static const int V10 = 102;
-
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -4435,6 +4468,8 @@ void TestDriver<TYPE,ALLOC>::testCase24_dispatch()
     {
         typedef Obj& (Obj::*OperatorMAg)(bslmf::MovableRef<Obj>);
 
+        using namespace bsl;
+
         OperatorMAg op = &Obj::operator=;
         (void) op;  // quash potential compiler warning
     }
@@ -4469,6 +4504,8 @@ void TestDriver<TYPE,ALLOC>::testCase24_dispatch()
     // Testing function signature
 
     {
+        using namespace bsl;
+
         typedef Obj& (Obj::*OperatorMoveAssign)(bslmf::MovableRef<Obj>);
         OperatorMoveAssign oma = &Obj::operator=;    (void) oma;
     }
@@ -6242,10 +6279,18 @@ void TestDriver<TYPE, ALLOC>::testCase19_dispatch()
 
         bslma::TestAllocatorMonitor oam(&ooa);
 
-        invokeAdlSwap(mX, mY);
+        invokeAdlSwap(&mX, &mY);
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
+        ASSERT(oam.isTotalSame());
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+
+        invokePatternSwap(&mX, &mY);
+
+        ASSERTV(YY, X, XX == X);
+        ASSERTV(XX, Y, YY == Y);
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
@@ -14541,7 +14586,7 @@ template <class TYPE>
 void MetaTestDriver<TYPE>::testCase24()
 {
     // The low-order bit of the identifier specifies whether the fourth boolean
-    // arg of the stateful allocator, which indicates propagate on move
+    // argument of the stateful allocator, which indicates propagate on move
     // assign, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
@@ -14565,8 +14610,8 @@ template <class TYPE>
 void MetaTestDriver<TYPE>::testCase19()
 {
     // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on container
-    // swap, is set.
+    // argument of the stateful allocator, which indicates propagate on
+    // container swap, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, true,  false> A01;

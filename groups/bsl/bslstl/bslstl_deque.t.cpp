@@ -82,7 +82,7 @@
 #endif
 
 enum {
-// The following enum is set to '1' when exceptions are enabled and to '0'
+// The following enum is set to 1 when exceptions are enabled and to 0
 // otherwise.  It's here to avoid having preprocessor macros throughout.
 #if defined(BDE_BUILD_TARGET_EXC)
     PLAT_EXC = 1
@@ -90,13 +90,6 @@ enum {
     PLAT_EXC = 0
 #endif
 };
-
-using namespace BloombergLP;
-using bsl::deque;
-using bsl::Deque_BlockLengthCalcUtil;
-using bsl::Vector_Imp;
-using bsl::vector;
-using bsls::NameOf;
 
 // ============================================================================
 //                             TEST PLAN
@@ -360,6 +353,59 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 // ============================================================================
+//                             SWAP TEST HELPERS
+// ----------------------------------------------------------------------------
+
+namespace incorrect {
+
+template <class TYPE>
+void swap(TYPE&, TYPE&)
+    // Fail.  In a successful test, this 'swap' should never be called.  It is
+    // set up to be called (and fail) in the case where ADL fails to choose the
+    // right 'swap' in 'invokeAdlSwap' below.
+{
+    ASSERT(0 && "incorrect swap called");
+}
+
+}  // close namespace incorrect
+
+template <class TYPE>
+void invokeAdlSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by ADL (Argument Dependent Lookup).
+{
+    using incorrect::swap;
+
+    // A correct ADL will key off the types of '*a' and '*b', which will be of
+    // our 'bsl' container type, to find the right 'bsl::swap' and not
+    // 'incorrect::swap'.
+
+    swap(*a, *b);
+}
+
+template <class TYPE>
+void invokePatternSwap(TYPE *a, TYPE *b)
+    // Exchange the values of the specified '*a' and '*b' objects using the
+    // 'swap' method found by the recommended pattern for calling 'swap'.
+{
+    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+
+    using bsl::swap;
+
+    swap(*a, *b);
+}
+
+// The following 'using' directives must come *after* the definition of
+// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+
+using namespace BloombergLP;
+using bsl::deque;
+using bsl::Deque_BlockLengthCalcUtil;
+using bsl::vector;
+using bsl::Vector_Imp;
+using bsls::NameOf;
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -512,22 +558,6 @@ const DefaultDataRow DEFAULT_DATA[] = {
     { L_,   23, "cde",               "EDC" },
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
-
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
 
 // ============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -8436,8 +8466,6 @@ void TestDriver<TYPE,ALLOC>::testCase21_dispatch()
         }
     }
 
-    if (veryVerbose) printf(
-              "Invoke free 'swap' function in a context where ADL is used.\n");
     {
         // 'A' values: Should cause memory allocation if possible.
 
@@ -8447,14 +8475,27 @@ void TestDriver<TYPE,ALLOC>::testCase21_dispatch()
         Obj mY(oa);     const Obj& Y  = gg(&mY,  "ABC");
         Obj mYY(sa);    const Obj& YY = gg(&mYY, "ABC");
 
+        if (veryVerbose) printf(
+              "Invoke free 'swap' function in a context where ADL is used.\n");
+
         if (veryVerbose) { T_ P_(X) P(Y) }
 
         bslma::TestAllocatorMonitor oam(&ooa);
 
-        invokeAdlSwap(mX, mY);
+        invokeAdlSwap(&mX, &mY);
 
         ASSERTV(YY, X, YY == X);
         ASSERTV(XX, Y, XX == Y);
+        ASSERT(oam.isTotalSame());
+
+        if (veryVerbose) { T_ P_(X) P(Y) }
+
+        if (veryVerbose) printf("Invoke std BDE pattern 'swap' function.\n");
+
+        invokePatternSwap(&mX, &mY);
+
+        ASSERTV(YY, X, XX == X);
+        ASSERTV(XX, Y, YY == Y);
         ASSERT(oam.isTotalSame());
 
         if (veryVerbose) { T_ P_(X) P(Y) }
@@ -15211,7 +15252,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
 
 template <class TYPE>
 struct MetaTestDriver {
-    // This 'struct' is to be call by the 'RUN_EACH_TYPE' macro, and the
+    // This 'struct' is to be called by the 'RUN_EACH_TYPE' macro, and the
     // functions within it dispatch to functions in 'TestDriver' instantiated
     // with different types of allocator.
 
@@ -15232,7 +15273,7 @@ void MetaTestDriver<TYPE>::testCase25()
     // memory.
 
     // The low-order bit of the identifier specifies whether the fourth boolean
-    // arg of the stateful allocator, which indicates propagate on move
+    // argument of the stateful allocator, which indicates propagate on move
     // assign, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
@@ -15264,8 +15305,8 @@ void MetaTestDriver<TYPE>::testCase21()
     // memory.
 
     // The low-order bit of the identifier specifies whether the third boolean
-    // arg of the stateful allocator, which inidactes propagate on container
-    // swap, is set.
+    // argument of the stateful allocator, which indicates propagate on
+    // container swap, is set.
 
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, false, false> A00;
     typedef bsltf::StdStatefulAllocator<TYPE, false, false, true,  false> A01;
