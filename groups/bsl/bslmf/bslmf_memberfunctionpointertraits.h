@@ -147,10 +147,10 @@ class MemberFunctionPointerTraits_ClassType {
     // 'MemberFunctionPointerTraits_Imp' based on cv-qualification of the
     // member-function pointer.
 
-    typedef bslmf_Tag<0> NonCVTag;    // non-const, non-volatile member func
-    typedef bslmf_Tag<1> ConstTag;    // const member func
-    typedef bslmf_Tag<2> VolTag;      // volatile member func
-    typedef bslmf_Tag<3> ConstVolTag; // const volatile member func
+    typedef bslmf::Tag<0> NonCVTag;    // non-const, non-volatile member func
+    typedef bslmf::Tag<1> ConstTag;    // const member func
+    typedef bslmf::Tag<2> VolTag;      // volatile member func
+    typedef bslmf::Tag<3> ConstVolTag; // const volatile member func
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS...));
     static ConstTag test(BSLMF_RETURN(TYPE::*)(ARGS...) const);
