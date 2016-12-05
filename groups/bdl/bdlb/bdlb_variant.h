@@ -1013,6 +1013,7 @@ struct VariantImp_Traits {
     // the types held by a variant has the 'bslma::UsesBslmaAllocator' trait,
     // and 'VariantImp_NoAllocatorBase' otherwise.
 
+    // TYPES
     typedef typename bslmf::TypeListTypeOf< 1, TYPES>::TypeOrDefault Type1;
     typedef typename bslmf::TypeListTypeOf< 2, TYPES>::TypeOrDefault Type2;
     typedef typename bslmf::TypeListTypeOf< 3, TYPES>::TypeOrDefault Type3;
@@ -1034,7 +1035,6 @@ struct VariantImp_Traits {
     typedef typename bslmf::TypeListTypeOf<19, TYPES>::TypeOrDefault Type19;
     typedef typename bslmf::TypeListTypeOf<20, TYPES>::TypeOrDefault Type20;
 
-  public:
     enum {
         k_VARIANT_USES_BSLMA_ALLOCATOR = (
             bslma::UsesBslmaAllocator< Type1>::value
@@ -1231,6 +1231,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     typedef typename Traits::BaseType Base;
     typedef bslmf::MovableRefUtil     MoveUtil;
 
+    typedef VariantImp<TYPES>         SelfType;
+        // 'SelfType' is an alias to this class.
+
   private:
     // PRIVATE MANIPULATORS
     template <class TYPE, class VISITOR_REF>
@@ -1391,18 +1394,17 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
                    !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                    &&
                    !bsl::is_same<
-                            VariantImp<TYPES>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                            void>::type * = 0)
 #else
-    explicit
     VariantImp(bslmf::MovableRef<TYPE>  value)
 #endif
         // Create a variant object having the specified 'value' of template
@@ -1442,7 +1444,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
                    !bsl::is_same<
-                            VariantImp<TYPES>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                bslma::Allocator>::type *basicAllocator);
 #else
@@ -1498,9 +1500,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<VariantImp<TYPES>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    VariantImp<TYPES> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     VariantImp&
@@ -2397,18 +2399,25 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     // which accepts exactly 'N' template arguments, as this leads to shorter
     // symbols and debug string information.
 
-    // TYPES
+    // PRIVATE TYPES
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-    typedef VariantImp<typename bslmf::TypeList<TYPES...>::ListType> Imp;
+    typedef VariantImp<typename bslmf::TypeList<TYPES...>::ListType>  Imp;
+
+    typedef Variant<TYPES...>                                         SelfType;
+        // 'SelfType' is an alias to this class.
 #else
     typedef VariantImp<typename bslmf::TypeList<A1,  A2,  A3,  A4,  A5,  A6,
                                                 A7,  A8,  A9,  A10, A11, A12,
                                                 A13, A14, A15, A16, A17, A18,
-                                                A19, A20>::ListType> Imp;
+                                                A19, A20>::ListType>  Imp;
+
+    typedef Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,  A10,
+                    A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> SelfType;
+        // 'SelfType' is an alias to this class.
 #endif
 
-    typedef VariantImp_Traits<typename Imp::TypeList>                Traits;
-    typedef bslmf::MovableRefUtil                                    MoveUtil;
+    typedef VariantImp_Traits<typename Imp::TypeList>                 Traits;
+    typedef bslmf::MovableRefUtil                                     MoveUtil;
 
   public:
     // TRAITS
@@ -2455,24 +2464,17 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant(TYPE&&                   value,
             typename bsl::enable_if<
                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                 &&
                 !bsl::is_same<
-#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-                            Variant<TYPES...>,
-#else
-                            Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                    A8,  A9,  A10, A11, A12, A13, A14,
-                                    A15, A16, A17, A18, A19, A20>,
-#endif
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                         void>::type * = 0);
 #else
-    explicit
     Variant(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -2489,13 +2491,7 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     Variant(TYPE&&                   value,
             typename bsl::enable_if<
                 !bsl::is_same<
-#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-                            Variant<TYPES...>,
-#else
-                            Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                    A8,  A9,  A10, A11, A12, A13, A14,
-                                    A15, A16, A17, A18, A19, A20>,
-#endif
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
             bslma::Allocator>::type *basicAllocator);
 #else
@@ -2546,18 +2542,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-        !bsl::is_same<Variant<TYPES...>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant<TYPES...> >::type&
-#else
-        !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
-                              A10, A11, A12, A13, A14, A15, A16, A17, A18,
-                              A19, A20>,
-                      typename bsl::remove_reference<TYPE>::type>::value,
-    Variant<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9, A10, A11, A12, A13, A14,
-            A15, A16, A17, A18, A19, A20> >::type&
-#endif
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant&
@@ -2602,8 +2589,12 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList2<A1, A2>::ListType> Imp;
+
+    typedef Variant2<A1, A2>                                        SelfType;
+        // 'SelfType' is an alias to this class.
+
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
     typedef bslmf::MovableRefUtil                                   MoveUtil;
 
@@ -2652,18 +2643,17 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant2(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant2<A1, A2>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant2(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -2680,7 +2670,7 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     Variant2(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant2<A1, A2>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -2731,9 +2721,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant2<A1, A2>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant2<A1, A2> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant2&
@@ -2778,9 +2768,13 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, A3>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList3<A1, A2,
                                                  A3>::ListType> Imp;
+
+    typedef Variant3<A1, A2, A3>                                SelfType;
+        // 'SelfType' is an alias to this class.
+
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
 
@@ -2829,18 +2823,17 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant3(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant3<A1, A2, A3>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant3(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -2857,7 +2850,7 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     Variant3(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant3<A1, A2, A3>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -2908,9 +2901,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant3<A1, A2, A3>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant3<A1, A2, A3> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant3&
@@ -2955,9 +2948,12 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A4>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList4<A1, A2, A3,
                                                  A4>::ListType> Imp;
+
+    typedef Variant4<A1, A2, A3, A4>                            SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3007,18 +3003,17 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant4(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant4<A1, A2, A3, A4>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant4(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3035,7 +3030,7 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     Variant4(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant4<A1, A2, A3, A4>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3086,9 +3081,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant4<A1, A2, A3, A4>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant4<A1, A2, A3, A4> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant4&
@@ -3133,9 +3128,12 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A5>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList5<A1, A2, A3, A4,
                                                  A5>::ListType> Imp;
+
+    typedef Variant5<A1, A2, A3, A4, A5>                        SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3185,18 +3183,17 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant5(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant5<A1, A2, A3, A4, A5>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant5(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3213,7 +3210,7 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     Variant5(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant5<A1, A2, A3, A4, A5>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3264,9 +3261,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant5<A1, A2, A3, A4, A5> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant5&
@@ -3311,9 +3308,12 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A6>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList6<A1, A2, A3, A4, A5,
                                                  A6>::ListType> Imp;
+
+    typedef Variant6<A1, A2, A3, A4, A5, A6>                    SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3363,18 +3363,17 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant6(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant6<A1, A2, A3, A4, A5, A6>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant6(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3391,7 +3390,7 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     Variant6(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant6<A1, A2, A3, A4, A5, A6>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3442,9 +3441,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant6<A1, A2, A3, A4, A5, A6> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant6&
@@ -3490,9 +3489,12 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A7>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList7<A1, A2, A3, A4, A5, A6,
                                                  A7>::ListType> Imp;
+
+    typedef Variant7<A1, A2, A3, A4, A5, A6, A7>                SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3542,18 +3544,17 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant7(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant7<A1, A2, A3, A4, A5, A6, A7>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant7(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3570,7 +3571,7 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     Variant7(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant7<A1, A2, A3, A4, A5, A6, A7>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3621,9 +3622,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant7<A1, A2, A3, A4, A5, A6, A7> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant7&
@@ -3669,9 +3670,12 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A8>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList8<A1, A2, A3, A4, A5, A6, A7,
                                                  A8>::ListType> Imp;
+
+    typedef Variant8<A1, A2, A3, A4, A5, A6, A7, A8>            SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>           Traits;
     typedef bslmf::MovableRefUtil                               MoveUtil;
@@ -3721,18 +3725,17 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant8(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant8(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3749,7 +3752,7 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     Variant8(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3800,9 +3803,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant8<A1, A2, A3, A4, A5, A6, A7, A8> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant8&
@@ -3848,9 +3851,12 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A9>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList9<A1, A2, A3, A4, A5, A6, A7,
                                                  A8, A9>::ListType> Imp;
+
+    typedef Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>            SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>               Traits;
     typedef bslmf::MovableRefUtil                                   MoveUtil;
@@ -3900,18 +3906,17 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant9(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                  &&
                  !bsl::is_same<
-                            Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                          void>::type * = 0);
 #else
-    explicit
     Variant9(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -3928,7 +3933,7 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     Variant9(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
@@ -3979,9 +3984,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant9&
@@ -4027,10 +4032,13 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A10>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList10<A1, A2, A3, A4, A5, A6, A7,
                                                   A8, A9,
                                                   A10>::ListType> Imp;
+
+    typedef Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>    SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4080,18 +4088,17 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant10(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant10(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -4108,7 +4115,7 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     Variant10(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -4159,9 +4166,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant10&
@@ -4207,10 +4214,14 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A11>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList11<A1, A2, A3, A4, A5, A6, A7,
                                                   A8, A9, A10,
                                                   A11>::ListType> Imp;
+
+    typedef Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                      A11>                                        SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4260,19 +4271,17 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant11(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant11(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -4289,8 +4298,7 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     Variant11(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -4341,9 +4349,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant11&
@@ -4389,10 +4397,14 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A12>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList12<A1, A2, A3, A4,  A5, A6,
                                                   A7, A8, A9, A10, A11,
                                                   A12>::ListType> Imp;
+
+    typedef Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
+                      A11, A12>                                   SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4442,19 +4454,17 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant12(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant12<A1,  A2,  A3, A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant12(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -4471,8 +4481,7 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     Variant12(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant12<A1,  A2,  A3, A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -4523,10 +4532,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11,
-                                A12>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant12&
@@ -4573,10 +4581,14 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A13>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList13<A1, A2, A3, A4,  A5,  A6,
                                                   A7, A8, A9, A10, A11, A12,
                                                   A13>::ListType> Imp;
+
+    typedef Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
+                      A10, A11, A12, A13>                         SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4626,19 +4638,17 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant13(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant13(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -4655,8 +4665,7 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     Variant13(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -4707,10 +4716,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant13<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11,
-                                A12, A13>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant13&
@@ -4759,11 +4767,15 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A14>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList14<A1,  A2,  A3,  A4,  A5,  A6,
                                                   A7,  A8,  A9,  A10, A11, A12,
                                                   A13,
                                                   A14>::ListType> Imp;
+
+    typedef Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
+                      A10, A11, A12, A13, A14>                    SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -4813,19 +4825,17 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant14(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant14(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -4842,8 +4852,7 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     Variant14(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -4894,11 +4903,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant14<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11,
-                                A12, A13, A14>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
-              A14> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant14&
@@ -4947,11 +4954,15 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A15>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList15<A1,  A2, A3, A4,  A5,  A6,
                                                   A7,  A8, A9, A10, A11, A12,
                                                   A13, A14,
                                                   A15>::ListType> Imp;
+
+    typedef Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
+                      A10, A11, A12, A13, A14, A15>               SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -5001,19 +5012,17 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant15(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant15(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -5030,8 +5039,7 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     Variant15(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -5082,11 +5090,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10,
-                                A11, A12, A13, A14, A15>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-              A15> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant15&
@@ -5136,11 +5142,15 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A16>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList16<A1,  A2,  A3, A4,  A5,  A6,
                                                   A7,  A8,  A9, A10, A11, A12,
                                                   A13, A14, A15,
                                                   A16>::ListType> Imp;
+
+    typedef Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7, A8, A9,
+                      A10, A11, A12, A13, A14, A15, A16>          SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -5190,19 +5200,17 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant16(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15, A16>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant16(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -5219,8 +5227,7 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     Variant16(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant16<A1,  A2,  A3,  A4,  A5,  A6,  A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15, A16>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -5271,11 +5278,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant16<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9, A10,
-                                A11, A12, A13, A14, A15, A16>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-              A15, A16> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant16&
@@ -5325,11 +5330,15 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A17>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList17<A1,  A2,  A3,  A4,  A5,  A6,
                                                   A7,  A8,  A9,  A10, A11, A12,
                                                   A13, A14, A15, A16,
                                                   A17>::ListType> Imp;
+
+    typedef Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9,
+                      A10, A11, A12, A13, A14, A15, A16, A17>     SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -5379,20 +5388,17 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant17(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant17(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -5409,9 +5415,7 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     Variant17(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -5462,11 +5466,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant17<A1,  A2,  A3,  A4,  A5,  A6,  A7, A8, A9, A10,
-                                A11, A12, A13, A14, A15, A16, A17>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-              A15, A16, A17> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant17&
@@ -5516,14 +5518,18 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A18>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList18<A1,  A2,  A3,  A4,  A5,  A6,
                                                   A7,  A8,  A9,  A10, A11, A12,
                                                   A13, A14, A15, A16, A17,
-                                                  A18>::ListType> Imp;
+                                                  A18>::ListType>  Imp;
 
-    typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
-    typedef bslmf::MovableRefUtil                                 MoveUtil;
+    typedef Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
+                      A10, A11, A12, A13, A14, A15, A16, A17, A18> SelfType;
+        // 'SelfType' is an alias to this class.
+
+    typedef VariantImp_Traits<typename Imp::TypeList>              Traits;
+    typedef bslmf::MovableRefUtil                                  MoveUtil;
 
   public:
     // TRAITS
@@ -5570,20 +5576,17 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant18(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant18(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -5600,9 +5603,7 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     Variant18(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -5653,11 +5654,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10,
-                                A11, A12, A13, A14, A15, A16, A17, A18>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-              A15, A16, A17, A18> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant18&
@@ -5708,11 +5707,16 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     // defaulted to 'bslmf::Nil').  It provides the same functionality as
     // 'Variant<A1, A2, ..., A19>'.
 
-    // TYPES
+    // PRIVATE TYPES
     typedef VariantImp<typename bslmf::TypeList19<A1,  A2,  A3,  A4,  A5,  A6,
                                                   A7,  A8,  A9,  A10, A11, A12,
                                                   A13, A14, A15, A16, A17, A18,
                                                   A19>::ListType> Imp;
+
+    typedef Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
+                      A10, A11, A12, A13, A14, A15, A16, A17, A18,
+                      A19>                                        SelfType;
+        // 'SelfType' is an alias to this class.
 
     typedef VariantImp_Traits<typename Imp::TypeList>             Traits;
     typedef bslmf::MovableRefUtil                                 MoveUtil;
@@ -5762,20 +5766,17 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // types that this variant can hold.
 
     template <class TYPE>
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     explicit
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant19(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
                   &&
                   !bsl::is_same<
-                            Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                           void>::type * = 0);
 #else
-    explicit
     Variant19(bslmf::MovableRef<TYPE>  value);
 #endif
         // Create a variant object having the specified 'value' of template
@@ -5792,9 +5793,7 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     Variant19(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
@@ -5845,12 +5844,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     typename bsl::enable_if<
-        !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,  A9,
-                                A10, A11, A12, A13, A14, A15, A16, A17, A18,
-                                A19>,
+        !bsl::is_same<SelfType,
                       typename bsl::remove_reference<TYPE>::type>::value,
-    Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
-              A15, A16, A17, A18, A19> >::type&
+    SelfType>::type&
     operator=(TYPE&&                  value);
 #else
     Variant19&
@@ -7125,7 +7121,7 @@ VariantImp<TYPES>::
 VariantImp(TYPE&&                   value,
            typename bsl::enable_if<
                !bsl::is_same<
-                            VariantImp<TYPES>,
+                            SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
            bslma::Allocator>::type *basicAllocator)
 #else
@@ -8023,7 +8019,7 @@ Variant(TYPE&&                   value,
         typename bsl::enable_if<
             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
             &&
-            !bsl::is_same<Variant<TYPES...>,
+            !bsl::is_same<SelfType,
                           typename bsl::remove_reference<TYPE>::type>::value,
                     void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8041,7 +8037,7 @@ Variant<TYPES...>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<Variant<TYPES...>,
+            !bsl::is_same<SelfType,
                           typename bsl::remove_reference<TYPE>::type>::value,
         bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8188,9 +8184,7 @@ Variant(TYPE&&                   value,
         typename bsl::enable_if<
             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
             &&
-            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                  A8,  A9,  A10, A11, A12, A13, A14,
-                                  A15, A16, A17, A18, A19, A20>,
+            !bsl::is_same<SelfType,
                           typename bsl::remove_reference<TYPE>::type>::value,
                     void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8212,9 +8206,7 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,
-                                  A8,  A9,  A10, A11, A12, A13, A14,
-                                  A15, A16, A17, A18, A19, A20>,
+            !bsl::is_same<SelfType,
                           typename bsl::remove_reference<TYPE>::type>::value,
         bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8396,7 +8388,7 @@ Variant2(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant2<A1, A2>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8414,7 +8406,7 @@ Variant2<A1, A2>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant2(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant2<A1, A2>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8543,7 +8535,7 @@ Variant3(TYPE&&                   value,
          typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant3<A1, A2, A3>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8561,7 +8553,7 @@ Variant3<A1, A2, A3>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant3(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant3<A1, A2, A3>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
         bslma::Allocator>::type  *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8692,7 +8684,7 @@ Variant4(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant4<A1, A2, A3, A4>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8710,7 +8702,7 @@ Variant4<A1, A2, A3, A4>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant4(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant4<A1, A2, A3, A4>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8841,7 +8833,7 @@ Variant5(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -8859,7 +8851,7 @@ Variant5<A1, A2, A3, A4, A5>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant5(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant5<A1, A2, A3, A4, A5>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -8990,7 +8982,7 @@ Variant6(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9008,7 +9000,7 @@ Variant6<A1, A2, A3, A4, A5, A6>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant6(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant6<A1, A2, A3, A4, A5, A6>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9139,7 +9131,7 @@ Variant7(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9157,7 +9149,7 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant7(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant7<A1, A2, A3, A4, A5, A6, A7>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9294,7 +9286,7 @@ Variant8(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9313,7 +9305,7 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant8(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant8<A1, A2, A3, A4, A5, A6, A7, A8>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9459,7 +9451,7 @@ Variant9(TYPE&&                   value,
          typename bsl::enable_if<
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
              &&
-             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9478,7 +9470,7 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant9(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>,
+             !bsl::is_same<SelfType,
                            typename bsl::remove_reference<TYPE>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9625,7 +9617,7 @@ Variant10(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9644,7 +9636,7 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant10(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9792,8 +9784,7 @@ Variant11(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                            A11>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9812,8 +9803,7 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant11(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                            A11>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -9961,8 +9951,7 @@ Variant12(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11, A12>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -9981,8 +9970,7 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant12(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant12<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10,
-                                      A11, A12>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -10134,8 +10122,7 @@ Variant13(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -10155,8 +10142,7 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant13(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant13<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -10316,8 +10302,7 @@ Variant14(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -10337,8 +10322,7 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant14(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant14<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -10498,8 +10482,7 @@ Variant15(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -10519,8 +10502,7 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant15(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant15<A1,  A2,  A3,  A4,  A5,  A6, A7, A8, A9,
-                                      A10, A11, A12, A13, A14, A15>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -10685,8 +10667,7 @@ Variant16(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -10707,8 +10688,7 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant16(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant16<A1, A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -10883,9 +10863,7 @@ Variant17(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -10906,9 +10884,7 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant17(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant17<A1, A2,  A3,  A4,  A5,  A6,  A7, A8,
-                                      A9, A10, A11, A12, A13, A14, A15, A16,
-                                      A17>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -11083,9 +11059,7 @@ Variant18(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -11106,9 +11080,7 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant18(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant18<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
@@ -11287,9 +11259,7 @@ Variant19(TYPE&&                   value,
           typename bsl::enable_if<
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value
               &&
-              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
@@ -11311,9 +11281,7 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant19(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<Variant19<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8,
-                                      A9,  A10, A11, A12, A13, A14, A15, A16,
-                                      A17, A18, A19>,
+              !bsl::is_same<SelfType,
                             typename bsl::remove_reference<TYPE>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
