@@ -477,6 +477,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstdio.h>
 #endif
 
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlcc {
 
