@@ -1,5 +1,13 @@
-bsl-internal (3.0.9.0) unstable; urgency=low
+bsl-internal (3.0.10.0) unstable; urgency=low
 
+  * f9f4b55 Merge pull request #884 from mgiroux/review/bump-version-to-3.0.10
+  * 7d1dbf6 Merge pull request #879 from jmendelsohn4/drqs-93222828/bdlc_bitarray_assignment_operator_allocation
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 5 Dec 2016 10:57:18 -0500
+
+bsl-internal (3.0.9.0) git; urgency=low
+
+  * add120f Changelog for version 3.0.9.0
   * 9bbcb31 Merge pull request #866 from mgiroux/review/bump-version-to-3.0.9
   * 0e33254 bump version to 3.0.9
   * e072260 Merge pull request #855 from jmendelsohn4/drqs-92491241/bdlma_sequentialpool_reserveCapacity
@@ -10,7 +18,7 @@ bsl-internal (3.0.9.0) unstable; urgency=low
   * dee62aa Revert "C++11 algorithms in bsl_algorithm. [rebased releases/3.0.x]"
   * 5c2ee02 Merge pull request #838 from hversche/pr/823-rebased-releases/3.0.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 21 Nov 2016 12:56:28 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Nov 2016 13:07:28 -0500
 
 bsl-internal (3.0.8.0) git; urgency=low
 
