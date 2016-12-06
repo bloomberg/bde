@@ -1398,11 +1398,11 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
-                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                   &&
                    !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                   &&
+                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                            void>::type * = 0)
 #else
     VariantImp(bslmf::MovableRef<TYPE>  value)
@@ -1414,7 +1414,8 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).  Also note that
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).  Also note that
         // this method is defined inline to work around a Windows compiler bug
         // with SFINAE functions.
     : Base(Variant_TypeIndex<
@@ -2468,11 +2469,11 @@ class Variant : public VariantImp<typename bslmf::TypeList<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant(TYPE&&                   value,
             typename bsl::enable_if<
-                !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                &&
                 !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                &&
+                !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                         void>::type * = 0);
 #else
     Variant(bslmf::MovableRef<TYPE>  value);
@@ -2484,7 +2485,8 @@ class Variant : public VariantImp<typename bslmf::TypeList<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2647,11 +2649,11 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant2(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant2(bslmf::MovableRef<TYPE>  value);
@@ -2663,7 +2665,8 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -2827,11 +2830,11 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant3(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant3(bslmf::MovableRef<TYPE>  value);
@@ -2843,7 +2846,8 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3007,11 +3011,11 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant4(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant4(bslmf::MovableRef<TYPE>  value);
@@ -3023,7 +3027,8 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3187,11 +3192,11 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant5(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant5(bslmf::MovableRef<TYPE>  value);
@@ -3203,7 +3208,8 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3367,11 +3373,11 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant6(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant6(bslmf::MovableRef<TYPE>  value);
@@ -3383,7 +3389,8 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3548,11 +3555,11 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant7(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant7(bslmf::MovableRef<TYPE>  value);
@@ -3564,7 +3571,8 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3729,11 +3737,11 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant8(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant8(bslmf::MovableRef<TYPE>  value);
@@ -3745,7 +3753,8 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -3910,11 +3919,11 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant9(TYPE&&                   value,
              typename bsl::enable_if<
-                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                 &&
                  !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                 &&
+                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
 #else
     Variant9(bslmf::MovableRef<TYPE>  value);
@@ -3926,7 +3935,8 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4092,11 +4102,11 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant10(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant10(bslmf::MovableRef<TYPE>  value);
@@ -4108,7 +4118,8 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4275,11 +4286,11 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant11(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant11(bslmf::MovableRef<TYPE>  value);
@@ -4291,7 +4302,8 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4458,11 +4470,11 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant12(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant12(bslmf::MovableRef<TYPE>  value);
@@ -4474,7 +4486,8 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4642,11 +4655,11 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant13(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant13(bslmf::MovableRef<TYPE>  value);
@@ -4658,7 +4671,8 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -4829,11 +4843,11 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant14(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant14(bslmf::MovableRef<TYPE>  value);
@@ -4845,7 +4859,8 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5016,11 +5031,11 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant15(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant15(bslmf::MovableRef<TYPE>  value);
@@ -5032,7 +5047,8 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5204,11 +5220,11 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant16(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant16(bslmf::MovableRef<TYPE>  value);
@@ -5220,7 +5236,8 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5392,11 +5409,11 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant17(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant17(bslmf::MovableRef<TYPE>  value);
@@ -5408,7 +5425,8 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5580,11 +5598,11 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant18(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant18(bslmf::MovableRef<TYPE>  value);
@@ -5596,7 +5614,8 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -5770,11 +5789,11 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     Variant19(TYPE&&                   value,
               typename bsl::enable_if<
-                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-                  &&
                   !bsl::is_same<
                             SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+                  &&
+                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
 #else
     Variant19(bslmf::MovableRef<TYPE>  value);
@@ -5786,7 +5805,8 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
         // 'TYPE' must be the same as one of the types that this variant can
         // hold.  Note that in C++11 mode, this method does not participate in
         // overload resolution if it would lead to ambiguity with the move
-        // constructor that does not take an allocator (below).
+        // constructor that does not take an allocator (below) or with the
+        // constructor taking a 'valueOrAllocator' (above).
 
     template <class TYPE>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -8017,10 +8037,10 @@ Variant<TYPES...>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-            &&
             !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value,
+                          typename bsl::remove_reference<TYPE>::type>::value
+            &&
+            !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                     void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8182,10 +8202,10 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-            &&
             !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value,
+                          typename bsl::remove_reference<TYPE>::type>::value
+            &&
+            !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                     void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8386,10 +8406,10 @@ Variant2<A1, A2>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant2(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8533,10 +8553,10 @@ Variant3<A1, A2, A3>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant3(TYPE&&                   value,
          typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<SelfType,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8682,10 +8702,10 @@ Variant4<A1, A2, A3, A4>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant4(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8831,10 +8851,10 @@ Variant5<A1, A2, A3, A4, A5>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant5(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -8980,10 +9000,10 @@ Variant6<A1, A2, A3, A4, A5, A6>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant6(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9129,10 +9149,10 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant7(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9284,10 +9304,10 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant8(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9449,10 +9469,10 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant9(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-             &&
              !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+                           typename bsl::remove_reference<TYPE>::type>::value
+             &&
+             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9615,10 +9635,10 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant10(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9782,10 +9802,10 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant11(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -9949,10 +9969,10 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant12(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -10120,10 +10140,10 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant13(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -10300,10 +10320,10 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant14(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -10480,10 +10500,10 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant15(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -10665,10 +10685,10 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant16(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -10861,10 +10881,10 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant17(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -11057,10 +11077,10 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant18(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
@@ -11257,10 +11277,10 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant19(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_convertible<TYPE, bslma::Allocator *>::value
-              &&
               !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                            typename bsl::remove_reference<TYPE>::type>::value
+              &&
+              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value))
 #else
