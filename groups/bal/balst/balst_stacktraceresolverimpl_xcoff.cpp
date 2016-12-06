@@ -89,14 +89,14 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 // object format for the AIX operating system and provides the formal
 // definition of machine-image object and executable files.
 //
-// A long pdf file describing the xcoff format can be found at
+// A long web page describing the xcoff format can be found at
 //
-// http://bit.ly/bJRQYu
+// http://tinyurl.com/jusudrk
 //
-// which expands to '
+// which expands to
 //
-// http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?topic=/
-//                                     com.ibm.aix.files/doc/aixfiles/XCOFF.htm
+// http://www.ibm.com/support/knowledgecenter/ssw_aix_71/com.ibm.aix.files/
+//                                                                    XCOFF.htm
 //
 // An XCOFF file contains the following parts (Note that both object and
 // executable files are similar in structure):
@@ -949,6 +949,25 @@ int local::StackTraceResolver::findIncludeFile(
             }
             else if (C_EINCL == symEnt->n_sclass) {
                 zprintf("%lu EINCL out of order\n", symIndex);
+            }
+            else if (C_NULL  == symEnt->n_sclass) {
+                // This is a 'deleted entry'.  The spec isn't super-clear here
+                // about how to interpret it.  It seems to expect that
+                // '0x00de1e00 == symEnt->n_value', but in practice, this isn't
+                // the case.  Also, it seems to imply that the 'SYMENT' might
+                // be followed by some 'AUXENT's, but in practice, this isn't
+                // the case, and what's worse, 'symEnt->n_numaux' is garbage,
+                // which was leading us to incorrectly skip a large number of
+                // 'SYMENT's that were needed to do the job.
+
+                const unsigned long long nv = symEnt->n_value;
+                zprintf("%lu C_NULL: n_value: 0x%llx %sdefective,"
+                                                    " n_numaux = %d ignored\n",
+                                symIndex, nv, (0x00de1e00 == nv ? "non-" : ""),
+                                                             symEnt->n_numaux);
+
+                bincl = false;
+                continue;
             }
             else {
                 zprintf("%lu sclass: %u\n", symIndex, symEnt->n_sclass);
