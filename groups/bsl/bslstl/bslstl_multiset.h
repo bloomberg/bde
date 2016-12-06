@@ -648,6 +648,7 @@ class multiset {
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+      private:
         // NOT IMPLEMENTED
         DataWrapper(const DataWrapper&);
         DataWrapper& operator=(const DataWrapper&);
@@ -787,7 +788,7 @@ class multiset {
         // type 'KEY' be 'copy-insertable' into this multiset (see
         // {Requirements on 'KEY'}).
 
-    multiset(BloombergLP::bslmf::MovableRef<multiset> original);
+    multiset(BloombergLP::bslmf::MovableRef<multiset> original);    // IMPLICIT
         // Create a multiset having the same value as that of the specified
         // 'original' object by moving (in constant time) the contents of
         // 'original' to the new multiset.  Use a copy of 'original.key_comp()'
@@ -3171,11 +3172,13 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            multiset thisCopy(*this, other.nodeFactory().allocator());
-            multiset otherCopy(other, nodeFactory().allocator());
+            multiset toOtherCopy(MoveUtil::move(*this),
+                                 other.nodeFactory().allocator());
+            multiset toThisCopy(MoveUtil::move(other),
+                                nodeFactory().allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            other.quickSwapRetainAllocators(toOtherCopy);
+            this->quickSwapRetainAllocators(toThisCopy);
         }
     }
 }
@@ -3185,6 +3188,7 @@ inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
+
     if (d_tree.rootNode()) {
         BSLS_ASSERT_SAFE(0 < d_tree.numNodes());
         BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());

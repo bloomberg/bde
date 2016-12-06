@@ -702,6 +702,7 @@ class multimap {
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+      private:
         // NOT IMPLEMENTED
         DataWrapper(const DataWrapper&);
         DataWrapper& operator=(const DataWrapper&);
@@ -714,7 +715,8 @@ class multimap {
             // to order key-value pairs and a copy of the specified
             // 'basicAllocator' to supply memory.
 
-        DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
+        DataWrapper(
+              BloombergLP::bslmf::MovableRef<DataWrapper> original);// IMPLICIT
             // Create a data wrapper initialized to the contents of the 'pool'
             // associated with the specified 'original' data wrapper.  The
             // comparator and allocator associated with 'original' are
@@ -913,7 +915,7 @@ class multimap {
         // types 'KEY' and 'VALUE' both be 'copy-insertable' into this multimap
         // (see {Requirements on 'KEY' and 'VALUE'}).
 
-    multimap(BloombergLP::bslmf::MovableRef<multimap> original);
+    multimap(BloombergLP::bslmf::MovableRef<multimap> original);    // IMPLICIT
         // Create a multimap having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new multimap.  Use a copy of 'original.key_comp()' to order the
@@ -1086,13 +1088,12 @@ class multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN)
     template <class ALT_VALUE_TYPE>
     iterator
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #else
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator >::type
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #endif
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
         // Insert into this multimap a 'value_type' object created from the
         // specified 'value'.  If a range containing elements equivalent to
         // 'value_type' object already exists, insert the 'value_type' object
@@ -1125,15 +1126,13 @@ class multimap {
 #if defined(BSLS_PLATFORM_CMP_SUN)
     template <class ALT_VALUE_TYPE>
     iterator
-    insert(const_iterator                                    hint,
-           BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
 #else
     template <class ALT_VALUE_TYPE>
     typename enable_if<is_convertible<ALT_VALUE_TYPE, value_type>::value,
                        iterator>::type
+#endif
     insert(const_iterator                                    hint,
            BSLS_COMPILERFEATURES_FORWARD_REF(ALT_VALUE_TYPE) value)
-#endif
         // Insert into this multimap a 'value_type' object created from the
         // specified 'value' (in amortized constant time if the specified
         // 'hint' is a valid immediate successor to the object created from
@@ -2428,11 +2427,13 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(multimap& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            multimap thisCopy(*this, other.nodeFactory().allocator());
-            multimap otherCopy(other, nodeFactory().allocator());
+            multimap toOtherCopy(MoveUtil::move(*this),
+                                 other.nodeFactory().allocator());
+            multimap toThisCopy( MoveUtil::move(other),
+                                 nodeFactory().allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            this->quickSwapRetainAllocators(toThisCopy);
+            other.quickSwapRetainAllocators(toOtherCopy);
         }
     }
 }
@@ -2442,6 +2443,7 @@ inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
+
     if (d_tree.rootNode()) {
         BSLS_ASSERT_SAFE(0 < d_tree.numNodes());
         BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());

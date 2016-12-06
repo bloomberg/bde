@@ -857,6 +857,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   private:
     // STATIC ASSERTIONS
+
     BSLMF_ASSERT((is_same<reference, typename Base::reference>::value));
     BSLMF_ASSERT((is_same<const_reference,
                   typename Base::const_reference>::value));
@@ -1093,7 +1094,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // can be supplied for 'basicAllocator' if the (template parameter)
         // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    deque(BloombergLP::bslmf::MovableRef<deque> original);
+    deque(BloombergLP::bslmf::MovableRef<deque> original);          // IMPLICIT
         // Create a deque having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new deque.  The allocator associated with 'original' is
@@ -6364,12 +6365,12 @@ void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            deque d1(other, this->get_allocator());
-            deque d2(*this, other.get_allocator());
+            deque toOtherCopy(MoveUtil::move(*this), other.get_allocator());
+            deque toThisCopy( MoveUtil::move(other), this->get_allocator());
 
-            Deque_Util::swap(static_cast<Base *>(&d1),
+            Deque_Util::swap(static_cast<Base *>(&toThisCopy),
                              static_cast<Base *>(this));
-            Deque_Util::swap(static_cast<Base *>(&d2),
+            Deque_Util::swap(static_cast<Base *>(&toOtherCopy),
                              static_cast<Base *>(&other));
         }
     }
