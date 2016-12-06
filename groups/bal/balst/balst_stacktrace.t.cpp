@@ -265,7 +265,7 @@ const Frame VALUES[]   = {
          "woof5")
 };
 
-const int   NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
 
 const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
               &V1 = VALUES[1],  &VB = V1, // conjunction with the 'VALUES'
@@ -864,7 +864,7 @@ int main(int argc, char *argv[])
             { L_,   "BACDEABC"  },
             { L_,   "CBADEABCD" },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         bool anyObjectMemoryAllocatedFlag = false;  // We later check that
                                                     // this test allocates
@@ -1366,7 +1366,7 @@ int main(int argc, char *argv[])
                 { L_,   "",      0,  "ABCDE", 4,  0, ""      },
                 { L_,   "",      0,  "ABCDE", 5,  0, ""      },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -1682,7 +1682,7 @@ int main(int argc, char *argv[])
                 { L_,   "ABCDE", 5,  5,  0,  "ABCDE" },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -2085,7 +2085,7 @@ int main(int argc, char *argv[])
                 { L_,   "",      0,  "ABCDE", 4,  1, "E"     },
                 { L_,   "",      0,  "ABCDE", 5,  0, ""      },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -2479,7 +2479,7 @@ int main(int argc, char *argv[])
                 { L_,   "ABCDE", 5,   5,  0,  "ABCDE"      },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -2591,7 +2591,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'resize(int)'" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17 };
-            const int NUM_TESTS = sizeof lengths / sizeof lengths[0];
+            enum {    NUM_TESTS = sizeof lengths / sizeof lengths[0] };
 
             const Element I_VALUE       = VA;
             const Element DEFAULT_VALUE = Element();
@@ -2752,7 +2752,7 @@ int main(int argc, char *argv[])
             static const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 7, 8, 9,
             };
-            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+            enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -2842,7 +2842,7 @@ int main(int argc, char *argv[])
             static const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
             };
-            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+            enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -3019,7 +3019,7 @@ int main(int argc, char *argv[])
             const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
             };
-            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+            enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -3082,7 +3082,7 @@ int main(int argc, char *argv[])
                     {
                         if (veryVeryVerbose) { cout <<
                                             "\t\t\tBuffer Allocator" << endl; }
-                        char memory[128 * 1024];
+                        char memory[60 * 1024];
                         bdlma::BufferedSequentialAllocator a(memory,
                                                             sizeof memory);
                         Obj *Y = new(a.allocate(sizeof(Obj))) Obj(X, &a);
@@ -3220,7 +3220,7 @@ int main(int argc, char *argv[])
             static const int EXTEND[] = {
                 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17
             };
-            const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+            enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -3519,7 +3519,7 @@ int main(int argc, char *argv[])
 #undef SP
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -3663,7 +3663,7 @@ int main(int argc, char *argv[])
                 { L_,   "CBADEABCD",    9,      { &VC, &VB, &VA, &VD, &VE,
                                                   &VA, &VB, &VC, &VD }      },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -3837,7 +3837,7 @@ int main(int argc, char *argv[])
 
                 { L_,   "ABCDE~CDEC~E", 1,      { &VE }                     },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
@@ -3917,7 +3917,7 @@ int main(int argc, char *argv[])
                 { L_,   "ABCDe",         4,     },
                 { L_,   "AbCdE",         1,     },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("oa-validSpecs",
                                                veryVeryVeryVerbose);
@@ -3991,7 +3991,7 @@ int main(int argc, char *argv[])
                 { L_,   "ABCDE",        0,      3,              0       },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             bslma::TestAllocator testAllocator("oa-stretch",
                                                veryVeryVeryVerbose);

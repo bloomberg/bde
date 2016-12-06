@@ -54,10 +54,10 @@ StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 
 // ACCESSORS
 char *StackTraceResolver_FileHelper::loadString(
-                                        Offset            offset,
-                                        char             *scratchBuf,
-                                        int               scratchBufLength,
-                                        bslma::Allocator *basicAllocator) const
+                                    Offset                offset,
+                                    char                 *scratchBuf,
+                                    bsls::Types::UintPtr  scratchBufLength,
+                                    bslma::Allocator     *basicAllocator) const
 {
     // We do not know the length of the string and we don't want to read a full
     // 'scratchBufLength' (typically > 32000) bytes every time we read a
@@ -75,15 +75,15 @@ char *StackTraceResolver_FileHelper::loadString(
         k_START_LEN = 256
     };
 
-    const int maxString = scratchBufLength - 1;
+    const IntPtr maxString = scratchBufLength - 1;
 
-    int stringLen;
-    for (int readLen = k_START_LEN; true; readLen *= 4) {
+    IntPtr stringLen;
+    for (IntPtr readLen = k_START_LEN; true; readLen *= 4) {
         if (readLen > maxString) {
             readLen = maxString;
         }
 
-        int bytes = static_cast<int>(readBytes(scratchBuf, readLen, offset));
+        IntPtr bytes = readBytes(scratchBuf, readLen, offset);
         if (0 == bytes) {
             // We can't read.  Return "".
 
@@ -93,13 +93,15 @@ char *StackTraceResolver_FileHelper::loadString(
 
         BSLS_ASSERT(bytes <= readLen);
         scratchBuf[bytes] = 0;
-        stringLen = static_cast<int>(bsl::strlen(scratchBuf));
+        stringLen = bsl::strlen(scratchBuf);
         if (stringLen < bytes || bytes < readLen || maxString == readLen) {
             break;
         }
     }
 
-    return bdlb::String::copy(scratchBuf, stringLen, basicAllocator);
+    return bdlb::String::copy(scratchBuf,
+                              static_cast<int>(stringLen),
+                              basicAllocator);
 }
 
 bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
