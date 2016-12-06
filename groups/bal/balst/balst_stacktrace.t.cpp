@@ -2783,9 +2783,9 @@ int main(int argc, char *argv[])
                         P(V_SPEC);
                     }
 
-                    const Obj VV = g(V_SPEC);           // control
+                    const Obj  VV = g(V_SPEC);           // control
 
-                    const int Z = ui == vi; // flag indicating same values
+                    const bool Z = ui == vi; // flag indicating same values
 
                     for (int uj = 0; uj < NUM_EXTEND; ++uj) {
                         const int U_N = EXTEND[uj];
@@ -3201,7 +3201,7 @@ int main(int argc, char *argv[])
                     Obj mV(&testAllocator); gg(&mV, V_SPEC); const Obj& V = mV;
 
                     if (veryVerbose) { cout << "  "; P_(tj); P_(V_SPEC); P(V);}
-                    const int isSame = ti == tj;
+                    const bool isSame = ti == tj;
                     LOOP2_ASSERT(ti, tj,  isSame == (U == V));
                     LOOP2_ASSERT(ti, tj, !isSame == (U != V));
                 }
