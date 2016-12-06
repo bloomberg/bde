@@ -760,6 +760,7 @@ struct Vector_RangeCheck {
     // in the class definition due to a bug in the Microsoft C++ compiler (see
     // 'bslmf_enableif').
 
+    // CLASS METHODS
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
@@ -1183,7 +1184,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // type 'VALUE_TYPE' be 'copy-insertable' into this vector (see
         // {Requirements on 'VALUE_TYPE'}).
 
-    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original);
+    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original);// IMPLICIT
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
@@ -1507,8 +1508,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'VALUE_TYPE' be 'move-insertable' into this vector and
         // 'emplace-constructible' from 'arguments' (see {Requirements on
         // 'VALUE_TYPE'}).
-    // NOTE: This function has been implemented inline due to an issue with
-    // the sun compiler.
+        //
+        // NOTE: This function has been implemented inline due to an issue with
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2402,8 +2404,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'position' is an iterator in the range '[begin() .. end()]' (both
         // endpoints included), and 'first' and 'last' refer to a range of
         // valid values where 'first' is at a position at or before 'last'.
-    // NOTE: This function has been implemented inline due to an issue with
-    // the sun compiler.
+        //
+        // NOTE: This function has been implemented inline due to an issue with
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2558,27 +2561,6 @@ bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
     // this operator returns '!(lhs < rhs)'.
 
-// FREE FUNCTIONS
-
-                      // *** specialized algorithms ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-void swap(Vector_Imp<VALUE_TYPE, ALLOCATOR>& a,
-          Vector_Imp<VALUE_TYPE, ALLOCATOR>& b)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.
-
                             // ============
                             // class vector
                             // ============
@@ -2701,7 +2683,7 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // {Requirements on 'VALUE_TYPE'}).
 
     vector(BloombergLP::bslmf::MovableRef<vector> original)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                               BSLS_CPP11_NOEXCEPT; // IMPLICIT
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
@@ -2856,6 +2838,12 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
     // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
     // this operator returns '!(lhs < rhs)'.
 
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
+          vector<VALUE_TYPE, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+
                    // =====================================
                    // class vector<VALUE_TYPE *, ALLOCATOR>
                    // =====================================
@@ -2894,6 +2882,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
 
                       // *** construct/copy/destroy ***
 
+    // CREATORS
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
                                                             BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
@@ -2926,7 +2915,8 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }
@@ -3514,6 +3504,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
 
                       // *** construct/copy/destroy ***
 
+    // CREATORS
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
                                                             BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
@@ -3546,7 +3537,8 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }
@@ -3572,7 +3564,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     }
 #endif
 
-    ~vector() { }
+    ~vector() {}
 
     // MANIPULATORS
 
@@ -4927,7 +4919,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
         this->d_dataEnd_p = this->d_dataBegin_p + newSize;
     }
     else {
-       insert(this->d_dataEnd_p, newSize - this->size(), value);
+        insert(this->d_dataEnd_p, newSize - this->size(), value);
     }
 }
 
@@ -5643,11 +5635,16 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            Vector_Imp v1(other, this->get_allocator());
-            Vector_Imp v2(*this, other.get_allocator());
 
-            Vector_Util::swap(&v1.d_dataBegin_p, &this->d_dataBegin_p);
-            Vector_Util::swap(&v2.d_dataBegin_p, &other.d_dataBegin_p);
+            Vector_Imp toOtherCopy(MoveUtil::move(*this),
+                                   other.get_allocator());
+            Vector_Imp toThisCopy( MoveUtil::move(other),
+                                   this->get_allocator());
+
+            Vector_Util::swap(&toOtherCopy.d_dataBegin_p,
+                              &other.d_dataBegin_p);
+            Vector_Util::swap(&toThisCopy. d_dataBegin_p,
+                              &this->d_dataBegin_p);
         }
     }
 }
@@ -5939,7 +5936,18 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Some platforms might not be willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 // HASH SPECIALIZATIONS
@@ -6026,6 +6034,7 @@ bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
@@ -6033,7 +6042,18 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
     typedef Vector_Imp<void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
              // -------------------------------------------
@@ -6173,6 +6193,7 @@ bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
@@ -6180,7 +6201,18 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 }  // close namespace bsl
