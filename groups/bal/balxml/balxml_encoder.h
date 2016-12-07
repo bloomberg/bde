@@ -1304,7 +1304,7 @@ int Encoder_EncodeValue::executeImp(
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
 
     BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT == type);
@@ -1349,7 +1349,7 @@ int Encoder_EncodeValue::executeImp(const TYPE&                object,
 {
     enum { k_FAILURE = -1 };
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     int type = formattingMode & bdlat_FormattingMode::e_TYPE_MASK;
 
     BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT == type);
