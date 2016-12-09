@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide access to 'result_type' or 'ResultType' nested type.
 //
 //@CLASSES:
-//  bslmf::ResultType<FUNC, FALLBACK>: metafunction to return result type
+//  bslmf::ResultType: metafunction to return result type
 //
 //@SEE_ALSO:
 //
@@ -20,13 +20,13 @@ BSLS_IDENT("$Id: $")
 // returned type when invoking the functor.  Unfortunately, standard types name
 // this 'typedef' 'result_type' whereas BDE types name this 'typedef'
 // 'ResultType'.  This component facilitates writing code that depends on these
-// 'typedef's by providing a uniform interface for extracting the correct
-// alias.  'bslmf::ResultType<FUNC>::type' is identical to 'FUNC::result_type'
-// if such a type exists; otherwise, it is identical to 'FUNC::ResultType' if
-// that type exists; otherwise, it is undefined.  A fallback type can be
-// optionally specified such that 'bslmf::ResultType<FUNC, FALLBACK>::type' is
-// identical to 'FALLBACK' if neither 'FUNC::result_type' nor
-// 'FUNC::ResultType' is defined.
+// 'typedef's by providing a uniform interface, 'bslmf::ResultType', for
+// extracting the correct alias.  'bslmf::ResultType<FUNC>::type' is identical
+// to 'FUNC::result_type' if such a type exists; otherwise, it is identical to
+// 'FUNC::ResultType' if that type exists; otherwise, it is undefined.  A
+// fallback type can be optionally specified such that
+// 'bslmf::ResultType<FUNC, FALLBACK>::type' is identical to 'FALLBACK' if
+// neither 'FUNC::result_type' nor 'FUNC::ResultType' is defined.
 //
 // Note that 'ResultType' checks only for a nested type within its 'FUNC'
 // parameter; it does not attempt to deduce the return type of calling
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      FUNC f;
 //      try {
-//          return f(a1, a2);
+//          return f(a1, a2);                                         // RETURN
 //      }
 //      catch (...) {
 //          throw InvocationException();
@@ -86,10 +86,10 @@ BSLS_IDENT("$Id: $")
 //  const char *LessGreater::operator()(long a1, long a2)
 //  {
 //      if (a1 < a2) {
-//          return "less";
+//          return "less";                                            // RETURN
 //      }
 //      else if (a2 < a1) {
-//          return "greater";
+//          return "greater";                                         // RETURN
 //      }
 //      else {
 //          throw BadArgs();
@@ -99,12 +99,12 @@ BSLS_IDENT("$Id: $")
 // For comparison, let's also define a 'plus' functor that conforms to the
 // C++11 standard definition of 'std::plus':
 //..
-//  template <class T>
+//  template <class TYPE>
 //  struct plus {
-//      typedef T first_argument_type;
-//      typedef T second_argument_type;
-//      typedef T result_type;
-//      T operator()(const T& x, const T& y) const { return x + y; }
+//      typedef TYPE first_argument_type;
+//      typedef TYPE second_argument_type;
+//      typedef TYPE result_type;
+//      TYPE operator()(const TYPE& x, const TYPE& y) const { return x + y; }
 //  };
 //..
 // Now, we can use 'wrapInvoke' with our 'LessGreater' functor:
@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //      FUNC f;
 //      try {
 //          // C-style cast needed for some compilers
-//          return ((RetType) f(a1, a2));
+//          return (RetType)f(a1, a2);                                // RETURN
 //      }
 //      catch (...) {
 //          throw InvocationException();
@@ -216,9 +216,9 @@ struct ResultType<FUNC, FALLBACK,
     typedef typename FUNC::result_type type;
 };
 
-// ===========================================================================
+// ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
 template <class FALLBACK>
 struct ResultType_Fallback {

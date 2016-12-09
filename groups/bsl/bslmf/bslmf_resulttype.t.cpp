@@ -21,43 +21,53 @@ using namespace BloombergLP;
 // that it detects them correctly.  A small amount of infrastructure is needed
 // to detect whether the metafunction produced any result at all.
 //-----------------------------------------------------------------------------
-// [1] TEST TESTING INFRASTRUCTURE
+// [1] TEST APPARATUS
 // [2] FULL TEST
 // [3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -87,16 +97,16 @@ struct BothResultTypes {
     typedef unsigned int   ResultType;
 };
 
-template <class T, class = void>
+template <class TYPE, class = void>
 struct HasType {
-    // Metafunction with value 'true' if 'T::type' names a valid type.
+    // Metafunction with value 'true' if 'TYPE::type' names a valid type.
 
     enum { VALUE = false };
 };
 
-template <class T>
-struct HasType<T, typename bslmf::VoidType<typename T::type>::type> {
-    // Specialization for when 'T::type' names a valid type.
+template <class TYPE>
+struct HasType<TYPE, typename bslmf::VoidType<typename TYPE::type>::type> {
+    // Specialization for when 'TYPE::type' names a valid type.
 
     enum { VALUE = true };
 };
@@ -136,7 +146,7 @@ struct WithType {
     {
         FUNC f;
         BSLS_TRY {
-            return f(a1, a2);
+            return f(a1, a2);                                         // RETURN
         }
         BSLS_CATCH (...) {
             BSLS_THROW(InvocationException());
@@ -161,10 +171,10 @@ struct WithType {
     const char *LessGreater::operator()(long a1, long a2)
     {
         if (a1 < a2) {
-            return "less";
+            return "less";                                            // RETURN
         }
         else if (a2 < a1) {
-            return "greater";
+            return "greater";                                         // RETURN
         }
         else {
             BSLS_THROW(BadArgs());
@@ -174,12 +184,12 @@ struct WithType {
 // For comparison, let's also define a 'plus' functor that conforms to the
 // C++11 standard definition of 'std::plus':
 //..
-    template <class T>
+    template <class TYPE>
     struct plus {
-        typedef T first_argument_type;
-        typedef T second_argument_type;
-        typedef T result_type;
-        T operator()(const T& x, const T& y) const { return x + y; }
+        typedef TYPE first_argument_type;
+        typedef TYPE second_argument_type;
+        typedef TYPE result_type;
+        TYPE operator()(const TYPE& x, const TYPE& y) const { return x + y; }
     };
 //..
 // Now, we can use 'wrapInvoke' with our 'LessGreater' functor:
@@ -232,7 +242,7 @@ struct WithType {
         FUNC f;
         BSLS_TRY {
             // C-style cast needed for some compilers
-            return ((RetType) f(a1, a2));
+            return (RetType)f(a1, a2);                                // RETURN
         }
         BSLS_CATCH (...) {
             BSLS_THROW(InvocationException());
@@ -257,7 +267,7 @@ struct WithType {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int  test    = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose = argc > 2;
     // bool veryVerbose = argc > 3;
     // bool veryVeryVerbose = argc > 4;
@@ -377,22 +387,23 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST TESTING INFRASTRUCTURE
+        // TEST APPARATUS
         //
         // Concerns:
-        //: 1 'HasType<T>::VALUE' is true iff 'T::type' is a valid type.
+        //: 1 'HasType<T>::VALUE' is 'true' if and only if 'T::type' is a valid
+        //:   type.
         //
         // Plan:
         //: 1 Declare 'struct's with and without a nested 'type' 'typedef'.
         //:   Instantiate 'HasType<T>' with each of them and verify that
-        //:   'VALUE' is true iff the nested 'typedef' exists.
+        //:   'VALUE' is true if and only if the nested 'typedef' exists.
         //
         // Testing:
-        //   TESTING INFRASTRUCTURE
+        //   TEST APPARATUS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTEST TESTING INFRASTRUCTURE"
-                            "\n===========================\n");
+        if (verbose) printf("\nTEST APPARATUS"
+                            "\n==============\n");
 
         ASSERT(false == HasType<NoResultType>::VALUE);
         ASSERT(true  == HasType<WithType>::VALUE);

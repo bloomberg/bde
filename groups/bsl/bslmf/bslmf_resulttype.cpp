@@ -1,10 +1,10 @@
 // bslmf_resulttype.cpp                                               -*-C++-*-
 #include <bslmf_resulttype.h>
 
-#include <bslmf_issame.h>     // for testing only
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslmf_issame.h>     // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.

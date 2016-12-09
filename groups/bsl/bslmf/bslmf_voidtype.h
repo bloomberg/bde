@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions.
 //
 //@CLASSES:
-//  bslmf::VoidType<T1, T2, ...>: helper class for SFINAE-based metafunctions
+//  bslmf::VoidType: helper class template for SFINAE-based metafunctions
 //
 //@SEE_ALSO: bslmf_resulttype
 //
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // specific nested data type (see {Usage}).
 //
 // The 'bslmf::VoidType' class template is intended to provide functionality
-// indentical to the C++14 metafunction 'std::void_t', but without using C++11
+// identical to the C++14 metafunction 'std::void_t', but without using C++11
 // alias templates.  A use, in C++14-compliant code, of:
 //..
 //  std::void_t<T1, T2, ...>
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the base-case metafunction that returns 'false':
 //..
-//  template <class T, class = void>
+//  template <class TYPE, class = void>
 //  struct HasIteratorType {
 //      enum { VALUE = false };
 //  };
@@ -61,9 +61,10 @@ BSLS_IDENT("$Id: $")
 // Now, we create a partial specialization that uses 'VoidType' to probe for
 // 'T::iterator':
 //..
-//  template <class T>
-//  struct HasIteratorType<T,
-//                      typename bslmf::VoidType<typename T::iterator>::type> {
+//  template <class TYPE>
+//  struct HasIteratorType<
+//                   TYPE,
+//                   typename bslmf::VoidType<typename TYPE::iterator>::type> {
 //      enum { VALUE = true };
 //  };
 //..
@@ -104,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // 'T::value_type' both exist.  As before, we start with a primary template
 // that always yields 'false':
 //..
-//  template <class T, class = void>
+//  template <class TYPE, class = void>
 //  struct IsTraversable {
 //      enum { VALUE = false };
 //  };
@@ -112,10 +113,10 @@ BSLS_IDENT("$Id: $")
 // This time, we create a partial specialization that uses 'VoidType' with two
 // parameters:
 //..
-//  template <class T>
-//  struct IsTraversable<T,
-//                       typename bslmf::VoidType<typename T::iterator,
-//                                                typename T::value_type
+//  template <class TYPE>
+//  struct IsTraversable<TYPE,
+//                       typename bslmf::VoidType<typename TYPE::iterator,
+//                                                typename TYPE::value_type
 //                                               >::type> {
 //      enum { VALUE = true };
 //  };

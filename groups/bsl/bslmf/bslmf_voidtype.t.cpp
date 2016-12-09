@@ -19,48 +19,58 @@ using namespace BloombergLP;
 // usefulness of this component is demonstrated in the usage examples.
 //-----------------------------------------------------------------------------
 // [1] FULL TEST
-// [2] USAGE TEST
+// [2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 struct MyStruct {
-    int x;
+    int d_x;
 };
 
 enum MyEnum { E0, E1 };
@@ -80,7 +90,7 @@ enum MyEnum { E0, E1 };
 //
 // First, we define the base-case metafunction that returns 'false':
 //..
-    template <class T, class = void>
+    template <class TYPE, class = void>
     struct HasIteratorType {
         enum { VALUE = false };
     };
@@ -88,9 +98,10 @@ enum MyEnum { E0, E1 };
 // Now we create a partial specialization that uses 'VoidType' to probe for
 // 'T::iterator'.
 //..
-    template <class T>
-    struct HasIteratorType<T,
-                        typename bslmf::VoidType<typename T::iterator>::type> {
+    template <class TYPE>
+    struct HasIteratorType<
+                     TYPE,
+                     typename bslmf::VoidType<typename TYPE::iterator>::type> {
         enum { VALUE = true };
     };
 //..
@@ -131,7 +142,7 @@ enum MyEnum { E0, E1 };
 // 'T::value_type' both exist.  As before, we start with a primary template
 // that always yields 'false':
 //..
-    template <class T, class = void>
+    template <class TYPE, class = void>
     struct IsTraversable {
         enum { VALUE = false };
     };
@@ -139,10 +150,10 @@ enum MyEnum { E0, E1 };
 // This time, we create a partial specialization that uses 'VoidType' with two
 // parameters:
 //..
-    template <class T>
-    struct IsTraversable<T,
-                         typename bslmf::VoidType<typename T::iterator,
-                                                  typename T::value_type
+    template <class TYPE>
+    struct IsTraversable<TYPE,
+                         typename bslmf::VoidType<typename TYPE::iterator,
+                                                  typename TYPE::value_type
                                                  >::type> {
         enum { VALUE = true };
     };
