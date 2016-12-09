@@ -926,6 +926,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_typelist.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_VOIDTYPE
+#include <bslmf_voidtype.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -4632,12 +4636,6 @@ struct Bind_OneResultTypeOrAnother {
     // if 'FUNC' has an 'operator()' member (such as lambda functions), define
     // 'type' to be the return type of that operator.
   private:
-    template <class T>
-    struct Void {
-        // This class just declares a 'type' member as void.  The class is used
-        // in a SFINAE context to test instantiability of its 'T' parameter.
-        typedef void type;
-    };
     template <class T, class U = void>
     struct Result1 {
         // This class declares a 'type' member as the 'result_type' member of
@@ -4645,7 +4643,7 @@ struct Bind_OneResultTypeOrAnother {
         typedef typename T::result_type type;
     };
     template <class T>
-    struct Result1<T, typename Void<typename T::ResultType>::type> {
+    struct Result1<T, typename bslmf::VoidType<typename T::ResultType>::type> {
         // This is a specialization of 'Result1' above.  If the 'T' parameter
         // has a 'ResultType' member, then 'Result1<T, void>' prefers this
         // specialization over the general template.  This class declares a
@@ -4670,7 +4668,8 @@ struct Bind_OneResultTypeOrAnother {
         typedef RETURN_T type;
     };
     template <class T>
-    struct Result2<T, typename Void<decltype(&T::operator())>::type> {
+    struct Result2<T,
+                   typename bslmf::VoidType<decltype(&T::operator())>::type> {
         // This is a specialization of 'Result2' above.  If the 'T' parameter
         // has a single unique 'operator()' member, then 'Result2<T, void>'
         // prefers this specialization over the general template.  This class
