@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 //  numLocalTimeTypes  int    1       >= 1
 //  abbrevDataSize     int    1       >= 1
 //..
-//: o 'version': Zoneinfo file format version, as of 2013, either '\0', '2'
+//: o 'version': Zoneinfo file format version, as of 2013, either '\0', '2',
 //    or '3'.
 //:
 //: o 'numIsGmt': number of encoded UTC/local indicators in the file,
@@ -199,7 +199,7 @@ class ZoneinfoBinaryHeader {
 
     // DATA
     char d_version;            // file format version of the Zoneinfo, as of
-                               // 2013, it can be either '\0', '2' or '3'.
+                               // 2013, it can be either '\0', '2', or '3'.
 
     int  d_numIsGmt;           // number of encoded UTC/local indicators in the
                                // file, indicating whether a transition time

@@ -159,7 +159,8 @@ baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
 : d_identifier(original.d_identifier, basicAllocator)
 , d_descriptors(original.d_descriptors, basicAllocator)
 , d_transitions(basicAllocator)
-, d_tz(basicAllocator)
+, d_extendedTransitionsDescription(original.d_extendedTransitionsDescription,
+                                   basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     TransitionConstIterator it  = original.d_transitions.begin();
@@ -285,7 +286,8 @@ bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
     stream << "]";
 
     bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
-    stream << "tz = " << '"' << d_tz << '"';
+    stream << "tz = "
+           << '"' << d_extendedTransitionsDescription << '"';
 
     bdlb::Print::newlineAndIndent(stream, level - 1, spacesPerLevel);
     stream << "]";
@@ -302,7 +304,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&   stream,
                                  const Zoneinfo& object)
 {
     stream << "[ \"" << object.identifier() << "\" "
-           <<   "\"" << object.tz()         << "\" [";
+           <<   "\"" << object.extendedTransitionsDescription() << "\" [";
 
     Zoneinfo::TransitionConstIterator it  = object.beginTransitions();
     Zoneinfo::TransitionConstIterator end = object.endTransitions();

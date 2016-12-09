@@ -166,14 +166,12 @@ int readRawArray(bsl::vector<TYPE> *result,
 static inline
 int readRawTz(bsl::string   *result,
               bsl::istream&  stream)
-    // Read the trailing POSIX(-like) TZ environment string that is found as
-    // the final bytes of any version '2' or version '3' binary data.  The
-    // first byte will be a newline '\n' character, followed by the optional
-    // TZ environment string, followed by a final newline character.  If no TZ
-    // environment string is encoded in the binary data, there will be no
-    // characters between the two newline characters and 'result' will not be
-    // modified.  Return 0 on success and a negative number if the read failed
-    // or data is not in the expected format.
+    // Read the trailing POSIX(-like) TZ environment string  from the specified
+    // 'stream' and append it to the specified 'result'.  Return '-1' if an
+    // error occurs during first symbol reading, '-2' if the first symbol
+    // differs from the newline '\n' character and '0' otherwise.  The first
+    // character is discarded from the stream whether it is newline character
+    // or not.  The final '\n' is not appended to the 'result'.
 {
     BSLS_ASSERT(result);
 
@@ -485,14 +483,11 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
 
     bsl::string tz;
     if (0 != readRawTz(&tz, stream)) {
-        BALL_LOG_ERROR << "Error reading 'tz' information from Zoneinfo file."
-                       << BALL_LOG_END;
+        BSLS_LOG_ERROR("Error reading 'tz' information from Zoneinfo file.");
         return -33;                                                   // RETURN
     }
 
-    if (0 < tz.length()) {
-        zoneinfoResult->setTz(tz);
-    }
+    zoneinfoResult->setExtendedTransitionsDescription(tz);
 
     return 0;
 }

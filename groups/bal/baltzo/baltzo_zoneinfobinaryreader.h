@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //     Byte | Name              | Description
 // ---------+-------------------+----------------------------------------------
 //   0 -  3 | 'T''Z''i''f'      | magic characters to identify the file
-//        4 | version           | '\0', '2' or '3' to identify the version
+//        4 | version           | '\0', '2', or '3' to identify the version
 //   5 - 19 | reserved          | unused
 //  20 - 23 | numIsGmt          | number of UTC/local-time indicators
 //  24 - 27 | numIsStd          | number of standard/local-time indicators

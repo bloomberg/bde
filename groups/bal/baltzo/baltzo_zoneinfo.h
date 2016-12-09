@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //: o the ordered sequence of 'baltzo::ZoneinfoTransition' objects,
 //:   representing the various transitions from UTC for this time zone.
 //:
-//: o any optional POSIX-like TZ environment string used to represent
+//: o an optional POSIX-like TZ environment string used to represent
 //:   far-reaching times past the end of the explicit time zone data.
 //
 // A 'baltzo::Zoneinfo' object also provides the method
@@ -276,6 +276,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -444,22 +448,25 @@ class Zoneinfo {
         // by a 'Zoneinfo' object.
 
     // DATA
-    bsl::string         d_identifier;   // this time zone's id
+    bsl::string         d_identifier;
+                          // this time zone's id
 
-    DescriptorSet       d_descriptors;  // set of local time descriptors for
-                                        // this time zone (e.g., 'EST')
+    DescriptorSet       d_descriptors;
+                          // set of local time descriptors for this time zone
+                          // (e.g., 'EST')
 
-    TransitionSequence  d_transitions;  // transitions, from one local time
-                                        // descriptor to another (e.g., 'EST'
-                                        // to 'EDT'), ordered by the time the
-                                        // transition occurred (or will occur)
+    TransitionSequence  d_transitions;
+                          // transitions, from one local time descriptor to
+                          // another (e.g., 'EST' to 'EDT'), ordered by the
+                          // time the transition occurred (or will occur)
 
-    bsl::string         d_tz;           // optional POSIX-like TZ environment
-                                        // string representing far-reaching
-                                        // times
+    bsl::string         d_extendedTransitionsDescription;
+                          // optional POSIX-like TZ environment string
+                          // representing far-reaching times
 
-    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
-                                        // (held, not owned)
+    bslma::Allocator   *d_allocator_p;
+                          // allocator used to supply memory (held, not
+                          // owned)
 
     // FRIENDS
     friend bool operator==(const Zoneinfo&, const Zoneinfo&);
@@ -532,9 +539,10 @@ class Zoneinfo {
         // Set the 'identifier' attribute of this object to the specified
         // 'value'.
 
-    void setTz(const bslstl::StringRef&  value);
-    void setTz(const char               *value);
-        // Set the 'tz' attribute of this object to the specified 'value'.
+    void setExtendedTransitionsDescription(const bslstl::StringRef&  value);
+    void setExtendedTransitionsDescription(const char               *value);
+        // Set the 'extendedTransitionsDescription' attribute of this object to
+        // the specified 'value'.
 
     void swap(Zoneinfo& other);
         // Efficiently exchange the value of this object with the value of the
@@ -565,9 +573,9 @@ class Zoneinfo {
         // Return a reference providing non-modifiable access to the
         // 'identifier' attribute of this object.
 
-    const bsl::string& tz() const;
-        // Return a reference providing non-modifiable access to the 'tz'
-        // attribute of this object.
+    const bsl::string& extendedTransitionsDescription() const;
+        // Return a reference providing non-modifiable access to the
+        // 'extendedTransitionsDescription' attribute of this object.
 
     bsl::size_t numTransitions() const;
         // Return the number of transitions maintained by this zone info.
@@ -709,7 +717,7 @@ baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
-, d_tz(basicAllocator)
+, d_extendedTransitionsDescription(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -739,19 +747,20 @@ void baltzo::Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
-void baltzo::Zoneinfo::setTz(const bslstl::StringRef& value)
+void baltzo::Zoneinfo::setExtendedTransitionsDescription(
+                                                const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(0 != value.data());
 
-    d_tz.assign(value.begin(), value.end());
+    d_extendedTransitionsDescription.assign(value.begin(), value.end());
 }
 
 inline
-void baltzo::Zoneinfo::setTz(const char *value)
+void baltzo::Zoneinfo::setExtendedTransitionsDescription(const char *value)
 {
     BSLS_ASSERT_SAFE(value);
 
-    bsl::string(value, d_tz.allocator()).swap(d_tz);
+    d_extendedTransitionsDescription.assign(value, value + bsl::strlen(value));
 }
 
 inline
@@ -762,7 +771,8 @@ void baltzo::Zoneinfo::swap(Zoneinfo& other)
     bsl::swap(d_identifier,  other.d_identifier);
     bsl::swap(d_descriptors, other.d_descriptors);
     bsl::swap(d_transitions, other.d_transitions);
-    bsl::swap(d_tz, other.d_tz);
+    bsl::swap(d_extendedTransitionsDescription,
+              other.d_extendedTransitionsDescription);
 }
 
 // ACCESSORS
@@ -787,9 +797,9 @@ const bsl::string& baltzo::Zoneinfo::identifier() const
 }
 
 inline
-const bsl::string& baltzo::Zoneinfo::tz() const
+const bsl::string& baltzo::Zoneinfo::extendedTransitionsDescription() const
 {
-    return d_tz;
+    return d_extendedTransitionsDescription;
 }
 
 inline
@@ -816,8 +826,9 @@ baltzo::Zoneinfo::endTransitions() const
 inline
 bool baltzo::operator==(const Zoneinfo& lhs, const Zoneinfo& rhs)
 {
-    return lhs.identifier()     == rhs.identifier()
-        && lhs.tz()             == rhs.tz()
+    return lhs.identifier() == rhs.identifier()
+        && lhs.extendedTransitionsDescription() ==
+                                           rhs.extendedTransitionsDescription()
         && lhs.numTransitions() == rhs.numTransitions()
         && bsl::equal(lhs.d_transitions.begin(),
                       lhs.d_transitions.end(),
