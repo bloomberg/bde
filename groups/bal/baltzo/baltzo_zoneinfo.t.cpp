@@ -2433,7 +2433,6 @@ int main(int argc, char *argv[])
         //:     2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
         //:     3. { B } x { 2 }     x { 3 }         -->  1 expected output
         //:     4. { A B } x { -9 }  x { -9 }        -->  2 expected output
-        //:     5. { C } x { 2 }     x { 3 }         -->  1 expected output
         //:
         //:   2 For each row in the table defined in P2-1:  (C-1..3, 6..7)
         //:
