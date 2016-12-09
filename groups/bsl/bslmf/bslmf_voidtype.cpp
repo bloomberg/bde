@@ -1,7 +1,7 @@
-// bslmf_voidtype.cpp                  -*-C++-*-
-
+// bslmf_voidtype.cpp                                                 -*-C++-*-
 #include <bslmf_voidtype.h>
-#include <bslmf_issame.h>   // Testing only
+
+#include <bslmf_issame.h>     // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

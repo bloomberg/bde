@@ -1,4 +1,4 @@
-// bslmf_voidtype.h                  -*-C++-*-
+// bslmf_voidtype.h                                                   -*-C++-*-
 #ifndef INCLUDED_BSLMF_VOIDTYPE
 #define INCLUDED_BSLMF_VOIDTYPE
 
@@ -9,55 +9,57 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions.
 //
-//@CLASSES: bslmf::VoidType<T>:  Helper class for SFINAE-based metafunctions
+//@CLASSES:
+//  bslmf::VoidType<T1, T2, ...>: helper class for SFINAE-based metafunctions
 //
-//@SEE_ALSO: bslmf::ResultType
+//@SEE_ALSO: bslmf_resulttype
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:  This component provides a trivial metafunction, 'VoidType',
-// that takes up to 14 type parameters. The template always yields a
-// member type, 'type', which is always 'void'. The usefulness of this
+//@DESCRIPTION:  This component provides a trivial metafunction,
+// 'bslmf::VoidType', that takes up to 14 type parameters.  The template always
+// yields a member type, 'type', that is always 'void'.  The usefulness of this
 // do-nothing metafunction is that, when it is instantiated, all of its
-// template parameters must be valid. By putting the template instantiation in
-// a SFINAE context, any use of template parameters that name invalid
-// dependent types are discareded by the compiler as non-viable. Thus,
-// 'VoidType' is most commonly used to build metafunctions that test for the
-// existance of a specific nested data type (see usage example, below).
+// template parameters must be valid.  By putting the template instantiation in
+// a SFINAE context, any use of template parameters that name invalid dependent
+// types are discarded by the compiler as non-viable.  Thus, 'VoidType' is most
+// commonly used to build metafunctions that test for the existence of a
+// specific nested data type (see {Usage}).
 //
-// The 'bslmf::VoidType' class template is intended to provide identical
-// functionality as the C++14 metafunction 'std::void_t', but without using
-// C++11 alias templates. A use, in C++14-compliant code, of
+// The 'bslmf::VoidType' class template is intended to provide functionality
+// indentical to the C++14 metafunction 'std::void_t', but without using C++11
+// alias templates.  A use, in C++14-compliant code, of:
 //..
-//  'std::void_t<T1, T2, ...>'
+//  std::void_t<T1, T2, ...>
 //..
-// can be replaced, in BSL-compliant code using any version of standard C++,
-// by
+// can be replaced, in BDE-compliant code using any version of standard C++,
+// by:
 //..
-//  'typename bslmf::VoidType<T1, T2, ...>::type'
+//  typename bslmf::VoidType<T1, T2, ...>::type
 //..
 //
 ///Usage
 ///-----
+// In this section we show intended use of this component.
 //
 ///Usage Example 1
 ///- - - - - - - -
-// In this example, we demonstrate the use of 'VoidType' to determine whether
-// a given type 'T' as a member type 'T::iterator'. Our goal is to create a
-// metafunction, 'HasIteratorType' such that 'HasIteratorType<T>::VALUE' is
-// 'true' if 'T::iterator' is a valid type and 'false' otherwise.  This
-// example is adapted from the paper proposing 'std::void_t' for the C++
-// Standard, N3911.
+// In this example, we demonstrate the use of 'VoidType' to determine whether a
+// given type 'T' has a member type 'T::iterator'.  Our goal is to create a
+// metafunction, 'HasIteratorType', such that 'HasIteratorType<T>::VALUE' is
+// 'true' if 'T::iterator' is a valid type and 'false' otherwise.  This example
+// is adapted from the paper proposing 'std::void_t' for the C++ Standard,
+// N3911.
 //
-// First, we define the base-case metafunction, which returns 'false':
+// First, we define the base-case metafunction that returns 'false':
 //..
 //  template <class T, class = void>
 //  struct HasIteratorType {
 //      enum { VALUE = false };
 //  };
 //..
-// Now we create a partial specialization that uses 'VoidType' to probe for
-// 'T::iterator'.
+// Now, we create a partial specialization that uses 'VoidType' to probe for
+// 'T::iterator':
 //..
 //  template <class T>
 //  struct HasIteratorType<T,
@@ -72,7 +74,8 @@ BSLS_IDENT("$Id: $")
 //      typedef short *iterator;
 //  };
 //
-//  int main() {
+//  int main()
+//  {
 //      assert(true == HasIteratorType<WithIterator>::VALUE);
 //..
 // Since 'WithIterator::iterator' is a valid type,
@@ -81,11 +84,11 @@ BSLS_IDENT("$Id: $")
 // template and will thus get instantiated, yielding a 'VALUE' of 'true'.
 //
 // Conversely, if we try to instantiate 'HasIteratorType<int>', any use of
-// 'VoidType<int::iterator>::type' will result in a substitution
-// failure. Fortunately, the Substitution Failure Is Not An Error (SFINAE)
-// rule applies, so the code will compile, but the specialization is
-// eliminated from consideration, resulting in the primary template being
-// instantiated and yielding a 'VALUE' of 'FALSE':
+// 'VoidType<int::iterator>::type' will result in a substitution failure.
+// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies,
+// so the code will compile, but the specialization is eliminated from
+// consideration, resulting in the primary template being instantiated and
+// yielding a 'VALUE' of 'false':
 //..
 //      assert(false == HasIteratorType<int>::VALUE);
 //
@@ -96,10 +99,10 @@ BSLS_IDENT("$Id: $")
 ///Usage Example 2
 ///- - - - - - - -
 // This example demonstrates the use of 'VoidType' to probe for more than one
-// type at once.  As in the previous example, we are defining a
-// metafunction. We'll define 'IsTraversable<T>::VALUE' to be true if
-// 'T::iterator' and 'T::value_type' both exist. As before, we start with a
-// primary template that always yields 'false':
+// type at once.  As in the previous example, we are defining a metafunction.
+// We'll define 'IsTraversable<T>::VALUE' to be 'true' if 'T::iterator' and
+// 'T::value_type' both exist.  As before, we start with a primary template
+// that always yields 'false':
 //..
 //  template <class T, class = void>
 //  struct IsTraversable {
@@ -117,18 +120,19 @@ BSLS_IDENT("$Id: $")
 //      enum { VALUE = true };
 //  };
 //..
-// Next we define a type that meets the requirement for being traversable:
+// Next, we define a type that meets the requirement for being traversable:
 //..
 //  struct MyTraversable {
 //      typedef int  value_type;
 //      typedef int *iterator;
 //  };
 //..
-// The 'IsTraversable' metafunction yields 'true' for 'Traversable' but not
-// for 'WithIterator', which lacks 'value_type' or 'int', which lacks both
-// 'iterator' and 'value_type'.
+// The 'IsTraversable' metafunction yields 'true' for 'Traversable' but not for
+// either 'WithIterator', which lacks 'value_type', or 'int', which lacks both
+// 'iterator' and 'value_type':
 //..
-//  int main() {
+//  int main()
+//  {
 //      assert(true  == IsTraversable<MyTraversable>::VALUE);
 //      assert(false == IsTraversable<WithIterator>::VALUE);
 //      assert(false == IsTraversable<int>::VALUE);
@@ -142,7 +146,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                         // =======================
@@ -155,18 +158,17 @@ template <class T1  = void, class T2  = void, class T3  = void,
           class T10 = void, class T11 = void, class T12 = void,
           class T13 = void, class T14 = void>
 struct VoidType {
-    // Metafunction that allways yields 'type' 'void' for any well-formed list
-    // of type parameters. This metafunction is useful when using SFINAE to
+    // Metafunction that always yields 'type' 'void' for any well-formed list
+    // of type parameters.  This metafunction is useful when using SFINAE to
     // probe for well-formed types.
 
     typedef void type;
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
-#endif // ! defined(INCLUDED_BSLMF_VOIDTYPE)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.

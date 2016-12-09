@@ -1,8 +1,8 @@
-// bslmf_voidtype.t.cpp                  -*-C++-*-
+// bslmf_voidtype.t.cpp                                               -*-C++-*-
+#include <bslmf_voidtype.h>
 
-#include "bslmf_voidtype.h"
+#include <bslmf_issame.h>
 
-#include "bslmf_issame.h"
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>   // 'printf'
@@ -14,8 +14,8 @@ using namespace BloombergLP;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 // The metafunction defined in this component does no actual calculation; it
-// simply provides a 'void' type member. Testing it is trivial: simply
-// insantiate it with 0 to 14 parameters and verify that it compiles. The
+// simply provides a 'void' type member.  Testing it is trivial: simply
+// instantiate it with 0 to 14 parameters and verify that it compiles.  The
 // usefulness of this component is demonstrated in the usage examples.
 //-----------------------------------------------------------------------------
 // [1] FULL TEST
@@ -71,13 +71,14 @@ enum MyEnum { E0, E1 };
 
 ///Usage Example 1
 ///- - - - - - - -
-// In this example, we demonstrate the use of 'VoidType' to determine whether
-// a given type 'T' as a member type 'T::iterator'. Our goal is to create a
-// metafunction, 'HasIteratorType' such that 'HasIteratorType<T>::VALUE' is
-// 'true' if 'T::iterator' is a valid type and 'false' otherwise.  This
-// example is adapted from the paper proposing 'std::void_t', N3911.
+// In this example, we demonstrate the use of 'VoidType' to determine whether a
+// given type 'T' has a member type 'T::iterator'.  Our goal is to create a
+// metafunction, 'HasIteratorType', such that 'HasIteratorType<T>::VALUE' is
+// 'true' if 'T::iterator' is a valid type and 'false' otherwise.  This example
+// is adapted from the paper proposing 'std::void_t' for the C++ Standard,
+// N3911.
 //
-// First, we define the base-case metafunction, which returns 'false':
+// First, we define the base-case metafunction that returns 'false':
 //..
     template <class T, class = void>
     struct HasIteratorType {
@@ -100,7 +101,8 @@ enum MyEnum { E0, E1 };
         typedef short *iterator;
     };
 
-    int usageExample1() {
+    int usageExample1()
+    {
         ASSERT(true == HasIteratorType<WithIterator>::VALUE);
 //..
 // Since 'WithIterator::iterator' is a valid type,
@@ -109,11 +111,11 @@ enum MyEnum { E0, E1 };
 // template and will thus get instantiated, yielding a 'VALUE' of 'true'.
 //
 // Conversely, if we try to instantiate 'HasIteratorType<int>', any use of
-// 'VoidType<int::iterator>::type' will result in a substitution
-// failure. Fortunately, the Substitution Failure Is Not An Error (SFINAE)
-// rule applies, so the code will compile, but the specialization is
-// eliminated from consideration, resulting in the primary template being
-// instantiated and yielding a 'VALUE' of 'FALSE':
+// 'VoidType<int::iterator>::type' will result in a substitution failure.
+// Fortunately, the Substitution Failure Is Not An Error (SFINAE) rule applies,
+// so the code will compile, but the specialization is eliminated from
+// consideration, resulting in the primary template being instantiated and
+// yielding a 'VALUE' of 'false':
 //..
         ASSERT(false == HasIteratorType<int>::VALUE);
 
@@ -124,10 +126,10 @@ enum MyEnum { E0, E1 };
 ///Usage Example 2
 ///- - - - - - - -
 // This example demonstrates the use of 'VoidType' to probe for more than one
-// type at once.  As in the previous example, we are defining a
-// metafunction. We'll define 'IsTraversable<T>::VALUE' to be true if
-// 'T::iterator' and 'T::value_type' both exist. As before, we start with a
-// primary template that always yields 'false':
+// type at once.  As in the previous example, we are defining a metafunction.
+// We'll define 'IsTraversable<T>::VALUE' to be 'true' if 'T::iterator' and
+// 'T::value_type' both exist.  As before, we start with a primary template
+// that always yields 'false':
 //..
     template <class T, class = void>
     struct IsTraversable {
@@ -145,18 +147,19 @@ enum MyEnum { E0, E1 };
         enum { VALUE = true };
     };
 //..
-// Next we define a type that meets the requirement for being traversable:
+// Next, we define a type that meets the requirement for being traversable:
 //..
     struct MyTraversable {
         typedef int  value_type;
         typedef int *iterator;
     };
 //..
-// The 'IsTraversable' metafunction yields 'true' for 'Traversable' but not
-// for 'WithIterator', which lacks 'value_type' or 'int', which lacks both
-// 'iterator' and 'value_type'.
+// The 'IsTraversable' metafunction yields 'true' for 'Traversable' but not for
+// either 'WithIterator', which lacks 'value_type', or 'int', which lacks both
+// 'iterator' and 'value_type':
 //..
-    int usageExample2() {
+    int usageExample2()
+    {
         ASSERT(true  == IsTraversable<MyTraversable>::VALUE);
         ASSERT(false == IsTraversable<WithIterator>::VALUE);
         ASSERT(false == IsTraversable<int>::VALUE);
@@ -179,28 +182,28 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // USAGE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
-        //   The usage example in the component documentation compiles and
-        //   runs.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example verbetim but replace 'assert' with
-        //   'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE TEST"
-                            "\n==========\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         usageExample1();
         usageExample2();
 
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // FULL TEST
@@ -208,19 +211,21 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bslmf::VoidType<T1, T2... TN>::type' is 'void' for N from 0 to
         //:   14.
-        //: 2 The types used to instantiate 'bslmf::VoidType' can be any mix
-        //:   of fundamental types, pointers, enums, classes, references, or
-        //:   'void'.
+        //:
+        //: 2 The types used to instantiate 'bslmf::VoidType' can be any mix of
+        //:   fundamental types, pointers, enumerations, classes, references,
+        //:   or 'void'.
         //
         // Plan:
         //: 1 For concern 1, instantiate 'bslmf::VoidType<T1, T2... TN>::type'
         //:   with 0 to 14 parameters and verify that the result is type
-        //:   'void'.
-        //: 2 For concern 2, ensure that step 1 has a healthy mix of parameter
-        //:   types.
+        //:   'void'.  (C-1)
+        //:
+        //: 2 For concern 2, ensure that P-1 has a healthy mix of parameter
+        //:   types.  (C-2)
         //
         // Testing:
-        //     FULL TEST
+        //   FULL TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFULL TEST"
