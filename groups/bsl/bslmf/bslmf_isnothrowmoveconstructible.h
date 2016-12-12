@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide meta-function for determining types with nothrow move ctor.
 //
-//@REVIEW_FOR_MASTER: component-level doc, usage example
-//
 //@CLASSES:
 //  bslmf::is_nothrow_move_constructible: type-traits meta-function
 //

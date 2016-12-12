@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant map class.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsl::map: STL-compliant map template
 //

@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage an object.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslma::DestructorProctor: proctor to conditionally manage an object
 //

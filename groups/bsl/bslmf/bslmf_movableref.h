@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
 //
-//@REVIEW_FOR_MASTER: update component-level doc, test driver
-//
 //@CLASSES:
 //  bslmf::MovableRef: a template indicating that an object can be moved from
 //  bslmf::MovableRefUtil: a namespace for functions dealing with movables

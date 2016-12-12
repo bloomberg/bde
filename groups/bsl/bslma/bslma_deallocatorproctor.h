@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage a block memory.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslma::DeallocatorProctor: proctor to conditionally manage a memory
 //

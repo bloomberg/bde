@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant 'unordered_set' container.
 //
-//@REVIEW_FOR_MASTER: want to land this on cpp11/baseline before golden review
-//
 //@CLASSES:
 //   bsl::unordered_set : STL-compliant 'unordered_set' container
 //

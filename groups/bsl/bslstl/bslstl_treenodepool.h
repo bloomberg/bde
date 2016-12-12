@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient creation of nodes used in tree-based container.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bslstl::TreeNodePool: memory manager to allocate tree nodes
 //
