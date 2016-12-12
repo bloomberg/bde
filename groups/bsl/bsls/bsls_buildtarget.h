@@ -89,10 +89,6 @@ BSLS_IDENT("$Id: $")
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
-#ifndef INCLUDED_BSLS_LINKCOERCION
-#include <bsls_linkcoercion.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
