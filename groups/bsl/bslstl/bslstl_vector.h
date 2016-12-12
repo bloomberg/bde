@@ -104,9 +104,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
@@ -2500,64 +2497,74 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector has the same value as the
-    // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same value if they contain the same number of elements and corresponding
-    // elements at each index position in the range '[0 .. lhs.size())' have
-    // the same value.  This method requires that the (template parameter)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type
     // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
     // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector does not have the same value
-    // as the specified 'rhs' vector, and 'false' otherwise.  Two vectors do
-    // not have the same value if they contain different numbers of elements or
-    // corresponding elements at some index position in the range
-    // '[0 .. lhs.size())' do not have the same value.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).  Note that this operator returns
-    // '!(lhs == rhs)'.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
+    // on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than the specified 'rhs' vector, and 'false' otherwise.  A vector 'lhs'
-    // is lexicographically less than another vector 'rhs' if there exists an
-    // index 'i' between 0 and the minimum of 'lhs.size()' and 'rhs.size()'
-    // such that 'lhs[j] == rhs[j]' for every '0 <= j < i', 'i < rhs.size()',
-    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'less-than-comparable'
-    // (see {Requirements on 'VALUE_TYPE'}).
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of vector 'lhs' is lexicographically less than that of vector
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns 'rhs < lhs'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
+    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(rhs < lhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(lhs < rhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
                             // ============
                             // class vector
@@ -2777,64 +2784,74 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector has the same value as the
-    // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same value if they contain the same number of elements and corresponding
-    // elements at each index position in the range '[0 .. lhs.size())' have
-    // the same value.  This method requires that the (template parameter)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type
     // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
     // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector does not have the same value
-    // as the specified 'rhs' vector, and 'false' otherwise.  Two vectors do
-    // not have the same value if they contain different numbers of elements or
-    // corresponding elements at some index position in the range
-    // '[0 .. lhs.size())' do not have the same value.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).  Note that this operator returns
-    // '!(lhs == rhs)'.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
+    // on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than the specified 'rhs' vector, and 'false' otherwise.  A vector 'lhs'
-    // is lexicographically less than another vector 'rhs' if there exists an
-    // index 'i' between 0 and the minimum of 'lhs.size()' and 'rhs.size()'
-    // such that 'lhs[j] == rhs[j]' for every '0 <= j < i', 'i < rhs.size()',
-    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'less-than-comparable'
-    // (see {Requirements on 'VALUE_TYPE'}).
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of vector 'lhs' is lexicographically less than that of vector
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns 'rhs < lhs'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
+    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(rhs < lhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(lhs < rhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5724,18 +5741,18 @@ bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return ! (lhs < rhs);
+    return !(rhs < lhs);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return ! (rhs < lhs);
+    return !(lhs < rhs);
 }
 
                             // ------------

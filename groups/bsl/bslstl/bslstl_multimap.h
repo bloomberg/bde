@@ -108,9 +108,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
@@ -1462,77 +1459,75 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'multimap' objects have the same
-    // value if they have the same number of key-value pairs, and each
-    // key-value pair that is contained in one of the objects is also contained
-    // in the other object.  This method requires that the (template parameter)
-    // types 'KEY' and 'VALUE' both be 'equality-comparable' (see {Requirements
-    // on 'KEY' and 'VALUE'}).
+    // value, and 'false' otherwise.  Two 'multimap' objects 'lhs' and 'rhs'
+    // have the same value if they have the same number of key-value pairs, and
+    // each element in the ordered sequence of key-value pairs of 'lhs' has the
+    // same value as the corresponding element in the ordered sequence of
+    // key-value pairs of 'rhs'.  This method requires that the (template
+    // parameter) types 'KEY' and 'VALUE' both be 'equality-comparable' (see
+    // {Requirements on 'KEY' and 'VALUE'}).
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'multimap' objects do not have
-    // the same value if they do not have the same number of key-value pairs,
-    // or some key-value pair that is contained in one of the objects is not
-    // also contained in the other object.  This method requires that the
-    // (template parameter) types 'KEY' and 'VALUE' both be
+    // same value, and 'false' otherwise.  Two 'multimap' objects 'lhs' and
+    // 'rhs' do not have the same value if they do not have the same number of
+    // key-value pairs, or some element in the ordered sequence of key-value
+    // pairs of 'lhs' does not have the same value as the corresponding element
+    // in the ordered sequence of key-value pairs of 'rhs'.  This method
+    // requires that the (template parameter) types 'KEY' and 'VALUE' both be
     // 'equality-comparable' (see {Requirements on 'KEY' and 'VALUE'}).
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator<(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less than the specified
-    // 'rhs' value, and 'false' otherwise.  A multimap, 'lhs', has a value that
-    // is less than that of 'rhs', if, for the first non-equal corresponding
-    // key-value pairs in their respective sequences, the 'lhs' key-value pair
-    // is less than the 'rhs' pair, or, if the keys of all of their
-    // corresponding key-value pairs compare equal, 'lhs' has fewer key-value
-    // pairs than 'rhs'.  This method requires that the (template parameter)
-    // types 'KEY' and 'VALUE' both be 'less-than-comparable' (see
-    // {Requirements on 'KEY' and 'VALUE'}).
+    // Return 'true' if the value of the specified 'lhs' multimap is
+    // lexicographically less than that of the specified 'rhs' multimap, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of multimap 'lhs' is lexicographically less than that of
+    // multimap 'rhs' if 'true == *i < *j' for the first pair of corresponding
+    // iterator positions where '*i < *j' and '*j < *i' are not both 'false'.
+    // If no such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator>(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater than the specified
-    // 'rhs' value, and 'false' otherwise.  A multimap, 'lhs', has a value that
-    // is greater than that of 'rhs', if, for the first non-equal corresponding
-    // key-value pairs in their respective sequences, the 'lhs' key-value pair
-    // is greater than the 'rhs' pair, or, if the keys of all of their
-    // corresponding key-value pairs compare equal, 'lhs' has more key-value
-    // pairs than 'rhs'.  This method requires that the (template parameter)
-    // types 'KEY' and 'VALUE' both be 'less-than-comparable' (see
-    // {Requirements on 'KEY' and 'VALUE'}).
+    // Return 'true' if the value of the specified 'lhs' multimap is
+    // lexicographically greater than that of the specified 'rhs' multimap, and
+    // 'false' otherwise.  The value of multimap 'lhs' is lexicographically
+    // greater than that of multimap 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator<=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less-than or equal-to the
-    // specified 'rhs' value, and 'false' otherwise.  A multimap, 'lhs', has a
-    // value that is less-than or equal-to that of 'rhs', if, for the first
-    // non-equal corresponding key-value pairs in their respective sequences,
-    // the 'lhs' key-value pair is less than the 'rhs' pair, or, if the keys of
-    // all of their corresponding key-value pairs compare equal, 'lhs' has
-    // less-than or equal number of key-value pairs as 'rhs'.  This method
-    // requires that the (template parameter) types 'KEY' and 'VALUE' both be
-    // 'less-than-comparable' (see {Requirements on 'KEY' and 'VALUE'}).
+    // Return 'true' if the value of the specified 'lhs' multimap is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // multimap, and 'false' otherwise.  The value of multimap 'lhs' is
+    // lexicographically less than or equal to that of multimap 'rhs' if 'rhs'
+    // is not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 bool operator>=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
                 const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater-than or equal-to
-    // the specified 'rhs' value, and 'false' otherwise.  A multimap, 'lhs',
-    // has a value that is greater-than or equal-to that of 'rhs', if, for the
-    // first non-equal corresponding key-value pairs in their respective
-    // sequences, the 'lhs' key-value pair is greater than the 'rhs' pair, or,
-    // if the keys of all of their corresponding key-value pairs compare equal,
-    // 'lhs' has greater-than or equal number of key-value pairs as 'rhs'.
-    // This method requires that the (template parameter) types 'KEY' and
-    // 'VALUE' both be 'less-than-comparable' (see {Requirements on 'KEY' and
-    // 'VALUE'}).
+    // Return 'true' if the value of the specified 'lhs' multimap is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // multimap, and 'false' otherwise.  The value of multimap 'lhs' is
+    // lexicographically greater than or equal to that of multimap 'rhs' if
+    // 'lhs' is not lexicographically less than 'rhs' (see 'operator<').  This
+    // method requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
+// FREE FUNCTIONS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 void swap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
           multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
@@ -2690,6 +2685,7 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::equal_range(
 
 }  // close namespace bsl
 
+// FREE OPERATORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 bool bsl::operator==(
@@ -2755,6 +2751,7 @@ bool bsl::operator>=(
     return !(lhs < rhs);
 }
 
+// FREE FUNCTIONS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void bsl::swap(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,

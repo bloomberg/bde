@@ -1665,6 +1665,7 @@ class unordered_multiset
 
 };
 
+// FREE OPERATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
@@ -1687,6 +1688,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // Note that this method requires that the (template parameter) type 'KEY'
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).
 
+// FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
@@ -3009,7 +3011,7 @@ float unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
 
 }  // close namespace bsl
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
@@ -3028,6 +3030,7 @@ bool bsl::operator!=(
     return !(lhs == rhs);
 }
 
+// FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
