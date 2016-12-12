@@ -267,6 +267,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwriterlock.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
+#include <bslmt_readerwritermutex.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_WRITELOCKGUARD
 #include <bslmt_writelockguard.h>
 #endif
@@ -359,12 +363,15 @@ class Cache {
                                                                   MapType;
         // Hash map type.
 
-    // DATA
+    typedef bslmt::ReaderWriterMutex                              LockType;
+    // typedef bslmt::ReaderWriterLock                              LockType;
 
+    // DATA
     bslma::Allocator                *d_allocator_p;  // memory allocator (held,
                                                      // not owned)
 
-    mutable bslmt::ReaderWriterLock  d_rwlock;  // reader-writer lock
+    mutable LockType                 d_rwlock;
+    // mutable bslmt::ReaderWriterLock  d_rwlock;  // reader-writer lock
 
     MapType                          d_map;     // hash table storing key-value
                                                 // pairs
@@ -681,7 +688,7 @@ void Cache<KeyType, ValueType, Hash, Equal>::insert(
                                                   const KeyType&      key,
                                                   const ValuePtrType& valuePtr)
 {
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     enforceHighWatermark();
 
@@ -709,16 +716,17 @@ int Cache<KeyType, ValueType, Hash, Equal>::tryGetValue(
                          const KeyType&              key,
                          bool                        modifyEvictionQueue)
 {
-    int prelocked = 1;
-    if (d_evictionPolicy == CacheEvictionPolicy::e_FIFO ||
-        !modifyEvictionQueue) {
-        prelocked = 0;
-    }
-    else {  //(d_evictionPolicy == CacheEvictionPolicy::e_LRU) {
-        d_rwlock.lockReadReserveWrite();
-    }
+    // int prelocked = 1;
+    // if (d_evictionPolicy == CacheEvictionPolicy::e_FIFO ||
+    //     !modifyEvictionQueue) {
+    //     prelocked = 0;
+    // }
+    // else {  //(d_evictionPolicy == CacheEvictionPolicy::e_LRU) {
+    //     d_rwlock.lockReadReserveWrite();
+    // }
 
-    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock, prelocked);
+    // bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock, prelocked);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     typename MapType::iterator mapItr = d_map.find(key);
     if (mapItr == d_map.end()) {
@@ -727,16 +735,16 @@ int Cache<KeyType, ValueType, Hash, Equal>::tryGetValue(
 
     *value = mapItr->second.first;
 
-    if (d_evictionPolicy == CacheEvictionPolicy::e_LRU &&
-        modifyEvictionQueue) {
-        typename QueueType::iterator queueItr = mapItr->second.second;
-        typename QueueType::iterator last = d_queue.end();
-        --last;
-        if (last != queueItr) {
-            d_rwlock.upgradeToWriteLock();
-            d_queue.splice(d_queue.end(), d_queue, queueItr);
-        }
-    }
+    // if (d_evictionPolicy == CacheEvictionPolicy::e_LRU &&
+    //     modifyEvictionQueue) {
+    //     typename QueueType::iterator queueItr = mapItr->second.second;
+    //     typename QueueType::iterator last = d_queue.end();
+    //     --last;
+    //     if (last != queueItr) {
+    //         d_rwlock.upgradeToWriteLock();
+    //         d_queue.splice(d_queue.end(), d_queue, queueItr);
+    //     }
+    // }
 
     return 0;
 }
@@ -744,7 +752,7 @@ int Cache<KeyType, ValueType, Hash, Equal>::tryGetValue(
 template <class KeyType, class ValueType, class Hash, class Equal>
 int Cache<KeyType, ValueType, Hash, Equal>::popFront()
 {
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     if (size() > 0) {
         const typename MapType::iterator mapItr = d_map.find(d_queue.front());
@@ -759,7 +767,7 @@ int Cache<KeyType, ValueType, Hash, Equal>::popFront()
 template <class KeyType, class ValueType, class Hash, class Equal>
 int Cache<KeyType, ValueType, Hash, Equal>::erase(const KeyType& key)
 {
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     const typename MapType::iterator mapItr = d_map.find(key);
     if (mapItr == d_map.end()) {
@@ -774,14 +782,14 @@ template <class KeyType, class ValueType, class Hash, class Equal>
 void Cache<KeyType, ValueType, Hash, Equal>::setPostEvictionCallback(
                                      PostEvictionCallback postEvictionCallback)
 {
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
     d_postEvictionCallback = postEvictionCallback;
 }
 
 template <class KeyType, class ValueType, class Hash, class Equal>
 void Cache<KeyType, ValueType, Hash, Equal>::clear()
 {
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
     d_map.clear();
     d_queue.clear();
 }
@@ -791,7 +799,8 @@ template <class KeyType, class ValueType, class Hash, class Equal>
 template <class Visitor>
 void Cache<KeyType, ValueType, Hash, Equal>::visit(Visitor& visitor) const
 {
-    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    // bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
+    bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
 
     for (typename QueueType::const_iterator queueItr = d_queue.begin();
          queueItr != d_queue.end(); ++queueItr) {
