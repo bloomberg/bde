@@ -102,9 +102,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
@@ -1508,69 +1505,71 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'multiset' objects have the same
-    // value if they have the same number of keys, and each key that is
-    // contained in one of the objects is also contained in the other object.
-    // Note that this method requires that the (template parameter) type 'KEY'
-    // be 'equality-comparable' (see {Requirements on 'KEY'}).
+    // value, and 'false' otherwise.  Two 'multiset' objects 'lhs' and 'rhs'
+    // have the same value if they have the same number of keys, and each
+    // element in the ordered sequence of keys of 'lhs' has the same value as
+    // the corresponding element in the ordered sequence of keys of 'rhs'.
+    // This method requires that the (template parameter) type 'KEY' be
+    // 'equality-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'multiset' objects do not have
-    // the same value if they do not have the same number of keys, or some key
-    // that is contained in one of the objects is not also contained in the
-    // other object.  Note that this method requires that the (template
-    // parameter) type 'KEY' be 'equality-comparable' (see {Requirements on
-    // 'KEY'}).
+    // same value, and 'false' otherwise.  Two 'multiset' objects 'lhs' and
+    // 'rhs' do not have the same value if they do not have the same number of
+    // keys, or some element in the ordered sequence of keys of 'lhs' does not
+    // have the same value as the corresponding element in the ordered sequence
+    // of keys of 'rhs'.  This method requires that the (template parameter)
+    // type 'KEY' be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator< (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less than the specified
-    // 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a value that
-    // is less than that of 'rhs', if, for the first non-equal corresponding
-    // key in their respective sequences, the 'lhs' key is less than the 'rhs'
-    // key, or, if all their corresponding keys compare equal, 'lhs' has fewer
-    // keys than 'rhs'.  Note that this method requires that the (template
-    // parameter) type 'KEY' be 'less-than-comparable' (see {Requirements on
-    // 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' multiset is
+    // lexicographically less than that of the specified 'rhs' multiset, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of multiset 'lhs' is lexicographically less than that of
+    // multiset 'rhs' if 'true == *i < *j' for the first pair of corresponding
+    // iterator positions where '*i < *j' and '*j < *i' are not both 'false'.
+    // If no such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator> (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater than the specified
-    // 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a value that
-    // is greater than that of 'rhs', if, for the first non-equal corresponding
-    // key in their respective sequences, the 'lhs' key is greater than the
-    // 'rhs' key, or, if all their keys compare equal, 'lhs' has more keys than
-    // 'rhs'.  Note that this method requires that the (template parameter)
-    // type 'KEY' be 'less-than-comparable' (see {Requirements on 'KEY'}).
-
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less-than or equal-to the
-    // specified 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a
-    // value that is less-than or equal-to that of 'rhs', if, for the first
-    // non-equal corresponding key in their respective sequences, the 'lhs' key
-    // is less than the 'rhs' key, or, if all of their corresponding keys
-    // compare equal, 'lhs' has less-than or equal number of keys as 'rhs'.
-    // Note that this method requires that the (template parameter) type 'KEY'
-    // be 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' multiset is
+    // lexicographically greater than that of the specified 'rhs' multiset, and
+    // 'false' otherwise.  The value of multiset 'lhs' is lexicographically
+    // greater than that of multiset 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater-than or equal-to
-    // the specified 'rhs' value, and 'false' otherwise.  A multiset, 'lhs',
-    // has a value that is greater-than or equal-to that of 'rhs', if, for the
-    // first corresponding key in their respective sequences, the 'lhs' key is
-    // greater than the 'rhs' key, or, if all of their corresponding keys
-    // compare equal, 'lhs' has greater-than or equal number of keys 'rhs'.
-    // Note that this method requires that the (template parameter) type 'KEY'
-    // be 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' multiset is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // multiset, and 'false' otherwise.  The value of multiset 'lhs' is
+    // lexicographically less than or equal to that of multiset 'rhs' if 'rhs'
+    // is not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+    // Return 'true' if the value of the specified 'lhs' multiset is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // multiset, and 'false' otherwise.  The value of multiset 'lhs' is
+    // lexicographically greater than or equal to that of multiset 'rhs' if
+    // 'lhs' is not lexicographically less than 'rhs' (see 'operator<').  This
+    // method requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -3426,6 +3425,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key)
 
 }  // close namespace bsl
 
+// FREE OPERATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 bool bsl::operator==(const bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -3485,6 +3485,7 @@ bool bsl::operator>=(const bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     return !(lhs < rhs);
 }
 
+// FREE FUNCTIONS
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,

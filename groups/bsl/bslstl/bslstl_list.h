@@ -145,9 +145,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //..
 ///Operations
 ///----------
@@ -2262,8 +2259,8 @@ bool operator==(const list<VALUE, ALLOCATOR>& lhs,
     // the same value if they have the same number of elements, and each
     // element in the ordered sequence of elements of 'lhs' has the same value
     // as the corresponding element in the ordered sequence of elements of
-    // 'rhs'.  Note that this method requires that the (template parameter)
-    // 'VALUE' type has 'operator==' defined.
+    // 'rhs'.  This method requires that the (template parameter) type 'VALUE'
+    // be 'equality-comparable' (see {Requirements on 'VALUE'}).
 
 template <class VALUE, class ALLOCATOR>
 bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
@@ -2275,8 +2272,9 @@ bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
     // do not have the same value if they do not have the same number of
     // elements, or some element in the ordered sequence of elements of 'lhs'
     // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.  Note that this method requires that the
-    // (template parameter) 'VALUE' type has 'operator==' defined.
+    // sequence of elements of 'rhs'.  This method requires that the
+    // (template parameter) type 'VALUE' be 'equality-comparable' (see
+    // {Requirements on 'VALUE'}).
 
 template <class VALUE, class ALLOCATOR>
 bool operator< (const list<VALUE, ALLOCATOR>& lhs,
@@ -2290,8 +2288,8 @@ bool operator< (const list<VALUE, ALLOCATOR>& lhs,
     // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
     // such corresponding iterator position exists, the value of 'lhs' is
     // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // Note that this method requires that the (template parameter) 'VALUE'
-    // type has 'operator<' defined.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE, class ALLOCATOR>
 bool operator> (const list<VALUE, ALLOCATOR>& lhs,
@@ -2300,9 +2298,9 @@ bool operator> (const list<VALUE, ALLOCATOR>& lhs,
     // lexicographically greater than that of the specified 'rhs' list, and
     // 'false' otherwise.  The value of list 'lhs' is lexicographically greater
     // than that of list 'rhs' if 'rhs' is lexicographically less than 'lhs'
-    // (see 'operator<' above).  This method requires that the (template
-    // parameter) type 'VALUE' is 'less-than-comparable' (see {Requirements on
-    // 'VALUE'}).  Note that this operator returns 'rhs < lhs'.
+    // (see 'operator<').  This method requires that 'operator<', inducing a
+    // total order, be defined for 'value_type'.  Note that this operator
+    // returns 'rhs < lhs'.
 
 template <class VALUE, class ALLOCATOR>
 bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
@@ -2311,10 +2309,9 @@ bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
     // lexicographically less than or equal to that of the specified 'rhs'
     // list, and 'false' otherwise.  The value of list 'lhs' is
     // lexicographically less than or equal to that of list 'rhs' if 'rhs' is
-    // not lexicographically less than 'lhs'.  This method requires that the
-    // (template parameter) type 'VALUE' is 'less-than-comparable' (see
-    // {Requirements on 'VALUE'}).  Note that this operator returns
-    // '!(rhs < lhs)'.
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE, class ALLOCATOR>
 bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
@@ -2323,10 +2320,9 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
     // lexicographically greater than or equal to that of the specified 'rhs'
     // list, and 'false' otherwise.  The value of list 'lhs' is
     // lexicographically greater than or equal to that of list 'rhs' if 'lhs'
-    // is not lexicographically less than 'rhs'.  This method requires that the
-    // (template parameter) type 'VALUE' is 'less-than-comparable' (see
-    // {Requirements on 'VALUE'}).  Note that this operator returns
-    // '!(lhs < rhs)'.
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class VALUE, class ALLOCATOR>
@@ -4679,18 +4675,18 @@ bool bsl::operator> (const list<VALUE, ALLOCATOR>& lhs,
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
+bool bsl::operator<=(const list<VALUE, ALLOCATOR>& lhs,
                      const list<VALUE, ALLOCATOR>& rhs)
 {
-    return ! (lhs < rhs);
+    return !(rhs < lhs);
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool bsl::operator<=(const list<VALUE, ALLOCATOR>& lhs,
+bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
                      const list<VALUE, ALLOCATOR>& rhs)
 {
-    return ! (rhs < lhs);
+    return !(lhs < rhs);
 }
 
 // FREE FUNCTIONS
