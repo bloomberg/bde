@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stl-compatible, 'bslma'-style allocator to track usage.
 //
-//@REVIEW_FOR_MASTER: doc, test driver, usage example
-//
 //@CLASSES:
 //  bslma::StdTestAllocator: instrumented 'bslma-style' stl allocator template
 //

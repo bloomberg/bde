@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a non-allocating test class that records when moved from.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsltf::MovableTestType: non-allocating test class that records moves
 //

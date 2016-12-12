@@ -9,8 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide primitive algorithms that operate on arrays.
 //
-//@REVIEW_FOR_MASTER: update comments, test driver
-//
 //@CLASSES:
 //  bslalg::ArrayPrimitives: namespace for array algorithms
 //

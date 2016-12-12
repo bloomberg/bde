@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to determine if a type uses an allocator.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsl::uses_allocator: meta-fn to check if a type uses a certain allocator
 //

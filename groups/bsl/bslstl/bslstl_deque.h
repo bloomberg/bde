@@ -9,9 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant deque class.
 //
-//@REVIEW_FOR_MASTER: needs extensive review for C++11 support; test driver is
-//                    lacking many concern, even prior to adding C++11 work.
-//
 //@CLASSES:
 //  bsl::deque: STL-compliant deque template
 //

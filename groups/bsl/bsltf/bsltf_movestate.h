@@ -9,10 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an enumeration of move-state, including unsupported.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
-//  MoveState: namespace for move-state enumeration
+//  bsltf::MoveState: namespace for move-state enumeration
 //
 //@DESCRIPTION: This component provides a 'struct', 'bsltf_MoveState', which
 // serves as a namespace for enumerating the move-state of an object, including

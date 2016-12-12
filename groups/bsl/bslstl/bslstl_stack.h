@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant stack class.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsl::stack: STL-compliant stack template
 //

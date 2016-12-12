@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a minimal standard compliant allocator.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //      bsltf::StdTestAllocatorConfiguration: namespace to configure allocator
 // bsltf::StdTestAllocatorConfigurationGuard: configuration scoped guard

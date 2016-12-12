@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class for testing that allocates with standard allocator
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsltf::StdAllocTestType: test class that allocates using standard allocator
 //

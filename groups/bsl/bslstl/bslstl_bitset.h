@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant bitset class.
 //
-//@REVIEW_FOR_MASTER: test driver needs significant work, use bsls_cpp11 macros
-//
 //@CLASSES:
 //  bsl::bitset: STL-compatible bitset template
 //

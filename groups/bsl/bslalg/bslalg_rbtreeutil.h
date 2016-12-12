@@ -9,8 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a suite of primitive algorithms on red-black trees.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslalg::RbTreeUtil: namespace for red-black tree functions
 //  bslalg::RbTreeUtilTreeProctor: proctor to manage all nodes in a tree

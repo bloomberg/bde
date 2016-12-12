@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an allocating test class to represent function arguments.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsltf::AllocArgumentType<N>: simple wrapper around an allocated 'int'
 //
