@@ -1805,9 +1805,10 @@ bool operator>(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // Return 'true' if the value of the specified 'lhs' map is
     // lexicographically greater than that of the specified 'rhs' map, and
     // 'false' otherwise.  The value of map 'lhs' is lexicographically greater
-    // than that of map 'rhs' if 'rhs' is lexicographically less than 'lhs'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.  Note that this operator returns 'rhs < lhs'.
+    // than that of map 'rhs' if 'rhs' is lexicographically less than 'lhs'
+    // (see 'operator<').  This method requires that 'operator<', inducing a
+    // total order, be defined for 'value_type'.  Note that this operator
+    // returns 'rhs < lhs'.
 
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 bool operator<=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
@@ -1816,9 +1817,9 @@ bool operator<=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // lexicographically less than or equal to that of the specified 'rhs' map,
     // and 'false' otherwise.  The value of map 'lhs' is lexicographically less
     // than or equal to that of map 'rhs' if 'rhs' is not lexicographically
-    // less than 'lhs'.  This method requires that 'operator<', inducing a
-    // total order, be defined for 'value_type'.  Note that this operator
-    // returns '!(rhs < lhs)'.
+    // less than 'lhs' (see 'operator<').  This method requires that
+    // 'operator<', inducing a total order, be defined for 'value_type'.  Note
+    // that this operator returns '!(rhs < lhs)'.
 
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 bool operator>=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
@@ -1827,9 +1828,9 @@ bool operator>=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
     // lexicographically greater than or equal to that of the specified 'rhs'
     // map, and 'false' otherwise.  The value of map 'lhs' is lexicographically
     // greater than or equal to that of map 'rhs' if 'lhs' is not
-    // lexicographically less than 'rhs'.  This method requires that
-    // 'operator<', inducing a total order, be defined for 'value_type'.  Note
-    // that this operator returns '!(lhs < rhs)'.
+    // lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>

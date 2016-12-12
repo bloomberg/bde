@@ -1608,7 +1608,7 @@ class unordered_set {
         // those buckets the (see rehash).
 };
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
@@ -1619,7 +1619,6 @@ bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // contained in 'rhs' having the same value, and vice-versa.  Note that
     // this method requires that the (template parameter) type 'KEY' be
     // 'equality-comparable' (see {Requirements on 'KEY'}).
-
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -1632,7 +1631,7 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // Note that this method requires that the (template parameter) type 'KEY'
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).
 
-
+// FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b)
@@ -3044,7 +3043,7 @@ float unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
 
 }  // close namespace bsl
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
@@ -3063,6 +3062,7 @@ bool bsl::operator!=(
     return !(lhs == rhs);
 }
 
+// FREE FUNCTIONS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,

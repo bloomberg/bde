@@ -657,45 +657,72 @@ template <class VALUE, class CONTAINER>
 bool operator==(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'stack' objects have the same value
-    // if their underlying containers have the same value.
+    // value, and 'false' otherwise.  Two 'stack' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type 'VALUE'
+    // be 'equality-comparable' (see {Requirements on 'VALUE'}).
 
 template <class VALUE, class CONTAINER>
 bool operator!=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'stack' objects do not have the
-    // same value if their underlying containers do not have the same value.
+    // same value, and 'false' otherwise.  Two 'stack' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE' be 'equality-comparable' (see {Requirements on
+    // 'VALUE'}).
 
 template <class VALUE, class CONTAINER>
 bool operator< (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' is less than the specified 'rhs'.
-    // One 'stack' object is less than another if its underlying container is
-    // less than the other's underlying container.
+    // Return 'true' if the value of the specified 'lhs' stack is
+    // lexicographically less than that of the specified 'rhs' stack, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of stack 'lhs' is lexicographically less than that of stack
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE, class CONTAINER>
 bool operator> (const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' is greater than the specified
-    // 'rhs'.  One 'stack' object is greater than another if its underlying
-    // container is greater than the other's underlying container.
+    // Return 'true' if the value of the specified 'lhs' stack is
+    // lexicographically greater than that of the specified 'rhs' stack, and
+    // 'false' otherwise.  The value of stack 'lhs' is lexicographically
+    // greater than that of stack 'rhs' if 'rhs' is lexicographically less than
+    // 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE, class CONTAINER>
 bool operator<=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' is less than or equal to the
-    // specified 'rhs'.  One 'stack' object is less than or equal to another if
-    // its underlying container is less than or equal to the other's underlying
-    // container.
+    // Return 'true' if the value of the specified 'lhs' stack is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // stack, and 'false' otherwise.  The value of stack 'lhs' is
+    // lexicographically less than or equal to that of stack 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE, class CONTAINER>
 bool operator>=(const stack<VALUE, CONTAINER>& lhs,
                 const stack<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' is greater than or equal to the
-    // specified 'rhs'.  One 'stack' object is greater than or equal to another
-    // if its underlying container is greater than or equal to the other's
-    // underlying container.
+    // Return 'true' if the value of the specified 'lhs' stack is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // stack, and 'false' otherwise.  The value of stack 'lhs' is
+    // lexicographically greater than or equal to that of stack 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
