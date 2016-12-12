@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that destroy arrays.
 //
-//@REVIEW_FOR_MASTER: doc, test driver, usage example
-//
 //@CLASSES:
 //  bslalg::ArrayDestructionPrimitives: namespace for array algorithms
 //

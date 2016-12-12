@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide methods to construct arbitrarily-typed objects uniformily.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslma::ConstructionUtil: namespace for methods to construct objects
 //

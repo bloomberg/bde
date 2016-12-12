@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a simple 'struct' with two members that may use allocators.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsl::pair: pair of values, each of which may use a 'bslma::Allocator'
 //

@@ -9,10 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide routines that destroy objects efficiently.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
-//  DestructionUtil: namespace for routines that destroy objects efficiently
+//  bslma::DestructionUtil: namespace for routines that destroy objects
 //
 //@SEE_ALSO: bslma_constructionutil
 //

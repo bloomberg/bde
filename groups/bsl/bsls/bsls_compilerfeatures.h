@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to identify compiler support for C++11 features.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //
 //@MACROS

@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant vector class.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsl::vector: STL-compatible vector template
 //

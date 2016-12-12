@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a uniform interface to standard allocator types.
 //
-//@REVIEW_FOR_MASTER: rework component-level doc, update test driver
-//
 //@CLASSES:
 //  bsl::allocator_traits: Uniform interface to standard allocator types
 //

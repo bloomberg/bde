@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a hash-container with support for duplicate values.
 //
-//@REVIEW_FOR_MASTER: test new methods, review comments
-//
 //@CLASSES:
 //   bslstl::HashTable : hashed-table container for user-supplied object types
 //
