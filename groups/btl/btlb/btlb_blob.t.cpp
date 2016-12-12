@@ -1019,7 +1019,7 @@ int main(int argc, char *argv[])
             }
             checkBlobBuffers(X);
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
             break;
 #endif
 
@@ -1565,7 +1565,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-#ifdef  BDE_BUILD_TARGET_SAFE
+#ifdef  BSLS_ASSERT_SAFE_IS_ACTIVE
         break;
 #endif
 
@@ -2486,8 +2486,7 @@ int main(int argc, char *argv[])
 
         const int BUFFER_SIZE = 4;
 
-#if defined(BDE_BUILD_TARGET_EXC) && (defined(BDE_BUILD_TARGET_SAFE) || \
-                                      defined(BDE_BUILD_TARGET_DBG))
+#if defined(BDE_BUILD_TARGET_EXC) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         // This component works for *all* targets, including 'opt_exc_mt'.
         // However, portions of this test case fail unless either safe-mode or
         // debug is in effect.  If neither safe-mode nor debug is in effect,
@@ -2558,8 +2557,7 @@ int main(int argc, char *argv[])
             ASSERT(BUFFER_SIZE == Y.totalSize());
             ASSERT(1           == Y.numBuffers());
 
-#if defined(BDE_BUILD_TARGET_EXC) && (defined(BDE_BUILD_TARGET_SAFE) || \
-                                      defined(BDE_BUILD_TARGET_DBG))
+#if defined(BDE_BUILD_TARGET_EXC) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             try {
                 mY.setLength(BUFFER_SIZE + 1);
             }

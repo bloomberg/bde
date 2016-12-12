@@ -175,7 +175,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 {
     // No-op.
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     std::memset(address, 0xa5, sizeof *address);
 #else
     (void) address;
