@@ -174,7 +174,7 @@ inline
 void DestructionUtil::destroy(TYPE *address, bsl::true_type)
 {
     // No-op.
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     memset(address, 0xa5, sizeof *address);
 #else
     (void) address;

@@ -308,7 +308,7 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #if (defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_OPT)) \
- || (defined(BSLS_PLATFORM_CMP_IBM) && defined(BDE_BUILD_TARGET_SAFE))
+ || (defined(BSLS_PLATFORM_CMP_IBM) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE))
     // The Sun compiler segfaults when trying to compile the usage example in
     // an optimized build.  It was initially though specific to no-excpetion
     // builds as well, but it now appears to affect all optimized builds.

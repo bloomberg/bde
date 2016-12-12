@@ -36,7 +36,7 @@ bslmt::MutexImpl<bslmt::Platform::PosixThreads>::~MutexImpl()
 
     BSLS_ASSERT(0 == status);
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     // Since we do not want to burden 'lock' and 'unlock' with the overhead of
     // 'BSLS_ASSERT_OPT' (as their 'status' values should always be 0 in a
     // well-behaved program), we overwrite 'd_lock' with garbage so as to

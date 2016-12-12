@@ -349,7 +349,9 @@ void invokePatternSwap(TYPE *a, TYPE *b)
 using namespace BloombergLP;
 using bsl::vector;
 using bsl::Vector_Imp;
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 using bsl::Vector_IsRandomAccessIterator;
+#endif
 using bsl::Vector_Util;
 using bsls::NameOf;
 
@@ -589,7 +591,7 @@ size_t numNotMovedInto(const CONTAINER& X,
     return numNotMoved;
 }
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
 BSLMF_ASSERT(!Vector_IsRandomAccessIterator<int>::VALUE);
 BSLMF_ASSERT(Vector_IsRandomAccessIterator<bsl::vector<int>::iterator>::VALUE);
