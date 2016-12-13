@@ -77,12 +77,24 @@ BSLS_IDENT("$Id: $")
 // that 'singleton' is a function scoped static variable to avoid allocating
 // it on the 'heap' (which might be reported as leaked memory).
 
-#ifndef INCLUDED_CASSERT
-#include <assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
+#endif
+
+#ifdef BDE_BUILD_TARGET_SAFE
+// This component needs to be below bsls_assert in the physical hierarchy, so
+// 'BSLS_ASSERT' macros can't be used here.  To workaround this issue, we use
+// the C 'assert' instead.
+
+#ifndef INCLUDED_ASSERT_H
+#include <assert.h>
+#endif
+#define BSLS_BSLONCE_ASSERT_SAFE(x) assert((x))
+
+#else
+
+#define BSLS_BSLONCE_ASSERT_SAFE(x)
+
 #endif
 
 namespace BloombergLP {
@@ -235,7 +247,7 @@ bool BslOnce::enter()
 inline
 void BslOnce::leave()
 {
-    assert(e_IN_PROGRESS ==
+    BSLS_BSLONCE_ASSERT_SAFE(e_IN_PROGRESS ==
                           bsls::AtomicOperations::getIntRelaxed(&d_onceState));
     bsls::AtomicOperations::setIntRelease(&d_onceState, e_DONE);
 }
@@ -265,8 +277,8 @@ BslOnceGuard::~BslOnceGuard()
 inline
 bool BslOnceGuard::enter(BslOnce *once)
 {
-    assert(once);
-    assert(!d_once);
+    BSLS_BSLONCE_ASSERT_SAFE(once);
+    BSLS_BSLONCE_ASSERT_SAFE(!d_once);
 
     bool success = once->enter();
 
@@ -282,7 +294,7 @@ bool BslOnceGuard::enter(BslOnce *once)
 inline
 void BslOnceGuard::leave()
 {
-    assert(d_once);
+    BSLS_BSLONCE_ASSERT_SAFE(d_once);
 
     d_once->leave();
     d_once = 0;

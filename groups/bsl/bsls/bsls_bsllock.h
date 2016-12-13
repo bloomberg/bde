@@ -128,6 +128,23 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
+#ifdef BDE_BUILD_TARGET_SAFE
+// This component needs to be below bsls_assert in the physical hierarchy, so
+// 'BSLS_ASSERT' macros can't be used here.  To workaround this issue, we use
+// the C 'assert' instead.
+
+#ifndef INCLUDED_ASSERT_H
+#include <assert.h>
+#endif
+#define BSLS_BSLLOCK_ASSERT_SAFE(x) assert((x))
+
+#else
+
+#define BSLS_BSLLOCK_ASSERT_SAFE(x)
+
+#endif
+
+
 namespace BloombergLP {
 namespace bsls {
 
@@ -248,6 +265,7 @@ BslLock::BslLock()
 #else
     const int status = pthread_mutex_init(&d_lock, 0);
     (void)status;
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -259,6 +277,7 @@ BslLock::~BslLock()
 #else
     const int status = pthread_mutex_destroy(&d_lock);
     (void)status;
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -271,6 +290,7 @@ void BslLock::lock()
 #else
     const int status = pthread_mutex_lock(&d_lock);
     (void)status;
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -294,6 +314,7 @@ inline
 BslLockGuard::BslLockGuard(BslLock *lock)
 : d_lock_p(lock)
 {
+    BSLS_BSLLOCK_ASSERT_SAFE(lock);
     d_lock_p->lock();
 }
 

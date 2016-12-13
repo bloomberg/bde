@@ -43,9 +43,9 @@ bool BslOnce::doEnter()
                                                        e_IN_PROGRESS);
 
     // Verify that 'd_onceState' was correctly initialized.
-    assert(e_NOT_ENTERED == state ||
-           e_IN_PROGRESS == state ||
-           e_DONE        == state);
+    BSLS_BSLONCE_ASSERT_SAFE(e_NOT_ENTERED == state ||
+                             e_IN_PROGRESS == state ||
+                             e_DONE        == state);
 
 
     if (state != e_NOT_ENTERED) {
@@ -56,7 +56,8 @@ bool BslOnce::doEnter()
             yield();
             state = bsls::AtomicOperations::getIntAcquire(&d_onceState);
 
-            assert(e_IN_PROGRESS == state || e_DONE == state);
+            BSLS_BSLONCE_ASSERT_SAFE(e_IN_PROGRESS == state ||
+                                     e_DONE        == state);
         }
         return false;                                                 // RETURN
     }

@@ -385,7 +385,7 @@ my_Barrier::my_Barrier(int numThreads)
 , d_genCounter(0)
 , d_expected(numThreads)
 {
-    assert(numThreads > 0);
+    ASSERT(numThreads > 0);
 }
 
 my_Barrier::~my_Barrier()
