@@ -357,11 +357,11 @@ struct MyFunctionObjectWithAlternateResultType {
 
 struct MyFunctionObjectWithBothResultTypes {
     // This stateless 'struct' declares both 'result_type' and 'ResultType'.
-    // 'ResultType' should be used.
+    // 'result_type' should be used.
 
     // TYPES
-    typedef void result_type;
-    typedef int  ResultType;
+    typedef int   result_type;
+    typedef void  ResultType;
 
     // ACCESSORS
     long operator()(int x) const
