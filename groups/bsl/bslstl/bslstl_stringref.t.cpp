@@ -2,6 +2,8 @@
 
 #include <bslstl_stringref.h>
 
+#include <bslma_testallocator.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nativestd.h>
@@ -116,9 +118,12 @@ using namespace bsl;  // automatically added by script
 // [ 7] basic_string basic_string::operator+=(const StringRefData& strRf);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 // [ 8] bslh::Hash<>
+//
+// OTHER COMPONENTS
+// [11] bsl::string::operator=(const bslstl::StringRefData&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE
+// [12] USAGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -241,6 +246,22 @@ wchar_t const * TestData<wchar_t>::stringValue2 = L"abcfg";
 
 char const * EMPTY_STRING     = TestData<char>::emptyString;
 char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
+
+// ============================================================================
+//                 Test Case 11: Testing 'bsl::string;;operator='
+// ----------------------------------------------------------------------------
+
+struct OpEqualsAssignTestA {
+    operator const char *() const {
+        return "OpEqualsAssignTestA -- loooooong string to provoke allocation";
+    }
+};
+
+struct OpEqualsAssignTestB {
+    operator Obj() const {
+        return "OpEqualsAssignTestB -- loooooong string to provoke allocation";
+    }
+};
 
 // ============================================================================
 //                     GLOBAL TEST DRIVER
@@ -673,7 +694,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -786,9 +807,57 @@ int main(int argc, char *argv[])
     ASSERT(42 == numBlanks);
 //..
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'bsl::string::operator='
+        //
+        // Concerns:
+        //   That string assignment to a 'bsl::string' through the 'operator='
+        //   member compiles and works properly.
+        //
+        //   Note that this must be done in this component, rather than in
+        //   'bslstl_string.t.cpp', since we want to test assigning from a
+        //   'bslstl::StringRef'.
+        //
+        // Testing:
+        //   bsl::string::operator=(const bslstl::StringRefData&);
+        // --------------------------------------------------------------------
 
+        if (verbose) printf(
+           "Testing 'bsl::string::operator=(const bslstl::StringRefData&)'\n");
+
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+        OpEqualsAssignTestA a;
+        OpEqualsAssignTestB b;
+
+        const char *ca = a;
+        Obj         cb = b;
+
+        if (veryVerbose) { P(ca); }
+
+        ASSERTV(ca, ca != cb && ca < cb && cb > ca);
+
+        string sa(&ta), sb(&ta);
+
+        sa = "woof";    sb.assign("meow");
+
+        ASSERT(0 == ta.numAllocations());    // short strings so far
+
+        sa = a;
+
+        ASSERT(ca == sa);
+        ASSERT(1 == ta.numAllocations());    // allocated
+
+        sb = b;
+
+        ASSERT(cb == sb);
+        ASSERT(2 == ta.numAllocations());    // allocated
+        ASSERTV(sa.c_str(), sb.c_str(), sa != sb && sa < sb && sb > sa);
+
+        if (veryVerbose) { P(sa.c_str()); P(sb.c_str()); }
+      } break;
       case 10: {
-
         // --------------------------------------------------------------------
         // TESTING REVERSE ITERATORS
         // --------------------------------------------------------------------
@@ -2041,7 +2110,7 @@ int main(int argc, char *argv[])
             { L_,  "AAAAAAAAAAAAAAAAAAAAAAAH"   },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         std::map<Obj, std::size_t> hash_results;
         std::map<std::size_t, int> hash_value_counts;
@@ -2158,7 +2227,7 @@ int main(int argc, char *argv[])
             { L_,    "ab",   "cd", "abcd" }
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE         = DATA[ti].d_line;
@@ -2671,7 +2740,7 @@ int main(int argc, char *argv[])
             { L_,    "ab",   "ab", false, false, true,  true  , true  }
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE = DATA[ti].d_line;
