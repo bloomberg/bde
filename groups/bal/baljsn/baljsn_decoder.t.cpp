@@ -54,8 +54,8 @@ using bsl::endl;
 //                             Overview
 //                             --------
 // The component under test implements an decoder for decoding into
-// 'bdeat'-compatible objects in the JSON format.  The object types that can be
-// decoded include 'bdeat' sequence, choice, array, enumeration, customized,
+// 'bdlat'-compatible objects in the JSON format.  The object types that can be
+// decoded include 'bdlat' sequence, choice, array, enumeration, customized,
 // simple, and dynamic types.  In addition, the decoder supports options to
 // specify the max depth and whether unknown elements should be skipped.
 //
@@ -34918,7 +34918,7 @@ struct Colors {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
     static const char *toString(Value value);
@@ -34962,7 +34962,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Colors::Value rhs);
 
 // TRAITS
 
-BDEAT_DECL_ENUMERATION_TRAITS(test::Colors)
+BDLAT_DECL_ENUMERATION_TRAITS(test::Colors)
 
 
 namespace test {
@@ -34996,15 +34996,15 @@ class Palette {
     // CONSTANTS
     static const char CLASS_NAME[];
 
-    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
 
-    static const bdeat_AttributeInfo *lookupAttributeInfo(
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
         // Return attribute information for the attribute indicated by the
@@ -35149,7 +35149,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Palette& rhs);
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::Palette)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::Palette)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -35225,7 +35225,7 @@ int Palette::manipulateAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
@@ -35290,7 +35290,7 @@ int Palette::accessAttribute(
 {
     enum { NOT_FOUND = -1 };
 
-    const bdeat_AttributeInfo *attributeInfo =
+    const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
        return NOT_FOUND;
@@ -35360,7 +35360,7 @@ namespace test {
 
 const char Colors::CLASS_NAME[] = "Colors";
 
-const bdeat_EnumeratorInfo Colors::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo Colors::ENUMERATOR_INFO_ARRAY[] = {
     {
         Colors::BLUE_QUOTE_YELLOW,
         "BLUE\"YELLOW",
@@ -35416,7 +35416,7 @@ int Colors::fromString(
         int                 stringLength)
 {
     for (int i = 0; i < 5; ++i) {
-        const bdeat_EnumeratorInfo& enumeratorInfo =
+        const bdlat_EnumeratorInfo& enumeratorInfo =
                     Colors::ENUMERATOR_INFO_ARRAY[i];
 
         if (stringLength == enumeratorInfo.d_nameLength
@@ -35463,31 +35463,31 @@ const char *Colors::toString(Colors::Value value)
 
 const char Palette::CLASS_NAME[] = "Palette";
 
-const bdeat_AttributeInfo Palette::ATTRIBUTE_INFO_ARRAY[] = {
+const bdlat_AttributeInfo Palette::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_COLOR,
         "color",
         sizeof("color") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     },
     {
         ATTRIBUTE_ID_COLORS,
         "colors",
         sizeof("colors") - 1,
         "",
-        bdeat_FormattingMode::BDEAT_DEFAULT
+        bdlat_FormattingMode::e_DEFAULT
     }
 };
 
 // CLASS METHODS
 
-const bdeat_AttributeInfo *Palette::lookupAttributeInfo(
+const bdlat_AttributeInfo *Palette::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
     for (int i = 0; i < 2; ++i) {
-        const bdeat_AttributeInfo& attributeInfo =
+        const bdlat_AttributeInfo& attributeInfo =
                     Palette::ATTRIBUTE_INFO_ARRAY[i];
 
         if (nameLength == attributeInfo.d_nameLength
@@ -35500,7 +35500,7 @@ const bdeat_AttributeInfo *Palette::lookupAttributeInfo(
     return 0;
 }
 
-const bdeat_AttributeInfo *Palette::lookupAttributeInfo(int id)
+const bdlat_AttributeInfo *Palette::lookupAttributeInfo(int id)
 {
     switch (id) {
       case ATTRIBUTE_ID_COLOR:
@@ -35546,8 +35546,8 @@ Palette::operator=(const Palette& rhs)
 
 void Palette::reset()
 {
-    bdeat_ValueTypeFunctions::reset(&d_color);
-    bdeat_ValueTypeFunctions::reset(&d_colors);
+    bdlat_ValueTypeFunctions::reset(&d_color);
+    bdlat_ValueTypeFunctions::reset(&d_colors);
 }
 
 // ACCESSORS
