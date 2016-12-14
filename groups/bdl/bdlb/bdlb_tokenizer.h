@@ -391,18 +391,122 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Iterating Over Tokens Using Just *Soft* Delimiters
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example illustrates the process of splitting the input string into a
+// sequence of tokens using just soft delimiters.
+//
+// Suppose, we have a text where words are separated with a variable number of
+// spaces and we want to remove all duplicated spaces.
+//
+// First, we create an example character array:
+//..
+//  const char text1[] = "   This  is    a test.";
+//..
+// Then, we create a 'Tokenizer' that uses " "(space) as a soft delimiter:
+//..
+//  bdlb::Tokenizer tokenizer1(text1, " ");
+//..
+// Note, that the tokenizer skips the leading soft delimiters upon
+// initialization.  Next, we iterate the input character array and build the
+// string without duplicated spaces:
+//..
+//  bsl::string result1;
+//  if (tokenizer1.isValid()) {
+//      result1 += tokenizer1.token();
+//      ++tokenizer1;
+//  }
+//  while (tokenizer1.isValid()) {
+//      result1 += " ";
+//      result1 += tokenizer1.token();
+//      ++tokenizer1;
+//  }
+//..
+// Finally, we verify that the resulting string contains the expected result:
+//..
+//  const bsl::string EXPECTED1("This is a test.");
+//  assert(EXPECTED1 == result1);
+//..
 //
 ///Example 2: Iterating Over Tokens Using Just *Hard* Delimiters
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example illustrates the process of splitting the input string into a
+// sequence of tokens using just hard delimiters.
+//
+// Suppose, we want to reformat comma-separated-value file and insert the
+// default value of '0' into missing columns.
+//
+// First, we create an example csv line:
+//..
+//  const char text2[] = "Col1,Col2,Col3\n111,,133\n,222,\n311,322,\n";
+//..
+// Then, we create a 'Tokenizer' that uses ","(comma) and "\n"(new-line) as
+// hard delimiters:
+//..
+//  bdlb::Tokenizer tokenizer2(text2, "", ",\n");
+//..
+// We use the 'trailingDelimiter' accessor to insert correct delimiter into the
+// output string.  Next, we iterate the input line and insert the default
+// value:
+//..
+//  string result2;
+//  while (tokenizer2.isValid()) {
+//      if (tokenizer2.token() != "") {
+//          result2 += tokenizer2.token();
+//      } else {
+//          result2 += "0";
+//      }
+//      result2 += tokenizer2.trailingDelimiter();
+//      ++tokenizer2;
+//  }
+//..
+// Finally, we verify that the resulting string contains the expected result:
+//..
+//  const string EXPECTED2("Col1,Col2,Col3\n111,0,133\n0,222,0\n311,322,0\n");
+//  assert(EXPECTED2 == result2);
+//..
 //
 ///Example 3: Iterating Over Tokens Using Both *Hard* and *Soft* Delimiters
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example illustrates the process of splitting the input string into a
+// sequence of tokens using both soft and hard delimiters.
 //
-///Example 4: Using the 'Tokenizer' to Access Delimiters As Well As Tokens
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose, we want to extract the tokens from a file, where the fields are
+// separated with a "$"(dollar-sign), but can have leading or trailing spaces.
 //
-///Example 5: Parsing Layers of Different Tokens Using Nested 'for' Loops
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we create an example line:
+//..
+//  const char text3[] = " This $is    $   a$ test.      ";
+//..
+// Then, we create a 'Tokenizer' that uses "$"(dollar-sign) as a hard delimiter
+// and " "(space) as a soft delimiter:
+//..
+//  bdlb::Tokenizer tokenizer3(text3, " ", "$");
+//..
+// In this example we only extracting the tokens, and can use the iterator
+// provided by the tokenizer.
+//
+// Next, we create an iterator and iterate over the input, extracting the
+// tokens into the result string:
+//..
+//  string result3;
+//
+//  bdlb::Tokenizer::iterator it3 = tokenizer3.begin();
+//
+//  if (it3 != tokenizer3.end()) {
+//      result3 += *it3;
+//  }
+//  ++it3;
+//
+//  while (it3 != tokenizer3.end()) {
+//      result3 += " ";
+//      result3 += *it3;
+//      ++it3;
+//  }
+//..
+// Finally, we verify that the resulting string contains the expected result:
+//..
+//  const string EXPECTED3("This is a test.");
+//  assert(EXPECTED3 == result3);
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -670,9 +774,11 @@ class Tokenizer {
         // token remaining in the input, the current token and delimiter are
         // updated to refer to the respective new token and (trailing)
         // delimiter values -- either of which (but not both) might be empty.
-        // The behavior is undefined unless the iteration state of this object
-        // is initially valid, or if the underlying input has been modified or
-        // destroyed since this object was most recently reset (or created).
+        // If there are no tokens remaining in the input, the iteration state
+        // of this object becomes invalid.  The behavior is undefined unless
+        // the iteration state of this object is initially valid, or if the
+        // underlying input has been modified or destroyed since this object
+        // was most recently reset (or created).
 
     void reset(const char *input);
     void reset(const bslstl::StringRef& input);
