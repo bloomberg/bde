@@ -6,7 +6,6 @@
 #include <bsl_iostream.h>
 #include <bsl_cstdint.h>  // For INT64_MAX
 #include <bslma_default.h>
-#include <bslma_sequentialallocator.h>
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
 
@@ -593,7 +592,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         const bdld::DatumMapEntry map[] = {
@@ -993,7 +992,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         const bdld::Datum arr[] = {
@@ -1094,7 +1093,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         ASSERT(bdld::Datum::createNull() == m());
