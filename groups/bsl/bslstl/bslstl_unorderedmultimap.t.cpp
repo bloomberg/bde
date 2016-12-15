@@ -11166,7 +11166,7 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-        TestDriver<TestKeyType, TestValueType>::testCase15();
+        TestDriver<TestKeyType, TestValueType>::testCase16();
       } break;
       case 15: {
         // --------------------------------------------------------------------
