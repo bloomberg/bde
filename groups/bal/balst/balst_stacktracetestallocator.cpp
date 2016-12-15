@@ -12,7 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
-#include <balst_stackaddressutil.h>
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
@@ -25,6 +24,7 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_stackaddressutil.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -39,7 +39,7 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
 namespace {
 
-typedef BloombergLP::balst::StackAddressUtil AddressUtil;
+typedef BloombergLP::bsls::StackAddressUtil AddressUtil;
 
 enum {
     k_IGNORE_FRAMES = AddressUtil::k_IGNORE_FRAMES,

@@ -1,4 +1,4 @@
-// balst_dbghelpdllimpl_windows.h                                     -*-C++-*-
+// bsls_dbghelpdllimpl_windows.h                                      -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BALST_DBGHELPDLLIMPL_WINDOWS
-#define INCLUDED_BALST_DBGHELPDLLIMPL_WINDOWS
+#ifndef INCLUDED_BSLS_DBGHELPDLLIMPL_WINDOWS
+#define INCLUDED_BSLS_DBGHELPDLLIMPL_WINDOWS
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,16 +18,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide access to the 'dbghelp.dll' shared library on Windows.
 //
 //@CLASSES:
-//   balst::DbghelpDllImpl_Windows: interface to 'dbghelp.dll' shared library
+//   bsls::DbghelpDllImpl_Windows: interface to 'dbghelp.dll' shared library
 //
 //@AUTHOR: Bill Chapman (bchapman2), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides a single class,
-// 'balst::DbghelpDllImpl_Windows', that provides Windows platform-specific
-// facilities in support of the 'balst' stack trace facility.  This component
+// 'bsls::DbghelpDllImpl_Windows', that provides Windows platform-specific
+// facilities in support of the 'bsls' stack trace facility.  This component
 // is *not* intended for public use.
 //
-// The 'balst::DbghelpDllImpl_Windows' class:
+// The 'bsls::DbghelpDllImpl_Windows' class:
 //
 //: 1 Provides a suite of static methods that wrap calls to several functions
 //:   of 'dbghelp.dll', a Windows shared library.
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //
 // The mapping of class' static methods to '.dll' functions is:
 //..
-//  balst::DbghelpDllImpl_Windows  dbghelp.dll
+//  bsls::DbghelpDllImpl_Windows  dbghelp.dll
 //  ----------------------------  -----------
 //  symSetOptions                 SymSetOptions
 //  symFromAddr                   SymFromAddr
@@ -57,10 +57,10 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // Since the functions in 'dbghelp.dll' are *not* thread-safe, this class
-// provides a static mutex (of type 'bslmt::QLock') which must be acquired
+// provides a static mutex (of type 'bsls::BslLock') which must be acquired
 // before any of the '.dll'-invoking methods of this function are called.  In
 // multithreaded code, the mutex lock must be locked before any of the methods
-// other than 'isLoaded' or 'qLock' are called.  The library is loaded on a
+// other than 'isLoaded' or 'lock' are called.  The library is loaded on a
 // per-process basis.  The client must ensure that the mutex is locked during
 // any call to any function in this class, but it is not necessary for it to be
 // locked any longer than that.
@@ -79,13 +79,13 @@ BSLS_IDENT("$Id: $")
 //..
 // First, we lock the mutex:
 //..
-//  bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+//  bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 //..
 // Next, we set the options for the 'dbghelp.dll' library.  Note that any call
-// to any of the functions in 'balst::DbghelpDllImpl_Windows' other than
-// 'qlock' will load the 'dbghelp.dll' library if necessary.
+// to any of the functions in 'bsls::DbghelpDllImpl_Windows' other than 'lock'
+// will load the 'dbghelp.dll' library if necessary.
 //..
-//  balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+//  bsls::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
 //                                              | SYMOPT_LOAD_LINES
 //                                              | SYMOPT_DEFERRED_LOADS);
 //..
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we do the call that finds the line number and source file name:
 //..
-//  int rc = balst::DbghelpDllImpl_Windows::symGetLineFromAddr64(
+//  int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
 //                                                             (DWORD64) &main,
 //                                                             &offsetFromLine,
 //                                                             &line);
@@ -110,18 +110,14 @@ BSLS_IDENT("$Id: $")
 //  bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
-#include <balscm_version.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-#ifndef INCLUDED_BSLMT_QLOCK
-#include <bslmt_qlock.h>
+#ifndef INCLUDED_BSLS_BSLLOCK
+#include <bsls_bsllock.h>
 #endif
 
 #ifndef INCLUDED_WINDOWS
@@ -141,7 +137,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace balst {
+namespace bsls {
                         // ============================
                         // class DbghelpDllImpl_Windows
                         // ============================
@@ -159,12 +155,8 @@ class DbghelpDllImpl_Windows {
     // See '@DESCRIPTION' for further details.
     //
     // The methods of this class are *not* thread-safe.  In a multi-threaded
-    // environment acquire the (static) mutex (see the 'qLock' method) before
+    // environment acquire the (static) mutex (see the 'lock' method) before
     // invoking any other methods of this class.
-
-    // DATA
-    static bslmt::QLock s_qLock;  // mutex to synchronize access to '.dll'
-                                 // functions, which are not *thread* *safe*
 
   public:
     // CLASS METHODS
@@ -172,7 +164,7 @@ class DbghelpDllImpl_Windows {
         // Return 'true' if 'dbghelp.dll' has already been successfully loaded
         // in this process, and 'false' otherwise.  For testing only.
 
-    static bslmt::QLock& qLock();
+    static bsls::BslLock& lock();
         // Return a reference providing modifiable access to static mutex
         // provided for synchronizing access to the 'dbghelp.dll' shared
         // library.
@@ -182,7 +174,7 @@ class DbghelpDllImpl_Windows {
     static DWORD symSetOptions(DWORD symOptions);
         // Invoke the 'SymSetOptions' function of 'dbghelp.dll' with the
         // specified 'symOptions', and return the result.  The behavior is
-        // undefined if the mutex provided by the 'qLock' method is not held.
+        // undefined if the mutex provided by the 'lock' method is not held.
         //
         // Note that 'symOptions' (a bitwise-OR of 'SYMOPT_*' values) specifies
         // flags affecting subsequent calls to the '.dll'.  Also note that the
@@ -200,7 +192,7 @@ class DbghelpDllImpl_Windows {
         // specified 'address', 'displacement', and 'symbol', and with an
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined unless the mutex
-        // provided by the 'qLock' method is held and 'symbol->MaxNameLen' is
+        // provided by the 'lock' method is held and 'symbol->MaxNameLen' is
         // set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
@@ -219,7 +211,7 @@ class DbghelpDllImpl_Windows {
         // specified 'address', 'displacement', and 'symbol', and with an
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined unless the mutex
-        // provided by the 'qLock' method is held and 'symbol->MaxNameLen' is
+        // provided by the 'lock' method is held and 'symbol->MaxNameLen' is
         // set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
@@ -239,7 +231,7 @@ class DbghelpDllImpl_Windows {
         // specified 'dwAddr', 'pdwDisplacement', and 'line', and with an
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined if the mutex provided
-        // by the 'qLock' method is not held.
+        // by the 'lock' method is not held.
         //
         // Note that 'line' is loaded with a pointer to line information (e.g.,
         // source file name and line number) for the code at 'dwAddr' and
@@ -257,7 +249,7 @@ class DbghelpDllImpl_Windows {
         // specified 'machineType', 'hThread', 'stackFrame', and
         // 'contextRecord', and with internally set handlers for remaining
         // arguments, and return the result.  The behavior is undefined if the
-        // mutex provided by the 'qLock' method is not held.
+        // mutex provided by the 'lock' method is not held.
         //
         // Note that 'machineType' distinguishes between 32 and 64 bit
         // executables, 'hThread' is a Windows handle for the thread of
@@ -276,18 +268,7 @@ class DbghelpDllImpl_Windows {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
-                        // class DbghelpDllImpl_Windows
-                        // ----------------------------
-
-// CLASS METHODS
-inline
-bslmt::QLock& DbghelpDllImpl_Windows::qLock()
-{
-    return s_qLock;
-}
 }  // close package namespace
-
 }  // close namespace BloombergLP
 
 #endif  // BSLS_PLATFORM_OS_WINDOWS

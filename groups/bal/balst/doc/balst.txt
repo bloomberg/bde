@@ -27,12 +27,10 @@
      balst_stacktraceresolverimpl_windows                             !PRIVATE!
      balst_stacktraceresolverimpl_xcoff                               !PRIVATE!
 
-  2. balst_stackaddressutil
-     balst_stacktrace
+  2. balst_stacktrace
      balst_stacktraceresolver_filehelper                              !PRIVATE!
 
-  1. balst_dbghelpdllimpl_windows                                     !PRIVATE!
-     balst_objectfileformat
+  1. balst_objectfileformat
      balst_stacktraceframe
 ..
 
@@ -41,14 +39,8 @@
 : 'balst_assertionlogger':
 :      Provide configurable logging handler for assertion failures.
 :
-: 'balst_dbghelpdllimpl_windows':                                     !PRIVATE!
-:      Provide access to the 'dbghelp.dll' shared library on Windows.
-:
 : 'balst_objectfileformat':
 :      Provide platform-dependent object file format trait definitions.
-:
-: 'balst_stackaddressutil':
-:      Provide a utility for obtaining return addresses from the stack.
 :
 : 'balst_stacktrace':
 :      Provide a description of a function-call stack.

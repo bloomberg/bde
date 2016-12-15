@@ -1,4 +1,4 @@
-// balst_stackaddressutil.t.cpp                                       -*-C++-*-
+// bsls_stackaddressutil.t.cpp                                        -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,21 +7,20 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_stackaddressutil.h>
+#include <bsls_stackaddressutil.h>
 
-#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
-#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_cmath.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-#include <bsl_vector.h>
+#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#ifndef BSLS_PLATFORM_OS_CYGWIN
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 // 'getStackAddresses' will not be able to trace through our stack frames if
@@ -32,11 +31,6 @@
 #endif
 
 using namespace BloombergLP;
-using bsl::cin;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
-using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -48,57 +42,32 @@ using bsl::flush;
 // [ 2] getStackAddresses(0, 0)
 // [-1] Speed benchmark of getStackAddresses
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
-
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
-
-// ============================================================================
-//                     NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //               GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
@@ -120,11 +89,11 @@ const bool lamePlatform = false;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static bsl::string myHex(UintPtr up)
+static std::string myHex(UintPtr up)
 {
-    bsl::stringstream ss;
-    ss.setf(bsl::ios_base::hex, bsl::ios_base::basefield);
-    ss.setf(bsl::ios_base::showbase);
+    std::stringstream ss;
+    ss.setf(std::ios_base::hex, std::ios_base::basefield);
+    ss.setf(std::ios_base::showbase);
     ss << up;
     return ss.str();
 }
@@ -168,7 +137,7 @@ struct AddressEntry {
 // populated such that a given entry will contain function address '&funcN' and
 // index 'N'.  The elements will be sorted according to function address.
 
-bsl::vector<AddressEntry> entries;
+std::vector<AddressEntry> entries;
 
 // Next, we define 'findIndex':
 
@@ -270,7 +239,7 @@ static unsigned int func6()
 
 // Then, we define 'func1', the last function to be called in the chain of
 // nested function calls.  'func1' uses
-// 'balst::StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// 'bsls::StackAddressUtil::getStackAddresses' to get an ordered sequence of
 // return addresses from the current thread's function call stack and uses the
 // previously defined 'findIndex' function to verify those address are correct.
 
@@ -290,14 +259,14 @@ unsigned int func1()
     entries.push_back(AddressEntry(FUNC_ADDRESS(&func4), 4));
     entries.push_back(AddressEntry(FUNC_ADDRESS(&func5), 5));
     entries.push_back(AddressEntry(FUNC_ADDRESS(&func6), 6));
-    bsl::sort(entries.begin(), entries.end());
+    std::sort(entries.begin(), entries.end());
 
     // Then, we obtain the stack addresses with 'getStackAddresses'.
 
     enum { BUFFER_LENGTH = 100 };
     void *buffer[BUFFER_LENGTH];
-    bsl::memset(buffer, 0, sizeof(buffer));
-    int numAddresses = balst::StackAddressUtil::getStackAddresses(
+    memset(buffer, 0, sizeof(buffer));
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
     ASSERT(numAddresses >= (int) entries.size());
@@ -316,7 +285,7 @@ unsigned int func1()
     // be in 'func1' on all platforms.
 
     int funcIdx  = 1;
-    int stackIdx = balst::StackAddressUtil::k_IGNORE_FRAMES;
+    int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
     for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
         ASSERT(stackIdx < numAddresses);
         ASSERT(funcIdx == findIndex(buffer[stackIdx]));
@@ -374,7 +343,7 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     int ret = entries[i].d_traceIndex;
 
     if (veryVerbose) {
-        P_(myHex(funcP)) P_(myHex(retP)) P(ret);
+        P_(myHex(funcP).c_str()) P_(myHex(retP).c_str()) P(ret);
     }
 
     return ret;
@@ -413,7 +382,7 @@ CASE3_FUNC(4, 5)
 void func0(int *pi)
 {
     enum { BUFFER_LENGTH = 100,
-           IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES
+           IGNORE_FRAMES = bsls::StackAddressUtil::k_IGNORE_FRAMES
     };
 
     *pi += 2;
@@ -429,8 +398,8 @@ void func0(int *pi)
                             FUNC_ADDRESS_NUM(&func5) };
     enum { NUM_FUNC_ADDRS = sizeof funcAddrs / sizeof *funcAddrs };
 
-    bsl::memset(buffer, 0, sizeof(buffer));
-    int numAddresses = balst::StackAddressUtil::getStackAddresses(
+    memset(buffer, 0, sizeof(buffer));
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
 
@@ -441,14 +410,14 @@ void func0(int *pi)
     }
     numAddresses -= IGNORE_FRAMES;
 
-    bsl::sort(entries, entries + numAddresses);
+    std::sort(entries, entries + numAddresses);
 
     for (int i = 0; i < numAddresses - 1; ++i) {
         const AddressEntry *e = &entries[i];
 
         UintPtr lhs = e[0].d_returnAddress;
         UintPtr rhs = e[1].d_returnAddress;
-        LOOP3_ASSERT(i, lhs, rhs, lhs < rhs);
+        ASSERTV(i, lhs, rhs, lhs < rhs);
     }
 
     bool problem = false;
@@ -457,19 +426,19 @@ void func0(int *pi)
         if (i != index) {
             problem = true;
         }
-        LOOP3_ASSERT(i, index, myHex(funcAddrs[i]), i == index);
+        ASSERTV(i, index, myHex(funcAddrs[i]).c_str(), i == index);
     }
 
     if (problem || veryVerbose) {
         for (int i = 0; i < NUM_FUNC_ADDRS; ++i) {
-            P_(i);    P(myHex(funcAddrs[i]));
+            P_(i);    P(myHex(funcAddrs[i]).c_str());
         }
 
         for (int i = 0; i < numAddresses; ++i) {
             const AddressEntry *e = &entries[i];
 
-            cout << "(" << i << "): addr = " <<
-             myHex(e->d_returnAddress) << ", ti = " << e->d_traceIndex << endl;
+            printf("(%d): addr = %s, ti = %d\n", i,
+                   myHex(e->d_returnAddress).c_str(), e->d_traceIndex);
         }
     }
 }
@@ -498,11 +467,11 @@ void recurser(volatile int *depth)
         void *buffer[BUFFER_LENGTH];
         int numAddresses;
 
-        bsl::memset(buffer, 0, sizeof(buffer));
-        numAddresses = balst::StackAddressUtil::getStackAddresses(
+        memset(buffer, 0, sizeof(buffer));
+        numAddresses = bsls::StackAddressUtil::getStackAddresses(
                                                                 buffer,
                                                                 BUFFER_LENGTH);
-        LOOP_ASSERT(numAddresses, lamePlatform || numAddresses > recurseDepth);
+        ASSERTV(numAddresses, lamePlatform || numAddresses > recurseDepth);
         for (int i = 0; i < numAddresses; ++i) {
             ASSERT(0 != buffer[i]);
         }
@@ -510,9 +479,9 @@ void recurser(volatile int *depth)
             ASSERT(0 == buffer[i]);
         }
 
-        bsl::memset(buffer, 0, sizeof(buffer));
-        numAddresses = balst::StackAddressUtil::getStackAddresses(buffer, 10);
-        LOOP_ASSERT(numAddresses, lamePlatform || 10 == numAddresses);
+        memset(buffer, 0, sizeof(buffer));
+        numAddresses = bsls::StackAddressUtil::getStackAddresses(buffer, 10);
+        ASSERTV(numAddresses, lamePlatform || 10 == numAddresses);
         for (int i = 0; i < numAddresses; ++i) {
             ASSERT(0 != buffer[i]);
         }
@@ -537,7 +506,9 @@ typedef int (*GetStackPointersFunc)(void **buffer,
                                     int    maxFrames);
 GetStackPointersFunc funcPtr;
 
-enum {
+enum CustomValues {
+    // This enum has a name to placate the IBM C++03 compiler which requires
+    // that all template parameters to be named types.
     RECURSION_DEPTH = 40,
     MAX_FRAMES = 100
 };
@@ -549,8 +520,8 @@ void recurser(int  iterations,
         void *addresses[MAX_FRAMES];
         for (int i = iterations; i > 0; --i) {
             int frames = (*funcPtr)(addresses, MAX_FRAMES);
-            LOOP2_ASSERT(RECURSION_DEPTH, frames, RECURSION_DEPTH < frames);
-            LOOP2_ASSERT(RECURSION_DEPTH + 10, frames,
+            ASSERTV(RECURSION_DEPTH, frames, RECURSION_DEPTH < frames);
+            ASSERTV(RECURSION_DEPTH + 10, frames,
                                                 RECURSION_DEPTH + 10 > frames);
         }
     }
@@ -569,11 +540,11 @@ void recurser(int  iterations,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose  = argc > 2;
-    veryVerbose = argc > 3 ? (bsl::atoi(argv[3]) ? bsl::atoi(argv[3]) : 1) : 0;
+    veryVerbose = argc > 3 ? (atoi(argv[3]) ? atoi(argv[3]) : 1) : 0;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << '\n';
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 4: {
@@ -599,8 +570,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Finding Right Functions Test\n"
-                             "============================\n";
+        if (verbose) printf("Finding Right Functions Test\n"
+                            "============================\n");
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
@@ -609,7 +580,7 @@ int main(int argc, char *argv[])
         // wouldn't do that.
 
         unsigned int result = CASE_FOUR::func6();
-        LOOP2_ASSERT(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
+        ASSERTV(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
 #endif
       }  break;
       case 3: {
@@ -644,8 +615,8 @@ int main(int argc, char *argv[])
         //   int getStackAddresses(void **buffer, int maxFrames);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Finding Right Functions Test\n"
-                             "============================\n";
+        if (verbose) printf("Finding Right Functions Test\n"
+                            "============================\n");
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
@@ -655,22 +626,8 @@ int main(int argc, char *argv[])
 
         int i = 0;
         CASE_THREE::func5(&i);
-        LOOP_ASSERT(i, 12 == i);
+        ASSERTV(i, 12 == i);
 #endif
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            if (veryVerbose) cout << "\tgetStackAddresses" << endl;
-            {
-                void *buf[1];
-                ASSERT_PASS(balst::StackAddressUtil::getStackAddresses(buf,0));
-                ASSERT_FAIL(
-                          balst::StackAddressUtil::getStackAddresses(buf, -1));
-            }
-        }
       }  break;
       case 2: {
         // --------------------------------------------------------------------
@@ -688,11 +645,11 @@ int main(int argc, char *argv[])
         //   CONCERN: 'getStackAddresses(0, 0)' doesn't segFault.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "getStackAddresses(0, 0) TEST\n"
-                             "============================\n";
+        if (verbose) printf("getStackAddresses(0, 0) TEST\n"
+                            "============================\n");
 
-        balst::StackAddressUtil::getStackAddresses(0, 0);
-        balst::StackAddressUtil::getStackAddresses(0, 0);
+        bsls::StackAddressUtil::getStackAddresses(0, 0);
+        bsls::StackAddressUtil::getStackAddresses(0, 0);
       }  break;
       case 1: {
         // --------------------------------------------------------------------
@@ -719,71 +676,32 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "BREATHING TEST\n"
-                             "==============\n";
+        if (verbose) printf("BREATHING TEST\n"
+                            "==============\n");
 
         namespace TC = CASE_ONE;
 
         // Call 'recurseAndPrintExample3' with will recurse 'depth' times, then
         // print a stack trace.
 
-        veryVerbose = bsl::max(0, veryVerbose);
+        veryVerbose = std::max(0, veryVerbose);
         TC::recurseDepth += veryVerbose;
         int depth = TC::recurseDepth;
         TC::recurser(&depth);
         ASSERT(TC::recurseDepth == depth);
       }  break;
-      case -1: {
-        // --------------------------------------------------------------------
-        // BENCHMARK OF getStackAddresses
-        // --------------------------------------------------------------------
-
-        namespace TD = CASE_MINUS_ONE;
-
-        int depth = TD::RECURSION_DEPTH;
-
-#if   defined(BSLS_PLATFORM_OS_WINDOWS)
-        const int iterations = 100;
-#elif defined(BSLS_PLATFORM_OS_SOLARIS)
-        const int iterations = 1000;
-#else
-        const int iterations = 100 * 1000;
-#endif
-
-        bsls::Stopwatch sw;
-        TD::funcPtr = &balst::StackAddressUtil::getStackAddresses;
-
-        sw.start(true);
-        TD::recurser(iterations, &depth);
-        sw.stop();
-
-        ASSERT(TD::RECURSION_DEPTH == depth);
-
-        cout << "getStackAddresses: user: " <<
-                                 sw.accumulatedUserTime() / iterations <<
-                   ", wall: " << sw.accumulatedWallTime() / iterations << endl;
-      } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << ".\n";
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;
 }
-
-#else
-
-int main()
-{
-    return -1;
-}
-
-#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

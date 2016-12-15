@@ -1,4 +1,4 @@
-// balst_dbghelpdllimpl_windows.cpp                                   -*-C++-*-
+// bsls_dbghelpdllimpl_windows.cpp                                   -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,20 +7,22 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_dbghelpdllimpl_windows.h>
+#include <bsls_dbghelpdllimpl_windows.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balst_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bsls_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 
-#include <bslmt_qlock.h>
+#include <bsls_atomicoperations.h>
+#include <bsls_bslonce.h>
 
 #include <windows.h>
 #include <intrin.h>
 #include <dbghelp.h>
+#include <cassert>
 
 #pragma optimize("", off)
 
@@ -144,24 +146,24 @@ struct Dbghelp_Util {
 // PRIVATE MANIPULATORS
 int Dbghelp_Util::load()
 {
-    BSLS_ASSERT(0 == d_moduleHandle);
-    BSLS_ASSERT(0 == d_symSetOptions);
-    BSLS_ASSERT(0 == d_symInitialize);
+    assert(0 == d_moduleHandle);
+    assert(0 == d_symSetOptions);
+    assert(0 == d_symInitialize);
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    BSLS_ASSERT(0 == d_symFromAddr);
+    assert(0 == d_symFromAddr);
 #else
-    BSLS_ASSERT(0 == d_symGetSymFromAddr64);
+    assert(0 == d_symGetSymFromAddr64);
 #endif
-    BSLS_ASSERT(0 == d_symGetLineFromAddr64);
-    BSLS_ASSERT(0 == d_stackWalk64);
-    BSLS_ASSERT(0 == d_symCleanup);
-    BSLS_ASSERT(0 == d_symFunctionTableAccess64);
-    BSLS_ASSERT(0 == d_symGetModuleBase64);
-    BSLS_ASSERT(0 == d_hProcess);
+    assert(0 == d_symGetLineFromAddr64);
+    assert(0 == d_stackWalk64);
+    assert(0 == d_symCleanup);
+    assert(0 == d_symFunctionTableAccess64);
+    assert(0 == d_symGetModuleBase64);
+    assert(0 == d_hProcess);
 
     d_moduleHandle = LoadLibraryA("dbghelp.dll");
     if (0 == d_moduleHandle) {
-        debugPrintf("balst::DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
+        debugPrintf("bsls::DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
 
         return -1;                                                    // RETURN
     }
@@ -190,7 +192,7 @@ int Dbghelp_Util::load()
     d_hProcess = GetCurrentProcess();
 
     if (!isLoaded()) {
-        debugPrintf("balst::DbghelpDllImpl_Windows: %s failed\n",
+        debugPrintf("bsls::DbghelpDllImpl_Windows: %s failed\n",
                                         0 == d_hProcess ? "'GetCurrentProcess'"
                                                         : "'GetProcAddress'");
 
@@ -203,7 +205,7 @@ int Dbghelp_Util::load()
 
     BOOL rc = (*d_symInitialize)(d_hProcess, 0, TRUE);
     if (!rc) {
-        debugPrintf("balst::DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
+        debugPrintf("bsls::DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -214,9 +216,6 @@ int Dbghelp_Util::load()
 // CREATORS
 Dbghelp_Util::~Dbghelp_Util()
 {
-    BSLS_ASSERT_OPT(
-              !BloombergLP::balst::DbghelpDllImpl_Windows::qLock().isLocked());
-
     if (isLoaded()) {
         (*d_symCleanup)(d_hProcess);
         FreeLibrary(d_moduleHandle);
@@ -278,17 +277,35 @@ bool Dbghelp_Util::isLoaded() const
 static Dbghelp_Util dbghelp_util = {};    // all zeroes
 
 namespace BloombergLP {
+namespace bsls {
 
-namespace balst {
-
-                           // ----------------------
-                           // DbghelpDllImpl_Windows
-                           // ----------------------
-
-// DATA
-bslmt::QLock balst::DbghelpDllImpl_Windows::s_qLock = BSLMT_QLOCK_INITIALIZER;
+                        // ----------------------------
+                        // class DbghelpDllImpl_Windows
+                        // ----------------------------
 
 // CLASS METHODS
+bsls::BslLock& DbghelpDllImpl_Windows::lock()
+{
+    // We use a mutex ('bsls::BslLock') instead of a spinlock
+    // ('bsls::SpinLock') to guard the access to 'dbghelp.dll' because this
+    // contention can go on for much longer than the contention of initially
+    // constructing the mutex.  We use a spinlock to guard the the time to
+    // initially construct the mutex.
+
+    static AtomicOperations::AtomicTypes::Pointer ret  = {0};
+    static BslOnce                                once =
+                                                      BSLS_BSLONCE_INITIALIZER;
+
+    BslOnceGuard guard;
+    if (guard.enter(&once)) {
+        static BslLock lock;
+
+        AtomicOperations::setPtr(&ret, &lock);
+    }
+
+    return *static_cast<BslLock *>(AtomicOperations::getPtr(&ret));
+}
+
 bool DbghelpDllImpl_Windows::isLoaded()
 {
     return dbghelp_util.isLoaded();
@@ -297,7 +314,7 @@ bool DbghelpDllImpl_Windows::isLoaded()
 DWORD DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 {
     int rc = dbghelp_util.init();
-    BSLS_ASSERT_OPT(0 == rc);
+    assert(0 == rc);
 
     return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
@@ -305,8 +322,8 @@ DWORD DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 
 BOOL DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
-                                               PDWORD64     displacement,
-                                               PSYMBOL_INFO symbol)
+                                         PDWORD64     displacement,
+                                         PSYMBOL_INFO symbol)
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
