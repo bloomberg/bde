@@ -3223,7 +3223,7 @@ list<VALUE, ALLOCATOR>::erase(const_iterator position)
 {
     BSLS_ASSERT(position.d_node_p != d_sentinel);
 
-    NodePtr condemned = position.d_node_p;
+    NodePtr  condemned = position.d_node_p;
     iterator ret(condemned->d_next_p);
 
     linkNodes(condemned->d_prev_p, condemned->d_next_p);
@@ -3238,6 +3238,7 @@ list<VALUE, ALLOCATOR>::erase(const_iterator dstBegin, const_iterator dstEnd)
 {
     NodePtr       p = dstBegin.d_node_p;
     const NodePtr e = dstEnd.  d_node_p;
+
     linkNodes(p->d_prev_p, e);
 
     size_type numDeleted = 0;
@@ -4269,8 +4270,8 @@ void list<VALUE, ALLOCATOR>::remove(const VALUE& value)
 }
 
 template <class VALUE, class ALLOCATOR>
-template <class Predicate>
-void list<VALUE, ALLOCATOR>::remove_if(Predicate predicate)
+template <class PREDICATE>
+void list<VALUE, ALLOCATOR>::remove_if(PREDICATE predicate)
 {
     const iterator e = end();
     for (iterator i = begin(); e != i; ) {
@@ -4316,7 +4317,7 @@ void list<VALUE, ALLOCATOR>::sort(COMPARE comparator)
 }
 
 template <class VALUE, class ALLOCATOR>
-void list<VALUE, ALLOCATOR>::splice(const_iterator position, list& src)
+void list<VALUE, ALLOCATOR>::splice(const_iterator dstPosition, list& src)
 {
     BSLS_ASSERT(allocatorImp() == src.allocatorImp());
     BSLS_ASSERT(&src != this);
@@ -4325,10 +4326,10 @@ void list<VALUE, ALLOCATOR>::splice(const_iterator position, list& src)
         return;                                                       // RETURN
     }
 
-    NodePtr   pPos   = position.d_node_p;
+    NodePtr   pPos   = dstPosition.d_node_p;
     NodePtr   pFirst = src.headNode();
     NodePtr   pLast  = src.d_sentinel->d_prev_p;
-    size_type n    = src.sizeRef();
+    size_type n      = src.sizeRef();
 
     // Splice contents out of 'src'.
 

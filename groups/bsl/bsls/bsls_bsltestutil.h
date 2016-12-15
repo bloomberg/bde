@@ -471,12 +471,12 @@ BSLS_IDENT("$Id: $")
 #define BSLS_BSLTESTUTIL_EXPAND(X)                                            \
     X
 
-#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)        \
+#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X6, X5, X4, X3, X2, X1, X0, N, ...)    \
     N
 
 #define BSLS_BSLTESTUTIL_NUM_ARGS(...)                                        \
     BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(                   \
-                                            __VA_ARGS__, 5, 4, 3, 2, 1, 0, ""))
+                                         __VA_ARGS__, 6, 5, 4, 3, 2, 1, 0, ""))
 
 #define BSLS_BSLTESTUTIL_LOOPN_ASSERT_IMPL(N, ...)                            \
     BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_LOOP ## N ## _ASSERT(__VA_ARGS__))
