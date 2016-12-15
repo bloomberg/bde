@@ -3,6 +3,7 @@
 #include <bslstl_stringref.h>
 
 #include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -258,7 +259,7 @@ struct OpEqualsAssignTestA {
 };
 
 struct OpEqualsAssignTestB {
-    operator Obj() const {
+    operator bslstl::StringRef() const {
         return "OpEqualsAssignTestB -- loooooong string to provoke allocation";
     }
 };
@@ -813,7 +814,9 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That string assignment to a 'bsl::string' through the 'operator='
-        //   member compiles and works properly.
+        //   member compiles and works properly.  Of particular interest is
+        //   whether any of these conversion failed to compile due to
+        //   ambiguities.
         //
         //   Note that this must be done in this component, rather than in
         //   'bslstl_string.t.cpp', since we want to test assigning from a
@@ -826,7 +829,9 @@ int main(int argc, char *argv[])
         if (verbose) printf(
            "Testing 'bsl::string::operator=(const bslstl::StringRefData&)'\n");
 
-        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         OpEqualsAssignTestA a;
         OpEqualsAssignTestB b;
@@ -853,6 +858,8 @@ int main(int argc, char *argv[])
 
         ASSERT(cb == sb);
         ASSERT(2 == ta.numAllocations());    // allocated
+        ASSERT(0 == da.numAllocations());    // no unseen temporary strings
+                                             // created
         ASSERTV(sa.c_str(), sb.c_str(), sa != sb && sa < sb && sb > sa);
 
         if (veryVerbose) { P(sa.c_str()); P(sb.c_str()); }
