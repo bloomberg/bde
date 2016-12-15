@@ -1,4 +1,4 @@
-// balst_dbghelpdllimpl_windows.t.cpp                                 -*-C++-*-
+// bsls_dbghelpdllimpl_windows.t.cpp                                 -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,101 +7,65 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balst_dbghelpdllimpl_windows.h>
+#include <bsls_dbghelpdllimpl_windows.h>
 
-#include <bsl_iostream.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslmf_assert.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <bslmt_qlock.h>
-
 #include <windows.h>
 #include <dbghelp.h>
 #endif
 
-
 using namespace BloombergLP;
-using namespace bsl;
 
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
+//=============================================================================
+//                  STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
 // ----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
-//                     NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
-
-// ============================================================================
-//                 GLOBAL TYPEDEFS, VARIABLES AND FUNCTIONS
-// ============================================================================
 
 typedef bsls::Types::UintPtr UintPtr;
 
 enum { FIRST_LINE = __LINE__ };
+
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
 
 void *testFunction()
     // The function just returns a pointer into itself, cast to an unsigned int
@@ -136,29 +100,11 @@ enum { SECOND_LINE = __LINE__ };
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int        test = argc > 1 ? atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
+    int veryVerbose = argc > 3;
 
-    // suppress 'unused variable' warnings
-
-    veryVeryVeryVerbose &= verbose & veryVerbose & veryVeryVerbose;
-
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
-
-    // CONCERN: This test driver is reusable w/other, similar components.
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 5: {
@@ -172,15 +118,15 @@ int main(int argc, char *argv[])
         //   Resolve line number of some code.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "USAGE EXAMPLE\n"
-                             "=============\n";
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 
-        balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+        bsls::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
                                                     | SYMOPT_DEFERRED_LOADS);
 
@@ -189,14 +135,14 @@ int main(int argc, char *argv[])
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
 
-        int rc = balst::DbghelpDllImpl_Windows::symGetLineFromAddr64(
+        int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
                                                                (DWORD64) &main,
                                                                &offsetFromLine,
                                                                &line);
         ASSERT(rc);
 
-        bsl::cout << "Source file: " << line.FileName << bsl::endl;
-        bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
+        printf("Source file: %s\n", line.FileName);
+        printf("Line #: %d\n", line.LineNumber);
 #endif
       }  break;
       case 4: {
@@ -204,15 +150,15 @@ int main(int argc, char *argv[])
         // TEST RESOLVING FUNCTION NAME
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST RESOLVING FUNCTION NAME\n"
-                             "============================\n";
+        if (verbose) printf("TEST RESOLVING FUNCTION NAME\n"
+                            "============================\n");
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 
-        balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+        bsls::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
                                                     | SYMOPT_DEFERRED_LOADS);
 
@@ -220,12 +166,12 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         enum { SIZEOF_SEGMENT = sizeof(SYMBOL_INFO) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
-        SYMBOL_INFO *sym = (SYMBOL_INFO*) ta.allocate(SIZEOF_SEGMENT);
+        SYMBOL_INFO *sym = (SYMBOL_INFO*) malloc(SIZEOF_SEGMENT);
 #else
         enum { SIZEOF_SEGMENT = sizeof(IMAGEHLP_SYMBOL64) +
                                   MAX_SYMBOL_BUF_NAME_LENGTH * sizeof(TCHAR) };
         IMAGEHLP_SYMBOL64 *sym = (IMAGEHLP_SYMBOL64 *)
-                                                   ta.allocate(SIZEOF_SEGMENT);
+                                                   malloc(SIZEOF_SEGMENT);
 #endif
 
         DWORD64 offsetFromSymbol = 0;
@@ -233,22 +179,22 @@ int main(int argc, char *argv[])
         sym->SizeOfStruct = sizeof(*sym);
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
-        int rc = balst::DbghelpDllImpl_Windows::symFromAddr(
+        int rc = bsls::DbghelpDllImpl_Windows::symFromAddr(
                                                       (DWORD64) testFunction(),
                                                       &offsetFromSymbol,
                                                       sym);
 #else
-        BSLMF_ASSERT(sizeof(void *) == 8);
+        ASSERT(sizeof(void *) == 8);
         sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
-        int rc = balst::DbghelpDllImpl_Windows::symGetSymFromAddr64(
+        int rc = bsls::DbghelpDllImpl_Windows::symGetSymFromAddr64(
                                                       (DWORD64) testFunction(),
                                                       &offsetFromSymbol,
                                                       sym);
 #endif
         ASSERT(rc);
-        LOOP_ASSERT(sym->Name, !bsl::strncmp("testFunction", sym->Name, 12));
+        ASSERTV(sym->Name, !strncmp("testFunction", sym->Name, 12));
 
-        ta.deallocate(sym);
+        free(sym);
 #endif
       }  break;
       case 3: {
@@ -256,15 +202,15 @@ int main(int argc, char *argv[])
         // TEST RESOLVING LINE NUMBER AND SOURCE FILE NAME
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST RESOLVING LINE NUMBER\n"
-                             "==========================\n";
+        if (verbose) printf("TEST RESOLVING LINE NUMBER\n"
+                            "==========================\n");
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 
-        balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+        bsls::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
                                                     | SYMOPT_DEFERRED_LOADS);
 
@@ -273,17 +219,17 @@ int main(int argc, char *argv[])
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
 
-        int rc = balst::DbghelpDllImpl_Windows::symGetLineFromAddr64(
+        int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
                                                       (DWORD64) testFunction(),
                                                       &offsetFromLine,
                                                       &line);
         ASSERT(rc);
 
-        const char *pc = line.FileName + bsl::strlen(line.FileName);
+        const char *pc = line.FileName + strlen(line.FileName);
         while (pc > line.FileName && '\\' != pc[-1]) {
             --pc;
         }
-        LOOP_ASSERT(pc, !bsl::strcmp(pc,"balst_dbghelpdllimpl_windows.t.cpp"));
+        ASSERTV(pc, !strcmp(pc,"bsls_dbghelpdllimpl_windows.t.cpp"));
         ASSERT(line.LineNumber > FIRST_LINE);
         ASSERT(line.LineNumber < SECOND_LINE);
 #endif
@@ -297,8 +243,8 @@ int main(int argc, char *argv[])
         // never loaded.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST DOING NOTHING\n"
-                             "==================\n";
+        if (verbose) printf("TEST DOING NOTHING\n"
+                            "==================\n");
       }  break;
       case 1: {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -306,34 +252,27 @@ int main(int argc, char *argv[])
         // TEST LOADING OF DLL
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST LOADING OF DLL\n"
-                             "===================\n";
+        if (verbose) printf("TEST LOADING OF DLL\n"
+                            "===================\n");
 
-        bslmt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+        bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 
-        balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+        bsls::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
                                                     | SYMOPT_DEFERRED_LOADS);
 
-        ASSERT(balst::DbghelpDllImpl_Windows::isLoaded());
+        ASSERT(bsls::DbghelpDllImpl_Windows::isLoaded());
 #endif
       }  break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
-
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
-    // suppress "unused variable" warnings
 
     return testStatus;
 }

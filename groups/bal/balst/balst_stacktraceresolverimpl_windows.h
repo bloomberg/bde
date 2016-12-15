@@ -82,8 +82,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Windows> {
     // NOT IMPLEMENTED
     StackTraceResolverImpl();
     StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(
-                                          const StackTraceResolverImpl&);
+    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
     ~StackTraceResolverImpl();
 
   public:

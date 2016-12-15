@@ -13,7 +13,6 @@
 BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
-#include <balst_stackaddressutil.h>
 #include <balst_stacktraceframe.h>
 #include <balst_stacktraceresolverimpl_dladdr.h>
 #include <balst_stacktraceresolverimpl_elf.h>
@@ -26,6 +25,7 @@ BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <bslma_deallocatorguard.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_stackaddressutil.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -144,7 +144,7 @@ int StackTraceUtil::loadStackTraceFromStack(
 {
     enum {
         DEFAULT_MAX_FRAMES = 1024,
-        IGNORE_FRAMES      = StackAddressUtil::k_IGNORE_FRAMES + 1
+        IGNORE_FRAMES      = bsls::StackAddressUtil::k_IGNORE_FRAMES + 1
     };
 
     if (maxFrames < 0) {
@@ -163,7 +163,7 @@ int StackTraceUtil::loadStackTraceFromStack(
                                                    result->allocator());
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
-    int numAddresses = StackAddressUtil::getStackAddresses(addresses,
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);
 #else
     int numAddresses = 0;
@@ -268,7 +268,7 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     // be ignored because they contained function calls within the stack trace
     // facility.
 
-    const int ignoreFrames = StackAddressUtil::k_IGNORE_FRAMES + 1 +
+    const int ignoreFrames = bsls::StackAddressUtil::k_IGNORE_FRAMES + 1 +
                                                         additionalIgnoreFrames;
     maxFrames += ignoreFrames;
 
@@ -281,8 +281,8 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
                      (void **) allocator->allocate(maxFrames * sizeof(void *));
     bslma::DeallocatorGuard<bslma::Allocator> guard(addresses, allocator);
 
-    int numAddresses = StackAddressUtil::getStackAddresses(addresses,
-                                                           maxFrames);
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(addresses,
+                                                                 maxFrames);
     if (numAddresses <= ignoreFrames) {
         return stream;                                                // RETURN
     }
