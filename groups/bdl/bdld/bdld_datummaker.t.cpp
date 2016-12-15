@@ -4,7 +4,7 @@
 #include <bdlma_localsequentialallocator.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstdint.h>  // For INT64_MAX
+#include <bsl_limits.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
@@ -434,7 +434,8 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(tam.isInUseSame());
 
-        d =  m(bsls::Types::Int64(INT64_MAX));
+        d =  m(bsls::Types::Int64(
+                              bsl::numeric_limits<bsls::Types::Int64>::max()));
         ASSERT(dam.isInUseSame());
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         ASSERT(tam.isInUseUp());
