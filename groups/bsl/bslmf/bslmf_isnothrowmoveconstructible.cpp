@@ -1,6 +1,14 @@
 // bslmf_isnothrowmoveconstructible.cpp                               -*-C++-*-
 #include <bslmf_isnothrowmoveconstructible.h>
 
+#include <bslmf_addconst.h>                  // for testing only
+#include <bslmf_addcv.h>                     // for testing only
+#include <bslmf_addlvaluereference.h>        // for testing only
+#include <bslmf_addpointer.h>                // for testing only
+#include <bslmf_addvolatile.h>               // for testing only
+#include <bslmf_movableref.h>                // for testing only
+#include <bslmf_nestedtraitdeclaration.h>    // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 

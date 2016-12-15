@@ -61,10 +61,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISVOID
-#include <bslmf_isvoid.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISVOLATILE
 #include <bslmf_isvolatile.h>
 #endif
@@ -138,7 +134,6 @@ struct IsCopyConstructible_Imp
                              bsl::is_trivially_copyable<TYPE>::value
                           || bsl::is_reference<TYPE>::value
                           || !(bsl::is_volatile<TYPE>::value
-                            || bsl::is_void<TYPE>::value
                             || bsl::is_function<TYPE>::value)>
 {
     // This 'struct' template implements a meta-function to determine whether
