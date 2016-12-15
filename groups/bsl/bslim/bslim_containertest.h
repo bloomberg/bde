@@ -7,13 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test driver for high-level container tests.
+//@PURPOSE: Provide a location for standard library containers tests.
 //
 //@CLASSES:
 //
 //@AUTHOR: Oleg Subbotin (osubbotin)
 //
-//@DESCRIPTION: This component provides a set of high-level container tests.
+//@DESCRIPTION: This component provides a location to define a set of tests for
+// standard library containers defined in 'bslstl'. These tests are located in
+// 'bslim' in ordered to allow the standard library types to be included
+// through the standard <bsl_*.h> headers. Note that this component does not
+// define any types or functions.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
