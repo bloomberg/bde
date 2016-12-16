@@ -9,6 +9,10 @@
 
 #include <btlso_defaulteventmanager_devpoll.h>
 
+#if defined(events) || defined(revents)
+#error 'events' or 'revents' macros have leaked (probably from <sys/poll.h>)
+#endif
+
 #include <btlso_socketimputil.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
