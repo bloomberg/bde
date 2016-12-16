@@ -538,8 +538,10 @@ void MachTimerUtil::initialize()
 
         (void) mach_timebase_info(&s_timeBase);
 
-        BSLS_ASSERT(0 < s_timeBase.numer);
-        BSLS_ASSERT(0 < s_timeBase.denom);
+
+        // Cannot use BSLS_ASSERT (see notes above).
+        // BSLS_ASSERT(0 < s_timeBase.numer);
+        // BSLS_ASSERT(0 < s_timeBase.denom);
     }
 }
 
@@ -565,8 +567,9 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // laptop and Mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
-    BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
-                     LLONG_MIN / s_timeBase.numer <= rawTime);
+    // Cannot use BSLS_ASSERT (see notes above).
+    // BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
+    //                 LLONG_MIN / s_timeBase.numer <= rawTime);
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
 
