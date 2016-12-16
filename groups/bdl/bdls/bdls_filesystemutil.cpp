@@ -197,6 +197,19 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
 #endif
 }
 
+extern "C"
+int BloombergLP_bdls_FileSystemUtil_errFuncForGlob(const char *, int errorNum)
+    // This function is called whenever 'glob' encounters an error on a file or
+    // directory.  'errorNum' is the 'errno' value returned for the call.  We
+    // signal that 'glob' is to abort its traversal by returning non-zero.
+{
+    // The only error condition we will tolerate is if we weren't permitted to
+    // open one of the files, which may manifest as one of the following 3
+    // values.
+
+    return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
+}
+
 #endif
 
 namespace BloombergLP {
@@ -1656,7 +1669,10 @@ int FilesystemUtil::visitPaths(
 
     glob_t pglob;
 
-    int rc = glob(pattern, GLOB_NOSORT, 0, &pglob);
+    int rc = glob(pattern,
+                  GLOB_NOSORT,
+                  &BloombergLP_bdls_FileSystemUtil_errFuncForGlob,
+                  &pglob);
     bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
     switch (rc) {
       case 0: {
@@ -1721,7 +1737,7 @@ int FilesystemUtil::visitTree(
     BSLS_ASSERT_SAFE(!rootDir.empty());    // 'isDirectory' would have been
                                            // 'false' otherwise.
     if (bsl::string::npos != pattern.find('/')) {
-        return -1;                                                    // RETURN
+        return -2;                                                    // RETURN
     }
 
     if ('/' != rootDir.back()) {
@@ -1740,18 +1756,40 @@ int FilesystemUtil::visitTree(
         fullPattern =  rootDir;
         fullPattern += pattern;
 
-        int rc = ::glob(fullPattern.c_str(), GLOB_NOSORT, 0, &pglob);
+        int rc = ::glob(fullPattern.c_str(),
+                        GLOB_NOSORT,
+                        &BloombergLP_bdls_FileSystemUtil_errFuncForGlob,
+                        &pglob);
         bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
-        if (GLOB_NOSPACE == rc) {
+        bsl::size_t numFound;
+        switch (rc) {
+          case 0: {
+            numFound = pglob.gl_pathc;
+          } break;
+          case GLOB_NOMATCH: {
+            numFound = 0;
+          } break;
+          case GLOB_NOSPACE: {
             bsls::BslExceptionUtil::throwBadAlloc();
-        }
-        const int numFound = GLOB_NOMATCH == rc
-                                        ? 0 : static_cast<int>(pglob.gl_pathc);
 
+            // Should only get here if exceptions are disabled.
+
+            return -3;                                                // RETURN
+          } break;
+          case GLOB_NOSYS: {
+            return -4;                                                // RETURN
+          } break;
+          case GLOB_ABORTED: {
+            return -5;                                                // RETURN
+          } break;
+          default: {
+            return -6;                                                // RETURN
+          }
+        }
         nameRecs.reserve(2 * numFound);    // worst case is they're all
                                            // directories
 
-        for (int ii = 0; ii < numFound; ++ii) {
+        for (unsigned ii = 0; ii < numFound; ++ii) {
             const char *fullPath = pglob.gl_pathv[ii];
             BSLS_ASSERT_SAFE(fullPath);
             const char *basename = fullPath + truncTo;
@@ -1775,8 +1813,10 @@ int FilesystemUtil::visitTree(
     {
         DIR *dir = opendir(rootDir.c_str());
         if (0 == dir) {
-            return -1;                                                // RETURN
-        }
+            return EPERM == errno || EACCES == errno || ENOENT == errno
+                   ? 0
+                   : -7;                                              // RETURN
+       }
         bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
         // The amount of space available in the 'd_name' member of the dirent
@@ -1838,13 +1878,9 @@ int FilesystemUtil::visitTree(
             visitor(fullFn.c_str());
         }
         else {
-            // Note that 'visitTree' returns non-zero, it may mean the
-            // subdirectory didn't have read or execute permission for us, in
-            // which case 'EACCES == errno'.
-
             int rc = visitTree(fullFn, pattern, visitor, sortFlag);
-            if (0 != rc && EACCES != errno) {
-                return -1;                                            // RETURN
+            if (0 != rc) {
+                return rc;                                            // RETURN
             }
         }
     }

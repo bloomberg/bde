@@ -873,7 +873,7 @@ int main(int argc, char *argv[])
             int rc = stringFlag
                      ? Obj::visitTree(rootStr, "woof*", woofVisitor, sortFlag)
                      : Obj::visitTree(root,    "woof*", woofVisitor, sortFlag);
-            ASSERT(0 == rc);
+            ASSERTV(rc, errno, 0 == rc);
             ASSERT((e_IS_UNIX ? 9 : 10) == woofTravVec.size());
 
             if (verbose) {
@@ -900,7 +900,7 @@ int main(int argc, char *argv[])
             rc = stringFlag
                      ? Obj::visitTree(rootStr, "meow*", meowVisitor, sortFlag)
                      : Obj::visitTree(root,    "meow*", meowVisitor, sortFlag);
-            ASSERT(0 == rc);
+            ASSERTV(rc, errno, 0 == rc);
             ASSERT((e_IS_UNIX ? 20 : 25) == meowTravVec.size());
 
             if (verbose) {
