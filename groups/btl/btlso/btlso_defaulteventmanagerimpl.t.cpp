@@ -10,6 +10,10 @@
 
 #include <btlso_defaulteventmanagerimpl.h>
 
+#if defined(events) || defined(revents)
+#error 'events' or 'revents' macros have leaked (probably from <sys/poll.h>)
+#endif
+
 #include <bsls_platform.h>
 #include <btlso_platform.h>
 #include <btlso_timemetrics.h>

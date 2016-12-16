@@ -81,6 +81,12 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(BSLS_PLATFORM_OS_WINDOWS)
     #ifndef INCLUDED_SYS_POLL
+        #ifndef events
+        #define BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_EVENTS
+        #endif
+        #ifndef revents
+        #define BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_REVENTS
+        #endif
     #include <sys/poll.h>
     #define INCLUDED_SYS_POLL
     #endif
@@ -124,6 +130,15 @@ template <> struct is_trivially_copyable<pollfd> : true_type {};
 }  // close namespace bsl
 
 #endif // BSLS_PLATFORM_OS_WINDOWS
+
+#ifdef BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_EVENTS
+#undef events
+#undef BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_DEFAULTEVENTMANAGERIMPL_UNDEF_REVENTS
+#endif
 
 #endif
 

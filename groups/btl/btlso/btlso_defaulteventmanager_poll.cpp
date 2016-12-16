@@ -43,6 +43,17 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     #include <sys/timers.h>       // timespec
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
+    // The following set of checks mirror those found on AIX in <sys/poll.h>.
+    // When we include this file in our headers, we are careful to undefine the
+    // 'events' and 'revents' macros since they cause unfortunate collisions,
+    // but here in this file we do want their effect.
+    #if _XOPEN_SOURCE_EXTENDED == 1 &&                                        \
+        defined(_ALL_SOURCE) &&                                               \
+        !defined(__64BIT__) &&                                                \
+        !defined(__HIDE_SVR4_POLLFD_NAMES)
+        #define events reqevents   // renamed field in struct pollfd
+        #define revents rtnevents  // renamed field in struct pollfd
+    #endif
 #elif defined(BSLS_PLATFORM_OS_LINUX)  ||  \
       defined(BSLS_PLATFORM_OS_CYGWIN) ||  \
       defined(BSLS_PLATFORM_OS_DARWIN)

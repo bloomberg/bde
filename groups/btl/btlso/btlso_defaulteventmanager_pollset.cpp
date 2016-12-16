@@ -14,6 +14,18 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_AIX)
 
+// The following set of checks mirror those found on AIX in <sys/poll.h>.  When
+// we include this file in our headers, we are careful to undefine the 'events'
+// and 'revents' macros since they cause unfortunate collisions, but here in
+// this file we do want their effect.
+#if _XOPEN_SOURCE_EXTENDED == 1 &&                                            \
+    defined(_ALL_SOURCE) &&                                                   \
+    !defined(__64BIT__) &&                                                    \
+    !defined(__HIDE_SVR4_POLLFD_NAMES)
+#define events reqevents   // renamed field in struct pollfd
+#define revents rtnevents  // renamed field in struct pollfd
+#endif
+
 #include <btlso_flag.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
@@ -23,6 +35,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #include <bsls_assert.h>
 #include <bsls_timeinterval.h>
@@ -33,7 +46,12 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/pollset.h>
 #include <bsl_c_errno.h>
+
+// We use 'int' instead of 'pollset_t' in the header to avoid including
+// <sys/pollset.h> there.  Verify that they're the same type.
+BSLMF_ASSERT((bsl::is_same<pollset_t, int>::value));
 
 // 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>
 
