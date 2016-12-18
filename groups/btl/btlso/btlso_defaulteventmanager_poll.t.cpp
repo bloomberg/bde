@@ -181,48 +181,6 @@ enum { POLL_IS_DEFAULT = bslmf::IsSame<
 //                              HELPER CLASS
 //-----------------------------------------------------------------------------
 
-class SocketPair {
-    // This helper class manages a client-server pair of connected sockets.
-
-    btlso::SocketHandle::Handle d_fds[2];
-
-  public:
-    // CREATORS
-    SocketPair();
-    ~SocketPair();
-
-    // ACCESSORS
-    btlso::SocketHandle::Handle& clientFd();
-        // Return a handle to the client socket.
-    btlso::SocketHandle::Handle& serverFd();
-        // Return a handle to the server socket.
-};
-
-SocketPair::SocketPair()
-{
-    int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                                 d_fds, btlso::SocketImpUtil::k_SOCKET_STREAM);
-    ASSERT(0 == rc);
-}
-
-SocketPair::~SocketPair()
-{
-    ASSERT(0 == btlso::SocketImpUtil::close(d_fds[0]));
-    ASSERT(0 == btlso::SocketImpUtil::close(d_fds[1]));
-}
-
-inline
-btlso::SocketHandle::Handle& SocketPair::clientFd()
-{
-    return d_fds[0];
-}
-
-inline
-btlso::SocketHandle::Handle& SocketPair::serverFd()
-{
-    return d_fds[1];
-}
-
 static void
 genericCb(btlso::EventType::Type       event,
           btlso::SocketHandle::Handle  socket,
@@ -305,13 +263,15 @@ struct ShouldntBeCalled {
     }
 };
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-// HPUX sometimes seems to need a lag between when events are set up and
-// when the dispatcher is called.  In production this shouldn't be a
-// problem since this is a polling interface -- the events would just
-// occur on the next polling event.  Insert this command where it's needed
-// in the gg string, but it's conditionally compiled to avoid watering down
-// tests on other platforms.
+#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+// Some cases are customized for Darwin and HPUX: dispatching immediately after
+// writing to the control socket of a pair does not return the read event, so we
+// sleep before invoking 'dispatch'. Note that simply increasing the timeout
+// to 'dispatch' is not effective in cases where there are two events registered
+// for the same socket, as the write event will cause 'poll()' to return
+// immediately whether or not a read event is available yet.  The
+// PRE_DISPATCH_SLEEP macro is used to implement this extra sleep for these
+// platforms.
 
 # define PRE_DISPATCH_SLEEP " S40; "
 #else
@@ -658,14 +618,16 @@ int main(int argc, char *argv[]) {
             {
 //-------------->
 { L_, 0,  "+0r64,{-0}; W0,64; T1; Dn,1; T0"                              },
-{ L_, 0,  "+0r64,{-0}; +1r64; W0,64;  W1,64; T2; Dn,2; T1; E1r; E0"      },
-{ L_, 0,  "+0r64,{-0}; +1r64; +2r64; W0,64;  W1,64; W2,64; T3; Dn,3; T2;"
-          "E0; E1r; E2r"                                                 },
-{ L_, 0,  "+0r64; +1r64,{-1}; +2r64; W0,64;  W1,64; W2,64; T3; Dn,3; T2;"
-          "E0r; E1; E2r"                                                 },
-{ L_, 0,  "+0r64; +1r64; +2r64,{-2}; W0,64;  W1,64; W2,64; T3; Dn,3; T2;"
-          "E0r; E1r; E2"                                                 },
-{ L_, 0,  "+0r64,{-1; +1r64}; +1r64; W0,64; W1,64; T2; Dn,2; T2"         }
+{ L_, 0,  "+0r64,{-0}; +1r64; W0,64;  W1,64; T2; " PRE_DISPATCH_SLEEP
+          "Dn,2; T1; E1r; E0"                                            },
+{ L_, 0,  "+0r64,{-0}; +1r64; +2r64; W0,64;  W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,3; T2; E0; E1r; E2r"                    },
+{ L_, 0,  "+0r64; +1r64,{-1}; +2r64; W0,64;  W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,3; T2; E0r; E1; E2r"                    },
+{ L_, 0,  "+0r64; +1r64; +2r64,{-2}; W0,64;  W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,3; T2; E0r; E1r; E2"                    },
+{ L_, 0,  "+0r64,{-1; +1r64}; +1r64; W0,64; W1,64; T2; "
+          PRE_DISPATCH_SLEEP "Dn,2; T2"                                  }
 //-------------->
             };
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
@@ -704,24 +666,25 @@ int main(int argc, char *argv[]) {
 /// On length 2
 // Deregistering signaled socket handle
 { L_, 0,  "+0r64,{-1}; +1r; W0,64;  W1,64; T2; Dn,1; T1; E0r; E1"       },
-{ L_, 0,  "+0r64; +1r64,{-0}; W0,64;  W1,64; T2; Dn,2; T1; E0; E1r"     },
+{ L_, 0,  "+0r64; +1r64,{-0}; W0,64;  W1,64; T2; " PRE_DISPATCH_SLEEP
+          "Dn,2; T1; E0; E1r"                                           },
 // Deregistering non-signaled socket handle
 { L_, 0,  "+0r64, {-1}; +1r; W0,64; T2; Dn,1; T1; E0r; E1"              },
 { L_, 0,  "+0r; +1r64, {-0}; W1,64; T2; Dn,1; T1; E0;  E1r"             },
 
 /// On length 3
 // Deregistering signaled socket handle
-{ L_, 0,  "+0r64,{-1}; +1r; +2r64; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
-          "E0r; E1; E2r"                                                },
+{ L_, 0,  "+0r64,{-1}; +1r; +2r64; W0,64; W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,2; T2; E0r; E1; E2r"                   },
 
-{ L_, 0,  "+0r64,{-2}; +1r64; +2r; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
-          "E0r; E1r; E2"                                                },
+{ L_, 0,  "+0r64,{-2}; +1r64; +2r; W0,64; W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,2; T2; E0r; E1r; E2"                   },
 
-{ L_, 0,  "+0r64; +1r64,{-0}; +2r64; W0,64; W1,64; W2,64; T3; Dn,3; T2;"
-          "E0; E1r; E2r"                                                },
+{ L_, 0,  "+0r64; +1r64,{-0}; +2r64; W0,64; W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,3; T2; E0; E1r; E2r"                   },
 
-{ L_, 0,  "+0r64; +1r64, {-2}; +2r; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
-          "E0r; E1r; E2"                                                },
+{ L_, 0,  "+0r64; +1r64, {-2}; +2r; W0,64; W1,64; W2,64; T3; "
+          PRE_DISPATCH_SLEEP "Dn,2; T2; E0r; E1r; E2"                   },
 // Deregistering non-signaled socket handle
 
 //-------------->
@@ -819,16 +782,10 @@ int main(int argc, char *argv[]) {
                {L_, 0, "-a; +0w64; +0r24; Dn,1; -0w; Di500,0; -0r; T0"  },
                {L_, 0, "-a; +0r24; +0w64; Dn,1; -0w; Di500,0; -0r; T0"  },
 
-                // fail due to lag on hpux:
-                // These cases are repeated with a sleep before the first
-                // dispatch in test case 12.  The fact that there is a lag
-                // is probably due to the underlying implementation and not
-                // bde, and is not serious for a polling interface because
-                // subsequent polls would pick up the lagging events.
                {L_, 0, "-a; +0w64; +0r24; W0,64;" PRE_DISPATCH_SLEEP
-                                            "Dn,2; -0w; Di,1; -0r; T0"  },
+                            "Dn,2; -0w; Di,1; -0r; T0"  },
                {L_, 0, "-a; +0r24,{-a}; +0w64; W0,64; T2;" PRE_DISPATCH_SLEEP
-                                                     "Dn,1; E0; T0"     },
+                       "Dn,1; E0; T0"     },
                {L_, 0, "-a; +0r64; +1w24; W0,64;" PRE_DISPATCH_SLEEP
                                             "Dn,2; -1w; Di500,0; T1"    },
 
@@ -840,7 +797,8 @@ int main(int argc, char *argv[]) {
                {L_, 0, "-a; +0r64; +1r24; W0,64; Dn,1; -0r; Di500,0; T1"    },
                {L_, 0, "-a; +0r64; +1a;   W0,64; Dn,1; -0r; Di500,0; T1"    },
 
-               {L_, 0, "-a; +0a;   +1w24; Dn,1; -1w; Di500,0; T1"           },
+               {L_, 0, "-a; +0a;   +1w24; " PRE_DISPATCH_SLEEP
+                       "Dn,1; -1w; Di500,0; T1"           },
                {L_, 0, "-a; +0a;   +1r64; W1,64; Dn,1; -0a; Di500,0; T1"    },
 
                  // Test the event manager when multiple socket events exist.
@@ -863,12 +821,15 @@ int main(int argc, char *argv[]) {
                 // That's all the tests in 'testDispatch', now do some
                 // additional tests.
 
-               {L_, 0, "+0w40; +0r3; Dn0,1; W0,30;  Dn0,2"                 },
-               {L_, 0, "+0w40; +0r3; Dn100,1; W0,30; Dn120,2"              },
+               {L_, 0, "+0w40; +0r3; Dn0,1; W0,30; " PRE_DISPATCH_SLEEP
+                       "Dn0,2"                                             },
+               {L_, 0, "+0w40; +0r3; Dn100,1; W0,30; " PRE_DISPATCH_SLEEP
+                       "Dn120,2"                                           },
                {L_, 0, "+0w20; +0r12; Dn,1; W0,30; +1w6; +2w8; Dn,4"       },
                {L_, 0, "+0w40; +1r6; +1w41; +2w42; +3w43; +0r12; W3,30;"
                        "Dn,4; W0,30; +1r6; W1,30; +2r8; W2,30; +3r10; Dn,8"},
-               {L_, 0, "+2r3; Dn100,0; +2w40; Dn50,1;  W2,30; Dn55,2"      },
+               {L_, 0, "+2r3; Dn100,0; +2w40; Dn50,1;  W2,30; "
+                       PRE_DISPATCH_SLEEP "Dn55,2"                         },
                {L_, 0, "+0w20; +0r12; Dn0,1; W0,30; +1w6; +2w8; Dn100,4"   },
                {L_, 0, "+0w40; +1r6; +1w41; +2w42; +3w43; +0r12; Dn100,4;"
                         "W0,60; W1,70; +1r6; W2,60; W3,60; +2r8; +3r10;"
@@ -961,7 +922,7 @@ int main(int argc, char *argv[]) {
             cout << "Verifying behavior on timeout (at least one socket)."
                  << endl;
         {
-            SocketPair pair;
+            btlso::EventManagerTestPair pair;
             ShouldntBeCalled shouldntBeCalled;
             int nowFailures = 0;  // due to time going backward on some systems
             int intFailures = 0;  // due to unexpected interrupts
@@ -969,7 +930,7 @@ int main(int argc, char *argv[]) {
             double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
-                mX.registerSocketEvent(pair.serverFd(),
+                mX.registerSocketEvent(pair.controlFd(),
                                        btlso::EventType::e_READ,
                                        shouldntBeCalled);
 
@@ -1337,17 +1298,21 @@ int main(int argc, char *argv[]) {
                 const char *d_script;
             } SCRIPTS[] =
             {
-               {L_, 0, "Dn0,0"                                           },
-               {L_, 0, "Dn100,0"                                         },
-               {L_, 0, "+0w2; Dn,1"                                      },
-               {L_, 0, "+0w40; +0r3; Dn0,1; W0,40; Dn0,2"                },
-               {L_, 0, "+0w40; +0r3; Dn100,1; W0,40; Dn120,2"            },
-               {L_, 0, "+0w20; +0r12; Dn,1; W0,30; +1w6; +2w8; Dn,4"     },
+               {L_, 0, "Dn0,0"                                             },
+               {L_, 0, "Dn100,0"                                           },
+               {L_, 0, "+0w2; Dn,1"                                        },
+               {L_, 0, "+0w40; +0r3; Dn0,1; W0,40; "
+                       PRE_DISPATCH_SLEEP "Dn0,2"                          },
+               {L_, 0, "+0w40; +0r3; Dn100,1; W0,40; "
+                       PRE_DISPATCH_SLEEP "Dn120,2"                        },
+               {L_, 0, "+0w20; +0r12; Dn,1; W0,30; +1w6; +2w8; Dn,4"       },
                {L_, 0, "+0w40; +1r6; +1w41; +2w42; +3w43; +0r12;"
                         "Dn,4; W0,40; +1r6; W1,40; W2,40; W3,40; +2r8;"
-                        "+3r10; Dn,8"                                    },
-               {L_, 0, "+2r3; Dn200,0; +2w40; Dn100,1; W2,40; Dn150,2"   },
-               {L_, 0, "+0w20; +0r12; Dn0,1; +1w6; +2w8; W0,40; Dn100,4" },
+                        "+3r10; Dn,8"                                      },
+               {L_, 0, "+2r3; Dn200,0; +2w40; Dn100,1; W2,40; "
+                       PRE_DISPATCH_SLEEP "Dn150,2"                         },
+               {L_, 0, "+0w20; +0r12;Dn0,1; +1w6; +2w8; W0,40; "
+                       PRE_DISPATCH_SLEEP "Dn100,4"                         },
                {L_, 0, "+0w40; +1r6; +1w41; +2w42; +3w43; +0r12;"
                        "Dn100,4; W0,40; W1,40; W2,40; W3,40; +1r6; +2r8;"
                        "+3r10; Dn120,8"                                  },

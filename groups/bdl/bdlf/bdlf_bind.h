@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void bindTest(bslma::Allocator *allocator = 0) {
 //      bdlf::BindUtil::bind(&invocable,         // bound functor and
-//                          10, 14, someString) // bound arguments
+//                           10, 14, someString) // bound arguments
 //..
 // and the binder declared above can be passed invocation arguments directly,
 // as follows (here we specify zero invocation arguments since all the bound

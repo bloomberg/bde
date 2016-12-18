@@ -35,15 +35,17 @@ BSLS_IDENT("$Id: $")
 //  +========================================================================+
 //  |      SPECIALIZATION        |   SYSTEM MECHANISM    |     PLATFORM      |
 //  +------------------------------------------------------------------------+
-//  | <btlso::Platform::SELECT>  |        select         | Windows, Solaris, |
+//  | <btlso::Platform::SELECT>  |        select         | Windows*, Solaris,|
 //  |                            |                       | AIX, Linux        |
 //  +------------------------------------------------------------------------+
 //  | <btlso::Platform::DEVPOLL> |        /dev/poll      |      Solaris*     |
 //  +------------------------------------------------------------------------+
 //  | <btlso::Platform::EPOLL>   |         epoll         |       Linux*      |
 //  +------------------------------------------------------------------------+
-//  | <btlso::Platform::POLL>    |          poll         | Solaris, AIX*,    |
-//  |                            |                       | Linux             |
+//  | <btlso::Platform::POLLSET> |        pollset        |       AIX*        |
+//  +------------------------------------------------------------------------+
+//  | <btlso::Platform::POLL>    |          poll         | Solaris, AIX,     |
+//  |                            |                       | Linux, Darwin*    |
 //  +========================================================================+
 //  * indicates the default specialization for a platform.
 //..

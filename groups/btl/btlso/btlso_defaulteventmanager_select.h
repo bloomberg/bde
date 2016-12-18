@@ -268,6 +268,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_EVENTCALLBACKREGISTRY
+#include <btlso_eventcallbackregistry.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -340,15 +344,7 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
     };
 
   private:
-    typedef bsl::unordered_map<Event, EventManager::Callback, EventHash>
-                                                                      EventMap;
-
-    // Due to the initialization dependency between 'd_eventsAllocator' and
-    // 'd_events' their declaration order should always be as follows.
-
-    bdlma::ConcurrentPoolAllocator  d_eventsAllocator;  // event map allocator
-
-    EventMap                        d_events;           // socket events and
+    EventCallbackRegistry           d_callbacks;        // socket events and
                                                         // associated callbacks
 
     fd_set                          d_readSet;          // set of descriptors
@@ -371,15 +367,26 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
 
     int                             d_maxFd;            // maximum number of
                                                         // socket descriptors
+                                                        // (only maintained for
+                                                        //  BSD sockets)
 
     TimeMetrics                    *d_timeMetric;       // time metrics given
                                                         // to this object
 
-    mutable bsl::vector<Event>      d_signaledReads;
+    bsl::vector<Event>              d_signaledReads;
 
-    mutable bsl::vector<Event>      d_signaledWrites;   // temporary arrays
+    bsl::vector<Event>              d_signaledWrites;   // temporary arrays
                                                         // used to dispatch
                                                         // callbacks
+
+    // PRIVATE MANIPULATORS
+    int dispatchCallbacks(int           numEvents,
+                          const fd_set& readSet,
+                          const fd_set& writeSet,
+                          const fd_set& exceptSet);
+        // Dispatch the specified 'numEvents' callbacks from the specified
+        // 'readSet', 'writeSet', and 'exceptSet' file descriptor sets that
+        // were signalled as ready.
 
     // PRIVATE ACCESSORS
     bool checkInternalInvariants() const;
@@ -387,14 +394,6 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
         // 'events' is set in the appropriate set (e.g., either 'readSet' or
         // 'writeSet' depending on whether or not this is a READ or WRITE
         // event).  Return 'true' on success, and 'false' otherwise.
-
-    int dispatchCallbacks(int           numEvents,
-                          const fd_set& readSet,
-                          const fd_set& writeSet,
-                          const fd_set& exceptSet) const;
-        // Dispatch the specified 'numEvents' callbacks from the specified
-        // 'readSet', 'writeSet', and 'exceptSet' file descriptor sets that
-        // were signalled as ready.
 
   public:
     // CREATORS
@@ -519,7 +518,7 @@ class DefaultEventManager<Platform::SELECT> : public EventManager {
 inline
 int DefaultEventManager<Platform::SELECT>::numEvents() const
 {
-    return static_cast<int>(d_events.size());
+    return d_callbacks.numCallbacks();
 }
 
 inline

@@ -7,6 +7,7 @@ btlso_defaulteventmanager_select
 btlso_defaulteventmanagerimpl
 btlso_endpoint
 btlso_event
+btlso_eventcallbackregistry
 btlso_eventmanager
 btlso_eventmanagertester
 btlso_eventtype
