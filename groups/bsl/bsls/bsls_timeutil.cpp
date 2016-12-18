@@ -1,6 +1,7 @@
 // bsls_timeutil.cpp                                                  -*-C++-*-
 #include <bsls_timeutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_bslonce.h>
 #include <bsls_bsltestutil.h>  // for testing only
 
@@ -368,10 +369,8 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // Not implemented: Assert that rawTime - initialTime will fit in an
         // Int64, when expressed as nanoseconds (~292 days).
         //
-        // N.B. This assert is not implemented because:
-        // A) Cannot use BSLS_ASSERT because bsls_assert has an indirect
-        // (and testing only) dependency on bsls_timeutil.
-        // B) Cannot use std::numeric_limits.
+        // N.B. This assert is not enabled because we cannot use
+        // std::numeric_limits here.
         //
         // If it were implemented, it would look like the following:
         // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency)
@@ -538,10 +537,8 @@ void MachTimerUtil::initialize()
 
         (void) mach_timebase_info(&s_timeBase);
 
-
-        // Cannot use BSLS_ASSERT (see notes above).
-        // BSLS_ASSERT(0 < s_timeBase.numer);
-        // BSLS_ASSERT(0 < s_timeBase.denom);
+        BSLS_ASSERT(0 < s_timeBase.numer);
+        BSLS_ASSERT(0 < s_timeBase.denom);
     }
 }
 
@@ -567,9 +564,8 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // laptop and Mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
-    // Cannot use BSLS_ASSERT (see notes above).
-    // BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
-    //                 LLONG_MIN / s_timeBase.numer <= rawTime);
+    BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
+                     LLONG_MIN / s_timeBase.numer <= rawTime);
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
 
