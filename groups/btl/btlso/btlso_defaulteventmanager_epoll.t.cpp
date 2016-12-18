@@ -16,6 +16,8 @@
 #include <btlso_flag.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
@@ -218,6 +220,10 @@ static void emptyCb()
 {
 }
 
+static void allocatedArgument(const bsl::string& argument) {
+    (void)argument;
+}
+
 static void multiRegisterDeregisterCb(Obj *mX)
 {
     btlso::SocketHandle::Handle socket[2];
@@ -293,13 +299,17 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     btlso::SocketImpUtil::startup();
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
-    testAllocator.setNoAbort(1);
+    bslma::TestAllocator testAllocator("test", veryVeryVerbose);
+    testAllocator.setNoAbort(1); // tbd -- really? why?
     btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
-                                  btlso::TimeMetrics::e_CPU_BOUND);
+                                  btlso::TimeMetrics::e_CPU_BOUND, 
+                                  &testAllocator);
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -404,13 +414,56 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
         ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
       } break;
+      case 14: {
+        // -----------------------------------------------------------------
+        // Test allocator usage
+        //
+        // Concern:
+        //: 1 Registered events hold memory from the specified allocator
+        //
+        // Plan:
+        //: 1 Register an event having a callback functor requiring dynamic 
+        //    memory allocation
+        //: 2 Check that no memory is outstanding from the default allocator, 
+        //    and that memory is outstanding from the test allocator
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING allocator usage" << endl
+                          << "=======================" << endl;
+        
+        Obj mX(0, &testAllocator);
+        
+        btlso::SocketHandle::Handle socket[2];
+
+        int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                             socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
+        ASSERT(0 == rc);
+        
+        {
+            bsl::string argument = 
+                "a long string that must be heap-allocated";
+            btlso::EventManager::Callback cb = 
+                bdlf::BindUtil::bind(&allocatedArgument, argument);
+                                   
+            if (veryVerbose) cout << "...registering event..." << endl;
+            ASSERT(0 == mX.registerSocketEvent(socket[0], 
+                                               btlso::EventType::e_READ, 
+                                               cb));
+        }
+        
+        ASSERT(0 != testAllocator.numBlocksInUse());
+        ASSERT(0 == defaultAllocator.numBlocksInUse());
+        
+      } break;
+        
 
       case 13: {
         // -----------------------------------------------------------------
         // TESTING 'hasLimitedSocketCapacity'
         //
         // Concern:
-        //: 1 'hasLimitiedSocketCapacity' returns 'false'.
+        //: 1 'hasLimitedSocketCapacity' returns 'false'.
         //
         // Plan:
         //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
@@ -420,8 +473,8 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'hasLimitedSocketCapacity" << endl
-                          << "=================================" << endl;
+                          << "TESTING 'hasLimitedSocketCapacity'" << endl
+                          << "==================================" << endl;
 
         if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
         {

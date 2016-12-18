@@ -279,6 +279,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_EVENTCALLBACKREGISTRY
+#include <btlso_eventcallbackregistry.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -347,8 +351,7 @@ class DefaultEventManager<Platform::DEVPOLL> : public EventManager {
     // '/dev/poll' as its polling mechanism.
 
     // DATA
-    bsl::unordered_map<Event, EventManager::Callback, EventHash>
-                                  d_callbacks;     // container of registered
+    EventCallbackRegistry         d_callbacks;     // container of registered
                                                    // socket events and
                                                    // associated callbacks
 
@@ -356,12 +359,9 @@ class DefaultEventManager<Platform::DEVPOLL> : public EventManager {
                                                    // reporting percent-busy
                                                    // statistics
 
-    bsl::vector<struct ::pollfd>  d_signaled;      // array of 'pollfd'
+    bsl::vector<struct ::pollfd>  d_signaled;      // working array of 'pollfd'
                                                    // structures indicating
                                                    // pending IO operations
-
-    bsl::unordered_map<int, int>  d_eventmasks;    // map of socket handles
-                                                   // to associated events
 
     int                           d_dpFd;          // file descriptor of
                                                    // '/dev/poll'

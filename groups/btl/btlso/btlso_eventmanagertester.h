@@ -251,6 +251,11 @@ BSLS_IDENT("$Id: $")
 //           <T> : the number of milliseconds to sleep for.  Bear in mind the
 //                 minimum resolution of sleeping on many platforms is 10
 //                 milliseconds.
+// 11. 'T'<NUM>,<FD>
+//     Check the number of registered events
+//           <NUM>: the number of events expected
+//           <FD> : if present, compare NUM against 'numSocketEvents(FD)'.
+//                  Otherwise compare against 'numEvents()'.
 //..
 // The following examples interpret a given script in the order from left to
 // right to configure a list of I/O request commands for an event manager test

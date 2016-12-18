@@ -124,6 +124,14 @@ struct EventType {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum {
+        // Bitmaps using event type values as bit indexes.
+        
+        k_INBOUND_EVENTS = 1 << e_READ | 1 << e_ACCEPT,
+        k_OUTBOUND_EVENTS = 1 << e_WRITE | 1 << e_CONNECT
+    };
+        
+    
     // CLASS METHODS
     static bsl::ostream& print(bsl::ostream&   stream,
                                EventType::Type value,
