@@ -1,9 +1,19 @@
-bsl-internal (3.0.10.0) unstable; urgency=low
+bsl-internal (3.0.11.0) unstable; urgency=low
 
+  * 11b3062 Merge pull request #908 from mgiroux/review/bump-patchversion-to-3.0.11
+  * 676724b Bump patchversion to 3.0.11
+  * 00f6f2e Merge pull request #905 from spackard/releases/3.0.x
+  * 783f240 Merge pull request #901 from hversche/pr/899-rebased-releases/3.0.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 19 Dec 2016 11:01:30 -0500
+
+bsl-internal (3.0.10.0) git; urgency=low
+
+  * e1a4afe Changelog for version 3.0.10.0
   * f9f4b55 Merge pull request #884 from mgiroux/review/bump-version-to-3.0.10
   * 7d1dbf6 Merge pull request #879 from jmendelsohn4/drqs-93222828/bdlc_bitarray_assignment_operator_allocation
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 5 Dec 2016 10:57:18 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 6 Dec 2016 10:03:18 -0500
 
 bsl-internal (3.0.9.0) git; urgency=low
 
