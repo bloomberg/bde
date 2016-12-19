@@ -1437,7 +1437,14 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
             StatResult dummy;
             int rc;
             do {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
                 rc = readdir_r(dir, &entry, &entry_p);
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
                 if (0 != rc) {
                     break;
                 }
@@ -1741,7 +1748,14 @@ int FilesystemUtil::visitTree(
         struct dirent *entry_p;
         int rc;
         while (true) {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
             rc = readdir_r(dir, &entry, &entry_p);
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
             if (0 != rc || &entry != entry_p) {
                 break;
             }

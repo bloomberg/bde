@@ -467,8 +467,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSL_CLIMITS
-#include <bsl_climits.h>
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF

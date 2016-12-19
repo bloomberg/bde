@@ -77,6 +77,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
