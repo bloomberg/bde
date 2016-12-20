@@ -1114,6 +1114,8 @@ int main(int argc, char *argv[])
         ASSERT(bdld::Datum::createTime(bdlt::Time(1,1)) == m(bdlt::Time(1,1)));
         ASSERT(bdld::Datum::createDatetime(bdlt::Datetime(2014,2,2), &sa) ==
                                                   m(bdlt::Datetime(2014,2,2)));
+        ASSERT(bdld::Datum::createDecimal64(BDLDFP_DECIMAL_DD(12.75), &sa) ==
+                                                  m(BDLDFP_DECIMAL_DD(12.75)));
         ASSERT(bdld::Datum::createDatetimeInterval(bdlt::DatetimeInterval(9),
                                                    &sa) ==
                                                  m(bdlt::DatetimeInterval(9)));
