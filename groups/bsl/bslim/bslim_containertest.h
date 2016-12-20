@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a location to define a set of tests for
 // standard library containers defined in 'bslstl'. These tests are located in
-// 'bslim' in ordered to allow the standard library types to be included
-// through the standard <bsl_*.h> headers. Note that this component does not
-// define any types or functions.
+// 'bslim' in order to allow the standard library types to be included through
+// the standard <bsl_*.h> headers. Note that this component does not define any
+// types or functions.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

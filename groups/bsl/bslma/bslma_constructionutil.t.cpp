@@ -1,6 +1,6 @@
 // bslma_constructionutil.t.cpp                                       -*-C++-*-
-
 #include <bslma_constructionutil.h>
+
 #include <bslma_destructionutil.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -9,7 +9,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_ispair.h>               // for testing only
+#include <bslmf_ispair.h>
 
 #include <bsls_bsltestutil.h>
 

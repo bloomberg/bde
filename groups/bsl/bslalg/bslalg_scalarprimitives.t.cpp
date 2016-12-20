@@ -1,5 +1,4 @@
 // bslalg_scalarprimitives.t.cpp                                      -*-C++-*-
-
 #include <bslalg_scalarprimitives.h>
 
 #include <bslalg_autoscalardestructor.h>
@@ -12,7 +11,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_ispair.h>               // for testing only
+#include <bslmf_ispair.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>

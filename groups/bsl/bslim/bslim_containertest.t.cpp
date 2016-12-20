@@ -1,7 +1,7 @@
 // bslim_containertest.t.cpp                                          -*-C++-*-
 #include <bslim_containertest.h>
 
-#include <bslim_testutil.h>  // for testing only
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_constructionutil.h>
@@ -43,6 +43,17 @@
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslim;
+
+//=============================================================================
+//                                 TEST PLAN
+//-----------------------------------------------------------------------------
+//                                 Overview
+//                                 --------
+// The component implements high level tests for standard library containers
+// defined in 'bslstl'.
+//
+//-----------------------------------------------------------------------------
+// [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -104,8 +115,8 @@ static bool veryVeryVeryVerbose;
 template <class CONTAINER>
 class MapTestDriver {
     // This parameterized class provides a namespace for testing the high level
-    // functionality of bsl map containers. Each "testCase*" method test a
-    // specific aspect of the map.
+    // functionality of bsl map-like containers. Each "testCase*" method test a
+    // specific aspect of such containers.
 
   private:
     // TYPES
@@ -115,6 +126,7 @@ class MapTestDriver {
     typedef typename CONTAINER::mapped_type      MappedType;
     typedef typename CONTAINER::value_type       ValueType;
     typedef typename CONTAINER::allocator_type   AllocatorType;
+    typedef typename CONTAINER::const_iterator   CIter;
 
     typedef bslma::ConstructionUtil              ConstrUtil;
     typedef bslmf::MovableRefUtil                MoveUtil;
@@ -122,7 +134,7 @@ class MapTestDriver {
 
   public:
     static void testCase1();
-        // Testing reference as mapped_type;
+        // Testing reference as 'mapped_type'.
 };
 
                          // -------------------
@@ -132,6 +144,25 @@ class MapTestDriver {
 template <class CONTAINER>
 void MapTestDriver<CONTAINER>::testCase1()
 {
+    // ------------------------------------------------------------------------
+    // SUPPORT REFERENCES AS 'mapped_type'
+    //
+    // Concerns:
+    //: 1 All bsl map-like containers (map, multimap, unordered_map,
+    //:   unordered_multimap) support references as 'mapped_type'.
+    //:
+    //: 2 Container does not make a copy of referenced object on insertion.
+    //
+    // Plan:
+    //: 1 Create the value type containing a reference as a 'mapped_type' and
+    //:   insert it into the container.  (C-1)
+    //:
+    //: 2 Verify that the container inserts the reference and does not make a
+    //:   copy of the referenced object.  (C-2)
+    //
+    // Testing:
+    //   CONCERN: Support references as 'mapped_type' in map-like containers.
+    // ------------------------------------------------------------------------
     if (verbose) {
         cout << "\tTesting with: " << bsls::NameOf<ValueType>().name() << endl;
     }
@@ -139,10 +170,9 @@ void MapTestDriver<CONTAINER>::testCase1()
     BSLMF_ASSERT(false == bsl::is_reference<KeyType>::value);
     BSLMF_ASSERT(true  == bsl::is_reference<MappedType>::value);
 
-    CONTAINER        mX;
-    const CONTAINER& X = mX;
+    CONTAINER mX;  const CONTAINER& X = mX;
 
-    bslma::TestAllocator        scratch("scratch");
+    bslma::TestAllocator scratch("scratch");
 
     bsls::ObjectBuffer<typename bsl::remove_const<KeyType>::type> tempKey;
     TTF::emplace(tempKey.address(), 1, &scratch);
@@ -158,6 +188,13 @@ void MapTestDriver<CONTAINER>::testCase1()
     ValueType tempPair(tempKey.object(), tempMapped.object());
 
     mX.insert(MoveUtil::move(tempPair));
+
+    CIter ret = mX.find(tempKey.object());
+
+    ASSERT(ret != mX.end());
+
+    // Reference still refers to the original object.
+    ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
 }
 
 
@@ -179,52 +216,65 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-        if (verbose) { bsl::cout << "Testing unordered_multimap\n"; }
-        typedef bsl::unordered_multimap<int, bsltf::SimpleTestType&>  MapType1;
-        typedef bsl::unordered_multimap<int, bsltf::AllocTestType&>   MapType2;
-        typedef bsl::unordered_multimap<int, bsltf::MovableTestType&> MapType3;
-
-        RUN_EACH_TYPE(MapTestDriver,
-                      testCase1,
-                      MapType1, MapType2, MapType3);
-#endif
-      } break;
-      case 3: {
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-        if (verbose) { bsl::cout << "Testing unordered_map\n"; }
-        typedef bsl::unordered_map<int, bsltf::SimpleTestType&>  MapType1;
-        typedef bsl::unordered_map<int, bsltf::AllocTestType&>   MapType2;
-        typedef bsl::unordered_map<int, bsltf::MovableTestType&> MapType3;
-
-        RUN_EACH_TYPE(MapTestDriver,
-                      testCase1,
-                      MapType1, MapType2, MapType3);
-#endif
-      } break;
-      case 2: {
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-        if (verbose) { bsl::cout << "Testing multimap\n"; }
-        typedef bsl::multimap<int, bsltf::SimpleTestType&>  MapType1;
-        typedef bsl::multimap<int, bsltf::AllocTestType&>   MapType2;
-        typedef bsl::multimap<int, bsltf::MovableTestType&> MapType3;
-
-        RUN_EACH_TYPE(MapTestDriver,
-                      testCase1,
-                      MapType1, MapType2, MapType3);
-#endif
-      } break;
       case 1: {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-        if (verbose) { bsl::cout << "Testing map\n"; }
-        typedef bsl::map<int, bsltf::SimpleTestType&>  MapType1;
-        typedef bsl::map<int, bsltf::AllocTestType&>   MapType2;
-        typedef bsl::map<int, bsltf::MovableTestType&> MapType3;
+        if (verbose) { bsl::cout << "Testing references as 'mapped_type'.\n"; }
 
-        RUN_EACH_TYPE(MapTestDriver,
-                      testCase1,
-                      MapType1, MapType2, MapType3);
+        if (verbose) { bsl::cout << "Testing 'map' container.\n"; }
+        {
+            typedef bsl::map<int, bsltf::SimpleTestType&>  MapType1;
+            typedef bsl::map<int, bsltf::AllocTestType&>   MapType2;
+            typedef bsl::map<int, bsltf::MovableTestType&> MapType3;
+
+            RUN_EACH_TYPE(MapTestDriver,
+                          testCase1,
+                          MapType1, MapType2, MapType3);
+        }
+
+        if (verbose) { bsl::cout << "Testing 'multimap' container.\n"; }
+        {
+            typedef bsl::multimap<int, bsltf::SimpleTestType&>  MapType1;
+            typedef bsl::multimap<int, bsltf::AllocTestType&>   MapType2;
+            typedef bsl::multimap<int, bsltf::MovableTestType&> MapType3;
+
+            RUN_EACH_TYPE(MapTestDriver,
+                          testCase1,
+                          MapType1, MapType2, MapType3);
+        }
+
+        if (verbose) { bsl::cout << "Testing 'unordered_map' container.\n"; }
+        {
+            typedef bsl::unordered_map<int, bsltf::SimpleTestType&>  MapType1;
+            typedef bsl::unordered_map<int, bsltf::AllocTestType&>   MapType2;
+            typedef bsl::unordered_map<int, bsltf::MovableTestType&> MapType3;
+
+            RUN_EACH_TYPE(MapTestDriver,
+                          testCase1,
+                          MapType1, MapType2, MapType3);
+        }
+
+        if (verbose) {
+            bsl::cout << "Testing 'unordered_multimap' container.\n";
+        }
+        {
+            typedef bsl::unordered_multimap<int, bsltf::SimpleTestType&>
+                                                                      MapType1;
+
+            typedef bsl::unordered_multimap<int, bsltf::AllocTestType&>
+                                                                      MapType2;
+
+            typedef bsl::unordered_multimap<int, bsltf::MovableTestType&>
+                                                                      MapType3;
+
+            RUN_EACH_TYPE(MapTestDriver,
+                          testCase1,
+                          MapType1, MapType2, MapType3);
+        }
+#else
+        if (verbose) {
+            bsl::cout << "Not testing references as mapped_type "
+                      << "on this platform.\n";
+        }
 #endif
       } break;
       default: {
