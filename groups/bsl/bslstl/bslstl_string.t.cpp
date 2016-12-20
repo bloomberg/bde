@@ -133,6 +133,7 @@ using bsls::nameOfType;
 //
 /// MANIPULATORS:
 // [ 9] basic_string& operator=(const basic_string& rhs);
+// [ 9] basic_string& operator=(const StringRefData& strRefData);
 // [ 9] basic_string& operator=(MovableRef<basic_string> rhs);
 // [  ] basic_string& operator=(const CHAR_TYPE *s);
 // [  ] basic_string& operator=(CHAR_TYPE c);
@@ -12545,6 +12546,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //      allocation exceptions.
     //   6) The copy constructor's internal functionality varies
     //      according to which bitwise copy/move trait is applied.
+    //   7) The assignment can be made from a 'StringRefData' without creating
+    //      temporary string and without using the default allocator.
     //
     // Plan:
     //   Specify a set S of unique object values with substantial and
@@ -12584,12 +12587,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //
     // Testing:
     //   basic_string& operator=(const basic_string& rhs);
+    //   basic_string& operator=(const StringRefData& strRefData);
+    //   basic_string& operator=(const basic_string& rhs);
     //   basic_string& operator=(const CHAR_TYPE *s);
     //   basic_string& operator=(CHAR_TYPE c);
     // --------------------------------------------------------------------
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
-    Allocator            Z(&testAllocator);
+    bslma::TestAllocator         testAllocator(veryVeryVerbose);
+    Allocator                    Z(&testAllocator);
+    bslma::TestAllocator         defaultAllocator(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
@@ -12630,7 +12637,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
         };
         const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-        {
+        for (int fromRef = 0; fromRef < 2; ++fromRef) {
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
@@ -12689,12 +12696,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, EQUAL == (V == U));
 
+                    const Int64 TDA = defaultAllocator.numAllocations();
                     const int NUM_CTOR = numCopyCtorCalls;
                     const int NUM_DTOR = numDestructorCalls;
                     const size_t OLD_LENGTH = U.size();
 
-                    mU = V; // test assignment here
+                    if (!fromRef) {
+                        mU = V; // test assignment here
+                    }
+                    else {
+                        bslstl::StringRefData<TYPE> srd(
+                                              V.data(), V.data() + V.length());
+                        mU = srd; // test assignment here
+                    }
 
+                    const Int64 TDB = defaultAllocator.numAllocations();
+
+                    ASSERTV(fromRef, U_SPEC, V_SPEC, TDB - TDA, TDB == TDA);
                     ASSERT((numCopyCtorCalls - NUM_CTOR) <= (int)V.size());
                     ASSERT((numDestructorCalls - NUM_DTOR) <=
                                                  (int)(V.size() + OLD_LENGTH));
@@ -12749,7 +12767,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
         int iterationModulus = 1;
         int iteration = 0;
-        {
+        for (int fromRef = 0; fromRef < 2; ++fromRef) {
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
@@ -12811,10 +12829,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
                         ExceptionGuard<Obj> guard(U, L_);
                         testAllocator.setAllocationLimit(AL);
-                        {
+
+                        const Int64 TDA = defaultAllocator.numAllocations();
+
+                        if (!fromRef) {
                             mU = V; // test assignment here
                         }
+                        else {
+                            bslstl::StringRefData<TYPE> srd(
+                                              V.data(), V.data() + V.length());
+                            mU = srd; // test assignment here
+                        }
                         guard.release();
+
+                        const Int64 TDB = defaultAllocator.numAllocations();
+
+                        ASSERTV(fromRef, U_SPEC, V_SPEC, TDB - TDA,
+                                                                   TDB == TDA);
 
                         LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                         LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
