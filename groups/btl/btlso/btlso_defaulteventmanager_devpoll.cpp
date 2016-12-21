@@ -48,16 +48,16 @@ enum {
 
 const int k_POLLFD_SIZE = static_cast<int>(sizeof(struct ::pollfd));
 
-// This object is used to initialize and grow the working arrays passed to 
-// ioctl.  This is not strictly necessary but prevents frequent warnings about 
-// uninitialized memory reads in Purify and similar tools without meaningful 
+// This object is used to initialize and grow the working arrays passed to
+// ioctl.  This is not strictly necessary but prevents frequent warnings about
+// uninitialized memory reads in Purify and similar tools without meaningful
 // cost.
 static struct ::pollfd DEFAULT_POLLFD; // initialized to 0 as a static
 
 struct PollRemoveVisitor {
     // Visit a set of sockets and populate an array of pollfd to deregister
     // those sockets.
-    
+
     struct ::pollfd *d_pollfdArray;
     int              d_index;
 
@@ -75,22 +75,22 @@ struct PollRemoveVisitor {
 };
 
 static
-short convertMask(uint32_t eventMask) 
+short convertMask(uint32_t eventMask)
 // Return a mask with POLLIN set if READ or ACCEPT is set in 'eventMask',
 // and with POLLOUT set if WRITE or CONNECT is set in 'eventMask'.
 // Assert that if multiple events are registered, they are READ and WRITE.
 {
 
-    int pollinEvents = 
+    int pollinEvents =
         bdlb::BitUtil::numBitsSet(eventMask & EventType::k_INBOUND_EVENTS);
-    int polloutEvents = 
+    int polloutEvents =
         bdlb::BitUtil::numBitsSet(eventMask & EventType::k_OUTBOUND_EVENTS);
     BSLS_ASSERT(2 > pollinEvents);
     BSLS_ASSERT(2 > polloutEvents);
     BSLS_ASSERT(!(pollinEvents && polloutEvents) ||
                 (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ) &&
                  eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)));
-    
+
     return (POLLIN * (short)pollinEvents) | (POLLOUT * (short)polloutEvents);
 }
 
@@ -330,7 +330,7 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
 
     uint32_t newMask = d_callbacks.registerCallback(handleEvent, callback);
     if (0 == newMask) {
-        // We replaced an existing callback function.  
+        // We replaced an existing callback function.
         return 0;                                                     // RETURN
     }
 
@@ -409,16 +409,16 @@ int DefaultEventManager<Platform::DEVPOLL>::deregisterSocket(
 
 void DefaultEventManager<Platform::DEVPOLL>::deregisterAll()
 {
-    bsl::vector<struct ::pollfd> removed(d_callbacks.numSockets(), 
+    bsl::vector<struct ::pollfd> removed(d_callbacks.numSockets(),
                                          DEFAULT_POLLFD);
-    
+
     if (!removed.empty()) {
         PollRemoveVisitor visitor(&removed.front());
         d_callbacks.visitSockets(&visitor);
 
         int pollfdSize = removed.size() * k_POLLFD_SIZE;
         ssize_t rc = write(d_dpFd, &removed.front(), pollfdSize);
-        
+
         BSLS_ASSERT(pollfdSize == rc);
     }
 

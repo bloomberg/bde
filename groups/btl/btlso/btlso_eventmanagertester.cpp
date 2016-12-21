@@ -331,11 +331,11 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode = 0)
             else if (0 == curly) { // no any more callback command
                 return 0;                                             // RETURN
             }
-        } 
+        }
         else {
             // check whether we've run past the end of a valid script. We don't
-            // use any extended ASCII in scripts (and note, if the caller is 
-            // using a test allocator, it will scribble erased memory with 
+            // use any extended ASCII in scripts (and note, if the caller is
+            // using a test allocator, it will scribble erased memory with
             // bytes in the extended range)
             BSLS_ASSERT(*cbCmd > 0 && *cbCmd < 0x7f);
         }
@@ -348,15 +348,15 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode = 0)
     return cbCmd;
 }
 
-// Some event manager implementations may allocate callbacks using a pool 
+// Some event manager implementations may allocate callbacks using a pool
 // allocator or some similar mechanism. That can avoid the "scribbling" of
 // deallocated objects that test allocators perform, avoiding tests that would
-// detect the reuse of callback objects after deletion. To make such tests 
+// detect the reuse of callback objects after deletion. To make such tests
 // effective, provide a wrapper layer for callbacks that scribbles itself on
 // deletion.
 class CbWrapper {
 
-    typedef EventManager::Callback Callback; 
+    typedef EventManager::Callback Callback;
     bsls::ObjectBuffer<Callback> d_callback;
 
   public:
@@ -364,10 +364,10 @@ class CbWrapper {
     BSLMF_NESTED_TRAIT_DECLARATION(CbWrapper,
                                    bslma::UsesBslmaAllocator);
 
-    CbWrapper(const CbWrapper&  other, 
+    CbWrapper(const CbWrapper&  other,
                          bslma::Allocator *basicAllocator = 0)
     {
-        new (d_callback.buffer())  
+        new (d_callback.buffer())
             Callback(bsl::allocator_arg_t(),
                      bslma::Default::allocator(basicAllocator),
                      other.d_callback.object());
@@ -376,7 +376,7 @@ class CbWrapper {
     CbWrapper(const EventManager::Callback&  callback,
                          bslma::Allocator              *basicAllocator = 0)
     {
-        new (d_callback.buffer()) 
+        new (d_callback.buffer())
             Callback(bsl::allocator_arg_t(),
                      bslma::Default::allocator(basicAllocator),
                      callback);
@@ -391,7 +391,7 @@ class CbWrapper {
         d_callback.object()();
     }
 };
-    
+
 static void
 genericCb(btlso::EventType::Type  event,
           int                     fd,
@@ -401,7 +401,7 @@ genericCb(btlso::EventType::Type  event,
           const bsl::string      &cbScript,
           int                     flags)
     // This generic callback function performs 'event' specific action.
-    // Implementation note: 'cbScript' is passed as const bsl::string& 
+    // Implementation note: 'cbScript' is passed as const bsl::string&
     // deliberately in order to test the handling of functors with complex
     // bound arguments.
 {
@@ -493,7 +493,7 @@ genericCb(btlso::EventType::Type  event,
     const char *cbScriptPtr = cbScript.empty() ? 0 : &cbScript[0];
     while (cbScriptPtr) {
         if (flags & btlso::EventManagerTester::k_VERY_VERY_VERBOSE) {
-            bsl::printf("Generic callback: executing script %s\n", 
+            bsl::printf("Generic callback: executing script %s\n",
                         cbScriptPtr);
             bsl::fflush(stdout);
         }
@@ -1100,7 +1100,7 @@ EventManagerTester::testDeregisterSocket(EventManager *mX, int flags)
       {L_, "-a; +0r64; W0,64; Dn,1; -0; E0"                             },
       // One socket event: has an allocated callback and deregisters itself
       {L_, "-a; +0r8,{-0; +1r}; W0,8; Dn,1; -a; E0"                     },
- 
+
         // Test the event manager when two socket events exist.
         // The two socket events are for the same socket handle.
       {L_, "-a; +0w; +0r; T2; -0; E0; T0; +0r; E0r; T1; -0; T0"         },
@@ -2043,7 +2043,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
                             d_fds[1]);
             }
             SocketImpUtil::close(d_fds[1]);
-            
+
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n",
                             bslmt::ThreadUtil::selfIdAsUint64(),
@@ -2065,7 +2065,7 @@ EventManagerTestPair::~EventManagerTestPair()
                     d_fds[1]);
     }
     SocketImpUtil::close(d_fds[1]);
-    
+
     if (d_verboseFlag) {
         bsl::printf("T%llu: Closing %d\n", bslmt::ThreadUtil::selfIdAsUint64(),
                     d_fds[0]);

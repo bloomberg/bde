@@ -76,7 +76,7 @@ namespace BloombergLP {
 namespace btlso {
 
 static
-short convertMask(uint32_t eventMask) 
+short convertMask(uint32_t eventMask)
 {
     // Return a mask with POLLIN set if READ or ACCEPT is set in 'eventMask',
     // and with POLLOUT set if WRITE or CONNECT is set in 'eventMask'.
@@ -91,7 +91,7 @@ short convertMask(uint32_t eventMask)
     BSLS_ASSERT(!(pollinEvents && polloutEvents) ||
                 (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ) &&
                  eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)));
-    
+
     return static_cast<short>((POLLIN * pollinEvents) |
                               (POLLOUT * polloutEvents));
 }
@@ -107,7 +107,7 @@ int DefaultEventManager<Platform::POLL>::dispatchCallbacks()
 
     int numCallbacks = 0;
 
-    // Implementation note: We need to copy the signaled sockets because an 
+    // Implementation note: We need to copy the signaled sockets because an
     // invoked callback can potentially modify 'd_pollFds' thereby corrupting
     // the iteration order. We copy each to a working array along with the
     // mask for all registered events for that socket.
@@ -123,13 +123,13 @@ int DefaultEventManager<Platform::POLL>::dispatchCallbacks()
         }
 
         IndexMap::const_iterator it = d_index.find(data.fd);
-        BSLS_ASSERT(it != d_index.end()); 
+        BSLS_ASSERT(it != d_index.end());
         uint32_t eventMask = it->second.second;
 
         // Copy fds for READ/ACCEPT events.
 
         uint32_t registeredRead = eventMask & EventType::k_INBOUND_EVENTS;
-        if (0 != registeredRead && 
+        if (0 != registeredRead &&
             data.revents & (POLLIN | DEFAULT_MASK)) {
             d_signaledFds.push_back(bsl::make_pair(data.fd, registeredRead));
         }
@@ -143,9 +143,9 @@ int DefaultEventManager<Platform::POLL>::dispatchCallbacks()
         }
     }
 
-    // Then iterate through fds with registered events and invoke the 
+    // Then iterate through fds with registered events and invoke the
     // appropriate callback.
-        
+
     for (SignaledArray::iterator it = d_signaledFds.begin();
          it != d_signaledFds.end(); ++it) {
         uint32_t eventMask = it->second;
@@ -153,7 +153,7 @@ int DefaultEventManager<Platform::POLL>::dispatchCallbacks()
         if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ)) {
             numCallbacks += !d_callbacks.invoke(Event(it->first,
                                                       EventType::e_READ));
-        } else if (eventMask & 
+        } else if (eventMask &
                    bdlb::BitMaskUtil::eq(EventType::e_ACCEPT)) {
             numCallbacks += !d_callbacks.invoke(Event(it->first,
                                                       EventType::e_ACCEPT));
@@ -162,7 +162,7 @@ int DefaultEventManager<Platform::POLL>::dispatchCallbacks()
         if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)) {
             numCallbacks += !d_callbacks.invoke(Event(it->first,
                                                       EventType::e_WRITE));
-        } else if (eventMask & 
+        } else if (eventMask &
                    bdlb::BitMaskUtil::eq(EventType::e_CONNECT)) {
             numCallbacks += !d_callbacks.invoke(Event(it->first,
                                                       EventType::e_CONNECT));
@@ -370,14 +370,14 @@ int DefaultEventManager<Platform::POLL>::registerSocketEvent(
 
     uint32_t newMask = d_callbacks.registerCallback(handleEvent, callback);
     if (0 == newMask) {
-        // We replaced an existing callback function.  
+        // We replaced an existing callback function.
         return 0;                                                     // RETURN
     }
 
     // Map the socket handle to the corresponding index into 'd_index'.
 
     IndexMap::iterator indexIt = d_index.find(socketHandle);
-    
+
     short eventmask = convertMask(newMask);
     if (d_index.end() != indexIt) {
         // We added an event for this fd.  Update the event mask.
@@ -396,45 +396,45 @@ int DefaultEventManager<Platform::POLL>::registerSocketEvent(
 
         bsl::pair<int, uint32_t> indexAndMask = bsl::make_pair(index, newMask);
         bool insertedIndex = d_index.insert(
-                                          bsl::make_pair(socketHandle, 
+                                          bsl::make_pair(socketHandle,
                                                          indexAndMask)).second;
         (void)insertedIndex; BSLS_ASSERT(insertedIndex);
     }
     return 0;
 }
 
-void DefaultEventManager<Platform::POLL>::removeFdAtIndex(int index) 
+void DefaultEventManager<Platform::POLL>::removeFdAtIndex(int index)
 {
     int fd = d_pollFds[index].fd;
 
     int lastIndex = static_cast<int>(d_pollFds.size()) - 1;
     if (lastIndex != index) {
 
-        // This fd is not at the end of d_pollFds.  Overwrite it with the one 
+        // This fd is not at the end of d_pollFds.  Overwrite it with the one
         // that is so that we can trivially erase the last element.
 
         IndexMap::iterator lastIndexIt = d_index.find(d_pollFds[lastIndex].fd);
         BSLS_ASSERT(d_index.end() != lastIndexIt
                     && lastIndexIt->second.first == lastIndex);
-        
+
         // Move information from the last handle to the current one.
-        
+
         d_pollFds[index] = d_pollFds[lastIndex];
-        
+
         // Update the index information for the fd we moved.
-        
+
         lastIndexIt->second.first = index;
     }
 
     // Shorten the array.
-    
+
     d_pollFds.resize(d_pollFds.size() - 1);
-    
+
     // Delete index information.
-    
+
     int rc = static_cast<int>(d_index.erase(fd));
     BSLS_ASSERT(1 == rc);
-}    
+}
 
 void DefaultEventManager<Platform::POLL>::deregisterSocketEvent(
                                       const SocketHandle::Handle& socketHandle,
