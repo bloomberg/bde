@@ -108,8 +108,8 @@ typedef bsls::Types::Int64 Int64;
 
 typedef Int64 (*TimerMethod) ();
 
-const Int64 nsecsPerMicrosecond = 1000LL;
-const Int64 nsecsPerMillisecond = 1000LL * 1000LL;
+const int   nsecsPerMicrosecond = 1000;
+const int   nsecsPerMillisecond = 1000 * 1000;
 const Int64 nsecsPerSecond = 1000LL * 1000LL * 1000LL;
 
 //=============================================================================
@@ -131,17 +131,17 @@ static Int64 callGetProcessTimersRetUser() {
 }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-static void osNanosleep(long int nanoseconds) {
+static void osMillisleep(unsigned milliseconds) {
 
     timespec interval;
 
     interval.tv_sec = 0;
-    interval.tv_nsec = nanoseconds;
+    interval.tv_nsec = milliseconds * nsecsPerMillisecond;
     nanosleep(&interval, 0);
 }
 #elif defined (BSLS_PLATFORM_OS_WINDOWS)
-static void osSleep(unsigned seconds) {
-    Sleep(seconds*1000);  // milliseconds
+static void osMillisleep(unsigned milliseconds) {
+    Sleep(milliseconds);
 }
 #else
     #error "Do not know how to sleep on this platform"
@@ -1609,34 +1609,56 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // -------------------------------------------------------------
-        // HOOKING TEST  *** Windows ONLY ***
+        // HOOKING TEST
+        //
         // Concerns:
-        //   That the wall time, user time, and system time calls are making
-        //   the correct calls into the OS.
+        //:  That the wall time, user time, and system time calls are making
+        //:  the correct calls into the OS.
         //
         // Plan:
-        //   1. Take all the values, then sleep, then check how they changed.
-        //   Verify that the values returned to us are compatible with the
-        //   OS timers that the calls should be returning.
-        //   2. Make some repeated time calls; check how they changed.  Verify
-        //   that the values returned to us are compatible with the OS timers
-        //   that the calls should be returning.
-        //   3. Burn some CPU time, then check how they changed.  Verify that
-        //   the values returned to us are compatible with the OS timers that
-        //   the calls should be returning.
-        //   (These are imperfect tests; we can sleep longer than we expect,
-        //   and interrupt and scheduling activities can add to the user and
-        //   system times.)
+        //:  1. Take all the values, then sleep, then check how they changed.
+        //:     Verify that the values returned to us are compatible with the
+        //:     OS timers that the calls should be returning.
+        //:
+        //:  2. Make some repeated time calls; check how they changed.  Verify
+        //:     that the values returned to us are compatible with the OS
+        //:     timers that the calls should be returning.
+        //:
+        //:  3. Burn some CPU time, then check how they changed.  Verify that
+        //:     the values returned to us are compatible with the OS timers
+        //:     that the calls should be returning.  (These are imperfect
+        //:     tests; we can sleep longer than we expect, and interrupt and
+        //:     scheduling activities can add to the user and system times.)
         //
         // Testing:
-        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+        //   Forwarding of methods to underlying OS APIs
         // --------------------------------------------------------------------
 
-#if defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
+        if (verbose) printf("\nHOOKING TEST"
+                            "\n============\n");
+
+        //  The initialization of 'timeQuantum' varies from OS to OS.
+        //  'timeQuantum' is to be the minimum increment visible in a
+        //  timer, expressed as a number of nanoseconds.  POSIX wants it
+        //  to be 100 milliseconds.
+#if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
+        const Int64 timeQuantum = nsecsPerSecond / CLK_TCK;
+#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
+   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN
+        const Int64 timeQuantum = nsecsPerSecond / sysconf(_SC_CLK_TCK);
+                                        // On our local flavor of Linux, old
+                                        // POSIX requirements and immoderate
+                                        // file system cleverness combine to
+                                        // make the symbol that is available
+                                        // wrong (CLOCKS_PER_SEC == 1000000)
+                                        // and the symbol that is correct
+                                        // (CLK_TCK) unavailable.
+                                        // (AIX just walks its own path.)
+#elif defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
-                                        // documentation.
+                                        // documentation.  We need to test
+                                        // (not pre-accept)
+                                        // 'UnixTimerUtil::s_nsecsPerSecond'.
 
         const Int64 windowsFudge = 15 * 1000000LL;
                                         // This interval (15 milliseconds) is
@@ -1645,6 +1667,12 @@ int main(int argc, char *argv[])
                                         // synchronization between the Windows
                                         // wall-time timer and the Windows
                                         // processor time counts.
+#else
+# error Need platform info to find time quantum!
+        const Int64 timeQuantum[0];     // There is an error here, but
+                                        // the '#error' directive is not
+                                        // available everywhere.
+#endif
 
         // First subtest: Get values, sleep, get values, check that
         // they make sense for the OS counters they are supposed to be.
@@ -1654,14 +1682,14 @@ int main(int argc, char *argv[])
                 printf("\nHooking Test: System time requests across sleep."
                        "\n================================================\n");
 
-            if (veryVerbose) printf("timeQuantum = " TI64 "\n", timeQuantum);
+            if (veryVerbose) printf("timeQuantum = %lld\n", timeQuantum);
 
-            const unsigned shortSleep = 2;
+            const unsigned shortSleep = 200;
             Int64 wt1 = TU::getTimer();
             Int64 ut1 = TU::getProcessUserTimer();
             Int64 st1 = TU::getProcessSystemTimer();
 
-            osSleep(shortSleep);
+            osMillisleep(shortSleep);
 
             Int64 wt2 = TU::getTimer();
             Int64 ut2 = TU::getProcessUserTimer();
@@ -1673,11 +1701,19 @@ int main(int argc, char *argv[])
                 P(wt2 - wt1)
             }
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             // System and user time differences must be zero mod quantum, or
             // quantum is wrong.
 
             ASSERT(0 == (ut2 - ut1) % timeQuantum);
             ASSERT(0 == (st2 - st1) % timeQuantum);
+#else
+            // On Unix systems, we now measure system time and user time with
+            // calls that do not have an explicit quantum.  'timeQuantum' is
+            // still marginally useful on those platforms as a notion of
+            // "little time used", but it has no deeper mathematical
+            // relationship with the values we expect to observe.
+#endif
 
             // Comparisons on times must be written in such a way that rollover
             // can never corrupt the result.  (With 'long long' values, this is
@@ -1686,7 +1722,12 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-            ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSecond);
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+            ASSERT(wt2 - wt1 + windowsFudge >=
+                                             shortSleep * nsecsPerMillisecond);
+#else
+            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerMillisecond);
+#endif
                                                // Did we sleep long enough?
 
             ASSERT(ut2 - ut1 >= 0);            // User time must not go
@@ -1721,21 +1762,27 @@ int main(int argc, char *argv[])
             Int64 uQuantsSpent = 0;
             Int64 sQuantsSpent = 0;
             for (int i = 0; i < NUM_INTERVALS; ++i) {
-                Sample& s = samples[i+1];
-
-                s.d_wt = TU::getTimer();
-                s.d_ut = TU::getProcessUserTimer();
-                s.d_st = TU::getProcessSystemTimer();
-            }
-
-            for (int i = 0; i < NUM_INTERVALS; ++i) {
                 Sample& s0 = samples[i];
                 Sample& s1 = samples[i+1];
+
+                s1.d_wt = TU::getTimer();
+                s1.d_ut = TU::getProcessUserTimer();
+                s1.d_st = TU::getProcessSystemTimer();
+
                 // Sys and user differences must be zero mod quantum, or
                 // quantum is wrong.
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
                 ASSERT(0 == (s1.d_ut - s0.d_ut) % timeQuantum);
                 ASSERT(0 == (s1.d_st - s0.d_st) % timeQuantum);
+#else
+                // On Unix systems, we now measure system time and user time
+                // with calls that do not have an explicit quantum.
+                // 'timeQuantum' is still marginally useful on those platforms
+                // as a notion of "little time used", but it has no deeper
+                // mathematical relationship with the values we expect to
+                // observe.
+#endif
 
                 uQuantsSpent += (s1.d_ut - s0.d_ut) / timeQuantum;
                 sQuantsSpent += (s1.d_st - s0.d_st) / timeQuantum;
@@ -1759,9 +1806,9 @@ int main(int argc, char *argv[])
             ASSERT(sQuantsSpent <= 1);
 
             if (veryVerbose) {
-                printf( " 0: wt: " TI64 "\n"
-                        " 0: ut: " TI64 "\n"
-                        " 0: st: " TI64 "\n",
+                printf( " 0: wt: %lld\n"
+                        " 0: ut: %lld\n"
+                        " 0: st: %lld\n",
                         samples[0].d_wt,
                         samples[0].d_ut,
                         samples[0].d_st);
@@ -1770,9 +1817,9 @@ int main(int argc, char *argv[])
                     Sample& s0 = samples[i - 1];
                     Sample& s1 = samples[i];
 
-                    printf("%2d: wt: " TI64 " - " TI64 " = " TI64 "\n"
-                           "%2d: ut: " TI64 " - " TI64 " = " TI64 "\n"
-                           "%2d: st: " TI64 " - " TI64 " = " TI64 "\n",
+                    printf("%2d: wt: %lld - %lld = %lld\n"
+                           "%2d: ut: %lld - %lld = %lld\n"
+                           "%2d: st: %lld - %lld = %lld\n",
                            i, s1.d_wt, s0.d_wt, s1.d_wt - s0.d_wt,
                            i, s1.d_ut, s0.d_ut, s1.d_ut - s0.d_ut,
                            i, s1.d_st, s0.d_st, s1.d_st - s0.d_st);
@@ -1806,18 +1853,9 @@ int main(int argc, char *argv[])
             Int64 st2 = TU::getProcessSystemTimer();
 
             if (veryVerbose) {
-                printf("wt2: " TI64 " -  wt1: " TI64 " = " TI64 "\n",
-                       wt2,
-                       wt1,
-                       wt2 - wt1);
-                printf("ut2: " TI64 " -  ut1: " TI64 " = " TI64 "\n",
-                       ut2,
-                       ut1,
-                       ut2 - ut1);
-                printf("st2: " TI64 " -  st1: " TI64 " = " TI64 "\n",
-                       st2,
-                       st1,
-                       st2 - st1);
+                printf("wt2: %lld -  wt1: %lld = %lld\n", wt2, wt1, wt2 - wt1);
+                printf("ut2: %lld -  ut1: %lld = %lld\n", ut2, ut1, ut2 - ut1);
+                printf("st2: %lld -  st1: %lld = %lld\n", st2, st1, st2 - st1);
             }
 
             ASSERT(wt2 - wt1 >= timeQuantum);
@@ -1828,12 +1866,18 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
                                    + 10 * windowsFudge + 2 * timeQuantum >= 0);
-
-
-        }
+#else
+            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
+                                                         2 * timeQuantum >= 0);
+                                        // And our wall time was greater than
+                                        // our user and system time together,
+                                        // allowing for quantization error
+                                        // (in both user and system time).
 #endif
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
