@@ -100,6 +100,10 @@
 #include <bdld_datummapowningkeysbuilder.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdld_decimal.h>
+#endif
+
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
 #endif
@@ -1873,6 +1877,7 @@ class DatumMaker {
     bdld::Datum operator()(const bdlt::Time&                value) const;
     bdld::Datum operator()(const bdlt::Datetime&            value) const;
     bdld::Datum operator()(const bdlt::DatetimeInterval&    value) const;
+    bdld::Datum operator()(bdldfp::Decimal64                value) const;
     bdld::Datum operator()(bsls::Types::Int64               value) const;
     bdld::Datum operator()(const bdld::DatumUdt&            value) const;
     bdld::Datum operator()(const bdld::Datum&               value) const;
@@ -6145,6 +6150,12 @@ inline
 bdld::Datum DatumMaker::operator()(const bdlt::DatetimeInterval& value) const
 {
     return bdld::Datum::createDatetimeInterval(value, d_allocator_p);
+}
+
+inline
+bdld::Datum DatumMaker::operator()(bdldfp::Decimal64 value) const
+{
+    return bdld::Datum::createDecimal64(value, d_allocator_p);
 }
 
 inline
