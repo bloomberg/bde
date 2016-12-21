@@ -17,16 +17,7 @@
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-typedef unsigned long DWORD;
-typedef struct _LARGE_INTEGER {
-    long long QuadPart;
-} LARGE_INTEGER;
-
-extern "C" {
-    __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
-    __declspec(dllimport) int  __stdcall QueryPerformanceFrequency(
-                                                   LARGE_INTEGER *lpFrequency);
-};
+#include <windows.h>
 #endif
 
 // limit ourselves to the "C" library for packages below 'bslstl'
@@ -213,6 +204,110 @@ void getModelWallTime(Int64 *wallTime)
                 now.tv_usec * nsecsPerMicrosecond;
 }
 
+enum Scenario {
+ // This enumeration provide values to identify actions to be
+ // performed to demonstrate differences of CPU times alterations.
+
+    SLEEP_SCENARIO
+  , USER_TIME_SCENARIO
+  , SYSTEM_TIME_SCENARIO
+  , NUM_SCENARIOS
+};
+
+void printBanner(Scenario scenario)
+    // Print banner to the logs in accordance with current test scenario.
+{
+    switch (scenario) {
+      case SLEEP_SCENARIO: {
+        printf("\nHooking Test: Neither user nor system time burning."
+               "\n====================================================\n");
+      } break;
+      case USER_TIME_SCENARIO: {
+        printf("\nHooking Test: User time burning."
+               "\n================================\n");
+      } break;
+      case SYSTEM_TIME_SCENARIO: {
+        printf("\nHooking Test: System time burning."
+               "\n==================================\n");
+      } break;
+      default: {
+        printf("\nUnknown scenario.\n");
+      }
+    }
+}
+
+void runTestScenario(Scenario scenario, bool printMessages)
+    // Perform necessary time burning actions in accordance with the test
+    // scenario.
+{
+    switch (scenario) {
+      case SLEEP_SCENARIO: {
+        // Sleeping process should't burn neither 'user' nor 'system' CPU time.
+
+        const unsigned shortSleep = 50;
+        osMillisleep(shortSleep);
+      } break;
+      case USER_TIME_SCENARIO: {
+        // Burn user processor time.  Simple incrementing/decrementing of the
+        // local variable doesn't do any system calls, so 'user' CPU time will
+        // increase, while 'system' CPU time remain the same.  The 'volatile'
+        // should force every access to memory and slow things up a little, or
+        // a lot.  It may make the test less dependent on ever-increasing
+        // processor speeds.
+
+        const unsigned longLoop = 8 * 1000L * 1000L;
+        for (volatile unsigned u = 0; u < longLoop; ++u) {
+            ++u; --u;
+        }
+      } break;
+      case SYSTEM_TIME_SCENARIO: {
+        // Burn system processor time.  Single BLOB read/write operations will
+        // increase 'system' CPU time, but shouldn't significantly increase
+        // 'user' CPU time.
+
+        const char *fileName = "test.txt";
+        FILE       *file = fopen(fileName, "w+b");
+        if (file)
+        {
+            const int ARRAY_SIZE = 10 * 1024 * 1024;
+            char *temp = new char[ARRAY_SIZE];
+
+            fwrite(temp, sizeof(char), ARRAY_SIZE, file);
+            fseek(file, 0, SEEK_SET);
+            size_t rc = fread(temp, sizeof(char), ARRAY_SIZE, file);
+            (void) rc; // silence unused variable warning
+
+            fclose(file);
+            if (remove(fileName) != 0) {
+                if (printMessages) {
+                    printf("\nUnable to delete file.\n");
+                }
+            }
+        } else {
+            if (printMessages) {
+                printf("\nUnable to open file.\n");
+            }
+        }
+      } break;
+      default: {
+        if (printMessages) {
+            printf("\nUnknown scenario.\n");
+        }
+      }
+    }
+}
+
+#else
+// For "TIMER INVARIANTS TEST" only
+
+const Int64 MODEL_CPU_TICK_DURATION = nsecsPerSecond / 100;
+#endif
+
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+typedef HANDLE SystemTimeResource;
+char fname[MAX_PATH];
+#else
 typedef int SystemTimeResource;
 char fnTemplate[24] = {
     'b','s','l','s','_',
@@ -220,17 +315,43 @@ char fnTemplate[24] = {
     't','_',
     'X','X','X','X','X','X','\0'
 };
+#endif
 
 SystemTimeResource acquireSystemTimeResource()
 {
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    int rc = GetTempFileName(".", "bsls_timeutil_t_", 0, fname);
+    ASSERT(0 != rc);
+
+    if (0 == rc) {
+        return INVALID_HANDLE_VALUE;
+    }
+
+    HANDLE fd = CreateFile(fname,
+                    GENERIC_READ | GENERIC_WRITE,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                    NULL,                               // default security
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL,              // normal file
+                    NULL);                              // no attr
+
+    return fd;
+#else
     return mkstemp(fnTemplate);
+#endif
 }
 
 void releaseSystemTimeResource(SystemTimeResource resource)
 {
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    CloseHandle(resource);
+    DeleteFile(fname);
+#else
     close(resource);
     unlink(fnTemplate);
+#endif
 }
 
 void burnSystemTime(SystemTimeResource fd)
@@ -248,6 +369,26 @@ void burnSystemTime(SystemTimeResource fd)
 
     static const char out[2048] = {};
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    DWORD nWritten;
+    OVERLAPPED overlapped;
+    LARGE_INTEGER li;
+
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 100; ++j) {
+            if (0 == WriteFile(fd, out, sizeof(out), &nWritten, &overlapped)) {
+                break;
+            }
+        }
+        li.QuadPart = 0;
+        if (INVALID_SET_FILE_POINTER == SetFilePointer(fd,
+                                                       li.LowPart,
+                                                       &li.HighPart,
+                                                       FILE_BEGIN)) {
+            break;
+        }
+    }
+#else
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 100; ++j) {
             if (-1 == write(fd, (const void *) out, sizeof(out))) {
@@ -258,6 +399,7 @@ void burnSystemTime(SystemTimeResource fd)
             break;
         }
     }
+#endif
 }
 
 void burnUserTime(volatile int *u)
@@ -279,7 +421,6 @@ void burnWallTime()
     const unsigned shortSleep = 50;
     osMillisleep(shortSleep);
 }
-#endif
 
 //=============================================================================
 //                             USAGE EXAMPLE CODE
@@ -2211,6 +2352,405 @@ int main(int argc, char *argv[])
             }
         }
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // UNIX TIMERS (comparison with model)
+        //
+        //   Test that the timers measure the correct resources on UNIX.  This
+        //   test relies on comparing the behavior of utility functions to that
+        //   of an oracle.  This is possible on UNIX because all supported UNIX
+        //   systems provide 'times', which is not used in the current
+        //   implementation.  For wall time, the oracle is 'gettimeofday',
+        //   which is not used by the implementation on *most* platforms.  On
+        //   platforms where 'gettimeofday' is used by the implementation, this
+        //   test is weak.  For these reasons, this test is not included in the
+        //   automatically-run cases "above the line".
+        //
+        // Concerns:
+        //:  1. The first argument to 'getProcessTimers' measures system time.
+        //:
+        //:  2. The second argument to 'getProcessTimers' measures user time.
+        //:
+        //:  3. 'getTimer' measures wall time.
+        //:
+        //:  4. All three timers are in sync with the values reported by native
+        //:     system calls.
+        //
+        // Plan:
+        //:  1. For each of the time resources in question (system, user and
+        //:     wall time), consume that resource while making successive
+        //:     measurements with the utility functions 'getProcessTimers' and
+        //:     'getTimer' on the one hand, and the system calls 'times' and
+        //:     'gettimeofday' on the other hand.
+        //:
+        //:  2. Observe that the values observed by the utility functions are
+        //:     monotonically non-decreasing, and that each timer value
+        //:     observed by the utility functions are within an epsilon of the
+        //:     corresponding timer value observed by the system calls.
+        //:     (C-1..4)
+        //
+        // Testing:
+        //   getProcessTimers(*Int64, *Int64) (Unix only)
+        //   Int64 getTimer() (Unix only)
+        // --------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+        if (verbose) printf("\nUNIX TIMERS (comparison with model)"
+                            "\n===================================\n");
+
+        {
+            // We are going to perform some actions, measure them with two
+            // different functions (used by tested utility and another system
+            // function) and compare results.  First of all we need to
+            // determine acceptable difference.
+
+            // The most that the model and utility functions could diverge is
+            // double the resolution of the lowest-resolution measurement.
+
+            const Int64 cpuEpsilon = 2 * MODEL_CPU_TICK_DURATION;
+
+            // Pessimistic assumption: a wall timer resolution may be as coarse
+            // as the low-resolution CPU timers.
+
+            const Int64 wallEpsilon = 2 * MODEL_CPU_TICK_DURATION;
+
+            enum { NUM_SAMPLES = 10 };
+
+            struct Sample {
+                Int64 d_wt;  // wall time
+                Int64 d_ut;  // user time
+                Int64 d_st;  // system time
+            };
+
+            if (veryVerbose) {
+                printf("Wall time epsilon: " TI64 "\n"
+                       "CPU  time epsilon: " TI64 "\n",
+                       wallEpsilon,
+                       cpuEpsilon);
+            }
+
+            for (int i = 0; i < NUM_SCENARIOS; ++i) {
+                if (veryVerbose) {
+                    printBanner(static_cast<Scenario>(i));
+                }
+                Sample utilSamples[NUM_SAMPLES];
+                Sample modelSamples[NUM_SAMPLES];
+
+                // Collecting initial values.
+
+                utilSamples[0].d_wt = TU::getTimer();
+                getModelWallTime(&modelSamples[0].d_wt);
+
+                TU::getProcessTimers(&utilSamples[0].d_st,
+                                     &utilSamples[0].d_ut);
+                getModelCpuTime(&modelSamples[0].d_st, &modelSamples[0].d_ut);
+
+                for (int j = 1; j < NUM_SAMPLES; j++) {
+                    // Time burning action.
+
+                    // TODO: keep running scenarios until we see at least two
+                    // low-resolution ticks of difference in the
+                    // high-resolution measurement for the resoiurce we are
+                    // targeting.
+
+                    runTestScenario(static_cast<Scenario>(i), veryVerbose);
+
+                    // Results collecting.
+
+                    utilSamples[j].d_wt = TU::getTimer();
+                    getModelWallTime(&modelSamples[j].d_wt);
+
+                    TU::getProcessTimers(&utilSamples[j].d_st,
+                                         &utilSamples[j].d_ut);
+                    getModelCpuTime(&modelSamples[j].d_st,
+                                    &modelSamples[j].d_ut);
+                }
+
+                for (int j = 1; j < NUM_SAMPLES; ++j) {
+                    // Results analysing.
+
+                    Int64 uWTDelta = utilSamples[j].d_wt -
+                                                         utilSamples[j-1].d_wt;
+                    Int64 uUTDelta = utilSamples[j].d_ut -
+                                                         utilSamples[j-1].d_ut;
+                    Int64 uSTDelta = utilSamples[j].d_st -
+                                                         utilSamples[j-1].d_st;
+
+                    Int64 mWTDelta = modelSamples[j].d_wt -
+                                                        modelSamples[j-1].d_wt;
+                    Int64 mUTDelta = modelSamples[j].d_ut -
+                                                        modelSamples[j-1].d_ut;
+                    Int64 mSTDelta = modelSamples[j].d_st -
+                                                        modelSamples[j-1].d_st;
+
+                    if (veryVerbose) {
+                        P(j)
+                        T_ P_(utilSamples[j].d_wt) P(utilSamples[j-1].d_wt)
+                        T_ P_(modelSamples[j].d_wt) P(modelSamples[j-1].d_wt)
+                        T_ P_(utilSamples[j].d_ut) P(utilSamples[j-1].d_ut)
+                        T_ P_(modelSamples[j].d_ut) P(modelSamples[j-1].d_ut)
+                        T_ P_(utilSamples[j].d_st) P(utilSamples[j-1].d_st)
+                        T_ P_(modelSamples[j].d_st) P(modelSamples[j-1].d_st)
+                    }
+
+                    ASSERTV(i, j, utilSamples[j].d_wt, utilSamples[j-1].d_wt,
+                            0 <= uWTDelta);
+                    ASSERTV(i, j, utilSamples[j].d_ut, utilSamples[j-1].d_ut,
+                            0 <= uUTDelta);
+                    ASSERTV(i, j, utilSamples[j].d_st, utilSamples[j-1].d_st,
+                            0 <= uSTDelta);
+
+                    ASSERTV(i, j, mWTDelta, uWTDelta,
+                            wallEpsilon >= llabs(mWTDelta - uWTDelta));
+                    ASSERTV(i, j, mUTDelta, uUTDelta,
+                            cpuEpsilon  >= llabs(mUTDelta - uUTDelta));
+                    ASSERTV(i, j, mSTDelta, uSTDelta,
+                            cpuEpsilon  >= llabs(mSTDelta - uSTDelta));
+                }
+            }
+        }
+#endif
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // TIMER INVARIANTS TEST
+        //   This test is an attempt at demonstrating in a simple
+        //   cross-platform manner that the timers provided by the component
+        //   under test each measure the correct resource.  Since not all
+        //   platforms provide alternative ways to measure the resources, and
+        //   because it is often difficult to make direct comparisons of values
+        //   returned by different system calls, this test does not use an
+        //   oracle, and instead asserts that certain expected properties hold
+        //   for the system, user and wall times measured by the component.
+        //
+        //   However, we note that every system call can consume arbitrary
+        //   amounts of system, user and wall time, due to the possibility of
+        //   being swapped out in favor of another process, or spinning (in
+        //   either user or kernel mode) while waiting for access to the
+        //   underlying system resource.  For this reason, there are very few
+        //   properties that we can confidently assert.  Furthermore, the
+        //   properties that we do assert in this test case may occasionally
+        //   fail to hold.  For this reason, this test is not included in the
+        //   automatically-run tests "above the line".
+        //
+        //   This test should be run manually to confirm that the timers behave
+        //   sanely on a new platform.  If a *consistent* failure is observed,
+        //   then there is a problem with the implementation on that platform.
+        //   Otherwise (i.e. if there are only intermittent failures) this test
+        //   demonstrates that the component is returning values provided by
+        //   the correct underlying system calls.
+        //
+        // Concerns:
+        //:  1. The values for system, user and wall time measured by the
+        //:     component under test respect the expected invariants for the
+        //:     underlying resources:
+        //:
+        //:     1. Observed system time use is greater when system time is
+        //:        being intensively consumed than when the process sleeps.
+        //:
+        //:     2. Observed system time use is minimal when user time is being
+        //:        intensively consumed.
+        //:
+        //:     3. Observed system time use is minimal when wall time is being
+        //:        intensively consumed.
+        //:
+        //:     4. Observed user time use is greater than observed system time
+        //:        use when user time is being intensively consumed.
+        //:
+        //:     5. Observed user time use is greater when user time is
+        //:        being intensively consumed than when the process sleeps.
+        //:
+        //:     6. Observed user time use is minimal when wall time is being
+        //:        intensively consumed.
+        //:
+        //:     7. Observed wall time use is greater than observed user time
+        //:        use when wall time is being intensively consumed.
+        //:
+        //:     8. Observed wall time use is greater than observed system time
+        //:        use when wall time is being intensively consumed.
+        //:
+        //:     9. Observed wall time use is greater than observed system time
+        //:        use when user time is being intensively consumed.
+        //:
+        //:     10. Observed wall time use is greater than observed user time
+        //:         use when system time is being intensively consumed.
+        //
+        // Plan:
+        //:  1. For each type of time resource (system, user and wall), try to
+        //:     burn only that resource, until a measurable amount of the
+        //:     resource has been used.
+        //:
+        //:  2. Measure the amount used of each of the three time resources.
+        //:
+        //:  3. Assert each of the invariants listed in the concerns. (C-1)
+        //
+        // Testing:
+        //   CONCERN: Timer results respect invariants
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTIMER INVARIANTS TEST"
+                            "\n=====================\n");
+
+        {
+            enum { e_SYSTEM = 0, e_USER, e_WALL, k_NUM_CLOCKS };
+
+            Int64 sample [k_NUM_CLOCKS][k_NUM_CLOCKS] = { };
+
+            SystemTimeResource resource = acquireSystemTimeResource();
+
+            // Sample clock deltas for different scenarios
+
+            for (int i = 0; i < k_NUM_CLOCKS; ++i) {
+                if (veryVerbose) {
+                    T_ P(i)
+                }
+
+                Int64 initial[k_NUM_CLOCKS] = { };
+                Int64 measuredST = 0;
+                Int64 measuredUT = 0;
+                Int64 measuredWT = 0;
+
+                TU::getProcessTimers(&initial[e_SYSTEM], // system time
+                                     &initial[e_USER]);  // user time
+                initial[e_WALL] = TU::getTimer();        // wall time
+
+                do {
+                    switch (i) {
+                      case e_SYSTEM: {
+                        burnSystemTime(resource);
+                      } break;
+                      case e_USER: {
+                        volatile int u = 0;
+                        burnUserTime(&u);
+                      } break;
+                      case e_WALL: {
+                        burnWallTime();
+                      } break;
+                      default: {
+                        ASSERT(false);
+                      }
+                    }
+
+                    // Collect resource measurements as quickly as possible.
+
+                    TU::getProcessTimers(&measuredST,  // system time
+                                         &measuredUT); // user time
+                    measuredWT = TU::getTimer();       // wall time
+
+                    sample[i][e_SYSTEM] = measuredST - initial[e_SYSTEM];
+                    sample[i][e_USER]   = measuredUT - initial[e_USER];
+                    sample[i][e_WALL]   = measuredWT - initial[e_WALL];
+
+                    // Keep going until the resource we are interested in
+                    // registers a change.
+
+                } while(0 == sample[i][i]);
+
+                if (veryVeryVerbose) {
+                    T_ T_ P_(sample[i][e_SYSTEM])
+                          P_(sample[i][e_USER])
+                          P(sample[i][e_WALL])
+                }
+            }
+
+            // System clock should be used more than user clock on the
+            // 'e_SYSTEM' pass, and should account for most of the wall time
+            // used:
+
+            //  Fails on some platforms.  Spinning in user mode waiting for
+            //  system counter to become available?  S[u] < S[s]
+
+            // ASSERTV(sample[e_USER  ][e_SYSTEM],
+            //         sample[e_SYSTEM][e_SYSTEM],
+            //         sample[e_USER  ][e_SYSTEM] <=
+            //                                     sample[e_SYSTEM][e_SYSTEM]);
+
+            // C-1.1
+
+            ASSERTV(sample[e_WALL  ][e_SYSTEM],
+                    sample[e_SYSTEM][e_SYSTEM],
+                    sample[e_WALL  ][e_SYSTEM] < sample[e_SYSTEM][e_SYSTEM]);
+
+            // Fails on some platforms.  Multi-threaded implementation of
+            // 'getrusage'?: S[s] < W[s]
+
+            //ASSERTV(sample[e_SYSTEM][e_WALL  ],
+            //        sample[e_SYSTEM][e_SYSTEM],
+            //        sample[e_SYSTEM][e_SYSTEM] < sample[e_SYSTEM][e_WALL  ]);
+
+            // 'MODEL_CPU_TICK_DURATION' is a bad candidate for upper bound for
+            // unused resources, since even *used* resources (like S[s] or
+            // U[u]) might not reach this level of usage.  But in the absence
+            // of a 'getrusage' tick size there is no reasonable alternate
+            // bound available.
+
+            // C-1.2
+
+            ASSERTV(sample[e_USER  ][e_SYSTEM],
+                    sample[e_USER  ][e_SYSTEM] < MODEL_CPU_TICK_DURATION);
+
+            // C-1.3
+
+            ASSERTV(sample[e_WALL  ][e_SYSTEM],
+                    sample[e_WALL  ][e_SYSTEM] < MODEL_CPU_TICK_DURATION);
+
+            // User clock should be used more than the system clock on the
+            // 'e_USER' pass, and should account for most of the wall time
+            // used:
+
+            // C-1.4
+
+            ASSERTV(sample[e_USER  ][e_SYSTEM],
+                    sample[e_USER  ][e_USER  ],
+                    sample[e_USER  ][e_SYSTEM] < sample[e_USER][e_USER]);
+
+            // C-1.5
+
+            ASSERTV(sample[e_WALL  ][e_USER],
+                    sample[e_USER  ][e_USER],
+                    sample[e_WALL  ][e_USER] < sample[e_USER][e_USER]);
+
+            // Fails on some platforms.  Multi-threaded implementation of
+            // 'getrusage'?: U[u] < W[u]
+
+            // ASSERTV(sample[e_USER  ][e_WALL  ],
+            //         sample[e_USER  ][e_USER  ],
+            //         sample[e_USER  ][e_USER  ] < sample[e_USER][e_WALL  ]);
+
+            // C-1.6
+
+            ASSERTV(sample[e_WALL  ][e_USER  ],
+                    sample[e_WALL  ][e_USER  ] < MODEL_CPU_TICK_DURATION);
+
+            // Wall clock should dominate on the 'e_WALL' pass:
+
+            // C-1.7
+
+            ASSERTV(sample[e_WALL  ][e_USER  ],
+                    sample[e_WALL  ][e_WALL  ],
+                    sample[e_WALL  ][e_USER  ] < sample[e_WALL][e_WALL]);
+
+            // C-1.8
+
+            ASSERTV(sample[e_WALL  ][e_SYSTEM],
+                    sample[e_WALL  ][e_WALL  ],
+                    sample[e_WALL  ][e_SYSTEM] < sample[e_WALL][e_WALL]);
+
+            // C-1.9
+
+            ASSERTV(sample[e_USER  ][e_SYSTEM],
+                    sample[e_USER  ][e_WALL  ],
+                    sample[e_USER  ][e_SYSTEM] < sample[e_USER][e_WALL]);
+
+            // C-1.10
+
+            ASSERTV(sample[e_SYSTEM][e_USER  ],
+                    sample[e_SYSTEM][e_WALL  ],
+                    sample[e_SYSTEM][e_USER  ] < sample[e_SYSTEM][e_WALL]);
+
+            releaseSystemTimeResource(resource);
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
