@@ -353,8 +353,8 @@ class DefaultEventManager<Platform::POLLSET> : public EventManager {
     TimeMetrics                  *d_timeMetric_p; // metrics to use for
                                                   // reporting percent-busy
                                                   // statistics
-    
-    EventCallbackRegistry         d_callbacks;    // Container of events and 
+
+    EventCallbackRegistry         d_callbacks;    // Container of events and
                                                   // associated callbacks
 
     bsl::vector<struct ::pollfd>  d_signaled;     // array of 'pollfd'

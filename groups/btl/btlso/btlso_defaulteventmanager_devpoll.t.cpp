@@ -263,7 +263,7 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:
       case 13: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   USAGE EXAMPLE
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 12: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'hasLimitedSocketCapacity'
         //
         // Concern:
@@ -382,7 +382,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   bool hasLimitedSocketCapacity() const;
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'hasLimitedSocketCapacity" << endl
@@ -768,7 +768,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 9: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
         //
         // Concern:
@@ -785,7 +785,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   int deregisterSocket();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
         if (verbose)
@@ -905,7 +905,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 8: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
         //   method for the write socket handle and event, for all possible
@@ -929,7 +929,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   int dispatch();
         //   int dispatch(const bsls::TimeInterval&, ...);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING 'dispatch' METHOD." << endl
                                   << "==========================" << endl;
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 7: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'deregisterAll' FUNCTION:
         //   It must be verified that the application of 'deregisterAll'
         //   from any state returns the event manager.
@@ -1075,7 +1075,7 @@ int main(int argc, char *argv[]) {
         //   between all event managers.
         // Testing:
         //   void deregisterAll();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterAll'" << endl
                                   << "=======================" << endl;
         if (verbose)
@@ -1091,7 +1091,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 6: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
         //   All possible transitions from other state to 0 must be
         //   exhaustively tested.
@@ -1109,7 +1109,7 @@ int main(int argc, char *argv[]) {
         //   number of open files.
         // Testing:
         //   int deregisterSocket();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
         {
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 5: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'deregisterSocketEvent' FUNCTION:
         //   All possible deregistration transitions must be exhaustively
         //   tested.
@@ -1158,7 +1158,7 @@ int main(int argc, char *argv[]) {
         //   number of open files.
         // Testing:
         //   void deregisterSocketEvent();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterSocketEvent'" << endl
                                   << "===============================" << endl;
         if (verbose)
@@ -1235,7 +1235,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 4: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'registerSocketEvent' FUNCTION:
         //   The main concern about this function is to ensure full coverage
         //   of the every legal event combination that can be registered for
@@ -1254,7 +1254,7 @@ int main(int argc, char *argv[]) {
         //   gg() of 'btlso::EventManagerTester' to execute the test data.
         // Testing:
         //   void registerSocketEvent();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'registerSocketEvent'" << endl
                                   << "=============================" << endl;
         if (verbose)
@@ -1326,7 +1326,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 3: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING ACCESSORS:
         //   The main concern about this function is to ensure full coverage
         //   of the every legal event combination that can be registered for
@@ -1345,7 +1345,7 @@ int main(int argc, char *argv[]) {
         //   int isRegistered();
         //   int numEvents() const;
         //   int numSocketEvents();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING ACCESSORS" << endl
                                   << "=================" << endl;
 
@@ -1373,7 +1373,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 2: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS:
         //
         // Plan:
@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   btlso::DefaultEventManager();
         //   ~btlso::DefaultEventManager();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
                                   << "============================" << endl;
         {
@@ -1438,14 +1438,14 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // BREATHING TEST
         //   Ensure the basic liveness of an event manager instance.
         //
         // Testing:
         //   Create an object of this event manager under test.  Perform
         //   some basic operations on it.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
         {
@@ -1531,7 +1531,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case -2: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
         //   Get performance data.
         //
@@ -1545,7 +1545,7 @@ int main(int argc, char *argv[]) {
         //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'btlso_eventmanagertester.t.cpp'.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
                              "=========================================\n";
@@ -1557,9 +1557,9 @@ int main(int argc, char *argv[]) {
       } break;
 
       case -3: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Interactive gg test shell
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         while (1) {
             char script[1000];

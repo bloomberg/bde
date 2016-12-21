@@ -111,9 +111,9 @@ static void convert(struct timeval *result, const bsls::TimeInterval& value)
 namespace btlso {
 
 namespace {
-    
+
 struct EventPartitioner {
-    // This private helper class visits Event objects and adds them to a 
+    // This private helper class visits Event objects and adds them to a
     // read or write fd_set as appropriate.
     fd_set *d_read;
     fd_set *d_write;
@@ -123,7 +123,7 @@ struct EventPartitioner {
     , d_write(write)
     {
     }
-    
+
     void operator()(const Event& event) {
         if (EventType::e_READ == event.type()
          || EventType::e_ACCEPT == event.type()) {
@@ -165,8 +165,8 @@ struct SignaledEventCollector {
             return;                                                // RETURN
         }
 
-        // If the handle for a read event was in the read set, or the 
-        // handle for a write event was in the write or (on Windows) except 
+        // If the handle for a read event was in the read set, or the
+        // handle for a write event was in the write or (on Windows) except
         // set, add the event to the appropriate container.
         if (EventType::e_READ == event.type()
          || EventType::e_ACCEPT == event.type()) {
@@ -178,16 +178,16 @@ struct SignaledEventCollector {
         else {
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
             if (FD_ISSET(event.handle(), d_writeSet)
-             || FD_ISSET(event.handle(), d_exceptSet)) 
+             || FD_ISSET(event.handle(), d_exceptSet))
 #else
-            if (FD_ISSET(event.handle(), d_writeSet)) 
+            if (FD_ISSET(event.handle(), d_writeSet))
 #endif
             {
                 d_signaledWrites->push_back(event);
                 --d_numEvents;
             }
         }
-    } 
+    }
 };
 
 
@@ -197,7 +197,7 @@ struct MaxFdFinder {
     // one encountered.
     int d_maxFd;
 
-    MaxFdFinder() 
+    MaxFdFinder()
     : d_maxFd(0)
     {
     }
@@ -221,10 +221,10 @@ bool DefaultEventManager<Platform::SELECT>::checkInternalInvariants() const
     fd_set readControl, writeControl;
     FD_ZERO(&readControl);
     FD_ZERO(&writeControl);
-    
+
     EventPartitioner visitor(&readControl, &writeControl);
     d_callbacks.visitEvents(&visitor);
-    
+
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
     if (!compareFdSets(d_exceptSet, writeControl)) {
         return false;
@@ -249,15 +249,15 @@ int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
     d_callbacks.visitEvents(&visitor);
 
     int numDispatched  = 0;
-    
+
     for (bsl::vector<Event>::iterator it = d_signaledReads.begin();
-         it != d_signaledReads.end(); 
+         it != d_signaledReads.end();
          ++it) {
         numDispatched += !d_callbacks.invoke(*it);
     }
 
     for (bsl::vector<Event>::iterator it = d_signaledWrites.begin();
-         it != d_signaledWrites.end(); 
+         it != d_signaledWrites.end();
          ++it) {
         numDispatched += !d_callbacks.invoke(*it);
     }
@@ -464,7 +464,7 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
 
     Event ev(handle, eventType);
     if (d_callbacks.registerCallback(ev, callback)) {
-        if (eventType == EventType::e_READ || 
+        if (eventType == EventType::e_READ ||
             eventType == EventType::e_ACCEPT) {
             if (!FD_ISSET(handle, &d_readSet)) {
                 FD_SET(handle, &d_readSet);
@@ -534,15 +534,15 @@ int DefaultEventManager<Platform::SELECT>::deregisterSocket(
 
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
     if (handle == d_maxFd - 1) {
-        // If we removed the socket having the highest file descriptor, 
+        // If we removed the socket having the highest file descriptor,
         // find the next-highest file descriptor
         MaxFdFinder visitor;
         d_callbacks.visitSockets(&visitor);
-        
+
         d_maxFd = visitor.d_maxFd + 1;
     }
 #endif
-    
+
     return bdlb::BitUtil::numBitsSet(mask);
 }
 

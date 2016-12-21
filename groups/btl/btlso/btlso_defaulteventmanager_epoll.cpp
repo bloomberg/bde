@@ -92,29 +92,29 @@ const uint32_t k_POLLIN_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_READ) |
 const uint32_t k_POLLOUT_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_WRITE) |
                                   bdlb::BitMaskUtil::eq(EventType::e_CONNECT);
 static
-struct epoll_event makeEvent(uint32_t eventMask, int fd) 
+struct epoll_event makeEvent(uint32_t eventMask, int fd)
 {
-    // Return an epoll_event structure with a mask having EPOLLIN set if READ 
-    // or ACCEPT is set in 'eventMask', and EPOLLOUT set if WRITE or CONNECT 
-    // is set in 'eventMask'. Assert that if multiple events are registered, 
+    // Return an epoll_event structure with a mask having EPOLLIN set if READ
+    // or ACCEPT is set in 'eventMask', and EPOLLOUT set if WRITE or CONNECT
+    // is set in 'eventMask'. Assert that if multiple events are registered,
     // they are READ and WRITE.
-    // 
+    //
     // The 'data' portion of the event is a 64-bit-wide union.  One of its
-    // fields is "fd", an int, but we also want to store the original 
-    // 'eventMask'.  Store the fd in the lower 32 bits of the 'data' union 
+    // fields is "fd", an int, but we also want to store the original
+    // 'eventMask'.  Store the fd in the lower 32 bits of the 'data' union
     // and the 'eventMask' in the upper 32 bits.  (Thus, 'data.fd' does *not*
     // contain the fd.)
 
-    int pollinEvents = 
+    int pollinEvents =
         bdlb::BitUtil::numBitsSet(eventMask & k_POLLIN_EVENTS);
-    int polloutEvents = 
+    int polloutEvents =
         bdlb::BitUtil::numBitsSet(eventMask & k_POLLOUT_EVENTS);
     BSLS_ASSERT(2 > pollinEvents);
     BSLS_ASSERT(2 > polloutEvents);
     BSLS_ASSERT(!(pollinEvents && polloutEvents) ||
                 (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ) &&
                  eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)));
-    
+
     struct epoll_event result;
     result.events = (EPOLLIN * pollinEvents) | (EPOLLOUT * polloutEvents);
     result.data.u64 = (uint64_t)eventMask << 32 | fd;
@@ -124,8 +124,8 @@ struct epoll_event makeEvent(uint32_t eventMask, int fd)
 struct RemoveVisitor {
     int d_epollFd;
 
-    RemoveVisitor(int epollFd) 
-    : d_epollFd(epollFd) 
+    RemoveVisitor(int epollFd)
+    : d_epollFd(epollFd)
     {
     }
 
@@ -136,9 +136,8 @@ struct RemoveVisitor {
 
         BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
     }
-};        
-        
-    
+};
+
 }  // close unnamed namespace
 
            // ------------------------------------------
@@ -163,7 +162,7 @@ int EventManagerName::dispatchCallbacks(int numReady)
         int fd = (int)(curEvent->data.u64 & 0xFFFFFFFF);
 
         // Read/Accept.
-        
+
         if (curEvent->events & (EPOLLIN | EPOLLERR | EPOLLHUP)) {
             if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ)) {
                 numCallbacks += !d_callbacks.invoke(Event(fd,
@@ -173,7 +172,7 @@ int EventManagerName::dispatchCallbacks(int numReady)
                                                           EventType::e_ACCEPT));
             }
         }
-            
+
         // Write/Connect.
 
         if (curEvent->events & EPOLLOUT) {
@@ -345,16 +344,16 @@ void EventManagerName::deregisterSocketEvent(
     if (0 == newMask) {
         // There are no more events to monitor for this handle.  Remove it from
         // epoll.
-        
+
         struct epoll_event epollEvent = { 0, { 0 } };
         int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &epollEvent);
-        
+
         // epoll removes closed file descriptors automatically.
 
         (void) ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
         return;                                                       // RETURN
     }
-    
+
     // We're still interested in another event for this fd.  Send the new mask
     // to epoll.
     struct epoll_event epollEvent = makeEvent(newMask, handle);
@@ -404,7 +403,7 @@ int EventManagerName::registerSocketEvent(
 
     uint32_t eventMask = d_callbacks.registerCallback(handleEvent, callback);
     if (0 == eventMask) {
-        // Event was already registered; we simply changed the callback 
+        // Event was already registered; we simply changed the callback
         return 0;                                                     // RETURN
     }
 
@@ -412,7 +411,7 @@ int EventManagerName::registerSocketEvent(
     struct epoll_event epollEvent = makeEvent(eventMask, handle);
 
     // If there is 1 event registered now, it was the first one for this socket
-    // (otherwise, we would have replaced the callback and returned already). 
+    // (otherwise, we would have replaced the callback and returned already).
     // In that case, the command is EPOLL_CTL_ADD. Otherwise, we are
     // adding a second event and the command is EPOLL_CTL_MOD.
     int epollCmd = 1 == bdlb::BitUtil::numBitsSet(eventMask)
@@ -449,7 +448,7 @@ int EventManagerName::isRegistered(
                                 const btlso::EventType::Type       event) const
 {
     return d_callbacks.contains(Event(handle, event));
-}    
+}
 
 }  // close package namespace
 

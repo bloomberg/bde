@@ -500,7 +500,7 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 9: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING CPU usage in non-blocking 'connect'
         //   When initiating a non-blocking connect to a non-listening port,
         //   the registered callback is never invoked and the process uses
@@ -514,7 +514,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   registerSocketEvent(CONNECT)
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "\n'registerSocketEvent' for NON-BLOCKING CONNECT"
                           << "\n=============================================="
@@ -585,8 +585,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 8: {
-        // -----------------------------------------------------------------
-        // TESTING 'deregisterSocket' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'deregisterSocket' METHOD
         //
         // Concern:
         //   o  Deregistration from a callback of the same socket is handled
@@ -603,7 +603,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   int deregisterSocket();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
@@ -716,8 +716,8 @@ int main(int argc, char *argv[]) {
 
       case 7: {
 // #ifndef BSLS_PLATFORM_OS_AIX
-        // -----------------------------------------------------------------
-        // TESTING 'dispatch' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'dispatch' METHOD
         //   The goal is to ensure that 'dispatch' invokes the callback
         //   method for the write socket handle and event, for all possible
         //   events.
@@ -740,10 +740,10 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   int dispatch();
         //   int dispatch(const bsls::TimeInterval&, ...);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'dispatch' method." << endl
-                                  << "==========================" << endl;
+        if (verbose) cout << endl << "Testing 'dispatch'" << endl
+                                  << "==================" << endl;
 
         if (verbose)
             cout << "Standard test for 'dispatch'" << endl
@@ -1007,8 +1007,8 @@ int main(int argc, char *argv[]) {
 // #endif
       } break;
       case 6: {
-        // -----------------------------------------------------------------
-        // TESTING 'deregisterAll' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'deregisterAll' METHOD
         //   It must be verified that the application of 'deregisterAll'
         //   from any state returns the event manager.
         //
@@ -1023,7 +1023,7 @@ int main(int argc, char *argv[]) {
         //   between all event managers.
         // Testing:
         //   void deregisterAll();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterAll'" << endl
                                   << "=======================" << endl;
         if (verbose)
@@ -1038,8 +1038,8 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 5: {
-        // -----------------------------------------------------------------
-        // TESTING 'deregisterSocket' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'deregisterSocket' METHOD
         //   All possible transitions from other state to 0 must be
         //   exhaustively tested.
         //
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[]) {
         //   between all event managers.
         // Testing:
         //   int deregisterSocket();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
         {
@@ -1065,8 +1065,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 4: {
-        // -----------------------------------------------------------------
-        // TESTING 'deregisterSocketEvent' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'deregisterSocketEvent' METHOD
         //   All possible deregistration transitions must be exhaustively
         //   tested.
         //
@@ -1081,7 +1081,7 @@ int main(int argc, char *argv[]) {
         //   between all event managers.
         // Testing:
         //   void deregisterSocketEvent();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'deregisterSocketEvent'" << endl
                                   << "===============================" << endl;
         if (verbose)
@@ -1139,8 +1139,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 3: {
-        // -----------------------------------------------------------------
-        // TESTING 'registerSocketEvent' FUNCTION:
+        // --------------------------------------------------------------------
+        // TESTING 'registerSocketEvent' METHOD
         //   The main concern about this function is to ensure full coverage
         //   of the every legal event combination that can be registered for
         //   one and two sockets.
@@ -1158,7 +1158,7 @@ int main(int argc, char *argv[]) {
         //   gg() of 'btlso::EventManagerTester' to execute the test data.
         // Testing:
         //   void registerSocketEvent();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING 'registerSocketEvent'" << endl
                                   << "=============================" << endl;
         if (verbose)
@@ -1232,8 +1232,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 2: {
-        // -----------------------------------------------------------------
-        // TESTING ACCESSORS:
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
         //   The main concern about this function is to ensure full coverage
         //   of the every legal event combination that can be registered for
         //   one and two sockets.
@@ -1251,7 +1251,7 @@ int main(int argc, char *argv[]) {
         //   int isRegistered();
         //   int numEvents() const;
         //   int numSocketEvents();
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING ACCESSORS" << endl
                                   << "=================" << endl;
 
@@ -1281,14 +1281,14 @@ int main(int argc, char *argv[]) {
       } break;
 
       case 1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // BREATHING TEST
         //   Ensure the basic liveness of an event manager instance.
         //
         // Testing:
         //   Create an object of this event manager under test.  Perform
         //   some basic operations on it.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
         {
@@ -1378,8 +1378,8 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case -2: {
-        // -----------------------------------------------------------------
-        // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
+        // --------------------------------------------------------------------
+        // TESTING PERFORMANCE 'registerSocketEvent' METHOD
         //   Get performance data.
         //
         // Plan:
@@ -1392,7 +1392,7 @@ int main(int argc, char *argv[]) {
         //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'btlso_eventmanagertester.t.cpp'.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
                              "=========================================\n";
@@ -1401,9 +1401,9 @@ int main(int argc, char *argv[]) {
         btlso::EventManagerTester::testRegisterPerformance(&mX, controlFlag);
       } break;
       case -3: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Interactive gg test shell
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         while (1) {
             char script[1000];
