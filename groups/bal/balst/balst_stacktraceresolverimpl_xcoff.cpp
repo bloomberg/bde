@@ -953,18 +953,22 @@ int local::StackTraceResolver::findIncludeFile(
             else if (C_NULL  == symEnt->n_sclass) {
                 // This is a 'deleted entry'.  The spec isn't super-clear here
                 // about how to interpret it.  It seems to expect that
-                // '0x00de1e00 == symEnt->n_value', but in practice, this isn't
-                // the case.  Also, it seems to imply that the 'SYMENT' might
-                // be followed by some 'AUXENT's, but in practice, this isn't
-                // the case, and what's worse, 'symEnt->n_numaux' is garbage,
-                // which was leading us to incorrectly skip a large number of
-                // 'SYMENT's that were needed to do the job.
+                // '0x00de1e00 == symEnt->n_value', but in practice, this often
+                // isn't the case.  Also, it seems to imply that the 'SYMENT'
+                // might be followed by some 'AUXENT's, but in practice, this
+                // isn't the case, and what's worse, when 'n_value' isn't
+                // corrrent, 'symEnt->n_numaux' is garbage, which was leading
+                // us to incorrectly skip a large number of 'SYMENT's that were
+                // needed to do the job.
 
                 const unsigned long long nv = symEnt->n_value;
                 zprintf("%lu C_NULL: n_value: 0x%llx %sdefective,"
                                                     " n_numaux = %d ignored\n",
                                 symIndex, nv, (0x00de1e00 == nv ? "non-" : ""),
                                                              symEnt->n_numaux);
+
+                // We want to go back to the next loop without incrementing
+                // 'symIndex' by 'symEnt->n_numaux'.
 
                 bincl = false;
                 continue;
@@ -973,7 +977,8 @@ int local::StackTraceResolver::findIncludeFile(
                 zprintf("%lu sclass: %u\n", symIndex, symEnt->n_sclass);
             }
 
-            bincl = false;
+            bincl = false;  // A 'C_EINCL', to be valid, must IMMEDIATELY
+                            // follow a 'C_BINCL'.
         }
 
         // skip any AUXENT's, we aren't interested in them
