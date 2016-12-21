@@ -151,7 +151,14 @@ void MapTestDriver<CONTAINER>::testCase1()
     //: 1 All bsl map-like containers (map, multimap, unordered_map,
     //:   unordered_multimap) support references as 'mapped_type'.
     //:
-    //: 2 Container does not make a copy of referenced object on insertion.
+    //: 2 Container does not make a copy of the referenced object on insertion.
+    //:
+    //: 3 The mapped value copy-assignment operator assigns to the original
+    //:   object and does not rebind the reference.
+    //:
+    //: 4 The container copy-assignment operator does not copy mapped values.
+    //:
+    //: 5 The container destructor does not destroy the referenced objects.
     //
     // Plan:
     //: 1 Create the value type containing a reference as a 'mapped_type' and
@@ -170,9 +177,7 @@ void MapTestDriver<CONTAINER>::testCase1()
     BSLMF_ASSERT(false == bsl::is_reference<KeyType>::value);
     BSLMF_ASSERT(true  == bsl::is_reference<MappedType>::value);
 
-    CONTAINER mX;  const CONTAINER& X = mX;
-
-    bslma::TestAllocator scratch("scratch");
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     bsls::ObjectBuffer<typename bsl::remove_const<KeyType>::type> tempKey;
     TTF::emplace(tempKey.address(), 1, &scratch);
@@ -187,14 +192,30 @@ void MapTestDriver<CONTAINER>::testCase1()
 
     ValueType tempPair(tempKey.object(), tempMapped.object());
 
+    CONTAINER mX;  const CONTAINER& X = mX;
+
     mX.insert(MoveUtil::move(tempPair));
 
-    CIter ret = mX.find(tempKey.object());
+    CIter ret = X.find(tempKey.object());
 
-    ASSERT(ret != mX.end());
+    ASSERT(ret != X.end());
 
     // Reference still refers to the original object.
     ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
+
+    {
+        CONTAINER mY;  const CONTAINER& Y = mY;
+
+        mY = X;
+
+        CIter ret = Y.find(tempKey.object());
+
+        ASSERT(ret != Y.end());
+
+        // Reference still refers to the original object.
+        ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
+    }
+
 }
 
 
