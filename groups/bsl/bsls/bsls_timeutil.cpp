@@ -77,8 +77,14 @@ inline
 void UnixTimerUtil::systemProcessTimers(bsls::Types::Int64 *systemTimer,
                                         bsls::Types::Int64 *userTimer)
 {
-    struct rusage rusage;
-    BSLS_ASSERT(-1 != getrusage( RUSAGE_SELF, &rusage ));
+    struct rusage usage;
+
+    int rc = getrusage(RUSAGE_SELF, &usage);
+    (void) rc;                   // silence unused variable warning
+
+    BSLS_ASSERT_SAFE(-1 != rc);  // Sanity check for validity of 'RUSAGE_SELF'
+                                 // and '&usage'.  Possible errors all require
+                                 // invalid input to 'getrusage'.
 
     bsls::Types::Int64 timeSec  = 0;
     bsls::Types::Int64 timeUsec = 0;
