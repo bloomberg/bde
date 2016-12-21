@@ -102,6 +102,7 @@ typedef bsls::Types::Int64 Int64;
 typedef double (Obj::*AccumulatedTimeMethod)() const;
 
 typedef Int64 (*RawTimerFunction)();
+typedef double (*ResourceBurningFunction)(double optionalUserData);
 typedef Int64 (*LoopBodyFunction)(RawTimerFunction timerFn);
 
 //=============================================================================
@@ -172,16 +173,46 @@ Int64 osSystemCall(RawTimerFunction timerFn)
     return timerFn();
 }
 
-static void shortDelay(double           delayTime,
-                       RawTimerFunction rawTimerFunction)
+static double burnSystemTime(double)
+    // Do nothing.  System time will be burned by the caller when it measures
+    // the amount of system time used.
+{
+    return 0.0;
+}
+
+static double burnUserTime(double delayTime)
 {
     const double frac = delayTime * 4.7;
+    volatile double x = 0;
+
+    for (int i = 0; i < 100000; ++i) {
+        x += delayTime / frac;    // expensive operation
+    }
+
+    return x;
+}
+
+static void shortDelay(double                  delayTime,
+                       RawTimerFunction        rawTimerFunction,
+                       ResourceBurningFunction burnFunction,
+                       bool                    veryVeryVeryVerbose)
+    // Repeatedly call the specified 'burnFunction' until the specified
+    // 'delayTime' nanoseconds of the resource measured by the specified
+    // 'rawTimerFunction' have been burned, and print the sum of the return
+    // values of 'burnFunction' if the specified 'veryVeryVeryVerbose' flag
+    // evaluates to 'true'.
+{
     const Int64 t0 = rawTimerFunction();
     const Int64 tEnd = t0 + static_cast<Int64>(delayTime * 1e9);
 
+    volatile double x = 0;
+
     while ((*rawTimerFunction)() < tEnd) {
-        double x = delayTime / frac;    // expensive operation
-        (void) x;
+        x += (*burnFunction)(delayTime);
+    }
+
+    if (veryVeryVeryVerbose) {
+        P(x)
     }
 }
 
@@ -224,8 +255,8 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-//  bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
 
     //=====================================================================
@@ -311,7 +342,6 @@ int main(int argc, char *argv[])
         //   Call bsls::Stopwatch many times and see if it ever returns a
         //   negative time.
         // --------------------------------------------------------------------
-
         if (verbose) printf("\nAttempt to reproduce negative times bug"
                             "\n=======================================\n");
 
@@ -329,13 +359,22 @@ int main(int argc, char *argv[])
                 mX.start(true);
                 switch (j) {
                   case 0: {
-                    shortDelay(delayTime, &TU::getProcessSystemTimer);
+                    shortDelay(delayTime,
+                               &TU::getProcessSystemTimer,
+                               &burnSystemTime,
+                               veryVeryVeryVerbose);
                   } break;
                   case 1: {
-                    shortDelay(delayTime, &TU::getProcessUserTimer);
+                    shortDelay(delayTime,
+                               &TU::getProcessUserTimer,
+                               &burnUserTime,
+                               veryVeryVeryVerbose);
                   } break;
                   case 2: {
-                    shortDelay(delayTime, &TU::getTimer);
+                    shortDelay(delayTime,
+                               &TU::getTimer,
+                               &burnUserTime,
+                               veryVeryVeryVerbose);
                   }
                 }
                 mX.stop();
@@ -358,6 +397,10 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(wtime, j, wtime >= 0);
                 LOOP2_ASSERT(wtime, j, wtime < 10);
                 LOOP2_ASSERT(wtime, j, wtime >= delayTime);
+
+                if (veryVeryVerbose) {
+                    P_(j) P_(stime);    P_(utime);    P(wtime);
+                }
             } // j
         } // i
 
@@ -389,7 +432,26 @@ int main(int argc, char *argv[])
 
         double const delayTime = 2; // seconds
         double const precision = 1e-3; // 1 msec
-        double const finePrecision = 1e-8; // 10 nsecs
+        double const finePrecision = 1e-5; // 10 usecs
+
+        // Note that the 'finePrecision' value is a heuristic meant to be
+        // greater than the expected cumulative cost of: 'Stopwatch::start',
+        // 'delayWall', and (notably) 'Stopwatch::accumulatedTimes'.  On some
+        // older, heavily loaded systems the cost can be well over 1us (I'm
+        // looking at you, SunOS).
+        //
+        // If the value of 'finePrecision' is less than the finest *practical*
+        // resolution of the timers provided by 'bsls::TimeUtil', then the test
+        // below effectively asserts that the cumulative cost of those
+        // operations is too small to be observed.  Such an assertion is
+        // vulnerable to improvements in the resolution of 'bsls::TimeUtil'.
+        //
+        // Earlier versions of this test driver used a 'finePrecision' that was
+        // far too small, but the low resolution of 'bsls::TimeUtil' masked
+        // that defect.  Now that 'bsls::TimeUtil' can actually detect
+        // microsecond-level resource usages, 'finePrecision' has been
+        // increased to express the expected cost of the operations.  Even so,
+        // this test is fundamentally brittle.
 
         bsls::Stopwatch pt;
 
@@ -408,13 +470,14 @@ int main(int argc, char *argv[])
         double ut2 = pt.accumulatedUserTime();
         double wt2 = pt.accumulatedWallTime();
 
-        ASSERT(st1 + finePrecision > st2);
-        ASSERT(ut1 + finePrecision > ut2);
-        ASSERT(wt1 +     precision > wt2);
+        ASSERTV(st2 - st1, st1 + finePrecision > st2);
+        ASSERTV(ut2 - ut1, ut1 + finePrecision > ut2);
+        ASSERTV(wt1 +     precision > wt2);
 
         if (verbose) {
             P_(st1) P_(ut1) P(wt1)
             P_(st2) P_(ut2) P(wt2);
+            P_(st2 - st1) P(ut2 - ut1)
         }
 
         pt.stop();
@@ -432,6 +495,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             P_(st3) P_(ut3) P(wt3)
             P_(st4) P_(ut4) P(wt4);
+            P_(st4 - st3) P(ut4 - ut3)
         }
       } break;
       case 4: {
