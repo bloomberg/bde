@@ -33,26 +33,31 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // This utility component has at present only four static functions (one being
-// just an alias to one of the other three), which are a timer functions based
-// on a platform-dependent system clocks.
+// just an alias to one of the other three), which are timer functions based on
+// platform-dependent system clocks.
+//
 // It is not possible to completely test a system-dependent function, but we
 // address basic concerns to probe both our own code for consistent behavior
 // and the system results for plausible correct behavior.
 //-----------------------------------------------------------------------------
-// [ 8] bsls::Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
-// [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
-// [ 1] void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64);
-// [ 1] bsls::Types::Int64 bsls::TimeUtil::getTimer();
-// [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+// [ 8] Int64 convertRawTime(OpaqueNativeTime rawTime);
+// [ 1] Int64 getProcessSystemTimer();
+// [ 1] void getProcessTimers(Int64);
+// [ 1] Int64 getTimer();
+// [ 1] Int64 getProcessUserTimer();
 // [ 8] OpaqueNativeTime getTimerRaw();
 //-----------------------------------------------------------------------------
-// [XX] Breathing Test -- NOT IMPLEMENTED
-// [ 2] USAGE
-// [ 3] Performance Test
-// [ 4] Test correct hooking of methods to underlying OS APIs (Windows only)
-// [ 5] Test correct hooking of methods to underlying OS APIs (Unix only)
+// [10] USAGE
+// [ 2] Performance Test
+// [ 3] Successive timer values do not repeat
+// [ 4] Forwarding of methods to underlying OS APIs
+// [ 5] Forwarding of methods to underlying OS APIs (Unix only)
 // [ 6] Test of 'gethrtime()' (Sun and HP only -- statistical)
 // [ 7] Initialization test: getTimer (Windows only)
+// [ 9] convertRawTime() arithmetic *** Windows Only ***
+// [-1] getProcessTimers(*Int64, *Int64) (Unix only)
+// [-1] Int64 getTimer() (Unix only)
+// [-2] CONCERN: Timer results respect invariants
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -91,6 +96,7 @@ static void aSsErT(bool b, const char *s, int i) {
 // ========================================================================
 //                          PRINTF FORMAT MACROS
 // ------------------------------------------------------------------------
+
 #define TI64 BSLS_BSLTESTUTIL_FORMAT_I64
 
 //=============================================================================
@@ -452,9 +458,11 @@ class my_Timer {
     double elapsedWallTime();
         // Return the total elapsed time in seconds since the creation of
         // this timer object.
+
     double elapsedUserTime();
         // Return the elapsed user time in seconds since the creation of
         // this timer object.
+
     double elapsedSystemTime();
         // Return the elapsed system time in seconds since the creation of
         // this timer object.
@@ -481,10 +489,10 @@ double my_Timer::elapsedSystemTime()
 }
 
 //=============================================================================
-//                         HELPER FUNCTIONS FOR CASE 11
+//                         HELPER FUNCTIONS FOR CASE 10
 //-----------------------------------------------------------------------------
 
-// Data Generation Script for Case 11
+// Data Generation Script for Case 10
 // ----------------------------------
 //
 // The following python script is used to generate the data in Section 2 of the
@@ -638,18 +646,19 @@ double my_Timer::elapsedSystemTime()
 bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
                                       bsls::Types::Int64 initialTime,
                                       bsls::Types::Int64 timerFrequency)
-// Convert the specified raw interval ('initialTime', 'rawTime'] to a value in
-// nanoseconds, by dividing the number of clock ticks in the raw interval by
-// the specified 'timerFrequency', and return the result of the conversion.
-// Note that this method is thread-safe only if 'initialize' has been called
-// before.
+    // Convert the specified raw interval ('initialTime', 'rawTime'] to a value
+    // in nanoseconds, by dividing the number of clock ticks in the raw
+    // interval by the specified 'timerFrequency', and return the result of the
+    // conversion.  Note that this method is thread-safe only if 'initialize'
+    // has been called before.
 
-// This function is copied from 'WindowsTimerUtil::convertRawTime' in
-// bsls_timeutil.cpp.  It is used as a stand-in for that method by which we can
-// check the accuracy of the calculations in 'WindowsTimerUtil::convertRawTime'
-// against known values.  Other tests will compare the behavior of this
-// function to that of 'WindowsTimerUtil::convertRawTime' to confirm that the
-// they both behave the same.
+    // This function is copied from 'WindowsTimerUtil::convertRawTime' in
+    // bsls_timeutil.cpp.  It is used as a stand-in for that method by which we
+    // can check the accuracy of the calculations in
+    // 'WindowsTimerUtil::convertRawTime' against known values.  Other tests
+    // will compare the behavior of this function to that of
+    // 'WindowsTimerUtil::convertRawTime' to confirm that the they both behave
+    // the same.
 {
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 G = K * K * K;
@@ -720,14 +729,14 @@ bsls::Types::Int64 getTestPeriod(const bsls::Types::Int64 frequency)
 void compareRealToFakeConvertRawTime(const TU::OpaqueNativeTime& startTime,
                                      const bsls::Types::Int64& offset,
                                      const bsls::Types::Int64& frequency)
-// Calculate the nanosecond length of an interval of the specified 'offset'
-// clock ticks on a timer with the specified 'frequency', using both
-// 'TU::convertRawTime' and 'fakeConvertRawTime', where 'fakeConvertRawTime'
-// uses the specified 'startTime' for the initial time of the interval and
-// 'TU::convertRawTime' uses its own internal initial time.  Assert that both
-// functions calculate the same length.  Note that because the two functions
-// base their calculations on different initial times, their results may differ
-// by at most 1 due to rounding error.
+    // Calculate the nanosecond length of an interval of the specified 'offset'
+    // clock ticks on a timer with the specified 'frequency', using both
+    // 'TU::convertRawTime' and 'fakeConvertRawTime', where
+    // 'fakeConvertRawTime' uses the specified 'startTime' for the initial time
+    // of the interval and 'TU::convertRawTime' uses its own internal initial
+    // time.  Assert that both functions calculate the same length.  Note that
+    // because the two functions base their calculations on different initial
+    // times, their results may differ by at most 1 due to rounding error.
 {
     TU::OpaqueNativeTime endTime;
     endTime.d_opaque = startTime.d_opaque + offset;
@@ -788,9 +797,9 @@ int main(int argc, char *argv[])
         //   run with a normal exit status.
         //
         // Plan:
-        //   Copy the implementation portion of the Usage Example to the
-        //   reserved space above, and copy the executable portion below,
-        //   adding any needed supporting code.
+        //:  Copy the implementation portion of the Usage Example to the
+        //:  reserved space above, and copy the executable portion below,
+        //:  adding any needed supporting code.
         //
         // Testing:
         //   USAGE
@@ -828,51 +837,51 @@ int main(int argc, char *argv[])
         // TESTING convertRawTime() arithmetic *** Windows Only ***
         //
         // Concerns:
-        //   When the 'QueryPerformanceCounter' interface is available on
-        //   Windows platforms, the conversion arithmetic is non-obvious and
-        //   cannot be validated simply by reading the code.  Verify that the
-        //   conversion is accurate.
-        //
-        //   Subconcerns include:
-        //    o Underflow due to a small time interval and high frequency does
-        //      not result in inaccurate calculation.
-        //
-        //    o Overflow due to a large interval and low frequency does not
-        //      result in overflow.
-        //
-        //    o The minimum possible interval (one clock tick) is accurately
-        //      handled.
-        //
-        //    o The maximum possible interval (frequency dependent, up to the
-        //      maximum number of nanoseconds that can be represented by
-        //      'bsls::Types::Int64' is accurately handled.
-        //
-        //    o Because calculation of the contributions from the high part and
-        //      low part of the ''bsls::Types::Int64' representing the number
-        //      of clock ticks in an interval are done separately, intervals
-        //      just above or below the value '1 << 32' might not be handled
-        //      correctly.
+        //:  When the 'QueryPerformanceCounter' interface is available on
+        //:  Windows platforms, the conversion arithmetic is non-obvious and
+        //:  cannot be validated simply by reading the code.  Verify that the
+        //:  conversion is accurate.
+        //:
+        //:  Subconcerns include:
+        //:   o Underflow due to a small time interval and high frequency does
+        //:     not result in inaccurate calculation.
+        //:
+        //:   o Overflow due to a large interval and low frequency does not
+        //:     result in overflow.
+        //:
+        //:   o The minimum possible interval (one clock tick) is accurately
+        //:     handled.
+        //:
+        //:   o The maximum possible interval (frequency dependent, up to the
+        //:     maximum number of nanoseconds that can be represented by
+        //:     'bsls::Types::Int64' is accurately handled.
+        //:
+        //:   o Because calculation of the contributions from the high part and
+        //:     low part of the ''bsls::Types::Int64' representing the number
+        //:     of clock ticks in an interval are done separately, intervals
+        //:     just above or below the value '1 << 32' might not be handled
+        //:     correctly.
         //
         // Plan:
-        //   'convertRawTime' cannot be tested directly because it relies on
-        //   two hidden values: 's_timerFrequency' and 's_initialTime'.  We
-        //   note, however, that the value of 's_timerFrequency' can be
-        //   retrieved directly from the machine, and that the value of
-        //   's_initialTime' will cancel itself out on any comparison between
-        //   two converted times.  Therefore, use a copy of the Windows
-        //   implementation of 'convertRawTime' to test the correctness of the
-        //   arithmetic.  This copy must be kept in sync with the actual
-        //   component code.
-        //
-        //   Test the correctness of the arithmetic by using the fake
-        //   'convertRawTime' and a table-based strategy to convert a number of
-        //   raw values for which the output value is known.
-        //
-        //   Test that the fake 'convertRawTime' behaves the same as the real
-        //   'convertRawTime' by using both to measure real time intervals and
-        //   compare the nanosecond results.  Test using fixed data based on
-        //   the concerns above, as well as random data distributed over the
-        //   entire range of valid clock tick values.
+        //:  'convertRawTime' cannot be tested directly because it relies on
+        //:  two hidden values: 's_timerFrequency' and 's_initialTime'.  We
+        //:  note, however, that the value of 's_timerFrequency' can be
+        //:  retrieved directly from the machine, and that the value of
+        //:  's_initialTime' will cancel itself out on any comparison between
+        //:  two converted times.  Therefore, use a copy of the Windows
+        //:  implementation of 'convertRawTime' to test the correctness of the
+        //:  arithmetic.  This copy must be kept in sync with the actual
+        //:  component code.
+        //:
+        //:  Test the correctness of the arithmetic by using the fake
+        //:  'convertRawTime' and a table-based strategy to convert a number of
+        //:  raw values for which the output value is known.
+        //:
+        //:  Test that the fake 'convertRawTime' behaves the same as the real
+        //:  'convertRawTime' by using both to measure real time intervals and
+        //:  compare the nanosecond results.  Test using fixed data based on
+        //:  the concerns above, as well as random data distributed over the
+        //:  entire range of valid clock tick values.
         //
         // Testing:
         //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
@@ -1304,23 +1313,23 @@ int main(int argc, char *argv[])
         // TESTING getTimerRaw() and convertRawTime()
         //
         // Concerns:
-        //   The return values from two successive calls to 'getTimerRaw()'
-        //   separated by zero or more simple operations, converted to
-        //   nanoseconds and subtracted, should produce non-negative results.
-        //   The concern of "reasonable" results is difficult to program and
-        //   for now will be observed manually.
+        //:  The return values from two successive calls to 'getTimerRaw()'
+        //:  separated by zero or more simple operations, converted to
+        //:  nanoseconds and subtracted, should produce non-negative results.
+        //:  The concern of "reasonable" results is difficult to program and
+        //:  for now will be observed manually.
         //
         // Plan:
-        //   Construct blocks containing two calls to 'getTimerRaw()'
-        //   bracketing various non-trivial (i.e., non-removable by an
-        //   optimizer) statements.  ASSERT that the differences of the
-        //   converted return values are always non-negative.  In verbose mode,
-        //   print the elapsed times so that they can be observed to be
-        //   "reasonable"
+        //:  Construct blocks containing two calls to 'getTimerRaw()'
+        //:  bracketing various non-trivial (i.e., non-removable by an
+        //:  optimizer) statements.  ASSERT that the differences of the
+        //:  converted return values are always non-negative.  In verbose mode,
+        //:  print the elapsed times so that they can be observed to be
+        //:  "reasonable"
         //
         // Testing:
-        //   bsls::TimeUtil::getTimerRaw()
-        //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
+        //   Int64 convertRawTime(OpaqueNativeTime rawTime);
+        //   OpaqueNativeTime getTimerRaw();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting Raw methods"
@@ -1451,7 +1460,6 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 printf("Computed Values: %g %g %g\n", x, y, z);
         }
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1459,12 +1467,12 @@ int main(int argc, char *argv[])
         //   *** Windows only ***: bsls::TimeUtil::getTimer()
         //
         // Plan:
-        //   Call the method and check that the return value is not negative
-        //   (the uninitialized values for s_initialTime and s_timerFrequency
-        //   are -1).
+        //:  Call the method and check that the return value is not negative
+        //:  (the uninitialized values for s_initialTime and s_timerFrequency
+        //:  are -1).
         //
         // Testing:
-        //   bsls::TimeUtil::getTimer()
+        //   Initialization test: getTimer (Windows only)
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1476,23 +1484,21 @@ int main(int argc, char *argv[])
         if (verbose) { T_; P_(t); }
         ASSERT(t >= 0);
 #endif
-
       } break;
-
       case 6: {
-#if defined (BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_HPUX)
         // --------------------------------------------------------------------
         // PERFORMANCE TEST 'gethrtime()' *** Sun and HP ONLY ***
         //   Test whether successive calls ever return non-increasing values.
         //
         // Plan:
-        //   Call 'gethrtime()' two times within a loop, and compare the return
-        //   values each time.
+        //:  Call 'gethrtime()' two times within a loop, and compare the return
+        //:  values each time.
         //
         // Testing:
-        //   'gethrtime()'
+        //   Test of 'gethrtime()' (Sun and HP only -- statistical)
         // --------------------------------------------------------------------
 
+#if defined (BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_HPUX)
         if (verbose)
             printf("\nTesting 'gethrtime()' statistical correctness"
                    "\n=============================================\n");
@@ -2115,20 +2121,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST
+        // SANITY CHECK: VALUES DO NOT REPEAT
         //   Test whether successive calls ever return the same value.
         //
         // Plan:
-        //   Call each method two times within a loop, and compare the return
-        //   values each time.
+        //:  Call each method two times within a loop, and compare the return
+        //:  values each time.
         //
         // Testing:
-        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
-        //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
-        //                                        bsls::Types::Int64);
+        //   Successive timer values do not repeat
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSANITY CHECK: VALUES DO NOT REPEAT"
+                            "\n==================================\n");
 
         struct {
             TimerMethod d_method;
@@ -2213,15 +2218,14 @@ int main(int argc, char *argv[])
         //   Time the (platform-dependent) call.
         //
         // Plan:
-        //   Call each method in a loop.
+        //:  Call each method in a loop.
         //
         // Testing:
-        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
-        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
-        //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
-        //                                        bsls::Types::Int64);
+        //   Performance Test
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPERFORMANCE TEST"
+                            "\n================\n");
 
         struct {
             TimerMethod d_method;
@@ -2281,11 +2285,11 @@ int main(int argc, char *argv[])
         //   'bsls::Types::Int64'.
         //
         // Plan:
-        //   Verify that the *temporary* returned by each method is at least 8
-        //   bytes long.  Then invoke the method several times in sequence,
-        //   separated by delay loops of increasing duration, and assert that
-        //   the return value does not decrease.  Print results and differences
-        //   in 'veryVerbose' mode.
+        //:  Verify that the *temporary* returned by each method is at least 8
+        //:  bytes long.  Then invoke the method several times in sequence,
+        //:  separated by delay loops of increasing duration, and assert that
+        //:  the return value does not decrease.  Print results and differences
+        //:  in 'veryVerbose' mode.
         //
         // Testing:
         //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
@@ -2294,6 +2298,9 @@ int main(int argc, char *argv[])
         //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
         //                                        bsls::Types::Int64);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBASIC FUNCTIONALITY"
+                            "\n===================\n");
 
         struct {
             TimerMethod d_method;
@@ -2766,7 +2773,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
