@@ -5,7 +5,6 @@
 #include <bsls_bslonce.h>
 #include <bsls_bsltestutil.h>  // for testing only
 
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -13,9 +12,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 
 #if defined BSLS_PLATFORM_OS_UNIX
-    #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/resource.h>
-    #include <unistd.h>    // sysconf(), _SC_CLK_TCK
+    #include <time.h>          // NOTE: <ctime> conflicts with <sys/time.h>
+    #include <sys/resource.h>  // struct rusage
+    #include <unistd.h>        // sysconf(), _SC_CLK_TCK
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
     #include <winbase.h>   // QueryPerformanceCounter(), GetProcessTimes()
@@ -44,8 +43,8 @@ struct UnixTimerUtil {
 
   private:
     // CLASS DATA
-    static const bsls::Types::Int64                   s_nsecsPerSecond;
-    static const bsls::Types::Int64                   s_nsecsPerMicrosecond;
+    static const bsls::Types::Int64 s_nsecsPerSecond;
+    static const bsls::Types::Int64 s_nsecsPerMicrosecond;
   private:
     // PRIVATE CLASS METHODS
     static void systemProcessTimers(bsls::Types::Int64 *systemTimer,
@@ -89,13 +88,13 @@ void UnixTimerUtil::systemProcessTimers(bsls::Types::Int64 *systemTimer,
     bsls::Types::Int64 timeSec  = 0;
     bsls::Types::Int64 timeUsec = 0;
 
-    timeSec  = static_cast<bsls::Types::Int64>(rusage.ru_stime.tv_sec);
-    timeUsec = static_cast<bsls::Types::Int64>(rusage.ru_stime.tv_usec);
+    timeSec  = static_cast<bsls::Types::Int64>(usage.ru_stime.tv_sec);
+    timeUsec = static_cast<bsls::Types::Int64>(usage.ru_stime.tv_usec);
     *systemTimer = timeSec * s_nsecsPerSecond +
                                               timeUsec * s_nsecsPerMicrosecond;
 
-    timeSec  = static_cast<bsls::Types::Int64>(rusage.ru_utime.tv_sec);
-    timeUsec = static_cast<bsls::Types::Int64>(rusage.ru_utime.tv_usec);
+    timeSec  = static_cast<bsls::Types::Int64>(usage.ru_utime.tv_sec);
+    timeUsec = static_cast<bsls::Types::Int64>(usage.ru_utime.tv_usec);
     *userTimer = timeSec * s_nsecsPerSecond + timeUsec * s_nsecsPerMicrosecond;
 }
 
@@ -347,7 +346,7 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // Not implemented: Assert that rawTime - initialTime will fit in an
         // Int64, when expressed as nanoseconds (~292 days).
         //
-        // N.B. This assert is not enabled because we cannot use
+        // N.B. This assert is not implemented because we cannot use
         // std::numeric_limits here.
         //
         // If it were implemented, it would look like the following:
