@@ -353,10 +353,10 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
 
     bslma::Allocator                  *d_allocator_p;
                                                   // supplies memory
-    
+
     // PRIVATE MANIPULATORS
     int dispatchCallbacks(int numEvents);
-        // Invoke any registered callbacks for the first 'numEvents' events in 
+        // Invoke any registered callbacks for the first 'numEvents' events in
         // 'd_signaled'.  Return the number of callbacks invoked.
 
     int dispatchImp(int flags, const bsls::TimeInterval *timeout = 0);

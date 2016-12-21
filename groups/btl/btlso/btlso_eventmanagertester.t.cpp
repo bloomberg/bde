@@ -882,7 +882,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING SOCKET START-UP
         //
         // Concern:
@@ -892,7 +892,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Write to a socket IMMEDIATELY after creating it.  Verify that
         //   the data is eventually received correctly.
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         const char *testData =
                         "There are more things in heaven and earth, Horatio,\n"
@@ -935,7 +935,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 11: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING btlso::EventManagerTestPair
         // Concerns:
         //   o a pair can be created with different verbose modes
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
         //   Create a socket pair and address the concerns
         // Testing:
         //   btlso::EventManagerTestPair
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << "TESTING bteso_EventManagerTestPair." << endl
                           << "===================================" << endl;
         btlso::EventManagerTestPair mX(veryVerbose);
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 10: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   Test building the operation details which will be used to verify
         //   the right functions and parameters passed for each call.
@@ -967,7 +967,7 @@ int main(int argc, char *argv[])
         //   Create a set of scripts which include all kinds of commands,
         //   invoke the corresponding function to build and verify the array
         //   to save all the information.
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) cout << "Test building operation details." << endl
                           << "================================" << endl;
         {
@@ -1020,7 +1020,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 9: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
@@ -1031,7 +1031,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   USAGE EXAMPLE
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) bsl::cout << endl
                                << "USAGE EXAMPLE" << endl
                                << "=============" << endl;
@@ -1101,13 +1101,13 @@ int main(int argc, char *argv[])
 
       } break;
       case 8: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'sleep'
         //
         // Plan:
         //   Issue a 'sleep' command and verify that an appropriate amount of
         //   time passed.
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "Testing 'gg' for sleep\n"
                                   "======================\n";
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
         ASSERT(elapsed >= 0.25);
       } break;
       case 7: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING 'testDispatch':
         //   To simulate the 'testDispatch()' in this component.
         //
@@ -1130,7 +1130,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testDispatch();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         int fails = 0;
 
@@ -1268,7 +1268,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 6: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST testRegisterSocketEvent:
         //   To simulate the 'testRegisterSocketEvent()' in this component.
         //
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testRegisterSocketEvent();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         int fails = 0;
 
         if (verbose) bsl::cout << endl
@@ -1361,7 +1361,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 5: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST 'testDeregisterSocketEvent()':
         //   To simulate the 'testDeregisterSocketEvent()' in this component.
         //
@@ -1371,7 +1371,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testDeregisterSocketEvent();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         int fails = 0;
 
         if (verbose) bsl::cout << endl
@@ -1446,7 +1446,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 4: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST 'testDeregisterSocket()':
         //   To simulate the 'testDeregisterSocket()' in this component.
         //
@@ -1456,7 +1456,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testDeregisterSocket();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         int fails = 0;
 
         if (verbose) bsl::cout << endl
@@ -1521,7 +1521,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 3: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST 'testDeregisterAll':
         //   To simulate the 'testDeregisterAll()' in this component.
         //
@@ -1531,7 +1531,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testDeregisterAll();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         int fails = 0;
 
         if (verbose) bsl::cout << endl
@@ -1596,7 +1596,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 2: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST 'testAccessor':
         //   To simulate the 'testAccessor()' in this component.
         //
@@ -1606,7 +1606,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int testAccessor();
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         int fails = 0;
         if (verbose) bsl::cout << endl
                           << "Testing 'gg' for accessor functions" << endl
@@ -1681,15 +1681,15 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-        // ------------------------------------------------------------------
-        // BREATHING TEST:
+        // --------------------------------------------------------------------
+        // BREATHING TEST
         //   Simulate to go through the gg() as a a test for a 'real' event
         //   manager does.
         //
         // Plan:
         //   Create a set of scripts, call gg() separately and verify the
         //   result.
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) bsl::cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
@@ -1784,9 +1784,9 @@ int main(int argc, char *argv[])
       } break;
 
       case -1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Interactive gg test shell
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         while (1) {
             char script[1000];

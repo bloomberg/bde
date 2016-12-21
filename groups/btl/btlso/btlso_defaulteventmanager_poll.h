@@ -374,13 +374,13 @@ class DefaultEventManager<Platform::POLL> : public EventManager {
     // PRIVATE MANIPULATORS
     int dispatchCallbacks();
         // For each 'pollfd' object in 'd_pollFds', invoke any appropriate
-        // registered callbacks to handle the events signalled in the 
+        // registered callbacks to handle the events signalled in the
         // 'revents' field.  Return the number of callbacks invoked.
 
     void removeFdAtIndex(int index);
         // Remove the file descriptor at the specified 'index' from d_pollFds
         // and from d_index.
-        
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(btlso::DefaultEventManager<Platform::POLL>,

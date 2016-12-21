@@ -14,13 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: btlso_eventmanager
 //
-//@DESCRIPTION: This component provides a container associating 
-// 'EventManager::Callback' instances with 'Event' values.  Given an 'Event', 
+//@DESCRIPTION: This component provides a container associating
+// 'EventManager::Callback' instances with 'Event' values.  Given an 'Event',
 // the associated 'Callback' can be invoked via 'EventCallbackRegistry'; any
-// attempts to remove a callback while it is executing will defer the 
-// destruction until the callback completes.  Thus this component provides 
-// support for registering 'Event' callbacks that can deregister (and/or 
-// re-register) themselves. 
+// attempts to remove a callback while it is executing will defer the
+// destruction until the callback completes.  Thus this component provides
+// support for registering 'Event' callbacks that can deregister (and/or
+// re-register) themselves.
 //
 // This type also maintains, for each socket handle with registered events,
 // a bitmask of all registered events.  This bitmask is formed by using the
@@ -52,14 +52,14 @@ BSLS_IDENT("$Id: $")
 // turn, will provide callback-based interfaces to their callers.  In this
 // example we use 'EventCallbackRegistry' to manage a callback for a 'READ'
 // event that deregisters itself after consuming a certain number of bytes.
-// 
+//
 // First, we define the callback to be invoked.  Note that details of error
 // handling are elided from this example.
-//.. 
-//  void readBytes(const SocketHandle::Handle&  socket, 
-//                 int                          bytesToRead, 
+//..
+//  void readBytes(const SocketHandle::Handle&  socket,
+//                 int                          bytesToRead,
 //                 char                        *buffer,
-//                 int                         *bytesRead, 
+//                 int                         *bytesRead,
 //                 EventCallbackRegistry       *registry) {
 //      // Read up to 'bytesToRead' bytes from the specified 'socket' into the
 //      // specified 'buffer', updating the specified 'bytesRead' counter to
@@ -68,20 +68,20 @@ BSLS_IDENT("$Id: $")
 //      // specified 'registry' for 'socket'.
 //
 //      int maxRead = bytesToRead - *bytesRead;
-//      int numRead = SocketImpUtil::read(buffer + *bytesRead, socket, 
+//      int numRead = SocketImpUtil::read(buffer + *bytesRead, socket,
 //                                        maxRead, 0);
 //      *bytesRead += numRead;
 //      if (*bytesRead == bytesToRead) {
 //          registry->remove(Event(socket, EventType::e_READ));
 //      }
-//      
+//
 //      // At this point, we can confirm that the registry reports that there
 //      // is no callback registered, though in fact the callback object
 //      // remains in scope.
 //
 //      assert(!registry->contains(Event(socket, EventType::e_READ)));
 //  }
-//..   
+//..
 // Next, we create an event callback registry and register this callback for
 // a socket.  Note that the details of creating 'socket' (an object of type
 // SocketHandle::Handle) are elided from this example.
@@ -89,16 +89,16 @@ BSLS_IDENT("$Id: $")
 //  EventCallbackRegistry registry;
 //  char data[NUM_BYTES];
 //  int numRead = 0;
-//  
-//  registry.registerCallback(Event(socket, EventType::e_READ), 
-//                            bdlf::BindUtil::bind(&readBytes, socket, 
+//
+//  registry.registerCallback(Event(socket, EventType::e_READ),
+//                            bdlf::BindUtil::bind(&readBytes, socket,
 //                                                 NUM_BYTES, data,
 //                                                 &numRead, &registry));
 //..
 // Finally, we write data to the socket, the details of which are elided from
-// this example; and we invoke the read callback via the registry.  The 
+// this example; and we invoke the read callback via the registry.  The
 // bound functor object will be destroyed only after the callback completes
-// (thus ensuring any bound arguments remain valid for the duration of the 
+// (thus ensuring any bound arguments remain valid for the duration of the
 // callback).
 //..
 //  int rc = registry.invoke(Event(socket, EventType::e_READ));
@@ -134,6 +134,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
 #endif
@@ -164,7 +168,7 @@ class EventCallbackRegistry {
     // callbacks to deregister and reregister themselves.
 
     // TYPES
-    typedef bsl::vector<bsl::pair<EventType::Type, 
+    typedef bsl::vector<bsl::pair<EventType::Type,
                                   bsl::shared_ptr<EventManager::Callback> > >
        EventCallbackVector;
 
@@ -185,41 +189,41 @@ class EventCallbackRegistry {
 
   public:
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(btlso::EventCallbackRegistry, 
+    BSLMF_NESTED_TRAIT_DECLARATION(btlso::EventCallbackRegistry,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
     EventCallbackRegistry(bslma::Allocator *basicAllocator = 0);
-        // Create a mapping of 'Event' objects to callback functions.  
-        // Optionally specify a 'basicAllocator' used to supply memory.  If 
-        // 'basicAllocator' is 0, the currently installed default allocator is 
+        // Create a mapping of 'Event' objects to callback functions.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     //! ~EventCallbackRegistry() = default;
 
     // MANIPULATORS
-    uint32_t registerCallback(const Event&                  event, 
+    uint32_t registerCallback(const Event&                  event,
                               const EventManager::Callback& callback);
         // Store the specified 'callback' to be invoked for the specified
-        // 'event'.  Return the new bitmask for 'event.handle()' if a new 
+        // 'event'.  Return the new bitmask for 'event.handle()' if a new
         // callback was registered, or 0 if an existing callback was replaced
         // (in which case, if the existing callback is executing, it is
-        // deregistered but not destroyed until it completes).  
-    
+        // deregistered but not destroyed until it completes).
+
     bool remove(const Event& event);
-        // Remove the callback for the specified 'event'.  Return 'true' if 
+        // Remove the callback for the specified 'event'.  Return 'true' if
         // a callback was removed, and 'false' if no callback was registered
-        // for 'event'.  If the callback is currently being invoked, it is 
+        // for 'event'.  If the callback is currently being invoked, it is
         // deregistered but not destroyed until it completes.
 
     void removeAll();
-        // Remove all registered callbacks.  If 'invoke' is currently being 
+        // Remove all registered callbacks.  If 'invoke' is currently being
         // executed on this object, the callbacks are deregistered but are not
         // destroyed until 'invoke' completes.
-    
+
     int removeSocket(const SocketHandle::Handle& socket);
-        // Remove any registered events for the specified 'socket'. 
+        // Remove any registered events for the specified 'socket'.
         // Return the number of events removed.
 
     // ACCESSORS
@@ -275,17 +279,17 @@ int EventCallbackRegistry::numSockets() const
 
 inline
 int EventCallbackRegistry::numCallbacks() const
-{ 
+{
     return d_size;
 }
 
 template<typename VISITOR>
 inline void EventCallbackRegistry::visitEvents(VISITOR *visitor) const
 {
-    for (CallbackMap::const_iterator handleIt = d_callbacks.begin(); 
+    for (CallbackMap::const_iterator handleIt = d_callbacks.begin();
          handleIt != d_callbacks.end();
          ++handleIt) {
-        for (EventCallbackVector::const_iterator cbIt = 
+        for (EventCallbackVector::const_iterator cbIt =
                  handleIt->second.begin();
              cbIt != handleIt->second.end();
              ++cbIt) {
@@ -297,7 +301,7 @@ inline void EventCallbackRegistry::visitEvents(VISITOR *visitor) const
 template<typename VISITOR>
 inline void EventCallbackRegistry::visitSockets(VISITOR *visitor) const
 {
-    for (CallbackMap::const_iterator it = d_callbacks.begin(); 
+    for (CallbackMap::const_iterator it = d_callbacks.begin();
          it != d_callbacks.end();
          ++it) {
         (*visitor)(it->first);
@@ -324,5 +328,5 @@ inline void EventCallbackRegistry::visitSockets(VISITOR *visitor) const
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-    
-    
+
+

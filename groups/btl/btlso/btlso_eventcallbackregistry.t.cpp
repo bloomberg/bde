@@ -44,7 +44,7 @@ using namespace bdlf::PlaceHolders;
 // [ 2] bool     contains(const Event& event) const;
 // [ 3] uint32_t getRegisteredEventMask(const SocketHandle::Handle&) const;
 // [ 4] int      invoke(const Event& event) const;
-// [ 3] int      numSockets() const;  
+// [ 3] int      numSockets() const;
 // [ 3] int      numCallbacks() const;
 // [ 4] void     visitEvents(VISITOR* visitor) const;
 // [ 3] void     visitSockets(VISITOR* visitor) const;
@@ -143,7 +143,7 @@ class NonzeroScopedInt {
     // only available by shared pointer and cannot be copied.
 
     int *d_value_p;
-    
+
     NonzeroScopedInt(int *value) {
         BSLS_ASSERT(0 != value);
         BSLS_ASSERT(0 != *value);
@@ -154,7 +154,7 @@ class NonzeroScopedInt {
     // NOT IMPLEMENTED
     NonzeroScopedInt(const NonzeroScopedInt&);
     NonzeroScopedInt& operator=(const NonzeroScopedInt&);
-    
+
   public:
 
     static bsl::shared_ptr<NonzeroScopedInt>
@@ -165,7 +165,7 @@ class NonzeroScopedInt {
     ~NonzeroScopedInt() {
         *d_value_p = 0;
     }
-    
+
     int* value() const {
         return d_value_p;
     }
@@ -180,7 +180,7 @@ enum RemoveType {
 
 void selfRemovingCallback(EventCallbackRegistry             *mX,
                           const Event&                       event,
-                          bsl::shared_ptr<NonzeroScopedInt>  action) 
+                          bsl::shared_ptr<NonzeroScopedInt>  action)
     // Based on the value of the specified 'action', remove the specified
     // 'event' from the specified 'mX' registry; then check that 'action' still
     // references a nonzero value (i.e., has not been destroyed).
@@ -221,7 +221,7 @@ void selfRemovingCallback(EventCallbackRegistry             *mX,
 int testCallbackDeregistration(EventCallbackRegistry *mX,
                                int                    numSockets,
                                int                    numEvents,
-                               RemoveType             action) 
+                               RemoveType             action)
     // Register the specified 'numEvents' events for the specified 'numSockets'
     // sockets on the specified 'mX' eventManager; then remove some based on
     // the specified 'action' (see 'selfRemovingCallback' for definition).
@@ -230,13 +230,13 @@ int testCallbackDeregistration(EventCallbackRegistry *mX,
     Event event((SocketHandle::Handle)999, EventType::e_ACCEPT);
 
     int actionAsInt = (int)action;
-    
+
     // We use this value for all callbacks except the final one registered,
     // which is the one we're going to invoke.  The other callbacks need
     // a valid int address *other than* that of 'actionAsInt', but will not be
     // invoked (if they are, they'll ASSERT on this dummy value).
     int dummyAction = -1;
-    
+
     for (int i = 1; i <= numSockets; ++i) {
         event.setHandle((SocketHandle::Handle)i);
 
@@ -263,7 +263,7 @@ int testCallbackDeregistration(EventCallbackRegistry *mX,
     // By this point, selfRemovingCallback will have executed and cleared
     // 'action'.
     ASSERT(0 == actionAsInt);
-    
+
     int numRemaining;
     switch (action) {
     case k_REMOVE_EVENT:
@@ -288,14 +288,14 @@ int testCallbackDeregistration(EventCallbackRegistry *mX,
 // turn, will provide callback-based interfaces to their callers.  In this
 // example we use 'EventCallbackRegistry' to manage a callback for a 'READ'
 // event that deregisters itself after consuming a certain number of bytes.
-// 
+//
 // First, we define the callback to be invoked.  Note that details of error
 // handling are elided from this example.
-//.. 
-void readBytes(const SocketHandle::Handle&  socket, 
-               int                          bytesToRead, 
+//..
+void readBytes(const SocketHandle::Handle&  socket,
+               int                          bytesToRead,
                char                        *buffer,
-               int                         *bytesRead, 
+               int                         *bytesRead,
                EventCallbackRegistry       *registry) {
     // Read up to 'bytesToRead' bytes from the specified 'socket' into the
     // specified 'buffer', updating the specified 'bytesRead' counter to
@@ -304,13 +304,13 @@ void readBytes(const SocketHandle::Handle&  socket,
     // specified 'registry' for 'socket'.
 
     int maxRead = bytesToRead - *bytesRead;
-    int numRead = SocketImpUtil::read(buffer + *bytesRead, socket, 
+    int numRead = SocketImpUtil::read(buffer + *bytesRead, socket,
                                       maxRead, 0);
     *bytesRead += numRead;
     if (*bytesRead == bytesToRead) {
         registry->remove(Event(socket, EventType::e_READ));
     }
-    
+
     // At this point, we can confirm that the registry reports that there
     // is no callback registered, though in fact the callback object
     // remains in scope.
@@ -366,20 +366,20 @@ int main(int argc, char *argv[])
                                                SocketImpUtil::k_SOCKET_STREAM);
             ASSERT(0 == rc);
         }
-        SocketHandle::Handle socket = pair[0];        
+        SocketHandle::Handle socket = pair[0];
 
         static const int NUM_BYTES = 1;
-//..   
+//..
 // Next, we create an event callback registry and register this callback for
 // a socket.  Note that the details of creating 'socket' (an object of type
 // SocketHandle::Handle) are elided from this example.
-//..        
+//..
         EventCallbackRegistry registry;
         char data[NUM_BYTES];
         int numRead = 0;
 
-        registry.registerCallback(Event(socket, EventType::e_READ), 
-                                  bdlf::BindUtil::bind(&readBytes, socket, 
+        registry.registerCallback(Event(socket, EventType::e_READ),
+                                  bdlf::BindUtil::bind(&readBytes, socket,
                                                        (int)NUM_BYTES, &data[0],
                                                        &numRead, &registry));
 
@@ -395,20 +395,20 @@ int main(int argc, char *argv[])
 #endif
 //..
 // Finally, we write data to the socket, the details of which are elided from
-// this example; and we invoke the read callback via the registry.  The 
+// this example; and we invoke the read callback via the registry.  The
 // bound functor object will be destroyed only after the callback completes
-// (thus ensuring any bound arguments remain valid for the duration of the 
+// (thus ensuring any bound arguments remain valid for the duration of the
 // callback).
-//..        
+//..
         int rc = registry.invoke(Event(socket, EventType::e_READ));
         ASSERT(0 == rc);
         ASSERT(NUM_BYTES == numRead);
-        
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // INVOKING CALLBACKS
-        // 
+        //
         // Concerns:
         //: 1 Callbacks can deregister themselves using any of the 'remove'
         //:   methods without the callback objects being destroyed.
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
         //: 1 Using a loop-driven technique, register one or two callbacks for
         //:   one or two sockets.
         //:
-        //: 2 For each configuration in P-1, invoke each of the 'remove' 
+        //: 2 For each configuration in P-1, invoke each of the 'remove'
         //:   methods in turn from the event callback, afterwards asserting the
         //:   validity of the bound callback arguments. (C-1)
         //:
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test", veryVeryVerbose);
         {
             EventCallbackRegistry mX(&ta);
-            
+
             for (int numSockets = 1; numSockets <= 2; ++numSockets) {
                 for (int numEvents = 1; numEvents <= 2; ++numEvents) {
                     for (int action = 1; action <= 4; ++action) {
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
                         CountedEventVisitor counter;
                         mX.visitEvents(&counter);
                         ASSERT(numRemaining == counter.d_count);
-                        
+
                         mX.removeAll();
                     }
                 }
@@ -472,18 +472,18 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
-          
+
       case 3: {
         // --------------------------------------------------------------------
         // SOCKETS
-        // 
+        //
         // Concerns:
         //: 1 numSockets() returns the number of sockets with events
-        // 
+        //
         //: 2 removeSocket() deregisters all events for a socket
-        // 
+        //
         //: 3 visitSockets() is invoked once for each socket with events
-        //  
+        //
         //: 4 getRegisteredEventMask() returns a bitmask of registered events
         //    for a given socket
         //
@@ -494,15 +494,15 @@ int main(int argc, char *argv[])
         //: 2 Using an arbitrary integer to represent a socket, register one
         //:   and then two events for the socket and test the socket methods
         //:   (C-1..4)
-        //: 
+        //:
         //: 3 Using two arbitrary integers to represent different sockets,
         //:   test the various socket methods when one or two events are
         //:   registered for the sockets (C-1..4)
         //
-        // NOTE: this test relies on the existing enum values of 
+        // NOTE: this test relies on the existing enum values of
         // EventType::Type and will need to be changed if the integer values
         // are reassigned.
-        // 
+        //
         // Testing:
         //   int  removeSocket(const SocketHandle::Handle& socket);
         //   int  numSockets() const;
@@ -515,30 +515,30 @@ int main(int argc, char *argv[])
         // test invariants
         BSLS_ASSERT(2 == EventType::e_READ);
         BSLS_ASSERT(3 == EventType::e_WRITE);
-        
+
         EventType::Type write = EventType::e_WRITE;
         EventType::Type read = EventType::e_READ;
         enum {
             EXPECTED_WRITE_MASK     =  8,
             EXPECTED_READWRITE_MASK = 12
         };
-        
+
         EventCallbackRegistry mX;
 
         if (verbose) cout << "Sub-test 1: No registered sockets." << endl;
         {
             ASSERT(0 == mX.numSockets());
             SocketHandle::Handle handle = (SocketHandle::Handle)123;
-            
+
             ASSERT(0 == mX.getRegisteredEventMask(handle));
-            
+
             bsl::vector<SocketHandle::Handle> sockets;
             bsl::function<void(const SocketHandle::Handle&)> visitor =
                 bdlf::BindUtil::bind(&storeSocket, &sockets, _1);
-            
+
             mX.visitSockets(&visitor);
             ASSERT(sockets.empty());
-                
+
             // Invoke removeSocket for a socket with no events registered
             // (should have no effect)
             int numRemoved = mX.removeSocket(handle);
@@ -559,15 +559,15 @@ int main(int argc, char *argv[])
             ASSERT(EXPECTED_WRITE_MASK == mask);
             ASSERT(mask == mX.getRegisteredEventMask(handle));
             ASSERT(1 == mX.numSockets());
-            
+
             bsl::vector<SocketHandle::Handle> sockets;
             bsl::function<void(const SocketHandle::Handle&)> visitor =
                 bdlf::BindUtil::bind(&storeSocket, &sockets, _1);
-            
+
             mX.visitSockets(&visitor);
             ASSERT(1 == sockets.size());
             ASSERT(handle == sockets[0]);
-            
+
             if (veryVerbose) {
                 cout << "\tTwo registered events." << endl;
             }
@@ -576,7 +576,7 @@ int main(int argc, char *argv[])
             ASSERT(mask == mX.getRegisteredEventMask(handle));
             ASSERT(1 == mX.numSockets());
 
-            sockets.clear();            
+            sockets.clear();
             mX.visitSockets(&visitor);
             ASSERT(1 == sockets.size());
             ASSERT(handle == sockets[0]);
@@ -608,17 +608,17 @@ int main(int argc, char *argv[])
             ASSERT(EXPECTED_WRITE_MASK == mask);
             ASSERT(mask == mX.getRegisteredEventMask(handle));
             ASSERT(2 == mX.numSockets());
-            
+
             bsl::vector<SocketHandle::Handle> sockets;
             bsl::function<void(const SocketHandle::Handle&)> visitor =
                 bdlf::BindUtil::bind(&storeSocket, &sockets, _1);
-            
+
             mX.visitSockets(&visitor);
             ASSERT(2 == sockets.size());
 
             // Can't rely on the ordering of this vector
             ASSERT(handle == sockets[0] || handle == sockets[1]);
-            
+
             if (veryVerbose) {
                 cout << "\tTwo registered events." << endl;
             }
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
             ASSERT(mask == mX.getRegisteredEventMask(handle));
             ASSERT(2 == mX.numSockets());
 
-            sockets.clear();            
+            sockets.clear();
             mX.visitSockets(&visitor);
             ASSERT(2 == sockets.size());
             ASSERT(handle == sockets[0] || handle == sockets[1]);
@@ -639,8 +639,8 @@ int main(int argc, char *argv[])
             mX.visitSockets(&visitor);
             ASSERT(1 == sockets.size());
             ASSERT(0 == mX.getRegisteredEventMask(handle));
-        }            
-      } break;            
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // REGISTER/REMOVE
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 registerCallback() stores the specified callback for (only) the
         //:   specified event, and contains() reports that callback is present.
-        //: 
+        //:
         //: 2 After removeCallback(), the callback is no longer executed by
         //:   invoke() or reported by contains().
         //:
@@ -682,22 +682,22 @@ int main(int argc, char *argv[])
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::TestAllocator ta("test", veryVeryVerbose);
         {
-            // Create the callbacks prior to setting the default allocator, 
+            // Create the callbacks prior to setting the default allocator,
             // since there isn't a good way to get an ordinary (non-shared)
-            // Bind object without using the default allocator.  The 
-            // temporaries used below will use the ordinary (non-test) default 
+            // Bind object without using the default allocator.  The
+            // temporaries used below will use the ordinary (non-test) default
             // allocator.
             bsltf::AllocTestType arg1(1, &ta);
             bsltf::AllocTestType arg2(2, &ta);
             EventManager::Callback callback1(
                                        bsl::allocator_arg_t(),
-                                       &ta, 
-                                       bdlf::BindUtil::bind(&checkArgument, 
+                                       &ta,
+                                       bdlf::BindUtil::bind(&checkArgument,
                                                             arg1));
             EventManager::Callback callback2(
                                        bsl::allocator_arg_t(),
-                                       &ta, 
-                                       bdlf::BindUtil::bind(&checkArgument, 
+                                       &ta,
+                                       bdlf::BindUtil::bind(&checkArgument,
                                                             arg2));
 
             // Nothing after this point should require the use of the default
@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
 
             Event event1(handle1, write);
             Event event2(handle2, write);
-                                             
+
             mX.registerCallback(event1, callback1);
             mX.registerCallback(event2, callback2);
 
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
             int rc = mX.invoke(event2);
             ASSERT(0 == rc);
             ASSERT(mX.contains(event2));
-            
+
             expectedArgument = 1;
             rc = mX.invoke(event1);
             ASSERT(0 == rc);
@@ -739,8 +739,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-      } break;            
-            
+      } break;
+
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
                           << "\n==============" << endl;
 
         EventCallbackRegistry mX;
-        
+
         SocketHandle::Handle handle = (SocketHandle::Handle)123;
         EventType::Type write = EventType::e_WRITE;
 

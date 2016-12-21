@@ -104,9 +104,9 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
                                                           EventType::e_ACCEPT));
             }
         }
-        
+
         // WRITE/CONNECT.
-        
+
         if (currData.revents & (POLLOUT | DEFAULT_MASK)) {
             if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)) {
                 numCallbacks += !d_callbacks.invoke(Event(currData.fd,
@@ -175,8 +175,8 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(
 
     int numSockets = d_callbacks.numSockets();
 
-    // Note: resize should be invoked here, rather than in 'register' as 
-    // in previous versions, to avoid resizing while dispatchCallbacks() is 
+    // Note: resize should be invoked here, rather than in 'register' as
+    // in previous versions, to avoid resizing while dispatchCallbacks() is
     // iterating through the array.
 
     d_signaled.resize(numSockets, DEFAULT_POLLFD);
@@ -332,7 +332,7 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
 
     uint32_t newMask = d_callbacks.registerCallback(event, callback);
     if (0 == newMask) {
-        // We replaced an existing callback function.  
+        // We replaced an existing callback function.
         return 0;                                                     // RETURN
     }
 
@@ -343,14 +343,14 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
     // we would have replaced its callback and returned); then the command is
     // PS_ADD.  Otherwise, we're adding an event and the command is PS_MOD.
 
-    ctl.cmd = 1 == bdlb::BitUtil::numBitsSet(newMask) 
+    ctl.cmd = 1 == bdlb::BitUtil::numBitsSet(newMask)
         ? PS_ADD
         : PS_MOD;
 
     // We set the event being registered (POLLIN/POLLOUT) and the library will
     // OR it with any existing event (as needed, for PS_MOD).
 
-    ctl.events = eventType == EventType::e_ACCEPT || 
+    ctl.events = eventType == EventType::e_ACCEPT ||
                  eventType == EventType::e_READ
         ? POLLIN
         : POLLOUT;
@@ -374,7 +374,7 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     bool removed = d_callbacks.remove(event);
     BSLS_ASSERT(removed);
 
-    // Get the mask describing any remaining event (there can be at most 1 
+    // Get the mask describing any remaining event (there can be at most 1
     // such event).
     uint32_t newMask = d_callbacks.getRegisteredEventMask(socketHandle);
     BSLS_ASSERT(1 >= bdlb::BitUtil::numBitsSet(newMask));
@@ -396,7 +396,7 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
         // still an event on this fd, have to add it back
 
         ctl.cmd = PS_ADD;
-        
+
         ctl.events = newMask & k_POLLIN_EVENTS
             ? POLLIN
             : POLLOUT;
