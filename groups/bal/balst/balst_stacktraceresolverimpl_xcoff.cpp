@@ -957,7 +957,7 @@ int local::StackTraceResolver::findIncludeFile(
                 // isn't the case.  Also, it seems to imply that the 'SYMENT'
                 // might be followed by some 'AUXENT's, but in practice, this
                 // isn't the case, and what's worse, when 'n_value' isn't
-                // corrrent, 'symEnt->n_numaux' is garbage, which was leading
+                // correct, 'symEnt->n_numaux' is garbage, which was leading
                 // us to incorrectly skip a large number of 'SYMENT's that were
                 // needed to do the job.
 
