@@ -76,9 +76,6 @@ BSLS_IDENT("$Id: $")
 #    ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 #      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
 #    endif
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
-#    endif
 #  endif
 #endif
 
@@ -91,20 +88,12 @@ BSLS_IDENT("$Id: $")
 #      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
 #    endif
 #  endif
-#  if BSLS_PLATFORM_CMP_VERSION >= 40902
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
-#    endif
-#  endif
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 #  if defined(__APPLE_CC__) && __APPLE_CC__ >= 6000
 #    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
 #      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
-#    endif
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
 #    endif
 #    if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 #      ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
@@ -151,8 +140,6 @@ namespace bsl {
     using native_std::is_trivially_assignable;
     using native_std::is_trivially_copy_assignable;
     using native_std::is_trivially_move_assignable;
-#endif
-#if BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_DESTRUCTIBLE
     using native_std::is_trivially_destructible;
 #endif
 #if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
