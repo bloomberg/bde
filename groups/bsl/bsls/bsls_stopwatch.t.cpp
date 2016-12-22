@@ -173,34 +173,20 @@ Int64 osSystemCall(RawTimerFunction timerFn)
     return timerFn();
 }
 
-static double burnSystemTime(double)
-    // Do nothing.  System time will be burned by the caller when it measures
-    // the amount of system time used.
-{
-    return 0.0;
-}
-
-static double burnUserTime(double delayTime)
-{
-    const double frac = delayTime * 4.7;
-    volatile double x = 0;
-
-    for (int i = 0; i < 100000; ++i) {
-        x += delayTime / frac;    // expensive operation
-    }
-
-    return x;
-}
-
 static void shortDelay(double                  delayTime,
                        RawTimerFunction        rawTimerFunction,
                        ResourceBurningFunction burnFunction,
                        bool                    veryVeryVeryVerbose)
     // Repeatedly call the specified 'burnFunction' until the specified
     // 'delayTime' nanoseconds of the resource measured by the specified
-    // 'rawTimerFunction' have been burned, and print the sum of the return
+    // 'rawTimerFunction' have been consumed, and print the sum of the return
     // values of 'burnFunction' if the specified 'veryVeryVeryVerbose' flag
-    // evaluates to 'true'.
+    // evaluates to 'true'.  Note that 'burnFunction' should burn only a tiny
+    // bit of the same resource measured by 'rawTimerFunction', so that
+    // 'shortDelay' can exit as soon as possible after the 'delayTime' target
+    // has been achieved.  When choosing or designing 'burnFunction', clients
+    // should keep in mind that some system time will be consumed just by
+    // calling 'rawTimerFunction' to measure the time resource consumption.
 {
     const Int64 t0 = rawTimerFunction();
     const Int64 tEnd = t0 + static_cast<Int64>(delayTime * 1e9);
@@ -212,8 +198,43 @@ static void shortDelay(double                  delayTime,
     }
 
     if (veryVeryVeryVerbose) {
+        // Optionally print out the cumulative result of all calls to
+        // 'burnFunction'.  The value of 'veryVeryVeryVerbose' depends on the
+        // command line with which the test driver is invoked, and therefore
+        // the optimizer cannot assume that 'shortDelay' and 'burnFunction'
+        // have no side effects.  In practice, we will never enter this branch
+        // on actual test driver runs.
+
         P(x)
     }
+}
+
+static double burnMinimalSystemTime(double)
+    // Do nothing.  Note that this function is designed to be used with
+    // 'shortDelay', and need only use enough system time to ensure that system
+    // time is not completely dominated by user time during a call to
+    // 'shortDelay'.  Since 'shortDelay' already uses a small amount of system
+    // time to measure a time resource, this function does not need to do
+    // anything at all.
+{
+    return 0.0;
+}
+
+static double burnMinimalUserTime(double delayTime)
+    // Perform some calculations that use an arbitrary, but small amount of
+    // user time.  Note that this function is designed to be used with
+    // 'shortDelay', and need only use up enough user time to ensure that user
+    // time is not completely dominated by system time during a call to
+    // 'shortDelay'.
+{
+    const double frac = delayTime * 4.7;
+    volatile double x = delayTime;
+
+    for (int i = 0; i < 100000; ++i) {
+        x += delayTime / frac;    // expensive operation
+    }
+
+    return x;
 }
 
 static Int64 delay(double           delayTime,
@@ -357,23 +378,29 @@ int main(int argc, char *argv[])
             for (int j = 0; j < 3; ++j) {
                 mX.reset();
                 mX.start(true);
+
+                // Use up a tiny bit of one of the three time resources.  The
+                // idea here is that we want to keep the accumulated times as
+                // small as possible, but guarantee that at least one of them
+                // has had an opportunity to be non-zero.
+
                 switch (j) {
                   case 0: {
                     shortDelay(delayTime,
                                &TU::getProcessSystemTimer,
-                               &burnSystemTime,
+                               &burnMinimalSystemTime,
                                veryVeryVeryVerbose);
                   } break;
                   case 1: {
                     shortDelay(delayTime,
                                &TU::getProcessUserTimer,
-                               &burnUserTime,
+                               &burnMinimalUserTime,
                                veryVeryVeryVerbose);
                   } break;
                   case 2: {
                     shortDelay(delayTime,
                                &TU::getTimer,
-                               &burnUserTime,
+                               &burnMinimalUserTime,
                                veryVeryVeryVerbose);
                   }
                 }

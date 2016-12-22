@@ -599,10 +599,6 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
     time_base_to_time(&rawTime, TIMEBASE_SZ);
     return (Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
 
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    return rawTime.d_opaque;
-
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     const Types::Int64 G = 1000000000;
@@ -637,7 +633,6 @@ Types::Int64 TimeUtil::getTimer()
     return gethrtime();
 
 #elif defined BSLS_PLATFORM_OS_AIX    || \
-      defined BSLS_PLATFORM_OS_HPUX   || \
       defined BSLS_PLATFORM_OS_LINUX  || \
       defined BSLS_PLATFORM_OS_DARWIN || \
       defined BSLS_PLATFORM_OS_UNIX
@@ -660,10 +655,8 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
     // intermittent non-compliant (i.e., non-monotonic) behavior for function
     // 'gethrtime'.  As of July 2004, no non-monotonic behavior has been seen
-    // on any Sun machine.  However, hp2 does exhibit a *different*
-    // non-monotonic behavior.  An Imp Note within the 'OS_HPUX' block
-    // describes the new problem.  The imp note in the next paragraph is no
-    // longer valid, but is retained for archival purposes, and as a historical
+    // on any Sun machine.  The imp note in the next paragraph is no longer
+    // valid, but is retained for archival purposes, and as a historical
     // caution.
     //
     // Archival Imp Note:
@@ -691,24 +684,6 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     // (~1.2 usec).
 
     read_wall_time(timeValue, TIMEBASE_SZ);
-
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    // The following Imp Note applies to behavior observed on 'hp2' in late
-    // July and early August of 2004.
-    //
-    // The call to 'gethrtime' takes about 100 nsecs (the mode difference
-    // between two successive return values).  About once in every 10^7 call
-    // pairs, the difference is negative; the distribution of negative values
-    // is bimodal, with (approximately equal) peaks at 0 and -90 nsec.  The
-    // maximum observed negative difference in 10^9 call pairs was -144 nsec.
-    //
-    // The algorithm implemented here defends against this behavior by
-    // returning the maximum of two successive calls to 'gethrtime'.
-
-    Types::Int64 t1 = (Types::Int64) gethrtime();
-    Types::Int64 t2 = (Types::Int64) gethrtime();
-    timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
