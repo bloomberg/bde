@@ -12,9 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_defaultdeleter_cpp,"$Id$ $CSID$")
 
-#include <bslma_testallocator.h>    // for testing only
-#include <bsl_memory.h>        // for testing only
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

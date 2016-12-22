@@ -462,26 +462,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
 #ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
 #endif
@@ -504,6 +484,22 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include <bslalg_hastrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING

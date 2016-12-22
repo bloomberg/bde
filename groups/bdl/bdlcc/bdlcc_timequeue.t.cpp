@@ -157,9 +157,8 @@ class TestString {
     TestString(const TestString&);
 
   public:
-    // TYPES
-    BSLALG_DECLARE_NESTED_TRAITS(TestString,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TestString, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TestString(bslma::Allocator *allocator = 0);

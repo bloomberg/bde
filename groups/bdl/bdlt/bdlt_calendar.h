@@ -463,10 +463,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLC_BITARRAY
-#include <bdlc_bitarray.h>
-#endif
-
 #ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 #include <bdlt_calendarreverseiteratoradapter.h>
 #endif
@@ -487,16 +483,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_packedcalendar.h>
 #endif
 
+#ifndef INCLUDED_BDLC_BITARRAY
+#include <bdlc_bitarray.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLH_HASH
@@ -505,6 +497,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT

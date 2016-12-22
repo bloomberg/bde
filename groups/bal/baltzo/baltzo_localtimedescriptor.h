@@ -122,12 +122,20 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -145,6 +153,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace baltzo {
@@ -178,9 +194,11 @@ class LocalTimeDescriptor {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(LocalTimeDescriptor,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalTimeDescriptor,
+                                   bslma::UsesBslmaAllocator);
+
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalTimeDescriptor,
+                                   bslmf::IsBitwiseMoveable);
 
     // CLASS METHODS
     static bool isValidUtcOffsetInSeconds(int value);

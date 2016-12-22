@@ -112,12 +112,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_HASTRAIT
+#include <bslalg_hastrait.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_IF
@@ -126,6 +126,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING

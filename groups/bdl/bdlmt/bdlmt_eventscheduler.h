@@ -380,6 +380,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_skiplist.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
 #endif
@@ -406,10 +414,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -566,8 +570,7 @@ class EventScheduler {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(EventScheduler,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(EventScheduler, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit EventScheduler(bslma::Allocator *basicAllocator = 0);

@@ -19,6 +19,34 @@ BSLS_IDENT("$Id: $")
 // detects if a class has STL-like iterators, and provides a type
 // 'HasStilIterators<TYPE>::value' which aliases 'true_type' if 'TYPE' has
 // STL-like iterators, and 'false_type' otherwise.
+//
+// A 'TYPE' that has this trait fulfills the following requirements, where 'mX'
+// is a modifiable object and 'X' a non-modifiable object of 'TYPE':
+//..
+//  Valid expression     Type              Note
+//  ----------------     ----              ----
+//  TYPE::iterator                         Iterator type (has 'operator->',
+//                                         'operator*', and possibly more
+//                                         depending on the iterator
+//                                         category).
+//
+//  TYPE::const_iterator                   Iterator type (has 'operator->',
+//                                         'operator*', and possibly more
+//                                         depending on the iterator
+//                                         category).  The value type of this
+//                                         iterator is not modifiable.
+//
+//  mX.begin()           iterator          Similar to standard containers
+//  mX.end()             iterator
+//  X.begin()            const_iterator
+//  X.end()              const_iterator
+//  X.cbegin()           const_iterator
+//  X.cend()             const_iterator
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
