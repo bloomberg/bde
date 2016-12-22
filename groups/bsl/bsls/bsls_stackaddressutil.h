@@ -268,7 +268,6 @@ struct StackAddressUtil {
     enum { k_IGNORE_FRAMES = 0 };
 #endif
 
-
     // CLASS METHODS
     static
     int getStackAddresses(void   **buffer,

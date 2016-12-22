@@ -267,7 +267,7 @@ class DbghelpDllImpl_Windows {
 // ============================================================================
 
 }  // close package namespace
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BSLS_PLATFORM_OS_WINDOWS
 

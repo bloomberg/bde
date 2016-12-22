@@ -134,6 +134,7 @@ class StackTraceResolver_DwarfReader {
 
         e_DW_LNE_set_discriminator     = 0x04,
 
+        e_DW_TAG_mutable_type          = 0x3e,
         e_DW_TAG_type_unit             = 0x41,
         e_DW_TAG_rvalue_reference_type = 0x42,
         e_DW_TAG_template_alias        = 0x43

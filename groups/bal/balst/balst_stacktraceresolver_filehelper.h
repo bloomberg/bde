@@ -126,6 +126,7 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
 #endif
+
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
@@ -193,7 +194,7 @@ class StackTraceResolver_FileHelper {
     // ACCESSORS
     char *loadString(Offset            offset,
                      char             *scratchBuf,
-                     int               scratchBufLength,
+                     UintPtr           scratchBufLength,
                      bslma::Allocator *basicAllocator) const;
         // Load into memory newly allocated from the specified 'basicAllocator'
         // a zero-terminated string from the specified absolute file 'offset',

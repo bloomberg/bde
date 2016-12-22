@@ -35,7 +35,8 @@ using namespace BloombergLP;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -101,8 +102,8 @@ enum { SECOND_LINE = __LINE__ };
 int main(int argc, char *argv[])
 {
     int        test = argc > 1 ? atoi(argv[1]) : 0;
-    int     verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int     verbose = argc > 2;    (void) verbose;
+    int veryVerbose = argc > 3;    (void) veryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

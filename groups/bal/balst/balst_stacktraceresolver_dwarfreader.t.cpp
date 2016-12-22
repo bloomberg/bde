@@ -490,7 +490,8 @@ int main(int argc, char *argv[])
             bsl::string s = Obj::stringForTag(ii);
             ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
-            if (ii < Obj::e_DW_TAG_type_unit) {
+            if (ii < Obj::e_DW_TAG_type_unit &&
+                                            Obj::e_DW_TAG_mutable_type != ii) {
                 ASSERT(s.substr(0, 7) == "DW_TAG_");
             }
             else {

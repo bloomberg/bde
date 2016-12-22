@@ -528,7 +528,7 @@ const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
       CASE(DW_TAG_unspecified_type);
       CASE(DW_TAG_partial_unit);
       CASE(DW_TAG_imported_unit);
-      CASE(DW_TAG_mutable_type);
+      CASE(e_DW_TAG_mutable_type);
       CASE(DW_TAG_condition);
       CASE(DW_TAG_shared_type);
       CASE(e_DW_TAG_type_unit);
