@@ -668,7 +668,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
 //: o MSVC 2013
 
 #if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
-                 __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40700
+                 __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40800
 #define ENABLE_CPP11_TESTS 1
 #elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L
 #if  __has_include(<forward_list>)
