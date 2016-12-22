@@ -194,7 +194,7 @@ void selfRemovingCallback(EventCallbackRegistry             *mX,
     int *valuePtr = action->value();
     // Relinquish ownership. The bound functor should retain a reference until
     // after the end of this function.
-    action.clear();
+    action.reset();
 
     switch (*valuePtr) {
     case k_REMOVE_EVENT:
@@ -264,7 +264,6 @@ int testCallbackDeregistration(EventCallbackRegistry *mX,
     // 'action'.
     ASSERT(0 == actionAsInt);
 
-    int numRemaining;
     switch (action) {
     case k_REMOVE_EVENT:
         return (numSockets * numEvents) - 1;
