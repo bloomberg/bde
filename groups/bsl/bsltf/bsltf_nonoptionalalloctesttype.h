@@ -99,11 +99,8 @@ namespace bsltf {
 class NonOptionalAllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
-    // to facilitate testing of templates by defining a simple type
-    // representative of user-defined types having an allocator.  See the
-    // Attributes section under @DESCRIPTION in the component-level
-    // documentation for information on the class attributes.
+    // 'bslma::UsesBslmaAllocator'.  This class does not provide a default
+    // constructor.
 
     // DATA
     int                      *d_data_p;      // pointer to the data value
@@ -113,9 +110,6 @@ class NonOptionalAllocTestType {
 
     NonOptionalAllocTestType *d_self_p;      // pointer to self (to verify this
                                              // object is not bit-wise moved)
-
-    NonOptionalAllocTestType();              // = delete
-        // Disable default constructor.
 
   public:
     // CREATORS
@@ -128,8 +122,8 @@ class NonOptionalAllocTestType {
     explicit NonOptionalAllocTestType(int               data,
                                       bslma::Allocator *basicAllocator);
         // Create a 'NonOptionalAllocTestType' object having the specified
-        // 'data' attribute value using the specified a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // 'data' attribute value using the specified a 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     NonOptionalAllocTestType(

@@ -2252,11 +2252,13 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
     if (d_tree.sentinel() == node) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
         BloombergLP::bslma::ConstructionUtil::construct(
-                                     temp.address(),
-                                     BloombergLP::bslma::Default::allocator());
+                                        temp.address(),
+                                        nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
-        return insert(iterator(node), value_type(key, temp.object()))->second;
-                                                                      // RETURN
+
+        return emplace_hint(iterator(node),
+                            key,
+                            MoveUtil::move(temp.object()))->second;   // RETURN
     }
     return toNode(node)->value().second;
 }
@@ -2273,8 +2275,8 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
     if (d_tree.sentinel() == node) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
         BloombergLP::bslma::ConstructionUtil::construct(
-                                     temp.address(),
-                                     BloombergLP::bslma::Default::allocator());
+                                        temp.address(),
+                                        nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         return emplace_hint(iterator(node),

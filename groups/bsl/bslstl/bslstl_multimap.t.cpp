@@ -3723,7 +3723,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase28()
     //:   3 Ensure that the move constructor was called on the value type (if
     //:     that type has a mechanism to detect such) where the value has the
     //:     same allocator as that of the container and a different allocator
-    //:     than that of the  container.  (C-2)
+    //:     than that of the container.  (C-2)
     //:
     //:   4 Verify all allocations are from the object's allocator.  (C-3)
     //:

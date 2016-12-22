@@ -76,7 +76,8 @@ using namespace BloombergLP::bsltf;
 // [13] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [12] CONCERN: Bitwise-moved objects assert on destruction
-// [ *] CONCERN: In no case does memory come from the global allocator.
+// [ *] CONCERN: In no case does memory come from the global allocator
+// [ *] CONCERN: In no case does memory come from the default allocator
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -240,12 +241,18 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     // CONCERN: In no case does memory come from the global allocator.
-
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static initialization locked the global allocator
+    // Confirm no static initialization locked the global allocator.
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static initialization locked the global allocator.
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 13: {
@@ -1285,7 +1292,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the the boundary values.
+        //:   the boundary values.
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects, in turn, but configured differently: (a) without passing
@@ -1490,9 +1497,12 @@ int main(int argc, char *argv[])
     }
 
     // CONCERN: In no case does memory come from the global allocator.
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    // CONCERN: In no case does memory come from the default allocator.
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

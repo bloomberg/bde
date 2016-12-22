@@ -64,8 +64,7 @@ NonOptionalAllocTestType::~NonOptionalAllocTestType()
 NonOptionalAllocTestType& NonOptionalAllocTestType::operator=(
                                            const NonOptionalAllocTestType& rhs)
 {
-    if (&rhs != this)
-    {
+    if (&rhs != this) {
         int *newData = reinterpret_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
         d_allocator_p->deallocate(d_data_p);
