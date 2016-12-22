@@ -126,6 +126,7 @@ class MapTestDriver {
     typedef typename CONTAINER::mapped_type      MappedType;
     typedef typename CONTAINER::value_type       ValueType;
     typedef typename CONTAINER::allocator_type   AllocatorType;
+    typedef typename CONTAINER::iterator         Iter;
     typedef typename CONTAINER::const_iterator   CIter;
 
     typedef bslma::ConstructionUtil              ConstrUtil;
@@ -149,7 +150,7 @@ void MapTestDriver<CONTAINER>::testCase1()
     //
     // Concerns:
     //: 1 All bsl map-like containers (map, multimap, unordered_map,
-    //:   unordered_multimap) support references as 'mapped_type'.
+    //:   unordered_multimap) accept references as 'mapped_type'.
     //:
     //: 2 Container does not make a copy of the referenced object on insertion.
     //:
@@ -158,7 +159,9 @@ void MapTestDriver<CONTAINER>::testCase1()
     //:
     //: 4 The container copy-assignment operator does not copy mapped values.
     //:
-    //: 5 The container destructor does not destroy the referenced objects.
+    //: 5 The container copy constructor does not copy mapped values.
+    //:
+    //: 6 The erase operation does not destroy the referenced object.
     //
     // Plan:
     //: 1 Create the value type containing a reference as a 'mapped_type' and
@@ -166,6 +169,19 @@ void MapTestDriver<CONTAINER>::testCase1()
     //:
     //: 2 Verify that the container inserts the reference and does not make a
     //:   copy of the referenced object.  (C-2)
+    //:
+    //: 3 Assign diffenent value to the mapped value and verify that the
+    //:   referenced object is changed.  (C-3)
+    //:
+    //: 4 Copy-construct new container and verify that the mapped value in the
+    //:   new container references original object.  (C-4)
+    //:
+    //: 5 Assign the original container to a different container and verify
+    //:   that the mapped value in the new container references original
+    //:   object.  (C-4)
+    //:
+    //: 5 Erase the container entry and verify that the original object is not
+    //:   destroyed.  (C-4)
     //
     // Testing:
     //   CONCERN: Support references as 'mapped_type' in map-like containers.
@@ -190,19 +206,45 @@ void MapTestDriver<CONTAINER>::testCase1()
     bslma::DestructorGuard<typename bsl::remove_reference<MappedType>::type>
                                              mappedGuard(tempMapped.address());
 
-    ValueType tempPair(tempKey.object(), tempMapped.object());
+    bsls::ObjectBuffer<typename bsl::remove_reference<MappedType>::type>
+                                                                   tempMapped2;
+    TTF::emplace(tempMapped2.address(), 18, &scratch);
+    bslma::DestructorGuard<typename bsl::remove_reference<MappedType>::type>
+                                           mappedGuard2(tempMapped2.address());
 
     CONTAINER mX;  const CONTAINER& X = mX;
 
+    ValueType tempPair(tempKey.object(), tempMapped.object());
+
     mX.insert(MoveUtil::move(tempPair));
 
-    CIter ret = X.find(tempKey.object());
+    Iter ret = mX.find(tempKey.object());
 
-    ASSERT(ret != X.end());
+    ASSERT(ret != mX.end());
 
     // Reference still refers to the original object.
     ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
 
+    // Assign different value to the mapped.
+    ret->second = tempMapped2.object();
+
+    // Reference still refers to the original object.
+    ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
+    ASSERT(tempMapped.object() == tempMapped2.object());
+
+    // Copy-construct container.
+    {
+        CONTAINER mY(X);  const CONTAINER& Y = mY;
+
+        CIter ret = Y.find(tempKey.object());
+
+        ASSERT(ret != Y.end());
+
+        // Reference still refers to the original object.
+        ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
+    }
+
+    // Copy-assign container.
     {
         CONTAINER mY;  const CONTAINER& Y = mY;
 
@@ -216,6 +258,16 @@ void MapTestDriver<CONTAINER>::testCase1()
         ASSERT(bsls::Util::addressOf(ret->second) == tempMapped.address());
     }
 
+    // Erasing the value.
+    mX.erase(tempKey.object());
+
+    ret = mX.find(tempKey.object());
+
+    ASSERT(ret == mX.end());
+
+    ASSERT(tempMapped.object() == tempMapped2.object());
+
+    cout<< "here3\n";
 }
 
 
