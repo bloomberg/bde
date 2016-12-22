@@ -395,7 +395,7 @@ BOOL DbghelpDllImpl_Windows::stackWalk64(DWORD          machineType,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // WINDOWS
 #endif

@@ -1089,6 +1089,7 @@ FrameRec::FrameRec(const void             *address,
 , d_index(index)
 , d_isSymbolResolved(false)
 {
+    (void) allocator;    // in case not DWARF
 }
 
 FrameRec::FrameRec(const FrameRec&    original,
@@ -1104,6 +1105,7 @@ FrameRec::FrameRec(const FrameRec&    original,
 , d_index(              original.d_index)
 , d_isSymbolResolved(   original.d_isSymbolResolved)
 {
+    (void) allocator;    // in case not DWARF
 }
 
 // MANIPULATORS
@@ -3694,8 +3696,9 @@ int u::StackTraceResolver::resolve(
         }
 
         u::ElfProgramHeader *programHeaders =
-                 reinterpret_cast<u::ElfProgramHeader *>(
-                     reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff);
+                               reinterpret_cast<u::ElfProgramHeader *>(
+                                         linkMap->l_addr + elfHeader->e_phoff);
+
         int numProgramHeaders = elfHeader->e_phnum;
 
         resolver.d_hidden.d_isMainExecutable = (0 == i);

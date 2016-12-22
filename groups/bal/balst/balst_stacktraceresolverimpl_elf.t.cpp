@@ -102,6 +102,11 @@ enum { e_IS_LINUX = 1 };
 #else
 enum { e_IS_LINUX = 0 };
 #endif
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+enum { e_IS_CLANG = 1 };
+#else
+enum { e_IS_CLANG = 0 };
+#endif
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF) &&                         \
                                                  !defined(BDE_BUILD_TARGET_OPT)
 enum { e_IS_DWARF = 1 };
@@ -508,8 +513,8 @@ int main(int argc, char *argv[])
                 }
 
                 SM(0, "funcGlobalOne(int)");
-                if (!e_IS_LINUX) {
-                    // The linux demangler has a bug where it fails on
+                if (!e_IS_LINUX || !e_IS_CLANG) {
+                    // The linux clang demangler has a bug where it fails on
                     // file-scope statics.
 
                     SM(1, "funcStaticOne(int)");
