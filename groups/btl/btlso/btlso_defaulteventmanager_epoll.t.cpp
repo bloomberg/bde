@@ -29,6 +29,7 @@
 #include <bsl_functional.h>
 #include <bsls_assert.h>
 #include <bsl_set.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 #if defined(BSLS_PLATFORM_OS_LINUX)
