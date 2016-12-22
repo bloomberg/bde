@@ -140,9 +140,9 @@ namespace bsl {
     using native_std::is_trivially_assignable;
     using native_std::is_trivially_copy_assignable;
     using native_std::is_trivially_move_assignable;
+    using native_std::is_trivially_destructible;
 #endif
 #if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
-    using native_std::is_trivially_destructible;
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
     using native_std::is_nothrow_copy_constructible;
