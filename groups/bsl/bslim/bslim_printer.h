@@ -29,8 +29,11 @@ BSLS_IDENT("$Id: $")
 //      // the initial indentation (as governed by 'level').  If 'stream' is
 //      // not valid on entry, this operation has no effect.
 //..
-// Note that all value-semantic types are expected to provide this method.  Use
-// of the 'Printer' mechanism provides a uniform style of output formatting:
+// Note that all value-semantic types are expected to provide this method.
+// 'bslim::Printer' also supports generic containers, including those in BSL's
+// standard library implementation, through use of standard conforming
+// iterators and the 'bslalg::HasStlIterators' trait.  Use of the 'Printer'
+// mechanism provides a uniform style of output formatting:
 //
 //: o Enclose the object's salient attributes with square brackets.
 //:
