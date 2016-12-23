@@ -158,8 +158,9 @@ BSLS_IDENT("$Id: $")
 // Early implementations of C++11 type traits did not always provide the
 // necessary compiler intrinsic to detect the 'trivial' traits, so we use an
 // additonal component-level feature macro to detect whether native support is
-// truly present.  This macro is defined for Visual C++ prior to VC2015 due to
-// wrong results for certain types with the inital implemetation of that trait.
+// truly present.  This macro is not defined for Visual C++ prior to VC2015 due
+// to wrong results for certain types with the inital implemetation of that
+// trait.
 
 #if (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 50000)    \
  || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)

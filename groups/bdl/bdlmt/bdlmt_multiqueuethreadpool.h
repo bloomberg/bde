@@ -332,6 +332,18 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_QLOCK
 #include <bslmt_qlock.h>
 #endif
@@ -346,14 +358,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_SPINLOCK
 #include <bsls_spinlock.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
@@ -531,8 +535,8 @@ class MultiQueueThreadPool_QueueContext {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool_QueueContext,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultiQueueThreadPool_QueueContext,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -646,8 +650,8 @@ class MultiQueueThreadPool {
     
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultiQueueThreadPool,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MultiQueueThreadPool(const bslmt::ThreadAttributes&  threadAttributes,

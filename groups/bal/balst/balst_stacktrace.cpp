@@ -13,7 +13,6 @@
 BSLS_IDENT_RCSID(balst_stacktrace_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
-#include <bsls_assert.h>
 
 #include <bsl_ostream.h>
 

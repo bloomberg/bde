@@ -148,12 +148,20 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -200,9 +208,8 @@ class LocalTimePeriod {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(LocalTimePeriod,
-                                  bslalg::TypeTraitBitwiseMoveable,
-                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalTimePeriod, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalTimePeriod, bslmf::IsBitwiseMoveable);
 
     // CLASS METHODS
     static bool isValidUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,

@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //  bdlb::HasPrintMethod: trait indicating existence of 'print' method
 //  bdlb::TypeTraitHasPrintMethod: old-style version of 'bdlb::HasPrintMethod'
 //
-//@SEE_ALSO: bslalg_typetraits
+//@SEE_ALSO: bslalg_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component provides a namespace for print utilities that
 // support uniform 'ostream' printing across all printable types, including
@@ -42,14 +42,14 @@ BSLS_IDENT("$Id: $")
 // an appropriate print operation.  The following lists the traits recognized
 // by this component:
 //..
-//  bdlb::TypeTraitHasPrintMethod       ( highest precedence )
-//  bslalg::TypeTraitHasStlIterators
-//  bslalg::TypeTraitPair              ( lowest precedence  )
+//  bdlb::HasPrintMethod       ( highest precedence )
+//  bslalg::HasStlIterators
+//  bslmf::IsPair              ( lowest precedence  )
 //..
 // Since a class may declare multiple traits (see the component-level
-// documentation of {'bslalg_typetraits'} for information about declaring
-// traits), the relative precedence of the traits is shown above.  The next
-// sub-sections describe these traits and their affects on printing.
+// documentation of {'bslalg_nestedtraitdeclaration'} for information about
+// declaring traits), the relative precedence of the traits is shown above.
+// The next sub-sections describe these traits and their affects on printing.
 //
 ///Effect of 'bdlb::TypeTraitHasPrintMethod' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -76,12 +76,12 @@ BSLS_IDENT("$Id: $")
 //  'stream' is not valid on entry, this operation has no effect.
 //..
 //
-///Effect of 'bslalg::TypeTraitHasStlIterators' Trait
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg::TypeTraitHasStlIterators' trait, then
-// it must provide access to iterators using the standard STL protocol.  The
-// BDE implementation of STL declares this trait for all STL container types
-// that have STL iterators.  Other containers that provide STL iterators should
+///Effect of 'bslalg::HasStlIterators' Trait
+///- - - - - - - - - - - - - - - - - - - - -
+// If a class 'X' declares the 'bslalg::HasStlIterators' trait, then it must
+// provide access to iterators using the standard STL protocol.  The BDE
+// implementation of STL declares this trait for all STL container types that
+// have STL iterators.  Other containers that provide STL iterators should
 // declare this trait to get correct printing behavior.
 //
 // When an 'X' object with this trait is printed using
@@ -93,10 +93,10 @@ BSLS_IDENT("$Id: $")
 // its own print method, and with an indentation level one higher than that of
 // the container.
 //
-///Effect of 'bslalg::TypeTraitPair' Trait
-///- - - - - - - - - - - - - - - - - - - -
-// If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
-// must contain two 'public' data members named 'first' and 'second'.  The BDE
+///Effect of 'bslmf::IsPair' Trait
+///- - - - - - - - - - - - - - - -
+// If a class 'X' declares the 'bslmf::IsPair' trait, then the class must
+// contain two 'public' data members named 'first' and 'second'.  The BDE
 // implementation of STL declares this trait for the 'bsl::pair' 'struct'.
 // Other classes that have 'public' 'first' and 'second' data members may
 // declare this trait to get printing behavior similar to that of 'bsl::pair'.
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyWrapper, bdlb::HasPrintMethod);
 //
 //      // CREATORS
 //      MyWrapper(): d_obj() {};
@@ -212,8 +212,8 @@ BSLS_IDENT("$Id: $")
 //      assert("0\n" == oss3.str());
 //  }
 //..
-// See the {'bslalg_typetraits'} component for more information about declaring
-// traits for user-defined classes.
+// See the {'bslmf_nestedtraitdeclaration'} component for more information
+// about declaring traits for user-defined classes.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -223,16 +223,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_print.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_HASSTLITERATORS
+#include <bslalg_hasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_SELECTTRAIT
 #include <bslmf_selecttrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
-#include <bslalg_typetraithasstliterators.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
-#include <bslalg_typetraitpair.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOMANIP
@@ -246,6 +246,18 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
+#include <bslalg_typetraitpair.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -290,8 +302,8 @@ struct TypeTraitHasPrintMethod {
     struct NestedTraitDeclaration :
         bslmf::NestedTraitDeclaration<TYPE, HasPrintMethod>
     {
-        // This class template ties the 'bslalg::TypeTaitBitwiseMoveable' trait
-        // tag to the 'bslmf::IsBitwiseMoveable' trait metafunction.
+        // This class template ties the 'bdlb::TypeTraitHasPrintMethod' trait
+        // tag to the 'bdlb::HasPrintMethod' trait metafunction.
     };
 
     template <class TYPE>
@@ -404,7 +416,7 @@ struct PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<bslalg::HasStlIterators> >
 {
     // Component-private 'struct'.  Do not use outside of this component.  This
     // 'struct' provides a 'print' function that prints objects of the
-    // parameterized 'TYPE' that have the 'bslalg::StlIterators' trait
+    // parameterized 'TYPE' that have the 'bslalg::HasStlIterators' trait
     // declared.
 
     // CLASS METHODS

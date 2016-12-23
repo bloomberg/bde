@@ -23,10 +23,6 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 //@DESCRIPTION: TBD
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
 #endif

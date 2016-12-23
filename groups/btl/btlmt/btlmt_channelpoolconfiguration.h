@@ -222,13 +222,21 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -416,9 +424,11 @@ class ChannelPoolConfiguration {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(ChannelPoolConfiguration,
-                                  bdlat_TypeTraitBasicSequence,
-                                  bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(ChannelPoolConfiguration,
+                                   bdlat_IsBasicSequence);
+
+    BSLMF_NESTED_TRAIT_DECLARATION(ChannelPoolConfiguration,
+                                   bdlb::HasPrintMethod);
 
     // CLASS METHODS
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);

@@ -13,16 +13,17 @@
 BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 
 #include <btlb_blobutil.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
-#include <bslmt_mutex.h>
 #include <bdlf_bind.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bsls_atomic.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <btlmt_asyncchannel.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bsls_atomic.h>
 #include <btlmt_session.h>
 #include <btlmt_sessionfactory.h>
 #include <btlmt_sessionpool.h>
@@ -310,8 +311,8 @@ class TestServer::SessionFactory : public btlmt::SessionFactory {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestServer::SessionFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestServer::SessionFactory,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     SessionFactory(btlso::Endpoint       *proxy,

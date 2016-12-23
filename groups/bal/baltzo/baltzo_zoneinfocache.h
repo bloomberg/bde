@@ -158,14 +158,6 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_zoneinfo.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
-#endif
-
 #ifndef INCLUDED_BDLB_CSTRINGLESS
 #include <bdlb_cstringless.h>
 #endif
@@ -174,12 +166,24 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -234,8 +238,8 @@ class ZoneinfoCache {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ZoneinfoCache,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ZoneinfoCache,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit ZoneinfoCache(Loader           *loader,

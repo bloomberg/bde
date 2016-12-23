@@ -394,28 +394,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
-#include <bdlma_concurrentpool.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
-#include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_CONDITION
-#include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
-#endif
-
 #ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
+#endif
+
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -424,10 +408,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -446,6 +426,30 @@ BSLS_IDENT("$Id: $")
 #include <bslma_managedptr.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -461,6 +465,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -486,8 +498,8 @@ class MultipriorityQueue_Node {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityQueue_Node,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultipriorityQueue_Node,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MultipriorityQueue_Node(const TYPE&              item,
@@ -606,8 +618,8 @@ class MultipriorityQueue {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityQueue,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultipriorityQueue,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit MultipriorityQueue(bslma::Allocator *basicAllocator = 0);

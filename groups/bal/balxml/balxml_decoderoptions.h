@@ -26,10 +26,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
 #endif
@@ -42,12 +38,12 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bdlat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD

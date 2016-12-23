@@ -239,16 +239,24 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_epochutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -321,8 +329,8 @@ class ZoneinfoTransition {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ZoneinfoTransition,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ZoneinfoTransition,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     ~ZoneinfoTransition();
@@ -456,8 +464,7 @@ class Zoneinfo {
         // transitions maintained by a 'Zoneinfo' object.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Zoneinfo,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Zoneinfo, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit Zoneinfo(bslma::Allocator *basicAllocator = 0);

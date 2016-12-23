@@ -26,10 +26,6 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
 #endif

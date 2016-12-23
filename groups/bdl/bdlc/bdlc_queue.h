@@ -187,18 +187,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
-#include <bslx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
-#include <bslx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDLB_PRINT
 #include <bdlb_print.h>
 #endif
@@ -209,6 +197,22 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
@@ -222,6 +226,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_NEW
 #include <bsl_new.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -397,9 +409,8 @@ class Queue {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(Queue,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(Queue, bdlb::HasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(Queue, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion(int versionSelector);

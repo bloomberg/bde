@@ -83,8 +83,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDLIB
@@ -109,6 +113,14 @@ BSLS_IDENT("$Id: $")
     #define INCLUDED_UIO_H
     #endif
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
                                // ===========
                                // class Iovec
@@ -147,7 +159,7 @@ class Iovec {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Iovec, bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Iovec, bsl::is_trivially_copyable);
 
     // CREATORS
     Iovec(void *buffer, int length);
@@ -201,7 +213,7 @@ class Ovec {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Ovec, bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Ovec, bsl::is_trivially_copyable);
 
     // CREATORS
     Ovec(const void *buffer, int length);

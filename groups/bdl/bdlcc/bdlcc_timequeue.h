@@ -598,18 +598,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
-#include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -622,16 +610,24 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENT
@@ -642,12 +638,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
-#include <bsls_timeinterval.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -657,6 +657,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -1012,12 +1020,12 @@ class TimeQueueItem {
     // 'DATA' must be default-constructible.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TimeQueueItem, bslma::UsesBslmaAllocator);
+
     // PUBLIC TYPES
     typedef typename TimeQueue<DATA>::Handle Handle;
     typedef typename TimeQueue<DATA>::Key    Key;
-
-    BSLALG_DECLARE_NESTED_TRAITS(TimeQueueItem,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
 
   private:
     bsls::TimeInterval             d_time;    // Time value

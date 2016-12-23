@@ -79,16 +79,12 @@ BSLS_IDENT("$Id: $")
 #include <btlso_endpoint.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
-#include <bsls_timeinterval.h>
-#endif
-
 #ifndef INCLUDED_BDLB_BIGENDIAN
 #include <bdlb_bigendian.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -102,6 +98,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDESi
 
 namespace BloombergLP {
 

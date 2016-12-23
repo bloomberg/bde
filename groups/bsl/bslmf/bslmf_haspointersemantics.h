@@ -13,8 +13,15 @@ BSLS_IDENT("$Id: $")
 //  bslmf::HasPointerSemantics: meta-function indicating pointer-like types
 //
 //@SEE_ALSO:
+//  bslmf_nestedtraitdeclaration
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component defines a tag type 'HasPointerSemantics' derived
+// from 'bsl::true_type' to indicate that a type has pointer semantics, and
+// from 'bsl::false_type' otherwise.  A type has pointer-like semantics must
+// define (at a minimum) 'operator*' and 'operator->'.  All pointer types have
+// pointer semantics; other types must explicitly add this trait, either
+// with the macro 'BSLMF_NESTED_TRAIT_DECLARATION', or by explicit template
+// specialization.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

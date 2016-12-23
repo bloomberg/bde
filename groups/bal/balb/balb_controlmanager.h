@@ -78,16 +78,20 @@
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -109,6 +113,14 @@
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -156,8 +168,8 @@ class ControlManager_Entry {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ControlManager_Entry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ControlManager_Entry,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -231,8 +243,7 @@ class ControlManager_Entry {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ControlManager,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ControlManager, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit

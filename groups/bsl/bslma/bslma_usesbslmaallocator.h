@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //          // ...
 //
 //      UsesAllocatorType1(const UsesAllocatorType1&  original,
-//                     bslma::Allocator              *basicAllocator = 0);
+//                         bslma::Allocator          *basicAllocator = 0);
 //          // ...
 //  };
 //..
@@ -193,30 +193,17 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
 #endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
-#include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEPOINTER
-#include <bslmf_removepointer.h>
-#endif
-
 
 namespace BloombergLP {
 
@@ -245,13 +232,6 @@ struct UsesBslmaAllocator_Imp<TYPE, false>
     };
 
     enum {
-        // Detect if 'TYPE' is 'Allocator*' type.
-        k_IS_BSLMA_POINTER
-            = bsl::is_same<
-                Allocator,
-                typename bsl::remove_cv<
-                    typename bsl::remove_pointer<TYPE>::type>::type>::value,
-
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
         // non-explicit constructor taking an allocator.
         k_BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
@@ -263,8 +243,7 @@ struct UsesBslmaAllocator_Imp<TYPE, false>
 
   public:
     typedef bsl::integral_constant<bool,
-                                   !k_IS_BSLMA_POINTER
-                                   && k_BSLMA_POINTER_CTOR
+                                   k_BSLMA_POINTER_CTOR
                                    && !k_ANY_POINTER_CTOR>
         Type;
 };
@@ -281,6 +260,23 @@ struct UsesBslmaAllocator
     // metafunction to return true; simply having a constructor that implicitly
     // converts 'bslma::Allocator*' to 'TYPE' is no longer sufficient for
     // considering a type follow the idiom.
+};
+
+template <class TYPE>
+struct UsesBslmaAllocator<TYPE *> : bsl::false_type
+{
+    // Specialization that avoids special-case template metaprogramming to
+    // handle 'bslma::Allocator *' being convertible to itself, but not being
+    // a type that uses allocators.  This is true for all pointers, so we take
+    // advantage of the simpler metaprogram in all such cases.
+};
+
+template <class TYPE>
+struct UsesBslmaAllocator<TYPE&> : bsl::false_type
+{
+    // Specialization that avoids special-case template metaprogramming to
+    // handle 'bslma::Allocator *' being convertible to a 'const &' via a
+    // temporary object.
 };
 
 template <class TYPE>

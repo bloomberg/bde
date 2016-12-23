@@ -597,6 +597,14 @@ BSLS_IDENT("$Id: $")
 #include <btlb_pooledblobbufferfactory.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
@@ -697,8 +705,8 @@ class Connector {
     // call to 'ChannelPool::connect' is in progress.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Connector,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Connector,
+                                   bslma::UsesBslmaAllocator);
 
     // DATA MEMBERS
     bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >
