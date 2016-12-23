@@ -3151,12 +3151,19 @@ class shared_ptr {
         // ownership of the object it managed with any other shared pointer,
         // and 'false' otherwise.  Note that a shared pointer with a custom
         // deleter can refer to a null pointer without being empty, and so may
-        // be 'unique'.
+        // be 'unique'.  Also note that the result of this function may not be
+        // reliable in a multithreaded program, where a weak pointer may be
+        // locked on another thread.  This function is deprecated in C++17.
 
     long use_count() const BSLS_CPP11_NOEXCEPT;
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object managed by this shared
         // pointer.  Note that 0 is returned if this shared pointer is empty.
+        // Also note that any result other than 0 may be unreliable in a
+        // multithreaded program, where another pointer sharing ownership in a
+        // different thread may be copied or destroyed, or a weak pointer may
+        // be locked in the case that 1 is returned (that would otherwise
+        // indicate unique ownership).
 
     // ADDITIONAL BSL ACCESSORS
     typename add_lvalue_reference<ELEMENT_TYPE>::type
@@ -3192,7 +3199,8 @@ class shared_ptr {
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object managed by this shared
         // pointer.  Note that the behavior of this function is the same as
-        // 'use_count'.
+        // 'use_count', and the result may be unreliable in multithread code
+        // for the same reasons.
 
     ELEMENT_TYPE *ptr() const BSLS_CPP11_NOEXCEPT;
         // [!DEPRECATED!] Use 'get' instead.
@@ -4520,7 +4528,12 @@ class weak_ptr {
     long use_count() const BSLS_CPP11_NOEXCEPT;
         // Return a "snapshot" of the current number of shared pointers that
         // share ownership of the object referred to by this weak pointer, or 0
-        // if this weak pointer is in the empty state.
+        // if this weak pointer is in the empty state.  Note that any result
+        // other than 0 may be unreliable in a multithreaded program, where
+        // another pointer sharing ownership in a different thread may be
+        // copied or destroyed, or another weak pointer may be locked in the
+        // case that 1 is returned (that would otherwise indicate unique
+        // ownership).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY ACCESSORS
@@ -4537,7 +4550,8 @@ class weak_ptr {
         // Return a "snapshot" of the current number of shared pointers that
         // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that the behavior
-        // of this method is the same as that of 'use_count'.
+        // of this method is the same as that of 'use_count', and the result
+        // may be unreliable in multithread code for the same reasons.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
