@@ -251,12 +251,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_formattingmode.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
-#include <bdldfp_decimal.h>
-#endif
-
 #ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATE
@@ -281,10 +281,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_HASTRAIT

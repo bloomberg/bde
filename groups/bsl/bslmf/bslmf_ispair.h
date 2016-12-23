@@ -15,8 +15,21 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's parameter is a 'bsl::pair' type.  It's needed to
-// enable 'bslalg::TypeTraitPair' type trait.
+// evaluate whether it's parameter is a 'bsl::pair' type.  A 'TYPE' that has
+// this trait fulfills the following requirements, where 'mX' is a modifiable
+// object and 'X' a non-modifiable object of 'TYPE':
+//..
+//  Valid expression     Type
+//  ----------------     ----
+//  TYPE::first_type
+//  TYPE::second_type
+//
+//  mX.first             first_type
+//  mX.second            second_type
+//  X.first              const first_type
+//  X.second             const second_type
+//..
+// Note that 'first' and 'second' are *not* member functions, but data members.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

@@ -2,7 +2,6 @@
 
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslma_allocator.h>
 #include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_bsltestutil.h>
@@ -126,7 +125,7 @@ class DoesNotUseAnAllocatorType {
             // ...
 //
         UsesAllocatorType1(const UsesAllocatorType1&  original,
-                       bslma::Allocator              *basicAllocator = 0);
+                           bslma::Allocator          *basicAllocator = 0);
             // ...
     };
 //..
@@ -322,6 +321,10 @@ int main(int argc, char *argv[])
                     SniffUsesBslmaAllocatorFromConstructor const>::value);
         ASSERT(bslma::UsesBslmaAllocator<
                     SniffUsesBslmaAllocatorFromConstructor volatile>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<
+                    SniffUsesBslmaAllocatorFromConstructor&>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<
+                    SniffUsesBslmaAllocatorFromConstructor const&>::value);
 
         ASSERT(bslma::UsesBslmaAllocator<
                     ClassUsingBslmaAllocator>::value);
@@ -334,6 +337,8 @@ int main(int argc, char *argv[])
         ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *>::value);
         ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator const *>::value);
         ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator volatile *>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *&>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<bslma::Allocator *const&>::value);
 
         ASSERT(!bslma::UsesBslmaAllocator<DerivedAllocator *>::value);
 

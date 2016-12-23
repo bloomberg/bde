@@ -382,6 +382,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_multipriorityqueue.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
@@ -400,10 +408,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -534,8 +538,8 @@ class MultipriorityThreadPool {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityThreadPool,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultipriorityThreadPool,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MultipriorityThreadPool(int               numThreads,

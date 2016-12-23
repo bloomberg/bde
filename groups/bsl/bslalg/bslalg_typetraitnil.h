@@ -9,16 +9,17 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having no other traits.
 //
+//@DEPRECATED: Do not use.
+//
 //@CLASSES:
-//  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
+//  bslalg::TypeTraitNil: trait possessed by all types
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitNil'.  This trait is assigned by default to any class that
-// does not have any other trait.
+// 'bslalg::TypeTraitNil'.  All types have this trait.
 //
 ///Usage
 ///-----
@@ -32,9 +33,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
 #endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 

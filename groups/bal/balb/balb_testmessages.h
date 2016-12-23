@@ -71,10 +71,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bdlb_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif

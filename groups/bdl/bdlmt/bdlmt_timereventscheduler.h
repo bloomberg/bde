@@ -320,12 +320,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
-#include <bslmt_threadattributes.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_CONDITION
@@ -336,24 +340,24 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
-#include <bsls_timeinterval.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -413,8 +417,7 @@ class TimerEventScheduler {
                                                        // callback
 
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(ClockData,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(ClockData, bslma::UsesBslmaAllocator);
 
         // CREATORS
         ClockData(const bsl::function<void()>&  callback,
@@ -546,8 +549,8 @@ class TimerEventScheduler {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TimerEventScheduler,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TimerEventScheduler,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TimerEventScheduler(bslma::Allocator *basicAllocator = 0);
