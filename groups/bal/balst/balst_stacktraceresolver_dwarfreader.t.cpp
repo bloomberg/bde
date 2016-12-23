@@ -15,7 +15,8 @@
 #include <bslmf_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_climits.h>
+#include <bsl_algorithm.h>
+#include <bsl_limits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
@@ -827,7 +828,7 @@ int main(int argc, char *argv[])
 
         const Int64 indirectData[] = { 0, 1, 2, 1000, 10001, 100 * 1000,
                 200 * 1000, 100ULL << 32, 200ULL << 32, 300ULL << 32,
-                -400LL << 32 };
+                -400LL * (1LL << 32) };
         BSLMF_ASSERT(11 == sizeof indirectData / sizeof *indirectData);
 
         u::writeULEB128(fd, DW_FORM_data1);
