@@ -715,8 +715,7 @@ void TcpCbChannel::bufferedReadCb()
     } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentReadRequest_p->d_flags
                                         & btlsc::Flag::k_ASYNC_INTERRUPT) {
-            bsl::deque<TcpCbChannel_RReg *>
-                                 toBeDispatched(d_readRequests, d_allocator_p);
+            bsl::deque<TcpCbChannel_RReg *> toBeDispatched(d_readRequests);
             toBeDispatched.pop_back();
             d_readRequests.erase(d_readRequests.begin(),
                                  d_readRequests.begin() +
@@ -1070,8 +1069,7 @@ void TcpCbChannel::bufferedWriteCb() {
     } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentWriteRequest_p->d_flags
                                          & btlsc::Flag::k_ASYNC_INTERRUPT) {
-            bsl::deque<TcpCbChannel_WReg *>
-                                toBeDispatched(d_writeRequests, d_allocator_p);
+            bsl::deque<TcpCbChannel_WReg *> toBeDispatched(d_writeRequests);
             toBeDispatched.pop_back();
             d_writeRequests.erase(d_writeRequests.begin(),
                                   d_writeRequests.begin() +
@@ -2372,8 +2370,7 @@ void TcpCbChannel::cancelRead() {
 
         bsl::deque<TcpCbChannel_RReg *> toBeCancelled(
                            d_readRequests.begin(),
-                           d_readRequests.begin() + d_readRequests.size() - 1,
-                           d_allocator_p);
+                           d_readRequests.begin() + d_readRequests.size() - 1);
         d_readRequests.erase(
                            d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1);
@@ -2381,8 +2378,7 @@ void TcpCbChannel::cancelRead() {
         BSLS_ASSERT(d_currentReadRequest_p == d_readRequests.back());
     }
     else {
-        bsl::deque<TcpCbChannel_RReg *>
-                                  toBeCancelled(d_readRequests, d_allocator_p);
+        bsl::deque<TcpCbChannel_RReg *> toBeCancelled(d_readRequests);
         d_readRequests.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
 
@@ -2400,8 +2396,7 @@ void TcpCbChannel::cancelWrite() {
 
         bsl::deque<TcpCbChannel_WReg *> toBeCancelled(
                           d_writeRequests.begin(),
-                          d_writeRequests.begin() + d_writeRequests.size() - 1,
-                          d_allocator_p);
+                          d_writeRequests.begin() + d_writeRequests.size() - 1);
 
         d_writeRequests.erase(d_writeRequests.begin(),
                               d_writeRequests.begin()
@@ -2410,8 +2405,7 @@ void TcpCbChannel::cancelWrite() {
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
     }
     else {
-        bsl::deque<TcpCbChannel_WReg *> toBeCancelled(d_writeRequests,
-                                                      d_allocator_p);
+        bsl::deque<TcpCbChannel_WReg *> toBeCancelled(d_writeRequests);
         d_writeRequests.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {

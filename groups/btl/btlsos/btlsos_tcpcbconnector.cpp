@@ -537,8 +537,7 @@ void TcpCbConnector::cancelAll()
         // A callback is active -- can't destroy current request.
         bsl::deque<TcpCbConnector_Reg *> toBeCancelled(
                     d_callbacks.begin(),
-                    d_callbacks.begin() + d_callbacks.size() - 1,
-                    d_allocator_p);
+                    d_callbacks.begin() + d_callbacks.size() - 1);
         d_callbacks.erase(d_callbacks.begin(),
                           d_callbacks.begin() + d_callbacks.size() - 1);
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
@@ -553,8 +552,7 @@ void TcpCbConnector::cancelAll()
         // This part is reached when 'cancelAll' is invoked not from a
         // callback.
 
-        bsl::deque<TcpCbConnector_Reg *>
-                                     toBeCancelled(d_callbacks, d_allocator_p);
+        bsl::deque<TcpCbConnector_Reg *> toBeCancelled(d_callbacks);
         d_callbacks.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
