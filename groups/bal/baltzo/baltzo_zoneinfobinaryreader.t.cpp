@@ -28,14 +28,16 @@
 
 using namespace BloombergLP;
 
+using bsl::atoi;
 using bsl::cout;
 using bsl::endl;
+using bsl::exit;
 using bsl::flush;
 using bsl::memcpy;
 using bsl::memset;
 using bsl::memcmp;
-using bsl::atoi;
-using bsl::exit;
+using bsl::strncmp;
+using bsl::strncpy;
 
 // ============================================================================
 //                                  TEST PLAN
@@ -63,13 +65,14 @@ using bsl::exit;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ 3] CONCERN: 'read' properly process the abbreviation strings
 // [ 4] CONCERN: 'read' properly process local time types data
 // [ 5] CONCERN: 'read' properly process transition data
 // [ 6] CONCERN: 'read' retrieve data with multiple transitions
-// [ 9] CONCERN: 'read' retrieve a real-life Zoneinfo data
-// [10] CONCERN: 'read' fails when header information is invalid
+// [ 9] CONCERN: 'read' properly process the time zone string
+// [10] CONCERN: 'read' retrieve a real-life Zoneinfo data
+// [11] CONCERN: 'read' fails when header information is invalid
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1017,7 +1020,7 @@ const unsigned char TEST_DATA_VERSION2[] = {
     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-    0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a, 0x0a
 };
 
 // TYPEDEFS
@@ -1172,7 +1175,7 @@ class RawHeader {
         // that the value is stored in big-endian format.
 
     void setAbbrevDataSize(int value);
-        // Set the number of local time types to the specified 'value'.  Note
+        // Set the size of abbreviation data to the specified 'value'.  Note
         // that the value is stored in big-endian format.
 
     // ACCESSORS
@@ -1559,6 +1562,10 @@ class ZoneinfoData {
         // size can be found in the header.  The abbreviation data will be
         // filled with '\0' character.
 
+    void populateTimeZoneString();
+        // Populate the time zone string part of the Zoneinfo binary data.  It
+        // will be filled with two new line characters.
+
     void populateBuffer(const RawHeader& header);
         // Populate 'd_buffer' with synthetic Zoneinfo binary data that matches
         // the file description of the specified 'header.  This function will
@@ -1615,6 +1622,16 @@ class ZoneinfoData {
     ~ZoneinfoData();
         // Destroy this object.
 
+    // MANIPULATORS
+    void setTimeZoneString(const char *data, bsl::size_t size);
+        // Set time zone string value by duplicating the specified 'data' with
+        // the specified 'size' into the buffer.  As origin buffer may not be
+        // able to accommodate additional symbols, new buffer of appropriate
+        // size is allocated and data from the old one are duplicated before
+        // appending time zone string.  Old buffer is deleted afterwards.  Note
+        // that this operation has no effect if binary data version is not
+        // equal to '2' or '3'.
+
     // ACCESSORS
     char *buffer() const;
         // Return the address of the buffer containing the Zoneinfo data.
@@ -1633,6 +1650,13 @@ class ZoneinfoData {
     RawHeader *getRawHeader64() const;
         // Return the address of the portion in the buffer containing version
         // '2' header information.
+
+    char *getTimeZoneString() const;
+        // Return the address of the portion in the buffer containing
+        // POSIX-TZ-environment-variable-style string for use in handling
+        // instants after the last transition time stored in the file (with
+        // nothing between the newlines if there is no POSIX representation for
+        // such instants.
 
     bdlb::BigEndianInt32 *getTransitionTime() const;
         // Return the address of the portion in the buffer containing the times
@@ -1673,6 +1697,9 @@ class ZoneinfoData {
     char *getAbbrevData64() const;
         // Return the address of the portion in the buffer containing
         // version '2' abbreviation string data.
+
+    int timeZoneStringLength() const;
+        // Return the length of the stored time zone string.
 };
 
                              // ------------------
@@ -1690,7 +1717,7 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
              + bsl::max(header.numLocalTimeTypes(), 0) *
                                                       sizeof(RawLocalTimeTypes)
              + bsl::max(header.abbrevDataSize(), 0);
-    if ('2' == header.version()) {
+    if ('2' == header.version() || '3' == header.version()) {
         d_size += sizeof(RawHeader)
                   + bsl::max(header.numIsGmt(), 0) * 1
                   + bsl::max(header.numIsStd(), 0) * 1
@@ -1698,7 +1725,8 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
                   + bsl::max(header.numTransitions(), 0) * (8 + 1)
                   + bsl::max(header.numLocalTimeTypes(), 0) *
                                                       sizeof(RawLocalTimeTypes)
-                  + bsl::max(header.abbrevDataSize(), 0);
+                  + bsl::max(header.abbrevDataSize(), 0)
+                  + 2;  // two 'newline' symbols for empty time zone string
     }
     d_buffer = new char[d_size];
     memset(d_buffer, 0, d_size);
@@ -1712,7 +1740,7 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
     populateLocalTimeTypeBuf();
     populateAbbreviationData();
 
-    if ('2' == header.version()) {
+    if ('2' == header.version() || '3' == header.version()) {
         headerBuf = getRawHeader64();
         memcpy(headerBuf, &header, sizeof *headerBuf);
 
@@ -1721,6 +1749,7 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
         populateLeapCorrectionBuf64();
         populateLocalTimeTypeBuf64();
         populateAbbreviationData64();
+        populateTimeZoneString();
     }
 }
 
@@ -1816,6 +1845,18 @@ void ZoneinfoData::populateAbbreviationData64()
     }
 }
 
+void ZoneinfoData::populateTimeZoneString()
+{
+        char *buffer = getTimeZoneString();
+        if (buffer) {
+            // Adding two new lines symbols.
+
+            memset(buffer - 1, 10, 1);  // enclosing data part with new line
+            memset(buffer,     10, 1);  // enclosing empty zone info string
+                                        // with new line
+        }
+}
+
 // CREATORS
 ZoneinfoData::ZoneinfoData()
 {
@@ -1830,14 +1871,73 @@ ZoneinfoData::ZoneinfoData(const RawHeader& header)
 
 ZoneinfoData::ZoneinfoData(const char *data, bsl::size_t size)
 {
-    d_buffer = new char[size];
-    memcpy(d_buffer, data, size);
+    d_size   = size;
+    d_buffer = new char[d_size];
+    memcpy(d_buffer, data, d_size);
 }
 
 ZoneinfoData::~ZoneinfoData()
 {
     delete[](d_buffer);
 }
+
+// MANIPULATORS
+void ZoneinfoData::setTimeZoneString(const char *data, bsl::size_t size)
+{
+    RawHeader *head = getRawHeader();
+
+    if ('2' != head->version() && '3' != head->version()) {
+        return;                                                       // RETURN
+    }
+
+    RawHeader *head64 = getRawHeader64();
+
+    bsl::size_t dataSize =
+           sizeof(RawHeader)
+         + bsl::max(head->numIsGmt(), 0)          * 1
+         + bsl::max(head->numIsStd(), 0)          * 1
+         + bsl::max(head->numLeaps(), 0)          * sizeof(RawLeapInfo)
+         + bsl::max(head->numTransitions(), 0)    * (4 + 1)
+         + bsl::max(head->numLocalTimeTypes(), 0) * sizeof(RawLocalTimeTypes)
+         + bsl::max(head->abbrevDataSize(), 0)
+         + sizeof(RawHeader)
+         + bsl::max(head64->numIsGmt(), 0)          * 1
+         + bsl::max(head64->numIsStd(), 0)          * 1
+         + bsl::max(head64->numLeaps(), 0)          * sizeof(RawLeapInfo64)
+         + bsl::max(head64->numTransitions(), 0)    * (8 + 1)
+         + bsl::max(head64->numLocalTimeTypes(), 0) * sizeof(RawLocalTimeTypes)
+         + bsl::max(head64->abbrevDataSize(), 0);
+
+     // We need to store data, time zone string and two newline symbols.
+
+     int   newSize = static_cast<int>(dataSize + size + 2);
+     char *buffer  = new char[newSize];
+
+     // Duplicating data.
+
+     for (bsl::size_t i = 0; i < dataSize; ++i) {
+         buffer[i] = d_buffer[i];
+     }
+
+     // Enclosing data.
+
+     memset(buffer + dataSize, 10, 1);
+
+     // Duplicating time zone string.
+
+     for (bsl::size_t i = 0; i < size; ++i) {
+         buffer[i + dataSize + 1] = data[i];
+     }
+
+     // Enclosing time zone string.
+
+     memset(buffer + dataSize + 1 + size, 10, 1);
+
+     d_size = newSize;
+     delete [] d_buffer;
+     d_buffer = buffer;
+}
+
 
 // ACCESSORS
 char *ZoneinfoData::buffer() const
@@ -1871,6 +1971,21 @@ RawHeader *ZoneinfoData::getRawHeader() const
 RawHeader *ZoneinfoData::getRawHeader64() const
 {
     return reinterpret_cast<RawHeader*>(getVersion2Address());
+}
+
+char *ZoneinfoData::getTimeZoneString() const
+{
+    return reinterpret_cast<char *> (
+        getVersion2Address()
+        + sizeof(RawHeader)
+        + bsl::max(getRawHeader64()->numIsGmt(), 0) * 1
+        + bsl::max(getRawHeader64()->numIsStd(), 0) * 1
+        + bsl::max(getRawHeader64()->numLeaps(), 0) * sizeof(RawLeapInfo64)
+        + bsl::max(getRawHeader64()->numTransitions(), 0) * (8 + 1)
+        + bsl::max(getRawHeader64()->numLocalTimeTypes(), 0) *
+                                                      sizeof(RawLocalTimeTypes)
+        + bsl::max(getRawHeader64()->abbrevDataSize(), 0))
+        + 1;  // newline enclosing for data part
 }
 
 bdlb::BigEndianInt32 *ZoneinfoData::getTransitionTime() const
@@ -1960,6 +2075,15 @@ char *ZoneinfoData::getAbbrevData64() const
                                                      sizeof(RawLocalTimeTypes);
 }
 
+int ZoneinfoData::timeZoneStringLength() const
+{
+    if (getRawHeader()->version() != '2' && getRawHeader()->version() != '3') {
+        return 0;                                                     // RETURN
+    }
+
+    return d_size - (getTimeZoneString() - d_buffer) - 1;
+}
+
 // ----------------------------------------------------------------------------
 
 static int verifyTimeZone(const ZoneinfoData&     data,
@@ -2047,15 +2171,11 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&     data,
                                         int                     line,
                                         bool                    expectToFail)
 {
-
-    const int LINE = line;
-    const baltzo::Zoneinfo& X = timeZone;
-
-    RawHeader *H = data.getRawHeader64();
-
-    char *abbrevDataBuf = data.getAbbrevData64();
-
-    RawLocalTimeTypes *localTimeTypeBuf = data.getRawLocalTimeTypes64();
+    const int                LINE             = line;
+    const baltzo::Zoneinfo&  X                = timeZone;
+    const RawHeader         *H                = data.getRawHeader64();
+    char                    *abbrevDataBuf    = data.getAbbrevData64();
+    RawLocalTimeTypes       *localTimeTypeBuf = data.getRawLocalTimeTypes64();
 
     // An extra transition is created for to handle time earlier than the first
     // transition.
@@ -2117,6 +2237,22 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&     data,
         ++transitionTimeBuf;
     }
 
+    // Verify time zone string.
+
+    int length = data.timeZoneStringLength();
+
+    bsl::string zoneInfoString = X.extendedTransitionsDescription();
+    bsl::string zoneInfoDataString(data.getTimeZoneString(),
+                                   data.timeZoneStringLength());
+
+    if (zoneInfoString != zoneInfoDataString) {
+        if (!expectToFail) {
+            LOOP3_ASSERT(LINE, zoneInfoString, zoneInfoDataString,
+                         zoneInfoString == zoneInfoDataString);
+        }
+        return 6;                                                     // RETURN
+    }
+
     return 0;
 }
 
@@ -2139,8 +2275,8 @@ static int testVerifyTimeZone(int verbose)
         INT_MAX
     };
 
-    const int NUM_TRANSITION_TIME =
-                            sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES;
+    enum { NUM_TRANSITION_TIME =
+                          sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES };
 
     static const struct {
         int           d_offset;
@@ -2157,11 +2293,11 @@ static int testVerifyTimeZone(int verbose)
 
     };
 
-    const int NUM_LOCAL_TIME_TYPES =
-                            sizeof LOCAL_TIME_TYPES / sizeof *LOCAL_TIME_TYPES;
+    enum { NUM_LOCAL_TIME_TYPES =
+                          sizeof LOCAL_TIME_TYPES / sizeof *LOCAL_TIME_TYPES };
 
     const char AB_DATA[] = "\0A\0AB\0";
-    const int  AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA;
+    enum { AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA };
 
     // Create 'ZoneinfoData'
 
@@ -2370,8 +2506,8 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         INT_MAX
     };
 
-    const int NUM_TRANSITION_TIME =
-                            sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES;
+    enum { NUM_TRANSITION_TIME =
+                          sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES };
 
     static const struct {
         int           d_offset;
@@ -2388,11 +2524,11 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
 
     };
 
-    const int NUM_LOCAL_TIME_TYPES =
-                            sizeof LOCAL_TIME_TYPES / sizeof *LOCAL_TIME_TYPES;
+    enum { NUM_LOCAL_TIME_TYPES =
+                          sizeof LOCAL_TIME_TYPES / sizeof *LOCAL_TIME_TYPES };
 
     const char AB_DATA[] = "\0A\0AB\0";
-    const int  AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA;
+    enum { AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA };
 
     // Create 'ZoneinfoData'
 
@@ -2579,6 +2715,23 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
         }
     }
+
+    ZI.setTimeZoneString("abc\n", 4);
+
+    if (verbose) cout << "\nTesting time zone string." << endl;
+    {
+        baltzo::Zoneinfo TZ;
+        TZ.addTransition(FIRST_TRANSITION, D[0]);
+        TZ.addTransition(TRANSITION_TIMES[0], D[0]);
+        TZ.addTransition(TRANSITION_TIMES[1], D[1]);
+        TZ.addTransition(TRANSITION_TIMES[2], D[2]);
+        TZ.addTransition(TRANSITION_TIMES[3], D[0]);
+        TZ.addTransition(TRANSITION_TIMES[4], D[1]);
+
+        TZ.setExtendedTransitionsDescription("abc\n");
+
+        ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+    }
     return 0;
 }
 
@@ -2598,7 +2751,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -2689,7 +2842,7 @@ int main(int argc, char *argv[])
 // ]
 //..
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING INVALID HEADER
         //
@@ -2729,7 +2882,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-2 == Obj::read(&TZ, inputStream));
         }
 
         {
@@ -2738,7 +2891,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-2 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version." << endl;
@@ -2748,7 +2901,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-3 == Obj::read(&TZ, inputStream));
         }
         {
             ZoneinfoData ZI;
@@ -2756,25 +2909,25 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-3 == Obj::read(&TZ, inputStream));
         }
         {
             ZoneinfoData ZI;
-            ZI.getRawHeader()->setVersion('2' + 1);
+            ZI.getRawHeader()->setVersion('3' + 1);
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-3 == Obj::read(&TZ, inputStream));
         }
 
-        if (verbose) cout << "\nInvalid version '\0' 'numIsGmt'." << endl;
+        if (verbose) cout << "\nInvalid version '\\0' 'numIsGmt'." << endl;
         {
             ZoneinfoData ZI;
             ZI.getRawHeader()->setNumIsGmt(-1);
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-5 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '2' 'numIsGmt'." << endl;
@@ -2786,7 +2939,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-5 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '\0' 'numIsStd'." << endl;
@@ -2796,7 +2949,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-6 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '2' 'numIsStd'." << endl;
@@ -2808,7 +2961,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-6 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '\0' 'numTransitions'.\n";
@@ -2818,7 +2971,7 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-8 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '2' 'numTransitions'." << endl;
@@ -2830,18 +2983,18 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-8 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout <<
-                         "\nInvalid version '\0' 'numLocalTimeTypes'." << endl;
+                        "\nInvalid version '\\0' 'numLocalTimeTypes'." << endl;
         {
             ZoneinfoData ZI;
             ZI.getRawHeader()->setNumLocalTimeTypes(0);
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-4 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout <<
@@ -2854,17 +3007,18 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-4 == Obj::read(&TZ, inputStream));
         }
 
-        if (verbose) cout << "\nInvalid version '\0' 'abbrevDataSize'" << endl;
+        if (verbose) cout <<
+                            "\nInvalid version '\\0' 'abbrevDataSize'" << endl;
         {
             ZoneinfoData ZI;
             ZI.getRawHeader()->setAbbrevDataSize(0);
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-9 == Obj::read(&TZ, inputStream));
         }
 
         if (verbose) cout << "\nInvalid version '2' 'abbrevDataSize'" << endl;
@@ -2876,10 +3030,60 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
             baltzo::Zoneinfo TZ;
-            ASSERT(0 != Obj::read(&TZ, inputStream));
+            ASSERT(-9 == Obj::read(&TZ, inputStream));
+        }
+
+        if (verbose) cout << "\nInvalid version '2' 'abbrevDataSize'" << endl;
+        {
+            RawHeader RH;
+            RH.setNumIsGmt(0);
+            RH.setNumIsStd(0);
+            RH.setNumTransitions(0);
+            RH.setNumLocalTimeTypes(1);
+            RH.setAbbrevDataSize(1);
+
+            RH.setVersion('2');
+            ZoneinfoData ZI2(RH);
+
+            RH.setVersion('3');
+            ZoneinfoData ZI3(RH);
+
+            // Testing scenario, when there aren't any symbols, except data in
+            // the stream.
+            {
+                // Don't add last two characters ("\n\n" to the stream).
+
+                bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(), ZI2.size() - 2);
+                bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(), ZI3.size() - 2);
+                bsl::istream               inputStream2(&isb2);
+                bsl::istream               inputStream3(&isb3);
+                baltzo::Zoneinfo           TZ2;
+                baltzo::Zoneinfo           TZ3;
+
+                ASSERT(-33 == Obj::read(&TZ2, inputStream2));
+                ASSERT(-33 == Obj::read(&TZ3, inputStream3));
+            }
+
+            // Data part isn't newline-enclosed scenario.
+            {
+                // Change newline symbols, enclosing data part.
+
+                ZI2.buffer()[ZI2.size() - 1] = 'a';
+                ZI3.buffer()[ZI3.size() - 1] = 'a';
+
+                bdlsb::FixedMemInStreamBuf isb2(ZI2.buffer(), ZI2.size() - 2);
+                bdlsb::FixedMemInStreamBuf isb3(ZI3.buffer(), ZI3.size() - 2);
+                bsl::istream               inputStream2(&isb2);
+                bsl::istream               inputStream3(&isb3);
+                baltzo::Zoneinfo           TZ2;
+                baltzo::Zoneinfo           TZ3;
+
+                ASSERT(-33 == Obj::read(&TZ2, inputStream2));
+                ASSERT(-33 == Obj::read(&TZ3, inputStream3));
+            }
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING REAL LIFE DATA
         //
@@ -2926,10 +3130,9 @@ int main(int argc, char *argv[])
             { TOKYO_DATA,      sizeof TOKYO_DATA,      5,   5,   5,   0,  16 },
             { KIRITIMATI_DATA, sizeof KIRITIMATI_DATA, 4,   4,   4,   0,   9 },
             { CHATHAM_DATA,    sizeof CHATHAM_DATA,    4,   4,   4,   0,  16 },
-
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const unsigned char *BUFFER  = DATA[ti].d_buffer;
@@ -2963,7 +3166,129 @@ int main(int argc, char *argv[])
                 ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
                                 SIZE);
                 ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            }
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING TIME ZONE STRING READING
+        //
+        // Concerns:
+        //: 1 'read' succeeds in loading version '\0' data into a
+        //:   'baltzo::Zoneinfo' object, but default value of time zone string
+        //:   is stored.
+        //:
+        //: 2 'read' succeeds in loading of varios time zone strings from
+        //:   version '2' binary data into a 'baltzo::Zoneinfo' object and
+        //:   correct value of time zone string is stored.
+        //:
+        //: 3 'read' succeeds in loading of varios time zone strings from
+        //:   version '3' binary data into a 'baltzo::Zoneinfo' object and
+        //:   correct value of time zone string is stored.
+        //
+        // Plan:
+        //: 1 Using test apparatus, create a stream, containing binary data for
+        //:   valid 'baltzo::Zoneinfo' object of version '\0'.  Verify that
+        //:   'read' successfully load data into a 'baltzo::Zoneinfo' object.
+        //:   (C-1)
+        //:
+        //: 2 Using the table-driven technique, specify a set of (unique) time
+        //:   zone strings.
+        //:
+        //: 3 For each row (representing a distinct string value, 'V') in the
+        //:   table described in P-2:
+        //:
+        //:   1 Using test apparatus, create two streams, containing binary
+        //:     data for two valid 'baltzo::Zoneinfo' objects of version '2'
+        //:     and '3' and having 'V' as a time zone string.
+        //:
+        //:   2 Verify that 'read' successfully load data into a
+        //:     'baltzo::Zoneinfo' object.  (C-2..3)
+        //
+        // Testing:
+        //   read(baltzo::Zoneinfo *, bsl::istream&, bA=0);
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "TESTING TIME ZONE STRING READING" << endl
+                          << "================================" << endl;
+
+        if (verbose) cout << "\nTesting version '\0' binary file." << endl;
+        {
+            RawHeader RH;
+            RH.setNumIsGmt(0);
+            RH.setNumIsStd(0);
+            RH.setNumTransitions(0);
+            RH.setNumLocalTimeTypes(1);
+            RH.setAbbrevDataSize(1);
+
+            ZoneinfoData ZI(RH);
+
+            bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
+            bsl::istream               inputStream(&isb);
+
+            baltzo::Zoneinfo TZ;
+            ASSERT(0 == Obj::read(&TZ, inputStream));
+            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+        }
+
+        if (verbose) cout << "\nTesting version '2' and '3' binary file."
+                          << endl;
+        {
+
+            static const struct {
+                int         d_line;      // line
+                const char *d_original;  // original string
+                const char *d_result;    // result string
+            } DATA[] = {
+                //LINE  ORIGINAL   RESULT
+                //----  --------   --------
+                { L_,   "",        ""       },
+                { L_,   "\n",      ""       },
+                { L_,   "a",       "a"      },
+                { L_,   "\na",     ""       },
+                { L_,   "a\n",     "a"      },
+                { L_,   "ab",      "ab"     },
+                { L_,   "abcdef",  "abcdef" },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *ORIG   = DATA[ti].d_original;
+                const char *RESULT = DATA[ti].d_result;
+
+                RawHeader RH;
+                RH.setNumIsGmt(0);
+                RH.setNumIsStd(0);
+                RH.setNumTransitions(0);
+                RH.setNumLocalTimeTypes(1);
+                RH.setAbbrevDataSize(1);
+
+                for (int tj = 0; tj < 2; ++tj) {
+                    char version = tj ? '2' : '3';
+
+                    RH.setVersion(version);
+
+                    ZoneinfoData original(RH);
+                    ZoneinfoData result(RH);
+
+                    original.setTimeZoneString(ORIG, strlen(ORIG));
+                    result.setTimeZoneString(RESULT, strlen(RESULT));
+
+                    bdlsb::FixedMemInStreamBuf isb(original.buffer(),
+                                                   original.size());
+                    bsl::istream               inputStream(&isb);
+
+                    baltzo::Zoneinfo TZ;
+                    LOOP2_ASSERT(LINE, version,
+                                 0 == Obj::read(&TZ, inputStream));
+                    LOOP2_ASSERT(LINE, version,
+                                 0 == verifyTimeZoneVersion2Format(result,
+                                                                   TZ,
+                                                                   LINE));
+                }
             }
         }
       } break;
@@ -3033,7 +3358,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting version '\0'." << endl;
         {
@@ -3165,7 +3490,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting version '\0'." << endl;
 
@@ -3306,7 +3631,7 @@ int main(int argc, char *argv[])
         { L_,                20 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         static const struct {
             int   d_line;
@@ -3325,7 +3650,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+        enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
         if (verbose) cout <<
                          "\nTesting version '\0' multiple transitions.\n";
@@ -3463,7 +3788,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting version '\0' transition time." << endl;
         {
@@ -3784,7 +4109,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout <<
                             "\nTesting version '\0' local time types." << endl;
@@ -4012,8 +4337,8 @@ int main(int argc, char *argv[])
 
         };
 
-        const int AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA;
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout
                         << "\nTesting version '\0' abbreviation data." << endl;
@@ -4295,7 +4620,7 @@ int main(int argc, char *argv[])
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout <<
       "\nTesting basic accessor for version '\0' header information.." << endl;
@@ -4351,16 +4676,16 @@ int main(int argc, char *argv[])
         //LINE  IS_GMT  IS_STD  TRANS  LCL_T_TYPE  AB_DATA  SIZE
         //----  ------  ------  -----  ----------  -------  ----
 
-        { L_,        0,      0,     0,          1,       1,   102 },
-        { L_,        1,      0,     0,          1,       1,   104 },
-        { L_,        0,      1,     0,          1,       1,   104 },
-        { L_,        0,      0,     1,          1,       1,   116 },
-        { L_,        0,      0,     0,          2,       1,   114 },
-        { L_,        0,      0,     0,          1,       2,   104 },
+        { L_,        0,      0,     0,          1,       1,   104 },
+        { L_,        1,      0,     0,          1,       1,   106 },
+        { L_,        0,      1,     0,          1,       1,   106 },
+        { L_,        0,      0,     1,          1,       1,   118 },
+        { L_,        0,      0,     0,          2,       1,   116 },
+        { L_,        0,      0,     0,          1,       2,   106 },
 
         };
 
-        const int NUM_DATA64 = sizeof DATA64 / sizeof *DATA64;
+        enum { NUM_DATA64 = sizeof DATA64 / sizeof *DATA64 };
 
         if (verbose) cout <<
        "\nTesting basic accessor for version '2' header information.." << endl;
@@ -4411,7 +4736,7 @@ int main(int argc, char *argv[])
             RH.setAbbrevDataSize(2);
             ZoneinfoData ZI(RH);
 
-            const int TEST_DATA_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+            enum { TEST_DATA_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA };
 
             ASSERT(TEST_DATA_SIZE == ZI.size());
             ASSERT(0 == memcmp(ZI.buffer(), TEST_DATA, TEST_DATA_SIZE));
@@ -4428,12 +4753,148 @@ int main(int argc, char *argv[])
             RH.setAbbrevDataSize(2);
             ZoneinfoData ZI(RH);
 
-            const int TEST_DATA_VERSION2_SIZE =
-                        sizeof TEST_DATA_VERSION2 / sizeof *TEST_DATA_VERSION2;
+            enum { TEST_DATA_VERSION2_SIZE =
+                      sizeof TEST_DATA_VERSION2 / sizeof *TEST_DATA_VERSION2 };
 
             ASSERT(TEST_DATA_VERSION2_SIZE == ZI.size());
             ASSERT(0 == memcmp(ZI.buffer(), TEST_DATA_VERSION2,
                                                      TEST_DATA_VERSION2_SIZE));
+
+
+        }
+
+        if (verbose) cout << "\nTesting time zone string modification/access."
+                          << endl;
+        {
+            static const struct {
+                int         d_line;    // line
+                const char *d_string;  // time zone string
+                int         d_length;  // string length
+            } TZ[] = {
+               //LINE  STRING    LENGTH
+               //----  ------    ------
+               { L_,   "",       0      },
+               { L_,   "a",      1      },
+               { L_,   "\n",     1      },
+               { L_,   "a\n",    2      },
+               { L_,   "\na",    2      },
+               { L_,   "abc",    3      },
+            };
+            enum { NUM_TZ = sizeof TZ / sizeof *TZ };
+
+            for (int ti = 0; ti < NUM_DATA64; ++ti) {
+                const int LINE       = DATA64[ti].d_line;
+                const int IS_GMT     = DATA64[ti].d_numIsGmt;
+                const int IS_STD     = DATA64[ti].d_numIsStd;
+                const int TRANS      = DATA64[ti].d_numTransitions;
+                const int LCL_T_TYPE = DATA64[ti].d_numLocalTimeTypes;
+                const int AB_DATA    = DATA64[ti].d_abbrevDataSize;
+
+                RawHeader RH;
+
+                RH.setNumIsGmt(IS_GMT);
+                RH.setNumIsStd(IS_STD);
+                RH.setNumTransitions(TRANS);
+                RH.setNumLocalTimeTypes(LCL_T_TYPE);
+                RH.setAbbrevDataSize(AB_DATA);
+
+                RH.setVersion('2');
+                ZoneinfoData ZI2(RH);
+
+                RH.setVersion('3');
+                ZoneinfoData ZI3(RH);
+
+                LOOP2_ASSERT(LINE, *ZI2.getTimeZoneString(),
+                             '\n' == *ZI2.getTimeZoneString());
+
+                LOOP2_ASSERT(LINE, ZI2.timeZoneStringLength(),
+                             0 == ZI2.timeZoneStringLength());
+
+                LOOP2_ASSERT(LINE, *ZI3.getTimeZoneString(),
+                             '\n' == *ZI3.getTimeZoneString());
+
+                LOOP2_ASSERT(LINE, ZI3.timeZoneStringLength(),
+                             0 == ZI3.timeZoneStringLength());
+
+                for (int tj = 0; tj < NUM_TZ; ++tj) {
+                   const int   TZ_LINE = TZ[tj].d_line;
+                   const char *STRING  = TZ[tj].d_string;
+                   const int   LENGTH  = TZ[tj].d_length;
+
+                   ZI2.setTimeZoneString(STRING, LENGTH);
+                   ZI3.setTimeZoneString(STRING, LENGTH);
+
+                   LOOP2_ASSERT(LINE, TZ_LINE,
+                                0 == strncmp(STRING,
+                                             ZI2.getTimeZoneString(),
+                                             LENGTH));
+                   LOOP2_ASSERT(LINE, ZI2.timeZoneStringLength(),
+                                LENGTH == ZI2.timeZoneStringLength());
+
+                   LOOP2_ASSERT(LINE, TZ_LINE,
+                                0 == strncmp(STRING,
+                                             ZI3.getTimeZoneString(),
+                                             LENGTH));
+                   LOOP2_ASSERT(LINE, ZI3.timeZoneStringLength(),
+                                LENGTH == ZI3.timeZoneStringLength());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting real life data." << endl;
+        {
+            static const struct {
+                int                  d_line;
+                const unsigned char *d_buffer;
+                int                  d_size;
+                int                  d_numLocalTimeTypes;
+                int                  d_numIsGmt;
+                int                  d_numIsStd;
+                int                  d_numTransitions;
+                int                  d_abbrevDataSize;
+            } DATA [] = {
+    //---------^
+    //LINE BUFFER           SIZE                   LLT  GMT  STD  TRANS  ABB
+    //---- ---------------  ---------------------- ---  ---  ---  -----  ---
+    { L_,  NEW_YORK_DATA,   sizeof NEW_YORK_DATA,    5,   5,   5,   236,  20 },
+    { L_,  LONDON_DATA,     sizeof LONDON_DATA,      8,   8,   8,   243,  17 },
+    { L_,  TOKYO_DATA,      sizeof TOKYO_DATA,       5,   5,   5,    11,  16 },
+    { L_,  KIRITIMATI_DATA, sizeof KIRITIMATI_DATA,  4,   4,   4,     3,   9 },
+    { L_,  CHATHAM_DATA,    sizeof CHATHAM_DATA,     4,   4,   4,   128,  16 },
+    //---------v
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int            LINE       = DATA[ti].d_line;
+                const unsigned char *BUFFER     = DATA[ti].d_buffer;
+                const int            SIZE       = DATA[ti].d_size;
+                const int            LCL_T_TYPE = DATA[ti].d_numLocalTimeTypes;
+                const int            IS_GMT     = DATA[ti].d_numIsGmt;
+                const int            IS_STD     = DATA[ti].d_numIsStd;
+                const int            TRANS      = DATA[ti].d_numTransitions;
+                const int            AB_DATA    = DATA[ti].d_abbrevDataSize;
+
+                ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
+                                SIZE);
+
+                LOOP3_ASSERT(LINE, SIZE, ZI.size(), SIZE == ZI.size());
+
+                const RawHeader& ZIH = *ZI.getRawHeader64();
+
+                LOOP3_ASSERT(LINE, IS_GMT, ZIH.numIsGmt(),
+                             IS_GMT == ZIH.numIsGmt());
+                LOOP3_ASSERT(LINE, IS_STD, ZIH.numIsStd(),
+                             IS_STD == ZIH.numIsStd());
+                LOOP3_ASSERT(LINE, TRANS, ZIH.numTransitions(),
+                             TRANS == ZIH.numTransitions());
+                LOOP3_ASSERT(LINE, LCL_T_TYPE, ZIH.numLocalTimeTypes(),
+                             LCL_T_TYPE == ZIH.numLocalTimeTypes());
+                LOOP3_ASSERT(LINE, AB_DATA, ZIH.abbrevDataSize(),
+                             AB_DATA == ZIH.abbrevDataSize());
+
+            }
         }
 
         if (verbose) cout << "\nTesting 'verifyTimeZone'." << endl;
@@ -4490,6 +4951,21 @@ int main(int argc, char *argv[])
         ZoneinfoData ZI(reinterpret_cast<const char *>(CHATHAM_DATA),
                         sizeof(CHATHAM_DATA));
         verifyTimeZoneVersion2Format(ZI, TZ, L_);
+
+
+        baltzo::Zoneinfo TZ1;
+
+        bdlsb::FixedMemInStreamBuf inStreamBuf1(
+                                 reinterpret_cast<const char *>(NEW_YORK_DATA),
+                                 sizeof(NEW_YORK_DATA));
+        bsl::istream inputStream1(&inStreamBuf1);
+
+        BinHeader HD1;
+        ASSERT(0 == Obj::read(&TZ1, &HD1, inputStream1));
+        if (verbose) {
+          //  cout << HD << endl;
+            cout << TZ1 << endl;
+        }
       } break;
       case -1: {
         // --------------------------------------------------------------------

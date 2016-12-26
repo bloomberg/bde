@@ -55,7 +55,7 @@ struct RawHeader {
     // The byte sequence of the header of the Zoneinfo binary data format.
 
     char d_headerId[4];           // must be 'EXPECTED_HEADER_ID'
-    char d_version[1];            // must be '\0' or '2' (as of 2005)
+    char d_version[1];            // must be '\0', '2' or '3' (as of 2013)
     char d_reserved[15];          // unused
     char d_numIsGmt[4];           // number of encoded UTC/local indicators
     char d_numIsStd[4];           // number of encoded standard/wall indicators
@@ -90,7 +90,7 @@ BSLMF_ASSERT(8 == sizeof(RawLeapInfo));
 
 struct RawLeapInfo64 {
     // The byte sequence of a leap correction in the Zoneinfo binary data
-    // format version '2'.
+    // format version '2' or '3'.
 
     char d_transition[8];  // POSIX time at which the leap second occur
     char d_correction[4];  // accumulated leap correction
@@ -227,6 +227,10 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
         return -1;                                                    // RETURN
     }
 
+    bsl::cout << ((char*)&rawHeader)[0] << " "
+              << ((char*)&rawHeader)[1] << " "
+              << ((char*)&rawHeader)[2] << " "
+              << ((char*)&rawHeader)[3] << " " << bsl::endl;
     if (0 != bsl::memcmp(EXPECTED_HEADER_ID, rawHeader.d_headerId, 4)) {
         bsl::string headerId;
         formatHeaderId(&headerId, rawHeader.d_headerId, 4);
@@ -236,9 +240,9 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
     }
 
     char version = *rawHeader.d_version;
-    if ('\0' != version && '2' != version) {
+    if ('\0' != version && '2' != version && '3' != version) {
         BSLS_LOG_ERROR("Found unexpected version value: %d ('%c'). "
-                       "Expecting '\\0' or '2'.", (int)version, version);
+                       "Expecting '\\0', '2', or '3'.", (int)version, version);
         return -3;                                                    // RETURN
     }
     result->setVersion(version);
@@ -365,14 +369,14 @@ static
 int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
                               baltzo::ZoneinfoBinaryHeader *headerResult,
                               bsl::istream&                 stream)
-    // Read time zone information in the version '2' file format from the
-    // specified 'stream', and load the description into the specified
+    // Read time zone information in the version '2' or '3' file format from
+    // the specified 'stream', and load the description into the specified
     // 'zoneinfoResult', and the header information into the specified
     // 'headerResult'.  Return 0 on success and a non-zero value if 'stream'
-    // does not provide a sequence of bytes consistent with version '2'
+    // does not provide a sequence of bytes consistent with version '2' or '3'
     // Zoneinfo binary format.  The 'stream' must refer to the first byte of
-    // the version '2' header (which typically follows the version '\0' format
-    // data in a Zoneinfo binary file).  If an error occurs during the
+    // the version '2' or '3' header (which typically follows the version '\0'
+    // format data in a Zoneinfo binary file).  If an error occurs during the
     // operation, the resulting value of 'zoneinfoResult' is unspecified.
 {
     int rc = readHeader(headerResult, stream);
@@ -480,14 +484,15 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     }
 
     // Add the optional trailing POSIX(-like) TZ environment string.
-
-    bsl::string tz;
-    if (0 != readRawTz(&tz, stream)) {
-        BSLS_LOG_ERROR("Error reading 'tz' information from Zoneinfo file.");
-        return -33;                                                   // RETURN
+    if (headerResult->version() == '2' || headerResult->version() == '3')  {
+        bsl::string tz;
+        if (0 != readRawTz(&tz, stream)) {
+            BSLS_LOG_ERROR(
+                        "Unable to read 'tz' information from Zoneinfo file.");
+            return -33;                                               // RETURN
+        }
+        zoneinfoResult->setExtendedTransitionsDescription(tz);
     }
-
-    zoneinfoResult->setExtendedTransitionsDescription(tz);
 
     return 0;
 }
