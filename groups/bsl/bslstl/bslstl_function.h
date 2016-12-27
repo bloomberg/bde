@@ -7767,7 +7767,7 @@ bsl::Function_Imp<RET(ARGS...)>& bsl::Function_Imp<RET(ARGS...)>::
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         // Equal allocators.  Just swap.
         this->swap(lvalue);
     }
@@ -13172,7 +13172,7 @@ bsl::Function_Imp<RET()>& bsl::Function_Imp<RET()>::
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13190,7 +13190,7 @@ bsl::Function_Imp<RET(ARGS_01)>& bsl::Function_Imp<RET(ARGS_01)>::
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13211,7 +13211,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13235,7 +13235,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13262,7 +13262,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13292,7 +13292,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13325,7 +13325,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13361,7 +13361,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13400,7 +13400,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13442,7 +13442,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13487,7 +13487,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13535,7 +13535,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -13586,7 +13586,7 @@ bsl::Function_Imp<RET(ARGS_01,
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
@@ -15990,7 +15990,7 @@ bsl::Function_Imp<RET(ARGS...)>& bsl::Function_Imp<RET(ARGS...)>::
 operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
 {
     Function_Imp& lvalue = rhs;
-    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
         this->swap(lvalue);
     }
     else {
