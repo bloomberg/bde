@@ -119,6 +119,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_WINDOWS
+// windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
+// defined. BDE uses winsocks2.h for its transport facilities.
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define INCLUDED_WINDOWS
 #endif
