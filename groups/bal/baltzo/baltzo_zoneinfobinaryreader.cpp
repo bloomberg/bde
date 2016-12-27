@@ -227,10 +227,6 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
         return -1;                                                    // RETURN
     }
 
-    bsl::cout << ((char*)&rawHeader)[0] << " "
-              << ((char*)&rawHeader)[1] << " "
-              << ((char*)&rawHeader)[2] << " "
-              << ((char*)&rawHeader)[3] << " " << bsl::endl;
     if (0 != bsl::memcmp(EXPECTED_HEADER_ID, rawHeader.d_headerId, 4)) {
         bsl::string headerId;
         formatHeaderId(&headerId, rawHeader.d_headerId, 4);
