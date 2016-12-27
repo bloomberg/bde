@@ -402,6 +402,7 @@ class my_Class3 {
         ASSERT(d_def.d_value != 93);
         d_def.d_value = 93;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     // MANIPULATORS
