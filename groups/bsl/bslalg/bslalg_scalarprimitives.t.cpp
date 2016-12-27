@@ -1774,7 +1774,7 @@ int main(int argc, char *argv[])
             my_Class1 *srcPtr = (my_Class1 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V1, TA);
             TEST_OP(1, destructiveMove(objPtr, srcPtr, TA),  1, 0);
-            ASSERT(91 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 91 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1782,7 +1782,7 @@ int main(int argc, char *argv[])
             my_Class2 *srcPtr = (my_Class2 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V2, TA);
             TEST_OP(2, destructiveMove(objPtr, srcPtr, TA),  2, TA  );
-            ASSERT(92 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1790,7 +1790,7 @@ int main(int argc, char *argv[])
             my_Class2a *srcPtr = (my_Class2a *)&rawBuf;
             Obj::copyConstruct(srcPtr, V2A, TA);
             TEST_OP(2a, destructiveMove(objPtr, srcPtr, TA), 0x2a, TA  );
-            ASSERT(92 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1798,7 +1798,7 @@ int main(int argc, char *argv[])
             my_Class3 *srcPtr = (my_Class3 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V3, TA);
             TEST_OP(3, destructiveMove(objPtr, srcPtr, TA),  3, TA  );
-            ASSERT(93 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 93 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1806,7 +1806,7 @@ int main(int argc, char *argv[])
             my_Class1 *srcPtr = (my_Class1 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V1, TA);
             TEST_OP(1, destructiveMove(objPtr, srcPtr, XA),  1, 0);
-            ASSERT(91 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 91 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1817,7 +1817,7 @@ int main(int argc, char *argv[])
             // uses default allocator) and C++11 mode (move, copies '*srcPtr'
             // allocator).
             TEST_OP(2, destructiveMove(objPtr, srcPtr, TA),  2, TA);
-            ASSERT(92 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1828,7 +1828,7 @@ int main(int argc, char *argv[])
             // uses default allocator) and C++11 mode (move, copies '*srcPtr'
             // allocator).
             TEST_OP(2a, destructiveMove(objPtr, srcPtr, TA), 0x2a, TA);
-            ASSERT(92 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
         {
@@ -1839,7 +1839,7 @@ int main(int argc, char *argv[])
             // uses default allocator) and C++11 mode (move, copies '*srcPtr'
             // allocator).
             TEST_OP(3, destructiveMove(objPtr, srcPtr, TA),  3, TA);
-            ASSERT(93 == rawBuf.d_value);
+            ASSERTV(rawBuf.d_value, 93 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
 
