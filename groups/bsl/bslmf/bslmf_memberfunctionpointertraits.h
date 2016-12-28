@@ -160,8 +160,8 @@ class MemberFunctionPointerTraits_ClassType {
   public:
     // TYPES
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -274,8 +274,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE> {
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -301,8 +301,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -334,8 +334,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -373,8 +373,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -418,8 +418,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -469,8 +469,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -526,8 +526,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -589,8 +589,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -658,8 +658,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -733,8 +733,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -814,8 +814,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -901,8 +901,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -994,8 +994,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1093,8 +1093,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1198,8 +1198,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1226,8 +1226,8 @@ class MemberFunctionPointerTraits_ClassType {
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
