@@ -3848,8 +3848,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a large number of strings containing valid and invalid
-        //   surrogates and verify that the the validation routines handle
-        //   them properly.
+        //   surrogates and verify that the validation routines handle them
+        //   properly.
         //
         // Testing:
         //   bool isValid(const char *s);

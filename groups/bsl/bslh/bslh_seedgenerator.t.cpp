@@ -131,9 +131,9 @@ class MockRNG {
 
     // MANIPULATORS
     //! MockRNG& operator=(const MockRNG& rhs) = default;
-        // Assign to this object the value of 'd_counter' from the the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.
+        // Assign to this object the value of 'd_counter' from the specified
+        // 'rhs' object, and return a reference providing modifiable access to
+        // this object.
 
     result_type operator()();
         // Return a predictable "random" number of 'result_type'.

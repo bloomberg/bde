@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
         // TESTING REMOVEALL AND DESTRUCTOR
         //
         // Concerns:
-        //   That 'removeAll' and the destructor work both when the the queue
+        //   That 'removeAll' and the destructor work both when the queue
         //   contains items and when it is empty, and never leak items.
         //
         // Plan:

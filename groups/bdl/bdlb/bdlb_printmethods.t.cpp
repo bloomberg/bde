@@ -40,7 +40,7 @@ using namespace bsl;  // automatically added by script
 //: o Then test the generic print method to make sure it uses the trait
 //:   detector correctly and calls the correct print implementation method [8].
 //: o Then test 'bsl::vector' '<<' output stream operator to make sure it
-//:   successfully calls the the print method to print on a single line and
+//:   successfully calls the print method to print on a single line and
 //:   suppress indentation [9]
 //: o Finally, test the usage example to make sure it compiles and runs [10].
 // ----------------------------------------------------------------------------

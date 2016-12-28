@@ -783,7 +783,7 @@ BSLS_IDENT("$Id: $")
 //      // document specify a word location.  The first word in the document
 //      // is at word offset 0.
 //..
-// Notice that that 'WordLocation', the type of the key value, has no natural
+// Notice that the 'WordLocation', the type of the key value, has no natural
 // ordering.  The assignment of document codes is arbitrary so there is no
 // reason to consider the words on one document to sort below those in any
 // another.

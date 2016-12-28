@@ -21,17 +21,17 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl::RandomAccessIterator' is an in-core value-semantic type that that
-// adapts a more limited type, which offers a basic set of operations, so that
-// the resulting 'bslstl::RandomAccessIterator' object meets all the
-// requirements of a standard Random access Iterator.  These requirements are
-// spelled out in [forward.iterators], Table 105 - Random access iterator
-// requirements.  The primary manipulator of an iterator is the pre-increment
-// operator which, together with a function that returns an iterator to the
-// start of a sequence, and a second function to return an iterator to the end
-// of the same sequence, is sufficient to attain any achievable state.  While
-// an iterator offers no direct accessors, its state can be reasonably inferred
-// by inspecting the result of the dereference operator.
+// 'bslstl::RandomAccessIterator' is an in-core value-semantic type that adapts
+// a more limited type, which offers a basic set of operations, so that the
+// resulting 'bslstl::RandomAccessIterator' object meets all the requirements
+// of a standard Random access Iterator.  These requirements are spelled out in
+// [forward.iterators], Table 105 - Random access iterator requirements.  The
+// primary manipulator of an iterator is the pre-increment operator which,
+// together with a function that returns an iterator to the start of a
+// sequence, and a second function to return an iterator to the end of the same
+// sequence, is sufficient to attain any achievable state.  While an iterator
+// offers no direct accessors, its state can be reasonably inferred by
+// inspecting the result of the dereference operator.
 //
 // In order to test this iterator adaptor, a simple container supporting
 // forward iterators will be implemented, to provide the basic type to be

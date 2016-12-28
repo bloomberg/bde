@@ -812,7 +812,7 @@ void TestDriver::testCase9()
     //:
     //:   2 For each row 'R2 in the table of P-2:  (C-1, 3..4)
     //:
-    //:     1 Create a modifiable 'Obj', 'mX', having the the value of 'R2'.
+    //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
     //:
     //:     2 Assign 'mX' from 'Z'.  (C-1)
     //:

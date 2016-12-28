@@ -5559,7 +5559,7 @@ int main(int argc, char *argv[])
         //:    'bslma::Allocator'.
         //: 2 Construct a objects using the test allocator.
         //: 3 Verify that object members have the correct value.
-        //: 4 Verify that that the correct allocator was used.
+        //: 4 Verify that the correct allocator was used.
         //: 5 Verify that there are no memory leaks.
         //
         // Testing:

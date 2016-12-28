@@ -266,7 +266,7 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clocks(basicAllocator)
-, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator, 
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherId(0)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
@@ -310,7 +310,7 @@ TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator, 
+, d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
@@ -502,8 +502,8 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                             d_dispatcherThread));    
-    
+                                             d_dispatcherThread));
+
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running.loadRelaxed()) {
         return 0;                                                     // RETURN
@@ -531,7 +531,7 @@ void TimerEventScheduler::stop()
     // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
     // 'd_mutex' and must always be locked first.
     bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
-    
+
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                              d_dispatcherThread));
 
@@ -763,7 +763,7 @@ TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
 {
     // The event scheduler is constructed with a "now" that is 1000 days in the
     // future.  This point in time is arbitrary, but is chosen to ensure that
-    // in any reasonable test driver, the system clock (which controls the the
+    // in any reasonable test driver, the system clock (which controls the
     // scheduler's condition variable) will always lag behind the test time
     // source.
     //

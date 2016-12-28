@@ -4200,7 +4200,7 @@ int main(int argc, char *argv[])
         //   must be provided in the absence of either or both of those
         //   features.  Overloads provided by the 'sim_cpp11_features.pl'
         //   simulate those features when when not available (as determined by
-        //   the the build mode).
+        //   the build mode).
         //
         //: o Variadic Templates can be simulated by a suite of method
         //:   overloads, each having an additional parameter (up to some

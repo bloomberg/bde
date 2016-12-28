@@ -104,7 +104,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
 
         if (newTimeZonePtr->identifier() != timeZoneId) {
             BSLS_LOG_ERROR("Loaded time zone id %s does not match "
-                           "request id: %s", 
+                           "request id: %s",
                            newTimeZonePtr->identifier().c_str(),
                            timeZoneId);
             *rc = FAILURE;
@@ -117,8 +117,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
                                           newTimeZonePtr));
         result = newTimeZonePtr;
 
-        // The pointer has been copied, so the the proctor must release
-        // ownership.
+        // The pointer has been copied, so the proctor must release ownership.
 
         proctor.release();
     }

@@ -59,8 +59,8 @@ bslma::MallocFreeAllocator *initSingleton(
     // is safe because each thread has its own stack.  The bit-copy is safe
     // because the only thing that is being copied is the vtbl pointer, which
     // is the same for all threads.  (I.e., in case of a race, the second
-    // thread copies the exact same data over the the results of the first
-    // thread's copy.)
+    // thread copies the exact same data over the results of the first thread's
+    // copy.)
 
     bslma_MallocFreeAllocator_Singleton stackTemp;
     void *v = new(stackTemp.buffer()) bslma::MallocFreeAllocator();

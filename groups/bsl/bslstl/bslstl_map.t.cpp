@@ -3434,8 +3434,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
     //
     // Concerns:
     //: 1 'emplace_hint' returns an iterator referring to the newly inserted
-    //:   element if it did not already exists, and the the existing element
-    //:   if it did.
+    //:   element if it did not already exists, and to the existing element if
+    //:   it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -4138,7 +4138,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31()
     //: 1 'emplace' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -4344,7 +4344,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase30()
     //
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and the the existing element if it did.
+    //:   if it did not already exists, and to the existing element if it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -4810,7 +4810,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -4837,8 +4837,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
     //:
     //:   3 Ensure that the move constructor was called on the value type (if
     //:     that type has a mechanism to detect such) where the value has the
-    //:     same allocator as that of the the container and a different
-    //:     allocator than that of the  container.  (C-5)
+    //:     same allocator as that of the container and a different allocator
+    //:     than that of the container.  (C-5)
     //:
     //:   4 Verify all allocations are from the object's allocator.  (C-6)
     //:
@@ -7597,7 +7597,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase16()
     //
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and the the existing element if it did.
+    //:   if it did not already exists, and to the existing element if it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -7923,7 +7923,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase15()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -9248,9 +9248,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
     //:       2 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       3 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
+    //:       3 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
+    //:         empty.  (C-5)
     //:
     //:     7 Create a new object allocator, 'oap'.
     //:
@@ -9262,9 +9262,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
     //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:       be an alias to 'true_type' (Instead of this manual step, use an
     //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
+    //:       AllocatorTraits supports it) and use the member and free 'swap'
+    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
+    //:       after each swap, that: (C-1, 6)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:

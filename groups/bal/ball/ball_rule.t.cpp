@@ -1371,7 +1371,7 @@ int main(int argc, char *argv[])
             spec += 'p';
             spec += (char)i + 'A';     // set the pattern
             spec += 'L';
-            spec += (char)j + 'A';     // the the threshold levels
+            spec += (char)j + 'A';     // the threshold levels
             spec += 'P';
             spec += (char)k + 'A';     // add a predicate
 
@@ -1426,7 +1426,7 @@ int main(int argc, char *argv[])
             spec += 'p';
             spec += (char)i + 'A';     // set the pattern
             spec += 'L';
-            spec += (char)j + 'A';     // the the threshold levels
+            spec += (char)j + 'A';     // the threshold levels
             spec += 'P';
             spec += (char)k + 'A';     // add a predicate
 

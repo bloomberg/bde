@@ -588,9 +588,8 @@ class SequentialPool {
     template <class TYPE>
     void deleteObject(const TYPE *object);
         // Destroy the specified 'object'.  Note that this method is exactly
-        // the same as the the 'deleteObjectRaw' method since no deallocation
-        // is involved.  This method exists purely for consistency across
-        // pools.
+        // the same as the 'deleteObjectRaw' method since no deallocation is
+        // involved.  This method exists purely for consistency across pools.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);

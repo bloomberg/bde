@@ -181,8 +181,8 @@ class Allocator {
 
     void deallocate(pointer p, size_type n = 1);
         // Return memory previously allocated with 'allocate' to the underlying
-        // mechanism object by calling 'deallocate' on the the mechanism
-        // object.  The 'n' argument is ignored by this allocator type.
+        // mechanism object by calling 'deallocate' on the mechanism object.
+        // The 'n' argument is ignored by this allocator type.
 
     void construct(pointer p, const T& val);
         // Copy-construct a 'T' object at the memory address specified by 'p'.

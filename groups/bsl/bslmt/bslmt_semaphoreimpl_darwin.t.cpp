@@ -423,8 +423,8 @@ IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 , d_mutexSem(0)
 , d_resourceSem(0)
 {
-    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to to
-                       // the queue.
+    d_mutexSem.post(); // Initialized to 1 to enforce exclusive access to the
+                       // queue.
 }
 
 IntQueue::~IntQueue()

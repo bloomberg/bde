@@ -1325,8 +1325,8 @@ int main(int argc, char *argv[])
         //:
         //:   3 Using 'sputc' method write a symbol to streambuf.
         //:
-        //:   4 Check the first byte of allocated memory to verify that that
-        //:     all streambuf machinery has been set up properly.  (C-1)
+        //:   4 Check the first byte of allocated memory to verify that all
+        //:     streambuf machinery has been set up properly.  (C-1)
         //
         // Testing:
         //   MemOutStreamBuf(int, bslma::Allocator *basicAllocator = 0);

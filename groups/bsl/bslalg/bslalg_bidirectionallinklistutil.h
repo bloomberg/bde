@@ -263,9 +263,9 @@ struct BidirectionalLinkListUtil {
         // Unlink and move (splice) the elements of a doubly-linked list
         // included in the closed range '[first, last]' out of their original
         // list and into another doubly-linked list before the specified
-        // 'target' node.  If 'target' is 0, then the the elements are
-        // extracted and form a new list such that '0 == first->previousLink()'
-        // and '0 == last->nextLink()' .  After successful execution of this
+        // 'target' node.  If 'target' is 0, then the elements are extracted
+        // and form a new list such that '0 == first->previousLink()' and
+        // '0 == last->nextLink()'.  After successful execution of this
         // function the values of the 'previousLink' and 'nextLink' attributes
         // of all the links in the origin and destination lists appropriately
         // reflect the operation.  The behavior is undefined unless both

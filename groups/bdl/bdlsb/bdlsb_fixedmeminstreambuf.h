@@ -191,7 +191,7 @@ class FixedMemInStreamBuf : public bsl::streambuf {
     FixedMemInStreamBuf *setbuf(const char *buffer, bsl::streamsize length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the pointer
-        // providing modifiable access the this stream buffer.  The behavior is
+        // providing modifiable access to this stream buffer.  The behavior is
         // undefined unless 'buffer != 0 && length > 0' or 'length == 0'.  Upon
         // re-initialization for use of the new buffer, neither the content nor
         // the next input position indicator are preserved.  Note that 'buffer'

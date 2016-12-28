@@ -2580,7 +2580,7 @@ DEFINE_TEST_CASE(3) {
         //  indeed not used, but do not compromise the forwarding mechanism.
         //  Additionally, we want to confirm that the arguments bound using
         //  'bindS' are forwarded properly to the constructor of the binder by
-        //  the 'bdlf::BindUtil::bind' methods.  Finally, the the invocation
+        //  the 'bdlf::BindUtil::bind' methods.  Finally, the invocation
         //  arguments passed to 'bindS' are forwarded properly to the
         //  invocation method of the 'bdlf::BindWrapper' object.
         //

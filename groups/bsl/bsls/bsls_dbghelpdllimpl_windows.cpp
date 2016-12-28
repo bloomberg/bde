@@ -289,7 +289,7 @@ bsls::BslLock& DbghelpDllImpl_Windows::lock()
     // We use a mutex ('bsls::BslLock') instead of a spinlock
     // ('bsls::SpinLock') to guard the access to 'dbghelp.dll' because this
     // contention can go on for much longer than the contention of initially
-    // constructing the mutex.  We use a spinlock to guard the the time to
+    // constructing the mutex.  We use a spinlock to guard the time to
     // initially construct the mutex.
 
     static AtomicOperations::AtomicTypes::Pointer ret  = {0};

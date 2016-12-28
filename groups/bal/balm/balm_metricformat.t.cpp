@@ -159,7 +159,7 @@ class CombinationIterator {
     // PRIVATE MANIPULATORS
     void createCurrentCombination();
         // Populate 'd_currentCombination' with those elements of 'd_values'
-        // whose corresponding bit in the 'd_bits' bit-mask is is 1.
+        // whose corresponding bit in the 'd_bits' bit-mask is 1.
 
   public:
 

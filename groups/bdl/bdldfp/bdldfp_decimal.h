@@ -825,7 +825,7 @@ bool operator!=(Decimal32 lhs, Decimal32 rhs);
     // not have the same value if:
     //
     //: o both are NaN, or
-    //: o one is zero (positive or negative) and the is not, or
+    //: o one is zero (positive or negative) and the other is not, or
     //: o one is positive infinity and the other is not, or
     //: o one is negative infinity and the other is not, or
     //: o both have the value of a real number that are not equal, regardless
@@ -4163,7 +4163,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32>
         // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
 
     static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal32' type.
 
     static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
@@ -4211,7 +4211,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64>
         // +0.000000000000001e-383)
 
     static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal64' type.
 
     static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
@@ -4262,7 +4262,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
         // +0.000000000000000000000000000000001e-6143)
 
     static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal128' type.
 
     static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;

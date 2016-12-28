@@ -39,9 +39,9 @@ bsl::ostream& encodeBase64(bsl::ostream&  stream,
                            INPUT_ITERATOR end)
     // Write the base64 encoding of the character sequence defined by the
     // specified 'begin' and 'end' iterators into the specified 'stream' and
-    // return 'stream'.  Each instantiation of this private function is is
-    // called only once (by the functions below) and can thus be inlined
-    // without causing code bloat.
+    // return 'stream'.  Each instantiation of this private function is called
+    // only once (by the functions below) and can thus be inlined without
+    // causing code bloat.
 {
     bdlde::Base64Encoder base64Encoder(0);  // 0 means do not insert CRLF
 

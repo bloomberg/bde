@@ -847,7 +847,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 For each 'bsltf' test type, create an object of such a type
         //:   having an unique value and stream its value into a
-        //:   'bsl::stringstream'.  Verify the the string stored in the
+        //:   'bsl::stringstream'.  Verify that the string stored in the
         //:   string has the expected value.  (C-1)
         //
         // Testing:
@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
 
                 output.reset();
 
-                // On AIX, the the printed line number from the
+                // On AIX, the printed line number from the
                 // 'BDLS_TESTUTIL_ASSERTV' macro is the line number of the
                 // first line of the call statement, even if the statement is
                 // split over multiple lines.  This behavior is different from

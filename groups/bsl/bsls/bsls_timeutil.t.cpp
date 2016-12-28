@@ -652,8 +652,8 @@ bsls::Types::Int64 fakeConvertRawTime(bsls::Types::Int64 rawTime,
     // can check the accuracy of the calculations in
     // 'WindowsTimerUtil::convertRawTime' against known values.  Other tests
     // will compare the behavior of this function to that of
-    // 'WindowsTimerUtil::convertRawTime' to confirm that the they both behave
-    // the same.
+    // 'WindowsTimerUtil::convertRawTime' to confirm that they both behave the
+    // same.
 {
     const bsls::Types::Int64 K = 1000;
     const bsls::Types::Int64 G = K * K * K;
