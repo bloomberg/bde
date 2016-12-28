@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
         //: 1 Create a few pairs of input iterators.  Verify that the function
         //:   returns 0.  (C-1)
         //:
-        //: 2 For each of the the iterator types -- forward, bidirectional, and
+        //: 2 For each of the iterator types -- forward, bidirectional, and
         //:   random-access:  (C-2)
         //:
         //:   1 Verify the function returns 0 for a pair of iterators having an

@@ -39,7 +39,7 @@ using namespace BloombergLP;
 //
 // Most of these classes have trivial contracts that are almost too trivial to
 // validate, such as a function-call operator to "do nothing".  The essence of
-// validating these functors is that that are a valid, copy-constructible
+// validating these functors is that there are a valid, copy-constructible
 // functor that than can be invoked with the expected arguments, and produce
 // the expected observable result (if any).  In the trickier case of
 // 'SharedPtrNilDeleter', it is not reasonable to check that the entire world

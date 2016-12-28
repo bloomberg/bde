@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
         //:   method, the object is left in an unspecified but valid state.
         //:   In no event is memory leaked.
         //:
-        //:10 The wire format of this object is be the concatenation of the the
+        //:10 The wire format of this object is be the concatenation of the
         //:   wire formats of its constituent attributes, in the order of their
         //:   declaration.  (TBD)
         //:

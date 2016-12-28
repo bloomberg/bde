@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
         //     completed state.
         //   - Verify that the remaining threads considered the second winner
         //     to be *the* winner.
-        //   - Test cannot be repeated in the same execution because the the
+        //   - Test cannot be repeated in the same execution because the
         //     'BSLMT_ONCE_DO' macro uses a hidden static 'bslmt::Once' object
         //     that cannot be reset.
         //
@@ -904,7 +904,7 @@ int main(int argc, char *argv[])
         //   - Verify that only one thread set its "winner" flag.
         //   - Rerun the threads and verify that none of the threads are
         //     winners the second time.  (Test cannot be reset and repeated in
-        //     the same execution because the the 'BSLMT_ONCE_DO' macro uses a
+        //     the same execution because the 'BSLMT_ONCE_DO' macro uses a
         //     hidden static 'bslmt::Once' object that cannot be reset.)
         //   - Create two, non-nested BSLMT_ONCE_DO constructs within a
         //     for-loop block, each incrementing a different counter.  Verify

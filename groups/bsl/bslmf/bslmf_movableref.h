@@ -566,8 +566,8 @@ class MovableRef {
         // Return a reference to the referenced object.  In contexts where a
         // reference to an object of type 'TYPE' is needed, a
         // 'MovableRef<TYPE>' behaves like such a reference.  For information
-        // on how to access the the reference in contexts where no conversion
-        // can be used see 'MovableRefUtil::access()'.
+        // on how to access the reference in contexts where no conversion can
+        // be used see 'MovableRefUtil::access()'.
 };
 
 #endif // support r-value references and alias templates

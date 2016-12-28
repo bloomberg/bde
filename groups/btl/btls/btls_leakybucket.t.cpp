@@ -544,8 +544,8 @@ int main(int argc, char *argv[])
         //:   in actual application with different parameters
         //:   ('rate' and 'capacity').
         //:
-        //: 3 Verify that that the difference between the specified and
-        //:   measured rate does not exceed allowed limits.
+        //: 3 Verify that the difference between the specified and measured
+        //:   rate does not exceed allowed limits.
         //
         // Testing:
         //   void submit(unsigned int numOfUnits);

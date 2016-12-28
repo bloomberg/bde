@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 
             ConcurrencyTest args(&mutex, &barrier);
 
-            // Execute the the first test.
+            // Execute the first test.
             for (int i = 0; i < NUM_THREADS; ++i) {
                 myCreateThread(&handles[i], concurrencyTest, &args);
             }

@@ -2190,9 +2190,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set of strings and the assert addition operators
-        //   return the correct results. The the basic_string operator+= is
-        //   being tested here becuase the bslstl_string test driver can not
-        //   test using StringRef without introducing cyclic dependencies
+        //   return the correct results. The basic_string operator+= is being
+        //   tested here becuase the bslstl_string test driver can not test
+        //   using StringRef without introducing cyclic dependencies.
         //
         // Testing:
         //   int operator+(const StringRef& lhs, const StringRef& rhs);

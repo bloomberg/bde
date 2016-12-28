@@ -518,8 +518,8 @@ class LeakyBucket {
         // unless 'numUnits <= unitsReserved()'.
 
     void reset(const bsls::TimeInterval& currentTime);
-        // Reset the the following statistic counters for this leaky bucket to
-        // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
+        // Reset the following statistic counters for this leaky bucket to 0:
+        // 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
         // 'unusedUnits'.  Set the 'lastUpdateTime' and the
         // 'statisticCollectionStartTime' to the specified 'currentTime'.  The
         // behavior is undefined unless 'LLONG_MIN != currentTime.seconds()'.

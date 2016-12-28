@@ -3456,8 +3456,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase28()
     //:
     //:   3 Ensure that the move constructor was called on the value type (if
     //:     that type has a mechanism to detect such) where the value has the
-    //:     same allocator as that of the the container and a different
-    //:     allocator than that of the  container.  (C-2)
+    //:     same allocator as that of the container and a different allocator
+    //:     than that of the container.  (C-2)
     //:
     //:   4 Verify all allocations are from the object's allocator.  (C-3)
     //:
@@ -5116,8 +5116,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
     //:     comparisons.
     //:
     //:   2 Create an object having the value 'V' using the range constructor
-    //:     passing in the the comparator created in P-5.1.  Verify that the
-    //:     object's value.  (P-5)
+    //:     passing in the comparator created in P-5.1.  Verify the object's
+    //:     value.  (P-5)
     //:
     //:   3 Copy construct an object passing in the object created in P-5.2,
     //:     verify that the comparator compare equals to the one created in
@@ -5888,7 +5888,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
     //
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and the the existing element if it did.
+    //:   if it did not already exists, and to the existing element if it did.
     //:
     //: 2 A new element is added to the container and the order of the
     //:   container remains correct.
@@ -6537,7 +6537,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase13()
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' and
-    //:   'lower_bound' returns the first iterator referring the the existing
+    //:   'lower_bound' returns the first iterator referring to the existing
     //:   element, 'upper_bound' returns the iterator to the element after the
     //:   searched element.
     //:
@@ -7541,9 +7541,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
     //:       3 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
+    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
+    //:         empty.  (C-5)
     //:
     //:     7 Create a new object allocator, 'oap'.
     //:
@@ -7555,9 +7555,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
     //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:       be an alias to 'true_type' (Instead of this manual step, use an
     //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
+    //:       AllocatorTraits supports it) and use the member and free 'swap'
+    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
+    //:       after each swap, that: (C-1, 6)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
@@ -7575,7 +7575,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
     //:    9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:      be an alias to 'true_type' (Instead of this manual step, use an
     //:      allocator that enables propagate_on_container_swap when
-    //:      AllocatorTraits supports it) and use the the member and free 'swap
+    //:      AllocatorTraits supports it) and use the member and free 'swap'
     //:      functions to swap the values 'mX' and 'mZ' respectively; verify,
     //:      after each swap, that:  (C-1, 6)
     //:

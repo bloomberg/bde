@@ -843,8 +843,7 @@ int main(int argc, char *argv[])
         //:   class method passing in an integer value creates a new object of
         //:   that type, at the specified address.  Henceforth invoking the
         //:   'TemplateTestFacility::getIdentifier' class method passing in the
-        //:   just created object returns the the previously used integer
-        //:   value.
+        //:   just created object returns the previously used integer value.
         //:
         //: 2 For all test types, the 'TemplateTestFacility::create' method
         //:   supports integer values from 0 to 127.
@@ -889,8 +888,7 @@ int main(int argc, char *argv[])
         //:   class method passing in an integer value return a new object of
         //:   that type.  Henceforth invoking the
         //:   'TemplateTestFacility::getIdentifier' class method passing in the
-        //:   just created object returns the the previously used integer
-        //:   value.
+        //:   just created object returns the previously used integer value.
         //:
         //: 2 For all test types, the 'TemplateTestFacility::create' method
         //:   supports integer values from 0 to 127.

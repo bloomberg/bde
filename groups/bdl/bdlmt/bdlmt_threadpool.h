@@ -523,8 +523,7 @@ class ThreadPool {
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
-        // Initialize the the set of signals to be blocked in the managed
-        // threads.
+        // Initialize the set of signals to be blocked in the managed threads.
 #endif
 
     int startNewThread();

@@ -517,7 +517,7 @@ class TestPublisher : public balm::Publisher {
     // published sample, accessed using the 'lastSample()'.  The returned
     // sample value contains the same metric record values organized into the
     // same groups as the published sample, but the returned sample does not
-    // refer to the the same addresses in memory: so the returned sample is
+    // refer to the same addresses in memory: so the returned sample is
     // equivalent but *not* *equal* to the published sample.  The
     // 'TestPublisher' also provides a 'reset()' operation to reset the
     // invocation count to 0 and clear the 'lastRecords' and 'lastSample'
@@ -561,9 +561,9 @@ class TestPublisher : public balm::Publisher {
         // finally set 'lastSample' to a congruent (but *not* equal) sample
         // value.  The 'lastSample' value contains the same metric record
         // values organized into the same groups as the published sample, but
-        // the returned sample does not refer to the the same addresses in
-        // memory: so the returned sample is equivalent but not equal to
-        // the published sample.
+        // the returned sample does not refer to the same addresses in memory:
+        // so the returned sample is equivalent but not equal to the published
+        // sample.
 
    void reset();
         // Set 'invocations()' to 0, clear the 'lastRecords()' sequence.
@@ -579,7 +579,7 @@ class TestPublisher : public balm::Publisher {
         // sample passed to a 'publish' method.  The returned sample value
         // contains the same metric record values organized into the same
         // groups as the published sample, but the returned sample does not
-        // refer to the the same addresses in memory: so the returned sample is
+        // refer to the same addresses in memory: so the returned sample is
         // congruent but *not* *equal* to the published sample.
 
     const bsl::vector<balm::MetricRecord>& lastRecords() const;
@@ -753,7 +753,7 @@ class CombinationIterator {
     // PRIVATE MANIPULATORS
     void createCurrentCombination();
         // Populate 'd_currentCombination' with those elements of 'd_values'
-        // whose corresponding bit in the 'd_bits' bit-mask is is 1.
+        // whose corresponding bit in the 'd_bits' bit-mask is 1.
 
   public:
 

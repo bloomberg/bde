@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 This is a simple direct test of the specified methods. Use two
         //:   arbitrary integers to represent "sockets" and register a write
-        //:   event for each, asserting that that specific callback is invoked
+        //:   event for each, asserting that the specific callback is invoked
         //:   as appropriate. (C-1..3)
         //:
         //: 2 Install a test allocator as the default allocator, supply a

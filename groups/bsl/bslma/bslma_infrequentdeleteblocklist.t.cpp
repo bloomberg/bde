@@ -35,9 +35,8 @@ using namespace BloombergLP;
 // the memory manager.  Goal 3 is achieved by using the method
 // 'calculateAlignmentOffset' to verify that memory addresses returned by the
 // 'allocate' method yield 0 offset.  Goals 4 and 5 are achieved by ensuring
-// that, when the the block list is destroyed or its 'release' method is
-// invoked, the test allocator indicates that all allocated memory is
-// deallocated.
+// that, when the block list is destroyed or its 'release' method is invoked,
+// the test allocator indicates that all allocated memory is deallocated.
 //-----------------------------------------------------------------------------
 // [1] bslma::InfrequentDeleteBlockList(basicAllocator);
 // [2] ~bslma::InfrequentDeleteBlockList();

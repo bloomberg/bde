@@ -355,7 +355,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // it is used to supply memory to multiple node-based data structure, that
 // frequently both insert and remove nodes, while grows to significant size
 // before being destroyed.  The following experiment will illustrate the
-// benefits of using the 'bdlma::ConcurrentMultipoolAllocator' under the these
+// benefits of using the 'bdlma::ConcurrentMultipoolAllocator' under the
 // scenario by comparing the following 3 different allocator uses:
 //
 //: 1 Using the 'bslma::NewDeleteAllocator directly.

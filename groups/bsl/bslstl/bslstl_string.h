@@ -1819,12 +1819,12 @@ class basic_string
     iterator erase(const_iterator first, const_iterator last);
         // Erase from this string a substring defined by the specified pair of
         // 'first' and 'last' iterators within this string.  Return an iterator
-        // providing modifiable access to the the character at the 'last'
-        // position prior to erasing.  If no such character exists, return
-        // 'end()'.  This method invalidates existing iterators pointing to
-        // 'first' or a subsequent position.  The behavior is undefined unless
-        // 'first' and 'last' are both within the range '[cbegin() .. cend()]'
-        // and 'first <= last'.
+        // providing modifiable access to the character at the 'last' position
+        // prior to erasing.  If no such character exists, return 'end()'.
+        // This method invalidates existing iterators pointing to 'first' or a
+        // subsequent position.  The behavior is undefined unless 'first' and
+        // 'last' are both within the range '[cbegin() .. cend()]' and 'first
+        // <= last'.
 
     void pop_back();
         // Erase the last character from this string.  The behavior is

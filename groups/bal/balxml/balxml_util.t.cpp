@@ -25,7 +25,7 @@ using namespace bsl;
 //                                --------
 // The basic idea of testing balxml::Util::extractNamespaceFromXsd to test Lock
 // and bdlqq::QLock is to create thread poll and manipulate various test data
-// in parallel, then to check the the integrity of data is preserved.
+// in parallel, then to check that the integrity of data is preserved.
 // ----------------------------------------------------------------------------
 // CLASS balxml::Util
 // [ 3] Testing various schemas given by streams

@@ -1198,9 +1198,8 @@ int main(int argc, char *argv[])
     };
 #endif
 //..
-// Finally, use the these Windows SystemTime values and and the calculated
-// Zoneinfo time-zone identifier to set the value of a 'baltzo::LocalDatetime'
-// object.
+// Finally, use these Windows SystemTime values and the calculated Zoneinfo
+// time-zone identifier to set the value of a 'baltzo::LocalDatetime' object.
 //..
     baltzo::LocalDatetime localDatetime;
 

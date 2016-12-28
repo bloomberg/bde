@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the the boundary values.
+        //:   the boundary values.
         //:
         //: 2 Default-construct an object and use the individual (as yet
         //:   unproven) salient attribute accessors to verify the

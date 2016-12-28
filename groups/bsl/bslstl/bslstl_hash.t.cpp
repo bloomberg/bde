@@ -277,10 +277,10 @@ class HashCrossReference {
 
 ///Example 2: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We want to specialize 'bsl::hash' for a custom class. We can use the the
-// modular hashing system implemented in 'bslh' rather than explicitly
-// specializing 'bsl::hash'. We will re-use the 'HashCrossReference' template
-// class defined in Example 1.
+// We want to specialize 'bsl::hash' for a custom class. We can use the modular
+// hashing system implemented in 'bslh' rather than explicitly specializing
+// 'bsl::hash'. We will re-use the 'HashCrossReference' template class defined
+// in Example 1.
 //
 // First, we declare 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.

@@ -31940,7 +31940,7 @@ int main(int argc, char *argv[])
         //: 1 Use a generated Enumeration type and encode each enumeration
         //:   value.
         //:
-        //: 2 Verify that the result is equal the the value of the 'toString'
+        //: 2 Verify that the result is equal to the value of the 'toString'
         //:   method enclosed in double quotes.
         //
         // Testing:

@@ -19,8 +19,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl::ForwardIterator' is an in-core value-semantic type that that adapts
-// a more limited type, which offers a basic set of operations, so that the
+// 'bslstl::ForwardIterator' is an in-core value-semantic type that adapts a
+// more limited type, which offers a basic set of operations, so that the
 // resulting 'bslstl::ForwardIterator' object meets all the requirements of a
 // standard Forward Iterator.  These requirements are spelled out in
 // [forward.iterators], Table 103 - Forward iterator requirements.  The primary

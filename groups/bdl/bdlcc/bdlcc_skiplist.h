@@ -1056,8 +1056,8 @@ class SkipList {
              bool        *newFrontFlag = 0);
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  Load
-        // into the the optionally specified 'newFrontFlag' a 'true' value if
-        // the pair is at the front of the list, and a 'false' value otherwise.
+        // into the optionally specified 'newFrontFlag' a 'true' value if the
+        // pair is at the front of the list, and a 'false' value otherwise.
 
     void addAtLevelRaw(Pair        **result,
                        int           level,
@@ -1098,7 +1098,7 @@ class SkipList {
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  The
         // 'result' reference must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  Load into the the optionally specified
+        // when it is no longer needed.  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.
 
@@ -1115,8 +1115,8 @@ class SkipList {
                   bool        *newFrontFlag = 0);
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  Load
-        // into the the optionally specified 'newFrontFlag' a 'true' value if
-        // the pair is at the front of the list, and a 'false' value otherwise.
+        // into the optionally specified 'newFrontFlag' a 'true' value if the
+        // pair is at the front of the list, and a 'false' value otherwise.
         // Return 0 on success, and a non-zero value (with no effect on the
         // list) if 'key' is already in the list.
 
@@ -1127,7 +1127,7 @@ class SkipList {
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  The
         // 'result' reference must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  Load into the the optionally specified
+        // when it is no longer needed.  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.  Return 0 on success, and a
         // non-zero value (with no effect on the list) if 'key' is already in
@@ -1138,7 +1138,7 @@ class SkipList {
     void addR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
         // Add the specified 'key' / 'data' pair to this list.  Search for the
         // correct position for 'key' from the back of the list (in descending
-        // order by key value).  Load into the the optionally specified
+        // order by key value).  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.
 
@@ -1149,9 +1149,9 @@ class SkipList {
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  Search
         // for the correct position for 'key' from the back of the list (in
-        // descending order by key value).  Load into the the optionally
-        // specified 'newFrontFlag' a 'true' value if the pair is at the front
-        // of the list, and a 'false' value otherwise.
+        // descending order by key value).  Load into the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.
 
     void addAtLevelRawR(Pair        **result,
                         int           level,
@@ -1163,7 +1163,7 @@ class SkipList {
         // pair in the list.  Search for the correct position for 'key' from
         // the back of the list (in descending order by key value).  The
         // 'result' reference must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  Load into the the optionally specified
+        // when it is no longer needed.  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.  The behavior is undefined if
         // 'level' is greater than the implementation-defined maximum level of
@@ -1180,7 +1180,7 @@ class SkipList {
         // pair in the list.  Search for the correct position for 'key' from
         // the back of the list (in descending order by key value).  The
         // 'result' reference must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  Load into the the optionally specified
+        // when it is no longer needed.  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.  The behavior is undefined if
         // 'level' is greater than the implementation-defined maximum level of
@@ -1197,14 +1197,13 @@ class SkipList {
         // for the correct position for 'key' from the back of the list (in
         // descending order by key value).  The 'result' reference must be
         // released (using 'releaseReferenceRaw') when it is no longer needed.
-        // Load into the the optionally specified 'newFrontFlag' a 'true' value
-        // if the pair is at the front of the list, and a 'false' value
-        // otherwise.
+        // Load into the optionally specified 'newFrontFlag' a 'true' value if
+        // the pair is at the front of the list, and a 'false' value otherwise.
 
     int addUniqueR(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
         // Add the specified 'key' / 'data' pair to this list.  Search for the
         // correct position for 'key' from the back of the list (in descending
-        // order by key value).  Load into the the optionally specified
+        // order by key value).  Load into the optionally specified
         // 'newFrontFlag' a 'true' value if the pair is at the front of the
         // list, and a 'false' value otherwise.  Return 0 on success, and a
         // non-zero value (with no effect on the list) if 'key' is already in
@@ -1217,11 +1216,11 @@ class SkipList {
         // Add the specified 'key' / 'data' pair to this list, and load into
         // the specified 'result' a reference to the pair in the list.  Search
         // for the correct position for 'key' from the back of the list (in
-        // descending order by key value).  Load into the the optionally
-        // specified 'newFrontFlag' a 'true' value if the pair is at the front
-        // of the list, and a 'false' value otherwise.  Return 0 on success,
-        // and a non-zero value (with no effect on the list) if 'key' is
-        // already in the list.
+        // descending order by key value).  Load into the optionally specified
+        // 'newFrontFlag' a 'true' value if the pair is at the front of the
+        // list, and a 'false' value otherwise.  Return 0 on success, and a
+        // non-zero value (with no effect on the list) if 'key' is already in
+        // the list.
 
     int addUniqueRawR(Pair        **result,
                       const KEY&    key,
@@ -1232,10 +1231,10 @@ class SkipList {
         // for the correct position for 'key' from the back of the list (in
         // descending order by key value).  The 'result' reference must be
         // released (using 'releaseReferenceRaw') when it is no longer needed.
-        // Load into the the optionally specified 'newFrontFlag' a 'true' value
-        // if the pair is at the front of the list, and a 'false' value
-        // otherwise.  Return 0 on success, and a non-zero value (with no
-        // effect on the list) if 'key' is already in the list.
+        // Load into the optionally specified 'newFrontFlag' a 'true' value if
+        // the pair is at the front of the list, and a 'false' value otherwise.
+        // Return 0 on success, and a non-zero value (with no effect on the
+        // list) if 'key' is already in the list.
 
                          // Removal Methods
 

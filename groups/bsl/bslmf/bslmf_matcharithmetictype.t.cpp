@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
         //: 1 Classes convertible to 'int' are not implicitly convertible to
         //:   'bslmf::MatchArithmeticType'.
         //:
-        //: 2 Pointers are are not implicitly convertible to
+        //: 2 Pointers are not implicitly convertible to
         //:   'bslmf::MatchArithmeticType'.
         //
         // Plan:

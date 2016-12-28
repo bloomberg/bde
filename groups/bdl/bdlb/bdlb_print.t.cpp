@@ -326,8 +326,8 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Build up a table of the hex representations of all 256 different
         //:   byte patterns.  After some preliminary tests, mechanically create
-        //:   the expected output from the input and verify that that each of
-        //:   the functions performs the same way.
+        //:   the expected output from the input and verify that each of the
+        //:   functions performs the same way.
         //
         // Testing:
         //   singleLineHexDump(ostream& s, INPUT_ITER b, INPUT_ITER e);

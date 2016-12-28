@@ -100,18 +100,18 @@ struct RandomDevice {
 
     // CLASS METHODS
     static int getRandomBytes(unsigned char *buffer, size_t numBytes);
-        // Read the the specified 'numBytes' from the system random number
+        // Read the specified 'numBytes' from the system random number
         // generator into the specified 'buffer'.  Returns 0 on success,
         // non-zero otherwise.  Note that this method may block if called
         // repeatedly or if 'numBytes' is high.
 
     static int getRandomBytesNonBlocking(unsigned char *buffer,
                                          size_t         numBytes);
-        // Read the the specified 'numBytes' from the system non-blocking
-        // random number generator into the specified 'buffer'.  Returns 0 on
-        // success, non-zero otherwise.  Note that the cryptographic strength
-        // of samples drawn from this pool may or may not be lower than that of
-        // those drawn from the blocking pool, and may vary by platform.
+        // Read the specified 'numBytes' from the system non-blocking random
+        // number generator into the specified 'buffer'.  Returns 0 on success,
+        // non-zero otherwise.  Note that the cryptographic strength of samples
+        // drawn from this pool may or may not be lower than that of those
+        // drawn from the blocking pool, and may vary by platform.
 };
 
 }  // close package namespace

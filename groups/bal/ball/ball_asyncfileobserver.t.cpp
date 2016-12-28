@@ -1114,8 +1114,8 @@ int main(int argc, char *argv[])
             // We want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
             // redirect it back; we'll have to use 'ASSERT2' (which outputs to
-            // cout, not cerr) from now on and report a summary to to cout at
-            // the end of this case.
+            // cout, not cerr) from now on and report a summary to cout at the
+            // end of this case.
 
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));

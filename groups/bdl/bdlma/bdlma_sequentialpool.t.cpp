@@ -1306,8 +1306,8 @@ int main(int argc, char *argv[])
         //      growth strategy.
         //
         //   2) All requests over a specified THRESHOLD are satisfied directly
-        //      from the internal block list if the they cannot be satisfied by
-        //      the pool's internal buffer.
+        //      from the internal block list if they cannot be satisfied by the
+        //      pool's internal buffer.
         //
         //   3) Large allocations (e.g., INT_MAX) work as expected (DRQS
         //      78107275).

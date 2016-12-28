@@ -1755,17 +1755,17 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //   For performance reasons, btlb::BlobUtil::hexDump uses a static
-        //   array of length 32 to pass in the the vector of <buffer, size>
-        //   pairs to bdlb_print::hexDump.  When there are more than 32
-        //   buffers, the vector passed in is dynamically allocated to the
-        //   correct size, and deallocated immediately after use.  This should
-        //   test all boarder cases related to hex dumping of multiple buffers,
-        //   including 0 buffers, 1 buffers, 31,32,33, and 42 for good measure.
+        //   array of length 32 to pass in the vector of <buffer, size> pairs
+        //   to bdlb_print::hexDump.  When there are more than 32 buffers, the
+        //   vector passed in is dynamically allocated to the correct size, and
+        //   deallocated immediately after use.  This should test all boarder
+        //   cases related to hex dumping of multiple buffers, including 0
+        //   buffers, 1 buffer, 31,32,33, and 42 for good measure.
         //
         // Plan:
         //   Create a situation with
-        //     (a) 0 buffers.  Verify correctness.
-        //     (b) 1 buffers.  Verify correctness.
+        //     (a) 0  buffers.  Verify correctness.
+        //     (b) 1  buffers.  Verify correctness.
         //     (c) 31 buffers.  Verify correctness.
         //     (d) 32 buffers.  Verify correctness.
         //     (e) 33 buffers.  Verify correctness.

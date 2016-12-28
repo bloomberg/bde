@@ -3425,7 +3425,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'.
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -6011,7 +6011,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
     //:     comparisons.
     //:
     //:   2 Create an object having the value 'V' using the range constructor
-    //:     passing in the the comparator created in P-5.1.  Verify that the
+    //:     passing in the comparator created in P-5.1.  Verify that the
     //:     object's value.  (P-5)
     //:
     //:   3 Copy construct an object passing in the object created in P-5.2,
@@ -6705,7 +6705,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -7092,9 +7092,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' and
-    //:   'lower_bound' returns the iterator referring the the existing
-    //:   element, 'upper_bound' returns the iterator to the element after the
-    //:   searched element.
+    //:   'lower_bound' returns the iterator referring the existing element,
+    //:   'upper_bound' returns the iterator to the element after the searched
+    //:   element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
     //:   returns the 'end' iterator, 'lower_bound' and 'upper_bound' returns
@@ -8240,9 +8240,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:       3 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
+    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
+    //:         empty.  (C-5)
     //:
     //:     7 Create a new object allocator, 'oap'.
     //:
@@ -8254,9 +8254,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:       be an alias to 'true_type' (Instead of this manual step, use an
     //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
+    //:       AllocatorTraits supports it) and use the member and free 'swap'
+    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
+    //:       after each swap, that: (C-1, 6)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
@@ -8274,7 +8274,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
     //:    9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:      be an alias to 'true_type' (Instead of this manual step, use an
     //:      allocator that enables propagate_on_container_swap when
-    //:      AllocatorTraits supports it) and use the the member and free 'swap
+    //:      AllocatorTraits supports it) and use the member and free 'swap'
     //:      functions to swap the values 'mX' and 'mZ' respectively; verify,
     //:      after each swap, that:  (C-1, 6)
     //:

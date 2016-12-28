@@ -853,8 +853,8 @@ int main(int argc, char *argv[])
         //   allocator did not allocate memory.  (C-1, 2)
         //
         // 2 Set the default cache to 'cache2' and back to 'cache' and verify
-        //   that the the address of the previously set default cache is
-        //   returned.  (C-2, 3)
+        //   that the address of the previously set default cache is returned.
+        //   (C-2, 3)
         //
         // 3 Negative testing.
         //

@@ -578,7 +578,7 @@ class FixedThreadPool {
         // thread pool.)
 
     int numActiveThreads() const;
-        // Return a snapshot of the the number of threads that are currently
+        // Return a snapshot of the number of threads that are currently
         // processing a job for this threadpool.
 
     int numPendingJobs() const;
