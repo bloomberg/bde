@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   We begin by creating a series of nested 'bslmt::LockGuard'
         //   objects using a common 'my_Mutex' object.  With each new object
-        //   we verify the the lock function was called.  As each object is
+        //   we verify that the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
         //   Next, we verify that the 'release' function works properly by

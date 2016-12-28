@@ -6175,7 +6175,7 @@ int main(int argc, char *argv[])
             g_deleteCount = 0;
             numDeletes    = 0;
             {
-                // To test conversion from an rvalue, we must bind the the
+                // To test conversion from an rvalue, we must bind the
                 // temporary to a function argument in order to prolong the
                 // lifetime of the temporary until after testing is complete.
                 // We must bind the temporary to a 'bslma::ManagedPtr_Ref' and

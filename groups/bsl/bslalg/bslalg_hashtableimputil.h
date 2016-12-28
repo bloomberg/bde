@@ -103,8 +103,8 @@ BSLS_IDENT("$Id: $")
 //
 ///'KEY_CONFIG'
 /// - - - - - -
-// The 'KEY_CONFIG' template parameter must provide the the following type
-// aliases and functions:
+// The 'KEY_CONFIG' template parameter must provide the following type aliases
+// and functions:
 //..
 //  typedef <VALUE_TYPE> ValueType;
 //     // Alias for the type of the values stored by the 'BidirectionalNode'
@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 // First, we define an abstract template class 'HashSet' that will provide a
 // hash set for any type that has a copy constructor, a destructor, an equality
 // comparator and a hash function.  We inherit from the 'HashTableAnchor' class
-// use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
+// use the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
 // facilitate building the table:
 //..
 //  template <class KEY, class HASHER, class EQUAL>
@@ -678,20 +678,20 @@ struct HashTableImpUtil {
                                                 native_std::size_t numBuckets);
         // Return the index of the bucket referring to the elements whose
         // adjusted hash codes are the same as the adjusted value of the
-        // specified 'hashCode', where 'hashCode' (and the
-        // hash-codes of the elements) are adjusted for the specified
-        // 'numBuckets'.  The behavior is undefined if 'numBuckets' is 0.
+        // specified 'hashCode', where 'hashCode' (and the hash-codes of the
+        // elements) are adjusted for the specified 'numBuckets'.  The behavior
+        // is undefined if 'numBuckets' is 0.
 
     static void insertAtFrontOfBucket(HashTableAnchor    *anchor,
                                       BidirectionalLink  *link,
                                       native_std::size_t  hashCode);
         // Insert the specified 'link', having the specified (non-adjusted)
-        // 'hashCode',  into the the specified 'anchor', at the front of the
+        // 'hashCode',  into the specified 'anchor', at the front of the
         // bucket with index
         // 'computeBucketIndex(hashCode, anchor->bucketArraySize())'.  The
         // behavior is undefined unless 'anchor' is well-formed (see
-        // 'isWellFormed') for some combination of 'KEY_CONFIG' and
-        // 'HASHER' such that 'link' refers to a node of type
+        // 'isWellFormed') for some combination of 'KEY_CONFIG' and 'HASHER'
+        // such that 'link' refers to a node of type
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
@@ -699,10 +699,10 @@ struct HashTableImpUtil {
                                      BidirectionalLink  *link,
                                      native_std::size_t  hashCode);
         // Insert the specified 'link', having the specified (non-adjusted)
-        // 'hashCode', into the the specified 'anchor', into the bucket with
-        // index 'computeBucketIndex(hashCode, anchor->bucketArraySize())',
-        // after the last node in the bucket.  The behavior is undefined unless
-        // 'anchor' is well-formed (see 'isWellFormed') for some combination of
+        // 'hashCode', into the specified 'anchor', into the bucket with index
+        // 'computeBucketIndex(hashCode, anchor->bucketArraySize())', after the
+        // last node in the bucket.  The behavior is undefined unless 'anchor'
+        // is well-formed (see 'isWellFormed') for some combination of
         // 'KEY_CONFIG' and 'HASHER' such that 'link' refers to a node of type
         // 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.

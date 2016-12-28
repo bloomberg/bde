@@ -2427,8 +2427,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase31()
     //
     // Concerns:
     //: 1 'emplace_hint' returns an iterator referring to the newly inserted
-    //:   element if it did not already exists, and the the existing element
-    //:   if it did.
+    //:   element if it did not already exists, and to the existing element if
+    //:   it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -2936,7 +2936,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase30()
     //: 1 'emplace' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -3156,7 +3156,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase29()
     //
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and the the existing element if it did.
+    //:   if it did not already exists, and to the existing element if it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -3576,7 +3576,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase28()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -3603,8 +3603,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase28()
     //:
     //:   3 Ensure that the move constructor was called on the value type (if
     //:     that type has a mechanism to detect such) where the value has the
-    //:     same allocator as that of the the container and a different
-    //:     allocator than that of the  container.  (C-5)
+    //:     same allocator as that of the container and a different allocator
+    //:     than that of the  container.  (C-5)
     //:
     //:   4 Verify all allocations are from the object's allocator.  (C-6)
     //:
@@ -5336,8 +5336,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
     //:     comparisons.
     //:
     //:   2 Create an object having the value 'V' using the range constructor
-    //:     passing in the the comparator created in P-5.1.  Verify that the
-    //:     object's value.  (P-5)
+    //:     passing in the comparator created in P-5.1.  Verify the object's
+    //:     value.  (P-5)
     //:
     //:   3 Copy construct an object passing in the object created in P-5.2,
     //:     verify that the comparator compare equals to the one created in
@@ -6096,7 +6096,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
     //
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and the the existing element if it did.
+    //:   if it did not already exists, and to the existing element if it did.
     //:
     //: 2 A new element is added to the container if the element did not
     //:   already exist, and the order of the container remains correct.
@@ -6439,7 +6439,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -6792,9 +6792,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase13()
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' and
-    //:   'lower_bound' returns the iterator referring the the existing
-    //:   element, 'upper_bound' returns the iterator to the element after the
-    //:   searched element.
+    //:   'lower_bound' returns the iterator referring to the existing element
+    //:   'upper_bound' returns the iterator to the element after the searched
+    //:   element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
     //:   returns the 'end' iterator, 'lower_bound' and 'upper_bound' returns
@@ -7764,12 +7764,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
     //:       2 If 'propagate_on_container_swap' was 'false', the allocators
     //:         held by 'mX' and 'mZ' is unchanged in both objects.  (C-5)
     //:
-    //:       3 If 'propagate_on_container_swap' was 'ture', the allocators
+    //:       3 If 'propagate_on_container_swap' was 'true', the allocators
     //:         held by 'mX' and 'mZ' is exchanged between the objects.  (C-6)
     //:
-    //:       4 Temporary memory were allocated from 'xa' if 'ZZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'ZX'
-    //:         is not empty.  (C-5)
+    //:       4 Temporary memory were allocated from 'xa' if 'ZZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'ZX' is not
+    //:         empty.  (C-5)
     //:
     //: 5 Verify that the free 'swap' function is discoverable through ADL:
     //:   (C-7)

@@ -663,11 +663,11 @@ class Function_Rep {
                  integral_constant<AllocCategory, ATP> atp);
 
     void assignRep(ManagerOpCode moveOrCopy, Function_Rep *from);
-        // Move or copy the value of the specified '*from' object into
-        // '*this', depending on the the value of the specified 'moveOrCopy'
-        // argument.  The previous value of '*this' is discarded.  The
-        // bahavior is undefined unless 'moveOrCopy' is either
-        // 'e_MOVE_CONSTRUCT' or 'e_COPY_CONSTRUCT'.
+        // Move or copy the value of the specified '*from' object into '*this',
+        // depending on the value of the specified 'moveOrCopy' argument.  The
+        // previous value of '*this' is discarded.  The behavior is undefined
+        // unless 'moveOrCopy' is either 'e_MOVE_CONSTRUCT' or
+        // 'e_COPY_CONSTRUCT'.
 
     static void destructiveMove(Function_Rep *to,
                                 Function_Rep *from) BSLS_NOTHROW_SPEC;

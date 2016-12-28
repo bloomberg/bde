@@ -238,7 +238,7 @@ BSLS_IDENT("$Id: $")
 //
 //  template <> struct IsPair<PairType> : bsl::true_type { };
 //..
-// The fourth class is associated with both the the 'IsPair' and
+// The fourth class is associated with both the 'IsPair' and
 // 'IsBitwiseCopyable' traits:
 //..
 //  struct BitwiseCopyablePairType {

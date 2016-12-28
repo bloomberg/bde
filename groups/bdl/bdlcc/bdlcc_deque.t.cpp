@@ -3867,7 +3867,7 @@ int main(int argc, char *argv[])
         //:   threads that pop from the container.  Each item pushed contains a
         //:   'threadIdx' to indicate which pusher thread pushed it, and a
         //:   random number.  Each pusher pthread sums all the random numbers
-        //:   it pushes, and each popper thread keeps separate sums for the the
+        //:   it pushes, and each popper thread keeps separate sums for the
         //:   numbers popped from each pushers.  At the end, the poppers
         //:   aggregate their sums for each pusher into the global
         //:   'popperTotalsByPusher' array, and after the threads are joined

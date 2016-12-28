@@ -437,7 +437,7 @@ struct ThreadUtil {
                       const ThreadAttributes&  attributes,
                       const INVOKABLE&         function);
         // Create a new thread of program control whose entry point will invoke
-        // the the specified 'function' object, and load into the specified
+        // the specified 'function' object, and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
         // 'attributes' describing the properties for the new thread.  If
@@ -502,8 +502,8 @@ struct ThreadUtil {
                                    const INVOKABLE&         function,
                                    bslma::Allocator        *allocator);
         // Create a new thread of program control whose entry point will invoke
-        // the the specified 'function' object (using the specified 'allocator'
-        // to supply memory to copy 'function'), and load into the specified
+        // the specified 'function' object (using the specified 'allocator' to
+        // supply memory to copy 'function'), and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'ThreadUtil' methods.  Optionally specify
         // 'attributes' describing the properties for the new thread.  If

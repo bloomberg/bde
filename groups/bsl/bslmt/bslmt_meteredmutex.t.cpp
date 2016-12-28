@@ -456,8 +456,8 @@ int main(int argc, char *argv[])
         //   That only one thread can acquire the lock at a time (either
         //   through 'lock' or 'tryLock').
         //
-        //   That after the lock is released, it should be possible to
-        //   acquire the lock.
+        //   That after the lock is released, it should be possible to acquire
+        //   the lock.
         //
         // Plan:
         //   Initialize a global variable 'state' with 'e_VALID'.  Create
@@ -497,17 +497,15 @@ int main(int argc, char *argv[])
         //   for one thread.
         //
         // Plan:
-        //   Create an object and verify that all accessors works as
-        //   expected.
+        //   Create an object and verify that all accessors works as expected.
         //
-        //   Lock the mutex using 'lock', sleep for a while, unlock and
-        //   then verify that the the 'holdTime' works correctly.
+        //   Lock the mutex using 'lock', sleep for a while, unlock and then
+        //   verify that the 'holdTime' works correctly.
         //
-        //   Call 'resetMetrics' and verify that all accessors works
-        //   correctly.
+        //   Call 'resetMetrics' and verify that all accessors works correctly.
         //
-        //   Lock the mutex using 'tryLock', sleep for half second, unlock
-        //   and then verify that the the 'holdTime' works correctly.
+        //   Lock the mutex using 'tryLock', sleep for half second, unlock and
+        //   then verify that the 'holdTime' works correctly.
         //
         // Tactics:
         //

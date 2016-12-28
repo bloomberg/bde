@@ -5829,8 +5829,8 @@ if (veryVerbose)
         //: 2 The two basic accessors provide appropriate references to the
         //:   (fully-tested) contained "date" and "time" parts.
         //:
-        //: 3 The the nine accessors to the fields of the "date" and "time"
-        //:   parts are forwarded to the the accessors of those parts.
+        //: 3 The nine accessors to the fields of the "date" and "time" parts
+        //:   are forwarded to the accessors of those parts.
         //:
         //: 4 The 'getTime' accessor works as expected.
         //

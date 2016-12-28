@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   We have a table where each of the lines of the table indicates
         //   specs for two 'DayOfWeekSet' values, and then the specs for each
-        //   of the the 4 infix operations:
+        //   of the 4 infix operations:
         //:  1 Perform the infix operation, assigning the result to a
         //:    reference.
         //:
@@ -2748,7 +2748,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Test iterator constructors and 'operator='.
         //:   For each line in a set of test data, initialize a 'data'
-        //:   variable containing the the elements from the line.  Create the
+        //:   variable containing the elements from the line.  Create the
         //:   following 3 iterators:
         //:   o X (default ctor)
         //:   o Y (initial ctor)

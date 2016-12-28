@@ -352,7 +352,7 @@ BSLS_IDENT("$Id: $")
 //                      !bsl::is_fundamental<FORWARD_ITERATOR>::value
 //                                                               >::type * = 0)
 //          // Create a 'MyVector' object having the same sequence of values as
-//          // found in the range described by the the specified iterators
+//          // found in the range described by the specified iterators
 //          // '[first, last)'.  The behavior is undefined unless 'first' and
 //          // 'last' refer to a sequence of values of the (template parameter)
 //          // type 'TYPE' where 'first' is at a position at or before 'last'.

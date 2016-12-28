@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace, 'bslstl::IteratorUtil',
 // containing utility functions for iterator types.  In particular, this
-// component includes a function 'insertDistance' that returns the the number
-// of elements that should be accounted for when range-inserting in a
-// container, given a pair of iterator 'a' and 'b' describing a half-open range
+// component includes a function 'insertDistance' that returns the number of
+// elements that should be accounted for when range-inserting in a container,
+// given a pair of iterator 'a' and 'b' describing a half-open range
 // '[a .. b)'.
 //
 ///Usage

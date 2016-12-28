@@ -634,7 +634,7 @@ static int my_count_if_equal(bsl::vector<int>::const_iterator begin,
         // document specify a word location.  The first word in the document
         // is at word offset 0.
 //..
-// Notice that that 'WordLocation', the type of the key value, has no natural
+// Notice that the 'WordLocation', the type of the key value, has no natural
 // ordering.  The assignment of document codes is arbitrary so there is no
 // reason to consider the words on one document to sort below those in any
 // another.
@@ -9250,7 +9250,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
     //:   'emplace_hint' just returns an iterator.
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -9474,7 +9474,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -12156,7 +12156,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
     //: 1 'insert' returns a pair containing an iterator and a 'bool'
     //:
     //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and the the existing element if it did.
+    //:   not already exists, and to the existing element if it did.
     //:
     //: 3 The 'bool' returned is 'true' if a new element is inserted, and
     //:   'false' otherwise.
@@ -12696,7 +12696,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //
     // Concerns:
     //: 1 If the key being searched exists in the container, 'find' returns the
-    //:   iterator referring the the existing element.
+    //:   iterator referring to the existing element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
     //:   returns the 'end' iterator.
@@ -13833,9 +13833,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:       3 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
+    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
+    //:         empty.  (C-5)
     //:
     //:     7 Create a new object allocator, 'oap'.
     //:
@@ -13847,9 +13847,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:       be an alias to 'true_type' (Instead of this manual step, use an
     //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
+    //:       AllocatorTraits supports it) and use the member and free 'swap'
+    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
+    //:       after each swap, that: (C-1, 6)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
@@ -13867,7 +13867,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:    9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:      be an alias to 'true_type' (Instead of this manual step, use an
     //:      allocator that enables propagate_on_container_swap when
-    //:      AllocatorTraits supports it) and use the the member and free 'swap
+    //:      AllocatorTraits supports it) and use the member and free 'swap'
     //:      functions to swap the values 'mX' and 'mZ' respectively; verify,
     //:      after each swap, that:  (C-1, 6)
     //:
@@ -15463,7 +15463,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3()
     // Plan:
     //: 1 (in main program) Iterate through the elements of DEFAULT_DATA.
     //:   o Calculate the minimum spec with its letter sorted.
-    //:   o Verify that that string is the same aa the 'd_result' field.
+    //:   o Verify that the string is the same aa the 'd_result' field.
     //:   o Verify that the length of the spec <= DEFAULT_MAX_LENGTH.
     //:   o Verify that all the letters in the spec are in the range "[ 'A',
     //:     'Z' ]".
@@ -16031,8 +16031,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
             ASSERTV(CONFIG, 0 == X.size());
             ASSERTV(CONFIG, X.cbegin() == X.cend());
 
-            // If default constructed, only the the static bucket is present.
-            // Test that exactly 1 bucket is present.
+            // If default constructed, only the static bucket is present.  Test
+            // that exactly 1 bucket is present.
 
             ASSERTV(CONFIG, X.bucket_count(),
                                      EXP_ONE_BUCKET ? 1 == X.bucket_count()

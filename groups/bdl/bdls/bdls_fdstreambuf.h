@@ -585,11 +585,10 @@ class FdStreamBuf_FileHandler {
 
     void setWillCloseOnReset(bool booleanValue);
         // Set 'willCloseOnReset' (the flag determining whether this file
-        // handler will close the file descriptor on the the next reset, clear,
-        // or destruction) to the specified 'booleanValue'.  If
-        // 'willCloseOnReset' is 'true', the next reset, clear, or destruction
-        // will result in the file descriptor being closed, otherwise, it will
-        // remain open.
+        // handler will close the file descriptor on the next reset, clear, or
+        // destruction) to the specified 'booleanValue'.  If 'willCloseOnReset'
+        // is 'true', the next reset, clear, or destruction will result in the
+        // file descriptor being closed, otherwise, it will remain open.
 
     // ACCESSORS
     FilesystemUtil::FileDescriptor fileDescriptor() const;

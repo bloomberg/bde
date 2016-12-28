@@ -168,9 +168,9 @@ class StdTestAllocator {
 
     void deallocate(pointer p, size_type n = 1);
         // Return memory previously allocated with 'allocate' to the underlying
-        // mechanism object by calling 'deallocate' on the the mechanism
-        // object with the specified 'p'.  The optionally specified 'n'
-        // argument is ignored by this test allocator type.
+        // mechanism object by calling 'deallocate' on the mechanism object
+        // with the specified 'p'.  The optionally specified 'n' argument is
+        // ignored by this test allocator type.
 
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *address, const TYPE& val);

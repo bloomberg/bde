@@ -2056,8 +2056,8 @@ int main(int argc, char *argv[])
         //   Verify that upon construction the object is properly initialized,
         //
         // Plan:
-        //   Construct object using basic constructor and verify that that
-        //   accessors return the expected values.
+        //   Construct object using basic constructor and verify that accessors
+        //   return the expected values.
         //
         // Testing:
         //   bslma::SharedPtrInplaceRep(bslma::Allocator *basicAllocator);

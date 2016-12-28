@@ -417,7 +417,7 @@ class CategoryManagerImpUtil {
 
     static void setRelevantRuleMask(Category          *category,
                                     RuleSet::MaskType  mask);
-        // Set the the rule-mask for the specified 'category' to the specified
+        // Set the rule-mask for the specified 'category' to the specified
         // 'mask'.
 };
 

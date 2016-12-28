@@ -872,10 +872,10 @@ int main(int argc, char *argv[])
         //   sequence of 'my_Class' objects.  Also initialize the proctor with
         //   a 'TestAllocator' object to trace memory deallocation.  Increment
         //   or decrement the proctor according to 'd_incDec' in the test
-        //   vector.  Destroy the the proctor and verify that the array of
-        //   counters contains the expected contents, and that the memory
-        //   addresses held by the deleted (by the proctor) 'my_Class' objects
-        //   are deallocated and recorded in the allocator.
+        //   vector.  Destroy the proctor and verify that the array of counters
+        //   contains the expected contents, and that the memory addresses held
+        //   by the deleted (by the proctor) 'my_Class' objects are deallocated
+        //   and recorded in the allocator.
         //
         // Testing:
         //   bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator,

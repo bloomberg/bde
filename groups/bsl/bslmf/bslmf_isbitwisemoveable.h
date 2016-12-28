@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::function' objects wrapping these classes can use the small-object
 // optimization.  It can be argued that any type with size less than the size
 // of a pointer should be deduced as bitwise moveable by the logic above.
-// However, is is primarily the common case of empty classes that we are trying
+// However, it is primarily the common case of empty classes that we are trying
 // to handle.  By limiting ourselves to the smallest-possible type, we reduce
 // the chance of false positives (see next paragraph).
 //

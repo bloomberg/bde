@@ -681,7 +681,7 @@ class QuotedPrintableEncoder {
         // an error), and if there is no pending output, and 'false' otherwise.
 
     bool isError() const;
-        // Return 'true' if the there is no possibility of achieving an
+        // Return 'true' if there is no possibility of achieving an
         // "acceptable" result, and 'false' otherwise.  Note that for an
         // encoder, no input can cause an error; the possible errors result
         // either from a call to the 'convert' method after the 'endConvert'

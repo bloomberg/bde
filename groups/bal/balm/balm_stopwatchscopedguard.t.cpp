@@ -222,7 +222,7 @@ class TestPublisher : public balm::Publisher {
         // sample passed to the 'publish' method.  The returned sample value
         // contains the same metric record values organized into the same
         // groups as the published sample, but the returned sample does not
-        // refer to the the same addresses in memory: so the returned sample is
+        // refer to the same addresses in memory: so the returned sample is
         // equivalent but *not* *equal* to the published sample.
 
     const bsl::vector<balm::MetricRecord>& lastRecords() const;

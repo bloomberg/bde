@@ -3935,7 +3935,7 @@ int main(int argc, char *argv[])
         //:   does not change and no functor objects are leaked.
         //: 11 For concern 12, repeat the above steps with a representative
         //:   set of 'FUNC' types. The test for memory allocation (step 8)
-        //:   will have the effect of proving that the the original and the
+        //:   will have the effect of proving that the original and the
         //:   moved-to object either both use the small-object optimization or
         //:   neither uses it.
         //
@@ -4190,7 +4190,7 @@ int main(int argc, char *argv[])
         //:   does not change and no functor objects are leaked.
         //: 11 For concern 12, repeat the above steps with a representative
         //:   set of 'FUNC' types. The test for memory allocation (step 8)
-        //:   will have the effect of proving that the the original and the
+        //:   will have the effect of proving that the original and the
         //:   moved-to object either both use the small-object optimization or
         //:   neither uses it.
         //
@@ -4335,9 +4335,9 @@ int main(int argc, char *argv[])
         //:   null pointer to member function.
         //: 2 Constructing a 'function' using this constructor yields an
         //:   invocable 'function' if 'func' is not a null pointer.  Note that
-        //:   invocation is only to ensure that that the function was
-        //:   constructed successfully.  It is not necessary to thoroughly test
-        //:   all argument-list combinations.
+        //:   invocation is only to ensure that the function was constructed
+        //:   successfully.  It is not necessary to thoroughly test all
+        //:   argument-list combinations.
         //: 3 The 'target_type()' accessor will return 'type_id(FUNC)' and the
         //:   'target<FUNC>()' accessor will return a pointer to a functor
         //:   that compares equal to 'func'.

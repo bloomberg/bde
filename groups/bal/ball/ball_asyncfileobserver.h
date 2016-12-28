@@ -292,9 +292,9 @@ BSLS_IDENT("$Id: $")
 // registered must be destroyed before that async file observer does.  On
 // destruction the logger manager calls 'releaseRecords' method of the async
 // file observer to release any queued log record whose memory may be managed
-// by the the logger manager.  The 'releaseRecords' method can be used in
-// similar situations where the underlying resources referred to by queued
-// shared pointers need to be released immediately.
+// by the logger manager.  The 'releaseRecords' method can be used in similar
+// situations where the underlying resources referred to by queued shared
+// pointers need to be released immediately.
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>

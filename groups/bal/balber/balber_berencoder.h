@@ -568,8 +568,8 @@ class BerEncoder_UniversalElementVisitor {
                        // =============================
 
 struct BerEncoder_encodeProxy {
-    // Component-private struct.  Provides accessor that that keeps current
-    // context and can be used in different 'bdlat' Category Functions.
+    // Component-private struct.  Provides accessor that keeps current context
+    // and can be used in different 'bdlat' Category Functions.
 
     // DATA MEMBERS
     BerEncoder             *d_encoder;

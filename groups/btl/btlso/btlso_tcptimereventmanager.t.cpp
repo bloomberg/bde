@@ -171,7 +171,7 @@ class my_CommandMediator {
 
     // MANIPULATORS
     int operator()();
-        // Initiate an invocation of the associated command on the the next
+        // Initiate an invocation of the associated command on the next
         // invocation of 'dispatch' method of installed timer event manager.
         // Return 0 on success and a non-zero value otherwise.
 };

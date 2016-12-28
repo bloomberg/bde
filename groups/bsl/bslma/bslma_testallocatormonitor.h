@@ -210,7 +210,7 @@ BSLS_IDENT("$Id: $")
 //:     attribute to a value whose size exceeds the size of the object itself.
 //:     Confirm that the attribute was set and that memory was allocated.
 //:
-//:   3 Confirm the the primary manipulator (the 'setDescription' method) is
+//:   3 Confirm that the primary manipulator (the 'setDescription' method) is
 //:     exception-neutral (i.e., exceptions from the allocator are propagated
 //:     and no memory is leaked).  Use the
 //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
@@ -363,7 +363,7 @@ BSLS_IDENT("$Id: $")
 // maximum increased by exactly one.  In this case, we must extract our
 // statistics directly from the test allocator.
 //
-// Note that increment in "max" occurs only the first time through the the
+// Note that increment in "max" occurs only the first time through the
 // allocate/deallocate scenario in 'setDescription'.
 //..
 //  bslma::TestAllocatorMonitor oam3(&oa);

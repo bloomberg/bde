@@ -844,7 +844,7 @@ int main(int argc, char *argv[])
         my_Barrier    barrier(NUM_THREADS);
         UsageTestArgs args = { &barrier, &processor };
 
-        // Execute the the first test.
+        // Execute the first test.
         for (int i = 0; i < NUM_THREADS; ++i) {
             myCreateThread(&handles[i], usageTest, &args);
         }
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
         my_thread_t            handles[NUM_THREADS];
         InitialValueThreadArgs args[NUM_THREADS];
 
-        // Execute the the first test.
+        // Execute the first test.
         for (int i = 0; i < NUM_THREADS; ++i) {
             args[i].d_threadId = i;
             args[i].d_barrier  = &barrier;
@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
         my_thread_t            handles[NUM_THREADS];
         InitialValueThreadArgs args[NUM_THREADS];
 
-        // Execute the the first test.
+        // Execute the first test.
         for (int i = 0; i < NUM_THREADS; ++i) {
             args[i].d_threadId = i;
             args[i].d_barrier  = &barrier;
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
         my_thread_t             handles[NUM_THREADS];
         ReturnAddressThreadArgs args[NUM_THREADS];
 
-        // Execute the the first test.
+        // Execute the first test.
         for (int i = 0; i < NUM_THREADS; ++i) {
             args[i].d_threadId = i;
             args[i].d_address  = 0;
@@ -988,7 +988,7 @@ int main(int argc, char *argv[])
         my_thread_t             handles[NUM_THREADS];
         ReturnAddressThreadArgs args[NUM_THREADS];
 
-        // Execute the the first test.
+        // Execute the first test.
         for (int i = 0; i < NUM_THREADS; ++i) {
             args[i].d_threadId = i;
             args[i].d_address  = 0;

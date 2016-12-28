@@ -287,7 +287,7 @@ BSLS_IDENT("$Id: $")
 ///Assertions in Header Files (Mixing Build Options Across Translation Units)
 ///--------------------------------------------------------------------------
 // Mixing build modes across translation units, although not strictly
-// conformant with the the C++ language standard, is permissible in practice;
+// conformant with the C++ language standard, is permissible in practice;
 // however, the defensive checks that are enabled may be unpredictable.  The
 // *one-definition* *rule* states that if there are multiple definitions of an
 // object or function within a program, these definitions *must* be identical

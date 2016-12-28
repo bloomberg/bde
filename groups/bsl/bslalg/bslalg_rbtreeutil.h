@@ -716,7 +716,7 @@ struct RbTreeUtil {
     // operate on elements of type 'RbTreeNode'.
     //
     // Each method of this class, other than 'copyTree', provides the
-    // *no-throw* exception guarantee if the the client-supplied comparator
+    // *no-throw* exception guarantee if the client-supplied comparator
     // provides the no-throw guarantee, and provides the *strong* guarantee
     // otherwise (see 'bsldoc_glossary').  'copyTree' provides the *strong*
     // guarantee.
@@ -1138,9 +1138,8 @@ struct RbTreeUtil {
         //
         // The behavior is undefined unless 'rootNode' is 0, or refers to a
         // valid binary tree.  Note that the implementation of this function
-        // is recursive and has linear complexity with respect to the the
-        // number of nodes in 'tree', it is intended for debugging purposes
-        // only.
+        // is recursive and has linear complexity with respect to the number of
+        // nodes in 'tree', it is intended for debugging purposes only.
 
     template <class NODE_COMPARATOR>
     static bool isWellFormed(const RbTreeAnchor&    tree,
@@ -1847,10 +1846,9 @@ int RbTreeUtil_Validator::validateRbTree(
     BSLS_ASSERT_SAFE(errorNode);
     BSLS_ASSERT_SAFE(errorDescription);
 
-    //: 1 All the descendents to the left of each node are are ordered
-    //:   that at or before that node, and all descendents to the right of
-    //:   each node are ordered at or after that node, as determined by
-    //:   'comparator'.
+    //: 1 All the descendents to the left of each node are ordered that at or
+    //:   before that node, and all descendents to the right of each node are
+    //:   ordered at or after that node, as determined by 'comparator'.
     //:
     //: 2 Both children of every node refer to 'node' as a parent.
     //:

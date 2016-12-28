@@ -673,7 +673,7 @@ int main(int argc, char *argv[])
         //:   does not violate the documented constraints.
         //:
         //: 2 The 'reset' member function can change an object to have any
-        //:   value that does not violate the the documented constraints.
+        //:   value that does not violate the documented constraints.
         //:
         //: 3 'numNodes' can be const.
         //

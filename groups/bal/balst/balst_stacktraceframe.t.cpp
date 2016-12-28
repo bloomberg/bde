@@ -847,8 +847,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The signature and return type are standard.
         //:
-        //: 2 The method returns the expected Boolean value for the the value
-        //:   of the attribute.
+        //: 2 The method returns the expected Boolean value for the value of
+        //:   the attribute.
         //:
         //: 3 No memory is allocated by any of these methods.
         //

@@ -373,7 +373,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     template <> struct IsPair<PairType> : bsl::true_type { };
 //..
-// The fourth class is associated with both the the 'IsPair' and
+// The fourth class is associated with both the 'IsPair' and
 // 'IsBitwiseCopyable' traits:
 //..
     struct BitwiseCopyablePairType {

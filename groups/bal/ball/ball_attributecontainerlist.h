@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // returns 'true' if any of the attribute containers in the list contain the
 // supplied attribute, and 'false' otherwise.  The
 // 'ball::AttributeContainerList' maintains a store of free list-nodes to
-// minimize the the amount of memory allocation required if addresses are
+// minimize the amount of memory allocation required if addresses are
 // frequently added and removed from the container.  This component also
 // defines a class 'ball::AttributeContainerListIterator' (as well as the alias
 // 'ball::AttributeContainerList::iterator) that provides an stl-style iterator

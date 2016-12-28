@@ -194,7 +194,7 @@ class FixedMemInput {
         // modifiable access to this stream buffer.  The behaviour is undefined
         // unless 'buffer != 0 && length > 0' or 'length == 0'.  Upon
         // reinitialization for use of the new  buffer, the position indicator
-        // is set the the beginning of the 'buffer'.  Note that 'buffer' is
+        // is set to the beginning of the 'buffer'.  Note that 'buffer' is
         // held but not owned.
 
     pos_type pubseekoff(off_type                offset,

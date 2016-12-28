@@ -149,7 +149,7 @@ TlsKey *getSemaphoreTLSKey()
     // key used to access the thread-local semaphore for the current thread.
     // Create and initialize a new key if one has not been previously been
     // created.  This operation is thread-safe: calling it multiple times
-    // simultaneously will return the the same address to an initialized key.
+    // simultaneously will return the same address to an initialized key.
 {
     TlsKey *key = reinterpret_cast<TlsKey *>(
                               bsls::AtomicOperations::getPtr(&s_semaphoreKey));

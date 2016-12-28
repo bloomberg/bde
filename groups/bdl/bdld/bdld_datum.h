@@ -1753,8 +1753,8 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
     // are not the same.  Two 'DatumUdt' objects are not equal if they have
     // different pointer or type values.  Two 'bdemf_Nil' values are always
     // equal.  Two datums with 'NaN' values are never equal.  Two datums that
-    // hold array of datums have different values if the the underlying arrays
-    // have different lengths or invoking '==' operator on at least one of the
+    // hold array of datums have different values if the underlying arrays have
+    // different lengths or invoking '==' operator on at least one of the
     // corresponding pair of contained elements returns 'false'.  Two datums
     // that hold map of datums have different values if the underlying maps
     // have different sizes or at least one of the corresponding pair of

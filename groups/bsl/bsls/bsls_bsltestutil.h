@@ -55,8 +55,8 @@ BSLS_IDENT("$Id: $")
 //:   user-defined type often requires additional code that is not part of the
 //:   standard boilerplate.
 //
-// This component provides solutions to the these issues by (1) encapsulating
-// all the standard printing macros in a single place, (2) providing a way to
+// This component provides solutions to these issues by (1) encapsulating all
+// the standard printing macros in a single place, (2) providing a way to
 // extend the supplied macros to support user-defined types, and (3) providing
 // macros that resolve the correct 'printf' format strings for types that do
 // not have standard, cross-platform format strings of their own.

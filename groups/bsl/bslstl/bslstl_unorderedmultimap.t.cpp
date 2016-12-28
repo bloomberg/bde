@@ -3844,8 +3844,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
     //:
     //:   3 Ensure that the move constructor was called on the value type (if
     //:     that type has a mechanism to detect such) where the value has the
-    //:     same allocator as that of the the container and a different
-    //:     allocator than that of the  container.  (C-2)
+    //:     same allocator as that of the container and a different allocator
+    //:     than that of the container.  (C-2)
     //:
     //:   4 Verify all allocations are from the object's allocator.  (C-3)
     //:
@@ -6263,7 +6263,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //
     // Concern:
     //: 1 If the key being searched exists in the container, 'find' returns the
-    //:   iterator referring the the existing element.
+    //:   iterator referring the existing element.
     //:
     //: 2 If the key being searched does not exists in the container, 'find'
     //:   returns the 'end' iterator.
@@ -7306,9 +7306,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:       3 The common object allocator address held by 'mX' and 'mZ' is
     //:         unchanged in both objects.  (C-5)
     //:
-    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is is not
-    //:         empty, and temporary memory were allocated from 'oaz' if 'mX'
-    //:         is not empty.  (C-5)
+    //:       4 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
+    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
+    //:         empty.  (C-5)
     //:
     //:     7 Create a new object allocator, 'oap'.
     //:
@@ -7320,9 +7320,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:       be an alias to 'true_type' (Instead of this manual step, use an
     //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the the member and free
-    //:       'swap functions to swap the values 'mX' and 'mZ' respectively;
-    //:       verify, after each swap, that: (C-1, 6)
+    //:       AllocatorTraits supports it) and use the member and free 'swap'
+    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
+    //:       after each swap, that: (C-1, 6)
     //:
     //:       1 The values have been exchanged.  (C-1)
     //:
@@ -7340,7 +7340,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
     //:    9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
     //:      be an alias to 'true_type' (Instead of this manual step, use an
     //:      allocator that enables propagate_on_container_swap when
-    //:      AllocatorTraits supports it) and use the the member and free 'swap
+    //:      AllocatorTraits supports it) and use the member and free 'swap'
     //:      functions to swap the values 'mX' and 'mZ' respectively; verify,
     //:      after each swap, that:  (C-1, 6)
     //:

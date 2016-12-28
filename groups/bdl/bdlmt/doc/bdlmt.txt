@@ -186,8 +186,8 @@
  pool class: 'void shutdown()'.  This method is best described as a
  composition of the simple, orthogonal functions described above.  In order
  to shut down a thread pool, we need to first disable the enqueuing of any
- additional jobs, then remove all of the the pending work items, and finally
- stop all of the active threads:
+ additional jobs, then remove all of the pending work items, and finally stop
+ all of the active threads:
 ..
   void shutdown()
   {

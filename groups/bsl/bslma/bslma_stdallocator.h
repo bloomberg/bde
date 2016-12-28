@@ -530,9 +530,9 @@ class allocator {
 
     void deallocate(pointer p, size_type n = 1);
         // Return memory previously allocated with 'allocate' to the underlying
-        // mechanism object by calling 'deallocate' on the the mechanism
-        // object with the specified 'p'.  The optionally specified 'n'
-        // argument is ignored by this allocator type.
+        // mechanism object by calling 'deallocate' on the mechanism object
+        // with the specified 'p'.  The optionally specified 'n' argument is
+        // ignored by this allocator type.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class... Args>

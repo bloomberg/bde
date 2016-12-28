@@ -919,8 +919,8 @@ struct TypeList: public TypeList20<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,
     // Additionally, the enumeration 'LENGTH' is declared with a value equal to
     // the length of this typelist.  Each typelist also declares a member
     // template 'TypeOf' such that 'TypeOf<N>::Type' evaluates to the type of
-    // the Nth the in this typelist.  The the type 'Type' is also declared a
-    // length specific version of this typelist.
+    // the Nth the in this typelist.  The type 'Type' is also declared a length
+    // specific version of this typelist.
 };
 
                          // =====================

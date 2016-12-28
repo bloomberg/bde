@@ -270,9 +270,9 @@ struct ScalarPrimitives {
         // used and 'allocator' will be ignored if TARGET_TYPE' has the
         // bit-wise moveable trait.  Note that, if 'ALLOCATOR' is not based on
         // 'bslma::Allocator', then the 'allocator' argument is ignored; the
-        // allocator used by the the resulting object at 'address' might or
-        // might not be the same as the allocator used by 'original', depending
-        // on whether 'TARGET_TYPE' has a move constructor (C++11).
+        // allocator used by the resulting object at 'address' might or might
+        // not be the same as the allocator used by 'original', depending on
+        // whether 'TARGET_TYPE' has a move constructor (C++11).
 
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE      *address,

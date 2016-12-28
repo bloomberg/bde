@@ -88,8 +88,8 @@ BSLS_IDENT("$Id: $")
 // implement this functionality, we can use 'bsl::priority_queue' in the task
 // scheduler to buffer received, but as yet unprocessed, tasks.  The task
 // scheduler adds newly received tasks into the priority queue in the receiving
-// thread, and extracts tasks from the the priority queue for execution
-// according to their priorities in the processing thread.
+// thread, and extracts tasks from the priority queue for execution according
+// to their priorities in the processing thread.
 //
 // First, we define a 'TaskFunction' type:
 //..

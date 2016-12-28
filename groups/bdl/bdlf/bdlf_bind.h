@@ -4862,7 +4862,7 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
     // 'BindWrapper' object passed recursively as a bound argument.  The value
     // is not important, as long as it is out of range.  This makes sure that a
     // binder with a nested 'BindWrapper' object is treated as non-explicit, in
-    // the same way as if the the nested binder was of type 'Bind'.
+    // the same way as if the nested binder was of type 'Bind'.
 
     enum {
         k_VaL = 1 << 24
