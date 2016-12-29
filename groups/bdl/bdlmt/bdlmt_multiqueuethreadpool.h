@@ -659,8 +659,8 @@ class MultiQueueThreadPool {
                          bslma::Allocator               *basicAllocator = 0);
         // Construct a 'MultiQueueThreadPool' with the specified
         // 'threadAttributes', the specified 'minThreads' minimum number of
-        // threads, the specified 'maxThreads' maximum number of threads, the
-        // specified 'maxIdleTime' maximum idle time (in milliseconds).
+        // threads, the specified 'maxThreads' maximum number of threads, and
+        // the specified 'maxIdleTime' maximum idle time (in milliseconds).
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '0 <= minThreads',
