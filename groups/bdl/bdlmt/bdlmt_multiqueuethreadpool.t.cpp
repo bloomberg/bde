@@ -26,6 +26,7 @@
 #include <bslma_default.h>
 #include <bslma_rawdeleterproctor.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
 
@@ -151,6 +152,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
@@ -2995,6 +3005,23 @@ int main(int argc, char *argv[]) {
         ASSERT(NUM_JOBS == counter);
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            if (verbose) cout << "\t'Value CTOR'" << endl;
+            {
+            	bslmt::ThreadAttributes attr;
+                ASSERT_PASS_RAW(Obj(attr,   0, 100, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  -1, 100, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  11,  10, 1000));
+                ASSERT_PASS_RAW(Obj(attr,  10,  10, 1000));
+                ASSERT_PASS_RAW(Obj(attr,   9,  10, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  10,  10,   -1));
+            }
+
+         }
       }  break;
       case 1: {
         // --------------------------------------------------------------------
