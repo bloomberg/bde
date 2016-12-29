@@ -3113,13 +3113,13 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                const unsigned char   *d_buffer;
-                int                    d_size;
-                int                    d_numLocalTimeTypes;
-                int                    d_numIsGmt;
-                int                    d_numIsStd;
-                int                    d_numLeaps;
-                int                    d_abbrevDataSize;
+                const unsigned char *d_buffer;
+                int                  d_size;
+                int                  d_numLocalTimeTypes;
+                int                  d_numIsGmt;
+                int                  d_numIsStd;
+                int                  d_numLeaps;
+                int                  d_abbrevDataSize;
             } DATA [] = {
 
             //BUFFER           SIZE                  LLT  GMT  STD LEAP  ABB
