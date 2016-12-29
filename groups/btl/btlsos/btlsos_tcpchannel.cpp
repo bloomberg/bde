@@ -989,6 +989,8 @@ int TcpChannel::writeRaw(const char *buffer, int numBytes)
 
 int TcpChannel::writev(int *augStatus, int length, int flags)
 {
+    BSLS_ASSERT(!d_ovecBuffers.empty());
+    
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
     }

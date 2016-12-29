@@ -261,6 +261,7 @@ class TcpChannel : public btlsc::Channel {
         // partial result) otherwise.  On partial result, load the specified
         // 'augStatus' with a positive value, indicating that an asynchronous
         // event caused the interruption; otherwise, 'augStatus' is unmodified.
+        // The behavior is undefined unless 'd_ovecBuffers' is not empty.
     
   public:
     // CREATORS
