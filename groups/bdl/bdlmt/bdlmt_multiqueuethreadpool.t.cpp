@@ -3012,7 +3012,7 @@ int main(int argc, char *argv[]) {
 
             if (verbose) cout << "\t'Value CTOR'" << endl;
             {
-            	bslmt::ThreadAttributes attr;
+                bslmt::ThreadAttributes attr;
                 ASSERT_PASS_RAW(Obj(attr,   0, 100, 1000));
                 ASSERT_FAIL_RAW(Obj(attr,  -1, 100, 1000));
                 ASSERT_FAIL_RAW(Obj(attr,  11,  10, 1000));

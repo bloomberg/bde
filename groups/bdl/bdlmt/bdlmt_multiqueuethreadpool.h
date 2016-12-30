@@ -665,7 +665,7 @@ class MultiQueueThreadPool {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '0 <= minThreads',
         // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.  Note that the
-        // 'bcep_MultiQueueThreadPool' is created without any queues.  Although
+        // 'MultiQueueThreadPool' is created without any queues.  Although
         // queues may be created, 'start' must be called before enqueuing jobs.
 
     explicit
