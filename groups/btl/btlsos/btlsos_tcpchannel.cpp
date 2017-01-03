@@ -215,7 +215,6 @@ int TcpChannel::readv(int               *augStatus,
     }
 
     int numBytesRead = 0,
-        rc = 0,
         originalNumBuffers = numBuffers,
         length = btls::IovecUtil::length(buffers, numBuffers),
         availableData = d_readBufferOffset - d_readBufferedStartPointer;
@@ -229,9 +228,9 @@ int TcpChannel::readv(int               *augStatus,
         if (length <= availableData) {
             numBytesRead = length;
             btls::IovecUtil::scatter(buffers,
-                                    numBuffers,
-                                    &d_readBuffer[d_readBufferedStartPointer],
-                                    numBytesRead);
+                                     numBuffers,
+                                     &d_readBuffer[d_readBufferedStartPointer],
+                                     numBytesRead);
             if (length < availableData) {
                 d_readBufferedStartPointer += length;
             }
@@ -249,15 +248,16 @@ int TcpChannel::readv(int               *augStatus,
 
             d_readBufferedStartPointer = d_readBufferOffset = 0;
             // Adjust the buffer for next "read" try.
-            // (We use 'originalNumBuffers' for consistency with the call below,
-            // but at this point 'originalNumBuffers == numBuffers').
+            // (We use 'originalNumBuffers' for consistency with the call
+            // below, but note that at this point
+            // 'originalNumBuffers == numBuffers').
             numBuffers = adjustVecBuffer(buffers, originalNumBuffers,
                                          numBytesRead, &d_readBuffers);
         }
     }
 
     while (numBytesRead < length) {
-        rc = d_socket_p->readv(&d_readBuffers.front(), numBuffers);
+        int rc = d_socket_p->readv(&d_readBuffers.front(), numBuffers);
 
         if (0 < rc) {
             numBytesRead += rc;
@@ -292,7 +292,7 @@ int TcpChannel::readv(int               *augStatus,
     return numBytesRead;
 }
 
-int TcpChannel::readRaw(char *buffer, int numBytes, int)
+int TcpChannel::readRaw(char *buffer, int numBytes)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -363,78 +363,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
     return retValue;
 }
 
-int TcpChannel::readRaw(int *, char *buffer, int numBytes, int)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 < numBytes);
-    BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
-
-    if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;                                       // RETURN
-    }
-
-    int rc = 0, numBytesRead = 0, retValue = 0,
-        availableData = d_readBufferOffset - d_readBufferedStartPointer;
-
-    if (availableData) {
-        if (numBytes <= availableData) {
-            numBytesRead = numBytes;
-            bsl::memcpy(buffer,
-                        &d_readBuffer[d_readBufferedStartPointer],
-                        numBytesRead);
-            if (numBytes < availableData) {
-                d_readBufferedStartPointer += numBytes;
-            }
-            else {
-                d_readBufferedStartPointer = d_readBufferOffset = 0;
-            }
-        }
-        else {
-            numBytesRead = availableData;
-            bsl::memcpy(buffer,
-                        &d_readBuffer[d_readBufferedStartPointer],
-                        numBytesRead);
-            d_readBufferedStartPointer = d_readBufferOffset = 0;
-        }
-        return numBytesRead;                                          // RETURN
-    }
-
-    rc = d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
-
-    while (1) {
-        rc = d_socket_p->read(buffer, numBytes);
-        if (0 < rc) {
-            retValue = rc;
-            break;
-        }
-        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(btlso::Flag::e_IO_READ);
-
-            if (btlso::Flag::e_IO_READ == rc ||
-                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-                continue;
-            }
-        }
-        if (btlso::SocketHandle::e_ERROR_EOF == rc) {  // EOF occurs.
-            d_isInvalidFlag = 1;
-            retValue = e_ERROR_EOF;
-            break;
-        }
-        else { // Errors other than "AE" or "EOF" occur.
-            d_isInvalidFlag = 1;
-            retValue = e_ERROR_UNCLASSIFIED;
-            break;
-        }
-    }
-    if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
-        BSLS_ASSERT(0 == rc);
-    }
-    return retValue;
-}
-
-int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
+int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -492,85 +421,6 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
             }
         }
         if (btlso::SocketHandle::e_ERROR_EOF == rc) {  // EOF occurs.
-            d_isInvalidFlag = 1;
-            retValue = e_ERROR_EOF;
-            break;
-        }
-        else { // Errors other than "AE" or "EOF" occur.
-            d_isInvalidFlag = 1;
-            retValue = e_ERROR_UNCLASSIFIED;
-            break;
-        }
-    }
-    if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
-        BSLS_ASSERT(0 == rc);
-    }
-    return retValue;
-}
-
-int TcpChannel::readvRaw(int               *,
-                         const btls::Iovec *buffers,
-                         int                numBuffers,
-                         int)
-{
-    BSLS_ASSERT(buffers);
-    BSLS_ASSERT(0 < numBuffers);
-    BSLS_ASSERT(d_readBufferedStartPointer <= d_readBufferOffset);
-
-    if (d_isInvalidFlag) {
-        return e_ERROR_INVALID;                                       // RETURN
-    }
-
-    int rc = 0, numBytesRead = 0, retValue = 0,
-        length = btls::IovecUtil::length(buffers, numBuffers),
-        availableData = d_readBufferOffset - d_readBufferedStartPointer;
-    const btls::Iovec *readBuffers = buffers;
-
-    rc = d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
-    BSLS_ASSERT(0 == rc);
-
-    if (availableData) {
-        if (length <= availableData) {
-            numBytesRead = length;
-            btls::IovecUtil::scatter(buffers,
-                                    numBuffers,
-                                    &d_readBuffer[d_readBufferedStartPointer],
-                              numBytesRead);
-            if (length < availableData) {
-                d_readBufferedStartPointer += length;
-            }
-            else {
-                d_readBufferedStartPointer = d_readBufferOffset = 0;
-            }
-        }
-        else {
-            numBytesRead = availableData;
-            btls::IovecUtil::scatter(buffers,
-                                    numBuffers,
-                                    &d_readBuffer[d_readBufferedStartPointer],
-                                    numBytesRead);
-            d_readBufferedStartPointer = d_readBufferOffset = 0;
-        }
-        return numBytesRead;                                          // RETURN
-    }
-
-    while (1) {              // 'length' is expected to be read back.
-        rc = d_socket_p->readv(readBuffers, numBuffers);
-
-        if (0 < rc) {        // This read operation got some bytes back.
-            retValue = rc;
-            break;
-        }
-        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(btlso::Flag::e_IO_READ);
-
-            if (btlso::Flag::e_IO_READ == rc ||
-                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-                continue;
-            }
-        }
-        if (btlso::SocketHandle::e_ERROR_EOF == rc) {     // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = e_ERROR_EOF;
             break;
