@@ -98,7 +98,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class AttributeContainer;
@@ -113,7 +112,7 @@ class ScopedAttributes {
     // that the 'AttributeContainer' supplied at construction must remain valid
     // and *unmodified* for the lifetime of this object.
 
-    const AttributeContext::iterator  d_it ;   // refers to attributes
+    const AttributeContext::iterator  d_it;  // refers to attributes
 
     // NOT IMPLEMENTED
     ScopedAttributes(const ScopedAttributes&);
@@ -152,7 +151,6 @@ ScopedAttributes::~ScopedAttributes()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

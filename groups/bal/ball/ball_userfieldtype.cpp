@@ -33,13 +33,13 @@ bsl::ostream& UserFieldType::print(bsl::ostream&       stream,
 const char *UserFieldType::toAscii(UserFieldType::Enum value)
 {
     switch (value) {
-      case(e_VOID) : return "VOID";                                   // RETURN
-      case(e_INT64) : return "INT64";                                 // RETURN
-      case(e_DOUBLE) : return "DOUBLE";                               // RETURN
-      case(e_STRING) : return "STRING";                               // RETURN
-      case(e_DATETIMETZ) : return "DATETIMETZ";                       // RETURN
-      case(e_CHAR_ARRAY) : return "CHAR_ARRAY";                       // RETURN
-      default: return "(* UNKNOWN *)";                                // RETURN
+      case(e_VOID)      : return "VOID";                             // RETURN
+      case(e_INT64)     : return "INT64";                            // RETURN
+      case(e_DOUBLE)    : return "DOUBLE";                           // RETURN
+      case(e_STRING)    : return "STRING";                           // RETURN
+      case(e_DATETIMETZ): return "DATETIMETZ";                       // RETURN
+      case(e_CHAR_ARRAY): return "CHAR_ARRAY";                       // RETURN
+      default           : return "(* UNKNOWN *)";                    // RETURN
     }
 }
 

@@ -306,7 +306,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Context;
@@ -368,19 +367,18 @@ class FileObserver : public Observer {
     BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit FileObserver(
-              Severity::Level   stdoutThreshold = Severity::e_WARN,
-              bslma::Allocator *basicAllocator  = 0);
+    explicit FileObserver(Severity::Level   stdoutThreshold = Severity::e_WARN,
+                          bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
         // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
-        // severe as 'Severity::e_WARN'.  The timestamp attribute of
-        // published records is written in UTC time by default.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that user-defined fields are published to 'stdout' by
-        // default.  Also note that file logging is initially disabled.
+        // severe as 'Severity::e_WARN'.  The timestamp attribute of published
+        // records is written in UTC time by default.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that
+        // user-defined fields are published to 'stdout' by default.  Also note
+        // that file logging is initially disabled.
 
     FileObserver(Severity::Level   stdoutThreshold,
                  bool              publishInLocalTime,
@@ -761,8 +759,8 @@ bdlt::DatetimeInterval FileObserver::localTimeOffset() const
 {
     return d_fileObserver2.localTimeOffset();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

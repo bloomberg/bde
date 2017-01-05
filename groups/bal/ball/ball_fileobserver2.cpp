@@ -69,7 +69,6 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 namespace {
@@ -796,8 +795,8 @@ bdlt::DatetimeInterval FileObserver2::localTimeOffset() const
 
     return localTimeOffsetInterval(timestamp);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

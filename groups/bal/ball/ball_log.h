@@ -1455,8 +1455,8 @@ int Log_Formatter::severity() const
 {
     return d_severity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

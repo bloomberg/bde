@@ -209,7 +209,7 @@ class Attribute {
         // 'basicAllocator' is 0, the currently installed default allocator
         // will be used.
 
-    ~Attribute();
+    //! ~Attribute() = default;
         // Destroy this attribute object.
 
     // MANIPULATORS
@@ -329,11 +329,6 @@ Attribute::Attribute(const Attribute&  original,
 {
 }
 
-inline
-Attribute::~Attribute()
-{
-}
-
 // MANIPULATORS
 inline
 Attribute& Attribute::operator=(const Attribute& rhs)
@@ -392,6 +387,7 @@ const Attribute::Value& Attribute::value() const
 {
     return d_value;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

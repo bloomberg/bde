@@ -68,8 +68,7 @@ RuleSet::RuleSet(bslma::Allocator *basicAllocator)
     }
 }
 
-RuleSet::RuleSet(const RuleSet&    original,
-                 bslma::Allocator *basicAllocator)
+RuleSet::RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator)
 : d_ruleHashtable(maxNumRules(),          // initial size
                   RuleHash(),             // hash functor
                   bsl::equal_to<Rule>(),  // equal functor
@@ -83,10 +82,6 @@ RuleSet::RuleSet(const RuleSet&    original,
         d_freeRuleIds.push_back(i);
     }
     addRules(original);
-}
-
-RuleSet::~RuleSet()
-{
 }
 
 // MANIPULATORS

@@ -273,7 +273,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Context;
@@ -630,8 +629,8 @@ inline
 void FileObserver2::releaseRecords()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

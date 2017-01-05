@@ -20,8 +20,8 @@ BSLS_IDENT_RCSID(ball_multiplexobserver_cpp,"$Id$ $CSID$")
 #include <bsl_iostream.h>                // for warning print only
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // -----------------------
                          // class MultiplexObserver
                          // -----------------------
@@ -53,9 +53,8 @@ void MultiplexObserver::publish(const Record& record, const Context& context)
     }
 }
 
-void MultiplexObserver::publish(
-                            const bsl::shared_ptr<const Record>&  record,
-                            const Context&                        context)
+void MultiplexObserver::publish(const bsl::shared_ptr<const Record>& record,
+                                const Context&                       context)
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwMutex);
 
@@ -115,7 +114,6 @@ int MultiplexObserver::deregisterObserver(Observer *observer)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

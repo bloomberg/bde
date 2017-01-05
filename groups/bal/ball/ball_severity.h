@@ -133,11 +133,9 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-
-
 namespace BloombergLP {
-
 namespace ball {
+
                         // ===============
                         // struct Severity
                         // ===============
@@ -227,8 +225,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Severity::Level rhs);
 
 // CLASS METHODS
 inline
-bsl::ostream& Severity::streamOut(bsl::ostream&   stream,
-                                  Severity::Level value)
+bsl::ostream& Severity::streamOut(bsl::ostream& stream, Severity::Level value)
 {
     print(stream, value);
     return stream;

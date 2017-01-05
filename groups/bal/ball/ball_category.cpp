@@ -16,8 +16,6 @@ BSLS_IDENT_RCSID(ball_category_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 
-
-
                             // --------------
                             // class Category
                             // --------------
@@ -35,19 +33,15 @@ Category::Category(const char       *categoryName,
     // instance of this class.
 : d_thresholdLevels(recordLevel, passLevel, triggerLevel, triggerAllLevel)
 , d_threshold(ThresholdAggregate::maxLevel(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel))
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel))
 , d_categoryName(categoryName, basicAllocator)
 , d_categoryHolder(0)
 , d_relevantRuleMask(0)
 , d_ruleThreshold(0)
 {
     BSLS_ASSERT(categoryName);
-}
-
-Category::~Category()
-{
 }
 
 // PRIVATE MANIPULATORS

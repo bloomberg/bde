@@ -191,8 +191,8 @@ int main(int argc, char *argv[])
     ASSERT(true                        == valueA.isUnset());
     ASSERT(ball::UserFieldType::e_VOID == valueA.type());
 //..
-// Next, we create a second 'ball::UserFieldValue' having the value 5, and
-// then confirm its value and observe that it does not compare equal to the
+// Next, we create a second 'ball::UserFieldValue' having the value 5, and then
+// confirm its value and observe that it does not compare equal to the
 // 'valueA':
 //..
     ball::UserFieldValue valueB(5);
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
     ASSERT(valueA != valueB);
 //..
 // Finally, we call 'reset' of 'valueB' resetting it to the unset state, and
-// observer that 'valueA' now compares equal to 'valueB':
+// observe that 'valueA' now compares equal to 'valueB':
 //..
     valueB.reset();
 //

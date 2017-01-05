@@ -136,15 +136,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                    // ===============================
-                    // struct ball::LoggerCategoryUtil
-                    // ===============================
-
-
 namespace ball {
 
 class LoggerManager;
 class Category;
+
+                        // =========================
+                        // struct LoggerCategoryUtil
+                        // =========================
 
 struct LoggerCategoryUtil {
     // This struct provides a suite of utility functions that facilitate the
@@ -166,19 +165,19 @@ struct LoggerCategoryUtil {
         // null-terminated.
 
     static int setThresholdLevelsHierarchically(
-                                            LoggerManager *loggerManager,
-                                            const char    *categoryNamePrefix,
-                                            int            recordLevel,
-                                            int            passLevel,
-                                            int            triggerLevel,
-                                            int            triggerAllLevel);
+                                             LoggerManager *loggerManager,
+                                             const char    *categoryNamePrefix,
+                                             int            recordLevel,
+                                             int            passLevel,
+                                             int            triggerLevel,
+                                             int            triggerAllLevel);
         // Set, in the specified 'loggerManager', the threshold levels of every
         // category whose name has, as a prefix, the specified
         // 'categoryNamePrefix' to the specified threshold values,
         // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
         // Return the number of categories whose threshold levels were set, and
         // a negative value, with no effect, if any of the specified threshold
-        // values is outside the range [0 .. 255].  The behavior is undefined
+        // values is outside the range '[0 .. 255]'.  The behavior is undefined
         // unless 'loggerManager' is not null and 'categoryNamePrefix' is
         // null-terminated.
 
@@ -194,9 +193,9 @@ struct LoggerCategoryUtil {
         // 'loggerManager' whose name matches the specified 'regularExpression'
         // to the specified 'recordLevel', 'passLevel', 'triggerLevel', and
         // 'triggerAllLevel' values, respectively, if each of the threshold
-        // values is in the range [0 .. 255].  Return the number of categories
-        // whose threshold levels were set, or a negative value if the
-        // threshold values were invalid.  The behavior is undefined unless
+        // values is in the range '[0 .. 255]'.  Return the number of
+        // categories whose threshold levels were set, or a negative value if
+        // the threshold values were invalid.  The behavior is undefined unless
         // 'loggerManager' is non-null and 'regularExpression' is
         // null-terminated.  Note that the only regular expressions supported
         // in this release are of the form (1) "X*", matching every category
@@ -208,7 +207,6 @@ struct LoggerCategoryUtil {
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

@@ -29,9 +29,7 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_sstream.h>
 
-
 namespace BloombergLP {
-
 namespace ball {
 
 namespace {
@@ -259,7 +257,6 @@ void FileObserver::getLogFormat(const char **logFileFormat,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

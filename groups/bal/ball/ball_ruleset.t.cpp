@@ -270,7 +270,6 @@ bool compareText(bslstl::StringRef lhs,
 
 static Obj& gg(Obj *obj, const char *spec)
 {
-    const char *name;
     while (*spec) {
         const char c = *spec;
         ++spec;
@@ -315,12 +314,13 @@ static Obj& gg(Obj *obj, const char *spec)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    const int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose             = argc > 2;
+    const bool veryVerbose         = argc > 3;
+    const bool veryVeryVerbose     = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     mR1.addPredicate(P1);
     mR2.addPredicate(P1);
@@ -1410,8 +1410,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(i, j, -1 == mZ.addRule(rule2));
                 LOOP2_ASSERT(i, j, 0 <= Z.ruleId(rule2));
                 LOOP2_ASSERT(i, j, Z.getRuleById(Z.ruleId(rule2)));
-                LOOP2_ASSERT(i, j,
-                             rule2 == *Z.getRuleById(Z.ruleId(rule2)));
+                LOOP2_ASSERT(i, j, rule2 == *Z.getRuleById(Z.ruleId(rule2)));
             }
         }
 
@@ -1442,7 +1441,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_RULES; ++j) {
                 if (i & 1 << j) {
                     spec += 'R';
-                    spec += '0' + (char)j;
+                    spec += (char)(j + '0');
                 }
             }
 
@@ -1454,7 +1453,7 @@ int main(int argc, char *argv[])
             int length = 0;
             for (int j = 0; j < NUM_RULES; ++j) {
                 bool exist = i & 1 << j;
-                LOOP2_ASSERT(i, j, exist == X.ruleId(*RULES[j]) >= 0);
+                LOOP2_ASSERT(i, j, exist == (X.ruleId(*RULES[j]) >= 0));
                 length += exist;
             }
             LOOP_ASSERT(i, length == mX.numRules());
@@ -1465,31 +1464,31 @@ int main(int argc, char *argv[])
         n = 1 << NUM_PREDICATES;
 
         for (int i = 0; i < 2 * Obj::maxNumRules(); ++i) {
-        for (int j = i; j < n && j < i + 2 * Obj::maxNumRules(); ++j) {
-            ostringstream spec;
-            spec << 'r' << i << ':' << j;
-            Obj mX(&testAllocator); const Obj& X = mX;
-            LOOP_ASSERT(i, &mX == &gg(&mX, spec.str().c_str()));
+            for (int j = i; j < n && j < i + 2 * Obj::maxNumRules(); ++j) {
+                ostringstream spec;
+                spec << 'r' << i << ':' << j;
+                Obj mX(&testAllocator); const Obj& X = mX;
+                LOOP_ASSERT(i, &mX == &gg(&mX, spec.str().c_str()));
 
-            if (veryVerbose) { P_(i); P_(spec.str()); P(X) }
+                if (veryVerbose) { P_(i); P_(spec.str()); P(X) }
 
-            for (int k = i; k < j && k < i + X.maxNumRules(); ++k) {
+                for (int k = i; k < j && k < i + X.maxNumRules(); ++k) {
 
-                ball::Rule rule("", 0, 0, 0, 0);
+                    ball::Rule rule("", 0, 0, 0, 0);
 
-                for (int l = 0; l < NUM_PREDICATES; ++l) {
-                    if ( k & (1 << l)) {
-                        rule.addPredicate(PREDICATES[l]);
+                    for (int l = 0; l < NUM_PREDICATES; ++l) {
+                        if ( k & (1 << l)) {
+                            rule.addPredicate(PREDICATES[l]);
+                        }
                     }
+
+                    LOOP3_ASSERT(i, j, k, X.ruleId(rule) >= 0);
                 }
 
-                LOOP3_ASSERT(i, j, k, X.ruleId(rule) >= 0);
+                int length = j - i > X.maxNumRules() ? X.maxNumRules() : j - i;
+                LOOP2_ASSERT(i, j, length == X.numRules());
+
             }
-
-            int length = j - i > X.maxNumRules() ? X.maxNumRules() : j - i;
-            LOOP2_ASSERT(i, j, length == X.numRules());
-
-        }
         }
       } break;
       case 2: {

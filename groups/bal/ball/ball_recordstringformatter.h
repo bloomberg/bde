@@ -167,7 +167,6 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Record;
@@ -288,8 +287,8 @@ class RecordStringFormatter {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    ~RecordStringFormatter();
-        // Destroy this record formatter.
+    //! ~RecordStringFormatter() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     RecordStringFormatter& operator=(const RecordStringFormatter& rhs);

@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //        my_Logger& operator=(const my_Logger&);
 //
 //        // PRIVATE MANIPULATORS
-//        void publish(const bsl::string&  message,
+//        void publish(const bsl::string&   message,
 //                     const ball::Context& context);
 //
 //      public:
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 //    // my_Logger.cpp
 //
 //    // PRIVATE MANIPULATORS
-//    void my_Logger::publish(const bsl::string&  message,
+//    void my_Logger::publish(const bsl::string&   message,
 //                            const ball::Context& context)
 //    {
 //        using namespace std;
@@ -161,9 +161,7 @@ BSLS_IDENT("$Id: $")
 //            // Do nothing beyond archiving the message.
 //          } break;
 //          case WARN: {
-//            ball::Context context(ball::Transmission::e_PASSTHROUGH,
-//                                  0,
-//                                  1);
+//            ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 //            publish(message, context);
 //          } break;
 //          case ERROR: {

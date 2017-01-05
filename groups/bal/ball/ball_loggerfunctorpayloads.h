@@ -15,7 +15,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a suite of useful logger manager functor payloads.
 //
 //@CLASSES
@@ -263,8 +262,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ============================
                     // struct LoggerFunctorPayloads
                     // ============================
@@ -291,8 +290,8 @@ struct LoggerFunctorPayloads {
         // to define hierarchical category names.  The behavior is undefined
         // unless the 'LoggerManager' singleton has been initialized.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

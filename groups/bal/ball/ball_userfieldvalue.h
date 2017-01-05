@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Use of 'ball::UserFieldValue'
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects
-// are typically used in a description of a sequence of user fields (see
+// 'ball::UserFieldValue' object.  Note that 'ball::UserFieldValue' objects are
+// typically used in a description of a sequence of user fields (see
 // 'ball_userfields').
 //
 // First, we create a default 'ball::UserFieldValue', 'valueA', and observe
@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //  assert(true                         == valueA.isUnset());
 //  assert(ball::UserFieldValue::e_VOID == valueA.type());
 //..
-// Next, we create a second 'ball::UserFieldValue' having the value 5, and
-// then confirm its value and observe that it does not compare equal to the
+// Next, we create a second 'ball::UserFieldValue' having the value 5, and then
+// confirm its value and observe that it does not compare equal to the
 // 'valueA':
 //..
 //  ball::UserFieldValue valueB(5);
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //  assert(valueA != valueB);
 //..
 // Finally, we call 'reset' of 'valueB' resetting it to the unset state, and
-// observer that 'valueA' now compares equal to 'valueB':
+// observe that 'valueA' now compares equal to 'valueB':
 //..
 //  valueB.reset();
 //
@@ -76,6 +76,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -116,7 +120,7 @@ class UserFieldValue {
     // in 'ball::UserFieldType' or an unset value (indicated type
     // 'ball::UserFieldType::e_VOID').
 
-    // TYPES
+    // PRIVATE TYPES
     typedef bdlb::Variant<bsls::Types::Int64,
                           double,
                           bsl::string,
@@ -294,8 +298,7 @@ bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
     // is not 'e_VOID') the value of that type (as accessed through 'the*'
     // methods) is not the same.
 
-bsl::ostream& operator<<(bsl::ostream&         stream,
-                         const UserFieldValue& object);
+bsl::ostream& operator<<(bsl::ostream& stream, const UserFieldValue& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -316,9 +319,9 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
+                        // --------------------
                         // class UserFieldValue
-                        // ---------------------
+                        // --------------------
 
 // CREATORS
 inline

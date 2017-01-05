@@ -13,7 +13,6 @@
 BSLS_IDENT_RCSID(ball_patternutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
-
 namespace ball {
 
 // ----------------------------------------------------------------------------
@@ -135,7 +134,6 @@ bool PatternUtil::isMatch(const char *inputString, const char *pattern)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

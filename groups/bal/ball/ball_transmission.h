@@ -182,11 +182,11 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
-
 namespace ball {
-                        // ========================
+
+                        // ===================
                         // struct Transmission
-                        // ========================
+                        // ===================
 
 struct Transmission {
     // This struct provides a namespace for enumerating the causes of the
@@ -254,9 +254,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------
+                        // -------------------
                         // struct Transmission
-                        // ------------------------
+                        // -------------------
 
 // CLASS METHODS
 inline
@@ -271,8 +271,7 @@ bsl::ostream& Transmission::streamOut(bsl::ostream&       stream,
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&       stream,
-                               Transmission::Cause rhs)
+bsl::ostream& ball::operator<<(bsl::ostream& stream, Transmission::Cause rhs)
 {
     return Transmission::streamOut(stream, rhs);
 }

@@ -167,7 +167,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Record;
@@ -209,16 +208,15 @@ class MultiplexObserver : public Observer {
         // if any.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context);
+    virtual void publish(const Record& record, const Context& context);
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
         //
         // DEPRECATED: use the alternative 'publish' overload instead.
 
-    virtual void publish(const bsl::shared_ptr<const Record>&  record,
-                         const Context&                        context);
+    virtual void publish(const bsl::shared_ptr<const Record>& record,
+                         const Context&                       context);
         // Process the specified log 'record' having the specified publishing
         // 'context'.  This concrete publish implementations processes the
         // 'record' by forwarding 'record' and 'context' to each of the

@@ -335,6 +335,7 @@ DefaultAttributeContainer::end() const
 {
     return d_attributeSet.end();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

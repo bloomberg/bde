@@ -484,8 +484,8 @@ class AsyncFileObserver : public Observer {
 
     // CREATORS
     explicit AsyncFileObserver(
-              Severity::Level   stdoutThreshold = Severity::e_WARN,
-              bslma::Allocator *basicAllocator  = 0);
+                          Severity::Level   stdoutThreshold = Severity::e_WARN,
+                          bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout' if a record's
         // severity us at least as severe as the optionally specified
@@ -829,7 +829,7 @@ void AsyncFileObserver::rotateOnTimeInterval(
 
 inline
 void AsyncFileObserver::setOnFileRotationCallback(
-          const FileObserver2::OnFileRotationCallback& onRotationCallback)
+               const FileObserver2::OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver.setOnFileRotationCallback(onRotationCallback);
 }
@@ -859,8 +859,7 @@ void AsyncFileObserver::enablePublishInLocalTime()
 }
 
 inline
-void AsyncFileObserver::setStdoutThreshold(
-                                          Severity::Level stdoutThreshold)
+void AsyncFileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
 {
     d_fileObserver.FileObserver::setStdoutThreshold(stdoutThreshold);
 }
@@ -950,7 +949,6 @@ void AsyncFileObserver::getLogFormat(const char **logFileFormat,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

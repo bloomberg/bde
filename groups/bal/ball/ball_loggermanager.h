@@ -280,8 +280,8 @@ BSLS_IDENT("$Id: $")
 // for more information on the fixed fields of a log record):
 //..
 //     Field Name         Type                  Description
-//     -----------    -------------    --------------------------------
-//     timestamp      bdlt::Datetime    creation date and time
+//     -----------    --------------   --------------------------------------
+//     timestamp      bdlt::Datetime   creation date and time
 //     process ID     int              process ID of creator
 //     thread ID      int              thread ID of creator
 //     filename       string           file where created  (i.e., '__FILE__')
@@ -470,7 +470,7 @@ BSLS_IDENT("$Id: $")
 //        bsl::string buffer(categoryName);
 //        while (1) {
 //            const ball::Category *category =
-//                               loggerManager.lookupCategory(buffer.c_str());
+//                                loggerManager.lookupCategory(buffer.c_str());
 //            if (0 != category) {
 //                *recordLevel     = category->recordLevel();
 //                *passLevel       = category->passLevel();
@@ -909,18 +909,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
 namespace ball {
 
 class LoggerManager;
 class Observer;
 class RecordBuffer;
 
-}  // close package namespace
-
-
-namespace ball {
                            // ============
                            // class Logger
                            // ============
@@ -1135,8 +1129,8 @@ class Logger {
         // logger.
 
     int numRecordsInUse() const;
-        // Return a *snapshot* of number of records that have been dispensed
-        // by 'getRecord' but have not yet been supplied (returned) using
+        // Return a *snapshot* of number of records that have been dispensed by
+        // 'getRecord' but have not yet been supplied (returned) using
         // 'logRecord'.
 };
 
@@ -1175,7 +1169,7 @@ class LoggerManager {
     LoggerManager& operator=(const LoggerManager& rhs);
 
     // CLASS DATA
-    static LoggerManager  *s_singleton_p;    // singleton-enforcement
+    static LoggerManager  *s_singleton_p;        // singleton-enforcement
 
     // INSTANCE DATA
     Observer              *d_observer_p;         // holds (but does not own)
@@ -1191,7 +1185,8 @@ class LoggerManager {
                                                  // "set" categories
 
     bslmt::RWMutex         d_defaultThresholdsLock;
-                                         // 'd_defaultThresholdsLock' protector
+                                                 // 'd_defaultThresholdsLock'
+                                                 // protector
 
     ThresholdAggregate
                            d_defaultThresholdLevels;
@@ -1249,9 +1244,9 @@ class LoggerManager {
 
     // PRIVATE CLASS METHODS
     static void initSingletonImpl(
-                         Observer                          *observer,
-                         const LoggerManagerConfiguration&  configuration,
-                         bslma::Allocator                  *globalAllocator);
+                           Observer                          *observer,
+                           const LoggerManagerConfiguration&  configuration,
+                           bslma::Allocator                  *globalAllocator);
         // Initialize (once!) the logger manager singleton having the specified
         // 'observer' that receives published log records, the specified
         // 'configuration' of defaults and attributes, and the specified
@@ -1319,10 +1314,10 @@ class LoggerManager {
         // method is *not* thread-safe).
 
     static void createLoggerManager(
-                  bslma::ManagedPtr<LoggerManager>  *manager,
-                  Observer                          *observer,
-                  const LoggerManagerConfiguration&  configuration,
-                  bslma::Allocator                  *basicAllocator = 0);
+                        bslma::ManagedPtr<LoggerManager>  *manager,
+                        Observer                          *observer,
+                        const LoggerManagerConfiguration&  configuration,
+                        bslma::Allocator                  *basicAllocator = 0);
         // Create a logger manager that is *not* the singleton logger manager
         // having the specified 'observer' that receives published log records
         // and the specified 'configuration' of defaults and attributes; load
@@ -1619,9 +1614,7 @@ class LoggerManager {
         // Return a reference to the non-modifiable rule set maintained by
         // this object.
 
-    bool isCategoryEnabled(const Category *category,
-                           int             severity) const;
-
+    bool isCategoryEnabled(const Category *category, int severity) const;
         // Return 'true' if the specified 'severity' is more severe (i.e., is
         // numerically less than) at least one of the threshold levels of the
         // specified 'category', and 'false' otherwise.  If the returned
@@ -1646,7 +1639,6 @@ class LoggerManager {
         //..
         //  void operator()(const Category *);
         //..
-
 };
 
                         // ==============================
@@ -1664,9 +1656,9 @@ class LoggerManagerScopedGuard {
   public:
     // CREATORS
     LoggerManagerScopedGuard(
-                  Observer                          *observer,
-                  const LoggerManagerConfiguration&  configuration,
-                  bslma::Allocator                  *globalAllocator = 0);
+                       Observer                          *observer,
+                       const LoggerManagerConfiguration&  configuration,
+                       bslma::Allocator                  *globalAllocator = 0);
         // Create a scoped guard that will create (once!) the logger manager
         // singleton having the specified 'observer' that receives published
         // log records and the specified 'configuration' of defaults and
@@ -1681,7 +1673,6 @@ class LoggerManagerScopedGuard {
         // Destroy the logger manager singleton, if the singleton exists, and
         // destroy this scoped guard.
 };
-
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -1713,6 +1704,7 @@ void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 {
     d_categoryManager.visitCategories(visitor);
 }
+
                         // ------------------------------
                         // class LoggerManagerScopedGuard
                         // ------------------------------
@@ -1720,9 +1712,9 @@ void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 // CREATORS
 inline
 LoggerManagerScopedGuard::LoggerManagerScopedGuard(
-                       Observer                          *observer,
-                       const LoggerManagerConfiguration&  configuration,
-                       bslma::Allocator                  *globalAllocator)
+                            Observer                          *observer,
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
 {
     LoggerManager::initSingleton(observer,
                                  configuration,

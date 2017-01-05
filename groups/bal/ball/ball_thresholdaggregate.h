@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // ========================
                         // class ThresholdAggregate
                         // ========================
@@ -87,7 +87,7 @@ class ThresholdAggregate {
                                         int triggerLevel,
                                         int triggerAllLevel);
         // Return 'true' if each of the specified 'recordLevel', 'passLevel',
-        // 'triggerLevel' and 'triggerAllLevel' threshold values is in the
+        // 'triggerLevel', and 'triggerAllLevel' threshold values is in the
         // range '[0 .. 255]', and 'false' otherwise.
 
     static int maxLevel(int recordLevel,
@@ -207,7 +207,6 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
                         // ------------------------
 
 // ACCESSORS USED INLINE BY OTHER METHODS
-
 inline
 int ThresholdAggregate::recordLevel() const
 {
@@ -258,7 +257,7 @@ ThresholdAggregate::ThresholdAggregate(int recordLevel,
                                        int passLevel,
                                        int triggerLevel,
                                        int triggerAllLevel)
-    : d_recordLevel(static_cast<unsigned char>(recordLevel))
+: d_recordLevel(static_cast<unsigned char>(recordLevel))
 , d_passLevel(static_cast<unsigned char>(passLevel))
 , d_triggerLevel(static_cast<unsigned char>(triggerLevel))
 , d_triggerAllLevel(static_cast<unsigned char>(triggerAllLevel))
@@ -266,8 +265,7 @@ ThresholdAggregate::ThresholdAggregate(int recordLevel,
 }
 
 inline
-ThresholdAggregate::ThresholdAggregate(
-                                       const ThresholdAggregate& original)
+ThresholdAggregate::ThresholdAggregate(const ThresholdAggregate& original)
 : d_recordLevel(original.d_recordLevel)
 , d_passLevel(original.d_passLevel)
 , d_triggerLevel(original.d_triggerLevel)
@@ -299,7 +297,6 @@ void ThresholdAggregate::setTriggerAllLevel(int triggerAllLevel)
 {
     d_triggerAllLevel = static_cast<unsigned char>(triggerAllLevel);
 }
-
 
 }  // close package namespace
 

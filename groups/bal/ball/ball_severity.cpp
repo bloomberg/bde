@@ -1,12 +1,4 @@
 // ball_severity.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_severity.h>
 
 #include <bsls_ident.h>
@@ -17,10 +9,13 @@ BSLS_IDENT_RCSID(ball_severity_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
-// PRIVATE CLASS METHODS
 
+                        // --------------
+                        // class Severity
+                        // --------------
+
+// PRIVATE CLASS METHODS
 void Severity::print(bsl::ostream& stream, Severity::Level value)
 {
     stream << Severity::toAscii(value);
@@ -133,7 +128,6 @@ const char *Severity::toAscii(Severity::Level value)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

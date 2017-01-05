@@ -1,12 +1,4 @@
 // ball_observer.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_observer.h>
 
 #include <bsls_ident.h>
@@ -22,11 +14,11 @@ BSLS_IDENT_RCSID(ball_observer_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-
 namespace ball {
-                           // --------------
-                           // class Observer
-                           // --------------
+
+                         // --------------
+                         // class Observer
+                         // --------------
 
 // CREATORS
 Observer::~Observer()
@@ -54,8 +46,8 @@ void Observer::publish(const bsl::shared_ptr<const Record>& record,
 void Observer::releaseRecords()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

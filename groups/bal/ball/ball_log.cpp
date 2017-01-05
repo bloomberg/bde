@@ -36,8 +36,8 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 // See the end of this file for implementation notes.
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ----------
                          // struct Log
                          // ----------
@@ -64,13 +64,10 @@ int Log::format(char        *buffer,
     return (signed)numBytes <= status ? -1 : status;
 }
 
-Record *Log::getRecord(const Category *category,
-                       const char     *file,
-                       int             line)
+Record *Log::getRecord(const Category *category, const char *file, int line)
 {
     if (category) {
-        return LoggerManager::singleton().getLogger().getRecord(file,
-                                                                     line);
+        return LoggerManager::singleton().getLogger().getRecord(file, line);
                                                                       // RETURN
     }
     else {
@@ -105,8 +102,8 @@ void Log::logMessage(const Category *category,
 
     if (category) {
         LoggerManager::singleton().getLogger().logMessage(*category,
-                                                               severity,
-                                                               record);
+                                                          severity,
+                                                          record);
     }
     else {
         LoggerManager::logMessage(severity, record);
@@ -171,8 +168,8 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
     }
 
     return LoggerManager::singleton().isCategoryEnabled(
-                                                   categoryHolder->category(),
-                                                   severity);
+                                                    categoryHolder->category(),
+                                                    severity);
 }
 
                      // ----------------
@@ -222,7 +219,6 @@ Log_Formatter::~Log_Formatter()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 ///IMPLEMENTATION NOTES

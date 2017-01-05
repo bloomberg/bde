@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_scopedattribute.h>
 
 #include <bdlb_print.h>
@@ -15,8 +14,8 @@
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // -------------------------------
                     // class ScopedAttribute_Container
                     // -------------------------------
@@ -39,7 +38,6 @@ ScopedAttribute_Container::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

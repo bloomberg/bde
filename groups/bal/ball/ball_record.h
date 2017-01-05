@@ -118,8 +118,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                            // ============
                            // class Record
                            // ============
@@ -164,7 +164,6 @@ class Record {
         // '*object' to deallocate its memory footprint.  The behavior is
         // undefined unless 'object' is the address of a valid log record.
 
-
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Record, bslma::UsesBslmaAllocator);
 
@@ -184,14 +183,13 @@ class Record {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Record(const Record&     original,
-           bslma::Allocator *basicAllocator = 0);
+    Record(const Record& original, bslma::Allocator *basicAllocator = 0);
         // Create a log record having the value of the specified 'original'
         // log record.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~Record();
+    //! ~Record() = default;
         // Destroy this log record.
 
     // MANIPULATORS
@@ -240,7 +238,6 @@ class Record {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
-
 };
 
 // FREE OPERATORS
@@ -303,11 +300,6 @@ Record::Record(const Record&     original,
 , d_fixedFields(original.d_fixedFields, &d_allocator)
 , d_customFields(original.d_customFields, &d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
-inline
-Record::~Record()
 {
 }
 

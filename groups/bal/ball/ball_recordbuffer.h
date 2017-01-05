@@ -248,7 +248,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Record;
@@ -328,7 +327,6 @@ class RecordBuffer {
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

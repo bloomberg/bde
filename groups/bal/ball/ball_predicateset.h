@@ -90,14 +90,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class AttributeContainerList;
 
-                       // ==================
-                       // class PredicateSet
-                       // ==================
+                        // ==================
+                        // class PredicateSet
+                        // ==================
 
 class PredicateSet {
     // This class implements a value-semantic collection of unique predicates.
@@ -108,7 +107,7 @@ class PredicateSet {
 
     // PRIVATE TYPES
     struct PredicateHash
-        // A hash functor for 'Predicate'
+        // A hash functor for 'Predicate'.
     {
       private:
         static int s_hashtableSize;  // default hashtable size for which the
@@ -160,7 +159,7 @@ class PredicateSet {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    ~PredicateSet();
+    //! ~PredicateSet() = default;
         // Destroy this predicate set.
 
     // MANIPULATORS
@@ -240,9 +239,9 @@ bsl::ostream& operator<<(bsl::ostream&       output,
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                       // ------------------
-                       // class PredicateSet
-                       // ------------------
+                        // ------------------
+                        // class PredicateSet
+                        // ------------------
 
 // CREATORS
 inline
@@ -258,11 +257,6 @@ inline
 PredicateSet::PredicateSet(const PredicateSet&  original,
                            bslma::Allocator    *basicAllocator)
 : d_predicateSet(original.d_predicateSet, basicAllocator)
-{
-}
-
-inline
-PredicateSet::~PredicateSet()
 {
 }
 
@@ -284,7 +278,6 @@ void PredicateSet::removeAllPredicates()
 {
     d_predicateSet.clear();
 }
-
 
 // ACCESSORS
 inline

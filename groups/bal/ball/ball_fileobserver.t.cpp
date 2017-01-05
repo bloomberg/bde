@@ -18,6 +18,8 @@
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -28,7 +30,6 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_localtimeoffset.h>
-#include <bdls_testutil.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
 
@@ -123,25 +124,35 @@ using bsl::flush;
 // most other test drivers.  This is necessary because test case 1 plays
 // tricks with cout and examines what is written there.
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cerr << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cerr << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-static void aSsErT2(int c, const char *s, int i)
+void aSsErT2(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
+
+}  // close unnamed namespace
 
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
@@ -149,23 +160,23 @@ static void aSsErT2(int c, const char *s, int i)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -301,13 +312,13 @@ bsl::string tempFileName(bool verboseFlag)
     return result;
 }
 
-bsl::string readPartialFile(bsl::string& fileName, int startOffset)
+bsl::string readPartialFile(bsl::string&     fileName,
+                            FileUtil::Offset startOffset)
     // Read everything after the specified 'startOffset' from the file
     // indicated by the specified 'fileName' and return it as a string.
 {
     bsl::string result;
-    result.reserve(FileUtil::getFileSize(fileName) + 1
-                   - startOffset);
+    result.reserve(FileUtil::getFileSize(fileName) + 1 - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -497,6 +508,8 @@ int TestLocalTimeOffsetCallback::s_loadCount                = 0;
 bsls::TimeInterval TestLocalTimeOffsetCallback::loadLocalTimeOffset(
                                             const bdlt::Datetime&  utcDatetime)
 {
+    (void)utcDatetime;  // Supress compiler warning.
+
     ++s_loadCount;
     return bsls::TimeInterval(s_localTimeOffsetInSeconds);
 }
@@ -512,8 +525,7 @@ int TestLocalTimeOffsetCallback::loadCount()
     return s_loadCount;
 }
 
-void splitStringIntoLines(bsl::vector<bsl::string> *result,
-                          const char               *ascii)
+void splitStringIntoLines(bsl::vector<bsl::string> *result, const char *ascii)
 {
     ASSERT(result)
     ASSERT(ascii)
@@ -571,9 +583,9 @@ int readFileIntoString(int                lineNum,
 #endif
 }
 
-void getDatetimeField(bsl::string       *result,
-                      const bsl::string& filename,
-                      int                recordNumber)
+void getDatetimeField(bsl::string        *result,
+                      const bsl::string&  filename,
+                      int                 recordNumber)
 {
     ASSERT(1 <= recordNumber);
 
@@ -600,14 +612,16 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
-    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator allocator;
+    bslma::TestAllocator *Z = &allocator;
+
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -712,7 +726,7 @@ int main(int argc, char *argv[])
                                                             59,
                                                             999)
                                       };
-        const int NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY;
+        enum { NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY };
 
         if (verbose) cout << "\nTest TestSystemTimeCallback: Direct" << endl;
         {
@@ -762,7 +776,8 @@ int main(int argc, char *argv[])
         }
 
         const int     LTO_ARRAY[] = { -86399, -1, 0, 1, 86399 };
-        const int NUM_LTO_ARRAY   = sizeof LTO_ARRAY / sizeof *LTO_ARRAY;
+
+        enum { NUM_LTO_ARRAY = sizeof LTO_ARRAY / sizeof *LTO_ARRAY };
 
         int loadCount = TestLocalTimeOffsetCallback::loadCount();
         ASSERT(0 ==  loadCount);
@@ -1591,9 +1606,11 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
                     fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
                     fs.clear();
+
                     ASSERT(fs.is_open());
-                    int fileSize = 0;
-                    bsl::string line(&ta);
+
+                    bsl::string::size_type fileSize = 0;
+                    bsl::string            line(&ta);
                     while (getline(fs, line)) {
                         fileSize += line.length() + 1;
                     }
@@ -1601,7 +1618,7 @@ int main(int argc, char *argv[])
                     ASSERT(fileSize > 1024);
                 }
 
-                int oldNumFiles = globbuf.gl_pathc;
+                int oldNumFiles = (int)globbuf.gl_pathc;
                 globfree(&globbuf);
 
                 ASSERT(1 == X.rotationSize());
@@ -1840,7 +1857,8 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            int fileOffset = FileUtil::getFileSize(fileName);
+
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             // these two lines are a desperate kludge to make windows work --
             // this test driver works everywhere else without them.
@@ -1927,7 +1945,8 @@ int main(int argc, char *argv[])
         {
             Obj mX(ball::Severity::e_FATAL, &ta);
             bsl::ostringstream os, dos;
-            int fileOffset = FileUtil::getFileSize(fileName);
+
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -1997,7 +2016,8 @@ int main(int argc, char *argv[])
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
 
             bsl::ostringstream os, testOs, dos;
-            int fileOffset = FileUtil::getFileSize(fileName);
+
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -2081,7 +2101,8 @@ int main(int argc, char *argv[])
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            int fileOffset = FileUtil::getFileSize(fileName);
+
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             bsl::ostringstream os, testOs, dos;
 
@@ -2208,7 +2229,8 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing file logging." << endl;
         {
             bsl::string fn = tempFileName(veryVerbose);
-            int fileOffset = FileUtil::getFileSize(fileName);
+
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             bsl::stringstream ss;
@@ -2315,8 +2337,8 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
+
             bsl::ostringstream os;
-            int fileOffset = FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2364,7 +2386,6 @@ int main(int argc, char *argv[])
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
-            int fileOffset = FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2473,7 +2494,7 @@ int main(int argc, char *argv[])
                 { L_,   "foo%%%",       "foo%"                          },
                 { L_,   "foo%%%bar",    "foo%bar"                       },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE     = DATA[ti].d_lineNum;
@@ -2511,7 +2532,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing customized format." << endl;
         {
-            int fileOffset = FileUtil::getFileSize(fileName);
+            FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
 
@@ -2699,9 +2720,9 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing User-Defined Fields Toggling\n";
         {
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
+
             const char *logFileFormat;
             const char *stdoutFormat;
-            int fileOffset = FileUtil::getFileSize(fileName);
 
             ASSERT(X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);

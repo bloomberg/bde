@@ -148,8 +148,9 @@ int AsyncFileObserver::stopThread()
 
         AsyncRecord asyncRecord;
         bsl::shared_ptr<const Record> record(
-                               new (*d_allocator_p) Record(d_allocator_p),
-                               d_allocator_p);
+                                    new (*d_allocator_p) Record(d_allocator_p),
+                                    d_allocator_p);
+
         Context context(Transmission::e_END, 0, 1);
         asyncRecord.d_record  = record;
         asyncRecord.d_context = context;
@@ -307,8 +308,8 @@ int AsyncFileObserver::shutdownPublicationThread()
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return shutdownThread();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

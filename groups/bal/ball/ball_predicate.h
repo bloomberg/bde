@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ===============
                          // class Predicate
                          // ===============
@@ -178,6 +178,9 @@ class Predicate {
         // value as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
+
+    //! ~Predicate() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     Predicate& operator=(const Predicate& rhs);
@@ -319,7 +322,6 @@ void Predicate::setValue(const Attribute::Value& value)
 {
     d_attribute.setValue(value);
 }
-
 
 // ACCESSORS
 inline

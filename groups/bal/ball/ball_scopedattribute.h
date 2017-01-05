@@ -81,8 +81,8 @@
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ===============================
                     // class ScopedAttribute_Container
                     // ===============================
@@ -260,7 +260,6 @@ ScopedAttribute::~ScopedAttribute()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

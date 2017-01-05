@@ -1,12 +1,4 @@
 // ball_attributecontainerlist.cpp                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_attributecontainerlist.h>
 
 #include <bsls_ident.h>
@@ -20,11 +12,11 @@ BSLS_IDENT_RCSID(ball_attributecontainerlist_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
-                    // ---------------------------------
+
+                    // ----------------------------
                     // class AttributeContainerList
-                    // ---------------------------------
+                    // ----------------------------
 
 // CREATORS
 AttributeContainerList::AttributeContainerList(
@@ -53,7 +45,7 @@ AttributeContainerList::AttributeContainerList(
 
 // MANIPULATORS
 AttributeContainerList& AttributeContainerList::operator=(
-                                        const AttributeContainerList& rhs)
+                                             const AttributeContainerList& rhs)
 {
     if (&rhs != this) {
         // This could be made more efficient (by not using 'removeAll()' but
@@ -80,8 +72,6 @@ AttributeContainerList& AttributeContainerList::operator=(
             prevNextAddr = &node->d_next_p;
             ++d_length;
         }
-
-
     }
     return *this;
 }
@@ -148,7 +138,6 @@ void AttributeContainerList::removeAll()
     d_length = 0;
 }
 
-
 void AttributeContainerList::removeAllAndRelease()
 {
     while (d_head_p) {
@@ -163,7 +152,6 @@ void AttributeContainerList::removeAllAndRelease()
     }
     d_length = 0;
 }
-
 
 // ACCESSORS
 bool AttributeContainerList::hasValue(const Attribute& value) const
@@ -197,6 +185,7 @@ AttributeContainerList::print(bsl::ostream& stream,
     stream << "]" << EL;
     return stream << bsl::flush;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -206,6 +195,7 @@ bool ball::operator==(const AttributeContainerList& lhs,
     if (lhs.numContainers() != rhs.numContainers()) {
         return false;                                                 // RETURN
     }
+
     AttributeContainerList::iterator lIt = lhs.begin();
     AttributeContainerList::iterator rIt = rhs.begin();
     for (; lIt != lhs.end(); ++lIt, ++rIt) {

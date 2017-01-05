@@ -1,12 +1,4 @@
 // ball_categorymanager.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_categorymanager.h>
 
 #include <bsls_ident.h>
@@ -40,6 +32,7 @@ typedef bsl::map<const char *, int>  CategoryMap;
 namespace ball {
 
 namespace {
+
                     // =====================
                     // class CategoryProctor
                     // =====================
@@ -70,9 +63,8 @@ class CategoryProctor {
 
   public:
     // CREATORS
-    CategoryProctor(Category         *category,
-                    bslma::Allocator *allocator);
-        // Create a proctor to manage the specified  'category'  object,
+    CategoryProctor(Category *category, bslma::Allocator *allocator);
+        // Create a proctor to manage the specified 'category' object,
         // allocated with the specified 'allocator'.  On this proctor's
         // destruction, unless release has been called, the 'category' will be
         // destroyed and its footprint deallocated.
@@ -89,8 +81,6 @@ class CategoryProctor {
         // Release the ownership of all objects currently managed by this
         // proctor.
 };
-
-
 
                         // ---------------------
                         // class CategoryProctor
@@ -197,13 +187,12 @@ Category *CategoryManager::addCategory(const char *categoryName,
                        triggerAllLevel);
 }
 
-Category *CategoryManager::addCategory(
-                                         CategoryHolder *categoryHolder,
-                                         const char          *categoryName,
-                                         int                  recordLevel,
-                                         int                  passLevel,
-                                         int                  triggerLevel,
-                                         int                  triggerAllLevel)
+Category *CategoryManager::addCategory(CategoryHolder *categoryHolder,
+                                       const char     *categoryName,
+                                       int             recordLevel,
+                                       int             passLevel,
+                                       int             triggerLevel,
+                                       int             triggerAllLevel)
 {
     BSLS_ASSERT(categoryName);
 
@@ -216,6 +205,7 @@ Category *CategoryManager::addCategory(
 
     bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(
                                                               &d_registryLock);
+
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
 
     if (iter != d_registry.end()) {
@@ -245,6 +235,7 @@ Category *CategoryManager::addCategory(
                                                       rule->passLevel(),
                                                       rule->triggerLevel(),
                                                       rule->triggerAllLevel());
+
                 if (threshold > category->ruleThreshold()) {
                     CategoryManagerImpUtil::setRuleThreshold(category,
                                                              threshold);
@@ -264,18 +255,21 @@ Category *CategoryManager::addCategory(
 
 Category *CategoryManager::lookupCategory(const char *categoryName)
 {
-    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> registryGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> registryGuard(
+                                                              &d_registryLock);
+
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
     return iter != d_registry.end() ? d_categories[iter->second] : 0;
 }
 
-Category *CategoryManager::lookupCategory(
-                                           CategoryHolder *categoryHolder,
-                                           const char          *categoryName)
+Category *CategoryManager::lookupCategory(CategoryHolder *categoryHolder,
+                                          const char     *categoryName)
 {
     d_registryLock.lockReadReserveWrite();
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock>
-                                             registryGuard(&d_registryLock, 1);
+
+    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(
+                                                           &d_registryLock, 1);
+
     Category *category = 0;
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
     if (iter != d_registry.end()) {
@@ -301,25 +295,24 @@ void CategoryManager::resetCategoryHolders()
     }
 }
 
-Category *CategoryManager::setThresholdLevels(
-                                                   const char *categoryName,
-                                                   int         recordLevel,
-                                                   int         passLevel,
-                                                   int         triggerLevel,
-                                                   int         triggerAllLevel)
+Category *CategoryManager::setThresholdLevels(const char *categoryName,
+                                              int         recordLevel,
+                                              int         passLevel,
+                                              int         triggerLevel,
+                                              int         triggerAllLevel)
 {
     BSLS_ASSERT(categoryName);
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return 0;                                                     // RETURN
     }
 
     d_registryLock.lockReadReserveWrite();
-    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(&d_registryLock,
-                                                               1);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> registryGuard(
+                                                           &d_registryLock, 1);
     CategoryMap::iterator iter = d_registry.find(categoryName);
     if (iter != d_registry.end()) {
         Category *category = d_categories[iter->second];
@@ -334,10 +327,10 @@ Category *CategoryManager::setThresholdLevels(
         d_registryLock.upgradeToWriteLock();
 
         Category *category = addNewCategory(categoryName,
-                                                      recordLevel,
-                                                      passLevel,
-                                                      triggerLevel,
-                                                      triggerAllLevel);
+                                            recordLevel,
+                                            passLevel,
+                                            triggerLevel,
+                                            triggerAllLevel);
         registryGuard.release();
         d_registryLock.unlock();
         bslmt::LockGuard<bslmt::Mutex> ruleSetGuard(&d_ruleSetMutex);
@@ -481,15 +474,16 @@ void CategoryManager::removeAllRules()
 }
 
 // ACCESSORS
-const Category *CategoryManager::lookupCategory(
-                                                const char *categoryName) const
+const Category *CategoryManager::lookupCategory(const char *categoryName) const
 {
-    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> registryGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> registryGuard(
+                                                              &d_registryLock);
+
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
     return iter != d_registry.end() ? d_categories[iter->second] : 0;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

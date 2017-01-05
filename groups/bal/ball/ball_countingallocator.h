@@ -93,14 +93,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
-
-
 namespace BloombergLP {
-
 namespace ball {
-                        // ============================
+
+                        // =======================
                         // class CountingAllocator
-                        // ============================
+                        // =======================
 
 class CountingAllocator : public bslma::Allocator {
     // This class maintains a count of the total number of allocated bytes.
@@ -136,8 +134,8 @@ class CountingAllocator : public bslma::Allocator {
         // positive 'size' (bytes) and increment the byte count maintained by
         // this counting allocator by the sum of the least multiple of
         // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' that is greater than or
-        // equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
-        // The behavior is undefined unless 0 <= size.  Note that the alignment
+        // equal to 'size' and 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  The
+        // behavior is undefined unless '0 <= size'.  Note that the alignment
         // of the address returned is the maximum alignment for any fundamental
         // type defined for the calling platform, even if the supplied
         // allocator guarantees only natural alignment.
@@ -150,24 +148,26 @@ class CountingAllocator : public bslma::Allocator {
         // allocator and has not already been deallocated.
 
     void resetNumBytesTotal();
-        // Reset the byte count maintained by this counting allocator to
-        // 0.
+        // Reset the byte count maintained by this counting allocator to 0.
 
     // ACCESSORS
     size_type numBytesTotal() const;
-        // Return the byte count maintained by this counting allocator.
-        // The precise definition of byte count is described in the "Byte
-        // Count" section of the component-level documentation.
+        // Return the byte count maintained by this counting allocator.  The
+        // precise definition of byte count is described in the "Byte Count"
+        // section of the component-level documentation.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
+
+                        // -----------------------
+                        // class CountingAllocator
+                        // -----------------------
 
 // CREATORS
 inline
-CountingAllocator::CountingAllocator(
-                                              bslma::Allocator *basicAllocator)
+CountingAllocator::CountingAllocator(bslma::Allocator *basicAllocator)
 : d_byteCount(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -209,8 +209,8 @@ CountingAllocator::size_type CountingAllocator::numBytesTotal() const
 {
     return d_byteCount;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -403,13 +403,12 @@ class LoggerManagerConfiguration {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    ~LoggerManagerConfiguration();
-        // Destroy this logger manager configuration constrained-attribute
-        // object.
+    //! ~LoggerManagerConfiguration() = default;
+        // Destroy this object.
 
     // MANIPULATORS
-    LoggerManagerConfiguration&
-                         operator=(const LoggerManagerConfiguration& rhs);
+    LoggerManagerConfiguration& operator=(
+                                        const LoggerManagerConfiguration& rhs);
         // Assign to this logger manager configuration constrained-attribute
         // object the in-core value of the specified 'rhs' object.
 
@@ -564,10 +563,6 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     // Write a reasonable representation of the specified 'configuration'
     // object to the specified output 'stream', indicating whether the
     // contained functors are or are not "null".
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
 
 }  // close package namespace
 }  // close enterprise namespace

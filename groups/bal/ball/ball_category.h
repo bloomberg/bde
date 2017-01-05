@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 //
 ///'ball' "Private" Methods and Classes
 ///------------------------------------
-// This component provides classes that are *not* intended for use by the
-// users of the 'ball' logging sub-system: 'ball::CategoryHolder' and
-// 'ball::CategoryManagerImpUtil'.  These classes are defined in this
-// component because they are either friends of 'ball::Category' or have a
-// circular definition with 'ball::Category'.  They are used within the
-// logging sub-system to efficiently process log records.
+// This component provides classes that are *not* intended for use by the users
+// of the 'ball' logging sub-system: 'ball::CategoryHolder' and
+// 'ball::CategoryManagerImpUtil'.  These classes are defined in this component
+// because they are either friends of 'ball::Category' or have a circular
+// definition with 'ball::Category'.  They are used within the logging
+// sub-system to efficiently process log records.
 //
 ///'ball::CategoryHolder'
 /// - - - - - - - - - - -
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that other components in the logging subsystem provide more user
 // focused examples of using categories (see {'ball_loggermanager'},
-// {'ball_administration'}, and 'ball_categorymanager'}).
+// {'ball_administration'}, and {'ball_categorymanager'}).
 //
 // First we create a simple category, 'example', that has the record-level,
 // trigger-level, and trigger-all thresholds set to OFF and the pass-level set
@@ -135,15 +135,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
+class CategoryHolder;
 
                            // ==============
                            // class Category
                            // ==============
-
-
-class CategoryHolder;
 
 class Category {
     // This class provides a container to hold the name and threshold levels of
@@ -157,7 +155,7 @@ class Category {
     // of the logging system, and may be modified by 'const' operations of the
     // logging system.
 
-
+    // DATA
     ThresholdAggregate  d_thresholdLevels;  // record, pass, trigger, and
                                             // trigger-all levels
 
@@ -201,7 +199,6 @@ class Category {
         // of this object to the maximum of 'd_threshold' and
         // 'd_ruleThreshold'.
 
-
   public:
     // CLASS METHODS
     static bool areValidThresholdLevels(int recordLevel,
@@ -215,7 +212,7 @@ class Category {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Category, bslma::UsesBslmaAllocator);
 
-    // PRIVATE CREATORS
+    // CREATORS
     Category(const char       *categoryName,
              int               recordLevel,
              int               passLevel,
@@ -231,7 +228,7 @@ class Category {
         // threshold levels is in the range '[0 .. 255]', and 'categoryName' is
         // null-terminated.
 
-    ~Category();
+    //! ~Category() = default;
         // Destroy this category.
 
     // MANIPULATORS
@@ -383,7 +380,6 @@ class CategoryHolder {
                     // ============================
                     // class CategoryManagerImpUtil
                     // ============================
-
 
 class CategoryManagerImpUtil {
     // This class provides a suite of free functions used to help implement a
@@ -602,9 +598,7 @@ void CategoryManagerImpUtil::setRelevantRuleMask(Category          *category,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
-
 
 #endif
 

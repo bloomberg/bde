@@ -57,7 +57,6 @@ const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 
 namespace BloombergLP {
 
-
 static void appendToString(bsl::string *result, int value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
@@ -96,13 +95,11 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
     *result += buffer;
 }
 
-                        // --------------------------------
-                        // class ball::RecordStringFormatter
-                        // --------------------------------
-
-
 namespace ball {
 
+                        // ---------------------------
+                        // class RecordStringFormatter
+                        // ---------------------------
 
 // CLASS DATA
 const int RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
@@ -111,7 +108,6 @@ const int RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
 // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should not
 // appear in practice.  Real values are (always?) less than one day (plus or
 // minus).
-
 
 // CREATORS
 RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
@@ -178,10 +174,6 @@ RecordStringFormatter::RecordStringFormatter(
                                   bslma::Allocator             *basicAllocator)
 : d_formatSpec(original.d_formatSpec, basicAllocator)
 , d_timestampOffset(original.d_timestampOffset)
-{
-}
-
-RecordStringFormatter::~RecordStringFormatter()
 {
 }
 

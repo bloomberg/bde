@@ -175,8 +175,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                           // ===========================
                           // class FixedSizeRecordBuffer
                           // ===========================
@@ -362,8 +362,8 @@ int FixedSizeRecordBuffer::length() const
     bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
     return static_cast<int>(d_deque.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

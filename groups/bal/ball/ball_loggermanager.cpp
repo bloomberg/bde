@@ -1,12 +1,4 @@
 // ball_loggermanager.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggermanager.h>
 
 #include <bsls_ident.h>
@@ -103,7 +95,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-
 namespace ball {
 
 namespace {
@@ -157,7 +148,7 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
     return category.maxLevel() >= severity;
 }
 
-inline static 
+inline static
 ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
     // Return the 'ball' log severity equivalent to the specified 'bsls' log
     // 'severity'.
@@ -232,9 +223,8 @@ const char *const TRIGGER_ALL_END =
 void copyAttributesWithoutMessage(ball::Record                  *record,
                                   const ball::RecordAttributes&  srcAttribute)
     // Load into the specified 'record' all fixed fields except 'message',
-    // 'fileName' and 'lineNumber' from the specified 'srcAttribute'.
+    // 'fileName', and 'lineNumber' from the specified 'srcAttribute'.
 {
-
     record->fixedFields().setTimestamp(srcAttribute.timestamp());
     record->fixedFields().setProcessID(srcAttribute.processID());
     record->fixedFields().setThreadID(srcAttribute.threadID());
@@ -510,22 +500,24 @@ int Logger::numRecordsInUse() const
     return d_recordPool.numObjects() -
            d_recordPool.numAvailableObjects();
 }
+
 }  // close package namespace
 
 
-                           // ------------------------
-                           // class ball::LoggerManager
-                           // ------------------------
+                           // -------------------
+                           // class LoggerManager
+                           // -------------------
 
 // CLASS MEMBERS
 ball::LoggerManager *ball::LoggerManager::s_singleton_p = 0;
 
 namespace ball {
+
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(
-                 Observer                          *observer,
-                 const LoggerManagerConfiguration&  configuration,
-                 bslma::Allocator                  *globalAllocator)
+                            Observer                          *observer,
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
 {
     BSLS_ASSERT(observer);
 
@@ -535,11 +527,10 @@ void LoggerManager::initSingletonImpl(
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
 
-
         LoggerManager *singleton =  new (*allocator) LoggerManager(
-                                                                configuration,
-                                                                observer,
-                                                                allocator);
+                                                                 configuration,
+                                                                 observer,
+                                                                 allocator);
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
 
@@ -550,7 +541,6 @@ void LoggerManager::initSingletonImpl(
 
         bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
-
     }
     else {
         LoggerManager::singleton().getLogger().
@@ -565,10 +555,10 @@ void LoggerManager::initSingletonImpl(
 // CLASS METHODS
 void
 LoggerManager::createLoggerManager(
-                        bslma::ManagedPtr<LoggerManager>  *manager,
-                        Observer                          *observer,
-                        const LoggerManagerConfiguration&  configuration,
-                        bslma::Allocator                  *basicAllocator)
+                             bslma::ManagedPtr<LoggerManager>  *manager,
+                             Observer                          *observer,
+                             const LoggerManagerConfiguration&  configuration,
+                             bslma::Allocator                  *basicAllocator)
 {
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
@@ -586,15 +576,13 @@ LoggerManager& LoggerManager::initSingleton(Observer         *observer,
 }
 
 LoggerManager& LoggerManager::initSingleton(
-                            Observer                          *observer,
-                            const LoggerManagerConfiguration&  configuration,
-                            bslma::Allocator                  *basicAllocator)
+                             Observer                          *observer,
+                             const LoggerManagerConfiguration&  configuration,
+                             bslma::Allocator                  *basicAllocator)
 {
     initSingletonImpl(observer, configuration, basicAllocator);
     return *s_singleton_p;
 }
-
-
 
 void LoggerManager::shutDownSingleton()
 {
@@ -706,7 +694,7 @@ void LoggerManager::publishAllImp(Transmission::Cause cause)
 }
 
 void LoggerManager::constructObject(
-                          const LoggerManagerConfiguration& configuration)
+                               const LoggerManagerConfiguration& configuration)
 {
     BSLS_ASSERT(0 == d_logger_p);
     BSLS_ASSERT(0 == d_defaultCategory_p);
@@ -772,7 +760,6 @@ LoggerManager::LoggerManager(
 
     constructObject(configuration);
 }
-
 
 LoggerManager::~LoggerManager()
 {
@@ -1046,9 +1033,9 @@ Category *LoggerManager::setCategory(const char *categoryName,
     BSLS_ASSERT(categoryName);
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return 0;                                                     // RETURN
     }
 
@@ -1100,9 +1087,9 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
     enum { BALL_SUCCESS = 0, BALL_FAILURE = -1 };
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return BALL_FAILURE;                                          // RETURN
     }
 
@@ -1110,7 +1097,6 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
                                        passLevel,
                                        triggerLevel,
                                        triggerAllLevel);
-
     return BALL_SUCCESS;
 }
 
@@ -1119,8 +1105,7 @@ void LoggerManager::resetDefaultThresholdLevels()
     d_defaultThresholdLevels = d_factoryThresholdLevels;
 }
 
-void LoggerManager::setCategoryThresholdsToCurrentDefaults(
-                                                       Category *category)
+void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
 {
     category->setLevels(d_defaultThresholdLevels.recordLevel(),
                         d_defaultThresholdLevels.passLevel(),
@@ -1128,8 +1113,7 @@ void LoggerManager::setCategoryThresholdsToCurrentDefaults(
                         d_defaultThresholdLevels.triggerAllLevel());
 }
 
-void LoggerManager::setCategoryThresholdsToFactoryDefaults(
-                                                       Category *category)
+void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
 {
     category->setLevels(d_factoryThresholdLevels.recordLevel(),
                         d_factoryThresholdLevels.passLevel(),
@@ -1269,8 +1253,8 @@ bool LoggerManager::isCategoryEnabled(const Category *category,
     }
     return category->maxLevel() >= severity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

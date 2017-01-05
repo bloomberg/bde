@@ -169,8 +169,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ==================
                          // class TestObserver
                          // ==================
@@ -189,8 +189,8 @@ class TestObserver : public Observer {
     // argument.  A subsequent call to 'setVerbose' with a zero argument will
     // restore the default behavior of 'publish'.
 
-    typedef bsls::AtomicOperations                       AtomicOps;
-    typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;
+    typedef bsls::AtomicOperations                   AtomicOps;
+    typedef bsls::AtomicOperations::AtomicTypes::Int AtomicInt;
 
     // CLASS DATA
     static AtomicInt     s_count;        // number of instances created
@@ -225,8 +225,7 @@ class TestObserver : public Observer {
         // created since this process has begun.
 
     // CREATORS
-    TestObserver(bsl::ostream&     stream,
-                 bslma::Allocator *basicAllocator = 0);
+    TestObserver(bsl::ostream& stream, bslma::Allocator *basicAllocator = 0);
         // Create a test observer having a unique integer identifier, whose
         // 'publish' method will send it's output (if any) to the specified
         // 'stream'.  Optionally specify a 'basicAllocator' used to supply
@@ -239,8 +238,7 @@ class TestObserver : public Observer {
         // Destroy this test observer.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context);
+    virtual void publish(const Record& record, const Context& context);
         // Store as the most recently published data the specified log 'record'
         // and publishing 'context'.  If this test observer is in verbose mode,
         // print an appropriate diagnostic message to the stream specified at
@@ -343,7 +341,6 @@ const Context& TestObserver::lastPublishedContext() const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

@@ -1,12 +1,4 @@
 // ball_loggerfunctorpayloads.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggerfunctorpayloads.h>
 
 #include <bsls_ident.h>
@@ -22,14 +14,13 @@ BSLS_IDENT_RCSID(ball_loggerfunctorpayloads_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ----------------------------
                     // struct LoggerFunctorPayloads
                     // ----------------------------
 
 // CLASS METHODS
-
 void LoggerFunctorPayloads::loadParentCategoryThresholdValues(
                                            int                *recordLevel,
                                            int                *passLevel,
@@ -70,7 +61,6 @@ void LoggerFunctorPayloads::loadParentCategoryThresholdValues(
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

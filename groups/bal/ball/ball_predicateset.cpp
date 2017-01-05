@@ -21,18 +21,18 @@ BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-                   // ------------------------
-                   // class ball::PredicateSet
-                   // ------------------------
-
-// CLASS MEMBER
-int ball::PredicateSet::s_initialSize = 8;
-
-int ball::PredicateSet::PredicateHash::s_hashtableSize = INT_MAX;
-
 namespace ball {
-// CREATE METHOD
+
+                        // ------------------
+                        // class PredicateSet
+                        // ------------------
+
+// CLASS DATA
+int PredicateSet::s_initialSize = 8;
+
+int PredicateSet::PredicateHash::s_hashtableSize = INT_MAX;
+
+// CLASS METHODS
 int PredicateSet::hash(const PredicateSet& set, int size)
 {
     const_iterator iter;
@@ -49,14 +49,12 @@ int PredicateSet::hash(const PredicateSet& set, int size)
 PredicateSet& PredicateSet::operator=(const PredicateSet& rhs)
 {
     if (this != &rhs) {
-
         d_predicateSet.clear();
 
         for (const_iterator iter = rhs.begin(); iter != rhs.end(); ++iter) {
             addPredicate(*iter);
         }
     }
-
     return *this;
 }
 

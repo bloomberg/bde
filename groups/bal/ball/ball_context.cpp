@@ -105,8 +105,8 @@ bsl::ostream& Context::print(bsl::ostream& stream,
 
     return stream << bsl::flush;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

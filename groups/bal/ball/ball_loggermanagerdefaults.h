@@ -146,8 +146,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
+                         // ===========================
+                         // class LoggerManagerDefaults
+                         // ===========================
+
 class LoggerManagerDefaults {
     // This class provides constrained configuration parameters for a logger
     // manager.  The constraints are maintained as class invariants; it is not
@@ -165,6 +169,7 @@ class LoggerManagerDefaults {
     // both source and destination) is supported in all cases.
 
   private:
+    // DATA
     int d_recordBufferSize; // size of default logger's record buffer
     int d_loggerBufferSize; // size of logger "scratchpad" buffer (for macros)
 
@@ -174,6 +179,7 @@ class LoggerManagerDefaults {
     int d_defaultTriggerAllLevel;
         // constrained set of default threshold levels for logger manager
 
+    // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&,
                                     const LoggerManagerDefaults&);
     friend bool operator==(const LoggerManagerDefaults&,
@@ -224,7 +230,6 @@ class LoggerManagerDefaults {
         // Return the implementation-defined default trigger-all threshold
         // value for this class.
 
-
     // CREATORS
     LoggerManagerDefaults();
         // Create a logger manager default-values constrained-attribute object
@@ -239,8 +244,7 @@ class LoggerManagerDefaults {
         // object.
 
     // MANIPULATORS
-    LoggerManagerDefaults&
-    operator=(const LoggerManagerDefaults& rhs);
+    LoggerManagerDefaults& operator=(const LoggerManagerDefaults& rhs);
         // Assign to this logger manager default-values constrained-attribute
         // object the value of the specified 'rhs' object.
 
@@ -288,8 +292,7 @@ class LoggerManagerDefaults {
         // Return the default record threshold level attribute of this object.
 
     int defaultPassLevel() const;
-        // Return the default pass threshold level attribute of this
-        // object.
+        // Return the default pass threshold level attribute of this object.
 
     int defaultTriggerLevel() const;
         // Return the default trigger threshold level attribute of this object.
@@ -327,18 +330,12 @@ bool operator!=(const LoggerManagerDefaults& lhs,
     // not have the same value if one or more respective attributes differ in
     // values.
 
-bsl::ostream& operator<<(bsl::ostream&                     stream,
+bsl::ostream& operator<<(bsl::ostream&                stream,
                          const LoggerManagerDefaults& defaults);
     // Write the specified 'defaults' object to the specified output 'stream'
     // in a reasonable multi-line format.
 
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

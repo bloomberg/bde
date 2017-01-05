@@ -1,12 +1,4 @@
 // ball_record.cpp                                                    -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_record.h>
 
 #include <bsls_ident.h>
@@ -19,8 +11,8 @@ BSLS_IDENT_RCSID(ball_record_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                            // ------------
                            // class Record
                            // ------------
@@ -75,7 +67,6 @@ bsl::ostream& Record::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

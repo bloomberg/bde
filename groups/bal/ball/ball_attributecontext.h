@@ -359,11 +359,11 @@ class AttributeContext_RuleEvaluationCache {
 
     // NOT IMPLEMENTED
     AttributeContext_RuleEvaluationCache(
-                             const AttributeContext_RuleEvaluationCache&);
+                                  const AttributeContext_RuleEvaluationCache&);
     AttributeContext_RuleEvaluationCache& operator=(
-                             const AttributeContext_RuleEvaluationCache&);
-  public:
+                                  const AttributeContext_RuleEvaluationCache&);
 
+  public:
     // CREATORS
     AttributeContext_RuleEvaluationCache();
         // Create an empty rule evaluation cache.
@@ -675,6 +675,7 @@ class AttributeContextProctor {
     // NOT IMPLEMENTED
     AttributeContextProctor(const AttributeContextProctor&);
     AttributeContextProctor& operator=(const AttributeContextProctor&);
+
   public:
     // CREATORS
     explicit AttributeContextProctor();
@@ -695,8 +696,7 @@ class AttributeContextProctor {
 
 // CREATORS
 inline
-AttributeContext_RuleEvaluationCache::
-AttributeContext_RuleEvaluationCache()
+AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 : d_evalMask(0)
 , d_resultMask(0)
 , d_sequenceNumber(-1)
@@ -715,8 +715,8 @@ void AttributeContext_RuleEvaluationCache::clear()
 // ACCESSORS
 inline
 bool AttributeContext_RuleEvaluationCache::isDataAvailable(
-                                    int               sequenceNumber,
-                                    RuleSet::MaskType relevantRulesMask) const
+                                     int               sequenceNumber,
+                                     RuleSet::MaskType relevantRulesMask) const
 {
     return sequenceNumber    == d_sequenceNumber
         && relevantRulesMask == (relevantRulesMask & d_evalMask);
