@@ -871,9 +871,9 @@ class SkipList {
 
     void insertImp(bool *newFrontFlag, Node *location[], Node *node);
         // Add the specified 'node' into the list at the specified 'location'
-        // (populated by 'lookupImp' or 'lookupImpR').  Load into the specified
-        // 'newFrontFlag' a 'true' value if the node is at the front.  This
-        // internal method must be called under the lock.
+        // (populated by 'lookupImpLowerBound' or 'lookupImpLowerBoundR').
+        // Load into the specified 'newFrontFlag' a 'true' value if the node is
+        // at the front.  This internal method must be called under the lock.
 
     void moveImp(bool *newFrontFlag, Node *location[], Node *node);
         // Like 'insert', but the specified 'node' must already be present in
@@ -990,17 +990,19 @@ class SkipList {
     int skipBackward(Node **node) const;
         // If the item identified by the specified 'node' is not at the front
         // of the list, load a reference to the previous item in the list into
-        // 'node'; otherwise load 0 into 'node'.  Return 0 on success, and
+        // 'node'; otherwise load 0 into 'node'.  Return 0 on success,
         // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is
-        // no longer in the list.  Note that this method acquires and releases
+        // no longer in the list, and e_OUT_OF_BOUNDS if the front end of the
+        // list has been reached.  Note that this method acquires and releases
         // the lock.
 
     int skipForward(Node **node) const;
         // If the item identified by the specified 'node' is not at the back of
         // the list, load a reference to the next item in the list into 'node';
-        // otherwise load 0 into 'node'.  Return 0 on success, and
-        // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is
-        // no longer in the list.  Note that this method acquires and releases
+        // otherwise load 0 into 'node'.  Return 0 on success, 'e_NOT_FOUND'
+        // (with no effect on the value of 'node') if 'node' is
+        // no longer in the list, and e_OUT_OF_BOUNDS if the back end of the
+        // list has been reached.  Note that this method acquires and releases
         // the lock.
 
     // NOT IMPLEMENTED
@@ -1348,14 +1350,6 @@ class SkipList {
         // the 'key', it is not defined which one will be returned.  Return 0
         // on success, and a non-zero value if no such item could be found.
 
-    int findR(PairHandle *item, const KEY& key) const;
-        // Load into the specified 'item' a reference to the element in the
-        // list with the specified 'key' found by searching the list in
-        // descending order, from the back.  If there are multiple elements
-        // with the 'key', it is not defined which one will be returned.
-        // Return 0 on success, and a non-zero value if no such item could be
-        // found.
-
     int findRaw(Pair **item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in the
         // list with the specified 'key'.  If there are multiple elements with
@@ -1363,6 +1357,14 @@ class SkipList {
         // reference must be released (using 'releaseReferenceRaw') when it is
         // no longer needed.  Return 0 on success, and a non-zero value if no
         // such item could be found.
+
+    int findR(PairHandle *item, const KEY& key) const;
+        // Load into the specified 'item' a reference to the element in the
+        // list with the specified 'key' found by searching the list in
+        // descending order, from the back.  If there are multiple elements
+        // with the 'key', it is not defined which one will be returned.
+        // Return 0 on success, and a non-zero value if no such item could be
+        // found.
 
     int findRRaw(Pair **item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in the
@@ -1383,16 +1385,6 @@ class SkipList {
         // key is greater than the specified 'key'.  If multiple elements have
         // keys of the same value, one of them will be loaded.
     
-    int lowerBoundR(PairHandle *item, const KEY& key) const;
-      // 'lowerBoundR' is a synonym for 'lowerBound', except that the search 
-      // for the item proceeds from the right-hand side of the list in 
-      // descending order of key values.
-
-    int upperBoundR(PairHandle *item, const KEY& key) const;
-      // 'upperBoundR' is a synonym for 'upperBound', except that the search 
-      // for the item proceeds from the right-hand side of the list in 
-      // descending order of key values.
-
     int lowerBoundRaw(Pair **item, const KEY& key) const;
       // Load into the specified 'item' a reference to the first element whose
       // key is not less than the specified 'key'.  If multiple elements have
@@ -1408,6 +1400,16 @@ class SkipList {
       // The 'item' reference must be released (using 'releaseReferenceRaw')
       // when it is no longer needed.  Return 0 on success, and a non-zero
       // value if no such item could be found.
+
+    int lowerBoundR(PairHandle *item, const KEY& key) const;
+      // 'lowerBoundR' is a synonym for 'lowerBound', except that the search 
+      // for the item proceeds from the right-hand side of the list in 
+      // descending order of key values.
+
+    int upperBoundR(PairHandle *item, const KEY& key) const;
+      // 'upperBoundR' is a synonym for 'upperBound', except that the search 
+      // for the item proceeds from the right-hand side of the list in 
+      // descending order of key values.
 
     int lowerBoundRRaw(Pair **item, const KEY& key) const;
       // 'lowerBoundRRaw' is a synonym for 'lowerBoundRaw', except that the
@@ -1806,7 +1808,7 @@ int SkipList<KEY, DATA>::addNodeUnique(bool *newFrontFlag, Node *newNode)
     Node *update[k_MAX_NUM_LEVELS];
     lookupImpLowerBound(update, newNode->d_key);
 
-    Node *q = update[0]->d_ptrs[0].d_next_p;
+    Node *q = update[0];
     if (q != d_tail_p && q->d_key == newNode->d_key) {
         return e_DUPLICATE;                                           // RETURN
     }
@@ -1826,7 +1828,7 @@ int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *newNode)
     Node *update[k_MAX_NUM_LEVELS];
     lookupImpLowerBoundR(update, newNode->d_key);
 
-    Node *q = update[0]->d_ptrs[0].d_next_p;
+    Node *q = update[0];
     if (q != d_tail_p && q->d_key == newNode->d_key) {
         return e_DUPLICATE;                                           // RETURN
     }
@@ -2103,7 +2105,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *newFrontFlag,
     lookupImpLowerBound(update, newKey);
 
     if (!allowDuplicates) {
-        Node *q = update[0]->d_ptrs[0].d_next_p;
+        Node *q = update[0];
         if (q != d_tail_p && q != node && q->d_key == newKey) {
             return e_DUPLICATE;                                       // RETURN
         }
@@ -2173,7 +2175,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(const KEY& key) const
     LockGuard guard(&d_lock);
     lookupImpLowerBound(locator, key);
 
-    Node *q = locator[0]->d_ptrs[0].d_next_p;
+    Node *q = locator[0];
     if (q != d_tail_p && q->d_key == key) {
         q->incrementRefCount();
         return q;                                                     // RETURN
@@ -2307,7 +2309,7 @@ void SkipList<KEY, DATA>::lookupImpLowerBoundR(Node *update[],
     Node *q = d_tail_p;
     for (int k = d_listLevel; k >= 0; --k) {
         Node *p = q->d_ptrs[k].d_prev_p;
-        while (p != d_head_p && p->d_key > key) {
+        while (p != d_head_p && p->d_key >= key) {
             q = p;
             p = p->d_ptrs[k].d_prev_p;
         }
@@ -2406,7 +2408,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node) const
     Node *prev = current->d_ptrs[0].d_prev_p;
     if (d_head_p == prev) {
         *node = 0;
-        return 0;                                                     // RETURN
+        return e_OUT_OF_BOUNDS;                                       // RETURN
     }
 
     prev->incrementRefCount();
@@ -2437,7 +2439,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node) const
     Node *next = current->d_ptrs[0].d_next_p;
     if (d_tail_p == next) {
         *node = 0;
-        return BCEC_OUT_OF_BOUNDS;                                    // RETURN
+        return e_OUT_OF_BOUNDS;                                    // RETURN
     }
 
     next->incrementRefCount();
@@ -3120,6 +3122,8 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::frontRaw(Pair **front) const
 {
+    BSLS_ASSERT_SAFE(front);
+
     *front = reinterpret_cast<Pair *>(frontNode());
     return *front ? 0 : -1;
 }
